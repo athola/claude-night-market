@@ -33,7 +33,7 @@ and provides tools for monitoring and reducing context usage.
 | `/bloat-scan` | Detect code bloat, dead code, and dead wrapper scripts |
 | `/filter-log` | Suggest tier-1 filter commands for a log file before any compression or paste |
 | `/unbloat` | Remove detected bloat with progressive analysis |
-| `/optimize-context` | Analyze and optimize context window usage |
+| `/optimize-context` | Analyze context window usage and recommend reductions |
 
 ## Agents
 

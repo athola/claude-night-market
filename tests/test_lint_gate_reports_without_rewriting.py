@@ -210,3 +210,30 @@ def test_quality_gate_forwards_fix_to_the_lint_runner(
     assert ("--fix" in lint_calls[0]) is expect_fix, (
         f"lint runner argv was {lint_calls[0]!r} for flag {flag!r}"
     )
+
+
+def test_quality_gate_counts_and_reports_each_failing_phase(tmp_path: Path) -> None:
+    """A failing phase is logged, counted, and fails the gate.
+
+    GIVEN stand-ins where only the type-check runner exits nonzero
+    WHEN check-all-quality.sh runs
+    THEN each phase logs its own pass or fail message, the failure count
+         reaches the summary banner, and the gate exits nonzero, which a
+         phase helper run in a ``$(...)`` subshell would lose
+    """
+    root, bin_dir, log = _fake_root(tmp_path, QUALITY_GATE)
+    for name, status in (
+        ("run-plugin-lint.sh", 0),
+        ("run-plugin-typecheck.sh", 1),
+        ("run-plugin-tests.sh", 0),
+    ):
+        _write_shim(root / "scripts", name, log, status=status)
+
+    result = _run(root, QUALITY_GATE.name, bin_dir)
+    output = result.stdout + result.stderr
+
+    assert result.returncode != 0, output
+    assert "All plugins passed linting" in output, output
+    assert "Some plugins failed type checking" in output, output
+    assert "All plugins passed tests" in output, output
+    assert "1 check(s) failed" in output, output

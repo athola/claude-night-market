@@ -8,7 +8,7 @@ its report.
 Public API:
 
 - ``Finding``, ``Severity``, ``Citation`` from ``.types``
-- ``scan_source(src, file)`` and ``scan_path(path)`` from
+- ``scan_source(source, *, file=...)`` and ``scan_path(path)`` from
   ``.detectors_python``
 - ``scan_directory(path)`` from ``.scanner``
 - ``run_cli(argv)`` from ``.cli`` (also wired as
@@ -17,6 +17,17 @@ Public API:
 
 from __future__ import annotations
 
+from .cli import run_cli
+from .detectors_python import scan_path, scan_source
+from .scanner import scan_directory
 from .types import Citation, Finding, Severity
 
-__all__ = ["Citation", "Finding", "Severity"]
+__all__ = [
+    "Citation",
+    "Finding",
+    "Severity",
+    "run_cli",
+    "scan_directory",
+    "scan_path",
+    "scan_source",
+]

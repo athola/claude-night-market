@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import stat
 from pathlib import Path
 
 import pytest
@@ -124,6 +126,18 @@ class TestManifest:
         assert item.pipeline_step == "parse"
         assert "egregore/wrk-001" in item.branch
         assert len(m.work_items) == 1
+
+    def test_a_ref_with_no_slug_characters_gets_a_bare_branch(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        item = m.add_work_item(source="prompt", source_ref="!!! ???")
+        assert item.branch == "egregore/wrk-001"
+
+    def test_advancing_an_unknown_id_raises_naming_it(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        m.add_work_item(source="prompt", source_ref="x")
+        with pytest.raises(KeyError, match="wrk_999"):
+            m.advance("wrk_999")
+        assert m.work_items[0].pipeline_step == "parse"
 
     def test_add_work_item_from_issue(self) -> None:
         m = Manifest(project_dir="/tmp/test-project")
@@ -429,3 +443,26 @@ class TestPipelineConstants:
             "fix-pr",
             "merge",
         ]
+
+
+def test_save_keeps_the_mode_of_an_existing_manifest(tmp_path) -> None:
+    """A save must not narrow a shared manifest to owner-only."""
+    path = tmp_path / "manifest.json"
+    save_manifest(Manifest(project_dir=str(tmp_path)), path)
+    path.chmod(0o644)
+
+    save_manifest(Manifest(project_dir=str(tmp_path)), path)
+
+    assert stat.S_IMODE(path.stat().st_mode) == 0o644
+
+
+def test_a_new_manifest_gets_the_umask_mode(tmp_path) -> None:
+    """Mkstemp creates 0600; a new file should get what open() would give."""
+    old_umask = os.umask(0o022)
+    try:
+        path = tmp_path / "manifest.json"
+        save_manifest(Manifest(project_dir=str(tmp_path)), path)
+    finally:
+        os.umask(old_umask)
+
+    assert stat.S_IMODE(path.stat().st_mode) == 0o644

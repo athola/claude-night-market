@@ -7,6 +7,11 @@ import re
 from typing import Any, ClassVar
 
 
+def _version_key(version: str) -> tuple[int, ...]:
+    """Order versions numerically so "3.10" sorts above "3.8"."""
+    return tuple(int(part) for part in version.split("."))
+
+
 class CompatibilityChecker:
     """Check code compatibility across Python versions using AST analysis."""
 
@@ -53,9 +58,13 @@ class CompatibilityChecker:
         unique_features = self._deduplicate_features(features_found)
 
         if unique_features:
-            min_version = max(f["min_version"] for f in unique_features)
+            min_version = max(
+                (f["min_version"] for f in unique_features), key=_version_key
+            )
 
-        compatible = [v for v in target_versions if v >= min_version]
+        compatible = [
+            v for v in target_versions if _version_key(v) >= _version_key(min_version)
+        ]
         recommendations = self._generate_recommendations(min_version, unique_features)
 
         features_by_version: dict[str, list[str]] = {}
@@ -174,7 +183,7 @@ class CompatibilityChecker:
     ) -> list[str]:
         """Generate compatibility recommendations."""
         recommendations: list[str] = []
-        if min_version >= "3.10":
+        if _version_key(min_version) >= _version_key("3.10"):
             recommendations.append(
                 "Code uses 3.10+ features. Consider using "
                 "'from __future__ import annotations' for "

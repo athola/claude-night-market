@@ -152,17 +152,26 @@ class TestTokenEstimation:
     ) -> None:
         """Scenario: Heuristic estimation handles inaccessible files gracefully.
 
-        Given a file path that causes OSError
+        Given a path whose name is too long to stat, before a readable file
         When estimating with heuristic
-        Then it should skip the file and continue.
+        Then the unreadable entry is skipped
+        And the readable file after it is still counted.
+
+        A missing path does not reach the OSError branch: is_file() returns
+        False for it. A name past NAME_MAX makes stat raise ENAMETOOLONG,
+        which is_file() re-raises on Python 3.12 and swallows from 3.14 on.
+        Either way the readable file must be counted.
         """
         monkeypatch.setattr(tokens, "_get_encoder", lambda: None)
+        readable = tmp_path / "sample.py"
+        readable.write_text("a" * 32)
+        too_long = str(tmp_path / ("x" * 5000))
 
-        # Use a path that doesn't exist but won't raise until accessed
-        result = tokens.estimate_tokens(["/nonexistent/path/file.py"], prompt="test")
+        result = tokens.estimate_tokens([too_long, str(readable)], prompt="test")
 
-        # Should just return prompt tokens, no error
-        expected = int(len("test") / tokens.FILE_TOKEN_RATIOS["default"])
+        expected = int(
+            len("test") / tokens.FILE_TOKEN_RATIOS["default"]
+        ) + tokens.estimate_file_tokens(readable)
         assert result == expected
 
 
@@ -265,3 +274,41 @@ class TestTokenEncoderPath:
         # prompt(3) + file(3 + overhead)
         assert result == 3 + 3 + tokens.FILE_OVERHEAD_TOKENS
         # Note: can't call cache_clear() after monkeypatch replaces the function
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("suffix", [".go", ".rst", ".py", ".yaml", ".txt"])
+def test_file_estimate_uses_the_extension_ratio_table(
+    tmp_path: Path, suffix: str
+) -> None:
+    """Both file estimators read one ratio per extension.
+
+    ``QuotaTracker.estimate_file_tokens`` looks up EXTENSION_TOKEN_RATIOS;
+    a 32000-byte .go file must not cost 10000 tokens there and 8000 here.
+    """
+    source = tmp_path / f"sample{suffix}"
+    source.write_text("a" * 32000)
+    ratio = tokens.EXTENSION_TOKEN_RATIOS[suffix]
+
+    assert tokens.estimate_file_tokens(source) == (
+        int(32000 / ratio) + tokens.FILE_OVERHEAD_TOKENS
+    )
+
+
+@pytest.mark.unit
+def test_unreadable_file_is_counted_as_zero_and_named_in_a_warning(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """A per-file undercount is visible to whoever reads the estimate."""
+    missing = tmp_path / "gone.py"
+
+    class _Encoder:
+        def encode(self, text: str) -> list[int]:
+            return [1] * len(text)
+
+    with caplog.at_level("WARNING", logger=tokens.__name__):
+        assert tokens.estimate_file_tokens(missing) == 0
+        assert tokens._encode_file_with_tiktoken(_Encoder(), missing) == 0
+
+    named = [r for r in caplog.records if str(missing) in r.getMessage()]
+    assert len(named) == 2

@@ -115,12 +115,16 @@ class TestSkillVersionManagerInit:
         assert mgr.current_version == "1.0.0"
 
     @pytest.mark.unit
-    def test_missing_file_does_not_crash(self, tmp_path: Path) -> None:
-        """Scenario: Missing skill file produces empty frontmatter without crash."""
-        missing = tmp_path / "NONEXISTENT.md"
-        mgr = SkillVersionManager(missing)
-        assert mgr.frontmatter == {}
-        assert mgr.body == ""
+    def test_missing_file_raises_instead_of_starting_empty(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: an unreadable skill file raises.
+
+        Starting from empty state would let a later bump_version overwrite
+        the real file with an empty body.
+        """
+        with pytest.raises(OSError):
+            SkillVersionManager(tmp_path / "NONEXISTENT.md")
 
 
 # ---------------------------------------------------------------------------

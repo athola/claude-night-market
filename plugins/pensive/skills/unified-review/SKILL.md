@@ -141,8 +141,9 @@ and each finding should face an adversarial check. Prefer the Agent
 tool when the roster has to adapt to what the first lens finds, or when
 no workflow was requested: a workflow never starts unasked.
 
-Its subagents run in `acceptEdits` whatever the session's permission
-mode, so the shipped script scopes its prompts to reading. And it has
+Its subagents take the session's permission mode, so in an accept-edits
+or auto session their edits land unreviewed. The shipped script scopes
+its prompts to reading. And it has
 no filesystem, so what it returns is a claim that survived refutation,
 not proof-of-work evidence. Reproduce before acting on a finding.
 
@@ -151,7 +152,7 @@ not proof-of-work evidence. Reproduce before acting on a finding.
 - When `pensive:code-reviewer` covers multiple domains, dispatch once with combined scope
 - For skills without dedicated agents, use `general-purpose` and instruct it to invoke the Skill tool
 - Maintain consistent evidence logging across all agents
-- Track progress via TodoWrite
+- Track progress items
 
 ### 4. Integrate Findings
 
@@ -235,10 +236,10 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 
 ## Exit Criteria
 
-- All selected review skills executed
-- Findings consolidated and prioritized
-- Action plan created with ownership
-- Evidence logged per structured output format
+- [ ] All selected review skills executed
+- [ ] Findings consolidated and prioritized
+- [ ] Action plan created with ownership
+- [ ] Evidence logged per structured output format
 ## Supporting Modules
 
 - [Review workflow core](modules/review-workflow-core.md) - standard 5-step workflow pattern for all pensive reviews
@@ -249,4 +250,7 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 
 ### Common Issues
 
-If the auto-detection fails to identify the correct review skills, explicitly specify the mode (e.g., `/full-review rust` instead of just `/full-review`). If integration fails, check that `TodoWrite` logs are accessible and that evidence files were correctly written by the individual skills.
+If the auto-detection fails to identify the correct review skills, explicitly
+specify the mode (e.g., `/full-review rust` instead of just `/full-review`). If
+integration fails, check that the progress items were recorded and that evidence
+files were correctly written by the individual skills.

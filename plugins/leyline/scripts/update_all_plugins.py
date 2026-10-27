@@ -13,8 +13,15 @@ from typing import Any
 
 
 def read_installed_plugins() -> dict[str, list[dict[str, Any]]]:
-    """Read the installed plugins configuration file."""
-    plugins_file = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
+    """Read the installed plugins configuration file.
+
+    The v2 file is tried first and the v1 name is the fallback.
+    ``reinstall_all_plugins.py`` imports this reader.
+    """
+    plugins_dir = Path.home() / ".claude" / "plugins"
+    plugins_file = plugins_dir / "installed_plugins_v2.json"
+    if not plugins_file.exists():
+        plugins_file = plugins_dir / "installed_plugins.json"
 
     if not plugins_file.exists():
         print(f"[ERROR] Plugins configuration file not found: {plugins_file}")
@@ -67,11 +74,13 @@ def update_plugin(plugin_full_name: str) -> tuple[bool, str, str]:
             # Check for successful update
             if "updated from" in output:
                 # Extract old and new versions
-                old_match = re.search(r"updated from ([^ ]+) to", output)
-                new_match = re.search(r"to ([^.]+)", output)
-                old_version = old_match.group(1) if old_match else "unknown"
-                new_version = new_match.group(1) if new_match else "unknown"
-                return True, old_version, new_version
+                # One anchored pattern for both; a trailing "." ends the
+                # sentence and is not part of the version.
+                versions = re.search(
+                    r"updated from (\S+?)\.? to (\S+?)\.?(?:\s|$)", output
+                )
+                if versions:
+                    return True, versions.group(1), versions.group(2)
 
             # Assume success but couldn't parse versions
             return True, "unknown", "unknown"

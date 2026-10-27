@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
+from collections.abc import Sequence
 from datetime import datetime, timezone
 from typing import Any
 
@@ -150,6 +151,10 @@ class KnowledgeGraph(SqliteGraphBase):
     # Entity CRUD
     # ------------------------------------------------------------------
 
+    def _rows(self, sql: str, params: Sequence[Any] = ()) -> list[dict[str, Any]]:
+        """Run a query and return each row as a plain dict."""
+        return [dict(r) for r in self._conn.execute(sql, params).fetchall()]
+
     def _now(self) -> str:
         return datetime.now(timezone.utc).isoformat()
 
@@ -200,10 +205,17 @@ class KnowledgeGraph(SqliteGraphBase):
 
     def get_entities_by_type(self, entity_type: str) -> list[dict[str, Any]]:
         """Fetch all entities of a given type."""
-        rows = self._conn.execute(
+        return self._rows(
             "SELECT * FROM entities WHERE entity_type = ?", (entity_type,)
-        ).fetchall()
-        return [dict(r) for r in rows]
+        )
+
+    def get_entity_ids(self) -> list[dict[str, Any]]:
+        """Fetch every entity id as ``{"entity_id": ...}`` rows."""
+        return self._rows("SELECT entity_id FROM entities")
+
+    def get_entity_summaries(self) -> list[dict[str, Any]]:
+        """Fetch id, type and name of every entity."""
+        return self._rows("SELECT entity_id, entity_type, name FROM entities")
 
     def entity_count(self) -> int:
         """Return total entity count."""
@@ -239,17 +251,11 @@ class KnowledgeGraph(SqliteGraphBase):
 
     def get_residencies(self, entity_id: str) -> list[dict[str, Any]]:
         """Get all residencies for an entity."""
-        rows = self._conn.execute(
-            "SELECT * FROM residencies WHERE entity_id = ?", (entity_id,)
-        ).fetchall()
-        return [dict(r) for r in rows]
+        return self._rows("SELECT * FROM residencies WHERE entity_id = ?", (entity_id,))
 
     def get_residents_in_palace(self, palace_id: str) -> list[dict[str, Any]]:
         """Get all entities residing in a palace."""
-        rows = self._conn.execute(
-            "SELECT * FROM residencies WHERE palace_id = ?", (palace_id,)
-        ).fetchall()
-        return [dict(r) for r in rows]
+        return self._rows("SELECT * FROM residencies WHERE palace_id = ?", (palace_id,))
 
     # ------------------------------------------------------------------
     # Triples (temporal facts)
@@ -289,16 +295,30 @@ class KnowledgeGraph(SqliteGraphBase):
 
     def get_active_triples_from(self, subject_id: str) -> list[dict[str, Any]]:
         """Get currently active triples (no valid_to set)."""
-        rows = self._conn.execute(
+        return self._rows(
             """SELECT * FROM triples
                WHERE subject_id = ? AND (valid_to = '' OR valid_to IS NULL)""",
             (subject_id,),
-        ).fetchall()
-        return [dict(r) for r in rows]
+        )
 
     # ------------------------------------------------------------------
     # Synapses (weighted links)
     # ------------------------------------------------------------------
+
+    def get_active_triples_involving(
+        self, entity_ids: list[str], at_time: str
+    ) -> list[dict[str, Any]]:
+        """Fetch triples valid at *at_time* whose subject or object is in *entity_ids*."""
+        if not entity_ids:
+            return []
+        placeholders = ",".join("?" * len(entity_ids))
+        query = (
+            f"SELECT * FROM triples"  # noqa: S608 - parameterized IN clause, placeholders are "?" repetitions not user data  # nosec B608
+            f" WHERE (valid_from = '' OR valid_from IS NULL OR valid_from <= ?)"
+            f"   AND (valid_to = '' OR valid_to IS NULL OR valid_to > ?)"
+            f"   AND (subject_id IN ({placeholders}) OR object_id IN ({placeholders}))"
+        )
+        return self._rows(query, (at_time, at_time, *entity_ids, *entity_ids))
 
     def create_synapse(
         self,
@@ -327,17 +347,15 @@ class KnowledgeGraph(SqliteGraphBase):
 
     def get_synapses_from(self, source_id: str) -> list[dict[str, Any]]:
         """Get all outgoing synapses from an entity."""
-        rows = self._conn.execute(
-            "SELECT * FROM synapses WHERE source_id = ?", (source_id,)
-        ).fetchall()
-        return [dict(r) for r in rows]
+        return self._rows("SELECT * FROM synapses WHERE source_id = ?", (source_id,))
 
     def get_synapses_to(self, target_id: str) -> list[dict[str, Any]]:
         """Get all incoming synapses whose target is target_id."""
-        rows = self._conn.execute(
-            "SELECT * FROM synapses WHERE target_id = ?", (target_id,)
-        ).fetchall()
-        return [dict(r) for r in rows]
+        return self._rows("SELECT * FROM synapses WHERE target_id = ?", (target_id,))
+
+    def get_synapse_edges(self) -> list[dict[str, Any]]:
+        """Fetch source, target and strength of every synapse."""
+        return self._rows("SELECT source_id, target_id, strength FROM synapses")
 
     def strengthen_synapse(self, synapse_id: int, delta: float) -> None:
         """Increase synapse strength (capped at 1.0) and bump traversal count."""
@@ -375,6 +393,25 @@ class KnowledgeGraph(SqliteGraphBase):
         )
         self._conn.commit()
         return cur.lastrowid or 0
+
+    def get_journeys_by_entity(self, entity_id: str) -> list[dict[str, Any]]:
+        """Get all journeys for an entity, oldest first."""
+        return self._rows(
+            "SELECT * FROM journeys WHERE entity_id = ? ORDER BY started_at",
+            (entity_id,),
+        )
+
+    def get_journey_waypoint_events(self, entity_id: str) -> list[dict[str, Any]]:
+        """Join an entity's journeys to their waypoints, in journey/sequence order."""
+        return self._rows(
+            """SELECT j.id AS journey_id, j.trigger,
+                      w.sequence, w.palace_id, w.entity_delta
+               FROM journeys j
+               JOIN waypoints w ON w.journey_id = j.id
+               WHERE j.entity_id = ?
+               ORDER BY j.id, w.sequence""",
+            (entity_id,),
+        )
 
     def get_journey(self, journey_id: int) -> dict[str, Any] | None:
         """Fetch a journey by ID."""
@@ -426,13 +463,12 @@ class KnowledgeGraph(SqliteGraphBase):
 
     def get_waypoints(self, journey_id: int) -> list[dict[str, Any]]:
         """Get all waypoints for a journey, ordered by sequence."""
-        rows = self._conn.execute(
+        return self._rows(
             """SELECT * FROM waypoints
                WHERE journey_id = ?
                ORDER BY sequence""",
             (journey_id,),
-        ).fetchall()
-        return [dict(r) for r in rows]
+        )
 
     # ------------------------------------------------------------------
     # Tier Assignments
@@ -482,27 +518,39 @@ class KnowledgeGraph(SqliteGraphBase):
             return []
         if not self._has_fts:
             return self._fallback_search(query, limit)
-        try:
-            rows = self._conn.execute(
-                """SELECT entity_id, name, entity_type,
-                          rank
-                   FROM entities_fts
-                   WHERE entities_fts MATCH ?
-                   ORDER BY rank
-                   LIMIT ?""",
-                (query, limit),
-            ).fetchall()
-            return [dict(r) for r in rows]
-        except sqlite3.OperationalError:
-            return self._fallback_search(query, limit)
+        # A malformed MATCH expression (e.g. an unbalanced quote) is a syntax
+        # error, not a missing index: retry it as one literal phrase before
+        # giving up on FTS.
+        phrase = '"' + query.replace('"', '""') + '"'
+        for match_expr in (query, phrase):
+            try:
+                return self._fts_search(match_expr, limit)
+            except sqlite3.OperationalError:
+                continue
+        return self._fallback_search(query, limit)
+
+    def _fts_search(self, match_expr: str, limit: int) -> list[dict[str, Any]]:
+        return self._rows(
+            """SELECT entity_id, name, entity_type,
+                      rank
+               FROM entities_fts
+               WHERE entities_fts MATCH ?
+               ORDER BY rank
+               LIMIT ?""",
+            (match_expr, limit),
+        )
 
     def _fallback_search(self, query: str, limit: int) -> list[dict[str, Any]]:
-        """LIKE-based search when FTS5 is unavailable."""
-        rows = self._conn.execute(
-            """SELECT entity_id, name, entity_type
+        """LIKE-based substring search when FTS5 is unavailable.
+
+        Rows carry a constant ``rank`` of 0.0 so callers read the same keys
+        as on the FTS path.
+        """
+        escaped = query.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        return self._rows(
+            """SELECT entity_id, name, entity_type, 0.0 AS rank
                FROM entities
-               WHERE name LIKE ?
+               WHERE name LIKE ? ESCAPE '\\'
                LIMIT ?""",
-            (f"%{query}%", limit),
-        ).fetchall()
-        return [dict(r) for r in rows]
+            (f"%{escaped}%", limit),
+        )

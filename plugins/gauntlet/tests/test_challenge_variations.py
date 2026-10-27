@@ -134,7 +134,7 @@ class TestGenerateProblemVariation:
             _generate_problem_variation(problem)
 
         call_kwargs = mock_client.messages.create.call_args
-        assert call_kwargs.kwargs["model"] == "claude-haiku-4-5-20251001"
+        assert call_kwargs.kwargs["model"] == "claude-haiku-5-5"
 
     def test_falls_back_on_api_exception(self):
         problem = _make_problem()

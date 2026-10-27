@@ -19,7 +19,7 @@ from gauntlet.problem_bank import bank_problem_to_challenge
 
 _log = logging.getLogger(__name__)
 
-_VARIATION_MODEL = "claude-haiku-4-5-20251001"
+_VARIATION_MODEL = "claude-haiku-5-5"
 _VARIATION_MIN_LENGTH = 20
 
 _VARIATION_PROMPT = (

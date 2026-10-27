@@ -262,7 +262,7 @@ class TestCommandDiscovery:
     EXPECTED_COMMANDS = ["record-terminal.md", "record-browser.md"]
 
     @pytest.mark.bdd
-    @pytest.mark.integration
+    @pytest.mark.unit
     def test_expected_commands_exist(self, commands_dir: Path) -> None:
         """Scenario: Expected commands exist.
 
@@ -275,7 +275,7 @@ class TestCommandDiscovery:
             assert cmd_file.exists(), f"Expected command not found: {cmd_name}"
 
     @pytest.mark.bdd
-    @pytest.mark.integration
+    @pytest.mark.unit
     def test_all_commands_have_valid_frontmatter(self, commands_dir: Path) -> None:
         """Scenario: All commands have valid frontmatter.
 
@@ -309,7 +309,7 @@ class TestCommandDiscovery:
                 pytest.fail(f"Invalid YAML in {cmd_file.name}: {e}")
 
     @pytest.mark.bdd
-    @pytest.mark.integration
+    @pytest.mark.unit
     @pytest.mark.parametrize("cmd_name", EXPECTED_COMMANDS)
     def test_command_has_description(self, commands_dir: Path, cmd_name: str) -> None:
         """Scenario: Each command has a description.
@@ -319,8 +319,7 @@ class TestCommandDiscovery:
         Then it should have description field.
         """
         cmd_file = commands_dir / cmd_name
-        if not cmd_file.exists():
-            pytest.skip(f"Command {cmd_name} not found")
+        assert cmd_file.exists(), f"Command {cmd_name} not found"
 
         content = cmd_file.read_text()
 

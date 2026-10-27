@@ -191,6 +191,31 @@ class TestIsExpired:
         os.utime(cache_path, (old_time, old_time))
         assert cache.is_expired("k") is True
 
+    def test_zero_ttl_means_always_expired(self, tmp_path: Path) -> None:
+        """ttl=0 expires a fresh entry instead of falling back to 3600s.
+
+        ``ttl or default`` read 0 as unset.
+        """
+        cache = SpecKitCache(cache_dir=tmp_path / "cache")
+        cache._cache_timestamps["k"] = time.time() - 0.001
+        assert cache.is_expired("k", ttl=0) is True
+
+    def test_file_hit_keeps_the_age_it_was_written_with(self, tmp_path: Path) -> None:
+        """A file entry promoted to memory expires on the file's clock.
+
+        Promotion stamped time.time(), so an
+        entry 3500s into a 3600s TTL was served again 3000s later.
+        """
+        writer = SpecKitCache(cache_dir=tmp_path / "cache")
+        writer.set("k", {"v": 1})
+        written = time.time() - 3500
+        os.utime(writer._get_cache_path("k"), (written, written))
+
+        reader = SpecKitCache(cache_dir=tmp_path / "cache")
+        assert reader.get("k") == {"v": 1}
+        with patch.object(speckit.caching.time, "time", return_value=written + 3700):
+            assert reader.get("k") is None
+
     def test_nonexistent_key_is_expired(self, tmp_path: Path) -> None:
         """Should return True when key is not cached anywhere."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
@@ -302,6 +327,17 @@ class TestSetAndGet:
         # With TTL of 2, should be expired
         cache._get_cache_path("ttl_key").unlink(missing_ok=True)
         assert cache.get("ttl_key", ttl=2) is None
+
+    def test_set_writes_file_when_a_directory_holds_the_old_fixed_temp_path(
+        self, tmp_path: Path
+    ) -> None:
+        """A fixed <name>.tmp sibling let any leftover at that path break set()."""
+        cache = SpecKitCache(cache_dir=tmp_path / "cache")
+        cache._get_cache_path("k").with_suffix(".tmp").mkdir()
+
+        cache.set("k", {"v": 1})
+
+        assert SpecKitCache(cache_dir=tmp_path / "cache").get("k") == {"v": 1}
 
 
 # ============================================================================
@@ -661,20 +697,15 @@ class TestCacheManager:
         finally:
             speckit.caching._cache_instance = original
 
-    def test_cache_result_unknown_category_uses_default(self, tmp_path: Path) -> None:
-        """Should fall back to spec_parsing TTL for unknown categories."""
-        original = speckit.caching._cache_instance
-        try:
-            cache = SpecKitCache(cache_dir=tmp_path / "cache")
-            speckit.caching._cache_instance = cache
+    def test_cache_result_unknown_category_raises(self) -> None:
+        """Should reject unknown categories instead of guessing a TTL."""
+        with pytest.raises(ValueError, match="unknown_category"):
+            CacheManager.cache_result("unknown_category")
 
-            @CacheManager.cache_result("unknown_category")
-            def process() -> str:
-                return "done"
-
-            assert process() == "done"
-        finally:
-            speckit.caching._cache_instance = original
+    def test_invalidate_unknown_category_raises(self) -> None:
+        """A typo in a category name raises instead of invalidating nothing."""
+        with pytest.raises(ValueError, match="spec_parsng"):
+            CacheManager.invalidate_category("spec_parsng")
 
     def test_cache_result_with_custom_key(self, tmp_path: Path) -> None:
         """Should pass custom key through to the decorator."""

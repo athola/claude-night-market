@@ -238,3 +238,22 @@ class TestTheRefinementLoopIsBoundedAndRecordBased:
         text = self._SKILL.read_text(encoding="utf-8")
         assert "max_waves" in text
         assert ".review/findings.json" in text
+
+
+class TestPythonNameMatchesUseTheCensus:
+    """Feature: one detector for one name defined in several places.
+
+    conserve's competing-implementations census compares bodies, so a
+    shared name is reported only when the bodies differ. The grep recipe
+    these modules carried listed every repeated name, which on plugins/
+    is mostly CLI scaffolding (docs/knowledge-corpus/decoherence.md).
+    """
+
+    @pytest.mark.parametrize(
+        "module", ["duplication-analysis.md", "code-quality-analysis.md"]
+    )
+    def test_python_names_go_through_the_census(self, module: str) -> None:
+        """The Python recipe is the census, not a name-only grep."""
+        text = (MODULES_DIR / module).read_text()
+        assert "competing_implementations" in text
+        assert 'grep -rn "^def \\|^    def "' not in text

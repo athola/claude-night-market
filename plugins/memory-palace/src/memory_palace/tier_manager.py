@@ -71,9 +71,7 @@ class TierManager:
         keystones = set(self._analyzer.find_keystones())
 
         # Compute composite scores
-        all_entities = self._kg._conn.execute(
-            "SELECT entity_id FROM entities"
-        ).fetchall()
+        all_entities = self._kg.get_entity_ids()
 
         scores: dict[str, float] = {}
         for row in all_entities:

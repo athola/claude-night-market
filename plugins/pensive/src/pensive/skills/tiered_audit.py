@@ -59,7 +59,8 @@ class Tier1Results:
         seen: set[str] = set()
         targets: list[str] = []
         for flag in self.all_flags():
-            if flag.area not in seen:
+            # Commit-level flags (fix-on-fix, large-diff) carry no area.
+            if flag.area and flag.area not in seen:
                 seen.add(flag.area)
                 targets.append(flag.area)
         return targets
@@ -74,9 +75,11 @@ def _module_from_path(path: str) -> str:
         src/main.py -> src
     """
     parts = path.strip("/").split("/")
-    if len(parts) >= 2:
-        return "/".join(parts[:2])
-    return parts[0] if parts else ""
+    directories = parts[:-1]
+    if directories:
+        return "/".join(directories[:2])
+    # A file at the repository root is its own module.
+    return parts[0]
 
 
 def check_churn_hotspots(

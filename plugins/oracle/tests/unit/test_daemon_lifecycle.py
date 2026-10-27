@@ -533,3 +533,162 @@ class TestStopDaemon:
             _stop_daemon()
 
         assert not pid_file.exists()
+
+
+class TestLifecycleErrorPaths:
+    """
+    Feature: The hook fails closed when the OS refuses a call
+
+    As the Claude Code runtime
+    I want session start and stop to finish when ps, Popen, or kill fail
+    So that a broken environment never blocks a session or kills a stranger
+    """
+
+    @pytest.mark.unit
+    def test_a_failing_ps_probe_does_not_claim_the_pid(self, tmp_path: Path):
+        """
+        Scenario: ps times out while the pid is alive
+        GIVEN daemon.pid names a live process running the daemon script
+        WHEN the ps probe raises TimeoutExpired
+        THEN the daemon is reported as not running
+        """
+        pid_file = tmp_path / "daemon.pid"
+        with _fake_daemon(tmp_path) as daemon:
+            pid_file.write_text(str(daemon.pid))
+            with patch(
+                "daemon_lifecycle.subprocess.run",
+                side_effect=subprocess.TimeoutExpired("ps", 2),
+            ):
+                assert _is_daemon_running(pid_file) is False
+
+    @pytest.mark.unit
+    def test_launch_failure_leaves_no_pid_file(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """
+        Scenario: The venv interpreter cannot be executed
+        GIVEN no daemon is running
+        WHEN Popen raises OSError
+        THEN _start_daemon returns without raising and writes no pid file
+        """
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+
+        with patch(
+            "daemon_lifecycle.subprocess.Popen",
+            side_effect=OSError("exec format error"),
+        ):
+            _start_daemon()
+
+        assert not (tmp_path / "daemon.pid").exists()
+
+    @pytest.mark.unit
+    def test_stop_with_corrupt_pid_file_signals_nothing_and_cleans_up(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """
+        Scenario: daemon.pid holds text that is not a number
+        GIVEN a corrupt pid file and a port file
+        WHEN _stop_daemon is called
+        THEN no signal is sent and both files are removed
+        """
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        pid_file = tmp_path / "daemon.pid"
+        port_file = tmp_path / "daemon.port"
+        pid_file.write_text("not-a-pid")
+        port_file.write_text("9000")
+
+        with patch("daemon_lifecycle.os.kill") as kill:
+            _stop_daemon()
+
+        assert kill.call_args_list == []
+        assert not pid_file.exists()
+        assert not port_file.exists()
+
+    @pytest.mark.unit
+    def test_stop_cleans_up_when_daemon_exits_before_sigterm(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """
+        Scenario: The daemon exits between the probe and the SIGTERM
+        GIVEN daemon.pid names the live daemon
+        WHEN the SIGTERM call raises ProcessLookupError
+        THEN _stop_daemon does not raise and removes both files
+        """
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        pid_file = tmp_path / "daemon.pid"
+        port_file = tmp_path / "daemon.port"
+        real_kill = os.kill
+        sent: list[int] = []
+
+        def kill(pid: int, sig: int) -> None:
+            if sig == signal.SIGTERM:
+                sent.append(sig)
+                raise ProcessLookupError(pid)
+            real_kill(pid, sig)
+
+        with _fake_daemon(tmp_path) as daemon:
+            pid_file.write_text(str(daemon.pid))
+            port_file.write_text("9000")
+            with patch("daemon_lifecycle.os.kill", side_effect=kill):
+                _stop_daemon()
+
+        assert sent == [signal.SIGTERM]
+        assert not pid_file.exists()
+        assert not port_file.exists()
+
+    @pytest.mark.unit
+    def test_session_start_launches_when_enabled_and_provisioned(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """
+        Scenario: The user opted in and the venv exists
+        GIVEN the .oracle-enabled sentinel and a venv python binary
+        WHEN main is called with a SessionStart event
+        THEN the daemon is launched and its pid is recorded
+        """
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        (tmp_path / ".oracle-enabled").touch()
+        python = tmp_path / "venv" / "bin" / "python"
+        python.parent.mkdir(parents=True)
+        python.touch()
+        launched = MagicMock()
+        launched.pid = 4242
+        payload = json.dumps({"hook_event_name": "SessionStart"})
+
+        with (
+            patch("sys.stdin", StringIO(payload)),
+            patch("daemon_lifecycle.subprocess.Popen", return_value=launched) as popen,
+        ):
+            main()
+
+        assert popen.call_args[0][0][0] == str(python)
+        assert (tmp_path / "daemon.pid").read_text() == "4242"
+
+    @pytest.mark.unit
+    def test_unrelated_event_neither_starts_nor_stops(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """
+        Scenario: The hook receives an event it does not handle
+        GIVEN the sentinel, a venv, and existing pid and port files
+        WHEN main is called with a PreToolUse event
+        THEN nothing is launched and the files are untouched
+        """
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        (tmp_path / ".oracle-enabled").touch()
+        python = tmp_path / "venv" / "bin" / "python"
+        python.parent.mkdir(parents=True)
+        python.touch()
+        (tmp_path / "daemon.pid").write_text("1")
+        (tmp_path / "daemon.port").write_text("9000")
+        payload = json.dumps({"hook_event_name": "PreToolUse"})
+
+        with (
+            patch("sys.stdin", StringIO(payload)),
+            patch("daemon_lifecycle.subprocess.Popen") as popen,
+        ):
+            main()
+
+        assert popen.call_args_list == []
+        assert (tmp_path / "daemon.pid").read_text() == "1"
+        assert (tmp_path / "daemon.port").read_text() == "9000"

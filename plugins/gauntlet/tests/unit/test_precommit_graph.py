@@ -72,7 +72,7 @@ class TestGraphRiskContext:
             side_effect=FileNotFoundError,
         ):
             result = _graph_risk_context(gauntlet_dir)
-        # No git = no diff = "none" risk = None
+        # No git = analysis failed = skipped, not a risk message
         assert result is None
 
     @pytest.mark.unit

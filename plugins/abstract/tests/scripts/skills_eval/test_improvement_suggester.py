@@ -1,5 +1,8 @@
 """Tests for improvement suggestion functionality."""
 
+import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -50,8 +53,8 @@ This is a simple skill that needs improvement.
         assert isinstance(analysis["issues"], list)
         assert isinstance(analysis["suggestions"], list)
 
-    def test_analyze_missing_progressive_disclosure(self, tmp_path) -> None:
-        """Test analysis catches missing progressive disclosure."""
+    def test_analyze_missing_exit_criteria(self, tmp_path) -> None:
+        """Test analysis catches a skill with no Exit Criteria."""
         skill_dir = tmp_path / "no-progressive-skill"
         skill_dir.mkdir()
 
@@ -69,9 +72,9 @@ This skill just has basic content without proper structure.
         suggester = ImprovementSuggester(tmp_path)
         analysis = suggester.analyze_skill("no-progressive-skill")
 
-        # Should suggest adding progressive disclosure
+        # Should suggest the section every skill must carry
         assert any(
-            "overview" in suggestion.lower() or "progressive" in suggestion.lower()
+            "exit criteria" in suggestion.lower()
             for suggestion in analysis["suggestions"]
         )
 
@@ -120,9 +123,9 @@ description: Very long skill
         suggestions = suggester.suggest_improved_structure("test-skill")
 
         assert isinstance(suggestions, list)
-        # Should suggest adding missing sections
-        structure_suggestions = [s for s in suggestions if "section" in s.lower()]
-        assert len(structure_suggestions) > 0
+        # Optional sections are a layout choice, so none are advised
+        padding = ("Overview", "Quick Start", "Examples", "Resources")
+        assert not [s for s in suggestions if any(p in s for p in padding)]
 
     def test_generate_improvement_plan(self, temp_skill_dir) -> None:
         """Test improvement plan generation."""
@@ -213,3 +216,34 @@ dependencies: [basic-skill]
         # Should be ordered by priority
         assert prioritized[0]["priority"] == "high"
         assert prioritized[-1]["priority"] == "low"
+
+
+_SUGGESTER_SCRIPT = (
+    Path(__file__).resolve().parents[3] / "scripts" / ("improvement_suggester.py")
+)
+
+
+@pytest.mark.parametrize("point_at", ["directory", "skill_file"])
+def test_suggester_script_finds_the_skill_it_is_pointed_at(
+    tmp_path: Path, point_at: str
+) -> None:
+    skill_dir = tmp_path / "skills" / "demo-skill"
+    skill_dir.mkdir(parents=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: demo-skill\ndescription: Demo\n---\n\n# Demo\n",
+        encoding="utf-8",
+    )
+    target = skill_dir if point_at == "directory" else skill_dir / "SKILL.md"
+
+    result = subprocess.run(
+        [sys.executable, str(_SUGGESTER_SCRIPT), str(target), "--format", "json"],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    plan = json.loads(result.stdout)
+    assert plan["skill_name"] == "demo-skill"
+    assert not any("not found" in issue for issue in plan["issues_found"])

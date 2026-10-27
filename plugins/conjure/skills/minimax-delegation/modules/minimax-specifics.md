@@ -12,15 +12,15 @@ and saved service overrides remain authoritative, including legacy IDs.
 | `MiniMax-M3` | Large-context selection | 1,000,000 tokens | Text, image, video | Adaptive or disabled |
 
 The executor exposes no thinking or effort flags. It leaves these to
-`mmx` and the API defaults; it does not request disabled thinking for
+`mmx` and the API defaults. It does not request disabled thinking for
 Flash or inject a service tier.
 
 ## Cost Reference
 
 Use the [official pricing table](https://platform.minimax.io/docs/pricing/overview)
-for the selected model, service tier and input-length band. The former
-$0.60/$2.40 M3 example describes a short-context rate, not a universal
-standard rate. No price estimate is applied by the delegation executor.
+for the selected model, service tier and input-length band. M3 bills
+input above 512K tokens at a higher rate than input at or below it.
+No price estimate is applied by the delegation executor.
 
 ## CLI Options
 

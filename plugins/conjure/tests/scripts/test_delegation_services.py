@@ -191,6 +191,36 @@ class TestSmartDelegateModel:
         command = delegator.build_command("minimax", "question")
         assert command[command.index("--model") + 1] == "MiniMax-M2.7"
 
+    def test_gemini_routes_current_models(self, temp_config_dir) -> None:
+        """gemini-3-pro is not a Gemini API id, so every slot must name a listed model."""
+        service = Delegator(config_dir=temp_config_dir).services["gemini"]
+        assert _smart_delegate_model(service, "anything") == "gemini-3.8-flash"
+        assert _smart_delegate_model(service, "fast_response") == "gemini-3.8-flash"
+        assert (
+            _smart_delegate_model(service, "large_context") == "gemini-3.1-pro-preview"
+        )
+
+    def test_qwen_names_the_only_model_its_oauth_login_accepts(
+        self, temp_config_dir
+    ) -> None:
+        """qwen-code swaps any other OAuth model for coder-model, so naming another records a model that never ran."""
+        service = Delegator(config_dir=temp_config_dir).services["qwen"]
+        assert service.auth_files == ("~/.qwen/oauth_creds.json",)
+        for requirement in ("anything", "fast_response", "large_context"):
+            assert _smart_delegate_model(service, requirement) == "coder-model"
+
+    def test_glm_fast_response_uses_the_5_3_flash_model(self, temp_config_dir) -> None:
+        """glm-5.3-flash is generally available, so fast work no longer falls back to 4.7."""
+        service = Delegator(config_dir=temp_config_dir).services["glm"]
+        assert _smart_delegate_model(service, "anything") == "glm-5.3"
+        assert _smart_delegate_model(service, "large_context") == "glm-5.3[1m]"
+        assert _smart_delegate_model(service, "fast_response") == "glm-5.3-flash"
+
+    def test_muse_selects_the_recommended_spark(self, temp_config_dir) -> None:
+        """Muse Code defaults to Spark 1.2; 1.3 is the version Meta recommends for new work."""
+        service = Delegator(config_dir=temp_config_dir).services["muse"]
+        assert _smart_delegate_model(service, "large_context") == "muse-spark-1.3"
+
     def test_service_with_no_models_yields_none(self) -> None:
         """None means the CLI's own default applies, which is degradation rather than the KeyError the old table raised."""
         assert _smart_delegate_model(_api_key_service(), "large_context") is None
@@ -515,18 +545,17 @@ class TestRegisteredProviders:
     ) -> None:
         """Declaring no model id must degrade, not raise.
 
-        muse, codex and opencode document no --model flag for their headless
-        subcommand, so passing one would be inventing a contract.
+        codex declares no model id, so the CLI's own default must stand.
         """
         mock_execute.return_value = ExecutionResult(
             success=True, stdout="answered", stderr="", exit_code=0, duration=1.0
         )
         delegator = Delegator(config_dir=temp_config_dir)
-        mock_verify.side_effect = lambda name: (name == "muse", [])
+        mock_verify.side_effect = lambda name: (name == "codex", [])
 
         result = delegator.smart_delegate("p", requirements={"large_context": True})
 
-        assert result.service == "muse"
+        assert result.service == "codex"
         assert "model" not in mock_execute.call_args.args[3]
 
 
@@ -872,7 +901,12 @@ class TestContradictoryPairingsDoNotConstruct:
     )
     def test_a_coherent_pairing_constructs(self, overrides: dict[str, Any]) -> None:
         """Each rule refuses only its contradiction, not its neighbors."""
-        ServiceConfig(name="probe", command="probe", auth_method="none", **overrides)
+        service = ServiceConfig(
+            name="probe", command="probe", auth_method="none", **overrides
+        )
+
+        for field_name, expected in overrides.items():
+            assert getattr(service, field_name) == expected
 
     def test_the_defaults_escape_a_dash_prompt(self) -> None:
         """The defaults claim the Gemini contract, whose long form is ``--prompt``."""

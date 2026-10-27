@@ -64,12 +64,15 @@ def test_run_analysis_empty_metrics():
 
 
 def test_run_analysis_filters_by_weight():
-    """Lightweight filter should not run deep lenses."""
-    metrics = {"x:y": MockSummary("x:y")}
+    """A weight filter runs only lenses of that weight.
+
+    Every shipped lens is lightweight, so the same failing skill that the
+    lightweight run flags must produce nothing under the deep filter.
+    """
+    metrics = {"a:failing": MockSummary("a:failing", success_rate=10.0, total=20)}
     ctx = build_context(metrics=metrics, trigger="stop")
-    # Should not crash even if no deep lenses exist
-    findings = run_analysis(ctx, weight_filter="deep")
-    assert isinstance(findings, list)
+    assert run_analysis(ctx, weight_filter="lightweight") != []
+    assert run_analysis(ctx, weight_filter="deep") == []
 
 
 # ── build_context conditional path tests ───────────────────

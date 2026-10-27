@@ -1,57 +1,74 @@
 # ruff: noqa: D101,D102,D103,PLR2004,E501
-"""Simplified tests for git-workspace-review skill."""
+"""Contract tests for the git-workspace-review skill.
+
+The skill is instructions, not code: these tests pin the claims in its
+SKILL.md that downstream workflows rely on, so dropping a step or a command
+from the instructions fails here.
+"""
 
 from __future__ import annotations
 
-from unittest.mock import Mock
+import re
+from pathlib import Path
+
+SKILL_FILE = (
+    Path(__file__).resolve().parents[1] / "skills" / "git-workspace-review" / "SKILL.md"
+)
+
+
+def _sections(text: str) -> dict[str, str]:
+    """Map each ``## `` heading to the body under it."""
+    parts = re.split(r"^## (.+)$", text, flags=re.MULTILINE)
+    return {parts[i].strip(): parts[i + 1] for i in range(1, len(parts) - 1, 2)}
+
+
+def _tracked_todos(text: str) -> list[str]:
+    body = _sections(text)["Required Progress Tracking"]
+    return re.findall(r"^\d+\. `(git-review:[a-z-]+)`", body, flags=re.MULTILINE)
 
 
 class TestGitWorkspaceReviewSkill:
-    EXPECTED_TODO_ITEMS = 2
     REQUIRED_TODOS = ["git-review:repo-confirmed", "git-review:status-overview"]
 
-    def test_skill_identifies_valid_git_repository(
-        self, temp_git_repo, mock_todo_tool
-    ) -> None:
-        mock_bash = Mock(
-            return_value="On branch main\nnothing to commit, working tree clean"
-        )
-        result = mock_bash("git status")
-        mock_bash.assert_called_once()
-        assert "working tree clean" in result
+    def test_repo_confirmed_step_runs_pwd_and_git_status(self) -> None:
+        """The repo-confirmed step checks the directory and the branch status.
 
-    def test_skill_detects_staged_changes(self, temp_git_repo, mock_todo_tool) -> None:
-        temp_git_repo.add_file("test.py", "print('hello')")
-        temp_git_repo.stage_file("test.py")
-        temp_git_repo.commit("Initial commit")
-
-        mock_bash = Mock()
-        mock_bash.side_effect = [
-            "On branch main\nChanges not staged for commit:\n  modified:   test.py",
-            "diff --git a/test.py b/test.py\n- print('hello')\n+ print('hello world')",
+        GIVEN the SKILL.md step for `repo-confirmed`
+        WHEN its instructions are read
+        THEN it runs `pwd` and `git status -sb` and records branch and upstream
+        """
+        step = _sections(SKILL_FILE.read_text())[
+            "Step 1: Confirm Repository (`repo-confirmed`)"
         ]
+        assert "`pwd`" in step
+        assert "`git status -sb`" in step
+        assert "upstream" in step
 
-        status_output = mock_bash("git status")
-        diff_output = mock_bash("git diff")
-        assert "modified" in status_output
-        assert "hello world" in diff_output
+    def test_diff_steps_name_cached_and_plain_git_diff_forms(self) -> None:
+        """The diff steps read the staged set, and the unstaged set as fallback.
 
-    def test_skill_integration_with_todo_tool(
-        self, temp_git_repo, mock_todo_tool
-    ) -> None:
-        todos_created = []
+        GIVEN the SKILL.md steps for `diff-stat` and `diff-details`
+        WHEN their instructions are read
+        THEN each names the --cached form and the plain form of its git command
+        """
+        sections = _sections(SKILL_FILE.read_text())
+        stat = sections["Step 4: Review Diff Statistics (`diff-stat`)"]
+        details = sections["Step 5: Review Detailed Diff (`diff-details`)"]
+        assert "`git diff --cached --stat`" in stat
+        assert "`git diff --stat`" in stat
+        assert "`git diff --cached`" in details
+        assert "`git diff`" in details
 
-        def capture_todos(todos):
-            todos_created.extend(todos)
-            return {"status": "success"}
+    def test_tracked_todos_match_step_headings_in_order(self) -> None:
+        """Every tracked todo has a step that completes it, in the same order.
 
-        mock_todo_tool.side_effect = capture_todos
+        GIVEN the Required Progress Tracking list
+        WHEN it is compared with the numbered step headings
+        THEN it starts with the two required todos and each todo names a step
+        """
+        text = SKILL_FILE.read_text()
+        todos = _tracked_todos(text)
+        step_ids = re.findall(r"^## Step \d+: .+ \(`([a-z-]+)`\)$", text, re.MULTILINE)
 
-        skill_todos = [
-            {"content": "git-review:repo-confirmed", "status": "completed"},
-            {"content": "git-review:status-overview", "status": "completed"},
-        ]
-        mock_todo_tool(skill_todos)
-
-        assert len(todos_created) == 2
-        assert all(todo["status"] == "completed" for todo in todos_created)
+        assert todos[:2] == self.REQUIRED_TODOS
+        assert [todo.removeprefix("git-review:") for todo in todos] == step_ids

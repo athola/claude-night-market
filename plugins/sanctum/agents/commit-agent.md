@@ -15,36 +15,11 @@ tools:
 - Read
 - Write
 - Bash
-permissionMode: acceptEdits
 escalation:
   to: sonnet
   hints:
   - ambiguous_input
   - high_stakes
-hooks:
-  PreToolUse:
-  - matcher: Bash
-    command: "# Validate git commands before execution\nif echo \"$CLAUDE_TOOL_INPUT\"\
-      \ | grep -qE \"git (status|diff|log|show)\"; then\n  echo \"[commit-agent] Git\
-      \ query at $(date): $(echo '$CLAUDE_TOOL_INPUT' | jq -r '.command // empty'\
-      \ 2>/dev/null || echo 'N/A')\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log\n\
-      fi\n"
-    once: false
-  - matcher: Read
-    command: "# Track file reads for commit context\nif echo \"$CLAUDE_TOOL_INPUT\"\
-      \ | grep -qE \"(diff|patch|staged)\"; then\n  echo \"[commit-agent] Reading\
-      \ staged changes: $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log\n\
-      fi\n"
-    once: true
-  PostToolUse:
-  - matcher: Bash
-    command: "# Track commit creation\nif echo \"$CLAUDE_TOOL_INPUT\" | grep -q \"\
-      git commit\"; then\n  echo \"[commit-agent] ✓ Commit created at $(date)\" >>\
-      \ ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log\nfi\n"
-  Stop:
-  - command: 'echo "[commit-agent] === Session completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log
-
-      '
 examples:
 - context: User has staged changes ready to commit
   user: Help me write a commit message for these changes

@@ -13,7 +13,12 @@ from pathlib import Path
 import pytest
 
 from tome.models import DomainClassification
-from tome.scripts.domain_classifier import _DOMAIN_KEYWORDS, _TRIZ_DEPTH, classify
+from tome.scripts.domain_classifier import (
+    _DOMAIN_KEYWORDS,
+    _TRIZ_DEPTH,
+    _count_matches,
+    classify,
+)
 
 
 class TestDomainClassifierBasicRouting:
@@ -250,3 +255,50 @@ class TestTheReadmeListsEveryDomain:
         readme = (Path(__file__).parents[2] / "README.md").read_text(encoding="utf-8")
         for domain in _DOMAIN_KEYWORDS:
             assert f"| {domain} | {_TRIZ_DEPTH[domain]} |" in readme, domain
+
+
+class TestKeywordsMatchAtWordStarts:
+    """A keyword inside another word is not a hit."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("topic", "domain"),
+        [
+            ("LLM retrieval", "ai-agents"),
+            ("kubernetes linux deployment", "devops"),
+        ],
+    )
+    def test_a_keyword_buried_in_another_word_does_not_dilute_purity(
+        self, topic: str, domain: str
+    ) -> None:
+        """'trie' in 'retrieval' and 'ux' in 'linux' are not evidence."""
+        assert classify(topic).domain == domain
+
+    @pytest.mark.unit
+    def test_research_is_not_a_search_hit(self) -> None:
+        """'search' inside 'research' says nothing about algorithms."""
+        assert _count_matches("prompt injection research", ["search"]) == 0
+
+    @pytest.mark.unit
+    def test_a_stem_still_matches_its_inflections(self) -> None:
+        """Keywords are word starts: 'orchestrat' and plurals still hit."""
+        topic = "orchestrating llms with graphs"
+        assert _count_matches(topic, ["orchestrat", "llm", "graph"]) == 3
+
+
+class TestTheDocumentedConfidenceIsTheComputedOne:
+    """The docstring states the formula in use."""
+
+    @pytest.mark.unit
+    def test_two_pure_hits_score_two_thirds(self) -> None:
+        """Purity 1.0 times saturation 2/3, not purity alone."""
+        result = classify("docker kubernetes")
+
+        assert result.confidence == pytest.approx(2 / 3)
+
+    @pytest.mark.unit
+    def test_the_docstring_names_the_saturation_term(self) -> None:
+        """Step 3 describes purity scaled by match saturation."""
+        doc = classify.__doc__ or ""
+
+        assert "min(1, best_count / _CONFIDENT_MATCHES)" in doc

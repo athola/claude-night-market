@@ -109,8 +109,8 @@ Skill(memory-palace:knowledge-intake)
 | `skill_tracker_pre.py` | PreToolUse | Records start time when Skill tool is invoked. |
 | `skill_tracker_post.py` | PostToolUse | Logs completion, calculates metrics, stores memory. |
 
-Setup hook (`claude --init`,
-`claude --maintenance`) handles one-time initialization
+Setup hook (`claude --init-only`,
+`claude -p --maintenance "<prompt>"`) handles one-time initialization
 and periodic garden maintenance. See `hooks/hooks.json` for configuration.
 
 ## Architecture

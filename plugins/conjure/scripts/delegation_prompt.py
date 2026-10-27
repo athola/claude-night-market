@@ -9,6 +9,7 @@ contract and nothing about ``Delegator``.
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 
 from scripts.delegation_services import ServiceConfig
@@ -63,6 +64,12 @@ logger = logging.getLogger(__name__)
 # reported as truncated rather than failing the exec with E2BIG.
 MAX_INLINE_CONTEXT_BYTES = 96 * 1024
 
+# The ceiling is per argv element, and the prompt is appended to the context
+# in that same element. The overhead covers the terminating NUL, a
+# ``--long-flag=`` prefix, the blank-line separator and the truncation note.
+_MAX_ARG_STRLEN = 128 * 1024
+_ARGV_OVERHEAD_BYTES = 256
+
 # Below this much remaining budget a file cannot carry useful content, so the
 # walk stops instead of emitting header-only blocks.
 _MIN_INLINE_FILE_BYTES = 512
@@ -77,28 +84,35 @@ def _iter_context_files(files: list[str]) -> list[Path]:
         if path.is_file():
             resolved.append(path)
         elif path.is_dir():
-            for child in sorted(path.rglob("*")):
-                if any(part in skip_dirs for part in child.parts):
-                    continue
-                if child.is_file():
-                    resolved.append(child)
+            if any(part in skip_dirs for part in path.parts):
+                continue
+            children: list[Path] = []
+            for root, dirs, names in os.walk(path):
+                # Prune in place: rglob would enter node_modules and .git
+                # before the filter could reject each file.
+                dirs[:] = [d for d in dirs if d not in skip_dirs]
+                children.extend(Path(root, name) for name in names)
+            resolved.extend(child for child in sorted(children) if child.is_file())
     return resolved
 
 
-def _inline_context(files: list[str]) -> str:
+def _inline_context(files: list[str], limit: int | None = None) -> str:
     """Read file contents into a prompt block for CLIs without ``@path``.
 
     Reading the filesystem is a trust boundary, so unreadable files are
     skipped rather than aborting the delegation. The byte budget is an OS
     limit (see MAX_INLINE_CONTEXT_BYTES), and hitting it is reported in the
-    prompt and the log instead of silently dropping context.
+    prompt and the log instead of silently dropping context. ``limit`` is
+    lower than the ceiling when the prompt sharing the argument needs room.
     """
+    if limit is None:
+        limit = MAX_INLINE_CONTEXT_BYTES
     blocks: list[str] = []
     used = 0
     truncated = False
 
     for path in _iter_context_files(files):
-        remaining = MAX_INLINE_CONTEXT_BYTES - used
+        remaining = limit - used
         if remaining <= _MIN_INLINE_FILE_BYTES:
             truncated = True
             break
@@ -136,12 +150,11 @@ def _inline_context(files: list[str]) -> str:
     if truncated:
         logger.warning(
             "Inline context truncated at %d bytes; %d file(s) included",
-            MAX_INLINE_CONTEXT_BYTES,
+            limit,
             len(blocks),
         )
         blocks.append(
-            f"[context truncated at {MAX_INLINE_CONTEXT_BYTES} bytes; "
-            f"{len(blocks)} file(s) included]"
+            f"[context truncated at {limit} bytes; {len(blocks)} file(s) included]"
         )
 
     return "\n".join(blocks)
@@ -205,7 +218,8 @@ def _compose_prompt_with_files(
 ) -> str:
     """Attach file context to a prompt using the service's own convention."""
     if service.inline_files:
-        context = _inline_context(files)
+        room = _MAX_ARG_STRLEN - _ARGV_OVERHEAD_BYTES - len(prompt.encode("utf-8"))
+        context = _inline_context(files, max(0, min(MAX_INLINE_CONTEXT_BYTES, room)))
         return f"{context}\n\n{prompt}" if context else prompt
 
     file_refs = []

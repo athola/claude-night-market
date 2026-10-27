@@ -6,7 +6,6 @@ Targets uncovered paths in utils.py to raise coverage toward 85%.
 from __future__ import annotations
 
 import os
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -60,14 +59,18 @@ class TestFindProjectRoot:
         assert result == tmp_path
 
     @pytest.mark.unit
-    def test_returns_cwd_when_no_marker_found(self, tmp_path):
+    def test_returns_cwd_when_no_marker_found(self, tmp_path, monkeypatch):
         """Given no project marker anywhere, returns Path.cwd()."""
         # Use a path with no markers all the way to root
         isolated = tmp_path / "a" / "b" / "c"
         isolated.mkdir(parents=True)
+        elsewhere = tmp_path / "elsewhere"
+        elsewhere.mkdir()
+        monkeypatch.chdir(elsewhere)
         result = find_project_root(isolated)
-        # Should return cwd since no marker found
-        assert isinstance(result, Path)
+        # No marker on the way up, so the walk falls back to cwd, which is
+        # deliberately not an ancestor of the start path.
+        assert result == elsewhere.resolve()
 
 
 # ---------------------------------------------------------------------------
@@ -135,16 +138,23 @@ class TestLoadConfigWithDefaults:
     """load_config_with_defaults returns an AbstractConfig."""
 
     @pytest.mark.unit
-    def test_returns_abstract_config_when_no_file(self, tmp_path):
+    def test_returns_abstract_config_when_no_file(self, tmp_path, monkeypatch):
         """Given no config file, returns default AbstractConfig."""
+        monkeypatch.chdir(tmp_path)
         result = load_config_with_defaults(project_root=tmp_path)
-        assert isinstance(result, AbstractConfig)
+        assert result == AbstractConfig()
 
     @pytest.mark.unit
-    def test_uses_auto_detection_when_no_project_root(self):
-        """Given project_root=None, auto-detection is used."""
+    def test_uses_auto_detection_when_no_project_root(self, tmp_path, monkeypatch):
+        """Given project_root=None, the root is found by walking up from cwd."""
+        (tmp_path / "config").mkdir()
+        (tmp_path / "config" / "abstract_config.yaml").write_text("debug: true\n")
+        nested = tmp_path / "a" / "b"
+        nested.mkdir(parents=True)
+        monkeypatch.chdir(nested)
         result = load_config_with_defaults(project_root=None)
-        assert isinstance(result, AbstractConfig)
+        # debug defaults to False, so True proves the walked-up file was read
+        assert result.debug is True
 
 
 # ---------------------------------------------------------------------------
@@ -244,13 +254,14 @@ class TestValidateSkillFrontmatter:
         assert any("ERROR" in i for i in result)
 
     @pytest.mark.unit
-    def test_returns_list(self):
-        """Given any content, returns a list."""
+    def test_name_only_frontmatter_reports_missing_description(self):
+        """Given only a name, the one ERROR is the missing description."""
         with pytest.warns(DeprecationWarning):
             result = validate_skill_frontmatter(
                 "---\nname: test\n---\n", self._config()
             )
-        assert isinstance(result, list)
+        errors = [i for i in result if i.startswith("ERROR")]
+        assert errors == ["ERROR: Missing required frontmatter field: description"]
 
 
 # ---------------------------------------------------------------------------

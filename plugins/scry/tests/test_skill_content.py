@@ -104,8 +104,7 @@ class TestSkillFrontmatterSchema:
         """
         # Test against actual skill
         skill_file = skills_dir / "vhs-recording" / "SKILL.md"
-        if not skill_file.exists():
-            pytest.skip("vhs-recording skill not found")
+        assert skill_file.exists(), "vhs-recording skill not found"
 
         content = skill_file.read_text()
         frontmatter = self.extract_frontmatter(content)
@@ -124,8 +123,7 @@ class TestSkillFrontmatterSchema:
         Then it should be 'vhs-recording'.
         """
         skill_dir = skills_dir / "vhs-recording"
-        if not skill_dir.exists():
-            pytest.skip("vhs-recording skill not found")
+        assert skill_dir.exists(), "vhs-recording skill not found"
 
         skill_file = skill_dir / "SKILL.md"
         content = skill_file.read_text()
@@ -144,8 +142,7 @@ class TestSkillFrontmatterSchema:
         Then it should have content.
         """
         skill_file = skills_dir / "vhs-recording" / "SKILL.md"
-        if not skill_file.exists():
-            pytest.skip("vhs-recording skill not found")
+        assert skill_file.exists(), "vhs-recording skill not found"
 
         content = skill_file.read_text()
         frontmatter = self.extract_frontmatter(content)
@@ -164,8 +161,7 @@ class TestSkillFrontmatterSchema:
         Then tags should be a list type.
         """
         skill_file = skills_dir / "vhs-recording" / "SKILL.md"
-        if not skill_file.exists():
-            pytest.skip("vhs-recording skill not found")
+        assert skill_file.exists(), "vhs-recording skill not found"
 
         content = skill_file.read_text()
         frontmatter = self.extract_frontmatter(content)
@@ -184,8 +180,7 @@ class TestSkillFrontmatterSchema:
         Then tools should be a list type.
         """
         skill_file = skills_dir / "vhs-recording" / "SKILL.md"
-        if not skill_file.exists():
-            pytest.skip("vhs-recording skill not found")
+        assert skill_file.exists(), "vhs-recording skill not found"
 
         content = skill_file.read_text()
         frontmatter = self.extract_frontmatter(content)
@@ -382,7 +377,7 @@ class TestAllSkillsValidation:
     ]
 
     @pytest.mark.bdd
-    @pytest.mark.integration
+    @pytest.mark.unit
     @pytest.mark.parametrize("skill_name", EXPECTED_SKILLS)
     def test_skill_has_valid_structure(self, skills_dir: Path, skill_name: str) -> None:
         """Scenario: Each skill has valid structure.
@@ -392,8 +387,7 @@ class TestAllSkillsValidation:
         Then it should have SKILL.md with valid frontmatter.
         """
         skill_dir = skills_dir / skill_name
-        if not skill_dir.exists():
-            pytest.skip(f"Skill '{skill_name}' not found")
+        assert skill_dir.exists(), f"Skill '{skill_name}' not found"
 
         skill_file = skill_dir / "SKILL.md"
         assert skill_file.exists(), f"SKILL.md missing for {skill_name}"
@@ -402,7 +396,7 @@ class TestAllSkillsValidation:
         assert content.startswith("---"), f"Missing frontmatter in {skill_name}"
 
     @pytest.mark.bdd
-    @pytest.mark.integration
+    @pytest.mark.unit
     @pytest.mark.parametrize("skill_name", EXPECTED_SKILLS)
     def test_skill_frontmatter_is_parseable(
         self, skills_dir: Path, skill_name: str
@@ -414,8 +408,7 @@ class TestAllSkillsValidation:
         Then required fields should be extractable.
         """
         skill_dir = skills_dir / skill_name
-        if not skill_dir.exists():
-            pytest.skip(f"Skill '{skill_name}' not found")
+        assert skill_dir.exists(), f"Skill '{skill_name}' not found"
 
         skill_file = skill_dir / "SKILL.md"
         content = skill_file.read_text()

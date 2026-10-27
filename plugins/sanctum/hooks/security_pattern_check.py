@@ -223,11 +223,9 @@ def main() -> None:
         content = tool_input.get("content", "")
     elif tool_name == "Edit":
         content = tool_input.get("new_string", "")
-    elif tool_name == "MultiEdit":
+    else:  # MultiEdit: _TRIGGERING_TOOLS admits no other tool past the check above
         edits = tool_input.get("edits", [])
         content = " ".join(edit.get("new_string", "") for edit in edits)
-    else:
-        content = ""
 
     if not content:
         sys.exit(0)

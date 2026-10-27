@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Track task creation for workflow completeness monitoring.
 
-Records TaskCreate tool invocations to a session-scoped JSONL ledger
-so the Stop hook (verify_workflow_complete.py) can check whether
-all created tasks reached completion before session end.
+Records TaskCreate tool invocations to a session-scoped JSONL ledger,
+a record of which tasks a session created. No hook reads it back yet:
+the Stop hook (verify_workflow_complete.py) gates on file edits in the
+transcript, not on this ledger.
 
 Two payload shapes are accepted:
 
@@ -13,9 +14,13 @@ Two payload shapes are accepted:
   and a ``tool_response`` of the form
   ``"Task #N created successfully: <subject>"``.
 
-* **Legacy TaskCreated** (kept for forward/backward compatibility if
-  the dedicated event is reintroduced). The payload contains
+* **TaskCreated** (a documented hook event). The payload contains
   ``task_id`` and ``description`` at the top level.
+
+Neither fires in a session without the Task tools, which since CLI
+2.1.233 is the default on current models unless
+``CLAUDE_CODE_ENABLE_TODO_TOOLS=1`` is set. An empty ledger there means
+nothing was tracked, not that every task finished.
 
 The hook is non-critical: any failure path exits 0 silently so it
 never blocks tool execution. Empty/unparseable payloads are skipped
@@ -107,7 +112,17 @@ def main() -> None:
         # later, so the entry would not aid completeness checks.
         sys.exit(0)
 
-    session_id = os.environ.get("CLAUDE_SESSION_ID", "unknown")
+    # The payload carries the session id on every event; the env var is
+    # not exported to hooks, which left every session on tasks_unknown.jsonl.
+    session_id = re.sub(
+        r"[^A-Za-z0-9_-]",
+        "_",
+        str(
+            input_data.get("session_id")
+            or os.environ.get("CLAUDE_SESSION_ID")
+            or "unknown"
+        ),
+    )
 
     try:
         STATE_DIR.mkdir(parents=True, exist_ok=True)

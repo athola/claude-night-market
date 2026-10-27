@@ -6,7 +6,6 @@ Hybrid prioritization combining RICE (Intercom), WSJF (SAFe), and Kano classific
 
 This framework extends standard prioritization models with MCDA best practices:
 
-- **Normalization**: Logarithmic normalization for score scales (handles non-linear value perception)
 - **Weighting**: Customizable weights with validation requirements
 - **Trade-offs**: Explicit handling through Value/Cost ratio
 - **Uncertainty**: Confidence factor adjusts for estimation risk
@@ -36,11 +35,6 @@ validation:
     - Verify weights sum to 1.0 within each category (value, cost)
     - Test sensitivity to ±20% weight variations
     - Flag critical weights that significantly change rankings
-
-  normalization:
-    - Method: "logarithmic" (handles non-linear perception)
-    - Rationale: "Diminishing returns on raw scores"
-    - Scale_invariance: "Not required (absolute scale used)"
 
   uncertainty:
     - Confidence < 0.5: Require research before commitment
@@ -200,24 +194,24 @@ Impact: 5         # Significant UX improvement
 Business Value: 3 # Supports retention KR
 Time Criticality: 3 # Should do this quarter
 
-Value Score = (8 + 5 + 3 + 3) / 4 = 4.75
+Value Score = 8*0.25 + 5*0.30 + 3*0.25 + 3*0.20 = 4.85
 
 # Cost Factors
 Effort: 3         # 3-5 days
 Risk: 2           # Low risk, understood problem
 Complexity: 3     # Moderate, needs state management
 
-Cost Score = (3 + 2 + 3) / 3 = 2.67
+Cost Score = 3*0.40 + 2*0.30 + 3*0.30 = 2.70
 
 # Confidence
 Confidence: 0.8   # Similar features built before
 
 # Final Score
-Feature Score = (4.75 / 2.67) * 0.8 = 1.42
+Feature Score = (4.85 / 2.70) * 0.8 = 1.44
 
 # Classification
 Kano: Performance (more saving = better UX)
-Priority: Medium (1.42 is between 1.5-2.5 threshold)
+Priority: Low (1.44 is in the 1.0-1.5 band)
 ```
 
 ## Interpreting Scores
@@ -269,7 +263,7 @@ derivation:
 | Business alignment | Not explicit | Business Value factor |
 | Uncertainty | Confidence | Confidence |
 | Classification | None | Kano model |
-| **MCDA Compliance** | Basic | **Full** (normalization, weighting, sensitivity) |
+| **MCDA Compliance** | Basic | **Full** (weighting, sensitivity) |
 
 Feature Review extends RICE with WSJF's time criticality and business value, plus Kano classification for strategic context, all grounded in MCDA best practices.
 

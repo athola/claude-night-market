@@ -17,17 +17,8 @@ tools:
   - Glob
   - Grep
   - Task
-  - TodoRead
   - TodoWrite
 
-hooks:
-  # Inline agent hooks for audit logging (lightweight, agent-specific)
-  # Note: For heavier initialization, use the plugin-level Setup hook via `claude --init`
-  SessionStart:
-    - command: |
-        echo "[continuation-agent] Started at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/continuation-audit.log
-  # NOTE: No Stop hook - continuation agents must NOT be interrupted by stop hooks
-  # The agent controls its own termination via the completion loop
 model: opus
 effort: high
 ---
@@ -257,9 +248,9 @@ you may create a task for it. But first verify via TaskList that no existing tas
 The session state directory and template are created automatically when:
 
 1. The parent agent invokes `Skill(conserve:clear-context)`
-2. OR when `claude --init` is run (recommended for new projects)
+2. OR when `claude --init-only` is run (recommended for new projects)
 
-If the state file is missing, `claude --init` will create the template structure.
+If the state file is missing, `claude --init-only` will create the template structure.
 
 ## Completion Checklist (Final Reminder)
 

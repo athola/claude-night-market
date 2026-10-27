@@ -27,6 +27,7 @@ from __future__ import annotations
 import argparse
 import ast
 import io
+import os
 import re
 import subprocess
 import sys
@@ -363,12 +364,14 @@ def score_text(
 
     prose = _prose_only(text)
     words = len(prose.split())
-    if words == 0:
-        return Score(score=0.0, words=0, findings=[])
 
     findings = []
     weighted = 0
     for category, regex, weight in _RULES_CACHE:
+        # Raw-text categories read the whole file, fences included, so a
+        # file with no prose words is still scanned for them.
+        if not words and category not in _RAW_TEXT_CATEGORIES:
+            continue
         body = text if category in _RAW_TEXT_CATEGORIES else prose
         for match in regex.finditer(body):
             if match.group(0).lower() in allow:
@@ -378,7 +381,9 @@ def score_text(
             )
             weighted += weight
 
-    return Score(score=weighted / words * 100, words=words, findings=findings)
+    # A file with no prose words has no ratio to take: a raw-text hit there
+    # is scored as though the file held one word, which clears any threshold.
+    return Score(score=weighted / max(words, 1) * 100, words=words, findings=findings)
 
 
 _SKIP_PARTS = {".git", "worktrees", "node_modules", "__pycache__", ".venv"}
@@ -537,13 +542,24 @@ def _audit(paths: list, allow: frozenset) -> int:
     return 0
 
 
+_LOCATION_VARS = frozenset({"GIT_DIR", "GIT_WORK_TREE"})
+
+
 def _base_text(path: Path, ref: str) -> str | None:
-    """The file as committed at *ref*, or None if it did not exist there."""
+    """The file as committed at *ref*, or None if it did not exist there.
+
+    `git commit` exports GIT_DIR to its hooks, and with it set git takes
+    the current directory as the work tree root, so ``./name`` under
+    ``-C`` resolves against the wrong directory. Dropping it lets git find
+    the repository from the file's own directory.
+    """
+    env = {k: v for k, v in os.environ.items() if k not in _LOCATION_VARS}
     shown = subprocess.run(
         ["git", "-C", str(path.parent), "show", f"{ref}:./{path.name}"],
         capture_output=True,
         text=True,
         check=False,
+        env=env,
     )
     if shown.returncode != 0:
         return None
@@ -666,7 +682,7 @@ def main(argv: list | None = None) -> int:
     floored = []
     for path in paths:
         result = score_text(_read_prose(path), allowlist=allow)
-        if not result.words:
+        if not result.words and not result.findings:
             continue
         if _below_word_floor(path, result.words):
             floored.append(path)

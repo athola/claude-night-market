@@ -202,3 +202,21 @@ class TestCliEntry:
             with pytest.raises(SystemExit) as exc:
                 validator_module.main()
         assert exc.value.code == 2
+
+
+class TestImplToTestPathInMonorepo:
+    """Feature: a plugin's tests live under the plugin root, not the repo root."""
+
+    @pytest.mark.unit
+    def test_src_layout_inside_plugin_maps_to_plugin_tests(self, validator_module):
+        """plugins/p/src/p/foo.py -> plugins/p/tests/p/test_foo.py."""
+        result = validator_module.impl_to_test_paths("plugins/p/src/p/foo.py")
+        assert "plugins/p/tests/p/test_foo.py" in result
+        assert "plugins/p/tests/unit/p/test_foo.py" in result
+
+    @pytest.mark.unit
+    def test_hook_script_maps_to_plugin_tests_dir(self, validator_module):
+        """plugins/p/hooks/guard.py -> plugins/p/tests/test_guard.py."""
+        result = validator_module.impl_to_test_paths("plugins/p/hooks/guard.py")
+        assert "plugins/p/tests/test_guard.py" in result
+        assert "plugins/p/tests/unit/test_guard.py" in result

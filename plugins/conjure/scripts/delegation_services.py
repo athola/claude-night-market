@@ -372,9 +372,11 @@ SERVICES: dict[str, ServiceConfig] = {
         temperature_flag=None,
         install_hint="npm install -g @google/gemini-cli",
         priority=10,
-        default_model="gemini-3-pro",
-        large_context_model="gemini-3-pro",
-        fast_response_model="gemini-3-flash",
+        # gemini-3.8-flash is the newest stable model. The only 1M Pro is a
+        # preview; ai.google.dev/gemini-api/docs/deprecations dates its end.
+        default_model="gemini-3.8-flash",
+        large_context_model="gemini-3.1-pro-preview",
+        fast_response_model="gemini-3.8-flash",
         strengths=("large_context", "fast_response"),
     ),
     "qwen": ServiceConfig(
@@ -401,9 +403,10 @@ SERVICES: dict[str, ServiceConfig] = {
         install_hint="npm install -g @qwen-code/qwen-code",
         auth_failure_markers=("API Error: 401", "Incorrect API key"),
         priority=20,
-        default_model="qwen-max",
-        large_context_model="qwen-max",
-        fast_response_model="qwen-turbo",
+        # The auth file above is Qwen OAuth, which accepts only coder-model
+        # and silently replaces any other --model with it. One id serves
+        # every requirement, and naming it keeps the usage log truthful.
+        default_model="coder-model",
         strengths=("code_execution",),
     ),
     # The official MiniMax CLI is npm ``mmx-cli``, which installs a
@@ -439,11 +442,9 @@ SERVICES: dict[str, ServiceConfig] = {
     # endpoint, so the stock claude binary reaches it by environment
     # alone. ANTHROPIC_AUTH_TOKEN is the documented variable; putting the
     # key in ANTHROPIC_API_KEY is the most common way to get a 401 here.
-    # Model ids from https://docs.z.ai/devpack/latest-model. GLM-5.3 was
-    # mid-rollout at the time of writing: docs.z.ai/guides/llm/glm-5.3
-    # still read "coming soon" while the model-switch page documented
-    # glm-5.3, so glm-4.7 stays the fast-response id rather than being
-    # promoted on assumption.
+    # Model ids from https://docs.z.ai/devpack/latest-model. Z.ai's own
+    # Claude Code mapping (docs.z.ai/devpack/tool/claude) puts the Haiku
+    # slot on glm-5.3-flash, which is the fast-response id here.
     "glm": ServiceConfig(
         name="glm",
         command="claude",
@@ -467,15 +468,15 @@ SERVICES: dict[str, ServiceConfig] = {
         priority=40,
         default_model="glm-5.3",
         large_context_model="glm-5.3[1m]",
-        fast_response_model="glm-4.7",
+        fast_response_model="glm-5.3-flash",
         strengths=("code_execution", "large_context"),
     ),
     # Meta's Muse Code. `muse exec <prompt>` takes the prompt positionally
     # and META_API_KEY is the documented CI auth path. There is no
-    # `muse auth status`, hence the empty auth probe. No --model or
-    # output-format flag is documented for `exec`, so neither is declared:
-    # an undeclared model id means smart_delegate leaves the CLI default
-    # alone rather than passing a flag that may not exist.
+    # `muse auth status`, hence the empty auth probe. Muse Code documents
+    # `--model <id>` for exec and defaults to muse-spark-1.2
+    # (dev.meta.ai/docs/muse-code/configuration); dev.meta.ai/docs/models
+    # recommends 1.3 for new work, so the service passes it.
     "muse": ServiceConfig(
         name="muse",
         command="muse",
@@ -494,6 +495,7 @@ SERVICES: dict[str, ServiceConfig] = {
         auth_probe=(),
         install_hint="curl -fsSL https://dev.meta.ai/install.sh | sh",
         priority=50,
+        default_model="muse-spark-1.3",
         strengths=("code_execution", "large_context"),
     ),
     # `codex exec <prompt>`. auth_method is cli rather than api_key because

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -269,6 +270,42 @@ class TestParsePythonFile:
         nodes, edges = parse_file(str(fp))
         import_edges = [e for e in edges if e.kind == EdgeKind.IMPORTS_FROM]
         assert len(import_edges) >= 1
+
+    @pytest.mark.unit
+    def test_python_base_class_yields_an_inherits_edge(
+        self, fixtures_dir: Path
+    ) -> None:
+        """``class Dog(Animal)`` records that Dog inherits from Animal."""
+        code = "class Animal:\n    pass\n\n\nclass Dog(Animal):\n    pass\n"
+        fp = _write_fixture(fixtures_dir, "zoo.py", code)
+        _nodes, edges = parse_file(str(fp))
+        inherits = [
+            (e.source_qn.split("::", 1)[1], e.target_qn)
+            for e in edges
+            if e.kind == EdgeKind.INHERITS
+        ]
+        assert inherits == [("Dog", "Animal")]
+
+    @pytest.mark.unit
+    def test_missing_file_returns_empty(self, fixtures_dir: Path) -> None:
+        assert parse_file(str(fixtures_dir / "gone.py")) == ([], [])
+
+    @pytest.mark.unit
+    def test_unreadable_file_returns_empty(self, fixtures_dir: Path) -> None:
+        """A path that exists but cannot be read (a directory) is skipped."""
+        unreadable = fixtures_dir / "pkg.py"
+        unreadable.mkdir(parents=True)
+        assert parse_file(str(unreadable)) == ([], [])
+
+    @pytest.mark.unit
+    def test_grammar_failure_returns_empty(self, fixtures_dir: Path) -> None:
+        """A tree-sitter grammar that raises yields no nodes, not a crash."""
+        fp = _write_fixture(fixtures_dir, "ok.py", "x = 1\n")
+        with patch(
+            "gauntlet.treesitter_parser.get_parser",
+            side_effect=LookupError("no grammar"),
+        ):
+            assert parse_file(str(fp)) == ([], [])
 
     @pytest.mark.unit
     def test_extracts_contains_edges(self, fixtures_dir: Path) -> None:

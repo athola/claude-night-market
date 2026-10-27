@@ -273,15 +273,7 @@ class PalaceRenderer:
 
         Returns empty string if no journey data exists.
         """
-        rows = self._graph._conn.execute(
-            """SELECT j.id AS journey_id, j.trigger,
-                      w.sequence, w.palace_id, w.entity_delta
-               FROM journeys j
-               JOIN waypoints w ON w.journey_id = j.id
-               WHERE j.entity_id = ?
-               ORDER BY j.id, w.sequence""",
-            (entity_id,),
-        ).fetchall()
+        rows = self._graph.get_journey_waypoint_events(entity_id)
 
         if not rows:
             return ""
@@ -346,18 +338,9 @@ class PalaceRenderer:
         # Find triples involving palace residents, filtering in SQL so the
         # DB never returns rows Python will immediately discard.
         if resident_ids:
-            placeholders = ",".join("?" * len(resident_ids))
-            ids_list = list(resident_ids)
-            triples_query = (
-                f"SELECT * FROM triples"  # noqa: S608 - parameterized IN clause, placeholders are "?" repetitions not user data  # nosec B608
-                f" WHERE (valid_from = '' OR valid_from IS NULL OR valid_from <= ?)"
-                f"   AND (valid_to = '' OR valid_to IS NULL OR valid_to > ?)"
-                f"   AND (subject_id IN ({placeholders}) OR object_id IN ({placeholders}))"
+            filtered = self._graph.get_active_triples_involving(
+                list(resident_ids), at_time
             )
-            filtered = self._graph._conn.execute(
-                triples_query,
-                (at_time, at_time, *ids_list, *ids_list),
-            ).fetchall()
         else:
             filtered = []
 

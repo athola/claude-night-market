@@ -11,15 +11,13 @@ computational_encoding (Issue #394).
 
 from __future__ import annotations
 
-import contextlib
 import json
-import os
-import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from memory_palace.knowledge_graph import KnowledgeGraph
+from memory_palace.palace_repository import _atomic_write_json
 
 
 @dataclass
@@ -239,9 +237,13 @@ def migrate_sensory_to_computational(
             report.unchanged.append(palace_file)
             continue
 
-        report.rewritten.append(palace_file)
         if apply:
-            _atomic_write_json(palace_file, converted)
+            try:
+                _atomic_write_json(str(palace_file), converted)
+            except OSError as exc:
+                report.skipped.append((palace_file, f"unwritable: {exc}"))
+                continue
+        report.rewritten.append(palace_file)
 
     return report
 
@@ -263,34 +265,3 @@ def _converted_palace(data: dict[str, Any]) -> dict[str, Any]:
 
     converted["computational_encoding"] = comp_enc
     return converted
-
-
-def _atomic_write_json(target: Path, data: dict[str, Any]) -> None:
-    """Write ``data`` to ``target`` atomically via a sibling tempfile.
-
-    Writes JSON to a NamedTemporaryFile in the same directory as
-    ``target`` (so ``os.replace`` is an atomic rename on POSIX), then
-    swaps it into place.  If any step fails the temp file is cleaned up
-    and the original ``target`` remains untouched.
-    """
-    tmp_path: str | None = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            dir=str(target.parent),
-            prefix=target.name + ".",
-            suffix=".tmp",
-            delete=False,
-        ) as tmp:
-            tmp_path = tmp.name
-            json.dump(data, tmp, indent=2)
-            tmp.flush()
-            os.fsync(tmp.fileno())
-        os.replace(tmp_path, str(target))
-        tmp_path = None
-    except OSError:
-        # Leave the original file untouched; clean up the orphan tempfile.
-        if tmp_path is not None:
-            with contextlib.suppress(OSError):
-                os.unlink(tmp_path)

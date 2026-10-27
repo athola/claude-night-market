@@ -8,9 +8,10 @@ tools return into Finding objects.
 
 from __future__ import annotations
 
+import html
 import re
 from typing import Any
-from urllib.parse import quote_plus
+from urllib.parse import quote, quote_plus
 
 from tome.channels import deduplicate_queries
 from tome.models import Finding
@@ -39,7 +40,7 @@ def expand_discourse_queries(topic: str, max_variants: int = 4) -> list[str]:
         f"{topic} comparison alternatives",
     ]
 
-    return deduplicate_queries(queries)[:max_variants]
+    return deduplicate_queries(queries, max_variants)
 
 
 _LOBSTERS_BASE_RELEVANCE = 0.6
@@ -180,18 +181,24 @@ def build_lobsters_websearch_query(topic: str) -> str:
     return f"site:lobste.rs {topic}"
 
 
-def parse_lobsters_result(result: dict[str, Any]) -> Finding:
+def parse_lobsters_result(result: dict[str, Any]) -> Finding | None:
     """Parse a lobste.rs WebSearch result dict into a Finding.
 
     Args:
         result: Dict with ``title``, ``url``, and optionally ``snippet``.
 
     Returns:
-        A Finding with ``source="lobsters"`` and ``channel="discourse"``.
+        A Finding with ``source="lobsters"`` and ``channel="discourse"``, or ``None``
+        when the result has no URL. A result with nothing to cite is
+        skipped here, the same as ``parse_you_mcp_result`` skips an
+        item, so callers drop ``None`` instead of filing a blank
+        Finding that survives deduplication.
     """
-    url: str = result.get("url", "")
-    title: str = result.get("title", url or "lobste.rs result")
-    snippet: str = result.get("snippet", result.get("description", ""))
+    url: str = result.get("url") or ""
+    if not url:
+        return None
+    title: str = result.get("title") or url
+    snippet: str = result.get("snippet") or result.get("description") or ""
 
     return Finding(
         source="lobsters",
@@ -350,6 +357,60 @@ def parse_reddit_response(
     return findings
 
 
+# The RSS feed carries no score, so a feed hit ranks as neutral evidence.
+_REDDIT_RSS_RELEVANCE = 0.5
+_ENTRY_RE = re.compile(r"<entry\b.*?</entry>", re.DOTALL)
+
+
+def build_reddit_rss_search_url(topic: str, subreddit: str) -> str:
+    """Build a Reddit search URL for the Atom feed.
+
+    The JSON search API returned a 403 block page and WebFetch refuses
+    reddit.com, while ``search.rss`` answered 200 (probed 2026-10-05). It
+    has no score, so findings from it are unranked.
+    """
+    return (
+        f"https://www.reddit.com/r/{quote(subreddit, safe='')}/search.rss"
+        f"?q={quote_plus(topic)}&restrict_sr=1&sort=relevance&t=all"
+    )
+
+
+def _atom_text(block: str, tag: str) -> str:
+    match = re.search(rf"<{tag}\b[^>]*>(.*?)</{tag}>", block, re.DOTALL)
+    return html.unescape(match.group(1)).strip() if match else ""
+
+
+def parse_reddit_rss(xml_text: str, subreddit: str) -> list[Finding]:
+    """Parse a Reddit search Atom feed into Findings.
+
+    Parsed with regular expressions, as the arXiv feed is, so a hostile
+    feed cannot trigger XML entity expansion.
+    """
+    findings: list[Finding] = []
+    for block in _ENTRY_RE.findall(xml_text):
+        title = _atom_text(block, "title")
+        link = re.search(r'<link\b[^>]*href="([^"]+)"', block)
+        url = html.unescape(link.group(1)) if link else ""
+        if not (title and url):
+            continue
+        text = re.sub(r"<[^>]+>", " ", _atom_text(block, "content"))
+        findings.append(
+            Finding(
+                source="reddit",
+                channel="discourse",
+                title=title,
+                url=url,
+                relevance=_REDDIT_RSS_RELEVANCE,
+                summary=" ".join(text.split())[:200],
+                metadata={
+                    "subreddit": subreddit,
+                    "updated": _atom_text(block, "updated") or None,
+                },
+            )
+        )
+    return findings
+
+
 # ---------------------------------------------------------------------------
 # Tech blogs
 # ---------------------------------------------------------------------------
@@ -391,22 +452,28 @@ def _domain_from_url(url: str) -> str:
     return "blog"
 
 
-def parse_blog_result(result: dict[str, Any]) -> Finding:
+def parse_blog_result(result: dict[str, Any]) -> Finding | None:
     """Parse a tech-blog WebSearch result dict into a Finding.
 
     The ``source`` field is set to the bare domain extracted from the
-    URL (e.g. ``"danluu.com"``), or ``"blog"`` when the URL is absent.
+    URL (e.g. ``"danluu.com"``).
 
     Args:
         result: Dict with ``title``, ``url``, and optionally ``snippet``.
 
     Returns:
-        A Finding with ``channel="discourse"``.
+        A Finding with ``channel="discourse"``, or ``None`` when the
+        result has no URL. A result with nothing to cite is skipped
+        here, the same as ``parse_you_mcp_result`` skips an item, so
+        callers drop ``None`` instead of filing a blank Finding that
+        survives deduplication.
     """
-    url: str = result.get("url", "")
-    title: str = result.get("title", url or "blog result")
-    snippet: str = result.get("snippet", result.get("description", ""))
-    source = _domain_from_url(url) if url else "blog"
+    url: str = result.get("url") or ""
+    if not url:
+        return None
+    title: str = result.get("title") or url
+    snippet: str = result.get("snippet") or result.get("description") or ""
+    source = _domain_from_url(url)
 
     return Finding(
         source=source,

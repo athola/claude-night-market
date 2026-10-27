@@ -53,8 +53,10 @@ class UnifiedReviewSkill(BaseReviewSkill):
     def detect_languages(self, context: Any) -> dict[str, Any]:
         """Detect programming languages in the codebase.
 
-        Delegates extension/config detection to RepositoryAnalyzer, then
-        enriches with context-specific metadata (Cargo.toml flag, test files).
+        Reads RepositoryAnalyzer's extension and config-file mapping tables
+        and counts per language. Each extension belongs to one language
+        (``.h`` is C). Adds context-specific metadata (Cargo.toml flag,
+        test files).
 
         Returns:
             Dictionary mapping language names to detection metadata

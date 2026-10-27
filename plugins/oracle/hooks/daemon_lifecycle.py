@@ -53,9 +53,12 @@ def _get_models_dir() -> Path:
 def _get_event() -> str:
     try:
         payload = json.load(sys.stdin)
-        return str(payload.get("hook_event_name", ""))
-    except (json.JSONDecodeError, OSError):
+    except (ValueError, OSError):
+        # ValueError covers JSONDecodeError and UnicodeDecodeError.
         return ""
+    if not isinstance(payload, dict):
+        return ""
+    return str(payload.get("hook_event_name", ""))
 
 
 # What the daemon's command line must contain for a PID to count as ours.

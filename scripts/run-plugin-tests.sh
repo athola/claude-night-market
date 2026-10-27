@@ -66,6 +66,27 @@ depcheck() {
   return 1
 }
 
+# Checks the .coverage that `make test` wrote in the plugin directory against
+# the threshold, once for the whole run. An empty threshold means none is set.
+# Only a .coverage newer than the marker, made just before `make test`,
+# counts. A missing or older one means the recipe stopped measuring, and
+# reading data left by an earlier run would pass it anyway. The report runs
+# in the plugin's own environment, which installed coverage through pytest-cov.
+enforce_coverage_threshold() {
+  local plugin_dir="${1}" fail_under="${2}" marker="${3}"
+  case "${fail_under}" in
+    "") return 0 ;;
+  esac
+  case "$(find "${plugin_dir}/.coverage" -prune -newer "${marker}" 2>/dev/null)" in
+    "")
+      log 5 "Coverage check: no ${plugin_dir}/.coverage written by this run"
+      return 1
+      ;;
+  esac
+  log "Coverage check: coverage report --fail-under=${fail_under}"
+  (cd "${plugin_dir}" && "${WITHOUT_GIT_ENV}" uv run coverage report --fail-under="${fail_under}")
+}
+
 run_plugin_tests() {
   local plugin_dir="${1}"
   local plugin_name
@@ -84,13 +105,44 @@ run_plugin_tests() {
     return 0
   fi
 
+  # Read coverage threshold from [tool.nightmarket] if set. Both branches
+  # below enforce it. The pyproject branch passes it to its own pytest. The
+  # Makefile branch checks the coverage data `make test` wrote, because each
+  # recipe builds its own pytest command line and an exported
+  # PYTEST_ADDOPTS would reach every pytest the recipe or its tests spawn.
+  local cov_threshold=""
+  if [ -f "${plugin_dir}/pyproject.toml" ]; then
+    cov_threshold=$(awk '
+              /^\[tool\.nightmarket\]/ { in_nm=1; next }
+              /^\[/ { in_nm=0 }
+              in_nm && /^coverage_threshold[[:space:]]*=/ {
+                  split($0, a, "="); gsub(/[[:space:]]/, "", a[2]); print a[2]; exit
+              }
+          ' "${plugin_dir}/pyproject.toml")
+  fi
+
+  # An array, not a string: quoting an empty string would hand pytest
+  # a literal "" and it would read that as a path to collect. An empty
+  # array expands to no words at all, which is what "no threshold set"
+  # has to mean.
+  local cov_flag=()
+  local fail_under=""
+  if [ -n "${cov_threshold}" ] && [ "${cov_threshold}" -gt 0 ] 2>/dev/null; then
+    cov_flag=(--cov-fail-under="${cov_threshold}")
+    fail_under="${cov_threshold}"
+  fi
+
   # Check if plugin has Makefile with test target
   if [ -f "${plugin_dir}/Makefile" ]; then
     if grep -q "^test:" "${plugin_dir}/Makefile" 2>/dev/null; then
       # Run using Makefile - capture output, show on failure.
       # Redirect stdout first, then point stderr at it: `2>&1 > file`
       # reads left to right and would leave stderr on the terminal.
-      if (cd "${plugin_dir}" && "${WITHOUT_GIT_ENV}" make test --quiet >"${temp_output}" 2>&1); then
+      local coverage_marker
+      coverage_marker=$(mktemp "/tmp/coverage_marker_${plugin_name}_XXXXXX")
+      _TEMP_FILES+=("${coverage_marker}")
+      if (cd "${plugin_dir}" && "${WITHOUT_GIT_ENV}" make test --quiet >"${temp_output}" 2>&1) &&
+        enforce_coverage_threshold "${plugin_dir}" "${fail_under}" "${coverage_marker}" >>"${temp_output}" 2>&1; then
         log "  ✓ Tests passed"
         PASSED_PLUGINS+=("${plugin_name}")
         rm -f "${temp_output}"
@@ -104,7 +156,9 @@ run_plugin_tests() {
         log "Output of the failing run:"
         cat "${temp_output}"
         log "Re-running with verbose output:"
-        (cd "${plugin_dir}" && "${WITHOUT_GIT_ENV}" make test 2>&1)
+        touch "${coverage_marker}"
+        (cd "${plugin_dir}" && "${WITHOUT_GIT_ENV}" make test 2>&1) &&
+          enforce_coverage_threshold "${plugin_dir}" "${fail_under}" "${coverage_marker}" 2>&1
         FAILED_PLUGINS+=("${plugin_name}")
         rm -f "${temp_output}"
         return 1
@@ -115,25 +169,6 @@ run_plugin_tests() {
   # Check if plugin has pyproject.toml with pytest
   if [ -f "${plugin_dir}/pyproject.toml" ]; then
     if grep -q "pytest" "${plugin_dir}/pyproject.toml" 2>/dev/null; then
-      # Read coverage threshold from [tool.nightmarket] if set
-      local cov_threshold
-      cov_threshold=$(awk '
-                /^\[tool\.nightmarket\]/ { in_nm=1; next }
-                /^\[/ { in_nm=0 }
-                in_nm && /^coverage_threshold[[:space:]]*=/ {
-                    split($0, a, "="); gsub(/[[:space:]]/, "", a[2]); print a[2]; exit
-                }
-            ' "${plugin_dir}/pyproject.toml")
-
-      # An array, not a string: quoting an empty string would hand pytest
-      # a literal "" and it would read that as a path to collect. An empty
-      # array expands to no words at all, which is what "no threshold set"
-      # has to mean.
-      local cov_flag=()
-      if [ -n "${cov_threshold}" ] && [ "${cov_threshold}" -gt 0 ] 2>/dev/null; then
-        cov_flag=(--cov-fail-under="${cov_threshold}")
-      fi
-
       # Run using uv/pytest - capture output, show on failure.
       # Redirect stdout before stderr; see the Makefile branch above.
       if (cd "${plugin_dir}" && "${WITHOUT_GIT_ENV}" uv run python -m pytest tests/ --tb=short --quiet ${cov_flag[@]+"${cov_flag[@]}"} >"${temp_output}" 2>&1); then
@@ -212,7 +247,7 @@ run_selected() {
       esac
 
       # Extract unique plugin directories
-      changed_plugins=$(printf '%s\n' "${changed_files}" | grep "^plugins/" | cut -d/ -f1-2 | sort -u)
+      changed_plugins=$(printf '%s\n' "${changed_files}" | { grep "^plugins/" || :; } | cut -d/ -f1-2 | sort -u)
 
       case "${changed_plugins}" in
         "")
@@ -238,6 +273,7 @@ run_selected() {
           run_plugin_tests "${plugin_dir}" || true
         else
           log "✗ Plugin not found: ${plugin_name}"
+          FAILED_PLUGINS+=("${plugin_name}")
         fi
       done
       ;;

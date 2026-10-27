@@ -26,17 +26,31 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 # D-13: pull canonical CLI envelope helpers from leyline.
-_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
-if str(_LEYLINE_SRC) not in _sys.path:
-    _sys.path.insert(0, str(_LEYLINE_SRC))
-
-from leyline.cli_envelope import (  # noqa: E402 - import after sys.path setup
-    error_envelope,
-    success_envelope,
+# The repo keeps plugins side by side, the install cache nests them by
+# version: resolve leyline in either, falling back to the repo path.
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vendored_leyline_sibling_plugins import (  # noqa: E402 - after sys.path setup
+    add_sibling_src_to_path,
 )
+
+add_sibling_src_to_path(__file__, "leyline")
+
+try:
+    from leyline.cli_envelope import (  # noqa: E402 - import after sys.path setup
+        error_envelope,
+        success_envelope,
+    )
+except ImportError:
+    # ADR-0001: a direct run says what is missing instead of raising a
+    # traceback. An importer gets the ImportError to handle itself.
+    if __name__ != "__main__":
+        raise
+    _sys.exit(
+        f"{Path(__file__).name}: requires the leyline plugin, which is not installed"
+    )
 
 # Constants for quality thresholds
 MIN_TEST_NAME_LENGTH = 10
@@ -62,11 +76,14 @@ class QualityLevel(Enum):
 class QualityIssue:
     """Represents a quality issue found in tests."""
 
-    severity: str  # 'error', 'warning', 'info'
+    severity: Literal["error", "warning", "info"]
     category: str
     message: str
     line_number: int | None = None
     suggestion: str | None = None
+    # Set when the checker runs on a directory, where a line number alone
+    # does not say which file to open.
+    file: str | None = None
 
 
 def resolve_project_interpreter(test_path: Path) -> tuple[str, Path | None]:
@@ -78,8 +95,8 @@ def resolve_project_interpreter(test_path: Path) -> tuple[str, Path | None]:
     the ambient interpreter then exits 4 with a usage error, which reads as a
     broken suite when the suite is fine.
 
-    Returns the project's ``.venv`` interpreter and project root when there is
-    one, and the running interpreter otherwise.
+    Returns the nearest ``.venv`` interpreter at or above the test file, and
+    the nearest project root, and the running interpreter when no venv exists.
     """
     path = Path(test_path).resolve()
     start = path if path.is_dir() else path.parent
@@ -94,7 +111,9 @@ def resolve_project_interpreter(test_path: Path) -> tuple[str, Path | None]:
             directory / ".venv" / "Scripts" / "python.exe",
         ):
             if candidate.exists():
-                return str(candidate), directory
+                # A workspace member shares the root's venv but keeps its own
+                # pytest settings, so the run starts from the nearest project.
+                return str(candidate), project_root
     return _sys.executable, project_root
 
 
@@ -128,13 +147,19 @@ class TestQualityChecker:
         self.test_path = Path(test_path)
         self.source_path = Path(source_path) if source_path else None
         self.issues: list[QualityIssue] = []
-        self._cached_content: str | None = None
+        self._cached_content: dict[Path, str] = {}
 
-    def _get_test_content(self) -> str:
-        if self._cached_content is None:
-            with open(self.test_path) as f:
-                self._cached_content = f.read()
-        return self._cached_content
+    def _test_files(self) -> list[Path]:
+        """Return the files to analyze: the path itself, or a directory's tests."""
+        if self.test_path.is_dir():
+            return sorted(self.test_path.rglob("test_*.py"))
+        return [self.test_path]
+
+    def _get_test_content(self, path: Path) -> str:
+        if path not in self._cached_content:
+            with open(path) as f:
+                self._cached_content[path] = f.read()
+        return self._cached_content[path]
 
     def run_full_validation(self) -> dict[str, Any]:
         """Run complete quality validation."""
@@ -176,7 +201,45 @@ class TestQualityChecker:
             )
             return analysis
 
-        test_content = self._get_test_content()
+        test_files = self._test_files()
+        if not test_files:
+            analysis["structure_issues"].append(
+                QualityIssue(
+                    "error",
+                    "structure",
+                    f"No test files found in {self.test_path}",
+                ),
+            )
+            return analysis
+
+        in_directory = self.test_path.is_dir()
+        for path in test_files:
+            file_analysis = self._analyze_file(
+                path, str(path) if in_directory else None
+            )
+            for category, issues in file_analysis.items():
+                analysis[category].extend(issues)
+
+        return analysis
+
+    def _analyze_file(
+        self, path: Path, file: str | None
+    ) -> dict[str, list[QualityIssue]]:
+        """Run every static check on one file.
+
+        Each file is parsed on its own: joining a directory's files into one
+        source is a SyntaxError as soon as a second file opens with
+        ``from __future__``. Every issue carries ``file``, which is None for
+        a single-file run where the path is already known.
+        """
+        analysis: dict[str, list[QualityIssue]] = {
+            "structure_issues": [],
+            "naming_issues": [],
+            "assertion_issues": [],
+            "bdd_compliance": [],
+            "documentation": [],
+        }
+        test_content = self._get_test_content(path)
 
         try:
             tree = ast.parse(test_content)
@@ -188,20 +251,22 @@ class TestQualityChecker:
                     f"Syntax error in test file: {e}",
                     e.lineno,
                     "Fix syntax errors before proceeding",
+                    file=file,
                 ),
             )
             return analysis
 
-        # Check test structure
-        self._check_test_structure(tree, analysis)
-        self._check_naming_conventions(tree, analysis)
-        self._check_assertion_quality(tree, analysis)
-        self._check_bdd_compliance(tree, analysis)
-        self._check_documentation(test_content, tree, analysis)
+        self._check_test_structure(tree, analysis, file)
+        self._check_naming_conventions(tree, analysis, file)
+        self._check_assertion_quality(tree, analysis, file)
+        self._check_bdd_compliance(tree, analysis, file)
+        self._check_documentation(test_content, tree, analysis, file)
 
         return analysis
 
-    def _check_test_structure(self, tree: ast.AST, analysis: dict) -> None:
+    def _check_test_structure(
+        self, tree: ast.AST, analysis: dict, file: str | None = None
+    ) -> None:
         """Check test file structure."""
         # Check for test functions
         test_functions = [
@@ -212,7 +277,9 @@ class TestQualityChecker:
 
         if not test_functions:
             analysis["structure_issues"].append(
-                QualityIssue("error", "structure", "No test functions found"),
+                QualityIssue(
+                    "error", "structure", "No test functions found", file=file
+                ),
             )
 
         # Check for imports
@@ -228,10 +295,13 @@ class TestQualityChecker:
                     "warning",
                     "structure",
                     "No imports found - may need pytest or unittest",
+                    file=file,
                 ),
             )
 
-    def _check_naming_conventions(self, tree: ast.AST, analysis: dict) -> None:
+    def _check_naming_conventions(
+        self, tree: ast.AST, analysis: dict, file: str | None = None
+    ) -> None:
         """Check test naming conventions."""
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
@@ -243,6 +313,7 @@ class TestQualityChecker:
                             "naming",
                             f"Test name '{node.name}' too short - be more descriptive",
                             node.lineno,
+                            file=file,
                         ),
                     )
 
@@ -255,6 +326,7 @@ class TestQualityChecker:
                             f"Test name '{node.name}' contains spaces",
                             node.lineno,
                             "Use underscores: test_example_behavior",
+                            file=file,
                         ),
                     )
 
@@ -306,7 +378,9 @@ class TestQualityChecker:
                 return True
         return False
 
-    def _check_assertion_quality(self, tree: ast.AST, analysis: dict) -> None:
+    def _check_assertion_quality(
+        self, tree: ast.AST, analysis: dict, file: str | None = None
+    ) -> None:
         """Check assertion quality and patterns."""
         for node in ast.walk(tree):
             if not (
@@ -323,6 +397,7 @@ class TestQualityChecker:
                         "assertion",
                         f"Test '{node.name}' has no assertions",
                         node.lineno,
+                        file=file,
                     ),
                 )
             elif (
@@ -337,6 +412,7 @@ class TestQualityChecker:
                         f"Vague assertion in '{node.name}' - be more specific",
                         assertions[0].lineno,
                         "Example: assert result.status == 'success'",
+                        file=file,
                     ),
                 )
 
@@ -344,7 +420,9 @@ class TestQualityChecker:
     # without one. Requiring it made every three-clause docstring fail.
     _BDD_KEYWORDS = ("given", "when", "then")
 
-    def _check_bdd_compliance(self, tree: ast.AST, analysis: dict) -> None:
+    def _check_bdd_compliance(
+        self, tree: ast.AST, analysis: dict, file: str | None = None
+    ) -> None:
         """Check BDD pattern compliance using AST docstring extraction."""
         for node in ast.walk(tree):
             if not (
@@ -363,11 +441,16 @@ class TestQualityChecker:
                         "bdd",
                         f"Test '{node.name}' missing BDD patterns",
                         suggestion=f"Add {', '.join(missing)} patterns",
+                        file=file,
                     ),
                 )
 
     def _check_documentation(
-        self, test_content: str, tree: ast.AST, analysis: dict
+        self,
+        test_content: str,
+        tree: ast.AST,
+        analysis: dict,
+        file: str | None = None,
     ) -> None:
         """Check test documentation quality."""
         # Read the docstring off the parsed module rather than the raw
@@ -383,6 +466,7 @@ class TestQualityChecker:
                     "warning",
                     "documentation",
                     "Missing module docstring - describe what these tests cover",
+                    file=file,
                 ),
             )
 
@@ -402,6 +486,7 @@ class TestQualityChecker:
                     "info",
                     "documentation",
                     f"{total_tests - documented_tests} tests lack documentation",
+                    file=file,
                 ),
             )
 
@@ -469,7 +554,10 @@ class TestQualityChecker:
                 validation["skipped"] = parsed["skipped"]
 
             except subprocess.TimeoutExpired:
-                validation["errors"].append("Test execution timed out (>30s)")
+                # A suite longer than the cap was cut off, not failed: no
+                # test result exists to score, so the run is reported as
+                # unmeasured and costs no execution points.
+                validation["not_measured"] = "test run exceeded 30s"
                 validation["test_duration"] = 30
             except Exception as e:
                 validation["errors"].append(f"Test execution failed: {e}")
@@ -534,50 +622,54 @@ class TestQualityChecker:
             "average_test_length": 0,
             "complexity_score": 0,
             "documentation_ratio": 0,
+            # Files skipped because they do not parse. The other metrics
+            # describe only the files that did.
+            "unparseable_files": 0,
         }
 
         if not self.test_path.exists():
             return metrics
 
-        content = self._get_test_content()
+        test_count = 0
+        assertion_count = 0
+        test_lines = 0
+        complexity = 0
+        docstring_lines = 0
+        total_lines = 0
+        for path in self._test_files():
+            content = self._get_test_content(path)
+            try:
+                tree = ast.parse(content)
+            except SyntaxError:
+                metrics["unparseable_files"] += 1
+                continue
 
-        try:
-            tree = ast.parse(content)
-        except SyntaxError:
-            return metrics
-
-        # Count tests
-        test_functions = [
-            node
-            for node in ast.walk(tree)
-            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
-        ]
-        metrics["test_count"] = len(test_functions)
-
-        # Count assertions
-        metrics["assertion_count"] = sum(
-            1 for node in ast.walk(tree) if isinstance(node, ast.Assert)
-        )
-
-        # Calculate average test length
-        if test_functions:
-            total_lines = 0
+            test_functions = [
+                node
+                for node in ast.walk(tree)
+                if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+            ]
+            test_count += len(test_functions)
+            assertion_count += sum(
+                1 for node in ast.walk(tree) if isinstance(node, ast.Assert)
+            )
             for test in test_functions:
                 if hasattr(test, "end_lineno"):
-                    total_lines += test.end_lineno - test.lineno + 1
+                    test_lines += test.end_lineno - test.lineno + 1
                 else:
-                    total_lines += len(test.body)
-            metrics["average_test_length"] = total_lines / len(test_functions)
+                    test_lines += len(test.body)
+            complexity += self._calculate_complexity(tree)
+            docstring_lines += sum(
+                len(doc.split("\n"))
+                for doc in re.findall(r'"""(.*?)"""', content, re.DOTALL)
+            )
+            total_lines += len(content.split("\n"))
 
-        # Calculate complexity (simplified)
-        metrics["complexity_score"] = self._calculate_complexity(tree)
-
-        # Documentation ratio
-        docstring_lines = sum(
-            len(doc.split("\n"))
-            for doc in re.findall(r'"""(.*?)"""', content, re.DOTALL)
-        )
-        total_lines = len(content.split("\n"))
+        metrics["test_count"] = test_count
+        metrics["assertion_count"] = assertion_count
+        if test_count:
+            metrics["average_test_length"] = test_lines / test_count
+        metrics["complexity_score"] = complexity
         metrics["documentation_ratio"] = (
             docstring_lines / total_lines if total_lines > 0 else 0
         )
@@ -727,6 +819,11 @@ class TestQualityChecker:
 
         # From dynamic validation
         dynamic = results["dynamic_validation"]
+        if dynamic.get("not_measured"):
+            recommendations.append(
+                f"Test execution not measured ({dynamic['not_measured']}); "
+                "the score excludes execution, so run the suite directly",
+            )
         if dynamic.get("inconclusive"):
             recommendations.append(
                 "Test run was inconclusive (pytest exit code >= 2); "
@@ -788,6 +885,16 @@ def main() -> None:
     # crash mid-check were indistinguishable from a clean run to any caller
     # reading the status rather than parsing the JSON.
     try:
+        if args.coverage:
+            # Accepted by the parser but never implemented here; falling
+            # through to the help text exited 0 as if a check had run.
+            output_error(
+                "--coverage is not implemented in quality_checker.py; "
+                "use test_analyzer.py --coverage",
+                args,
+            )
+            raise SystemExit(1)
+
         if args.check or args.validate:
             test_path = Path(args.check or args.validate)
             if not test_path.exists():

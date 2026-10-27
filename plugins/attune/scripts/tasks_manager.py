@@ -11,9 +11,14 @@ import sys
 from pathlib import Path
 
 # Add abstract src to path for cross-plugin import (ADR-0001: guarded)
-_ABSTRACT_SRC = Path(__file__).resolve().parents[2] / "abstract" / "src"
-if str(_ABSTRACT_SRC) not in sys.path:
-    sys.path.insert(0, str(_ABSTRACT_SRC))
+# The repo keeps plugins side by side, the install cache nests them by
+# version: resolve abstract in either, falling back to the repo path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vendored_leyline_sibling_plugins import (  # type: ignore[import-not-found]  # noqa: E402 - scripts dir on sys.path
+    add_sibling_src_to_path,
+)
+
+add_sibling_src_to_path(__file__, "abstract")
 
 try:
     from abstract.tasks_manager_base import (

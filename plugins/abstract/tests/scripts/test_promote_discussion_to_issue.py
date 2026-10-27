@@ -352,3 +352,160 @@ class TestRunPromotion:
             results = run_promotion()
 
         assert results == []
+
+
+# ---------------------------------------------------------------------------
+# Error paths at the gh and config-file boundaries
+# ---------------------------------------------------------------------------
+
+import promote_discussion_to_issue as promote_module  # noqa: E402 - path set above
+
+
+def _gh_error(message: str) -> Exception:
+    """A GhCommandError as leyline.git_platform raises it."""
+    return promote_module.GhCommandError(message, cmd=["gh", "api", "graphql"])
+
+
+class TestConfigFileErrors:
+    """Unreadable config files fall back to defaults instead of crashing."""
+
+    @pytest.mark.unit
+    def test_corrupt_config_falls_back_to_defaults_and_warns(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A config.json that is not JSON yields the defaults and a warning."""
+        (tmp_path / "config.json").write_text("{not json")
+        with patch("promote_discussion_to_issue.get_config_dir", return_value=tmp_path):
+            config = PromotionConfig.load()
+        assert config == PromotionConfig()
+        assert "Could not load config" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_corrupt_promoted_record_loads_empty(self, tmp_path: Path) -> None:
+        """A promoted.json that is not JSON yields an empty record."""
+        (tmp_path / "promoted.json").write_text("{not json")
+        with patch("promote_discussion_to_issue.get_config_dir", return_value=tmp_path):
+            record = PromotedRecord.load()
+        assert record.promoted == {}
+
+
+class TestGhBoundary:
+    """gh failures surface as RuntimeError, the type callers handle."""
+
+    @pytest.mark.unit
+    def test_gh_failure_is_reraised_as_runtime_error(self) -> None:
+        """GhCommandError from leyline becomes RuntimeError with its message."""
+        with patch(
+            "promote_discussion_to_issue.gh_graphql",
+            side_effect=_gh_error("HTTP 502"),
+        ):
+            with pytest.raises(RuntimeError, match="HTTP 502"):
+                promote_module.run_gh_graphql("query { x }")
+
+    @pytest.mark.unit
+    def test_repo_node_id_is_read_from_the_response(self) -> None:
+        """get_repo_node_id returns data.repository.id as a string."""
+        with patch(
+            "promote_discussion_to_issue.gh_graphql",
+            return_value={"data": {"repository": {"id": "R_kgDO"}}},
+        ):
+            assert promote_module.get_repo_node_id() == "R_kgDO"
+
+    @pytest.mark.unit
+    def test_long_body_is_truncated_with_a_notice(self) -> None:
+        """A body over BODY_PREVIEW_LIMIT is cut and marked as truncated."""
+        limit = promote_module.BODY_PREVIEW_LIMIT
+        item = DiscussionItem("D_1", "t", "u", "x" * (limit + 10), 4)
+        body = format_issue_body(item)
+        assert "x" * limit in body
+        assert "x" * (limit + 1) not in body
+        assert "Content truncated" in body
+
+    @pytest.mark.unit
+    def test_one_failed_promotion_does_not_stop_the_rest(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """An issue-creation failure is warned about and the loop continues."""
+        discussions = {
+            "data": {
+                "repository": {
+                    "discussions": {
+                        "nodes": [
+                            {
+                                "id": f"D_{n}",
+                                "title": f"T{n}",
+                                "url": f"https://x/{n}",
+                                "body": "b",
+                                "reactions": {"totalCount": 5},
+                            }
+                            for n in (1, 2)
+                        ]
+                    }
+                }
+            }
+        }
+        created = {"data": {"createIssue": {"issue": {"url": "https://x/issues/9"}}}}
+
+        def fake_gh(query: str, variables: dict | None = None) -> dict:
+            if "createIssue" in query:
+                if variables and variables["title"].endswith("T1"):
+                    raise _gh_error("rate limited")
+                return created
+            if "discussions" in query:
+                return discussions
+            return {"data": {"repository": {"id": "R_1"}}}
+
+        with (
+            patch("promote_discussion_to_issue.gh_graphql", side_effect=fake_gh),
+            patch("promote_discussion_to_issue.get_config_dir", return_value=tmp_path),
+        ):
+            urls = run_promotion()
+
+        assert urls == ["https://x/issues/9"]
+        assert "Could not promote 'T1'" in capsys.readouterr().err
+        saved = json.loads((tmp_path / "promoted.json").read_text())
+        assert saved == {"promoted": {"D_2": "https://x/issues/9"}}
+
+
+class TestMain:
+    """main never fails the session: every error exits 0 with a warning."""
+
+    @pytest.mark.unit
+    def test_prints_each_promoted_url(self, capsys: pytest.CaptureFixture[str]) -> None:
+        with patch(
+            "promote_discussion_to_issue.run_promotion",
+            return_value=["https://x/issues/1"],
+        ):
+            promote_module.main()
+        out = capsys.readouterr().out
+        assert "Promoted 1 discussion(s)" in out
+        assert "https://x/issues/1" in out
+
+    @pytest.mark.unit
+    def test_reports_when_nothing_was_promoted(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        with patch("promote_discussion_to_issue.run_promotion", return_value=[]):
+            promote_module.main()
+        assert "No discussions promoted." in capsys.readouterr().out
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("error", "message"),
+        [
+            (RuntimeError("boom"), "Promotion failed: boom"),
+            (FileNotFoundError("gh"), "gh CLI not found"),
+        ],
+        ids=["gh-failure", "gh-missing"],
+    )
+    def test_errors_exit_zero_with_a_warning(
+        self,
+        error: Exception,
+        message: str,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        with patch("promote_discussion_to_issue.run_promotion", side_effect=error):
+            with pytest.raises(SystemExit) as exc:
+                promote_module.main()
+        assert exc.value.code == 0
+        assert message in capsys.readouterr().err

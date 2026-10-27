@@ -48,7 +48,7 @@ Use **instead of** `project-init` when architecture is undecided.
 Use **before** `project-specification` to establish the
 architectural foundation.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `arch-init:research-completed`: Online research completed
 2. `arch-init:paradigm-selected`: Architecture paradigm chosen
@@ -155,7 +155,7 @@ and clear decision rationale.
 
 ## Exit Criteria
 
-- [ ] All four TodoWrite items are checked off:
+- [ ] All four progress items are checked off:
   `arch-init:research-completed`, `arch-init:paradigm-selected`,
   `arch-init:templates-customized`, `arch-init:decision-recorded`.
 - [ ] An ADR file exists in the initialized project explaining why the selected paradigm was

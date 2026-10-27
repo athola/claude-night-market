@@ -41,7 +41,6 @@ A digital garden approach to knowledge management that:
 ```bash
 python -m memory_palace.garden_metrics path/to/garden.json --format brief
 ```
-**Verification:** Run `python --version` to verify Python environment.
 
 ### Output Formats
 - `json` - Full metrics as JSON
@@ -96,7 +95,6 @@ garden:
       outbound_links: []
       last_tended: "2025-11-24T10:00:00Z"
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Maintenance Cadence
 

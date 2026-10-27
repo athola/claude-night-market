@@ -49,7 +49,7 @@ Run `stack-rebase` in any of these situations:
 
 ## Required Progress Tracking
 
-Create `TodoWrite` items before starting:
+Create progress items before starting:
 
 1. `stack-rebase:fetch-complete`
 2. `stack-rebase:trigger-identified`
@@ -228,7 +228,7 @@ done
 
 ## Exit Criteria
 
-- [ ] All 6 TodoWrite items (`stack-rebase:fetch-complete` through
+- [ ] All 6 progress items (`stack-rebase:fetch-complete` through
       `stack-rebase:prs-updated`) are created before the rebase starts
       and marked complete in order
 - [ ] `git fetch origin` completes before the rebase trigger is

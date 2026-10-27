@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from abstract.frontmatter import FrontmatterProcessor, FrontmatterResult
+from abstract.hook_events import HOOK_EVENTS
 
 
 class TestFrontmatterResult:
@@ -351,10 +352,13 @@ class TestValidate210Fields:
         frontmatter = {
             "hooks": {
                 "PreToolUse": [
-                    {"matcher": "Bash", "command": "echo test"},
+                    {
+                        "matcher": "Bash",
+                        "hooks": [{"type": "command", "command": "echo test"}],
+                    },
                 ],
                 "Stop": [
-                    {"command": "echo done"},
+                    {"hooks": [{"type": "command", "command": "echo done"}]},
                 ],
             }
         }
@@ -375,10 +379,10 @@ class TestValidate210Fields:
             ),
             (
                 {"PreToolUse": [{"matcher": "Bash"}]},
-                "missing 'command'",
+                "needs a 'hooks' list",
             ),
             (
-                {"InvalidEvent": [{"command": "echo test"}]},
+                {"InvalidEvent": [{"hooks": []}]},
                 "Invalid hook event type: InvalidEvent",
             ),
         ],
@@ -386,7 +390,7 @@ class TestValidate210Fields:
             "hooks-not-dict",
             "entries-not-list",
             "entry-not-dict",
-            "missing-command",
+            "missing-handlers",
             "invalid-event-type",
         ],
     )
@@ -402,7 +406,10 @@ class TestValidate210Fields:
         frontmatter = {
             "hooks": {
                 "PreToolUse": [
-                    {"matcher": "Bash", "command": "echo test", "once": True},
+                    {
+                        "matcher": "Bash",
+                        "hooks": [{"type": "command", "command": "x", "once": True}],
+                    },
                 ],
             }
         }
@@ -414,7 +421,10 @@ class TestValidate210Fields:
         frontmatter = {
             "hooks": {
                 "PreToolUse": [
-                    {"matcher": "Bash", "command": "echo test", "once": "true"},
+                    {
+                        "matcher": "Bash",
+                        "hooks": [{"type": "command", "command": "x", "once": "true"}],
+                    },
                 ],
             }
         }
@@ -479,28 +489,8 @@ class TestAllHookEventTypes:
 
     def test_all_valid_hook_events(self) -> None:
         """Given the expected event list, VALID_HOOK_EVENTS matches."""
-        expected_events = (
-            "Setup",
-            "SessionStart",
-            "SessionEnd",
-            "UserPromptSubmit",
-            "PreToolUse",
-            "PostToolUse",
-            "PostToolUseFailure",
-            "PermissionRequest",
-            "Notification",
-            "SubagentStart",
-            "SubagentStop",
-            "Stop",
-            "TeammateIdle",
-            "TaskCompleted",
-            "ConfigChange",
-            "InstructionsLoaded",
-            "PreCompact",
-            "WorktreeCreate",
-            "WorktreeRemove",
-        )
-        assert FrontmatterProcessor.VALID_HOOK_EVENTS == expected_events
+        assert len(HOOK_EVENTS) == 33
+        assert set(FrontmatterProcessor.VALID_HOOK_EVENTS) == set(HOOK_EVENTS)
 
     @pytest.mark.parametrize(
         "event_type",
@@ -530,7 +520,7 @@ class TestAllHookEventTypes:
         """Given a valid event type, no validation errors are returned."""
         frontmatter = {
             "hooks": {
-                event_type: [{"command": "echo test"}],
+                event_type: [{"hooks": [{"type": "command", "command": "echo"}]}],
             }
         }
         errors = FrontmatterProcessor.validate_210_fields(frontmatter)
@@ -575,3 +565,88 @@ class TestConstantDefinitions:
             "ignore",
         )
         assert FrontmatterProcessor.VALID_PERMISSION_MODES == expected_modes
+
+
+class TestPluginAgentFields:
+    """Plugin agents honor a documented field set and ignore four fields.
+
+    code.claude.com/docs/en/plugins/components, "Frontmatter fields in plugin
+    agents". An ignored or misnamed field loads without error, so the author
+    believes a restriction holds that does not.
+    """
+
+    def test_supported_fields_report_nothing(self) -> None:
+        frontmatter = {
+            "name": "reviewer",
+            "description": "Reviews diffs.",
+            "model": "sonnet",
+            "effort": "medium",
+            "maxTurns": 20,
+            "tools": ["Read", "Bash"],
+            "disallowedTools": ["Write"],
+            "skills": ["pensive:review-core"],
+            "memory": "project",
+            "background": True,
+            "omitClaudeMd": True,
+            "isolation": "worktree",
+            "color": "blue",
+            "experimental": {"cacheTtl": "1h"},
+        }
+        assert FrontmatterProcessor.validate_plugin_agent(frontmatter) == []
+
+    @pytest.mark.parametrize(
+        "field", ["permissionMode", "hooks", "mcpServers", "initialPrompt"]
+    )
+    def test_fields_plugin_agents_ignore_are_reported(self, field: str) -> None:
+        errors = FrontmatterProcessor.validate_plugin_agent({"name": "a", field: "x"})
+        assert len(errors) == 1
+        assert field in errors[0]
+        assert "ignored" in errors[0]
+
+    @pytest.mark.parametrize(
+        ("field", "replacement"),
+        [
+            ("allowed-tools", "tools"),
+            ("tools_allowed", "tools"),
+            ("max_iterations", "maxTurns"),
+        ],
+    )
+    def test_misnamed_fields_name_their_replacement(
+        self, field: str, replacement: str
+    ) -> None:
+        errors = FrontmatterProcessor.validate_plugin_agent({"name": "a", field: []})
+        assert len(errors) == 1
+        assert f"'{replacement}'" in errors[0]
+
+    def test_isolation_accepts_only_worktree(self) -> None:
+        errors = FrontmatterProcessor.validate_plugin_agent(
+            {"name": "a", "isolation": "container"}
+        )
+        assert len(errors) == 1
+        assert "worktree" in errors[0]
+
+
+class TestHookEventRoster:
+    """One roster serves frontmatter and hooks.json validation."""
+
+    def test_frontmatter_uses_the_shared_roster(self) -> None:
+        assert set(FrontmatterProcessor.VALID_HOOK_EVENTS) == set(HOOK_EVENTS)
+
+    @pytest.mark.parametrize("event", ["PreModelSwitch", "StopFailure", "TaskCreated"])
+    def test_events_added_after_2_1_50_validate(self, event: str) -> None:
+        frontmatter = {
+            "hooks": {event: [{"hooks": [{"type": "command", "command": "true"}]}]}
+        }
+        assert FrontmatterProcessor.validate_210_fields(frontmatter) == []
+
+    def test_flat_command_entry_names_the_documented_shape(self) -> None:
+        frontmatter = {"hooks": {"PreToolUse": [{"matcher": "Bash", "command": "x"}]}}
+        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
+        assert len(errors) == 1
+        assert "'hooks' list" in errors[0]
+
+    def test_handler_without_type_is_reported(self) -> None:
+        frontmatter = {"hooks": {"Stop": [{"hooks": [{"command": "x"}]}]}}
+        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
+        assert len(errors) == 1
+        assert "'type'" in errors[0]

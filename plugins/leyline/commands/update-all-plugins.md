@@ -2,6 +2,7 @@
 name: update-all-plugins
 description: Update all installed Claude Code plugins from all marketplaces.
 usage: /update-all-plugins
+disable-model-invocation: true
 ---
 
 # Update All Plugins
@@ -24,7 +25,8 @@ One-shot command that upgrades every installed plugin from all configured market
 The command executes the Python script at `scripts/update_all_plugins.py` which:
 
 1. **Read installed plugins**
-   - Parses `~/.claude/plugins/installed_plugins_v2.json`
+   - Parses `~/.claude/plugins/installed_plugins_v2.json`, or
+     `installed_plugins.json` when only the v1 file exists
    - Extracts plugin names and their marketplaces
    - Groups plugins by marketplace for efficient processing
 

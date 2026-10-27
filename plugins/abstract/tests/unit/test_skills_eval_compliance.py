@@ -593,11 +593,22 @@ class TestComplianceCheckerGenerateReport:
         )
         checker = ComplianceChecker(tmp_path)
         report = checker.generate_report()
-        assert isinstance(report, str)
+        # A description without triggers warns but does not fail compliance
+        assert "Compliant: Yes" in report
+        assert "Issues:" not in report
+        assert "Warnings:\n  - warn-skill: " in report
+        assert "  - warn-skill: Missing 'Use when:' in description\n" in report
 
     @pytest.mark.unit
-    def test_report_is_string(self, empty_skill_dir: Path) -> None:
-        """Scenario: Report is always a string."""
+    def test_empty_directory_report_is_non_compliant_with_no_skills_found(
+        self, empty_skill_dir: Path
+    ) -> None:
+        """Scenario: An empty directory reports zero skills as non-compliant."""
         checker = ComplianceChecker(empty_skill_dir)
         report = checker.generate_report()
-        assert isinstance(report, str)
+        assert report == (
+            f"Compliance Report for {empty_skill_dir}\n"
+            + "=" * 50
+            + "\nTotal Skills: 0\nCompliant: No\n\n"
+            "Issues:\n  - No SKILL.md files found\n"
+        )

@@ -230,13 +230,16 @@ class TestStructureMixin:
         source_methods, branch_count = self._extract_source_metrics(source_code)
         tested_methods = self._extract_tested_methods(test_code)
 
-        # Find uncovered methods
-        for method in source_methods:
-            if method.startswith("_"):
-                continue
-            if method not in tested_methods and not any(
-                method in t for t in tested_methods
-            ):
+        # A test covers a method when the method's name is a whole
+        # underscore-delimited run in the test's name: test_a_case0 covers
+        # a, and does not cover c.
+        public_methods = [m for m in source_methods if not m.startswith("_")]
+        covered_methods = 0
+        for method in public_methods:
+            pattern = re.compile(rf"(?:^|_){re.escape(method)}(?:_|$)")
+            if any(pattern.search(t) for t in tested_methods):
+                covered_methods += 1
+            else:
                 coverage["uncovered_methods"].append(method)
 
         # Check for uncovered branches
@@ -245,9 +248,9 @@ class TestStructureMixin:
         )
 
         # Estimate coverage
-        total_items = len(source_methods) + branch_count
+        total_items = len(public_methods) + branch_count
         if total_items > 0:
-            covered = len(tested_methods) + tested_branches
+            covered = covered_methods + tested_branches
             coverage["estimated_coverage"] = min(
                 100, int((covered / total_items) * 100)
             )

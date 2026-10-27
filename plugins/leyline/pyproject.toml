@@ -1,6 +1,6 @@
 [project]
 name = "leyline"
-version = "1.9.21"
+version = "1.10.0"
 description = "Infrastructure and pipeline building blocks for Claude Code plugins"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
@@ -17,7 +17,6 @@ dev = [
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
     "pytest-cov>=7.1.0",
-    "pytest-mock>=3.15.1",
     # Tests import yaml directly; src/leyline/frontmatter.py keeps
     # its optional sentinel import (issue #609 fresh-env failure)
     "pyyaml>=6.0.3",
@@ -77,19 +76,14 @@ module = ["tiktoken", "yaml"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = ["pytest"]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
 module = ["leyline.frontmatter"]
 disable_error_code = ["no-redef"]
 
 [[tool.mypy.overrides]]
-module = ["leyline.session_store", "leyline.scripts.verify_plugin", "verify_plugin"]
+module = ["leyline.session_store"]
 disable_error_code = ["type-arg", "no-any-return"]
 
 [tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-v --cov=leyline --cov-report=term-missing --strict-markers"
@@ -113,4 +107,16 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "if __name__ == .__main__.:",
     "raise NotImplementedError",
+]
+
+[dependency-groups]
+# `uv run` syncs this group by default, while the optional `dev` extra
+# above is not synced. python.mk's security target needs bandit, and
+# `uv run pytest` in a fresh env needs pytest, pytest-cov (addopts sets
+# --cov) and pyyaml (tests import yaml directly).
+dev = [
+    "bandit>=1.8.6,<2.0",
+    "pytest>=8.0",
+    "pytest-cov>=7.1.0",
+    "pyyaml>=6.0.3",
 ]

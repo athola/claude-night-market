@@ -1,6 +1,6 @@
 [project]
 name = "phantom"
-version = "1.9.21"
+version = "1.10.0"
 description = "Computer use toolkit for Claude - screenshot capture, mouse/keyboard control, and agent loop"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -13,7 +13,6 @@ dependencies = [
 dev = [
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
-    "pytest-asyncio>=1.2.0",
     "pytest-cov>=7.1.0",
     "ruff>=0.16.8",
 ]
@@ -48,6 +47,13 @@ module = ["_pytest.*", "pytest.*"]
 follow_imports = "skip"
 
 [[tool.mypy.overrides]]
+module = ["pydantic.json_schema", "pydantic._internal._discriminated_union"]
+# pydantic 2.14 writes `match` statements in these two modules, which mypy
+# cannot parse against the 3.9 floor. Skipping only them keeps BaseModel,
+# and the anthropic types built on it, checked.
+follow_imports = "skip"
+
+[[tool.mypy.overrides]]
 module = ["anyio", "anyio.*"]
 ignore_missing_imports = true
 # anyio's own source uses `match` statements (3.10+). Targeting the 3.9 floor,
@@ -57,7 +63,6 @@ follow_imports = "skip"
 follow_imports_for_stubs = true
 
 [tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-v --tb=short --cov=phantom --cov-report=term-missing"
@@ -67,10 +72,6 @@ source = ["src/phantom"]
 omit = [
     "tests/*",
     "*/__pycache__/*",
-    "src/phantom/__main__.py",
-    "src/phantom/cli.py",
-    "src/phantom/loop.py",
-    "src/phantom/display.py",
 ]
 
 [tool.coverage.report]

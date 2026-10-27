@@ -221,3 +221,27 @@ class TestFeatureExtraction:
             ch, "PostgreSQL uses B-tree indexes for fast lookups."
         )
         assert features["word_overlap_ratio"] == pytest.approx(0.0)
+
+
+@pytest.mark.unit
+def test_structural_depth_stays_in_its_calibrated_range() -> None:
+    """quality_v1.yaml calibrates the 0.73 weight for 0-5; past 5 the
+    logit grows without bound and a bullet list outscores content.
+    """
+    answer = "\n".join(f"- item {i}" for i in range(12))
+    features = extract_answer_features(
+        _challenge("explain_why", "Tokens expire after 15 minutes."), answer
+    )
+    assert features["structural_depth"] == pytest.approx(5.0)
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("word", ["doesn't", "can't", "don't", "won't", "isn't"])
+def test_contractions_count_as_negation(word: str) -> None:
+    """The negation list spells contractions without the apostrophe; the
+    tokenizer split "doesn't" into "doesn" and "t", so none matched.
+    """
+    features = extract_answer_features(
+        _challenge("explain_why", "Tokens expire after 15 minutes."), f"it {word} scale"
+    )
+    assert features["negation_density"] > 0.0

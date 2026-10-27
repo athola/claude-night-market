@@ -1,6 +1,6 @@
 {
   "name": "memory-palace",
-  "version": "1.9.21",
+  "version": "1.10.0",
   "main": "skills",
   "skills": [
     "skills/digital-garden-cultivator",

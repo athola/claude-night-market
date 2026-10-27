@@ -10,7 +10,8 @@ The hook accepts two payload shapes:
 * **PreToolUse for Edit/Write/MultiEdit on a settings file** (current
   Claude Code v2.1.89+, where ConfigChange does not fire). The hook
   detects ``file_path`` paths under any ``.claude/`` directory whose
-  basename matches ``settings*.json`` and infers the source bucket
+  basename matches ``settings*.json``, plus the user settings file in a
+  relocated ``CLAUDE_CONFIG_DIR``, and infers the source bucket
   from the path so the audit line matches the legacy format.
 
 Observe-only: never blocks tool execution. Failures exit 0 silently.
@@ -32,11 +33,25 @@ _POLICY_PATHS = (
 )
 
 
+def _user_settings_paths() -> list[PurePath]:
+    """User settings: ~/.claude/settings.json, or the relocated config dir's."""
+    paths = []
+    config_dir = os.environ.get("CLAUDE_CONFIG_DIR")
+    if config_dir:
+        paths.append(PurePath(config_dir, "settings.json"))
+    home = os.environ.get("HOME") or os.environ.get("USERPROFILE") or ""
+    if home:
+        paths.append(PurePath(home, ".claude", "settings.json"))
+    return paths
+
+
 def _is_settings_file(file_path: str) -> bool:
     """Return True if *file_path* is a Claude settings file we should audit."""
     if not file_path:
         return False
     if file_path in _POLICY_PATHS:
+        return True
+    if PurePath(file_path) in _user_settings_paths():
         return True
     p = PurePath(file_path)
     if not p.name.startswith("settings") or not p.name.endswith(".json"):
@@ -54,10 +69,9 @@ def _infer_source(file_path: str) -> str:
     if name == "settings.local.json":
         return "local_settings"
 
-    home = os.environ.get("HOME") or os.environ.get("USERPROFILE") or ""
-    if home and (
-        file_path.startswith(home + os.sep) or file_path.startswith(home + "/")
-    ):
+    # User settings are one file, not everything under $HOME: a prefix test
+    # on $HOME called every project checked out under it user settings.
+    if PurePath(file_path) in _user_settings_paths():
         return "user_settings"
 
     return "project_settings"

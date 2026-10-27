@@ -67,6 +67,11 @@ def _parse_frontmatter(content: str) -> tuple[dict[str, Any] | None, str, str | 
         parsed_data is None if no frontmatter or parse error.
         error_message is None if no error.
 
+    ``abstract.frontmatter.FrontmatterProcessor`` is the plugin's parser,
+    and this copy stands on purpose. Here an unclosed fence means no
+    frontmatter rather than an error, and the error strings are what
+    ``/abstract:rules-eval`` prints, so switching would change its output.
+
     """
     if not content.startswith("---"):
         return None, content, None

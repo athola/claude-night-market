@@ -1,13 +1,11 @@
 ---
 name: meta-architect
-agent: true
-allowed-tools:
+tools:
   - Read
   - Grep
   - Glob
   - Bash
 escalation: opus-when-stuck
-context: fork
 description: |
   Agent for architectural guidance, skill design patterns,
   and structural optimization. Provides consultation on

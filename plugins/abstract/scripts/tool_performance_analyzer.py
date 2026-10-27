@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 import subprocess  # nosec B404
+import sys
 import time
 from pathlib import Path
 from typing import Any
@@ -131,4 +132,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     analyzer = ToolPerformanceAnalyzer(args.skills_dir)
-    write_output(analyzer.get_performance_report(), args.output)
+    if not write_output(analyzer.get_performance_report(), args.output):
+        sys.exit(1)

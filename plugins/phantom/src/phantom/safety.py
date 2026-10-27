@@ -4,12 +4,8 @@ Provides human-in-the-loop confirmation before dangerous actions
 and region-based blocking to prevent clicking sensitive UI areas.
 
 .. warning::
-   ``always_approve`` and ``approve_clicks_only`` are *stubs* that
-   always return ``True``. The aliases ``always_confirm`` and
-   ``confirm_clicks_only`` are misnamed and DO NOT gate anything.
-   Supply your own ``ConfirmCallback`` for real safety. The stubs
-   exist only as test fixtures and should not be used in
-   production paths (B-03).
+   ``no_confirm`` approves everything. Supply your own
+   ``ConfirmCallback`` for real human-in-the-loop safety.
 """
 
 from __future__ import annotations
@@ -28,57 +24,8 @@ def no_confirm(action: dict[str, Any]) -> bool:
     """Always approve - no confirmation required.
 
     Use this when an explicit "no gating" semantic is desired.
-    Prefer this over ``always_approve``/``always_confirm`` because
-    its name accurately reflects behaviour.
     """
     return True
-
-
-def always_approve(action: dict[str, Any]) -> bool:
-    """Stub callback that always returns ``True``.
-
-    .. warning::
-       This is a no-op test fixture, not a safety gate. The
-       function name is intentionally kept for backwards
-       compatibility but should be read as "approve everything",
-       not "always require approval". Pass a real
-       ``ConfirmCallback`` (stdin prompt, GUI dialog, webhook)
-       for actual human-in-the-loop confirmation. See B-03.
-    """
-    return True
-
-
-# Backwards-compatible alias. Misnamed: this does NOT confirm anything;
-# it returns True for all inputs. See module-level warning (B-03).
-always_confirm = always_approve
-
-
-def approve_clicks_only(action: dict[str, Any]) -> bool:
-    """Stub callback that approves every action, click or not.
-
-    .. warning::
-       Like ``always_approve``, this is a no-op fixture. The name
-       suggests it gates click actions, but the implementation
-       returns ``True`` for clicks too. Replace with an
-       interactive prompt for real click gating. See B-03.
-    """
-    click_actions = {
-        "left_click",
-        "right_click",
-        "middle_click",
-        "double_click",
-        "triple_click",
-        "left_click_drag",
-    }
-    if action.get("action") not in click_actions:
-        return True
-    # Stub: approves clicks as well. Replace with interactive prompt.
-    return True
-
-
-# Backwards-compatible alias. Misnamed: this does NOT confirm clicks;
-# it returns True for all clicks too. See module-level warning (B-03).
-confirm_clicks_only = approve_clicks_only
 
 
 class ActionFilter:

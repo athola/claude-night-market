@@ -66,6 +66,26 @@ class Decision:
 # Pattern Definitions
 # ============================================================================
 
+# A reader that opens the next command in the line, not a word inside a
+# flag: `\bgrep` alone matched `git log --grep`. `git show` and
+# `git cat-file` print a committed file from `<rev>:<path>`.
+_READER_START = (
+    r"(?:^|[|;&]\s*)(?:cat|head|tail|grep|rg|ag|git\s+(?:show|cat-file))\b[^|;&]*"
+)
+# A credential file named as a path token: bare, quoted, after a '/', a
+# `<` redirect, a `<rev>:` prefix or an `=`. The names are the files
+# cat's own rules below deny (`.env` variants, `*credentials*` files)
+# plus the netrc, npm and PyPI token files and private SSH keys (`.pub`
+# is not one). A bare search word is not a file: `get_credentials` and
+# `os.environ` do not match, while `get_credentials.py` does, as it
+# does for cat.
+_CRED_NAME = (
+    r"(?:[\w.-]*\.env(?:\.[\w.-]+)?|\.envrc"
+    r"|(?:[\w.-]*[.-])?credentials(?:\.[\w.-]+)?|[\w.-]*credentials\.[\w.-]+"
+    r"|[._]netrc|\.npmrc|\.pypirc|id_(?:rsa|dsa|ecdsa|ed25519))"
+)
+_CRED_PATH = rf"(?:(?<=\s)|(?<=/)|(?<=['\"<:=])){_CRED_NAME}(?=\s|$|['\"])"
+
 # DANGEROUS patterns - always deny these
 # Order matters: more specific patterns should come first
 DANGEROUS_PATTERNS: list[tuple[str, str]] = [
@@ -88,6 +108,12 @@ DANGEROUS_PATTERNS: list[tuple[str, str]] = [
     (r"cat\s+.*\.env", "Blocked: potential credential exposure"),
     (r"cat\s+.*credentials", "Blocked: potential credential exposure"),
     (r"cat\s+.*/\.ssh/", "Blocked: SSH key exposure"),
+    # Every reader, cat included, is denied a credential file by name.
+    # cat's two rules above go further and match `.env` or `credentials`
+    # anywhere in its arguments, a search word included, which is too
+    # broad for grep and rg, whose first operand is a pattern.
+    (rf"{_READER_START}{_CRED_PATH}", "Blocked: potential credential exposure"),
+    (rf"{_READER_START}/\.ssh/", "Blocked: SSH key exposure"),
     # Git dangerous operations
     (r"git\s+push\s+.*--force\s+origin\s+(main|master)", "Blocked: force push to main"),
     (r"git\s+reset\s+--hard\s+origin/", "Blocked: hard reset from remote"),
@@ -103,7 +129,8 @@ SAFE_PATTERNS: list[str] = [
     r"^head\s+",
     r"^tail\s+",
     r"^wc\s+",
-    r"^file\s+",
+    # -C/--compile writes a compiled magic file.
+    r"^file\s+(?!(?:.*\s)?-\w*C|.*--compile)",
     r"^stat\s+",
     r"^realpath\s+",
     r"^dirname\s+",
@@ -112,8 +139,10 @@ SAFE_PATTERNS: list[str] = [
     r"^grep\s+",
     r"^rg\s+",
     r"^ag\s+",
-    r"^find\s+.*-name\s+",
-    r"^find\s+.*-type\s+",
+    # find is read-only only without an action: -delete, -exec and friends
+    # run or remove things, and -fprint/-fls write files.
+    r"^find\s+(?!.*\s-(delete|exec|execdir|ok|okdir|fprint|fprint0|fprintf|fls)\b)"
+    r".*-(name|type)\s+",
     r"^which\s+",
     r"^whereis\s+",
     r"^type\s+",
@@ -121,15 +150,24 @@ SAFE_PATTERNS: list[str] = [
     r"^git\s+status(\s|$)",
     r"^git\s+log(\s|$)",
     r"^git\s+diff(\s|$)",
-    r"^git\s+branch(\s|$)",
+    # Listing flags only: -d/-D/-m/-c delete, rename or copy, and a bare
+    # name creates a branch.
+    r"^git\s+branch(\s+(-a|-r|-v|-vv|--all|--remotes|--list|--verbose"
+    r"|--show-current|--merged|--no-merged))*$",
     r"^git\s+show(\s|$)",
     r"^git\s+remote\s+-v$",
     r"^git\s+rev-parse(\s|$)",
     r"^git\s+describe(\s|$)",
-    # Help commands
-    r"^man\s+",
-    r".*--help$",
-    r".*-h$",
+    # A manual page, with an optional section and no options: -P/--pager
+    # and -H/--html name a program for man to run.
+    r"^man\s+(?:\d\w*\s+)?[\w.:+-]+$",
+    # Help for a bare command or a known tool's subcommand. A help flag
+    # after an operand is not help everywhere: BSD rm takes `--help` in
+    # `rm build --help` as a file name and removes `build`.
+    r"^[\w.-]+\s+--help$",
+    r"^(git|uv|npm|pip|cargo|gh|docker|kubectl|claude|make)\s+[a-z][\w-]*\s+--help$",
+    # -h is help only for tools where it means help; `shutdown -h` halts.
+    r"^(git|uv|npm|pip|cargo|gh|docker|kubectl|claude|make|pytest|ruff|rg)\s+-h$",
     r"^help\s+",
     # Environment inspection
     r"^env$",
@@ -173,7 +211,12 @@ def check_dangerous(command: str) -> Decision | None:
 # ``re.match``, which anchors only at the start, and ``^ls(\s|$)`` accepts a
 # newline through ``\s``. ``ls\nrm -rf ./important_dir`` therefore
 # auto-approved on the strength of its first token.
-_CHAIN_CHARS = re.compile(r"[;|&`(\n\r]|\$\(")
+_CHAIN_CHARS = re.compile(r"[;|&`(\n\r>]|\$\(")
+
+# Options that make a read-only command write a file or run a program:
+# `git diff --output=FILE` writes, `rg --pre CMD` executes CMD per file,
+# and `git diff --ext-diff` runs the external diff the repo configures.
+_WRITE_OR_EXEC_OPTIONS = re.compile(r"(^|\s)--(output|pre|ext-diff)(=|\s|$)")
 
 
 def check_safe(command: str) -> Decision | None:
@@ -194,8 +237,9 @@ def check_safe(command: str) -> Decision | None:
     # a newline anywhere else is treated as the separator it is.
     candidate = command.strip()
 
-    # Commands with chaining/substitution never get auto-approved
-    if _CHAIN_CHARS.search(candidate):
+    # Commands with chaining, substitution or an output redirect (`>`
+    # writes a file) never get auto-approved.
+    if _CHAIN_CHARS.search(candidate) or _WRITE_OR_EXEC_OPTIONS.search(candidate):
         return None
 
     for pattern in SAFE_PATTERNS:

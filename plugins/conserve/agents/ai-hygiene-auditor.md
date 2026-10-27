@@ -274,20 +274,15 @@ def analyze_duplication(code_path):
             }
         )
 
-    # Heuristic: similar function names
-    similar_funcs = bash("""
-        grep -rn "^def " --include="*.py" . |
-        awk -F'def ' '{print $2}' |
-        cut -d'(' -f1 | sort | uniq -c |
-        sort -rn | awk '$1 > 2'
-    """)
-    if similar_funcs:
+    # One name, different bodies, several files: two models of one concern
+    competing = duplicates["competing_implementations"]
+    if competing:
         findings.append(
             {
-                "type": "repetitive_naming",
+                "type": "competing_implementations",
                 "severity": "MEDIUM",
-                "evidence": similar_funcs,
-                "recommendation": "Review for abstraction opportunities",
+                "evidence": competing,
+                "recommendation": "Keep one body per name, or record why both stand",
             }
         )
 

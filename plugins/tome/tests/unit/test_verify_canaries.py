@@ -26,9 +26,14 @@ the same functional-core split the rest of tome uses.
 
 from __future__ import annotations
 
+import io
+import urllib.request
+
 import pytest
 
+from tome.channels import http
 from tome.models import RETRIEVAL_CHANNELS
+from tome.scripts import verify_canaries
 from tome.scripts.verify_canaries import (
     CHANNEL_ERROR,
     RATE_LIMITED,
@@ -221,3 +226,33 @@ class TestTheFetcherCanOnlySpeakHttps:
         """
         with pytest.raises(ValueError, match="must be https"):
             _fetch("file:///etc/hostname")
+
+
+class TestCanaryUsesTheChannelOpener:
+    """The canary check and the channels build one https-only opener.
+
+    Two copies differed only in where the User-Agent travelled. On the
+    opener it is sent to every redirect target, which is why the channel
+    copy put headers on the Request instead.
+    """
+
+    def test_the_canary_opener_is_the_channel_opener(self) -> None:
+        assert verify_canaries._https_only_opener is http._https_only_opener
+
+    def test_the_user_agent_travels_on_the_request(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        sent: list[urllib.request.Request] = []
+
+        class _Reply(io.BytesIO):
+            status = 200
+
+        class _Opener:
+            def open(self, request: urllib.request.Request, timeout: float) -> _Reply:
+                sent.append(request)
+                return _Reply(b"ok")
+
+        monkeypatch.setattr(verify_canaries, "_OPENER", _Opener())
+        verify_canaries._fetch("https://example.com/")
+
+        assert sent[0].get_header("User-agent") == "tome-canary-check"

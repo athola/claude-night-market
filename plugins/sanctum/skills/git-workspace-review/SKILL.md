@@ -15,19 +15,6 @@ model_hint: fast
 estimated_tokens: 500
 modules:
 - modules/git-commands.md
-hooks:
-  PreToolUse:
-  - matcher: Bash
-    command: "# Log git analysis commands\nif jq -r '.tool_input.command // empty' | grep -qE\
-      \ \"git (status|diff|log|show|branch)\"; then\n  echo \"[skill:git-workspace-review]\
-      \ Git analysis initiated: $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\n\
-      fi\n"
-    once: true
-  Stop:
-  - command: 'echo "[skill:git-workspace-review] === Analysis completed at $(date)
-      ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-
-      '
 role: library
 ---
 # Git Workspace Review
@@ -101,7 +88,15 @@ Run `git diff --cached` to examine the actual changes. For unstaged work, use `g
 
 ## Exit Criteria
 
-Complete all progress tracking items. You should have a clear understanding of modified files and areas, and the correct work should be staged. Subsequent workflows can then rely on this context without re-executing git commands.
+Downstream workflows rely on this context without re-running git.
+
+- [ ] The branch name and upstream are recorded from `git status -sb`
+- [ ] `git diff --cached --stat` lists exactly the files intended for
+  the next commit, with nothing intended left unstaged
+- [ ] `make lint` exits 0, or each failure it reports is fixed or
+  named to the user
+- [ ] The key themes of the staged diff are written down for the
+  summary that follows
 
 ## Supporting Modules
 

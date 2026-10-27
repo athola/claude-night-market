@@ -260,8 +260,7 @@ Modular skill architecture patterns.
 Covers four strategies: extracting content to modules, removing redundancy,
 using progressive loading to defer rarely-needed sections,
 and moving verbose documentation to separate files loaded on demand.
-The `optimization-techniques` module (consolidated from
-`conserve:optimizing-large-skills` in v1.5.0) provides skill size reduction
+The `optimization-techniques` module provides skill size reduction
 patterns.
 
 ### `conserve:code-quality-principles`

@@ -152,6 +152,18 @@ class TestFailedFindings:
         f = _finding(anchor="")
         result = verify_finding(Finding.from_dict(f), source_repo)
         assert result.status == "FAILED"
+        assert result.reason == "no anchor provided"
+
+    @pytest.mark.parametrize("line", [None, "twelve"])
+    def test_missing_or_unparseable_line_fails(
+        self, source_repo: Path, line: object
+    ) -> None:
+        """A finding with no usable line number cannot be located."""
+        f = _finding(anchor="return a // b")
+        f["line"] = line
+        result = verify_finding(Finding.from_dict(f), source_repo)
+        assert result.status == "FAILED"
+        assert result.reason == "no line provided"
 
     def test_path_escaping_repo_fails(self, source_repo: Path) -> None:
         """A path traversing outside the repo root is rejected."""
@@ -431,3 +443,21 @@ class TestUnknownSuffixFallback:
         findings = load_findings(path)
         assert len(findings) == 1
         assert findings[0]["line"] == 4
+
+
+def test_line_numbers_ignore_form_feed_and_unicode_line_separators(
+    tmp_path: Path,
+) -> None:
+    """Editors and `rg -n` count only newlines; form feed and U+2028 do not break."""
+    body = ["alpha\x0cbeta", "gamma delta", "eps\x1cilon", "zeta\x85eta"]
+    filler = [f"filler line {n}" for n in range(8)]
+    lines = [*body, *filler, "target_function_name(argument)"]
+    (tmp_path / "src.py").write_text("\n".join(lines) + "\n")
+    cited_line = len(lines)  # 1-indexed, as an editor numbers it
+
+    result = verify_finding(
+        Finding("F1", "src.py", cited_line, "target_function_name(argument)"),
+        tmp_path,
+    )
+
+    assert result.status == "VERIFIED", result.reason

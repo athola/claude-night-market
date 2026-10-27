@@ -27,7 +27,7 @@ Run `Skill(sanctum:git-workspace-review)` first to capture current changes.
 - Just documentation updates - use doc-updates
 - Full PR preparation - use pr-prep
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `version-update:context-collected`
 2. `version-update:target-files`
 3. `version-update:version-set`
@@ -101,7 +101,7 @@ grep -r "1\.2\.6" docs/ book/ --include="*.md" | grep -v node_modules
 
 ## Exit Criteria
 
-- [ ] All 5 TodoWrite items (`version-update:context-collected`
+- [ ] All 5 progress items (`version-update:context-collected`
       through `version-update:verification`) are created before any
       file is modified and marked complete in order
 - [ ] `update_versions.py --dry-run <version>` run first and its

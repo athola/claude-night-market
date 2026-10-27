@@ -16,10 +16,12 @@ bleeds between cases.
 from __future__ import annotations
 
 import importlib.util
+import io
 import json
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -35,6 +37,18 @@ def hook():
     sys.modules["guard_scope_ramp"] = mod
     spec.loader.exec_module(mod)
     return mod
+
+
+@pytest.fixture(autouse=True)
+def _isolated_state(tmp_path, monkeypatch):
+    """Keep rung state and the ramp ledger out of the shared temp dir and tree.
+
+    run_hook inherits this process's environment and cwd. Without this, rung
+    state persisted across runs under fixed session ids, and every token test
+    appended to plugins/imbue/.imbue/ramp-ledger.jsonl in the checkout.
+    """
+    monkeypatch.setenv("IMBUE_STATE_DIR", str(tmp_path / "state"))
+    monkeypatch.chdir(tmp_path)
 
 
 def run_hook(
@@ -213,6 +227,21 @@ class TestGuardScopeRampHook:
             check=False,
         )
         assert result.returncode == 0
+        assert result.stdout == ""
+
+    @pytest.mark.unit
+    def test_non_object_payload_is_an_internal_error_that_allows_the_edit(self):
+        result = subprocess.run(
+            [str(HOOK_PATH)],
+            input="[1, 2]",
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        assert result.returncode == 0
+        assert result.stdout == ""
+        assert "internal error" in result.stderr
 
 
 @pytest.mark.skipif(
@@ -252,9 +281,33 @@ class TestStateFileSecurity:
     def test_state_dir_is_private(self, hook, tmp_path, monkeypatch):
         """The default per-user state dir is created mode 0o700."""
         monkeypatch.delenv("IMBUE_STATE_DIR", raising=False)
-        monkeypatch.setenv("TMPDIR", str(tmp_path))
+        # gettempdir() is cached, so TMPDIR alone left the real temp dir in play.
+        monkeypatch.setattr(tempfile, "tempdir", str(tmp_path))
         d = hook._state_dir()
+        assert d.parent == tmp_path
         assert (d.stat().st_mode & 0o777) == 0o700
+
+    @pytest.mark.unit
+    def test_load_distrusts_a_state_file_owned_by_another_user(
+        self, hook, tmp_path, monkeypatch
+    ):
+        monkeypatch.setenv("IMBUE_STATE_DIR", str(tmp_path))
+        path = hook._state_path("planted")
+        path.write_text('{"rung": 9999, "increments": 7}')
+        monkeypatch.setattr(hook, "fd_owned_by_us", lambda fd: False)
+        assert hook._load_state(path) == {"rung": hook.RUNG_START, "increments": 0}
+
+    @pytest.mark.unit
+    def test_save_does_not_write_through_a_file_owned_by_another_user(
+        self, hook, tmp_path, monkeypatch
+    ):
+        monkeypatch.setenv("IMBUE_STATE_DIR", str(tmp_path))
+        path = hook._state_path("planted")
+        path.write_text("theirs")
+        monkeypatch.setattr(hook, "fd_owned_by_us", lambda fd: False)
+        hook._save_state(path, {"rung": 60, "increments": 1})
+        # Neither written nor truncated: the owner check runs before any change.
+        assert path.read_text() == "theirs"
 
     @pytest.mark.unit
     def test_roundtrip_through_secure_helpers(self, hook, tmp_path, monkeypatch):
@@ -475,3 +528,68 @@ class TestRampLedger:
         hook._append_ledger({"rung": 40})
 
         assert "ledger write failed" in capsys.readouterr().err
+
+
+class TestMainInProcess:
+    """main() decisions, run in-process so the coverage gate measures them."""
+
+    def _main(self, hook, monkeypatch, capsys, payload):
+        text = payload if isinstance(payload, str) else json.dumps(payload)
+        monkeypatch.setattr(hook.sys, "stdin", io.StringIO(text))
+        with pytest.raises(SystemExit) as exc:
+            hook.main()
+        captured = capsys.readouterr()
+        out = json.loads(captured.out) if captured.out.strip() else None
+        return exc.value.code, out, captured.err
+
+    def _write(self, lines, path="src/util.py", session="s"):
+        return {
+            "tool_name": "Write",
+            "tool_input": {"file_path": path, "content": _big_content(lines)},
+            "session_id": session,
+        }
+
+    @pytest.mark.unit
+    def test_over_rung_write_is_denied_when_blocking(self, hook, monkeypatch, capsys):
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.delenv("IMBUE_RAMP_OK", raising=False)
+        code, out, err = self._main(hook, monkeypatch, capsys, self._write(120))
+        assert code == 0
+        assert out["hookSpecificOutput"]["permissionDecision"] == "deny"
+        assert "BLOCK: 120 lines" in err
+
+    @pytest.mark.unit
+    def test_over_rung_write_warns_in_shadow_mode(self, hook, monkeypatch, capsys):
+        monkeypatch.setenv("VOW_SHADOW_MODE", "1")
+        monkeypatch.delenv("IMBUE_RAMP_OK", raising=False)
+        _, out, _ = self._main(hook, monkeypatch, capsys, self._write(120))
+        context = out["hookSpecificOutput"]["additionalContext"]
+        assert "shadow mode" in context
+
+    @pytest.mark.unit
+    def test_small_write_and_non_code_tool_are_silent(self, hook, monkeypatch, capsys):
+        monkeypatch.delenv("IMBUE_RAMP_OK", raising=False)
+        assert self._main(hook, monkeypatch, capsys, self._write(5))[1] is None
+        bash = {"tool_name": "Bash", "tool_input": {"command": "ls"}}
+        assert self._main(hook, monkeypatch, capsys, bash)[1] is None
+
+    @pytest.mark.unit
+    def test_token_widening_the_rung_is_consumed_and_ledgered(
+        self, hook, monkeypatch, capsys, tmp_path
+    ):
+        monkeypatch.delenv("IMBUE_RAMP_OK", raising=False)
+        (tmp_path / ".imbue").mkdir()
+        (tmp_path / ".imbue" / "ramp-ok").write_text("ok")
+        code, out, _ = self._main(hook, monkeypatch, capsys, self._write(55))
+        assert code == 0
+        assert out is None
+        assert not (tmp_path / ".imbue" / "ramp-ok").exists()
+        entry = json.loads((tmp_path / ".imbue" / "ramp-ledger.jsonl").read_text())
+        assert (entry["rung_before"], entry["rung_after"]) == (40, 60)
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("stdin_text", ["not json", "[1, 2]"])
+    def test_bad_stdin_allows_the_edit(self, hook, monkeypatch, capsys, stdin_text):
+        code, out, _ = self._main(hook, monkeypatch, capsys, stdin_text)
+        assert code == 0
+        assert out is None

@@ -1,14 +1,25 @@
-"""Tests for review-core skill business logic.
+"""Contract tests for the review-core skill.
 
-This module tests the review workflow scaffolding functionality,
-following TDD/BDD principles and testing all business scenarios.
+review-core is a markdown methodology the model reads and follows, so its
+behavior is what the file says. Each test pins a rule, step, or command the
+skill states, so deleting that sentence from SKILL.md fails the test. The
+evidence-format tests also check that the proof-of-work evidence-logging
+module agrees with what review-core asks for.
 """
 
 from __future__ import annotations
 
-from unittest.mock import call
+from pathlib import Path
 
 import pytest
+from _markdown_contract import load as _load
+from _markdown_contract import section as _section
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[3]
+SKILL = PLUGIN_ROOT / "skills" / "review-core" / "SKILL.md"
+EVIDENCE_LOGGING = (
+    PLUGIN_ROOT / "skills" / "proof-of-work" / "modules" / "evidence-logging.md"
+)
 
 
 class TestReviewCoreSkill:
@@ -19,362 +30,130 @@ class TestReviewCoreSkill:
     So that all reviews follow the same structured approach
     """
 
-    @pytest.fixture
-    def mock_review_core_skill_content(self) -> str:
-        """Mock review-core skill content with required components."""
-        return """---
-name: review-core
-description: Foundational workflow scaffolding for any detailed review
-category: review-patterns
-usage_patterns:
-  - review-preflight
-  - context-establishment
-  - scope-inventory
-tools:
-  - Read
-  - Glob
-  - Grep
-  - Bash
-  - TodoWrite
-tags:
-  - workflow
-  - review
-  - scaffolding
----
-
-# Review Core
-
-Foundational workflow scaffolding for any detailed review.
-
-## TodoWrite Items
-
-- `review-core:context-established`
-- `review-core:scope-inventoried`
-- `review-core:evidence-captured`
-- `review-core:deliverables-structured`
-- `review-core:contingencies-documented`
-
-## Context Establishment
-
-1. Establish repository context:
-   - Current working directory
-   - Git branch and status
-   - Remote repository information
-   - Baseline for comparison
-
-2. Log all discovery commands for evidence tracking
-
-## Scope Inventory
-
-1. List project structure:
-   - Source files by type and language
-   - Configuration files
-   - Documentation
-   - Generated artifacts
-
-2. Identify review targets:
-   - Modified files
-   - Configuration changes
-   - Documentation updates
-
-## Evidence Capture
-
-1. Initialize evidence log
-2. Log all commands and outputs
-3. Capture citations and references
-
-## Deliverable Structure
-
-1. Executive summary
-2. Detailed findings
-3. Action items
-4. Evidence appendix
-
-## Contingency Planning
-
-1. Missing tool fallbacks
-2. Partial completion scenarios
-3. Error handling strategies
-"""
-
-    @pytest.fixture
-    def mock_session_state(self):
-        """Mock Claude Code session state."""
-        return {
-            "working_directory": "/test/repo",
-            "git_branch": "main",
-            "git_status": "clean",
-            "baseline": "HEAD~1",
-            "targets": ["src/", "config/"],
-        }
+    @pytest.fixture(scope="class")
+    def skill(self) -> tuple[dict, str]:
+        return _load(SKILL)
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_context_establishment_captures_git_state(self, mock_claude_tools) -> None:
+    def test_context_establishment_captures_git_state(self, skill) -> None:
         """Scenario: Context establishment captures git state.
 
-        Given a repository in review state
-        When establishing context
-        Then it should capture pwd, branch, and baseline
-        And log commands used for discovery.
+        Given the review-core skill
+        When Step 1 is read
+        Then it names the commands that capture directory, branch and status
+        And requires a concrete comparison target for later diffs.
         """
-        # Arrange
-        mock_claude_tools["Bash"].return_value = "/test/repo"
-        mock_claude_tools["Bash"].side_effect = [
-            "/test/repo",  # pwd
-            "main",  # git branch
-            "clean",  # git status --porcelain
-            "HEAD~1",  # baseline calculation
-        ]
-
-        # Act - simulate context establishment
-        context = {}
-        context["working_directory"] = mock_claude_tools["Bash"]("pwd")
-        context["git_branch"] = mock_claude_tools["Bash"]("git branch --show-current")
-        context["git_status"] = mock_claude_tools["Bash"]("git status --porcelain")
-        context["baseline"] = mock_claude_tools["Bash"]("git merge-base HEAD HEAD~1")
-
-        # Assert
-        assert context["working_directory"] == "/test/repo"
-        assert context["git_branch"] == "main"
-        assert context["git_status"] == "clean"
-        assert context["baseline"] == "HEAD~1"
-
-        # Verify commands were called
-        expected_calls = [
-            call("pwd"),
-            call("git branch --show-current"),
-            call("git status --porcelain"),
-            call("git merge-base HEAD HEAD~1"),
-        ]
-        mock_claude_tools["Bash"].assert_has_calls(expected_calls)
+        _meta, body = skill
+        step = _section(body, "Step 1 – Establish Context")
+        assert "Confirm `pwd`, repo, branch, and upstream base" in step
+        assert "`git status -sb`" in step
+        assert "`git rev-parse --abbrev-ref HEAD`" in step
+        assert "comparison target (merge base, release tag)" in step
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_scope_inventory_discovers_project_structure(
-        self, mock_claude_tools
-    ) -> None:
+    def test_scope_inventory_discovers_project_structure(self, skill) -> None:
         """Scenario: Scope inventory finds all relevant artifacts.
 
-        Given a project with various file types
-        When inventorying scope
-        Then it should list source, config, docs, and generated assets
-        And record discovery commands.
+        Given the review-core skill
+        When Step 2 is read
+        Then it lists source, config, docs, specs and generated assets
+        And requires recording how they were enumerated.
         """
-        # Arrange
-        mock_claude_tools["Glob"].return_value = [
-            "src/main.py",
-            "src/utils.py",
-            "config/app.json",
-            "docs/readme.md",
-            "build/output.bin",
-        ]
-
-        # Act - simulate scope inventory
-        scope = {
-            "source_files": [],
-            "config_files": [],
-            "documentation": [],
-            "generated_artifacts": [],
-        }
-
-        all_files = mock_claude_tools["Glob"]("**/*")
-        for file_path in all_files:
-            if file_path.startswith("src/"):
-                scope["source_files"].append(file_path)
-            elif file_path.startswith("config/"):
-                scope["config_files"].append(file_path)
-            elif file_path.startswith("docs/"):
-                scope["documentation"].append(file_path)
-            elif file_path.startswith("build/"):
-                scope["generated_artifacts"].append(file_path)
-
-        # Assert
-        assert len(scope["source_files"]) == 2
-        assert "src/main.py" in scope["source_files"]
-        assert len(scope["config_files"]) == 1
-        assert "config/app.json" in scope["config_files"]
-        assert len(scope["documentation"]) == 1
-        assert "docs/readme.md" in scope["documentation"]
-        assert len(scope["generated_artifacts"]) == 1
-        assert "build/output.bin" in scope["generated_artifacts"]
+        _meta, body = skill
+        step = _section(body, "Step 2 – Inventory Scope")
+        assert "source files, configs, docs, specs, generated assets" in step
+        assert "Record how you enumerated them" in step
+        assert "`rg --files -g '*.mk'`" in step
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_scope_inventory_identifies_review_targets(self, mock_claude_tools) -> None:
+    def test_scope_inventory_identifies_review_targets(self, skill) -> None:
         """Scenario: Scope inventory identifies targets for review.
 
-        Given modified files and configuration changes
-        When inventorying scope
-        Then it should prioritize modified files
-        And identify configuration changes for review.
+        Given the review-core skill
+        When Steps 1 and 2 are read
+        Then the subject under review is summarized
+        And constraints inherited from the plan or issue are captured.
         """
-        # Arrange
-        mock_claude_tools[
-            "Bash"
-        ].return_value = "M src/main.py\nM config/database.json\nA docs/api.md"
-
-        # Act - simulate target identification
-        modified_files_output = mock_claude_tools["Bash"]("git diff --name-only HEAD~1")
-        modified_files = (
-            modified_files_output.split("\n") if modified_files_output else []
-        )
-
-        review_targets = {
-            "source_changes": [],
-            "config_changes": [],
-            "documentation_changes": [],
-        }
-
-        for line in modified_files:
-            # Parse git status output: "M src/main.py" -> extract path after status
-            parts = line.split()
-            if len(parts) >= 2:
-                file_path = parts[1]
-            else:
-                file_path = line
-
-            if file_path.startswith("src/"):
-                review_targets["source_changes"].append(file_path)
-            elif file_path.startswith("config/"):
-                review_targets["config_changes"].append(file_path)
-            elif file_path.startswith("docs/"):
-                review_targets["documentation_changes"].append(file_path)
-
-        # Assert
-        assert "M src/main.py" in modified_files
-        assert "M config/database.json" in modified_files
-        assert "A docs/api.md" in modified_files
-        assert len(review_targets["source_changes"]) == 1
-        assert len(review_targets["config_changes"]) == 1
-        assert len(review_targets["documentation_changes"]) == 1
+        _meta, body = skill
+        context = _section(body, "Step 1 – Establish Context")
+        scope = _section(body, "Step 2 – Inventory Scope")
+        assert "Summarize the feature/bug/initiative under review" in context
+        assert "constraints inherited from the plan/issue" in scope
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_capture_initializes_log(self, sample_evidence_log) -> None:
+    def test_evidence_capture_initializes_log(self, skill) -> None:
         """Scenario: Evidence capture initializes structured log.
 
-        Given a review workflow starting
-        When initializing evidence capture
-        Then it should create structured evidence log
-        With session context and metadata.
+        Given the review-core skill and the evidence-logging module
+        When the progress items and evidence step are read
+        Then evidence capture is the third required item with its own step
+        And the module defines how the log is initialized.
         """
-        # Arrange & Act - evidence log is already initialized by fixture
-        evidence_log = sample_evidence_log
-
-        # Assert
-        assert "session_id" in evidence_log
-        assert "timestamp" in evidence_log
-        assert "context" in evidence_log
-        assert "evidence" in evidence_log
-        assert "citations" in evidence_log
-        assert evidence_log["session_id"] == "test-session-123"
-        assert len(evidence_log["evidence"]) >= 1
+        _meta, body = skill
+        items = _section(body, "Required Progress Items")
+        assert "3. `review-core:evidence-captured`" in items
+        assert "## Step 3 – Capture Evidence (`review-core:evidence-captured`)" in (
+            body
+        )
+        init = _section(EVIDENCE_LOGGING.read_text(), "Step 1: Initialize Log")
+        assert "Session ID or review identifier" in init
+        assert "Repository, branch, and commit hash" in init
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_capture_logs_commands(self, sample_evidence_log) -> None:
+    def test_evidence_capture_logs_commands(self, skill) -> None:
         """Scenario: Evidence capture logs all commands.
 
-        Given commands being executed during review
-        When capturing evidence
-        Then it should record command, output, and timestamp
-        And provide unique evidence identifiers.
+        Given the review-core skill and the evidence-logging module
+        When the evidence steps are read
+        Then every informing command and output is logged
+        And entries use the `[E1]` reference convention.
         """
-        # Arrange
-        evidence_log = sample_evidence_log
-        initial_count = len(evidence_log["evidence"])
-
-        # Act - add new evidence
-        new_evidence = {
-            "id": f"E{initial_count + 1}",
-            "command": "git diff --stat",
-            "output": " 2 files changed, 5 insertions(+), 2 deletions(-)",
-            "timestamp": "2024-12-04T10:00:02Z",
-            "working_directory": "/test/repo",
-        }
-        evidence_log["evidence"].append(new_evidence)
-
-        # Assert - fixture has E1, E2, so new one is E3
-        assert len(evidence_log["evidence"]) == initial_count + 1
-        assert evidence_log["evidence"][-1]["id"] == f"E{initial_count + 1}"
-        assert evidence_log["evidence"][-1]["command"] == "git diff --stat"
-        assert "timestamp" in evidence_log["evidence"][-1]
+        _meta, body = skill
+        step = _section(body, "Step 3 – Capture Evidence")
+        assert "Log every command/output that informs the review" in step
+        assert "Keep snippets or line numbers for later reference" in step
+        module = EVIDENCE_LOGGING.read_text()
+        assert "(e.g., `[E1]`, `[E2]`)" in module
+        assert "[E1] Command: git diff --stat HEAD~5..HEAD" in module
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_contingency_planning_missing_tools(self, mock_claude_tools) -> None:
+    def test_contingency_planning_missing_tools(self, skill) -> None:
         """Scenario: Contingency planning handles missing tools.
 
-        Given required tools not available
-        When planning contingencies
-        Then it should provide fallback strategies
-        And document tool availability.
+        Given the review-core skill
+        When Step 6 is read
+        Then an unavailable tool requires documented alternative steps
+        And the limitations they introduce.
         """
-        # Arrange
-        available_tools = ["Read", "Glob"]  # Missing Grep, Bash
-        required_tools = ["Read", "Glob", "Grep", "Bash"]
-
-        # Act - analyze tool availability and plan contingencies
-        missing_tools = [tool for tool in required_tools if tool not in available_tools]
-        contingency_plan = {
-            "available_tools": available_tools,
-            "missing_tools": missing_tools,
-            "fallback_strategies": [],
-        }
-
-        for missing_tool in missing_tools:
-            if missing_tool == "Grep":
-                contingency_plan["fallback_strategies"].append(
-                    "Use file reading and string searching for pattern matching",
-                )
-            elif missing_tool == "Bash":
-                contingency_plan["fallback_strategies"].append(
-                    "Use external script execution or manual command results",
-                )
-
-        # Assert
-        assert len(contingency_plan["missing_tools"]) == 2
-        assert "Grep" in contingency_plan["missing_tools"]
-        assert "Bash" in contingency_plan["missing_tools"]
-        assert len(contingency_plan["fallback_strategies"]) == 2
+        _meta, body = skill
+        step = _section(body, "Step 6 – Contingency Plan")
+        assert "If a required tool or skill is unavailable" in step
+        assert "document the alternative steps that will be taken" in step
+        assert "any limitations this introduces" in step
+        assert "6. `review-core:contingencies-documented`" in _section(
+            body, "Required Progress Items"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_review_core_error_handling(self, mock_claude_tools) -> None:
+    def test_review_core_error_handling(self, skill) -> None:
         """Scenario: Review core handles errors gracefully.
 
-        Given command execution failures
-        When running review workflow
-        Then it should handle errors and continue
-        And document issues in evidence log.
+        Given the review-core skill
+        When the verification step is read
+        Then a failed citation is dropped or labeled UNVERIFIED
+        And an unavailable verifier falls back to a manual re-read
+            that is noted in the contingency section.
         """
-        # Arrange
-        mock_claude_tools["Bash"].side_effect = [
-            "/test/repo",  # pwd succeeds
-            "main",  # git branch succeeds
-            "Error: Not a git repository",  # git status fails
-            "HEAD~1",  # fallback baseline
-        ]
-
-        # Act - simulate workflow with error
-        context = {}
-        context["working_directory"] = mock_claude_tools["Bash"]("pwd")
-        context["git_branch"] = mock_claude_tools["Bash"](
-            "git branch --show-current",
-        )
-        context["git_status"] = mock_claude_tools["Bash"]("git status --porcelain")
-
-        # Check if git_status indicates an error (graceful handling)
-        if context["git_status"].startswith("Error:"):
-            context["git_status_error"] = context["git_status"]
-
-        # Fallback for baseline
-        context["baseline"] = mock_claude_tools["Bash"]("git rev-parse HEAD~1")
-
-        # Assert
-        assert context["working_directory"] == "/test/repo"
-        assert context["git_branch"] == "main"
-        assert context["git_status"] == "Error: Not a git repository"
-        assert "git_status_error" in context
-        assert context["baseline"] == "HEAD~1"
+        _meta, body = skill
+        step = _section(body, "Step 5 – Verify Findings Are Grounded")
+        assert "Drop or label `UNVERIFIED` any finding the verifier failed" in step
+        assert "If the script is unavailable, fall back to re-reading" in step
+        assert "manual fallback in the contingency section" in step
+        assert "exit `1` lists each finding" in step

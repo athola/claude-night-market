@@ -1,281 +1,218 @@
-"""Tests for speckit-orchestrator skill functionality."""
+"""Contract tests for the speckit-orchestrator skill.
 
-from unittest.mock import Mock
+The orchestrator is a markdown skill: its behavior is the session steps,
+command-to-skill routing and progress items it states. Each test pins one
+of those claims, or checks that the skill, its modules and the commands
+that load it agree. These replace tests that asserted attributes of a
+``Mock()`` the test had configured itself.
+"""
+
+from __future__ import annotations
+
+import re
 
 import pytest
 
+from tests._contract import COMMANDS, SKILLS, frontmatter, read, section
+
+SKILL = "skills/speckit-orchestrator/SKILL.md"
+MATRIX = "skills/speckit-orchestrator/modules/command-skill-matrix.md"
+PROGRESS = "skills/speckit-orchestrator/modules/progress-tracking.md"
+ARTIFACTS = "skills/speckit-orchestrator/modules/artifact-structure.md"
+STARTUP = "commands/speckit-startup.md"
+
+
+def _bare(skill: str) -> str:
+    return skill.strip().strip("`").split(":", 1)[-1]
+
+
+def _skill_table() -> dict[str, tuple[str | None, set[str]]]:
+    """Command -> (primary, complementary) from the SKILL.md quick reference."""
+    rows = re.findall(
+        r"^\| `(/speckit-[a-z]+)` \| ([^|]+) \| ([^|]+) \|$", read(SKILL), re.M
+    )
+    table: dict[str, tuple[str | None, set[str]]] = {}
+    for command, primary, complementary in rows:
+        primary = primary.strip()
+        table[command] = (
+            None if primary == "-" else primary,
+            {_bare(s) for s in complementary.split(",")},
+        )
+    return table
+
+
+def _module_matrix() -> dict[str, tuple[str | None, set[str]]]:
+    """Command -> (primary, complementary) from the command-skill-matrix module."""
+    entries = re.findall(
+        r"^\*\*`(/speckit-[a-z]+)`\*\*\n- \*\*Primary Skill\*\*: (.+)\n"
+        r"- \*\*Complementary Skills\*\*: (.+)$",
+        read(MATRIX),
+        re.M,
+    )
+    matrix: dict[str, tuple[str | None, set[str]]] = {}
+    for command, primary, complementary in entries:
+        complementary_set = (
+            set()
+            if complementary.startswith("None")
+            else {_bare(s) for s in complementary.split(",")}
+        )
+        matrix[command] = (
+            None if primary.startswith("None") else _bare(primary),
+            complementary_set,
+        )
+    return matrix
+
+
+@pytest.fixture(scope="module")
+def skill() -> str:
+    return read(SKILL)
+
 
 class TestSpeckitOrchestrator:
-    """Test cases for the Speckit Orchestrator skill."""
-
-    @pytest.fixture
-    def orchestrator(self, tmp_path, mock_skill_loader):
-        """Given an orchestrator instance with command-skill mappings.
-
-        Creates mock orchestrator with predefined command mappings and
-        complementary skill relationships.
-        """
-        # Mock the orchestrator skill
-        orchestrator = Mock()
-        orchestrator.plugin_root = tmp_path
-        orchestrator.command_skill_map = {
-            "speckit-specify": "spec-writing",
-            "speckit-clarify": "spec-writing",
-            "speckit-plan": "task-planning",
-            "speckit-tasks": "task-planning",
-            "speckit-implement": None,
-            "speckit-analyze": None,
-            "speckit-checklist": None,
-        }
-        orchestrator.complementary_skills = {
-            "spec-writing": ["brainstorming"],
-            "task-planning": ["writing-plans"],
-            "speckit-implement": ["executing-plans", "systematic-debugging"],
-            "speckit-analyze": ["systematic-debugging", "verification"],
-            "speckit-checklist": ["verification-before-completion"],
-        }
-        orchestrator.load_skill = mock_skill_loader
-        return orchestrator
+    """Session steps, routing and progress items the orchestrator states."""
 
     def test_should_verify_repository_context_when_initializing_session(
-        self,
-        orchestrator,
-        temp_speckit_project,
+        self, skill: str
     ) -> None:
-        """Test repository context verification during session initialization."""
-        # Given: an orchestrator with a speckit project
-        orchestrator.plugin_root = temp_speckit_project
+        """Session start checks .specify/, in the skill and its progress items."""
+        init = skill.split("### Session Initialization", 1)[1]
+        assert "- Check for `.specify/` directory structure." in init
+        assert "- [ ] Verify repository context and .specify/ structure" in read(
+            PROGRESS
+        )
 
-        # When: checking for required directory structure
-        specify_dir = temp_speckit_project / ".specify"
+    def test_should_detect_missing_directory_when_specify_dir_absent(self) -> None:
+        """speckit-startup confirms .specify/ exists before anything else."""
+        first_step = read(STARTUP).split("2. **Load Orchestrator Skill**", 1)[0]
+        assert (
+            "- Confirm `.specify/` directory exists in the project root" in first_step
+        )
 
-        # Then: all required directories should exist
-        assert specify_dir.exists()
-        assert (specify_dir / "scripts").exists()
-        assert (specify_dir / "specs").exists()
-
-    def test_should_detect_missing_directory_when_specify_dir_absent(
-        self, orchestrator, tmp_path
-    ) -> None:
-        """Test session initialization detects when .specify directory is missing."""
-        # Given: an orchestrator without .specify directory
-        orchestrator.plugin_root = tmp_path
-
-        # When: checking for .specify directory
-        specify_dir = tmp_path / ".specify"
-
-        # Then: directory should not exist
-        assert not specify_dir.exists()
-
-    def test_should_map_commands_to_correct_skills_when_querying_mapping(
-        self, orchestrator
-    ) -> None:
-        """Test command to skill mapping is correct."""
-        # Given: expected command-to-skill mappings
-        expected_mappings = {
-            "speckit-specify": "spec-writing",
-            "speckit-clarify": "spec-writing",
-            "speckit-plan": "task-planning",
-            "speckit-tasks": "task-planning",
-            "speckit-implement": None,  # No primary skill
-            "speckit-analyze": None,  # No primary skill
-            "speckit-checklist": None,  # No primary skill
-        }
-
-        # When/Then: each command should map to expected skill
-        for command, expected_skill in expected_mappings.items():
-            actual_skill = orchestrator.command_skill_map.get(command)
-            assert actual_skill == expected_skill, (
-                f"Command {command} should map to {expected_skill}"
-            )
+    def test_should_map_commands_to_correct_skills_when_querying_mapping(self) -> None:
+        """The quick-reference table and the matrix module route commands alike."""
+        table, matrix = _skill_table(), _module_matrix()
+        shared = set(table) & set(matrix)
+        assert len(shared) >= 7
+        for command in sorted(shared):
+            assert table[command] == matrix[command], command
 
     def test_should_load_primary_and_complementary_skills_when_executing_specify_command(
-        self, orchestrator
+        self,
     ) -> None:
-        """Test loading dependencies for /speckit-specify command."""
-        # Given: the speckit-specify command
-        command = "speckit-specify"
-        primary_skill = orchestrator.command_skill_map[command]
-        complementary_skills = orchestrator.complementary_skills.get(primary_skill, [])
-
-        # When: loading the primary skill
-        primary_loaded = orchestrator.load_skill(primary_skill)
-
-        # Then: spec-writing should be loaded as primary
-        assert primary_loaded is not None
-        assert primary_loaded["name"] == "spec-writing"
-
-        # And: brainstorming should be in complementary skills
-        assert "brainstorming" in complementary_skills
+        """/speckit-specify loads brainstorming, then spec-writing."""
+        assert _module_matrix()["/speckit-specify"] == (
+            "spec-writing",
+            {"brainstorming"},
+        )
+        specify = read(MATRIX).split("**`/speckit-specify`**", 1)[1]
+        assert specify.split("\n- **Loading Order**: ", 1)[1].startswith(
+            "brainstorming → spec-writing"
+        )
+        assert "- [ ] Load spec-writing and brainstorming skills" in read(PROGRESS)
 
     def test_should_load_task_planning_dependencies_when_executing_plan_command(
-        self, orchestrator
+        self,
     ) -> None:
-        """Test loading dependencies for /speckit-plan command."""
-        # Given: the speckit-plan command
-        command = "speckit-plan"
-        primary_skill = orchestrator.command_skill_map[command]
-        complementary_skills = orchestrator.complementary_skills.get(primary_skill, [])
-
-        # When: loading the primary skill
-        primary_loaded = orchestrator.load_skill(primary_skill)
-
-        # Then: task-planning should be loaded as primary
-        assert primary_loaded is not None
-        assert primary_loaded["name"] == "task-planning"
-
-        # And: writing-plans should be in complementary skills
-        assert "writing-plans" in complementary_skills
+        """/speckit-plan loads task-planning with writing-plans."""
+        assert _module_matrix()["/speckit-plan"] == ("task-planning", {"writing-plans"})
+        assert "- [ ] Load task-planning and writing-plans skills" in read(PROGRESS)
 
     def test_should_load_only_complementary_skills_when_executing_implement_command(
-        self, orchestrator
-    ) -> None:
-        """Test loading dependencies for /speckit-implement command."""
-        # Given: the speckit-implement command
-        command = "speckit-implement"
-        primary_skill = orchestrator.command_skill_map[command]
-
-        # When: checking for primary skill
-        # Then: no primary skill should be assigned
-        assert primary_skill is None
-
-        # And: complementary skills should be available
-        complementary_skills = orchestrator.complementary_skills.get(command, [])
-        assert "executing-plans" in complementary_skills
-        assert "systematic-debugging" in complementary_skills
-
-    def test_should_create_todo_items_when_initializing_progress_tracking(
         self,
-        orchestrator,
-        workflow_progress_items,
     ) -> None:
-        """Test progress tracking initialization creates proper todo items."""
-        # Given: workflow progress items for tracking
-        progress_items = workflow_progress_items
+        """/speckit-implement has no primary skill in either source."""
+        expected = (None, {"executing-plans", "systematic-debugging"})
+        assert _skill_table()["/speckit-implement"] == expected
+        assert _module_matrix()["/speckit-implement"] == expected
 
-        # When: validating progress items structure
-        # Then: should have todos for each progress item
-        assert len(progress_items) == 5
-        assert "Repository context verified" in progress_items
-        assert "Artifacts created/updated" in progress_items
+    def test_should_open_with_the_progress_items_startup_creates(
+        self, skill: str
+    ) -> None:
+        """The skill and speckit-startup open with the same three progress items."""
+        items = re.findall(
+            r"^- \[ \] (.+?)\.$", section(skill, "Progress Tracking Items"), re.M
+        )
+        assert len(items) == 5
+        startup_items = re.findall(r"^\s+- \[ \] (.+)$", read(STARTUP), re.M)
+        assert startup_items == items[:3]
 
     def test_should_validate_artifact_consistency_when_checking_related_files(
         self,
-        orchestrator,
-        temp_speckit_project,
     ) -> None:
-        """Test validation of consistency across speckit artifacts."""
-        # Given: related artifacts in the speckit project
-        specs_dir = temp_speckit_project / ".specify" / "specs"
-        spec_file = specs_dir / "1-user-auth" / "SPECIFICATION.md"
-        spec_file.parent.mkdir(parents=True)
-        spec_file.write_text(
-            "# User Authentication Spec\n\n## Overview\nUser auth feature",
+        """The spec.md layout lists the four sections spec-writing makes mandatory."""
+        spec_layout = read(ARTIFACTS).split("### spec.md - Feature Specification", 1)[1]
+        spec_layout = spec_layout.split("### plan.md", 1)[0]
+        mandatory = re.findall(
+            r"^\d\. \*\*(.+?)\*\*",
+            section(read("skills/spec-writing/SKILL.md"), "Mandatory Sections"),
+            re.M,
         )
-
-        # When: validating artifact consistency
-        # Then: spec file should exist with expected content
-        assert spec_file.exists()
-        assert "User Authentication" in spec_file.read_text()
+        for name in mandatory:
+            heading = name.split("/", 1)[0]
+            assert f"## {heading}\n" in spec_layout, heading
 
     def test_should_verify_required_dependencies_when_validating_skill(
-        self, orchestrator
+        self, skill: str
     ) -> None:
-        """Test validation of skill dependencies."""
-        # Given: a mock skill with dependencies
-        skill_with_deps = {
-            "name": "test-skill",
-            "dependencies": ["abstract", "superpowers"],
-        }
+        """Each superpowers skill under Related Skills is a declared dependency."""
+        declared = set(frontmatter(SKILL)["dependencies"])
+        related = re.findall(
+            r"^- `(superpowers:[a-z-]+)`", section(skill, "Related Skills"), re.M
+        )
+        assert related
+        assert set(related) <= declared
 
-        # When: validating dependencies exist
-        required_deps = skill_with_deps["dependencies"]
-
-        # Then: all required dependencies should be listed
-        assert "abstract" in required_deps
-        assert "superpowers" in required_deps
-
-    def test_should_track_workflow_state_transitions_when_executing_commands(
-        self, orchestrator
+    def test_should_run_session_initialization_steps_in_a_fixed_order(
+        self, skill: str
     ) -> None:
-        """Test workflow state tracking and management."""
-        # Given: defined workflow states
-        workflow_states = [
-            "initialized",
-            "specifying",
-            "planning",
-            "implementing",
-            "completed",
+        """Session initialization runs its four steps in a fixed order."""
+        init = skill.split("### Session Initialization", 1)[1].split("###", 1)[0]
+        steps = re.findall(r"^\d\. \*\*(.+?)\*\*", init, re.M)
+        assert steps == [
+            "Verify Repository Context",
+            'Load Persistent State ("presence")',
+            "Load Command Dependencies",
+            "Initialize Progress Tracking",
         ]
 
-        # When: transitioning through states
-        current_state = "initialized"
-        # Then: should be in a valid state
-        assert current_state in workflow_states
-
-        # When: state transitions to specifying
-        current_state = "specifying"
-        # Then: should still be in a valid state
-        assert current_state in workflow_states
-
-    def test_should_return_none_when_loading_nonexistent_skill(
-        self, orchestrator
+    def test_should_name_only_existing_spec_kit_skills_when_mapping_commands(
+        self,
     ) -> None:
-        """Test error handling when required skill is missing."""
-        # Given: a non-existent skill name
-        # When: attempting to load the skill
-        missing_skill = orchestrator.load_skill("non-existent-skill")
+        """Every plugin-local skill and command in the routing exists on disk."""
+        for source in (_skill_table(), _module_matrix()):
+            for command, (primary, _complementary) in source.items():
+                assert (COMMANDS / f"{command[1:]}.md").is_file(), command
+                if primary is not None:
+                    assert (SKILLS / primary / "SKILL.md").is_file(), primary
 
-        # Then: should return None
-        assert missing_skill is None
-
-    def test_should_have_executable_scripts_when_validating_prerequisites(
-        self, orchestrator, temp_speckit_project
+    def test_should_validate_scripts_under_specify_scripts_bash(
+        self, skill: str
     ) -> None:
-        """Test validation of workflow prerequisites."""
-        # Given: required scripts in the project
-        scripts_dir = temp_speckit_project / ".specify" / "scripts"
-        bash_dir = scripts_dir / "bash"
-        create_script = bash_dir / "create-new-feature.sh"
+        """The skill validates scripts, and startup names where they live."""
+        assert "- Validate required scripts exist." in skill
+        assert "- Check for required scripts in `.specify/scripts/bash/`" in read(
+            STARTUP
+        )
 
-        # When: checking script existence and permissions
-        # Then: script should exist and be executable
-        assert create_script.exists()
-        assert create_script.stat().st_mode & 0o111  # Executable bit set
-
-    def test_should_load_skill_with_context_when_requested(self, orchestrator) -> None:
-        """Test skill loading with proper context."""
-        # Given: a skill name to load
-        skill_name = "spec-writing"
-
-        # When: loading skill with context
-        loaded_skill = orchestrator.load_skill(skill_name)
-
-        # Then: skill should be loaded successfully
-        assert loaded_skill is not None
-        assert loaded_skill["name"] == "spec-writing"
-
-    def test_should_execute_full_workflow_when_running_specify_command(
-        self, orchestrator, mock_todowrite
+    def test_should_read_the_constitution_for_persistent_state(
+        self, skill: str
     ) -> None:
-        """Test complete command execution workflow."""
-        # Given: the speckit-specify command
-        command = "speckit-specify"
+        """Persistent state comes from the constitution, in the skill and startup."""
+        assert (
+            "- Read `.specify/memory/constitution.md` for constraints/principles."
+            in skill
+        )
+        assert (
+            "- Read `.specify/memory/constitution.md` (constraints and principles)"
+            in read(STARTUP)
+        )
 
-        # When: Step 1 - Initialize session
-        mock_todowrite.return_value = {"success": True}
-
-        # And: Step 2 - Load dependencies
-        primary_skill = orchestrator.command_skill_map[command]
-        # Then: should load correct primary skill
-        assert primary_skill == "spec-writing"
-
-        # When: Step 3 - Track progress
-        progress_items = [
-            "Repository context verified",
-            "Command-specific skills loaded",
-            "Artifacts created/updated",
-        ]
-
-        # Then: Step 4 - Validate completion
-        assert len(progress_items) == 3
+    def test_should_use_the_phase_sequence_speckit_tasks_prescribes(self) -> None:
+        """The tasks.md layout uses the phase sequence /speckit-tasks prescribes."""
+        layout = read(ARTIFACTS).split("### tasks.md - Implementation Tasks", 1)[1]
+        phases = re.findall(r"^## (Phase \d|Final Phase): (.+)$", layout, re.M)
+        assert phases[:2] == [("Phase 1", "Setup"), ("Phase 2", "Foundational")]
+        assert phases[2][1].startswith("User Story 1 (P1)")
+        tasks_command = read("commands/speckit-tasks.md")
+        assert "- **Phase 1**: Setup (project initialization)" in tasks_command
+        assert "- **Phase 2**: Foundational" in tasks_command

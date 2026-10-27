@@ -146,3 +146,22 @@ def test_missing_fields_use_fallback(tmp_path):
     # Fallback values should appear in place of missing fields
     assert "?/?" in ctx
     assert "1 work item" in ctx
+
+
+def test_silent_when_manifest_is_not_valid_json(tmp_path):
+    """A half-written manifest injects nothing and does not fail the prompt."""
+    egregore_dir = tmp_path / ".egregore"
+    egregore_dir.mkdir()
+    (egregore_dir / "manifest.json").write_text('{"work_items": [')
+    result = run_hook(tmp_path)
+    assert result.returncode == 0
+    assert result.stdout.strip() == ""
+    assert "Traceback" not in result.stderr
+
+
+def test_silent_when_work_items_is_not_a_list(tmp_path):
+    """A manifest whose work_items is an object is treated as having none."""
+    result = run_hook(tmp_path, {"work_items": {"id": "wrk_001", "status": "active"}})
+    assert result.returncode == 0
+    assert result.stdout.strip() == ""
+    assert "Traceback" not in result.stderr

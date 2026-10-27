@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import argparse
 import ast
+import importlib.abc
 import importlib.util
 import json
+import runpy
 import sys
+from collections.abc import Iterator, Sequence
 from pathlib import Path
+from types import ModuleType
 from unittest.mock import patch
 
 import pytest
@@ -57,6 +61,19 @@ def _good_test_file(tmp_path: Path) -> Path:
         "    assert 1 - 3 == -2\n"
     )
     return p
+
+
+def _fake_passing_pytest(monkeypatch, qc) -> None:
+    """Answer the checker's pytest subprocess with a passing run.
+
+    Faking subprocess.run, not run_dynamic_validation, keeps the checker's
+    own command building and report parsing inside the test.
+    """
+
+    def _passing(cmd, **_kwargs):
+        return qc.subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    monkeypatch.setattr(qc.subprocess, "run", _passing)
 
 
 def _bad_test_file(tmp_path: Path) -> Path:
@@ -296,6 +313,16 @@ def test_calculate_metrics_syntax_error_returns_zeros(tmp_path):
     c = qc.TestQualityChecker(f)
     m = c.calculate_metrics()
     assert m["test_count"] == 0
+
+
+def test_calculate_metrics_counts_files_it_could_not_parse(tmp_path):
+    qc = _load_script()
+    (tmp_path / "test_broken.py").write_text("not :: valid\n")
+    _good_test_file(tmp_path)
+    c = qc.TestQualityChecker(tmp_path)
+    m = c.calculate_metrics()
+    assert m["unparseable_files"] == 1
+    assert m["test_count"] == 2
 
 
 def test_calculate_metrics_counts_tests_and_assertions(tmp_path):
@@ -724,18 +751,7 @@ def test_main_check_human_output_to_stdout(monkeypatch, capsys, tmp_path):
     qc = _load_script()
     f = _good_test_file(tmp_path)
 
-    # Stub out dynamic validation to avoid running pytest in a subprocess
-    def _no_run(self):  # noqa: ARG001 - test stub matches mocked interface
-        return {
-            "execution_result": 0,
-            "test_duration": 0.1,
-            "failures": [],
-            "errors": [],
-            "skipped": 0,
-            "passed": 2,
-        }
-
-    monkeypatch.setattr(qc.TestQualityChecker, "run_dynamic_validation", _no_run)
+    _fake_passing_pytest(monkeypatch, qc)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -751,17 +767,7 @@ def test_main_check_writes_to_output_file(monkeypatch, tmp_path):
     f = _good_test_file(tmp_path)
     out_file = tmp_path / "report.txt"
 
-    def _no_run(self):  # noqa: ARG001 - test stub matches mocked interface
-        return {
-            "execution_result": 0,
-            "test_duration": 0.1,
-            "failures": [],
-            "errors": [],
-            "skipped": 0,
-            "passed": 2,
-        }
-
-    monkeypatch.setattr(qc.TestQualityChecker, "run_dynamic_validation", _no_run)
+    _fake_passing_pytest(monkeypatch, qc)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -782,17 +788,7 @@ def test_main_check_json_to_stdout(monkeypatch, capsys, tmp_path):
     qc = _load_script()
     f = _good_test_file(tmp_path)
 
-    def _no_run(self):  # noqa: ARG001 - test stub matches mocked interface
-        return {
-            "execution_result": 0,
-            "test_duration": 0.1,
-            "failures": [],
-            "errors": [],
-            "skipped": 0,
-            "passed": 2,
-        }
-
-    monkeypatch.setattr(qc.TestQualityChecker, "run_dynamic_validation", _no_run)
+    _fake_passing_pytest(monkeypatch, qc)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -815,17 +811,7 @@ def test_main_check_json_to_output_file(monkeypatch, tmp_path):
     f = _good_test_file(tmp_path)
     out_file = tmp_path / "report.json"
 
-    def _no_run(self):  # noqa: ARG001 - test stub matches mocked interface
-        return {
-            "execution_result": 0,
-            "test_duration": 0.1,
-            "failures": [],
-            "errors": [],
-            "skipped": 0,
-            "passed": 2,
-        }
-
-    monkeypatch.setattr(qc.TestQualityChecker, "run_dynamic_validation", _no_run)
+    _fake_passing_pytest(monkeypatch, qc)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -1062,17 +1048,7 @@ def test_run_check_or_validate_prints_report(monkeypatch, tmp_path, capsys):
     qc = _load_script()
     f = _good_test_file(tmp_path)
 
-    def _no_run(self):  # noqa: ARG001 - test stub
-        return {
-            "execution_result": 0,
-            "test_duration": 0.1,
-            "failures": [],
-            "errors": [],
-            "skipped": 0,
-            "passed": 2,
-        }
-
-    monkeypatch.setattr(qc.TestQualityChecker, "run_dynamic_validation", _no_run)
+    _fake_passing_pytest(monkeypatch, qc)
     args = argparse.Namespace(
         check=str(f), validate=None, output=None, output_json=False, coverage=None
     )
@@ -1334,6 +1310,31 @@ def test_project_interpreter_prefers_the_project_venv(tmp_path):
     assert cwd == project
 
 
+def test_workspace_member_runs_from_its_own_project_with_the_root_venv(tmp_path):
+    """A workspace member's tests run under its own pytest settings.
+
+    GIVEN a plugin project with no .venv inside a workspace root that has one
+    WHEN the runner resolves an interpreter
+    THEN it uses the root's python but runs from the plugin's directory,
+    where the plugin's pyproject supplies its pytest configuration
+    """
+    qc = _load_script()
+    (tmp_path / "pyproject.toml").write_text("[project]\nname = 'root'\n")
+    root_python = tmp_path / ".venv" / "bin" / "python"
+    root_python.parent.mkdir(parents=True)
+    root_python.write_text("#!/bin/sh\n")
+    root_python.chmod(0o755)
+    member = tmp_path / "plugins" / "member"
+    (member / "tests").mkdir(parents=True)
+    (member / "pyproject.toml").write_text("[project]\nname = 'member'\n")
+    test_file = member / "tests" / "test_member.py"
+    test_file.write_text("def test_x():\n    assert True\n")
+
+    interpreter, cwd = qc.resolve_project_interpreter(test_file)
+    assert interpreter == str(root_python)
+    assert cwd == member
+
+
 def test_project_interpreter_falls_back_to_the_running_one(tmp_path):
     """Without a project venv the checker uses the interpreter it runs under.
 
@@ -1397,3 +1398,263 @@ def test_undocumented_tests_are_charged_to_documentation_not_bdd(tmp_path):
     assert results["score_breakdown"]["bdd_compliance"] == 0
     assert results["score_breakdown"]["documentation"] > 0
     assert results["score_breakdown"]["metrics"] > 0
+
+
+def test_main_coverage_flag_fails_instead_of_printing_help_and_exiting_zero(
+    monkeypatch, capsys, tmp_path
+):
+    """--coverage has no implementation here; a silent exit 0 reads as a pass."""
+    qc = _load_script()
+    monkeypatch.setattr(
+        sys, "argv", ["quality_checker.py", "--coverage", str(tmp_path)]
+    )
+
+    with pytest.raises(SystemExit) as excinfo:
+        qc.main()
+
+    assert excinfo.value.code == 1
+    assert "test_analyzer.py --coverage" in capsys.readouterr().out
+
+
+# ---------------------- directory targets ----------------------
+
+
+def _two_file_test_dir(tmp_path: Path) -> Path:
+    """Build a tests directory: one clean file, one with a too-short name.
+
+    Both files open with ``from __future__``, which must be the first
+    statement of a module, so concatenating them into one source would be a
+    SyntaxError. A directory check has to parse each file on its own.
+    """
+    tests_dir = tmp_path / "tests"
+    (tests_dir / "unit").mkdir(parents=True)
+    _good_test_file(tests_dir)
+    (tests_dir / "unit" / "test_short.py").write_text(
+        '"""Short-name fixture."""\n'
+        "from __future__ import annotations\n"
+        "import pytest\n\n"
+        "def test_x():\n"
+        "    assert 1 + 1 == 2\n"
+    )
+    good = tests_dir / "test_good.py"
+    good.write_text("from __future__ import annotations\n" + good.read_text())
+    return tests_dir
+
+
+def test_static_analysis_of_a_directory_attributes_issues_to_their_file(tmp_path):
+    """--check accepts a directory and says which file each issue is in.
+
+    GIVEN a tests directory holding a nested file with a too-short test name
+    WHEN static analysis runs on the directory
+    THEN the naming issue is reported against that nested file
+    """
+    qc = _load_script()
+    tests_dir = _two_file_test_dir(tmp_path)
+
+    analysis = qc.TestQualityChecker(tests_dir).run_static_analysis()
+
+    naming = analysis["naming_issues"]
+    assert [issue.file for issue in naming] == [
+        str(tests_dir / "unit" / "test_short.py")
+    ]
+    assert analysis["structure_issues"] == []
+
+
+def test_metrics_of_a_directory_sum_over_every_test_file(tmp_path):
+    """Metrics for a directory count the tests in all of its test files.
+
+    GIVEN a directory with two tests in one file and one in a nested file
+    WHEN metrics are calculated for the directory
+    THEN the test count is three
+    """
+    qc = _load_script()
+    tests_dir = _two_file_test_dir(tmp_path)
+
+    metrics = qc.TestQualityChecker(tests_dir).calculate_metrics()
+
+    assert metrics["test_count"] == 3
+    assert metrics["assertion_count"] >= 5
+
+
+def test_a_syntax_error_in_one_file_does_not_hide_the_others(tmp_path):
+    """One unparsable file is reported, and its siblings are still analyzed.
+
+    GIVEN a directory with a broken test file next to a valid one
+    WHEN static analysis runs on the directory
+    THEN the syntax error names the broken file and the valid file is scored
+    """
+    qc = _load_script()
+    tests_dir = _two_file_test_dir(tmp_path)
+    broken = tests_dir / "test_broken.py"
+    broken.write_text("def test_broken(:\n")
+
+    checker = qc.TestQualityChecker(tests_dir)
+    analysis = checker.run_static_analysis()
+
+    assert [issue.file for issue in analysis["structure_issues"]] == [str(broken)]
+    assert len(analysis["naming_issues"]) == 1
+    assert checker.calculate_metrics()["test_count"] == 3
+
+
+def test_a_directory_without_test_files_is_a_structure_error(tmp_path):
+    """An empty directory is reported, not scored as a clean suite.
+
+    GIVEN a directory containing no test_*.py files
+    WHEN static analysis runs on it
+    THEN a structure error says no test files were found
+    """
+    qc = _load_script()
+    empty = tmp_path / "empty"
+    empty.mkdir()
+
+    analysis = qc.TestQualityChecker(empty).run_static_analysis()
+
+    messages = [issue.message for issue in analysis["structure_issues"]]
+    assert messages == [f"No test files found in {empty}"]
+
+
+def test_main_check_on_a_directory_emits_a_success_envelope(
+    monkeypatch, capsys, tmp_path
+):
+    """The CLI's --check runs to completion on a tests directory.
+
+    GIVEN a tests directory and a pytest subprocess that passes
+    WHEN quality_checker.py --check <dir> --output-json runs
+    THEN it prints a success envelope counting every test in the directory
+    """
+    qc = _load_script()
+    tests_dir = _two_file_test_dir(tmp_path)
+
+    def _passing_pytest(cmd, **_kwargs):
+        return qc.subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    monkeypatch.setattr(qc.subprocess, "run", _passing_pytest)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["quality_checker.py", "--check", str(tests_dir), "--output-json"],
+    )
+
+    qc.main()
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["success"] is True
+    assert payload["data"]["metrics"]["test_count"] == 3
+
+
+def test_a_test_run_that_times_out_is_not_measured_rather_than_failed(
+    monkeypatch, tmp_path
+):
+    """A suite longer than the run cap is unmeasured, not failing.
+
+    GIVEN a test file whose pytest run exceeds the 30s cap
+    WHEN the checker validates and scores it
+    THEN the run is reported as not measured, costs no execution points,
+    and the recommendation says the score excludes execution
+    """
+    qc = _load_script()
+    f = _good_test_file(tmp_path)
+
+    def _slow_pytest(cmd, **kwargs):
+        if "-c" in cmd:  # the json-report probe answers quickly
+            return qc.subprocess.CompletedProcess(cmd, 1)
+        raise qc.subprocess.TimeoutExpired(cmd, kwargs["timeout"])
+
+    monkeypatch.setattr(qc.subprocess, "run", _slow_pytest)
+
+    results = qc.TestQualityChecker(f).run_full_validation()
+
+    dynamic = results["dynamic_validation"]
+    assert dynamic["errors"] == []
+    assert dynamic["not_measured"] == "test run exceeded 30s"
+    assert results["score_breakdown"]["execution"] == 0
+    assert any("not measured" in rec for rec in results["recommendations"])
+    assert not any("Fix failing tests" in rec for rec in results["recommendations"])
+
+
+def test_every_issue_category_names_its_file_only_for_a_directory(tmp_path):
+    """Each check attributes its issues to the file it read.
+
+    GIVEN a test file that trips the structure, naming, assertion, BDD and
+        documentation checks
+    WHEN static analysis runs on its directory and then on the file alone
+    THEN every directory-run issue names the file, and no single-file issue does
+    """
+    qc = _load_script()
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    noisy = tests_dir / "test_noisy.py"
+    noisy.write_text('def test_x():\n    """Checks nothing."""\n    pass\n')
+
+    by_directory = qc.TestQualityChecker(tests_dir).run_static_analysis()
+    by_file = qc.TestQualityChecker(noisy).run_static_analysis()
+
+    directory_issues = [i for issues in by_directory.values() for i in issues]
+    assert {i.category for i in directory_issues} == {
+        "structure",
+        "naming",
+        "assertion",
+        "bdd",
+        "documentation",
+    }
+    assert {i.file for i in directory_issues} == {str(noisy)}
+    assert {i.file for issues in by_file.values() for i in issues} == {None}
+
+
+class _BlockPackage(importlib.abc.MetaPathFinder):
+    def __init__(self, package: str) -> None:
+        self.package = package
+
+    def find_spec(
+        self,
+        name: str,
+        path: Sequence[str] | None = None,
+        target: ModuleType | None = None,
+    ) -> None:
+        if name.split(".", maxsplit=1)[0] == self.package:
+            raise ModuleNotFoundError(f"No module named {name!r}")
+
+
+@pytest.fixture
+def block_leyline() -> Iterator[None]:
+    """Hide the leyline package, including any copy already imported."""
+    saved = {
+        n: sys.modules.pop(n) for n in list(sys.modules) if n.split(".")[0] == "leyline"
+    }
+    blocker = _BlockPackage("leyline")
+    sys.meta_path.insert(0, blocker)
+    yield
+    sys.meta_path.remove(blocker)
+    sys.modules.update(saved)
+
+
+def test_running_quality_checker_without_leyline_exits_naming_it(
+    block_leyline: None,
+) -> None:
+    """A direct run without leyline exits with a message, not a traceback.
+
+    GIVEN the leyline package cannot be imported
+    WHEN quality_checker.py is run as a script
+    THEN it exits with a message naming leyline.
+    """
+    with pytest.raises(SystemExit) as exc:
+        runpy.run_path(str(SCRIPT_PATH), run_name="__main__")
+
+    assert "requires the leyline plugin" in str(exc.value.code)
+
+
+def test_importing_quality_checker_without_leyline_raises_import_error(
+    block_leyline: None,
+) -> None:
+    """An importer gets the ImportError to handle itself.
+
+    GIVEN the leyline package cannot be imported
+    WHEN quality_checker.py is imported as a module
+    THEN ImportError propagates.
+    """
+    spec = importlib.util.spec_from_file_location("qc_no_leyline", SCRIPT_PATH)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+
+    with pytest.raises(ImportError):
+        spec.loader.exec_module(module)

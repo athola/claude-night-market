@@ -18,8 +18,7 @@ import json
 import os
 import subprocess
 import sys
-import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -130,10 +129,8 @@ class TestLogEntryCreation:
 
         # Then
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
-
-        assert log_file.exists(), f"Log file should exist at {log_file}"
+        log_text = _log_text(log_dir)
+        assert log_text, f"Log should exist under {log_dir}"
 
     def test_should_append_to_jsonl_file(
         self, post_skill_env: dict[str, str], tmp_path: Path
@@ -153,16 +150,15 @@ class TestLogEntryCreation:
             "CLAUDE_HOME": str(tmp_path),
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
 
         # When - run 3 times
         for _ in range(3):
             run_hook(hook_path, env)
 
         # Then
-        assert log_file.exists()
-        lines = log_file.read_text().strip().split("\n")
+        log_text = _log_text(log_dir)
+        assert log_text
+        lines = log_text.strip().split("\n")
         assert len(lines) == 3, "Should have 3 log entries"
 
     def test_should_create_valid_jsonl_entries(
@@ -183,14 +179,13 @@ class TestLogEntryCreation:
             "CLAUDE_HOME": str(tmp_path),
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
 
         # When
         run_hook(hook_path, env)
 
         # Then
-        lines = log_file.read_text().strip().split("\n")
+        log_text = _log_text(log_dir)
+        lines = log_text.strip().split("\n")
         for line in lines:
             try:
                 entry = json.loads(line)
@@ -216,14 +211,13 @@ class TestLogEntryCreation:
             "CLAUDE_HOME": str(tmp_path),
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
 
         # When
         run_hook(hook_path, env)
 
         # Then
-        entry = json.loads(log_file.read_text().strip())
+        log_text = _log_text(log_dir)
+        entry = json.loads(log_text.strip())
         required_fields = [
             "timestamp",
             "invocation_id",
@@ -260,23 +254,28 @@ class TestDurationTracking:
             "CLAUDE_HOME": str(tmp_path),
         }
 
-        # Create pre-state
+        # Create pre-state, then backdate its start by 5s. Rewriting the
+        # timestamp replaces a sleep: the interval is fixed by the test, not
+        # by how fast the machine runs two subprocesses.
         run_hook(pre_hook_path, {**env, "CLAUDE_TOOL_OUTPUT": ""})
-
-        # Simulate skill execution delay
-        time.sleep(0.1)  # 100ms
+        (state_file,) = (tmp_path / "skills" / "observability").glob(
+            f"{skill_ref}:*.json"
+        )
+        state = json.loads(state_file.read_text())
+        state["timestamp"] = (
+            datetime.now(timezone.utc) - timedelta(seconds=5)
+        ).isoformat()
+        state_file.write_text(json.dumps(state))
 
         # When
         run_hook(hook_path, env)
 
         # Then
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
-        entry = json.loads(log_file.read_text().strip())
+        log_text = _log_text(log_dir)
+        entry = json.loads(log_text.strip())
 
-        assert entry["duration_ms"] > 0, "Duration should be positive"
-        assert entry["duration_ms"] >= 100, f"Duration >= 100ms, got {entry}"
+        assert 5000 <= entry["duration_ms"] < 60000, f"Duration ~5s, got {entry}"
 
     def test_should_handle_missing_pre_state_gracefully(
         self, post_skill_env: dict[str, str], tmp_path: Path
@@ -307,9 +306,8 @@ class TestDurationTracking:
         # Then
         assert result["returncode"] == 0
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
-        entry = json.loads(log_file.read_text().strip())
+        log_text = _log_text(log_dir)
+        entry = json.loads(log_text.strip())
 
         assert entry["duration_ms"] is None, (
             f"unmeasured execution reported {entry['duration_ms']!r}, "
@@ -344,9 +342,8 @@ class TestOutcomeDetection:
 
         # Then
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
-        entry = json.loads(log_file.read_text().strip())
+        log_text = _log_text(log_dir)
+        entry = json.loads(log_text.strip())
 
         assert entry["outcome"] == "success"
 
@@ -373,9 +370,8 @@ class TestOutcomeDetection:
 
         # Then
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
-        entry = json.loads(log_file.read_text().strip())
+        log_text = _log_text(log_dir)
+        entry = json.loads(log_text.strip())
 
         assert entry["outcome"] == "failure"
         assert entry["error"] is not None, "Should store error message"
@@ -403,9 +399,8 @@ class TestOutcomeDetection:
 
         # Then
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
-        entry = json.loads(log_file.read_text().strip())
+        log_text = _log_text(log_dir)
+        entry = json.loads(log_text.strip())
 
         assert entry["outcome"] == "partial"
 
@@ -431,14 +426,13 @@ class TestContinualMetrics:
             "CLAUDE_HOME": str(tmp_path),
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
 
         # When
         run_hook(hook_path, env)
 
         # Then
-        entry = json.loads(log_file.read_text().strip())
+        log_text = _log_text(log_dir)
+        entry = json.loads(log_text.strip())
         metrics = entry.get("continual_metrics")
 
         assert metrics is not None, "Should have continual_metrics"
@@ -460,8 +454,6 @@ class TestContinualMetrics:
         skill_ref = "abstract:skill-auditor"
         hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
 
         # When - execute with alternating success/failure
         for i in range(6):
@@ -475,15 +467,16 @@ class TestContinualMetrics:
             run_hook(hook_path, env)
 
         # Then
-        entry = json.loads(log_file.read_text().strip().split("\n")[-1])
+        log_text = _log_text(log_dir)
+        entry = json.loads(log_text.strip().split("\n")[-1])
         metrics = entry.get("continual_metrics")
 
-        # With 3 failures in 6 executions: accuracies [0, 1, 0, 1, 0, 1]
-        # worst_case: 0.0, average: 0.5, stability_gap: 0.5
+        # Runs [0, 1, 0, 1, 0, 1]; windows of five score 0.4 and 0.6.
+        # worst_case: 0.4, average: 0.5, stability_gap: 1 - 0.4 = 0.6
         assert metrics["execution_count"] == 6
-        assert metrics["worst_case_accuracy"] == 0.0
+        assert metrics["worst_case_accuracy"] == pytest.approx(0.4)
         assert metrics["average_accuracy"] == 0.5
-        assert metrics["stability_gap"] == 0.5
+        assert metrics["stability_gap"] == pytest.approx(0.6)
 
     def test_should_warn_when_stability_gap_exceeds_threshold(
         self, post_skill_env: dict[str, str], tmp_path: Path
@@ -634,14 +627,13 @@ class TestOutputSanitization:
             "CLAUDE_HOME": str(tmp_path),
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        log_file = log_dir / f"{log_date}.jsonl"
 
         # When
         run_hook(hook_path, env)
 
         # Then - output_preview only stored for failure/partial outcomes (max_length=200)
-        entry = json.loads(log_file.read_text().strip())
+        log_text = _log_text(log_dir)
+        entry = json.loads(log_text.strip())
         output_preview = entry["context"]["output_preview"]
 
         # Output should be truncated to ~200 chars + truncation message
@@ -652,6 +644,18 @@ class TestOutputSanitization:
 # ============================================================================
 # Helper Functions
 # ============================================================================
+
+
+def _log_text(log_dir: Path) -> str:
+    """Return every JSONL log line the hook wrote, oldest file first.
+
+    Each file is named for the UTC date at write time, so a run that
+    straddles midnight UTC writes two. Reading them all in name order (ISO
+    dates sort chronologically) keeps the entries in write order on any day.
+    """
+    log_files = sorted(log_dir.glob("*.jsonl"))
+    assert log_files, f"no log file under {log_dir}"
+    return "".join(f.read_text() for f in log_files)
 
 
 def run_hook(hook_path: Path, env: dict[str, str]) -> dict[str, any]:

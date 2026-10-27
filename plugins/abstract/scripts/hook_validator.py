@@ -31,48 +31,15 @@ class ValidationResult(TypedDict):
     info: list[str]
 
 
-# Known hook event types, from the Claude Code hooks reference.
-#
-# This set was pinned at the 2.1.50 roster of 19 and went stale, which is the
-# failure mode a whitelist has: it drifts closed and starts rejecting valid
-# platform features. conserve registers a PermissionDenied hook that this
-# validator called unknown; PermissionDenied is real, fires when auto mode
-# denies a tool call, and is distinct from PermissionRequest.
-KNOWN_EVENTS = {
-    "Setup",
-    "SessionStart",
-    "SessionEnd",
-    "UserPromptSubmit",
-    "UserPromptExpansion",
-    "PreToolUse",
-    "PermissionRequest",
-    "PermissionDenied",
-    "PostToolUse",
-    "PostToolUseFailure",
-    "PostToolBatch",
-    "Notification",
-    "MessageDisplay",
-    "SubagentStart",
-    "SubagentStop",
-    "TaskCreated",
-    "TaskCompleted",
-    "Stop",
-    "StopFailure",
-    "TeammateIdle",
-    "InstructionsLoaded",
-    "ConfigChange",
-    "CwdChanged",
-    "DirectoryAdded",
-    "FileChanged",
-    "WorktreeCreate",
-    "WorktreeRemove",
-    "PreCompact",
-    "PostCompact",
-    "PreModelSwitch",
-    "PostModelSwitch",
-    "Elicitation",
-    "ElicitationResult",
-}
+# Known hook event types: the roster frontmatter validation reads too, so the
+# two validators cannot disagree about one hooks.json. A whitelist pinned at
+# the 2.1.50 roster went stale here once and called PermissionDenied unknown.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from abstract.hook_events import (
+    HOOK_EVENTS,  # noqa: E402 - sys.path set on the line above
+)
+
+KNOWN_EVENTS = set(HOOK_EVENTS)
 
 # Required fields for JSON hooks
 REQUIRED_JSON_FIELDS = {"hooks"}
@@ -355,6 +322,8 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
 
     # Check for known event types
     for event_type in events:
+        if event_type == "modules":
+            continue  # function-hook (mod) modules, not an event
         if event_type not in KNOWN_EVENTS:
             result["warnings"].append(f"Unknown event type: {event_type}")
 

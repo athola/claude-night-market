@@ -110,7 +110,7 @@ result = registry.execute(
     service="gemini",
     prompt="Analyze this code",
     files=["src/main.py"],
-    model="gemini-3-pro",
+    model="gemini-3.8-flash",
 )
 
 if result.success:
@@ -167,6 +167,6 @@ dependencies: [leyline:service-registry]
 
 ## Exit Criteria
 
-- Services registered with configuration.
-- Health checks passing.
-- Execution results properly handled.
+- [ ] Services registered with configuration.
+- [ ] Health checks passing.
+- [ ] Execution results properly handled.

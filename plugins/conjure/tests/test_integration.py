@@ -5,7 +5,6 @@ import json
 
 # Import modules for testing
 import sys
-import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -47,7 +46,7 @@ class TestDelegationExecutorIntegration:
             "gemini",
             "Analyze these files and provide recommendations",
             files=file_paths,
-            options={"model": "gemini-3-pro"},
+            options={"model": "gemini-3.1-pro-preview"},
         )
 
         # Step 3: Verify results
@@ -198,7 +197,12 @@ class TestUsageLoggerIntegration:
         logger.session_file = log_dir / "current_session.json"
 
         logger.log_usage(UsageEntry("cmd", 10, success=True))
-        assert logger.usage_log.exists()
+
+        logged = json.loads(logger.usage_log.read_text())
+        session = json.loads(logger.session_file.read_text())
+        assert logged["command"] == "cmd"
+        assert logged["session_id"] == session["session_id"]
+        assert session["total_requests"] == 1
 
     @patch("subprocess.run")
     def test_complete_delegation_with_tracking(
@@ -241,7 +245,7 @@ class TestUsageLoggerIntegration:
                 "gemini",
                 "Analyze these files and identify patterns",
                 files=file_paths,
-                options={"model": "gemini-3-pro"},
+                options={"model": "gemini-3.1-pro-preview"},
             )
 
             # Step 4: Log detailed usage
@@ -263,28 +267,31 @@ class TestUsageLoggerIntegration:
             assert usage_summary["total_requests"] >= 1
             assert usage_summary["total_tokens"] >= 0
 
-    @patch("subprocess.run")
-    def test_error_recovery_workflow(self, mock_run, tmp_path) -> None:
-        """Verify get_quota_status can be mocked to simulate exhaustion."""
-        tracker = GeminiQuotaTracker()
+    def test_exhausted_daily_quota_reports_critical_with_warning(self) -> None:
+        """A tracker at its daily request limit reports critical and says why."""
+        tracker = GeminiQuotaTracker(limits={"requests_per_day": 10})
+        tracker.usage.requests_today = 10
 
-        # Mock get_quota_status to simulate quota exhaustion
-        with patch.object(tracker, "get_quota_status") as mock_status:
-            mock_status.return_value = (
-                "[CRITICAL] Daily Quota Exhausted",
-                ["Daily quota nearly exhausted! Large tasks may fail."],
-            )
+        status, warnings = tracker.get_quota_status()
 
-            status, warnings = tracker.get_quota_status()
-            assert "[CRITICAL]" in status
-            assert len(warnings) > 0
+        assert status == "critical"
+        assert any("Daily requests at 100.0%" in w for w in warnings)
 
-    def test_multiple_service_delegation_workflow(self, tmp_path) -> None:
+    @patch("scripts.delegation_executor.subprocess.run")
+    def test_each_service_launches_its_own_command(self, mock_run, tmp_path) -> None:
+        """Gemini and qwen each run their own binary, never a real one."""
+        mock_run.return_value = MagicMock(returncode=0, stdout="ok", stderr="")
         delegator = Delegator(config_dir=tmp_path)
-        result = delegator.execute("gemini", "hello")
-        assert isinstance(result, ExecutionResult)
 
-    def test_large_file_token_estimation_performance(self, tmp_path) -> None:
+        for service in ("gemini", "qwen"):
+            result = delegator.execute(service, "hello")
+
+            assert isinstance(result, ExecutionResult)
+            assert result.success is True
+            assert result.service == service
+            assert mock_run.call_args.args[0][0] == delegator.services[service].command
+
+    def test_batch_token_estimate_counts_every_file_once(self, tmp_path) -> None:
         # Create multiple test files
         files = []
         for i in range(50):  # 50 files
@@ -294,19 +301,20 @@ class TestUsageLoggerIntegration:
 
         tracker = GeminiQuotaTracker()
 
-        # Test batch token estimation performance
-        start_time = time.time()
         estimated_tokens = tracker.estimate_task_tokens(
             [str(f) for f in files],
             prompt_length=200,
         )
-        duration = time.time() - start_time
 
-        # Should handle batch processing efficiently
-        assert duration < 1.0  # Should complete quickly
-        assert estimated_tokens > 0  # Should account for all files + prompt
+        prompt_only = tracker.estimate_task_tokens([], prompt_length=200)
+        per_file = [
+            tracker.estimate_task_tokens([str(f)], prompt_length=200) - prompt_only
+            for f in files
+        ]
+        assert all(tokens > 0 for tokens in per_file)
+        assert estimated_tokens == prompt_only + sum(per_file)
 
-    def test_usage_log_performance_with_many_entries(self, tmp_path) -> None:
+    def test_usage_log_keeps_every_entry_in_order(self, tmp_path) -> None:
         usage_log = tmp_path / "usage.jsonl"
 
         logger = GeminiUsageLogger()
@@ -316,4 +324,6 @@ class TestUsageLoggerIntegration:
         for i in range(10):
             logger.log_usage(UsageEntry(f"cmd{i}", estimated_tokens=10, success=True))
 
-        assert usage_log.exists()
+        commands = [json.loads(line)["command"] for line in usage_log.open()]
+        assert commands == [f"cmd{i}" for i in range(10)]
+        assert logger.get_usage_summary()["total_requests"] == 10

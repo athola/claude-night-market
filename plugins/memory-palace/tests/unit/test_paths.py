@@ -358,6 +358,23 @@ class TestSharedResolverIsActuallyUsed:
 
         assert _leyline_src(plugin_root) == (marketplace / "leyline" / "1.9.17" / "src")
 
+    def test_a_later_prerelease_outranks_an_earlier_release(
+        self, tmp_path: Path
+    ) -> None:
+        """GIVEN leyline 1.10.0 and 1.10.1-rc1 installed
+        WHEN the source is located
+        THEN the rc wins, ordered the way leyline orders its own cache.
+        """
+        marketplace = tmp_path / "plugins" / "cache" / "claude-night-market"
+        for version in ("1.10.0", "1.10.1-rc1"):
+            (marketplace / "leyline" / version / "src").mkdir(parents=True)
+        plugin_root = marketplace / "memory-palace" / "1.10.0"
+        plugin_root.mkdir(parents=True)
+
+        assert _leyline_src(plugin_root) == (
+            marketplace / "leyline" / "1.10.1-rc1" / "src"
+        )
+
     def test_absent_leyline_reports_nothing_rather_than_guessing(
         self, tmp_path: Path
     ) -> None:

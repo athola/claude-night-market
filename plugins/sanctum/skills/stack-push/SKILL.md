@@ -46,7 +46,7 @@ open PRs.
 
 ## Required Progress Tracking
 
-Create `TodoWrite` items before starting:
+Create progress items before starting:
 
 1. `stack-push:branches-listed`
 2. `stack-push:branches-pushed`
@@ -176,7 +176,7 @@ gh pr comment "${ROOT_PR}" --body "$(printf "${BODY}")"
 
 ## Exit Criteria
 
-- [ ] All 4 TodoWrite items (`stack-push:branches-listed` through
+- [ ] All 4 progress items (`stack-push:branches-listed` through
       `stack-push:stack-summary-posted`) are created before pushing
       starts and marked complete in order
 - [ ] Each slice branch confirmed to have ≥ 1 commit beyond its base

@@ -1,747 +1,514 @@
-"""Tests for workflow-monitor skill detection and analysis logic.
+"""Contract tests for the workflow-monitor skill.
 
-This module tests the workflow monitoring functionality including
-error detection, efficiency analysis, and issue creation logic.
-
-Following TDD/BDD principles to ensure workflow issues are properly
-detected, classified, and reported.
+The skill is markdown a session follows, so its behavior is what the
+files say. These tests pin the detection thresholds, severities, penalty
+tables, issue templates and guardrails in SKILL.md and its modules, and
+check that files which repeat a value agree. Where the module ships
+reference code, the tests run that code, so a changed threshold in the
+code or the table shows up here.
 """
 
 from __future__ import annotations
 
-from collections import Counter
+import re
+import runpy
+import tempfile
+from pathlib import Path
 
 import pytest
 
+SKILL_DIR = Path(__file__).resolve().parents[3] / "skills" / "workflow-monitor"
+MODULES = SKILL_DIR / "modules"
+SKILL = (SKILL_DIR / "SKILL.md").read_text()
+DETECTION = (MODULES / "detection-patterns.md").read_text()
+EFFICIENCY = (MODULES / "efficiency-metrics.md").read_text()
+TEMPLATES = (MODULES / "issue-templates.md").read_text()
+
+
+def _between(text: str, start: str, end: str) -> str:
+    """Return text from the first ``start`` up to the next ``end``."""
+    begin = text.index(start)
+    return text[begin : text.index(end, begin + len(start))]
+
+
+def _run_block(text: str, name: str, init: dict | None = None) -> dict:
+    """Run the fenced python block that defines ``name``; return its globals."""
+    for block in re.findall(r"```python\n(.*?)```", text, re.S):
+        if f"def {name}(" in block or f"class {name}:" in block:
+            with tempfile.TemporaryDirectory() as scratch:
+                script = Path(scratch) / "doc_block.py"
+                prelude = (
+                    "from __future__ import annotations\n"
+                    "from dataclasses import dataclass, field\n"
+                )
+                script.write_text(prelude + block)
+                return runpy.run_path(str(script), init_globals=init)
+    raise AssertionError(f"no python block defines {name}")
+
+
+def _skill_config() -> str:
+    return _between(SKILL, "# .workflow-monitor.yaml", "```")
+
+
+def _config_value(key: str) -> str:
+    match = re.search(rf"^\s*{key}: (\S+)", _skill_config(), re.M)
+    assert match, key
+    return match.group(1).strip('"')
+
+
+def _skill_error_severities() -> dict[str, str]:
+    table = _between(SKILL, "### Error Detection", "### Efficiency Detection")
+    return dict(
+        re.findall(r"^\| ([A-Z][\w ]+?) \| [^|]+ \| (High|Medium|Low) \|", table, re.M)
+    )
+
+
+def _module_default_severities() -> dict[str, str]:
+    table = _between(DETECTION, "## Severity Classification", "## Evidence Collection")
+    return dict(re.findall(r"^\| ([A-Z][\w ]+?) \| (High|Medium|Low) \|", table, re.M))
+
+
+def _metrics(**overrides):
+    # The scoring block uses the WorkflowMetrics dataclass defined in the
+    # block before it, as a reader following the module top to bottom would.
+    dataclass_block = _run_block(EFFICIENCY, "WorkflowMetrics")
+    namespace = _run_block(EFFICIENCY, "calculate_efficiency_score", dataclass_block)
+    return namespace, namespace["WorkflowMetrics"](**overrides)
+
 
 class TestErrorDetection:
-    """Feature: Workflow errors are detected and classified.
-
-    As a workflow operator
-    I want errors automatically detected
-    So that workflow issues can be addressed systematically
-    """
-
-    @pytest.fixture
-    def sample_command_results(self):
-        """Sample command execution results for analysis."""
-        return [
-            {
-                "command": "npm install",
-                "exit_code": 0,
-                "duration_ms": 5000,
-                "output_lines": 150,
-            },
-            {
-                "command": "npm test",
-                "exit_code": 1,
-                "duration_ms": 12000,
-                "output_lines": 500,
-                "error": "Test suite failed: 3 tests failed",
-            },
-            {
-                "command": "git push",
-                "exit_code": 128,
-                "duration_ms": 2000,
-                "output_lines": 10,
-                "error": "remote: Permission denied",
-            },
-        ]
-
-    @pytest.fixture
-    def sample_timeout_events(self):
-        """Sample timeout events for analysis."""
-        return [
-            {
-                "command": "npm run build",
-                "timeout_ms": 120000,
-                "actual_ms": 125000,
-                "event": "timeout",
-            },
-            {
-                "command": "docker build .",
-                "timeout_ms": 300000,
-                "actual_ms": 310000,
-                "event": "timeout",
-            },
-        ]
+    """Feature: Workflow errors are detected and classified."""
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_command_failure_detection(self, sample_command_results) -> None:
+    def test_command_failure_detection(self) -> None:
         """Scenario: Command failures are detected by exit code.
 
-        Given command execution results
-        When analyzing for failures
-        Then commands with exit_code > 0 are flagged.
+        Given the error-detection table and the detection module
+        When each states the command-failure signal
+        Then both say a non-zero exit code flags the command.
         """
-        # Arrange
-        results = sample_command_results
-
-        # Act
-        failures = [r for r in results if r["exit_code"] > 0]
-
-        # Assert
-        assert len(failures) == 2
-        assert failures[0]["command"] == "npm test"
-        assert failures[1]["command"] == "git push"
+        assert "| Command failure | Exit code > 0 | High |" in SKILL
+        assert "- Command failures (exit codes > 0)" in SKILL
+        assert "# Detection: Exit code > 0" in DETECTION
+        assert "if [ $exit_code -ne 0 ]; then" in DETECTION
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_failure_severity_classification(self, sample_command_results) -> None:
+    def test_failure_severity_classification(self) -> None:
         """Scenario: Failures are classified by severity.
 
-        Given command failures
-        When classifying severity
-        Then exit codes map to severity levels.
+        Given SKILL.md's error table and the module's severity table
+        When the four shared error patterns are compared
+        Then both files give each the same default severity.
         """
-        # Arrange
-        results = sample_command_results
-
-        # Act
-        def classify_severity(exit_code: int) -> str:
-            if exit_code == 0:
-                return "none"
-            elif exit_code == 1:
-                return "high"  # Test/lint failure
-            elif exit_code >= 128:
-                return "high"  # System/permission error
-            else:
-                return "medium"
-
-        severities = {r["command"]: classify_severity(r["exit_code"]) for r in results}
-
-        # Assert
-        assert severities["npm install"] == "none"
-        assert severities["npm test"] == "high"
-        assert severities["git push"] == "high"
+        skill = _skill_error_severities()
+        module = _module_default_severities()
+        shared = ("Command failure", "Timeout", "Retry loop", "Context exhaustion")
+        assert {p: skill[p] for p in shared} == {p: module[p] for p in shared}
+        assert skill["Command failure"] == "High"
+        assert skill["Retry loop"] == "Medium"
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_timeout_detection(self, sample_timeout_events) -> None:
+    def test_timeout_detection(self) -> None:
         """Scenario: Timeout events are detected.
 
-        Given command execution events
-        When analyzing for timeouts
-        Then commands exceeding timeout are flagged.
+        Given the timeout pattern
+        When the module's detection snippet runs a command under timeout
+        Then exit code 124 is the flag, and SKILL.md rates it High.
         """
-        # Arrange
-        events = sample_timeout_events
-
-        # Act
-        timeouts = [e for e in events if e["event"] == "timeout"]
-        exceeded_by = [e["actual_ms"] - e["timeout_ms"] for e in timeouts]
-
-        # Assert
-        assert len(timeouts) == 2
-        assert exceeded_by[0] == 5000  # 5 seconds over
-        assert exceeded_by[1] == 10000  # 10 seconds over
+        assert "| Timeout | Exceeded timeout limit | High |" in SKILL
+        assert "if [ $? -eq 124 ]; then" in DETECTION
+        assert "- Exit code 124 (timeout)" in DETECTION
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_retry_loop_detection(self) -> None:
         """Scenario: Retry loops are detected as patterns.
 
-        Given command history
-        When analyzing for retries
-        Then repeated commands >3 times are flagged.
+        Given the module's detect_retry_loop
+        When a command repeats four times, and another three
+        Then only the fourth repetition trips it, matching SKILL.md's ">3".
         """
-        # Arrange
-        command_history = [
-            "git fetch origin",
-            "git fetch origin",
-            "git fetch origin",
-            "git fetch origin",  # 4th retry
-            "npm install",
-            "npm install",  # Only 2 retries - OK
-        ]
-        retry_threshold = 3
-
-        # Act
-        command_counts = Counter(command_history)
-        retry_loops = {
-            cmd: count
-            for cmd, count in command_counts.items()
-            if count > retry_threshold
-        }
-
-        # Assert
-        assert "git fetch origin" in retry_loops
-        assert retry_loops["git fetch origin"] == 4
-        assert "npm install" not in retry_loops
+        assert "| Retry loop | Same command >3 times | Medium |" in SKILL
+        detect = _run_block(DETECTION, "detect_retry_loop")["detect_retry_loop"]
+        assert detect(["npm test"] * 4) is True
+        assert detect(["npm test"] * 3 + ["git push"]) is False
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_context_exhaustion_detection(self) -> None:
         """Scenario: Context exhaustion is flagged at threshold.
 
-        Given context usage metrics
-        When usage exceeds threshold
-        Then context exhaustion is flagged.
+        Given the context-exhaustion pattern
+        When both files state the threshold
+        Then both say more than 90% context used.
         """
-        # Arrange
-        context_metrics = {
-            "total_tokens": 200000,
-            "used_tokens": 185000,
-            "threshold_percent": 0.90,
-        }
-
-        # Act
-        usage_percent = context_metrics["used_tokens"] / context_metrics["total_tokens"]
-        is_exhausted = usage_percent >= context_metrics["threshold_percent"]
-
-        # Assert
-        assert abs(usage_percent - 0.925) < 0.01
-        assert is_exhausted is True
+        assert "| Context exhaustion | >90% context used | Medium |" in SKILL
+        assert '- "/context" shows >90% usage' in DETECTION
+        assert "context_exhaustion: true" in _skill_config()
 
 
 class TestEfficiencyAnalysis:
-    """Feature: Workflow efficiency is analyzed and scored.
-
-    As a workflow optimizer
-    I want inefficiencies identified
-    So that workflows can be improved
-    """
-
-    @pytest.fixture
-    def sample_execution_log(self):
-        """Sample execution log for efficiency analysis."""
-        return [
-            {"tool": "Read", "target": "src/main.py", "tokens": 500},
-            {"tool": "Read", "target": "src/main.py", "tokens": 500},  # Redundant
-            {"tool": "Read", "target": "src/utils.py", "tokens": 300},
-            {"tool": "Bash", "command": "npm install", "output_lines": 1500},  # Verbose
-            {"tool": "Bash", "command": "git status", "output_lines": 10},
-            {"tool": "Read", "target": "src/main.py", "tokens": 500},  # 3rd read!
-        ]
-
-    @pytest.fixture
-    def sample_parallel_opportunity(self):
-        """Sample tasks that could be parallelized."""
-        return [
-            {"task": "lint_python", "duration_ms": 3000, "depends_on": []},
-            {"task": "lint_js", "duration_ms": 2500, "depends_on": []},
-            {"task": "typecheck", "duration_ms": 4000, "depends_on": []},
-            {
-                "task": "test",
-                "duration_ms": 10000,
-                "depends_on": ["lint_python", "typecheck"],
-            },
-        ]
+    """Feature: Workflow efficiency is analyzed and scored."""
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_redundant_read_detection(self, sample_execution_log) -> None:
+    def test_redundant_read_detection(self) -> None:
         """Scenario: Redundant file reads are detected.
 
-        Given an execution log
-        When analyzing read operations
-        Then files read >2 times are flagged.
+        Given the module's detect_redundant_reads and the configured limit
+        When one file is read three times and another twice
+        Then only the first is flagged, and every file states 2 reads max.
         """
-        # Arrange
-        log = sample_execution_log
-        max_reads = 2
-
-        # Act
-        read_ops = [e for e in log if e["tool"] == "Read"]
-        read_counts = Counter(e["target"] for e in read_ops)
-        redundant = {f: c for f, c in read_counts.items() if c > max_reads}
-
-        # Assert
-        assert "src/main.py" in redundant
-        assert redundant["src/main.py"] == 3
-        assert "src/utils.py" not in redundant
+        detect = _run_block(DETECTION, "detect_redundant_reads")[
+            "detect_redundant_reads"
+        ]
+        events = [{"file_path": "a.py"}] * 3 + [{"file_path": "b.py"}] * 2
+        assert detect(events) == ["a.py"]
+        assert "| Redundant reads | Same file read >2 times | 2 reads max |" in SKILL
+        assert _config_value("max_file_reads") == "2"
+        assert "max_file_reads: 2     # Per file before penalty" in EFFICIENCY
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_verbose_output_detection(self, sample_execution_log) -> None:
+    def test_verbose_output_detection(self) -> None:
         """Scenario: Verbose command output is flagged.
 
-        Given command outputs
-        When output exceeds threshold
-        Then command is flagged as verbose.
+        Given the verbose-output limit
+        When SKILL.md, its config, the detection snippet and the metrics
+            module state it
+        Then all use 500 lines.
         """
-        # Arrange
-        log = sample_execution_log
-        verbose_threshold = 500
-
-        # Act
-        bash_ops = [e for e in log if e["tool"] == "Bash"]
-        verbose_ops = [
-            e for e in bash_ops if e.get("output_lines", 0) > verbose_threshold
-        ]
-
-        # Assert
-        assert len(verbose_ops) == 1
-        assert verbose_ops[0]["command"] == "npm install"
+        assert (
+            "| Verbose output | >1000 lines from command | 500 lines recommended |"
+            in SKILL
+        )
+        assert _config_value("verbose_output_limit") == "500"
+        assert "if [ $output_lines -gt 500 ]; then" in DETECTION
+        assert "output_limit: 500     # Lines before penalty" in EFFICIENCY
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_parallel_opportunity_detection(self, sample_parallel_opportunity) -> None:
+    def test_parallel_opportunity_detection(self) -> None:
         """Scenario: Tasks that could run in parallel are identified.
 
-        Given tasks with dependencies
-        When analyzing for parallelization
-        Then independent tasks are identified.
+        Given the sequential-vs-parallel pattern
+        When the module states what makes operations independent
+        Then it names the three criteria and SKILL.md enables the check.
         """
-        # Arrange
-        tasks = sample_parallel_opportunity
-
-        # Act
-        independent = [t for t in tasks if not t["depends_on"]]
-        potential_savings_ms = sum(t["duration_ms"] for t in independent) - max(
-            t["duration_ms"] for t in independent
+        assert (
+            "| Sequential vs parallel | Independent tasks run sequentially | "
+            "Should parallelize |" in SKILL
         )
-
-        # Assert
-        assert len(independent) == 3
-        # Sequential: 3000+2500+4000 = 9500ms
-        # Parallel: max(3000,2500,4000) = 4000ms
-        # Savings: 9500-4000 = 5500ms
-        assert potential_savings_ms == 5500
+        criteria = _between(DETECTION, "def detect_parallelizable", "```")
+        assert "# - No data dependencies between them" in criteria
+        assert "# - Different target files/resources" in criteria
+        assert "# - No ordering requirements" in criteria
+        assert _config_value("parallel_detection") == "true"
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_efficiency_score_calculation(self, sample_execution_log) -> None:
+    def test_efficiency_score_calculation(self) -> None:
         """Scenario: Overall efficiency score is calculated.
 
-        Given efficiency metrics
-        When calculating score
-        Then it reflects detected inefficiencies.
+        Given the module's calculate_efficiency_score and penalty caps
+        When the caps are summed and the report's example is scored
+        Then the caps total the 1.0 max_penalty the formula divides by,
+            the example breakdown totals 0.28, and SKILL.md's sample
+            report shows the matching 0.72.
         """
-        # Arrange
-        log = sample_execution_log
+        caps = [float(c) for c in re.findall(r"\(max ([\d.]+) penalty\)", EFFICIENCY)]
+        assert len(caps) == 5
+        assert sum(caps) == pytest.approx(1.0)
+        assert "efficiency_score = 1.0 - (penalty_sum / max_penalty)" in EFFICIENCY
 
-        # Metrics
-        read_ops = [e for e in log if e["tool"] == "Read"]
-        read_counts = Counter(e["target"] for e in read_ops)
-        redundant_reads = sum(1 for c in read_counts.values() if c > 2)
+        breakdown = _between(EFFICIENCY, "### Penalty Breakdown", "### Recommendations")
+        rows = [
+            float(p)
+            for p in re.findall(r"^\| [A-Z][\w -]+ \| ([\d.]+) \|", breakdown, re.M)
+        ]
+        total = float(re.search(r"\*\*Total\*\* \| \*\*([\d.]+)\*\*", breakdown)[1])
+        assert sum(rows) == pytest.approx(total)
+        assert "**Efficiency Score:** 0.72 (72%)" in SKILL
+        assert 1.0 - total == pytest.approx(0.72)
 
-        bash_ops = [e for e in log if e["tool"] == "Bash"]
-        verbose_commands = sum(1 for e in bash_ops if e.get("output_lines", 0) > 500)
-
-        # Act - simple scoring model
-        penalties = {
-            "redundant_reads": redundant_reads * 0.10,
-            "verbose_output": verbose_commands * 0.05,
-        }
-        total_penalty = sum(penalties.values())
-        efficiency_score = max(0, 1.0 - total_penalty)
-
-        # Assert
-        assert penalties["redundant_reads"] == 0.10  # 1 file read 3 times
-        assert penalties["verbose_output"] == 0.05  # 1 verbose command
-        assert abs(efficiency_score - 0.85) < 0.01
+        namespace, metrics = _metrics(
+            total_output_lines=750,
+            operation_counts={"read config.json": 3},
+            large_reads_without_limit=1,
+            context_usage_percent=65.0,
+        )
+        assert namespace["calculate_efficiency_score"](metrics) == pytest.approx(
+            1.0 - total
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_over_fetching_detection(self) -> None:
         """Scenario: Over-fetching (reading entire files) is flagged.
 
-        Given file read operations
-        When offset/limit not used on large files
-        Then over-fetching is flagged.
+        Given the over-fetching penalty table and the reference code
+        When one large read without offset/limit is recorded, then three
+        Then the penalty steps from 0.05 to the 0.15 cap, as the table says.
         """
-        # Arrange
-        read_ops = [
-            {"file": "src/main.py", "lines": 50, "used_offset": False},  # Small, OK
-            {
-                "file": "src/large.py",
-                "lines": 2000,
-                "used_offset": False,
-            },  # Large, issue
-            {"file": "src/huge.py", "lines": 5000, "used_offset": True},  # Large but OK
-        ]
-        large_file_threshold = 500
-
-        # Act
-        over_fetched = [
-            r
-            for r in read_ops
-            if r["lines"] > large_file_threshold and not r["used_offset"]
-        ]
-
-        # Assert
-        assert len(over_fetched) == 1
-        assert over_fetched[0]["file"] == "src/large.py"
+        assert (
+            "| Over-fetching | Read entire file when snippet needed | Use offset/limit |"
+            in SKILL
+        )
+        table = _between(
+            EFFICIENCY, "### Over-Fetching (max 0.15 penalty)", "**Detection:**"
+        )
+        assert "| 1-2 | 0.05 |" in table
+        assert "| > 2 | 0.15 |" in table
+        namespace, one = _metrics(large_reads_without_limit=1)
+        _, three = _metrics(large_reads_without_limit=3)
+        score = namespace["calculate_efficiency_score"]
+        assert 1.0 - score(one) == pytest.approx(0.05)
+        assert 1.0 - score(three) == pytest.approx(0.15)
 
 
 class TestIssueCreation:
-    """Feature: Workflow issues are formatted for GitHub.
-
-    As a workflow maintainer
-    I want issues auto-generated from detections
-    So that improvements are tracked
-    """
-
-    @pytest.fixture
-    def sample_detection(self):
-        """Sample workflow issue detection."""
-        return {
-            "type": "command_failure",
-            "command": "npm test",
-            "exit_code": 1,
-            "error": "3 tests failed",
-            "session_id": "session-abc123",
-            "timestamp": "2024-01-15T10:30:00Z",
-        }
-
-    @pytest.fixture
-    def sample_efficiency_issue(self):
-        """Sample efficiency issue detection."""
-        return {
-            "type": "verbose_output",
-            "command": "npm install",
-            "output_lines": 1500,
-            "recommended_lines": 500,
-            "suggestion": "Use --quiet flag",
-        }
+    """Feature: Detected issues become platform issues."""
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_issue_title_format(self, sample_detection) -> None:
-        """Scenario: Issue titles follow standard format.
+    def test_issue_identifies_its_source_session(self) -> None:
+        """Scenario: Every issue names the workflow and session it came from.
 
-        Given a detection
-        When generating issue title
-        Then it should use conventional format.
+        Renamed from test_issue_title_format: neither SKILL.md nor the
+        templates define an issue title format (the old test asserted a
+        "[workflow-monitor]" prefix nothing documents). What they do pin is
+        the Source line, in SKILL.md's template and in all four module
+        templates.
         """
-        # Arrange
-        detection = sample_detection
-
-        # Act
-        type_prefix = {
-            "command_failure": "fix(workflow)",
-            "timeout": "fix(workflow)",
-            "verbose_output": "perf(workflow)",
-            "redundant_reads": "perf(workflow)",
-        }
-        prefix = type_prefix.get(detection["type"], "fix(workflow)")
-        title = f"{prefix}: {detection['command']} - {detection['error']}"
-
-        # Assert
-        assert title == "fix(workflow): npm test - 3 tests failed"
-        assert title.startswith("fix(workflow)")
+        assert "**Source:** [workflow name] session [session-id]" in SKILL
+        assert (
+            TEMPLATES.count("**Source:** {{WORKFLOW_NAME}} session {{SESSION_ID}}") == 4
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_issue_labels_assignment(self, sample_detection) -> None:
+    def test_issue_labels_assignment(self) -> None:
         """Scenario: Issues get appropriate labels.
 
-        Given a detection type
-        When assigning labels
-        Then relevant labels are included.
+        Given the template-selection table
+        When labels are read per issue type
+        Then each carries its documented labels, drawn from the set
+            SKILL.md's report phase names.
         """
-        # Arrange
-        detection = sample_detection
-        type_labels = {
-            "command_failure": ["workflow", "bug"],
-            "timeout": ["workflow", "bug", "performance"],
-            "verbose_output": ["workflow", "enhancement"],
-            "redundant_reads": ["workflow", "enhancement"],
+        table = _between(
+            TEMPLATES, "| Issue Type | Template | Labels |", "## Error Report"
+        )
+        labels = dict(
+            re.findall(r"^\| ([A-Z][\w ]+?) \| [\w-]+ \| ([\w, ]+?) \|", table, re.M)
+        )
+        labels.pop("Issue Type")
+        assert labels == {
+            "Command failure": "bug, workflow",
+            "Timeout": "performance, workflow",
+            "Retry loop": "bug, flaky",
+            "Efficiency issue": "enhancement, optimization",
         }
-
-        # Act
-        labels = type_labels.get(detection["type"], ["workflow"])
-
-        # Assert
-        assert "workflow" in labels
-        assert "bug" in labels  # command_failure is a bug
+        assert "2. **Assign labels** - workflow, bug, enhancement" in SKILL
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_issue_body_structure(self, sample_detection) -> None:
+    def test_issue_body_structure(self) -> None:
         """Scenario: Issue body contains required sections.
 
-        Given a detection
-        When generating issue body
-        Then it should have all required sections.
+        Given SKILL.md's issue template and the four module templates
+        When their headings are read
+        Then each has Background, Suggested Fix and Acceptance Criteria,
+            and SKILL.md's template adds Problem.
         """
-        # Arrange
-        detection = sample_detection
-        required_sections = [
-            "Background",
-            "Problem",
-            "Suggested Fix",
-            "Acceptance Criteria",
-        ]
-
-        # Act - simulate body generation
-        body_sections = {
-            "Background": f"Detected during workflow execution on {detection['timestamp']}",
-            "Problem": f"Command `{detection['command']}` failed with exit code {detection['exit_code']}",
-            "Suggested Fix": "Review test failures and fix broken tests",
-            "Acceptance Criteria": "- [ ] All tests pass\n- [ ] CI pipeline succeeds",
-        }
-
-        # Assert
-        assert all(section in body_sections for section in required_sections)
-        assert detection["command"] in body_sections["Problem"]
+        skill_template = _between(SKILL, "## Issue Template", "## Configuration")
+        for heading in (
+            "## Background",
+            "## Problem",
+            "## Suggested Fix",
+            "## Acceptance Criteria",
+        ):
+            assert heading in skill_template, heading
+        assert "*Created automatically by workflow-monitor*" in skill_template
+        for name in (
+            "Error Report",
+            "Performance Issue",
+            "Flaky Workflow",
+            "Enhancement",
+        ):
+            body = _between(
+                TEMPLATES, f"## {name} Template", "*Created by workflow-monitor*"
+            )
+            assert "## Background" in body, name
+            assert "## Acceptance Criteria" in body, name
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_duplicate_detection(self) -> None:
         """Scenario: Duplicate issues are prevented.
 
-        Given existing issues
-        When checking for duplicates
-        Then similar issues should be identified.
+        Given the duplicate guardrail
+        When the three places state it
+        Then SKILL.md checks existing issues first and the exit criterion
+            and the module search with ``gh issue list --search``.
         """
-        # Arrange
-        existing_issues = [
-            {"title": "fix(workflow): npm test - 3 tests failed", "state": "open"},
-            {"title": "fix(workflow): git push - Permission denied", "state": "closed"},
-            {"title": "perf(workflow): npm install verbose output", "state": "open"},
-        ]
-        new_issue_title = "fix(workflow): npm test - 3 tests failed"
-
-        # Act
-        def is_duplicate(title: str, issues: list) -> bool:
-            return any(i["title"] == title and i["state"] == "open" for i in issues)
-
-        # Assert
-        assert is_duplicate(new_issue_title, existing_issues) is True
-        assert is_duplicate("fix(workflow): new error", existing_issues) is False
+        assert (
+            "1. **No duplicate issues** - Check existing issues before creating"
+            in SKILL
+        )
+        assert "1. **Check for duplicates** - Search existing issues" in SKILL
+        assert "Duplicate check run via `gh issue list --search` before" in SKILL
+        assert (
+            'gh issue list --state all --search "{{COMMAND}} OR {{ERROR_EXCERPT}}"'
+            in TEMPLATES
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_rate_limiting(self) -> None:
         """Scenario: Issue creation is rate limited per session.
 
-        Given session issue count
-        When limit is reached
-        Then new issues are blocked.
+        Given the rate-limit guardrail
+        When SKILL.md, its exit criteria and the module state it
+        Then all cap issues at 5 per session.
         """
-        # Arrange
-        session_issues = 5
-        max_issues_per_session = 5
-
-        # Act
-        can_create = session_issues < max_issues_per_session
-
-        # Assert
-        assert can_create is False
+        assert "4. **Rate limiting** - Max 5 issues per session" in SKILL
+        assert "No more than 5 issues created per session" in SKILL
+        assert "- Maximum 5 issues per session" in TEMPLATES
+        assert "- Minimum 10 minutes between issue creation" in TEMPLATES
 
 
 class TestWorkflowConfiguration:
-    """Feature: Workflow monitoring is configurable.
-
-    As an operator
-    I want to configure monitoring thresholds
-    So that alerts match my needs
-    """
-
-    @pytest.fixture
-    def default_config(self):
-        """Return default workflow monitor configuration."""
-        return {
-            "enabled": True,
-            "auto_create_issues": False,
-            "severity_threshold": "medium",
-            "efficiency_threshold": 0.7,
-            "detection": {
-                "command_failures": True,
-                "timeouts": True,
-                "retry_loops": True,
-                "context_exhaustion": True,
-                "tool_misuse": True,
-            },
-            "efficiency": {
-                "verbose_output_limit": 500,
-                "max_file_reads": 2,
-                "parallel_detection": True,
-            },
-        }
+    """Feature: Monitoring behavior is configurable."""
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_severity_threshold_filtering(self, default_config) -> None:
+    def test_severity_threshold_filtering(self) -> None:
         """Scenario: Only issues at/above threshold are reported.
 
-        Given severity threshold configuration
-        When filtering issues
-        Then lower severity issues are excluded.
+        Given the default severity threshold
+        When the error table's severities are filtered at it
+        Then Tool misuse (Low) is the one pattern excluded.
         """
-        # Arrange
-        issues = [
-            {"id": "I1", "severity": "high"},
-            {"id": "I2", "severity": "medium"},
-            {"id": "I3", "severity": "low"},
-        ]
-        severity_order = {"high": 3, "medium": 2, "low": 1}
-        threshold = default_config["severity_threshold"]
-
-        # Act
-        filtered = [
-            i
-            for i in issues
-            if severity_order[i["severity"]] >= severity_order[threshold]
-        ]
-
-        # Assert
-        assert len(filtered) == 2
-        assert all(i["severity"] != "low" for i in filtered)
+        threshold = _config_value("severity_threshold")
+        assert threshold == "medium"
+        assert "# Only report medium+ severity" in _skill_config()
+        rank = {"Low": 0, "Medium": 1, "High": 2}
+        floor = rank[threshold.capitalize()]
+        excluded = [p for p, s in _skill_error_severities().items() if rank[s] < floor]
+        assert excluded == ["Tool misuse"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_efficiency_threshold_flagging(self, default_config) -> None:
+    def test_efficiency_threshold_flagging(self) -> None:
         """Scenario: Workflows below efficiency threshold are flagged.
 
-        Given efficiency scores
-        When below threshold
-        Then workflow is flagged.
+        Given the efficiency threshold in SKILL.md and the metrics module
+        When both are read
+        Then both are 0.7, the floor of the module's "Good" rating.
         """
-        # Arrange
-        workflow_scores = [
-            {"session": "s1", "efficiency": 0.85},
-            {"session": "s2", "efficiency": 0.65},
-            {"session": "s3", "efficiency": 0.72},
-        ]
-        threshold = default_config["efficiency_threshold"]
-
-        # Act
-        flagged = [w for w in workflow_scores if w["efficiency"] < threshold]
-
-        # Assert
-        assert len(flagged) == 1
-        assert flagged[0]["session"] == "s2"
+        assert _config_value("efficiency_threshold") == "0.7"
+        assert "# Flag workflows below 70% efficiency" in _skill_config()
+        assert "score_threshold: 0.7  # Report if below" in EFFICIENCY
+        assert "| 0.7-0.9 | Good | Minor improvements possible |" in EFFICIENCY
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_detection_toggles(self, default_config) -> None:
+    def test_detection_toggles(self) -> None:
         """Scenario: Detection types can be individually toggled.
 
-        Given detection configuration
-        When a detection is disabled
-        Then that type is not checked.
+        Given the detection block in the config
+        When its keys are read
+        Then there is one toggle per error pattern in SKILL.md's table.
         """
-        # Arrange
-        config = default_config.copy()
-        config["detection"]["retry_loops"] = False
-
-        # Act
-        enabled_detections = [k for k, v in config["detection"].items() if v]
-
-        # Assert
-        assert "retry_loops" not in enabled_detections
-        assert "command_failures" in enabled_detections
-        assert len(enabled_detections) == 4
+        block = _between(_skill_config(), "detection:", "efficiency:")
+        toggles = re.findall(r"^\s+(\w+): true$", block, re.M)
+        assert toggles == [
+            "command_failures",
+            "timeouts",
+            "retry_loops",
+            "context_exhaustion",
+            "tool_misuse",
+        ]
+        assert len(toggles) == len(_skill_error_severities())
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_auto_create_requires_approval(self, default_config) -> None:
+    def test_auto_create_requires_approval(self) -> None:
         """Scenario: Auto-create issues requires explicit opt-in.
 
-        Given default configuration
-        When checking auto_create_issues
-        Then it should be disabled by default.
+        Given the default configuration
+        When auto_create_issues is read
+        Then it is false, and both guardrails require approval unless it
+            is set true.
         """
-        # Arrange
-        config = default_config
-
-        # Assert
-        assert config["auto_create_issues"] is False
+        assert _config_value("auto_create_issues") == "false"
+        assert "2. **Approval required** - Unless `auto_create_issues: true`" in SKILL
+        assert (
+            "- Require user confirmation unless `auto_create_issues: true`" in TEMPLATES
+        )
 
 
 class TestEfficiencyReport:
-    """Feature: Efficiency reports summarize workflow health.
-
-    As a team lead
-    I want efficiency reports
-    So that I can track workflow improvements over time
-    """
-
-    @pytest.fixture
-    def sample_session_metrics(self):
-        """Sample session metrics for report."""
-        return {
-            "session_id": "session-xyz789",
-            "duration_seconds": 754,
-            "issues_detected": [
-                {"type": "verbose_output", "count": 3},
-                {"type": "redundant_reads", "count": 2},
-                {"type": "sequential_tasks", "count": 1},
-            ],
-            "efficiency_score": 0.72,
-        }
+    """Feature: Efficiency reports summarize a session."""
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_report_summary_generation(self, sample_session_metrics) -> None:
+    def test_report_summary_generation(self) -> None:
         """Scenario: Report summary captures key metrics.
 
-        Given session metrics
-        When generating summary
-        Then it should include session ID, duration, and score.
+        Given SKILL.md's report and the module's report template
+        When their header fields are read
+        Then both carry session, duration and score.
         """
-        # Arrange
-        metrics = sample_session_metrics
-
-        # Act
-        summary = {
-            "session": metrics["session_id"],
-            "duration": f"{metrics['duration_seconds'] // 60}m {metrics['duration_seconds'] % 60}s",
-            "score": f"{metrics['efficiency_score']:.0%}",
-        }
-
-        # Assert
-        assert summary["session"] == "session-xyz789"
-        assert summary["duration"] == "12m 34s"
-        assert summary["score"] == "72%"
+        report = _between(SKILL, "## Workflow Efficiency Report", "### Issues Detected")
+        assert "**Session:** [session-id]" in report
+        assert "**Duration:** 12m 34s" in report
+        assert "**Efficiency Score:** 0.72 (72%)" in report
+        template = _between(EFFICIENCY, "### Efficiency Report Format", "### Penalty")
+        for field in (
+            "**Session:** {{SESSION_ID}}",
+            "**Duration:** {{DURATION}}",
+            "**Overall Score:** {{SCORE}} ({{RATING}})",
+        ):
+            assert field in template, field
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_issue_impact_classification(self, sample_session_metrics) -> None:
+    def test_issue_impact_classification(self) -> None:
         """Scenario: Issues are classified by impact.
 
-        Given detected issues
-        When classifying impact
-        Then issues are categorized appropriately.
+        Given SKILL.md's sample "Issues Detected" table
+        When its impact column is read
+        Then verbose output and sequential tasks are Medium and redundant
+            reads Low, each a level SKILL.md's severity scale uses.
         """
-        # Arrange
-        issues = sample_session_metrics["issues_detected"]
-        impact_map = {
-            "verbose_output": "medium",
-            "redundant_reads": "low",
-            "sequential_tasks": "medium",
-            "command_failure": "high",
-            "timeout": "high",
+        table = _between(SKILL, "### Issues Detected", "### Recommendations")
+        impacts = dict(
+            re.findall(r"^\| ([A-Z][\w ]+?) \| \d+ \| (\w+) \|", table, re.M)
+        )
+        assert impacts == {
+            "Verbose output": "Medium",
+            "Redundant reads": "Low",
+            "Sequential tasks": "Medium",
         }
-
-        # Act
-        classified = [
-            {**issue, "impact": impact_map.get(issue["type"], "low")}
-            for issue in issues
-        ]
-
-        # Assert
-        assert classified[0]["impact"] == "medium"
-        assert classified[1]["impact"] == "low"
+        assert set(impacts.values()) <= {"High", "Medium", "Low"}
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommendation_generation(self) -> None:
         """Scenario: Recommendations are generated from issues.
 
-        Given detected issue types
-        When generating recommendations
-        Then actionable suggestions are provided.
+        Given the sample report's issues
+        When its recommendations are read
+        Then each detected issue type has a matching recommendation, using
+            the quiet flags the detection module lists for verbose output.
         """
-        # Arrange
-        issue_recommendations = {
-            "verbose_output": "Use --quiet flags for npm/pip commands",
-            "redundant_reads": "Cache file contents instead of re-reading",
-            "sequential_tasks": "Parallelize independent file operations",
-        }
-        detected_issues = ["verbose_output", "redundant_reads"]
-
-        # Act
-        recommendations = [
-            issue_recommendations[issue]
-            for issue in detected_issues
-            if issue in issue_recommendations
-        ]
-
-        # Assert
-        assert len(recommendations) == 2
-        assert "cache" in recommendations[1].lower()
+        recommendations = _between(SKILL, "### Recommendations", "### Create Issues?")
+        assert "1. Use `--quiet` flags for npm/pip commands" in recommendations
+        assert "2. Cache file contents instead of re-reading" in recommendations
+        assert "3. Parallelize independent file operations" in recommendations
+        assert "- Cache file contents in variables" in DETECTION
+        assert "- `pip install` without `--quiet`" in DETECTION

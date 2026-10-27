@@ -36,6 +36,13 @@ for _d in _candidate_dirs:
 if str(_hooks_dir) not in sys.path:
     sys.path.insert(0, str(_hooks_dir))
 
+_src = _hooks_dir.parent / "src"
+if str(_src) not in sys.path:
+    sys.path.insert(0, str(_src))
+
+from abstract.paths import (  # noqa: E402 - import after path setup
+    get_learnings_path,
+)
 from shared.best_effort import best_effort  # noqa: E402 - import after path setup
 
 _HOOK = "post_learnings_stop"
@@ -72,7 +79,7 @@ except ImportError:
 
 def _learnings_have_content() -> bool:
     """Check whether LEARNINGS.md has skills worth posting."""
-    learnings = Path.home() / ".claude" / "skills" / "LEARNINGS.md"
+    learnings = get_learnings_path()
     if not learnings.exists():
         return False
     try:

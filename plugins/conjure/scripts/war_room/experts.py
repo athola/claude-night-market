@@ -17,14 +17,13 @@ from scripts.war_room.config import (
     CLAUDE_HAIKU,
     CLAUDE_OPUS,
     CLAUDE_SONNET,
-    GEMINI_3_FLASH,
-    GEMINI_3_PRO,
+    GEMINI_FLASH,
+    GEMINI_PRO,
     GLM_53,
     MINIMAX_M3,
     MINIMAX_M3_1_FLASH,
     MUSE_SPARK,
-    QWEN_MAX,
-    QWEN_TURBO,
+    QWEN_CODER,
 )
 from scripts.war_room.models import ExpertConfig
 
@@ -50,10 +49,10 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "intelligence_officer": ExpertConfig(
         role="Intelligence Officer",
         service="gemini",
-        model=GEMINI_3_PRO,
+        model=GEMINI_PRO,
         description="Deep context analysis with 1M+ token window",
         phases=["intel"],
-        command=["gemini", "--model", GEMINI_3_PRO, "-p"],
+        command=["gemini", "--model", GEMINI_PRO, "-p"],
     ),
     "field_tactician": ExpertConfig(
         role="Field Tactician",
@@ -65,26 +64,26 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "scout": ExpertConfig(
         role="Scout",
         service="qwen",
-        model=QWEN_TURBO,
+        model=QWEN_CODER,
         description="Rapid reconnaissance and data gathering",
         phases=["intel"],
-        command=["qwen", "--model", QWEN_TURBO, "-p"],
+        command=["qwen", "--model", QWEN_CODER, "-p"],
     ),
     "red_team": ExpertConfig(
         role="Red Team Commander",
         service="gemini",
-        model=GEMINI_3_FLASH,
+        model=GEMINI_FLASH,
         description="Adversarial challenge and failure mode identification",
         phases=["red_team", "premortem"],
-        command=["gemini", "--model", GEMINI_3_FLASH, "-p"],
+        command=["gemini", "--model", GEMINI_FLASH, "-p"],
     ),
     "logistics_officer": ExpertConfig(
         role="Logistics Officer",
         service="qwen",
-        model=QWEN_MAX,
+        model=QWEN_CODER,
         description="Resource estimation and dependency analysis",
         phases=["coa"],
-        command=["qwen", "--model", QWEN_MAX, "-p"],
+        command=["qwen", "--model", QWEN_CODER, "-p"],
     ),
     # ``mmx text chat --message`` is the official MiniMax CLI contract; the
     # orchestrator appends the prompt as the final argv element, so the
@@ -108,17 +107,16 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         optional=True,
     ),
     # ``muse exec <prompt>`` takes the prompt positionally: Meta documents no
-    # prompt flag, so the command ends at the subcommand and the orchestrator's
-    # trailing prompt lands in the right slot. No --model flag is documented
-    # for exec either, so the model here records what Muse Code runs on rather
-    # than selecting it.
+    # prompt flag, so the command ends at the --model value and the
+    # orchestrator's trailing prompt lands in the right slot. The model is
+    # passed because Muse Code's own default is the older muse-spark-1.2.
     "systems_engineer": ExpertConfig(
         role="Systems Engineer",
         service="muse",
         model=MUSE_SPARK,
         description="Repository-scale implementation review across a large codebase",
         phases=["intel", "coa"],
-        command=["muse", "exec"],
+        command=["muse", "exec", "--model", MUSE_SPARK],
         optional=True,
     ),
 }

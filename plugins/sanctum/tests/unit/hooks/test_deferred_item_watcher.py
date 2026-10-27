@@ -838,3 +838,40 @@ class TestShouldProcessNonDictToolInput:
 
 # Keep the module import accessible for any patching tests
 __all__ = ["mod"]
+
+
+class TestLedgerLocationAndPayloadShapes:
+    """The ledger lands under CLAUDE_HOME, and odd payloads are normalized."""
+
+    def test_main_writes_the_ledger_under_claude_home(self, tmp_path: Path) -> None:
+        """
+        GIVEN CLAUDE_HOME points at a scratch directory
+        WHEN main() records a deferral
+        THEN the ledger is written there, where the Stop sweep reads it
+        """
+        env = {
+            "CLAUDE_HOME": str(tmp_path),
+            "CLAUDE_TOOL_NAME": "Skill",
+            "CLAUDE_TOOL_INPUT": json.dumps({"skill": "war-room"}),
+            "CLAUDE_TOOL_OUTPUT": "[Deferred] Add OAuth support",
+        }
+        with patch.dict(os.environ, env), patch("sys.stdin.isatty", return_value=True):
+            mod.main()
+
+        entries = json.loads((tmp_path / "deferred-items-session.json").read_text())
+        assert [entry["title"] for entry in entries] == ["Add OAuth support"]
+
+    def test_non_object_tool_input_on_stdin_becomes_an_empty_dict(self) -> None:
+        """
+        GIVEN a stdin payload whose tool_input is a number
+        WHEN the payload is read
+        THEN tool_input is an empty dict, as every caller indexes it as one
+        """
+        stdin = json.dumps({"tool_name": "Skill", "tool_input": 5})
+        with patch("sys.stdin") as fake_stdin:
+            fake_stdin.isatty.return_value = False
+            fake_stdin.read.return_value = stdin
+            payload = mod.read_payload()
+
+        assert payload["tool_name"] == "Skill"
+        assert payload["tool_input"] == {}

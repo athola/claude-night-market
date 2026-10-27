@@ -99,7 +99,6 @@ clean: ## Clean cache and build files
 	rm -rf .venv 2>/dev/null || true
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
-	uv cache clean 2>/dev/null || true
 
 # Quick commands
 status: ## Show project overview
@@ -114,8 +113,7 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "UV: $(UV)"
 	@echo "UV_RUN: $(UV_RUN)"
 	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
 	@echo "SRC_DIRS: $(SRC_DIRS)"
 	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
 	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
@@ -157,8 +155,9 @@ delegate-verify: ## Verify authentication for all registered services
 	@# out here, so a newly registered provider is verified without editing
 	@# this target. Every service is verified before the target fails, so
 	@# one broken service does not hide the state of the others.
-	@fail=0; \
-	for svc in $$(uv run python scripts/delegation_executor.py --list-services | awk -F: '{print $$1}'); do \
+	@svcs=$$(uv run python scripts/delegation_executor.py --list-services) || exit 1; \
+	fail=0; \
+	for svc in $$(printf '%s\n' "$$svcs" | awk -F: '{print $$1}'); do \
 		uv run python scripts/delegation_executor.py $$svc --verify || fail=1; \
 	done; \
 	exit $$fail
@@ -311,7 +310,7 @@ demo-conjure-commands: demo-plugin demo-status delegate-setup ## Run all conjure
 
 test-plugin: ## Test plugin install and delegation commands
 	@echo "Running delegation and skills tests..."
-	$(PYTEST) tests/ -v -k "delegation or skills" || $(PYTEST) tests/ -v --tb=short
+	$(PYTEST) tests/ -v -k "delegation or skills"
 
 test-status: ## Test delegation status command
 	@echo "Running quota and status tests..."

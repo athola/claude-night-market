@@ -81,7 +81,21 @@ for living things.
 
 "Validate" not "Validates" (per PEP 257, pydocstyle, ruff).
 
-## Required TodoWrite Items
+### 11. One Term per Concept, One Home per Fact
+
+When a concept already has a name, use the term the repository
+already uses. A new synonym makes readers ask whether two things
+exist. When a number, threshold or path is stated in another file,
+link to the file that states it. A second copy drifts, and code left
+inconsistent with its docs is measurably more bug-prone
+(`docs/knowledge-corpus/decoherence.md`).
+
+When a document replaces another, describe only the current state in
+the new one. The superseded document gets the forward pointer and its
+status: deleted, deprecated, or still valid for a named case. The
+commit message records the supersession.
+
+## Required Progress Items
 
 1. `doc-generator:scope-defined` - Target files and type identified
 2. `doc-generator:style-loaded` - Style profile applied (if available)
@@ -283,12 +297,12 @@ When editing code comments:
 
 ## Exit Criteria
 
-- Content created or remediated
-- Slop score < 1.5 (clean rating)
-- Audience tier declared in the request and honored in the draft
-- Document economy score >= 7/8, audience fit scoring 2/2
-- Every extraction landed in `modules/` or `docs/deep-dive/`
+- [ ] Content created or remediated
+- [ ] Slop score < 1.5 (clean rating)
+- [ ] Audience tier declared in the request and honored in the draft
+- [ ] Document economy score >= 7/8, audience fit scoring 2/2
+- [ ] Every extraction landed in `modules/` or `docs/deep-dive/`
   and is linked from the parent's lead
-- Quality gate checklist passed
-- User approval received
-- No emojis present (unless specified)
+- [ ] Quality gate checklist passed
+- [ ] User approval received
+- [ ] No emojis present (unless specified)

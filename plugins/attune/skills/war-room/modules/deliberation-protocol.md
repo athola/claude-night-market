@@ -138,7 +138,7 @@ For Type 2 decisions (RS ≤ 0.40):
 
 **Purpose**: Gather context and identify terrain before strategy.
 
-**Experts**: Scout (Qwen Turbo), Intelligence Officer (Gemini Pro)
+**Experts**: Scout (Qwen `coder-model`), Intelligence Officer (Gemini Pro)
 
 **Execution**: Parallel
 

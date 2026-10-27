@@ -47,14 +47,21 @@ class TestSkillAnalyzer:
         assert "estimated_tokens" in result
         assert "recommendations" in result
 
-    def test_analyze_file_counts_sections(self, temp_skill_file) -> None:
-        """Test that analyzer counts sections correctly."""
-        analyzer = SkillAnalyzer()
-        result = analyzer.analyze_file(temp_skill_file)
+    def test_analyze_file_counts_sections(self, tmp_path: Path) -> None:
+        """Test that analyzer counts H1 themes and H2 subsections.
 
-        # Our sample has sections, just verify they're counted
-        assert result["themes"] >= 0
-        assert result["subsections"] >= 0
+        A ``#`` line inside a code fence is a shell comment, not a heading.
+        """
+        skill_file = tmp_path / "SKILL.md"
+        skill_file.write_text(
+            "# Theme A\n## a1\n## a2\n# Theme B\n"
+            "```bash\n# not a heading\n## nor this\n```\n## b1\n"
+        )
+        analyzer = SkillAnalyzer()
+        result = analyzer.analyze_file(skill_file)
+
+        assert result["themes"] == 2
+        assert result["subsections"] == 3
 
     def test_analyze_file_nonexistent_fails(self) -> None:
         """Test that analyzing nonexistent file raises error."""
@@ -78,8 +85,10 @@ class TestSkillAnalyzer:
         recommendations = result["recommendations"]
         assert any("MODULARIZE" in rec for rec in recommendations)
 
-    def test_format_analysis_basic(self, temp_skill_file) -> None:
-        """Test analysis formatting."""
+    def test_format_analysis_prints_header_line_count_and_recommendations(
+        self, temp_skill_file
+    ) -> None:
+        """format_analysis prints the file header, line count and recommendations."""
         analyzer = SkillAnalyzer()
         result = analyzer.analyze_file(temp_skill_file)
         formatted = analyzer.format_analysis(result)
@@ -225,7 +234,7 @@ class TestSkillAnalyzerFormatAnalysisVerbose:
         """format_text with uninitialized analyzer uses fallback."""
         cli = SkillAnalyzerCLI()
         result = cli.format_text([{"file": "test.md", "line_count": 10}])
-        assert isinstance(result, str)
+        assert result == "Analysis: {'file': 'test.md', 'line_count': 10}"
 
 
 class TestSkillAnalyzerExecute:

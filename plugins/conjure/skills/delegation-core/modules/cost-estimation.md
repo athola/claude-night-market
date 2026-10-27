@@ -13,14 +13,15 @@ dependencies:
 
 ## Service Cost Comparisons
 
-**Gemini 2.0 Models (per 1M tokens):**
-- Input: $0.50, Output: $1.50 (Pro version)
-- Input: $0.075, Output: $0.30 (Flash version)
-- Context: Up to 1M tokens
+**Gemini models (per 1M tokens):** see
+`Skill(conjure:gemini-delegation)` module `gemini-specifics.md`.
+- `gemini-3.8-flash`: $0.75 input, $3.75 output (rising 2027-01-01)
+- `gemini-3.1-pro-preview`: $2.00 input, $12.00 output up to 200K
+- Context: 1M tokens
 
-**Qwen Models (per 1M tokens):**
-- Input: $0.20-0.50, Output: $0.60-1.20 (varies by provider)
-- Context: Up to 100K+ tokens
+**Qwen models:** the service uses Qwen OAuth, which has no per-token
+price. See `Skill(conjure:qwen-delegation)` module `qwen-specifics.md`
+for API-key rates.
 - Sandbox execution: Typically $0.001-0.01 per request
 
 ## Cost Decision Framework

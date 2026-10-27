@@ -8,6 +8,8 @@ plus escalation logic and Borda count scoring.
 from __future__ import annotations
 
 import json
+import logging
+import re
 from typing import TYPE_CHECKING
 
 from scripts.war_room.experts import (
@@ -32,11 +34,14 @@ if TYPE_CHECKING:
     from scripts.war_room.orchestrator import WarRoomOrchestrator
 
 
-# A ranked line in an expert's vote runs at most this many characters, so
-# a COA label further than this from its "N." marker belongs to a
-# different rank. Unvalidated: chosen to span one wrapped line, never
+# On one ranked line, a COA label further than this from the rank marker
+# sits in the justification, not in the ranked slot. Unvalidated: never
 # measured against recorded votes.
 _RANK_PROXIMITY_CHARS = 200
+# "1. X", "1) X", "- 1. X" and "**1. X**" are all one ranked line.
+_RANKED_LINE = re.compile(r"^\s*(?:[-*]\s+)?(?:\*\*)?(\d+)[.)]\s*(.*)$", re.MULTILINE)
+
+logger = logging.getLogger(__name__)
 
 # What each expert is asked to bring to a COA. Shared by COA development
 # and by escalation, which invokes the same experts on the same prompt.
@@ -288,27 +293,42 @@ def compute_borda_scores(
     """Compute Borda count scores from expert votes.
 
     Borda count: N points for 1st, N-1 for 2nd, etc.
+
+    A ballot follows VOTING_PROMPT: one ``<rank>. <label> - <reason>``
+    line per COA, optionally bulleted or bold, numbered ``N.`` or ``N)``.
+    A ballot with no such line is logged as a warning. Each ranked line
+    awards its points to the label that starts nearest its rank marker,
+    within ``_RANK_PROXIMITY_CHARS``. The
+    longer label wins a tie, so ``COA_10`` is not read as ``COA_1``.
+    Labels named later in a justification score nothing on that line. A
+    label scores once per ballot, at its first ranked line.
     """
     scores: dict[str, int] = dict.fromkeys(coa_labels, 0)
     n = len(coa_labels)
 
-    for vote_text in votes.values():
-        rank_pos: dict[int, int] = {
-            rank: vote_text.find(f"{rank}.")
-            for rank in range(1, n + 1)
-            if f"{rank}." in vote_text
-        }
-        for label in coa_labels:
-            if label not in vote_text:
+    for expert, vote_text in votes.items():
+        ranked: set[str] = set()
+        for line in _RANKED_LINE.finditer(vote_text):
+            rank = int(line.group(1))
+            if not 1 <= rank <= n:
                 continue
-            label_pos = vote_text.find(label)
-            for rank in range(1, n + 1):
-                rp = rank_pos.get(rank, -1)
-                if rp < 0:
-                    continue
-                if 0 <= rp < label_pos < rp + _RANK_PROXIMITY_CHARS:
-                    scores[label] += n - rank + 1
-                    break
+            entry = line.group(2)
+            offsets = [
+                (entry.find(label), -len(label), label)
+                for label in coa_labels
+                if label not in ranked
+            ]
+            found = [o for o in offsets if 0 <= o[0] < _RANK_PROXIMITY_CHARS]
+            if not found:
+                continue
+            label = min(found)[2]
+            ranked.add(label)
+            scores[label] += n - rank + 1
+        if not ranked:
+            logger.warning(
+                "war room: ballot from %s has no ranked COA line; it scores nothing",
+                expert,
+            )
 
     return scores
 

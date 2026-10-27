@@ -18,12 +18,12 @@ Dependencies define task execution order and identify parallelization opportunit
 
 **Example**:
 ```markdown
-### TASK-002 - Define Task data model
-**Dependencies**: TASK-001
+### T002 - Define Task data model
+**Dependencies**: T001
 **Files**: src/models/task.py
 
-### TASK-003 - Implement task validation
-**Dependencies**: TASK-002
+### T003 - Implement task validation
+**Dependencies**: T002
 **Files**: src/models/task.py, src/validators/task.py
 ```
 
@@ -43,16 +43,16 @@ Dependencies define task execution order and identify parallelization opportunit
 
 **Example**:
 ```markdown
-### TASK-004 - Implement user authentication [P]
-**Dependencies**: TASK-001
+### T004 - Implement user authentication [P]
+**Dependencies**: T001
 **Files**: src/services/auth.py, tests/test_auth.py
 
-### TASK-005 - Implement task storage [P]
-**Dependencies**: TASK-001
+### T005 - Implement task storage [P]
+**Dependencies**: T001
 **Files**: src/services/storage.py, tests/test_storage.py
 ```
 
-**Reasoning**: Both depend on TASK-001 setup but operate on different files and can run concurrently.
+**Reasoning**: Both depend on T001 setup but operate on different files and can run concurrently.
 
 ### Fan-Out Pattern
 
@@ -60,30 +60,30 @@ Dependencies define task execution order and identify parallelization opportunit
 
 **Pattern**:
 ```
-TASK-001 (Foundation)
-    ├─> TASK-002 [P]
-    ├─> TASK-003 [P]
-    └─> TASK-004 [P]
+T001 (Foundation)
+    ├─> T002 [P]
+    ├─> T003 [P]
+    └─> T004 [P]
 ```
 
 **Use Case**: After creating data models, implement multiple independent services
 
 **Example**:
 ```markdown
-### TASK-001 - Define API schemas
+### T001 - Define API schemas
 **Dependencies**: None
 **Files**: src/types/api.ts
 
-### TASK-002 - Implement user endpoints [P]
-**Dependencies**: TASK-001
+### T002 - Implement user endpoints [P]
+**Dependencies**: T001
 **Files**: src/routes/users.ts
 
-### TASK-003 - Implement task endpoints [P]
-**Dependencies**: TASK-001
+### T003 - Implement task endpoints [P]
+**Dependencies**: T001
 **Files**: src/routes/tasks.ts
 
-### TASK-004 - Implement project endpoints [P]
-**Dependencies**: TASK-001
+### T004 - Implement project endpoints [P]
+**Dependencies**: T001
 **Files**: src/routes/projects.ts
 ```
 
@@ -93,29 +93,29 @@ TASK-001 (Foundation)
 
 **Pattern**:
 ```
-TASK-002 [P] ─┐
-TASK-003 [P] ─┼─> TASK-005
-TASK-004 [P] ─┘
+T002 [P] ─┐
+T003 [P] ─┼─> T005
+T004 [P] ─┘
 ```
 
 **Use Case**: Integration task requiring multiple components
 
 **Example**:
 ```markdown
-### TASK-002 - Implement auth service [P]
-**Dependencies**: TASK-001
+### T002 - Implement auth service [P]
+**Dependencies**: T001
 **Files**: src/services/auth.py
 
-### TASK-003 - Implement storage service [P]
-**Dependencies**: TASK-001
+### T003 - Implement storage service [P]
+**Dependencies**: T001
 **Files**: src/services/storage.py
 
-### TASK-004 - Implement notification service [P]
-**Dependencies**: TASK-001
+### T004 - Implement notification service [P]
+**Dependencies**: T001
 **Files**: src/services/notifications.py
 
-### TASK-005 - Integrate services in workflow
-**Dependencies**: TASK-002, TASK-003, TASK-004
+### T005 - Integrate services in workflow
+**Dependencies**: T002, T003, T004
 **Files**: src/workflow/coordinator.py
 ```
 
@@ -127,11 +127,11 @@ TASK-004 [P] ─┘
 
 **Example**:
 ```markdown
-### TASK-006 - Add base Task class
+### T006 - Add base Task class
 **Files**: src/models/task.py
 
-### TASK-007 - Add Task validation methods
-**Dependencies**: TASK-006
+### T007 - Add Task validation methods
+**Dependencies**: T006
 **Files**: src/models/task.py
 ```
 
@@ -143,10 +143,10 @@ TASK-004 [P] ─┘
 
 **Example**:
 ```markdown
-### TASK-008 - Create user model [P]
+### T008 - Create user model [P]
 **Files**: src/models/user.py
 
-### TASK-009 - Create task model [P]
+### T009 - Create task model [P]
 **Files**: src/models/task.py
 ```
 
@@ -158,11 +158,11 @@ TASK-004 [P] ─┘
 
 **Example**:
 ```markdown
-### TASK-010 - Implement resolver logic
+### T010 - Implement resolver logic
 **Files**: src/services/resolver.py
 
-### TASK-011 - Add resolver integration tests
-**Dependencies**: TASK-010
+### T011 - Add resolver integration tests
+**Dependencies**: T010
 **Files**: tests/integration/test_resolver.py
 ```
 
@@ -174,12 +174,12 @@ TASK-004 [P] ─┘
 
 ### Numbering Format
 
-**Pattern**: `TASK-NNN` where NNN is zero-padded number
+**Pattern**: `TNNN` where NNN is zero-padded number
 
 **Examples**:
-- `TASK-001` - First task
-- `TASK-023` - Twenty-third task
-- `TASK-100` - Hundredth task
+- `T001` - First task
+- `T023` - Twenty-third task
+- `T100` - Hundredth task
 
 **Rules**:
 - Always zero-pad to 3 digits minimum
@@ -191,11 +191,11 @@ TASK-004 [P] ─┘
 
 **By Phase First**:
 ```markdown
-TASK-001 through TASK-003: Phase 0
-TASK-004 through TASK-010: Phase 1
-TASK-011 through TASK-025: Phase 2
-TASK-026 through TASK-030: Phase 3
-TASK-031 through TASK-035: Phase 4
+T001 through T003: Phase 1
+T004 through T010: Phase 2
+T011 through T025: Phase 3
+T026 through T030: Phase 4
+T031 through T035: Phase 5
 ```
 
 **Benefit**: Clear phase boundaries, easy to identify task phase
@@ -204,12 +204,12 @@ TASK-031 through TASK-035: Phase 4
 
 ### Single Dependency
 ```markdown
-**Dependencies**: TASK-001
+**Dependencies**: T001
 ```
 
 ### Multiple Dependencies
 ```markdown
-**Dependencies**: TASK-001, TASK-003, TASK-007
+**Dependencies**: T001, T003, T007
 ```
 
 ### No Dependencies
@@ -221,34 +221,34 @@ TASK-031 through TASK-035: Phase 4
 
 ### Linear Chain
 ```
-TASK-001 -> TASK-002 -> TASK-003 -> TASK-004
+T001 -> T002 -> T003 -> T004
 ```
 Use when each task builds directly on previous task.
 
 ### Independent Parallel
 ```
-TASK-001
-    ├─> TASK-002 [P]
-    ├─> TASK-003 [P]
-    └─> TASK-004 [P]
+T001
+    ├─> T002 [P]
+    ├─> T003 [P]
+    └─> T004 [P]
 ```
 Use when multiple features share only initial setup.
 
 ### Diamond Pattern
 ```
-        TASK-001
+        T001
        /          \
-TASK-002 [P]    TASK-003 [P]
+T002 [P]    T003 [P]
        \          /
-        TASK-004
+        T004
 ```
 Use when parallel work converges for integration.
 
 ### Layered Dependencies
 ```
-Phase 1: TASK-001, TASK-002, TASK-003
+Phase 2: T001, T002, T003
            ↓         ↓         ↓
-Phase 2: TASK-004 depends on all Phase 1
+Phase 3: T004 depends on all Phase 2
 ```
 Use when foundation must be complete before next phase.
 

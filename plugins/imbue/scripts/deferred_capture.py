@@ -10,8 +10,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
-sys.path.insert(0, str(_LEYLINE_SRC))
+# The repo keeps plugins side by side, the install cache nests them by
+# version: resolve leyline in either, falling back to the repo path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vendored_leyline_sibling_plugins import (  # type: ignore[import-not-found]  # noqa: E402 - scripts dir on sys.path
+    add_sibling_src_to_path,
+)
+
+add_sibling_src_to_path(__file__, "leyline")
 
 try:
     from leyline.deferred_capture import (

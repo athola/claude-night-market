@@ -76,11 +76,12 @@ This skill uses modular loading to manage the system prompt budget.
 
 ## Exit Criteria
 
-- Tests implement the AAA pattern.
-- Coverage reaches the 80% project minimum.
-- Individual tests are independent and do not rely on execution order.
-- Fixtures are scoped appropriately (function, class, or session) to prevent side effects.
-- Mocking is restricted to external system boundaries.
+- [ ] Tests implement the AAA pattern.
+- [ ] Coverage reaches the 80% project minimum.
+- [ ] Individual tests are independent and do not rely on execution order.
+- [ ] Fixtures are scoped appropriately (function, class, or session) to
+  prevent side effects.
+- [ ] Mocking is restricted to external system boundaries.
 
 ## Troubleshooting
 

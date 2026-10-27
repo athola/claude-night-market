@@ -342,10 +342,10 @@ class TestHookDocumentationQuality:
 
         Given hook code examples
         When reviewing documentation quality
-        Then examples should include verification steps
+        Then the docs name a validator command that exists in this plugin
         """
-        # Assert - verification steps exist in documentation
-        assert "verification" in hooks_eval_content.lower()
+        assert "scripts/hook_validator.py" in hooks_eval_content
+        assert (Path(__file__).parents[3] / "scripts" / "hook_validator.py").is_file()
         assert "```" in hooks_eval_content  # Code blocks with examples
 
     @pytest.mark.bdd

@@ -672,3 +672,44 @@ class ModernNotificationFactory(NotificationFactory):
         # Should provide recommendations
         assert "recommendations" in comparison
         assert "when_to_use" in comparison["recommendations"]
+
+
+class TestFindPatternsStrategyDetection:
+    """find_patterns names a strategy when __init__ takes a typed callable."""
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("annotation", ["Callable", "Protocol", "Strategy"])
+    async def test_typed_init_parameter_is_reported_as_strategy(
+        self, annotation: str
+    ) -> None:
+        code = (
+            "class Sorter:\n"
+            f"    def __init__(self, compare: {annotation}):\n"
+            "        self.compare = compare\n"
+        )
+        result = await PatternMatchingSkill().find_patterns(code)
+        strategies = [p for p in result["patterns"] if p["pattern"] == "strategy"]
+        assert strategies == [
+            {
+                "pattern": "strategy",
+                "class": "Sorter",
+                "line": 1,
+                "evidence": f"Parameter 'compare' typed as {annotation}",
+            }
+        ]
+
+    @pytest.mark.asyncio
+    async def test_untyped_init_parameter_is_not_a_strategy(self) -> None:
+        code = (
+            "class Sorter:\n"
+            "    def __init__(self, compare):\n"
+            "        self.compare = compare\n"
+        )
+        result = await PatternMatchingSkill().find_patterns(code)
+        assert "strategy" not in [p["pattern"] for p in result["patterns"]]
+
+    @pytest.mark.asyncio
+    async def test_non_python_language_returns_a_note_and_no_patterns(self) -> None:
+        result = await PatternMatchingSkill().find_patterns("fn main() {}", "rust")
+        assert result["patterns"] == []
+        assert result["note"] == "Only Python supported, got rust"

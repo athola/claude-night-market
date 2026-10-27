@@ -14,6 +14,7 @@ workflow edit.
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import sys
@@ -635,13 +636,16 @@ class TestGateIsUnchangedByAuditMode:
         assert score_text(negative).score == score_text(clean).score
 
 
-def _run(args: list, cwd: Path = REPO_ROOT) -> subprocess.CompletedProcess:
+def _run(
+    args: list, cwd: Path = REPO_ROOT, env: dict | None = None
+) -> subprocess.CompletedProcess:
     return subprocess.run(
         [sys.executable, str(SCRIPT), *args],
         capture_output=True,
         text=True,
         check=False,
         cwd=cwd,
+        env=env,
     )
 
 
@@ -744,6 +748,29 @@ class TestRatchet:
         doc.write_text(SLOP * 4 + CLEAN)
         result = _run(["--ratchet", "HEAD", "doc.md"], cwd=repo)
         assert result.returncode == 0, result.stdout
+
+    @pytest.mark.integration
+    def test_a_nested_file_is_compared_when_git_dir_is_exported(
+        self, repo: Path
+    ) -> None:
+        """Scenario: a commit hook runs with GIT_DIR set, as in a worktree.
+
+        `git commit` exports GIT_DIR to its hooks. With it set, git takes
+        the current directory as the work tree root, so `-C sub show
+        HEAD:./doc.md` named a path that does not exist and every nested
+        file was gated as new.
+        """
+        sub = repo / "sub"
+        sub.mkdir()
+        doc = sub / "doc.md"
+        doc.write_text(SLOP * 4)
+        _git(repo, "add", "sub/doc.md")
+        _git(repo, "commit", "-qm", "legacy")
+        doc.write_text(SLOP * 4 + CLEAN)
+        env = {**os.environ, "GIT_DIR": str(repo / ".git")}
+        result = _run(["--ratchet", "HEAD", "sub/doc.md"], cwd=repo, env=env)
+        assert result.returncode == 0, result.stdout
+        assert "new file" not in result.stdout
 
     @pytest.mark.integration
     def test_a_new_file_is_held_to_the_threshold(self, repo: Path) -> None:

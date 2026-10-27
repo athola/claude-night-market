@@ -59,13 +59,43 @@ class TestCommandResolution:
         scout = EXPERT_CONFIGS["scout"]
         cmd = get_expert_command(scout)
 
-        assert cmd == ["qwen", "--model", "qwen-turbo", "-p"]
+        assert cmd == ["qwen", "--model", "coder-model", "-p"]
         # Verify it's a copy (not mutating original)
         cmd.append("test")
         assert EXPERT_CONFIGS["scout"].command == [
             "qwen",
             "--model",
-            "qwen-turbo",
+            "coder-model",
+            "-p",
+        ]
+
+    def test_qwen_experts_record_the_model_that_answers(self) -> None:
+        """Both Qwen experts run coder-model, so the sealed record must say so."""
+        for key in ("scout", "logistics_officer"):
+            expert = EXPERT_CONFIGS[key]
+            assert expert.model == "coder-model"
+            assert get_expert_command(expert) == [
+                "qwen",
+                "--model",
+                "coder-model",
+                "-p",
+            ]
+
+    def test_gemini_experts_name_listed_gemini_models(self) -> None:
+        """The deep-context expert takes the 1M Pro model, the red team the stable Flash."""
+        intel = EXPERT_CONFIGS["intelligence_officer"]
+        red_team = EXPERT_CONFIGS["red_team"]
+
+        assert get_expert_command(intel) == [
+            "gemini",
+            "--model",
+            "gemini-3.1-pro-preview",
+            "-p",
+        ]
+        assert get_expert_command(red_team) == [
+            "gemini",
+            "--model",
+            "gemini-3.8-flash",
             "-p",
         ]
 
@@ -292,14 +322,21 @@ class TestMuseExpert:
 
         The orchestrator appends the prompt as the final argv element, so a
         command ending in a flag would consume it as that flag's value.
-        Muse documents no prompt flag at all, so the command ends at
-        ``exec`` and the prompt lands in the right place.
+        Muse documents no prompt flag at all, so the command ends at the
+        ``--model`` value and the prompt lands in the right place. The model
+        is passed rather than recorded, because Muse Code's own default is
+        an older Spark than the one the sealed record names.
         """
         expert = EXPERT_CONFIGS["systems_engineer"]
 
         assert expert.service == "muse"
-        assert expert.model == "muse-spark-1.2"
-        assert get_expert_command(expert) == ["muse", "exec"]
+        assert expert.model == "muse-spark-1.3"
+        assert get_expert_command(expert) == [
+            "muse",
+            "exec",
+            "--model",
+            "muse-spark-1.3",
+        ]
 
     def test_muse_expert_is_optional(self) -> None:
         """Muse is not installed by default, so it must opt in.

@@ -32,7 +32,11 @@ from memory_palace.corpus.index_promoter import (
     propose_promotions,
     propose_title_repairs,
 )
-from memory_palace.garden_metrics import SECONDS_PER_DAY, compute_garden_metrics
+from memory_palace.garden_metrics import (
+    SECONDS_PER_DAY,
+    compute_garden_metrics,
+    iso_to_datetime,
+)
 from memory_palace.migration import PalaceMigrator, migrate_sensory_to_computational
 from memory_palace.palace_manager import MemoryPalaceManager
 from memory_palace.paths import persistent_root
@@ -402,8 +406,9 @@ class _GardenMixin(_CLIBase):
                 actions["prune"].append((name, "never tended"))
                 continue
 
+            # Offset-less timestamps are UTC, as garden_metrics reads them.
             days = (
-                now_dt - datetime.fromisoformat(last)
+                iso_to_datetime(now_dt.isoformat()) - iso_to_datetime(last)
             ).total_seconds() / SECONDS_PER_DAY
             if days >= archive_days:
                 actions["archive"].append((name, round(days, 2)))

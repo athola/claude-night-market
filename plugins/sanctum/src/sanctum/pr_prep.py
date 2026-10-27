@@ -5,8 +5,21 @@ Analyze changes, validate quality gates, and prepare pull request descriptions.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Union
+
+_BREAKING_SUBJECT = re.compile(r"^\w+(\([^)]*\))?!:")
+_BREAKING_FOOTER = re.compile(r"^BREAKING[ -]CHANGE:", re.MULTILINE)
+
+
+#: A change as callers pass it: a dict with a ``path`` key, or the bare path.
+Change = Union[dict[str, Any], str]
+
+
+def _as_change(entry: Change) -> dict[str, Any]:
+    """Accept a bare path string wherever a change dict is expected."""
+    return {"path": entry} if isinstance(entry, str) else entry
 
 
 def _is_test_path(path: str) -> bool:
@@ -76,12 +89,13 @@ class PRPrepAnalyzer:
     ]
 
     @staticmethod
-    def categorize_changed_files(files: list[dict[str, Any]]) -> FileCategories:
+    def categorize_changed_files(files: list[Change]) -> FileCategories:
         """Categorize changed files by type.
 
         Args:
-            files: List of file change dictionaries with keys:
-                path, type, changes
+            files: File change dictionaries with keys path, type, changes,
+                or bare path strings. Files typed ``breaking`` land in
+                ``other``; ``detect_breaking_changes`` reports them.
 
         Returns:
             FileCategories with files grouped by type
@@ -89,7 +103,7 @@ class PRPrepAnalyzer:
         """
         categories = FileCategories()
 
-        for file in files:
+        for file in map(_as_change, files):
             file_type = file.get("type", "other")
             file_path = file["path"]
 
@@ -117,17 +131,20 @@ class PRPrepAnalyzer:
             BreakingChanges analysis results.
 
         """
-        # Look for conventional commit breaking change marker (!)
+        # Conventional Commits marks a breaking change two ways: "!" before
+        # the subject's colon, or a BREAKING CHANGE footer. An exclamation
+        # anywhere else in the message is prose.
         breaking_commits = [
             commit["hash"]
             for commit in context.get("commits", [])
-            if "!" in commit.get("message", "")
+            if _BREAKING_SUBJECT.match(commit.get("message", ""))
+            or _BREAKING_FOOTER.search(commit.get("message", ""))
         ]
 
         # Look for files marked as breaking
         affected_apis = [
             file["path"]
-            for file in context.get("changed_files", [])
+            for file in map(_as_change, context.get("changed_files", []))
             if file.get("type") == "breaking"
         ]
 
@@ -184,7 +201,7 @@ class PRPrepAnalyzer:
 
     @staticmethod
     def suggest_reviewers(
-        changes: list[dict[str, Any]],
+        changes: list[Change],
         reviewer_mapping: dict[str, list[str]],
     ) -> list[str]:
         """Suggest reviewers based on changed files.
@@ -199,7 +216,7 @@ class PRPrepAnalyzer:
         """
         reviewers: set[str] = set()
 
-        for change in changes:
+        for change in map(_as_change, changes):
             file_path = change["path"]
             for prefix, names in reviewer_mapping.items():
                 if file_path.startswith(prefix):
@@ -208,7 +225,7 @@ class PRPrepAnalyzer:
         return sorted(reviewers)
 
     @staticmethod
-    def recommend_merge_strategy(files: list[dict[str, Any]]) -> MergeStrategy:
+    def recommend_merge_strategy(files: list[Change]) -> MergeStrategy:
         """Recommend merge strategy based on changes.
 
         Args:

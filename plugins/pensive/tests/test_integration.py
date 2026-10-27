@@ -13,7 +13,8 @@ from __future__ import annotations
 import json
 import os
 import subprocess
-import time
+from pathlib import Path
+from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
@@ -253,15 +254,20 @@ clean:
             result = workflow.execute_full_review(temp_repository)
 
             # Assert
-            assert isinstance(result, dict)
-            has_error_info = "errors" in result or "skipped_skills" in result
-            assert has_error_info
-            assert isinstance(result.get("findings", []), list)
+            assert "rust-review" in result["skipped_skills"]
+            assert result["errors"] == ["rust-review: Rust toolchain not found"]
+            assert isinstance(result["findings"], list)
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_performance_with_large_repository(self, temp_repository) -> None:
-        """Given 20+ module files, review completes under 30 seconds."""
+    def test_large_repository_reads_each_file_once_per_skill(
+        self, temp_repository
+    ) -> None:
+        """Given 20+ module files, no skill re-reads a file from disk.
+
+        A wall-clock bound here failed on a loaded machine and passed on a
+        slow implementation. The read count is what makes a review scale.
+        """
         # Arrange
         for i in range(20):
             file_path = temp_repository / f"src/module_{i}.rs"
@@ -299,15 +305,21 @@ mod tests {{
 
         workflow = CodeReviewWorkflow()
 
+        reads: dict[str, int] = {}
+        original_read_text = Path.read_text
+
+        def counting_read_text(self: Path, *args: Any, **kwargs: Any) -> str:
+            reads[str(self)] = reads.get(str(self), 0) + 1
+            return original_read_text(self, *args, **kwargs)
+
         # Act
-        start_time = time.time()
-        result = workflow.execute_full_review(temp_repository)
-        execution_time = time.time() - start_time
+        with patch.object(Path, "read_text", counting_read_text):
+            result = workflow.execute_full_review(temp_repository)
 
         # Assert
-        assert execution_time < 30
-        assert isinstance(result, dict)
-        assert result["metrics"]["files_analyzed"] >= 20
+        assert result["metrics"]["files_analyzed"] >= 25
+        assert reads, "the review read no files"
+        assert max(reads.values()) <= result["metrics"]["skills_executed"]
 
     @pytest.mark.bdd
     @pytest.mark.integration

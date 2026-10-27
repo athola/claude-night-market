@@ -202,10 +202,10 @@ class TestGeminiDelegationSkill:
         cmd = delegator.build_command(
             "gemini",
             "test",
-            options={"model": "gemini-3-pro"},
+            options={"model": "gemini-3.1-pro-preview"},
         )
         assert "--model" in cmd
-        assert "gemini-3-pro" in cmd
+        assert "gemini-3.1-pro-preview" in cmd
 
     @pytest.mark.bdd
     def test_usage_logging_flow(self) -> None:
@@ -262,7 +262,7 @@ class TestGeminiDelegationSkill:
                 "gemini",
                 "Analyze this code",
                 files=["test.py"],
-                options={"model": "gemini-3-pro"},
+                options={"model": "gemini-3.1-pro-preview"},
             )
 
         assert result == ExecutionResult(
@@ -277,7 +277,7 @@ class TestGeminiDelegationSkill:
 
         # Verify command contains expected flags/prompt
         executed_args = mock_run.call_args_list[-1].args[0]
-        assert executed_args[:3] == ["gemini", "--model", "gemini-3-pro"]
+        assert executed_args[:3] == ["gemini", "--model", "gemini-3.1-pro-preview"]
         assert "-p" in executed_args
         assert (
             "@test.py Analyze this code" in executed_args[executed_args.index("-p") + 1]
@@ -410,8 +410,8 @@ class TestSkillPerformanceConsiderations:
         """
         # Based on the model selection section
         models = [
-            "gemini-3-flash",  # Fast
-            "gemini-3-pro",  # Capable
+            "gemini-3.8-flash",  # Fast
+            "gemini-3.1-pro-preview",  # Capable
         ]
 
         assert len(models) >= MIN_MODEL_CHOICES

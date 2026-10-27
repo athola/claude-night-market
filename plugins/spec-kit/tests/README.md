@@ -6,19 +6,19 @@ detailed test suite for the spec-kit plugin following TDD/BDD principles with ex
 
 ```
 tests/
-├── conftest.py              # Shared fixtures and test configuration
-├── pytest.ini              # Pytest configuration
-├── requirements.txt         # Test dependencies
-├── Makefile                # Test automation commands
-├── README.md               # This file
+├── README.md                    # This file
 ├── __init__.py
-├── test_orchestrator.py    # Tests for speckit-orchestrator skill
-├── test_spec_writing.py    # Tests for spec-writing skill
-├── test_task_planning.py   # Tests for task-planning skill
-├── test_commands.py        # Tests for speckit commands
-├── test_agents.py          # Tests for speckit agents
-├── test_integration.py     # Integration tests for workflows
-└── test_frontmatter.py     # Tests for frontmatter validation
+├── _contract.py                 # read, frontmatter, section, headings helpers
+├── test_api_review_speckit.py   # Public API of the speckit package
+├── test_caching.py              # Spec-kit cache behavior
+├── test_command_skill_references.py  # Commands name skills that exist
+├── test_commands.py             # Tests for speckit commands
+├── test_frontmatter.py          # Tests for frontmatter validation
+├── test_integration.py          # Integration tests for workflows
+├── test_orchestrator.py         # Tests for speckit-orchestrator skill
+├── test_spec_writing.py         # Tests for spec-writing skill
+├── test_task_planning.py        # Tests for task-planning skill
+└── test_tasks_manager.py        # Tests for the tasks manager
 ```
 
 ## Testing Philosophy
@@ -51,12 +51,12 @@ tests/
 ## Running Tests
 
 ### Prerequisites
-```bash
-# Install test dependencies
-make install
 
-# Or manually
-pip install -r requirements.txt
+Run these from `plugins/spec-kit`. Test settings live in its
+`pyproject.toml`.
+
+```bash
+make deps
 ```
 
 ### Test Commands
@@ -64,39 +64,15 @@ pip install -r requirements.txt
 ```bash
 # Run all tests
 make test
-# or
-pytest
-
-# Run unit tests only
-make test-unit
-# or
-pytest -m "not integration"
 
 # Run integration tests only
 make test-integration
 # or
-pytest -m integration
+uv run python -m pytest -m integration
 
-# Run tests with coverage report
-make test-coverage
-# or
-pytest --cov=../skills --cov=../commands --cov=../agents --cov-report=html
-
-# Run tests in parallel
-make test-parallel
-# or
-pytest -n auto
-
-# Run tests with verbose output
-make test-verbose
-# or
-pytest -v
-
-# Run specific test file
-make test-file FILE=test_spec_writing.py
-
-# Run tests matching pattern
-make test-match PATTERN=test_spec_creation
+# Run one file, or tests matching a pattern
+uv run python -m pytest tests/test_spec_writing.py
+uv run python -m pytest -k test_spec_creation
 ```
 
 ### Test Categories
@@ -120,27 +96,23 @@ pytest -m integration
 pytest -m "not slow"
 ```
 
-## Test Fixtures
+## Shared Helpers
 
-### Core Fixtures
-
-- `sample_spec_content`: Valid specification content for testing
-- `sample_task_list`: Sample task breakdown for testing
-- `temp_speckit_project`: Temporary speckit-enabled project structure
-- `temp_skill_files`: Temporary skill files for testing
-- `mock_git_repo`: Mock git repository with branches
-- `sample_feature_description`: Natural language feature description
-- `mock_agent_responses`: Mock responses from agents
+spec-kit ships its skills, commands and agents as markdown, so most tests
+read the shipped files and check a rule they state, or check that two
+files that hand work to each other agree. `tests/_contract.py` provides
+`read`, `frontmatter`, `section` and `headings` for that. There is no
+conftest: a test that needs a fixture defines it in its own module.
 
 ### Usage Example
 ```python
-def test_spec_creation(self, sample_feature_description):
-    """Test creating specification from natural language."""
-    # Use the fixture
-    feature_desc = sample_feature_description
+from tests._contract import read
 
-    # Test logic
-    assert "user authentication" in feature_desc.lower()
+
+def test_specify_caps_clarification_markers() -> None:
+    assert "Maximum 3 [NEEDS CLARIFICATION] markers" in read(
+        "commands/speckit-specify.md"
+    )
 ```
 
 ## Writing New Tests
@@ -212,12 +184,12 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: |
-          cd plugins/spec-kit/tests
-          make install
+          cd plugins/spec-kit
+          make deps
       - name: Run tests
         run: |
-          cd plugins/spec-kit/tests
-          make test-coverage
+          cd plugins/spec-kit
+          make test
       - name: Upload coverage
         uses: codecov/codecov-action@v3
 ```
@@ -277,8 +249,8 @@ export PYTHONPATH=$PYTHONPATH:$(pwd)
 
 **Fixture Not Found**
 ```bash
-# Check fixtures are defined in conftest.py
-pytest --fixtures
+# There is no conftest.py: define the fixture in the test module
+uv run python -m pytest --fixtures tests/test_integration.py
 ```
 
 **Coverage Not Working**

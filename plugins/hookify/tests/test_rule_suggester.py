@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from hookify.core.rule_engine import RuleEngine
+
 try:
     from scripts.rule_suggester import (
         RULE_TEMPLATES,
@@ -414,3 +416,45 @@ def test_every_shipped_template_actually_loads(language, template):
     assert frontmatter["name"] == template.name
     assert frontmatter["enabled"] is True
     assert frontmatter["event"]
+
+
+@pytest.mark.parametrize("language,template", _all_templates())
+def test_every_shipped_template_builds_a_rule(tmp_path: Path, language, template):
+    """A suggested rule is one config_loader turns into a RuleConfig.
+
+    Parsing the frontmatter is not enough: the Go, Rust and TypeScript
+    file rules used event file_write, operator matches and field path,
+    which RuleConfig and Condition reject or the rule engine never fills,
+    so installing them yielded no rule.
+    """
+    rule_file = tmp_path / f"hookify.{template.name}.local.md"
+    rule_file.write_text(template.rule_template)
+
+    rule = ConfigLoader(user_rules_dir=tmp_path, include_bundled=False).load_rule(
+        rule_file
+    )
+    assert rule.name == template.name
+
+
+def test_suggested_typescript_any_rule_fires_on_a_ts_write(tmp_path: Path) -> None:
+    """The installed block-any-type rule blocks writing `: any` to a .ts file."""
+    template = next(
+        t for t in RULE_TEMPLATES["typescript"] if t.name == "block-any-type"
+    )
+    rule_file = tmp_path / "hookify.block-any-type.local.md"
+    rule_file.write_text(template.rule_template)
+    rule = ConfigLoader(user_rules_dir=tmp_path, include_bundled=False).load_rule(
+        rule_file
+    )
+    engine = RuleEngine([rule])
+    text = "let x: any = 1"
+
+    hits = engine.evaluate_event(
+        "file", {"file_path": "src/app.ts", "new_text": text, "content": text}
+    )
+    misses = engine.evaluate_event(
+        "file", {"file_path": "src/app.py", "new_text": text, "content": text}
+    )
+
+    assert [r.action for r in hits] == ["block"]
+    assert misses == []

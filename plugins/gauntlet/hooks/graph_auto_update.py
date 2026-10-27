@@ -45,6 +45,8 @@ def _is_auto_update_enabled(gauntlet_dir: Path) -> bool:
                         data = safe_load(config_path.read_text())
                     except ImportError:
                         continue
+                if not isinstance(data, dict):
+                    continue
                 return bool(data.get("auto_update", False))
             except (json.JSONDecodeError, OSError, TypeError):
                 continue
@@ -102,7 +104,12 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         files = report.get("files_parsed", 0)
         nodes = report.get("nodes_created", 0)
         msg = f"Graph updated: {files} files, {nodes} nodes in {duration}s"
-        return {"additionalContext": msg}
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": "PostToolUse",
+                "additionalContext": msg,
+            }
+        }
     except Exception as exc:
         logging.getLogger(__name__).warning(
             "graph_auto_update failed: %s: %s",

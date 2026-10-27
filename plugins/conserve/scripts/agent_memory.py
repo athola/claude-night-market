@@ -79,6 +79,9 @@ class MemoryManager:
 
         """
         archive_path = self.cold_dir / f"{period}.md"
+        # Append: a second archive in the same period must not erase the first.
+        if archive_path.exists():
+            content = f"{archive_path.read_text().rstrip()}\n\n{content}"
         archive_path.write_text(content)
 
     def list_warm_topics(self) -> list[str]:

@@ -47,18 +47,18 @@ Transforms specifications and implementation plans into concrete, dependency-ord
 
 Tasks follow a 5-phase structure from setup through polish:
 
-- **Phase 0: Setup** - Project initialization, dependencies, configuration
-- **Phase 1: Foundation** - Data models, interfaces, test infrastructure
-- **Phase 2: Core Implementation** - Business logic, APIs, services
-- **Phase 3: Integration** - External services, middleware, logging
-- **Phase 4: Polish** - Optimization, documentation, final testing
+- **Phase 1: Setup** - Project initialization, dependencies, configuration
+- **Phase 2: Foundation** - Data models, interfaces, test infrastructure
+- **Phase 3: Core Implementation** - Business logic, APIs, services
+- **Phase 4: Integration** - External services, middleware, logging
+- **Phase 5: Polish** - Optimization, documentation, final testing
 
 For detailed phase definitions, selection guidelines, and anti-patterns, see `modules/phase-structure.md`.
 
 ## Task Format
 
 Each task includes:
-- **ID**: Unique identifier (TASK-001)
+- **ID**: Unique identifier (T001)
 - **Description**: Clear action statement
 - **Phase**: Which phase it belongs to
 - **Dependencies**: Tasks that must complete first
@@ -88,10 +88,10 @@ For fan-out/fan-in patterns, task ID conventions, and validation rules, see `mod
 ## Example Task Entry
 
 ```markdown
-## Phase 2: Core Implementation
+## Phase 3: Core Implementation
 
-### TASK-007 - Implement user authentication service [P]
-**Dependencies**: TASK-003, TASK-004
+### T007 - Implement user authentication service [P]
+**Dependencies**: T003, T004
 **Files**: src/services/auth.ts, src/types/user.ts
 **Criteria**: All auth tests pass, tokens are valid JWT
 ```
@@ -112,8 +112,8 @@ For fan-out/fan-in patterns, task ID conventions, and validation rules, see `mod
 
 ## Exit Criteria
 
-- [ ] Every task has a unique ID in `TASK-NNN` format and includes
-      Description, Phase (0-4), Dependencies list, Parallel marker
+- [ ] Every task has a unique ID in `TNNN` format (T001) and includes
+      Description, Phase (1-5), Dependencies list, Parallel marker
       (`[P]` or sequential), Files, and Criteria fields
 - [ ] Tasks marked `[P]` pass all 5 nonconflicting criteria: no file
       overlap, no shared state, dependencies satisfied, no merge

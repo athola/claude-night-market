@@ -94,7 +94,7 @@ class HookAnalyzer(ast.NodeVisitor):
         for op, comparator in zip(node.ops, node.comparators):
             if isinstance(op, ast.In):
                 self._extract_contains_pattern(node, comparator)
-            elif isinstance(op, (ast.Eq, ast.NotEq)):
+            elif isinstance(op, ast.Eq):
                 self._extract_equals_pattern(node, comparator)
         self.generic_visit(node)
         return node

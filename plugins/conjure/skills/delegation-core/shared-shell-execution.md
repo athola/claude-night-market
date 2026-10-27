@@ -472,7 +472,7 @@ result = delegator.execute(
     "gemini",
     "Analyze these files for security issues",
     files=["src/main.py", "src/auth.py"],
-    options={"model": "gemini-3-pro"},
+    options={"model": "gemini-3.8-flash"},
 )
 
 result = delegator.smart_delegate(

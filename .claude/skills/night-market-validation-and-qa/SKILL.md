@@ -76,9 +76,6 @@ tautological-test trap below).
 | Root coverage | `fail_under = 85` | root `pyproject.toml` `[tool.coverage.report]` | root pytest runs |
 | Per-plugin coverage | `coverage_threshold` in `[tool.nightmarket]`, 90 for most plugins, 85 for gauntlet | `plugins/<p>/pyproject.toml` | `scripts/run-plugin-tests.sh` passes `--cov-fail-under` only when the key is set and > 0 |
 | Mutation testing | weekly Sunday 00:00 UTC cron mutates only sanctum (the matrix falls back to sanctum when the dispatch input is empty); abstract/imbue/attune run only via manual dispatch with `plugin=all` or a named plugin | `.github/workflows/mutation-testing.yml` | mutmut: exit 0 = no survivors, exit 2 = survivors (allowed), anything else = crash |
-| Critical issues | `max_critical_issues: 3`, `enforce_blocking: true` | `.claude/quality_gates.json` | quality-gate tooling |
-| File size | < 20KB and < 5000 tokens per file | `.claude/quality_gates.json` | advisory (`block_on_violation: false`) |
-| Function length | <= 60 lines, complexity < 12, nesting <= 5, debt ratio < 0.3 | `.claude/quality_gates.json` | advisory, except security dimension which blocks |
 
 Notes:
 

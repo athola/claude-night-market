@@ -877,3 +877,197 @@ class TestDecisionSerialization:
         assert PermissionDecision.ALLOW.value == "allow"
         assert PermissionDecision.DENY.value == "deny"
         assert PermissionDecision.ASK.value == "ask"
+
+
+class TestDestructiveCommandsAreNeverAutoApproved:
+    """A safe-looking prefix or suffix must not approve a write.
+
+    Each command here was auto-approved: a trailing help flag, a find
+    action, a branch deletion, and an output redirect all slipped through
+    patterns written for read-only use.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "rm -rf build -h",
+            "shutdown -h",
+            "rm build --help",
+            "rm -rf build --help",
+            "find . -name '*.pyc' -delete",
+            "find . -type f -exec rm {} +",
+            "find . -name x -execdir rm {} ;",
+            "git branch -D main",
+            "git branch -d feature",
+            "git branch -m old new",
+            "git branch newbranch",
+            "cat notes.txt > ~/.bashrc",
+            "echo $PATH > out.txt",
+            "ls >> listing.txt",
+            "rg --pre ./run.sh pattern",
+            "git diff --output=/tmp/x.diff",
+            'man -P "sh -c id" ls',
+            'man --pager="sh -c id" ls',
+            "man --pager 'sh -c id' ls",
+            "man -H firefox ls",
+            "man --html=firefox ls",
+            "git diff --ext-diff",
+            "git show --ext-diff HEAD",
+            "file -C -m magic",
+            "file --compile -m magic",
+        ],
+    )
+    def test_command_is_not_auto_approved(self, command: str) -> None:
+        """The command falls through to the user's prompt."""
+        decision = check_safe(command)
+        assert decision is None, command
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "ls -la",
+            "git branch",
+            "git branch -a",
+            "git branch --show-current",
+            "find . -name '*.py'",
+            "find . -type f -name '*.md'",
+            "rg pattern src",
+            "git diff HEAD~1",
+            "pytest --help",
+            "git commit --help",
+            "cat README.md",
+            "man ls",
+            "man 3 printf",
+            "man git-log",
+            "git show HEAD:README.md",
+            "file README.md",
+        ],
+    )
+    def test_read_only_command_is_still_auto_approved(self, command: str) -> None:
+        """Tightening the patterns keeps the read-only forms approved."""
+        assert check_safe(command) is not None, command
+
+
+class TestQuotedOrRedirectedCredentialReads:
+    """A reader is denied a credential file however the path is written."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "head -5 '.env'",
+            'head -5 ".env"',
+            "grep KEY '.env.local'",
+            "tail -n 3 'id_rsa'",
+            "head <.env",
+        ],
+    )
+    def test_reader_on_quoted_or_redirected_credential_is_denied(
+        self, command: str
+    ) -> None:
+        """The quote or redirect before the name does not skip the deny."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision.behavior == PermissionDecision.DENY, command
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command", ["head -5 README.md", "head -5 'README.md'", "tail id_rsa.pub"]
+    )
+    def test_reader_on_ordinary_file_is_still_allowed(self, command: str) -> None:
+        """Widening the deny keeps ordinary reads auto-approved."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision.behavior == PermissionDecision.ALLOW, command
+
+
+class TestCatOnPrivateKeyNames:
+    """cat is denied the same key files the other readers are denied."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        ["cat id_rsa", "cat ./keys/id_ed25519", "cat 'id_ecdsa'", "cat <id_dsa"],
+    )
+    def test_cat_on_private_key_outside_ssh_dir_is_denied(self, command: str) -> None:
+        """A key outside ~/.ssh/ is still a private key."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision.behavior == PermissionDecision.DENY, command
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("command", ["cat id_rsa.pub", "cat README.md"])
+    def test_cat_on_public_key_or_ordinary_file_is_still_allowed(
+        self, command: str
+    ) -> None:
+        """Adding cat to the readers keeps its ordinary reads approved."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision.behavior == PermissionDecision.ALLOW, command
+
+
+_CREDENTIAL_FILES = [
+    ".env",
+    "prod.env",
+    ".env.local",
+    ".envrc",
+    ".git-credentials",
+    "credentials.json",
+    "~/.aws/credentials",
+    "~/.netrc",
+    "_netrc",
+    ".npmrc",
+    ".pypirc",
+    "id_ed25519",
+]
+
+
+class TestEveryReaderIsDeniedWhatCatIsDenied:
+    """Every auto-allowed reader is denied the files cat is denied.
+
+    head, tail, grep, rg and ag are auto-allowed, so a credential file cat
+    may not read must be denied to them too, by the same name.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("path", _CREDENTIAL_FILES)
+    @pytest.mark.parametrize(
+        "reader", ["cat", "head", "tail -n 5", "grep x", "rg x", "ag x"]
+    )
+    def test_reader_on_credential_file_is_denied(self, reader: str, path: str) -> None:
+        """Each reader on each credential name gets DENY, as cat does."""
+        command = f"{reader} {path}"
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is not None, command
+        assert decision.behavior == PermissionDecision.DENY, command
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "git show HEAD:.env",
+            "git show HEAD:config/credentials.json",
+            "git show main:.git-credentials",
+            "git cat-file -p HEAD:.envrc",
+            "git show HEAD:prod.env",
+        ],
+    )
+    def test_git_object_read_of_credential_file_is_denied(self, command: str) -> None:
+        """`<rev>:<path>` prints a committed secret as cat would print it."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is not None, command
+        assert decision.behavior == PermissionDecision.DENY, command
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "rg -n get_credentials src/",
+            "grep -rn os.environ plugins/",
+            "head environment.md",
+            "grep -r netrc_parser src",
+        ],
+    )
+    def test_search_term_or_lookalike_file_is_still_allowed(self, command: str) -> None:
+        """A credential word as a search term or in another name stays allowed."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is not None, command
+        assert decision.behavior == PermissionDecision.ALLOW, command

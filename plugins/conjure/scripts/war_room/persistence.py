@@ -93,8 +93,17 @@ def persist_session(strategeion: Path, session: WarRoomSession) -> None:
         "merkle_dag": session.merkle_dag.to_dict(),
     }
 
-    with open(session_dir / "session.json", "w") as f:
-        json.dump(session_data, f, indent=2)
+    # Serialized before the file is touched, then renamed into place: opening
+    # the target for writing truncates it, so a value json cannot encode used
+    # to destroy the copy of the session already on disk.
+    encoded = json.dumps(session_data, indent=2)
+    session_file = session_dir / "session.json"
+    pending = session_file.with_suffix(".json.tmp")
+    try:
+        pending.write_text(encoded)
+        pending.replace(session_file)
+    finally:
+        pending.unlink(missing_ok=True)
 
     # Generate and save the audit report alongside the session file
     audit_manager = AuditTrailManager(strategeion_dir=strategeion)

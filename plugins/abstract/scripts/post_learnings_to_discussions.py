@@ -61,16 +61,39 @@ from abstract.paths import (
 from abstract.paths import get_learnings_path
 
 # AR-30: route gh invocations through leyline.git_platform.
-_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
-if str(_LEYLINE_SRC) not in sys.path:
-    sys.path.insert(0, str(_LEYLINE_SRC))
+# The repo keeps plugins side by side, the install cache nests them by
+# version: resolve leyline in either, falling back to the repo path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vendored_leyline_sibling_plugins import (  # noqa: E402 - after sys.path setup
+    add_sibling_src_to_path,
+)
 
-from leyline.git_platform import (  # noqa: E402 - import after sys.path setup
-    GhCommandError as _GhError,
-)
-from leyline.git_platform import (
-    gh_graphql as _gh_graphql,
-)
+add_sibling_src_to_path(__file__, "leyline")
+
+try:
+    from leyline.git_platform import (  # noqa: E402 - import after sys.path setup
+        GhCommandError as _GhError,
+    )
+    from leyline.git_platform import (
+        gh_graphql as _gh_graphql,
+    )
+except ImportError:
+    # ADR-0001: without leyline only GitHub posting turns off. The learnings
+    # hooks import this module beside the aggregator, which must keep working.
+    # A subclass, not RuntimeError itself, so `except _GhError` cannot catch
+    # an unrelated RuntimeError.
+    class _GhError(RuntimeError):  # type: ignore[no-redef]  # fallback type when leyline is absent
+        def __init__(self, message: str, *, cmd: list[str]) -> None:
+            super().__init__(message)
+            self.cmd = list(cmd)
+
+    def _gh_graphql(  # type: ignore[misc]  # fallback stub shadows the leyline import
+        query: str, variables: dict[str, Any] | None = None
+    ) -> Any:
+        raise _GhError(
+            "leyline plugin not installed: GitHub posting is off",
+            cmd=["gh", "api", "graphql"],
+        )
 
 
 def get_config_dir() -> Path:

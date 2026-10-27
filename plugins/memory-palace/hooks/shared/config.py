@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging as _logging
 import os
+from fnmatch import fnmatch
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -196,13 +197,23 @@ def is_path_excluded(path: str) -> bool:
 
         # Directory pattern (ends with /)
         if pattern_lower.endswith("/"):
-            if f"/{pattern_lower}" in f"/{path_lower}/" or path_lower.startswith(
+            if "*" in pattern_lower:
+                # Directory glob such as "*.egg-info/": match any directory
+                # segment of the path.
+                segments = path_lower.split("/")[:-1]
+                if any(fnmatch(seg, pattern_lower[:-1]) for seg in segments):
+                    return True
+            elif f"/{pattern_lower}" in f"/{path_lower}/" or path_lower.startswith(
                 pattern_lower
             ):
                 return True
         # Wildcard pattern
         elif pattern_lower.startswith("*"):
             if path_lower.endswith(pattern_lower[1:]):
+                return True
+        # Glob inside the name, such as "credentials.*": match any segment.
+        elif "*" in pattern_lower:
+            if any(fnmatch(seg, pattern_lower) for seg in path_lower.split("/")):
                 return True
         # Exact match
         elif pattern_lower in path_lower:

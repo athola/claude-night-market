@@ -283,7 +283,9 @@ def notify_linux(title: str, message: str) -> bool:
                 message,
             ],
             check=True,
-            timeout=1,
+            # Process start alone can take over a second on a loaded
+            # machine; 3s stays inside the hook's 5s cap.
+            timeout=3,
         )
         return True
     except (
@@ -385,8 +387,19 @@ def _try_burnt_toast(
         True if notification sent successfully
 
     """
-    ps_title = title.replace('"', '`"')
-    ps_message = message.replace('"', '`"')
+
+    # Inside a PowerShell double-quoted string "$" and "`" start expansion,
+    # so a directory named "$(...)" would run. The backtick goes first.
+    # PowerShell also closes the string on the curly quotes U+201C, U+201D
+    # and U+201E, so they are escaped like '"'.
+    def _escape(text: str) -> str:
+        text = text.replace("`", "``").replace("$", "`$")
+        for quote in ('"', "\u201c", "\u201d", "\u201e"):
+            text = text.replace(quote, "`" + quote)
+        return text
+
+    ps_title = _escape(title)
+    ps_message = _escape(message)
     burnt_cmd = f'New-BurntToastNotification -Text "{ps_title}", "{ps_message}"'
 
     for ps_path in ps_paths:

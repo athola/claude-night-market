@@ -136,19 +136,15 @@ class TestStarMode:
         WHEN starring is requested
         THEN it exits before reaching the check/prompt logic.
         """
-        lines = hook_source.split("\n")
-        star_exit_idx = None
-        check_gh_idx = None
-        for i, line in enumerate(lines):
-            if '"--star"' in line:
-                star_exit_idx = i
-            if "check_gh()" in line and "{" in line:
-                check_gh_idx = i
-        assert star_exit_idx is not None
-        assert check_gh_idx is not None
-        assert star_exit_idx < check_gh_idx, (
-            "--star path must exit before check functions"
-        )
+        main = _extract_function(hook_source, "main")
+        assert main is not None, "main function must exist"
+        star_idx = main.find('"--star")')
+        check_gh_idx = main.find("check_gh")
+        assert star_idx != -1, "main must dispatch the --star arm"
+        assert check_gh_idx != -1, "main must call check_gh"
+        star_arm = main[star_idx : main.find(";;", star_idx)]
+        assert "exit 0" in star_arm, "--star arm must exit"
+        assert star_idx < check_gh_idx, "--star path must exit before check functions"
 
 
 class TestTargetRepo:
@@ -215,14 +211,16 @@ class TestJsonOutputStructure:
         Then it calls _emit_empty (not bare exit 0).
         """
         lines = hook_source.split("\n")
-        for i, line in enumerate(lines):
-            # Find the runtime check (if [...] = "1"), not comments
-            if "CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT" in line and line.strip().startswith(
-                "if"
-            ):
-                block = "\n".join(lines[i : i + 5])
-                assert "_emit_empty" in block, "Opt-out path must call _emit_empty"
-                break
+        checks = [
+            i
+            for i, line in enumerate(lines)
+            # The runtime branch (case "${...}" in), not comments or usage
+            if "CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT" in line
+            and line.strip().startswith(("if", "case"))
+        ]
+        assert checks, "Script must branch on CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT"
+        block = "\n".join(lines[checks[0] : checks[0] + 5])
+        assert "_emit_empty" in block, "Opt-out path must call _emit_empty"
 
 
 class TestStarPromptOutputBehavior:
@@ -275,21 +273,13 @@ class TestStarPromptOptOut:
         Note: opt-out is after the --star path intentionally,
         since --star is only called after explicit user consent.
         """
-        lines = hook_source.split("\n")
-        opt_out_idx = None
-        check_gh_def_idx = None
-        for i, line in enumerate(lines):
-            if "CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT" in line:
-                opt_out_idx = i
-            if line.strip().startswith("check_gh()"):
-                check_gh_def_idx = i
-        assert opt_out_idx is not None, (
-            "Script must check CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT"
-        )
-        assert check_gh_def_idx is not None, "check_gh function must exist"
-        assert opt_out_idx < check_gh_def_idx, (
-            "Opt-out must come before check functions"
-        )
+        main = _extract_function(hook_source, "main")
+        assert main is not None, "main function must exist"
+        opt_out_idx = main.find("CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT")
+        check_gh_idx = main.find("check_gh")
+        assert opt_out_idx != -1, "Script must check CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT"
+        assert check_gh_idx != -1, "main must call check_gh"
+        assert opt_out_idx < check_gh_idx, "Opt-out must come before check functions"
 
 
 class TestStatusChecks:
@@ -373,3 +363,42 @@ class TestFailSafety:
     @pytest.mark.unit
     def test_script_uses_strict_mode(self, hook_source: str) -> None:
         assert "set -euo pipefail" in hook_source
+
+
+class TestXtraceKeepsTheTokenOut:
+    """`-x` traces the script, and the curl calls carry a bearer token.
+
+    Both curl paths run with the caller's stderr sent to /dev/null, which
+    is where the trace of their commands goes too.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("args", [["-x"], ["-x", "--star"]])
+    def test_trace_never_prints_the_token(
+        self, tmp_path: Path, args: list[str]
+    ) -> None:
+        import subprocess  # noqa: PLC0415 - only this class runs the script
+
+        bin_dir = tmp_path / "bin"
+        bin_dir.mkdir()
+        fake_curl = bin_dir / "curl"
+        fake_curl.write_text("#!/bin/sh\nprintf 404\n")
+        fake_curl.chmod(0o755)
+        env = {
+            "HOME": str(tmp_path),
+            "PATH": f"{bin_dir}:/usr/bin:/bin",
+            "GH_TOKEN": "sekrit-token-123",
+        }
+
+        run = subprocess.run(
+            ["bash", str(HOOK_PATH), *args],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+
+        assert "+ " in run.stderr, "xtrace did not run"
+        assert "sekrit-token-123" not in run.stderr
+        assert "sekrit-token-123" not in run.stdout

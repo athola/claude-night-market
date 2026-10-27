@@ -77,13 +77,15 @@ history and guides.
 |------|-------|-------------|
 | **security_pattern_check.py** | PreToolUse (Write\|Edit\|MultiEdit) | Checks for security anti-patterns in code changes. |
 | **post_implementation_policy.py** | SessionStart | Injects governance protocol and proof-of-work reminders. |
-| **verify_workflow_complete.py** | Stop | Post-implementation checklist reminder. |
+| **verify_workflow_complete.py** | Stop | Post-implementation checklist after a turn that edited files. |
 | **session_complete_notify.py** | Stop | Cross-platform toast notification on command completion. |
 
 #### Stop Hooks
 
-**verify_workflow_complete.py** displays a checklist when a session ends.
-It reminds the developer to complete proof-of-work verification,
+**verify_workflow_complete.py** displays a checklist at the end of a turn
+that used Edit, Write, MultiEdit or NotebookEdit. Stop hooks run after every
+turn, so turns that only read or answer show nothing. It reminds the
+developer to complete proof-of-work verification,
 lists documentation update commands, and displays a quality gate checklist.
 
 **session_complete_notify.py** provides a desktop toast notification when

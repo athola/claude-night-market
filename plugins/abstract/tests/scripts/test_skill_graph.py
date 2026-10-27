@@ -9,6 +9,7 @@ Feature: Skill Graph Audit
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 import textwrap
@@ -32,6 +33,7 @@ from skill_graph import (  # noqa: E402 - import after sys.path mutation
     detect_isolates,
     detect_uncalled_libraries,
     extract_skill_references,
+    main,
     rank_hubs,
     rank_orchestrators,
 )
@@ -956,3 +958,85 @@ class TestThePlantedFixtureIsStillDetected:
         ]
         assert "fixtureplugin:gamma" in detect_isolates(graph)
         assert "fixtureplugin:beta" not in detect_isolates(graph)
+
+
+class TestUntrustedFrontmatter:
+    """SKILL.md frontmatter is file input: bad shapes are skipped, not fatal."""
+
+    @pytest.mark.unit
+    def test_malformed_yaml_frontmatter_is_reported_and_ignored(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Unparseable YAML adds no edges and names the failure on stderr."""
+        skill = tmp_path / "plugins" / "src" / "skills" / "main"
+        skill.mkdir(parents=True)
+        (skill / "SKILL.md").write_text(
+            "---\nname: main\ndependencies: [unclosed\n---\nBody.\n"
+        )
+        graph = build_graph(tmp_path / "plugins")
+        assert "src:main" in graph.nodes
+        assert graph.edges == set()
+        assert "malformed YAML frontmatter" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "deps_line",
+        ["dependencies: other:helper", "dependencies: [3, '  ', ./local.md]"],
+        ids=["scalar-not-list", "non-string-blank-and-path-entries"],
+    )
+    def test_unusable_dependency_entries_add_no_edges(
+        self, tmp_path: Path, deps_line: str
+    ) -> None:
+        skill = tmp_path / "plugins" / "src" / "skills" / "main"
+        skill.mkdir(parents=True)
+        (skill / "SKILL.md").write_text(f"---\nname: main\n{deps_line}\n---\nBody.\n")
+        assert build_graph(tmp_path / "plugins").edges == set()
+
+
+class TestCli:
+    """main renders the report for a plugins tree as text or JSON."""
+
+    _FIXTURE_ROOT = Path(__file__).parent.parent / "fixtures" / "skill_graph"
+
+    @pytest.mark.unit
+    def test_text_report_lists_totals_bugs_and_isolates(
+        self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        monkeypatch.setattr(
+            sys, "argv", ["skill_graph", "--plugins-root", str(self._FIXTURE_ROOT)]
+        )
+        assert main() == 0
+        out = capsys.readouterr().out
+        assert "Skills: 3" in out
+        assert "Dangling references -- BUGS (1):" in out
+        assert "fixtureplugin:alpha -> fixtureplugin:absent" in out
+        assert "fixtureplugin:gamma" in out.split("Isolates", 1)[1]
+
+    @pytest.mark.unit
+    def test_json_report_written_to_output_file(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        out_file = tmp_path / "graph.json"
+        monkeypatch.setattr(
+            sys,
+            "argv",
+            [
+                "skill_graph",
+                "--plugins-root",
+                str(self._FIXTURE_ROOT),
+                "--format",
+                "json",
+                "--output",
+                str(out_file),
+            ],
+        )
+        assert main() == 0
+        report = json.loads(out_file.read_text())
+        assert report["totals"]["skills"] == 3
+        assert report["dangling_refs"]["bugs"] == [
+            {"source": "fixtureplugin:alpha", "target": "fixtureplugin:absent"}
+        ]
+        assert capsys.readouterr().out == ""

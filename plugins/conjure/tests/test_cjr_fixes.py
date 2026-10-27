@@ -21,11 +21,11 @@ from scripts.war_room.config import (
     CLAUDE_HAIKU,
     CLAUDE_OPUS,
     CLAUDE_SONNET,
-    GEMINI_3_FLASH,
-    GEMINI_3_PRO,
+    GEMINI_FLASH,
+    GEMINI_PRO,
     GLM_52,
+    QWEN_CODER,
     QWEN_MAX,
-    QWEN_TURBO,
     validate_model_ids,
 )
 from scripts.war_room.phases import compute_borda_scores
@@ -46,14 +46,14 @@ class TestModelIdConstants:
         THEN each constant equals its canonical model ID string
         AND all eight expected models are present
         """
-        assert CLAUDE_OPUS == "claude-opus-5"
-        assert CLAUDE_SONNET == "claude-sonnet-5"
-        assert GEMINI_3_PRO == "gemini-3-pro"
+        assert CLAUDE_OPUS == "claude-opus-5-5"
+        assert CLAUDE_SONNET == "claude-sonnet-5-5"
+        assert GEMINI_PRO == "gemini-3.1-pro-preview"
         assert GLM_52 == "glm-5.2"
-        assert QWEN_TURBO == "qwen-turbo"
-        assert GEMINI_3_FLASH == "gemini-3-flash"
+        assert QWEN_CODER == "coder-model"
+        assert GEMINI_FLASH == "gemini-3.8-flash"
         assert QWEN_MAX == "qwen-max"
-        assert CLAUDE_HAIKU == "claude-haiku-4-5"
+        assert CLAUDE_HAIKU == "claude-haiku-5-5"
 
     def test_validate_model_ids_rejects_empty_string(self) -> None:
         """Reject an empty model ID with a ValueError.
@@ -105,8 +105,12 @@ class TestModelIdConstants:
             "glm-5.2",
             "qwen-turbo",
             "gemini-3-flash",
+            "gemini-3.8-flash",
+            "gemini-3.1-pro-preview",
             "qwen-max",
+            "coder-model",
             "claude-haiku-4-5",
+            "claude-haiku-5-5",
         }
         found = banned_model_ids & set(string_literals)
         assert not found, (
@@ -220,7 +224,13 @@ class TestLoadConfigurationsNarrowException:
 
 
 class TestBordaScoresCharacterization:
-    """compute_borda_scores output must be identical after O(n²) refactor."""
+    """compute_borda_scores output must be identical after O(n²) refactor.
+
+    The reference reproduces the original algorithm, which credited any
+    label within 200 chars after "1." with first place. Ballots where that
+    mattered now pin the true Borda count; the reference still governs the
+    cases it got right.
+    """
 
     def _original_borda(
         self, votes: dict[str, str], coa_labels: list[str]
@@ -252,7 +262,9 @@ class TestBordaScoresCharacterization:
             "expert1": "1. Alpha is best\n2. Beta is second\n3. Gamma is third",
             "expert2": "1. Beta is top\n2. Gamma follows\n3. Alpha is last",
         }
-        expected = self._original_borda(votes, labels)
+        # The reference gave Beta and Gamma first place on ballot 1 too:
+        # any label within 200 chars after "1." took 3 points.
+        expected = {"Alpha": 3 + 1, "Beta": 2 + 3, "Gamma": 1 + 2}
         assert compute_borda_scores(votes, labels) == expected
 
     def test_label_absent_from_ballot(self) -> None:
@@ -265,7 +277,7 @@ class TestBordaScoresCharacterization:
         """
         labels = ["Alpha", "Beta", "Zeta"]
         votes = {"expert1": "1. Alpha wins\n2. Beta second\n3. Delta not in list"}
-        expected = self._original_borda(votes, labels)
+        expected = {"Alpha": 3, "Beta": 2, "Zeta": 0}
         assert compute_borda_scores(votes, labels) == expected
 
     def test_rank_marker_far_from_label(self) -> None:
@@ -312,5 +324,5 @@ class TestBordaScoresCharacterization:
                 lines.append(f"{rank_idx + 1}. {label} is rank {rank_idx + 1}")
             votes[f"expert{ballot_idx}"] = "\n".join(lines)
 
-        expected = self._original_borda(votes, labels)
+        expected = {label: 5 * (20 - i) for i, label in enumerate(labels)}
         assert compute_borda_scores(votes, labels) == expected

@@ -120,7 +120,14 @@ def _read_cited_file(
         return [], f"path escapes repo root: {finding.file}"
     if not target.is_file():
         return [], f"file not found: {finding.file}"
-    return target.read_text(errors="replace").splitlines(), None
+    # Split on "\n" only: str.splitlines() also breaks on \x0c, \x1c-\x1e,
+    # \x85 and U+2028/9, which editors and `rg -n` number as one line, so
+    # every such character shifted the lines below it out of the window.
+    text = target.read_text(errors="replace")
+    lines = text.split("\n")
+    if lines and lines[-1] == "":
+        lines.pop()
+    return lines, None
 
 
 def _validate_and_read(

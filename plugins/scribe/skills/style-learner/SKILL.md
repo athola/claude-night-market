@@ -53,7 +53,7 @@ Together they form a profile precise enough to score new
 text and rich enough to guide rewrites. Metrics catch what
 exemplars miss. Exemplars carry what metrics flatten.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `style-learner:exemplar-collected` - Source texts gathered
 2. `style-learner:features-extracted` - Quantitative metrics computed
@@ -246,8 +246,8 @@ After generating content, run slop-detector to verify:
 
 ## Exit Criteria
 
-- Style profile document created
-- At least 3 exemplar passages included
-- Quantitative metrics extracted
-- Anti-patterns from slop-detector integrated
-- Validation test passed
+- [ ] Style profile document created
+- [ ] At least 3 exemplar passages included
+- [ ] Quantitative metrics extracted
+- [ ] Anti-patterns from slop-detector integrated
+- [ ] Validation test passed

@@ -442,23 +442,23 @@ class TestEndToEnd:
 
         # Parse the JSON output
         output = mock_stdout.getvalue()
-        if output:
-            response = json.loads(output)
+        assert output, "a strong cache_only match must emit hook output"
+        response = json.loads(output)
 
-            # Verify correct API fields are present
-            assert "hookSpecificOutput" in response
-            hook_output = response["hookSpecificOutput"]
+        # Verify correct API fields are present
+        assert "hookSpecificOutput" in response
+        hook_output = response["hookSpecificOutput"]
 
-            assert hook_output["hookEventName"] == "PreToolUse"
-            assert hook_output["permissionDecision"] == "deny"
-            assert "permissionDecisionReason" in hook_output
-            assert "additionalContext" in hook_output
-            assert "intakeFlagPayload" in hook_output
-            assert "intakeDecisionRationale" in hook_output
+        assert hook_output["hookEventName"] == "PreToolUse"
+        assert hook_output["permissionDecision"] == "deny"
+        assert "permissionDecisionReason" in hook_output
+        assert "additionalContext" in hook_output
+        assert "intakeFlagPayload" in hook_output
+        assert "intakeDecisionRationale" in hook_output
 
-            # Verify incorrect fields are NOT present
-            assert "blockToolExecution" not in hook_output
-            assert "blockReason" not in hook_output
+        # Verify incorrect fields are NOT present
+        assert "blockToolExecution" not in hook_output
+        assert "blockReason" not in hook_output
 
     def test_hook_output_format_allow(self) -> None:
         """Test hook JSON output uses correct API fields for allow action."""
@@ -508,24 +508,24 @@ class TestEndToEnd:
 
         # Parse the JSON output
         output = mock_stdout.getvalue()
-        if output:
-            response = json.loads(output)
+        assert output, "a partial cache_first match must emit hook output"
+        response = json.loads(output)
 
-            # Verify correct API fields are present
-            assert "hookSpecificOutput" in response
-            hook_output = response["hookSpecificOutput"]
+        # Verify correct API fields are present
+        assert "hookSpecificOutput" in response
+        hook_output = response["hookSpecificOutput"]
 
-            assert hook_output["hookEventName"] == "PreToolUse"
-            # Adding context must not approve the web call on the user's
-            # behalf: "allow" would skip their permission prompt.
-            assert "permissionDecision" not in hook_output
-            assert "additionalContext" in hook_output
-            assert "intakeFlagPayload" in hook_output
-            assert "intakeDecisionRationale" in hook_output
+        assert hook_output["hookEventName"] == "PreToolUse"
+        # Adding context must not approve the web call on the user's
+        # behalf: "allow" would skip their permission prompt.
+        assert "permissionDecision" not in hook_output
+        assert "additionalContext" in hook_output
+        assert "intakeFlagPayload" in hook_output
+        assert "intakeDecisionRationale" in hook_output
 
-            # Verify incorrect fields are NOT present
-            assert "blockToolExecution" not in hook_output
-            assert "blockReason" not in hook_output
+        # Verify incorrect fields are NOT present
+        assert "blockToolExecution" not in hook_output
+        assert "blockReason" not in hook_output
 
     def test_decision_record_failure_logged_as_warning(
         self, caplog: pytest.LogCaptureFixture
@@ -706,21 +706,44 @@ class TestEndToEnd:
 class TestGracefulDegradation:
     """Tests for graceful degradation when memory_palace package is unavailable."""
 
-    def test_has_memory_palace_flag_exists(self) -> None:
-        """Module should expose _HAS_MEMORY_PALACE flag."""
-        assert hasattr(research_interceptor, "_HAS_MEMORY_PALACE")
+    def test_has_memory_palace_flag_is_set_when_the_package_imports(self) -> None:
+        """The test environment installs memory_palace, so the flag is True."""
+        assert research_interceptor._HAS_MEMORY_PALACE is True
 
-    def test_novelty_by_redundancy_empty_when_no_memory_palace(self) -> None:
-        """_NOVELTY_BY_REDUNDANCY should be empty dict when imports fail."""
-        original_flag = research_interceptor._HAS_MEMORY_PALACE
-        original_map = research_interceptor._NOVELTY_BY_REDUNDANCY
-        try:
-            research_interceptor._HAS_MEMORY_PALACE = False
-            research_interceptor._NOVELTY_BY_REDUNDANCY = {}
-            assert research_interceptor._NOVELTY_BY_REDUNDANCY == {}
-        finally:
-            research_interceptor._HAS_MEMORY_PALACE = original_flag
-            research_interceptor._NOVELTY_BY_REDUNDANCY = original_map
+    def test_failed_corpus_import_loads_the_fallback_stubs(self) -> None:
+        """A missing corpus package swaps in shared.fallback_stubs.
+
+        GIVEN memory_palace.corpus.cache_lookup cannot be imported
+        WHEN the hook module is loaded fresh
+        THEN the flag is False, CacheLookup is the no-op stub, and the
+             novelty map is keyed by the stub's string redundancy levels
+        """
+        import importlib.util
+
+        from shared import fallback_stubs
+
+        spec = importlib.util.spec_from_file_location(
+            "research_interceptor_degraded", research_interceptor.__file__
+        )
+        assert spec is not None
+        assert spec.loader is not None
+        degraded = importlib.util.module_from_spec(spec)
+        # The dataclasses in the module resolve themselves via sys.modules.
+        with patch.dict(
+            sys.modules,
+            {
+                "memory_palace.corpus.cache_lookup": None,
+                "research_interceptor_degraded": degraded,
+            },
+        ):
+            spec.loader.exec_module(degraded)
+
+        assert degraded._HAS_MEMORY_PALACE is False
+        assert degraded.CacheLookup is fallback_stubs.CacheLookup
+        assert degraded.CacheLookup().search("anything") == []
+        assert degraded._NOVELTY_BY_REDUNDANCY[
+            fallback_stubs.RedundancyLevel.NOVEL
+        ] == (pytest.approx(0.9))
 
     def test_main_exits_cleanly_when_no_memory_palace(self) -> None:
         """Hook main() should exit(0) when memory_palace package is unavailable."""

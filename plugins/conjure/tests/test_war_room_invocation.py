@@ -301,7 +301,7 @@ class TestHaikuFallback:
     def test_get_fallback_notice_with_notices(self) -> None:
         """get_fallback_notice formats notices when present."""
         clear_availability_cache()
-        _haiku_fallback_notices.append("Scout (qwen-turbo) unavailable, using Haiku")
+        _haiku_fallback_notices.append("Scout (coder-model) unavailable, using Haiku")
         _haiku_fallback_notices.append("Red Team (gemini) unavailable, using Haiku")
 
         notice = get_fallback_notice()
@@ -315,7 +315,7 @@ class TestHaikuFallback:
         with patch("shutil.which") as mock_which:
             mock_which.return_value = "/usr/local/bin/claude"
             cmd = get_haiku_command()
-            assert cmd == ["claude", "--model", "claude-haiku-4-5", "-p"]
+            assert cmd == ["claude", "--model", "claude-haiku-5-5", "-p"]
 
     def test_get_haiku_command_not_found(self) -> None:
         """get_haiku_command raises when claude not available."""
@@ -385,7 +385,7 @@ class TestHaikuFallback:
 
         # Verify model recorded is Haiku, not original
         node = list(session.merkle_dag.nodes.values())[0]
-        assert node.expert_model == "claude-haiku-4-5"
+        assert node.expert_model == "claude-haiku-5-5"
 
     @pytest.mark.asyncio
     async def test_invoke_haiku_fallback_prepends_role(

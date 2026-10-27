@@ -33,6 +33,14 @@ python3 plugins/conserve/scripts/detect_duplicates.py . --format json --threshol
 grep -rn "^def " --include="*.py" . | cut -d: -f2 | sort | uniq -c | sort -rn | head -10
 ```
 
+The same report lists **competing implementations**: module-level
+Python functions that share a name across files with different bodies.
+A clone shares a body. A competing implementation is a second model of
+one concern, which later changes must keep in step with the first
+(`docs/knowledge-corpus/decoherence.md`). Names that a framework calls
+by convention, such as `_build_parser`, lead the list and need a
+person's judgment. Test modules, `main` and dunder names are skipped.
+
 **Confidence**: HIGH (85%)
 **Action**: REFACTOR - extract to shared utility
 **Rationale**: AI suggests new implementations rather than reusing existing code

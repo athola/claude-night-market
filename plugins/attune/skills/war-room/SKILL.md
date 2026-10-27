@@ -3,7 +3,6 @@ name: war-room
 description: Convenes a multi-LLM expert panel to pressure-test hard-to-reverse decisions. Use when reversibility score is low and adversarial review is warranted.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model: opus
 category: strategic-planning
 tags: [deliberation, multi-llm, strategy, decision-making, council, reversibility]
 complexity: advanced
@@ -17,6 +16,7 @@ modules:
   - modules/merkle-dag.md
   - modules/discussion-publishing.md
   - modules/deferred-capture.md
+  - modules/configuration.md
 dependencies:
   - conjure:delegation-core
   - leyline:git-platform
@@ -86,11 +86,11 @@ See `modules/reversibility-assessment.md` for full scoring guide.
 |------|-------|---------|
 | Supreme Commander | Claude Opus | Final synthesis |
 | Chief Strategist | Claude Sonnet | Approach generation |
-| Intelligence Officer | Gemini 3 Pro | Large context analysis (1M+) |
+| Intelligence Officer | Gemini 3.1 Pro (preview) | Large context analysis (1M) |
 | Field Tactician | GLM-5.3 | Implementation feasibility |
-| Scout | Qwen Turbo | Quick data gathering |
-| Red Team Commander | Gemini Flash | Adversarial challenge |
-| Logistics Officer | Qwen Max | Resource estimation |
+| Scout | Qwen `coder-model` | Quick data gathering |
+| Red Team Commander | Gemini 3.8 Flash | Adversarial challenge |
+| Logistics Officer | Qwen `coder-model` | Resource estimation |
 
 ## Deliberation Protocol
 
@@ -367,25 +367,8 @@ Equally important: identify decisions being over-deliberated:
 
 ## Configuration
 
-### User Settings
-
-```json
-{
-  "war_room": {
-    "default_mode": "lightweight",
-    "auto_escalate": true,
-    "delphi_threshold": 0.85,
-    "max_delphi_rounds": 5
-  }
-}
-```
-
-### Hook Auto-Trigger
-
-War Room can be auto-suggested via hook when:
-- Keywords detected ("strategic decision", "trade-off", etc.)
-- Complexity score exceeds threshold (0.7)
-- User has opted in via settings
+User settings and the hook auto-trigger conditions:
+[`modules/configuration.md`](modules/configuration.md).
 
 ## Agent Teams Execution Mode
 

@@ -94,7 +94,7 @@ uv run python scripts/delegation_executor.py qwen "Analyze this code" \
 
 # With specific model
 uv run python scripts/delegation_executor.py qwen "Summarize" \
-  --files src/**/*.py --model qwen-max
+  --files src/**/*.py --model coder-model
 
 # With output format
 uv run python scripts/delegation_executor.py qwen "Extract functions" \
@@ -110,7 +110,7 @@ qwen -p "@path/to/file Analyze this code"
 qwen -p "@src/**/*.py Summarize these files"
 
 # Specific model
-qwen --model qwen-max -p "..."
+qwen --model coder-model -p "..."
 ```
 
 ### Save Output

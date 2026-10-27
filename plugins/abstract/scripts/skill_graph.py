@@ -163,6 +163,12 @@ def _parse_frontmatter(text: str) -> dict[str, Any]:
     absence and parse failure uniformly. PyYAML is required (declared in
     plugins/abstract/scripts deps); the import-time fallback path keeps
     the script importable in environments without it.
+
+    ``abstract.frontmatter.FrontmatterProcessor`` is the plugin's parser,
+    and this copy stands on purpose: pre-commit runs this script through
+    ``scripts/check_skill_graph_drift.py`` under the system ``python3``,
+    which may lack PyYAML, and ``abstract.frontmatter`` imports it
+    unconditionally.
     """
     m = _FRONTMATTER_BLOCK_RE.match(text)
     if not m:

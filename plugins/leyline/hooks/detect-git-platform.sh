@@ -36,7 +36,15 @@ detect_platform() {
   local remote_url
   remote_url=$(git remote get-url origin 2>/dev/null || :)
 
-  case "${remote_url}" in
+  # Match on the host alone: a GitLab repo named alice.github.io must
+  # not read as GitHub. Strip the scheme, cut the path, drop any user,
+  # then cut a port or the scp-style ":path".
+  local remote_host="${remote_url#*://}"
+  remote_host="${remote_host%%/*}"
+  remote_host="${remote_host##*@}"
+  remote_host="${remote_host%%:*}"
+
+  case "${remote_host}" in
     *github.com* | *github.*)
       platform="github"
       cli_tool="gh"

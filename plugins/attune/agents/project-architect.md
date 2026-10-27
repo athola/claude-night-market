@@ -3,12 +3,12 @@ name: project-architect
 description: Architecture design specialist - analyzes requirements and generates
   component-based system architecture with technology selection and rationale.
   Use for greenfield projects, major refactors, or technology stack decisions.
-tools_allowed:
+tools:
 - Read
 - Write
 - Grep
 - Glob
-max_iterations: 10
+maxTurns: 10
 category: agent
 tags:
 - architecture

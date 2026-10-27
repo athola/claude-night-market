@@ -259,3 +259,24 @@ class TestGhGraphql:
             with pytest.raises(GhCommandError) as excinfo:
                 gh_graphql("query { malformed")
         assert "bad query" in str(excinfo.value)
+
+
+class TestArgvConstruction:
+    """Fields and variables reach gh as separate, typed argv entries."""
+
+    @pytest.mark.unit
+    def test_gh_api_passes_method_and_raw_fields(self):
+        with patch("subprocess.run") as run:
+            run.return_value = _make_completed(0, stdout="{}")
+            gh_api("repos/o/r/labels", method="post", fields={"name": "bug"})
+        argv = run.call_args.args[0]
+        assert argv == ["gh", "api", "repos/o/r/labels", "-X", "POST", "-f", "name=bug"]
+
+    @pytest.mark.unit
+    def test_gh_graphql_rejects_unsupported_variable_type(self):
+        with patch("subprocess.run") as run:
+            with pytest.raises(
+                TypeError, match="variable 'ids': unsupported type list"
+            ):
+                gh_graphql("query { x }", {"ids": [1, 2]})
+        run.assert_not_called()

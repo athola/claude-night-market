@@ -27,7 +27,7 @@ from .agent import AgentValidator
 from .command import CommandValidator
 from .plugin import PluginValidator
 from .sanctum import SanctumValidator
-from .skill import SkillValidator, _extract_skill_refs_from_content
+from .skill import SkillValidator
 
 __all__ = [
     "AgentValidationResult",
@@ -40,6 +40,5 @@ __all__ = [
     "SanctumValidator",
     "SkillValidationResult",
     "SkillValidator",
-    "_extract_skill_refs_from_content",
     "parse_frontmatter",
 ]

@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -200,7 +201,7 @@ class TestPreCompactPreserve:
         # Create project dir with cwd-style name
         cwd_path = tmp_path / "myproject"
         cwd_path.mkdir()
-        project_dir_name = "-" + str(cwd_path).replace(os.sep, "-")
+        project_dir_name = "-" + re.sub(r"[^A-Za-z0-9]", "-", str(cwd_path))
         project_dir = projects_dir / project_dir_name
         project_dir.mkdir()
 
@@ -371,6 +372,35 @@ class TestCleanupOldArchives:
         finally:
             preserve_module.get_archive_dir = original_get
 
+    @pytest.mark.unit
+    def test_an_archive_that_cannot_be_removed_is_logged_and_skipped(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog
+    ):
+        """An unlink failure on one old archive does not stop the sweep."""
+        monkeypatch.setattr(preserve_module, "get_archive_dir", lambda: tmp_path)
+        for i in range(4):
+            archive = tmp_path / f"pre-compact-{i}.md"
+            archive.write_text(f"archive {i}")
+            os.utime(archive, (1000 + i, 1000 + i))
+        locked = tmp_path / "pre-compact-0.md"
+        real_unlink = Path.unlink
+
+        def refuse_oldest(self, *args, **kwargs):
+            if self == locked:
+                raise PermissionError("read-only volume")
+            return real_unlink(self, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "unlink", refuse_oldest)
+        with caplog.at_level("WARNING", logger=preserve_module.logger.name):
+            cleanup_old_archives(keep_count=2)
+
+        assert sorted(p.name for p in tmp_path.glob("pre-compact-*.md")) == [
+            "pre-compact-0.md",
+            "pre-compact-2.md",
+            "pre-compact-3.md",
+        ]
+        assert "Could not remove old archive" in caplog.text
+
 
 class TestSavePreservedContextBranches:
     """Additional branch coverage for save_preserved_context."""
@@ -411,7 +441,9 @@ class TestExtractRecentContentBranches:
             )
         session.write_text("\n".join(lines))
         result = extract_recent_content(session, max_turns=10)
-        assert len(result) <= 10
+        assert len(result) == 10
+        # The tail is what survives: the last row written is the last kept.
+        assert result[-1] == json.loads(lines[-1])
 
     @pytest.mark.unit
     def test_handles_read_error(self, tmp_path: Path):
@@ -434,6 +466,14 @@ class TestExtractRecentContentBranches:
         result = extract_recent_content(session)
         assert len(result) == 1
         assert result[0]["role"] == "user"
+
+    @pytest.mark.unit
+    def test_blank_lines_between_rows_are_skipped(self, tmp_path: Path):
+        """Blank and whitespace-only lines are not parsed as rows."""
+        session = tmp_path / "session.jsonl"
+        row = json.dumps({"role": "user", "content": "Hello"})
+        session.write_text(f"\n   \n{row}\n\n")
+        assert extract_recent_content(session) == [{"role": "user", "content": "Hello"}]
 
     @pytest.mark.unit
     def test_handles_invalid_json_lines(self, tmp_path: Path):
@@ -469,7 +509,7 @@ class TestResolveSessionFileBranches:
         """Returns None when project dir has no JSONL files."""
         projects = tmp_path / "projects"
         cwd = Path.cwd()
-        project_name = str(cwd).replace(os.sep, "-")
+        project_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not project_name.startswith("-"):
             project_name = "-" + project_name
         project_dir = projects / project_name
@@ -491,7 +531,7 @@ class TestResolveSessionFileBranches:
         """Falls back to most recently modified JSONL when no session ID."""
         projects = tmp_path / "projects"
         cwd = Path.cwd()
-        project_name = str(cwd).replace(os.sep, "-")
+        project_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not project_name.startswith("-"):
             project_name = "-" + project_name
         project_dir = projects / project_name
@@ -548,6 +588,24 @@ class TestExtractFilePathsBranches:
         paths = extract_file_paths(entries)
         # Path doesn't exist, so it should be filtered out
         assert "/nonexistent/path/to/nowhere.py" not in paths
+
+    @pytest.mark.unit
+    def test_tilde_path_for_an_unknown_user_is_skipped_not_raised(self, tmp_path: Path):
+        """A transcript naming ~someone/file.py must not crash the hook.
+
+        Path.expanduser raises RuntimeError for a user with no home
+        directory, and the transcript is free text the hook cannot vet.
+        """
+        real = tmp_path / "kept.py"
+        real.write_text("# kept")
+        entries = [
+            {
+                "role": "user",
+                "content": f"compare ~nosuchuser-g07/notes.py with {real}",
+            }
+        ]
+        paths = extract_file_paths(entries)
+        assert paths == [str(real)]
 
 
 class TestPreCompactMain:

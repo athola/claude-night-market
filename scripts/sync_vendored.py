@@ -20,6 +20,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 _FRONTMATTER = "plugins/leyline/src/leyline/frontmatter.py"
 _SQLITE_GRAPH_BASE = "plugins/leyline/src/leyline/sqlite_graph_base.py"
+_SIBLING_PLUGINS = "plugins/leyline/src/leyline/sibling_plugins.py"
+_FS = "plugins/leyline/src/leyline/fs.py"
+_TOKENS = "plugins/leyline/src/leyline/tokens.py"
 
 #: Canonical source path to the copies generated from it, repo-relative.
 VENDORED: dict[str, list[str]] = {
@@ -31,6 +34,25 @@ VENDORED: dict[str, list[str]] = {
         "plugins/gauntlet/src/gauntlet/_vendored_leyline_sqlite_graph_base.py",
         "plugins/memory-palace/src/memory_palace/"
         "_vendored_leyline_sqlite_graph_base.py",
+    ],
+    # tokens.py loads its sibling fs copy by name, so the two go together.
+    _FS: ["plugins/abstract/src/abstract/_vendored_leyline_fs.py"],
+    _TOKENS: ["plugins/abstract/src/abstract/_vendored_leyline_tokens.py"],
+    _SIBLING_PLUGINS: [
+        "plugins/abstract/scripts/_vendored_leyline_sibling_plugins.py",
+        "plugins/attune/scripts/_vendored_leyline_sibling_plugins.py",
+        "plugins/conjure/scripts/_vendored_leyline_sibling_plugins.py",
+        "plugins/conserve/scripts/_vendored_leyline_sibling_plugins.py",
+        "plugins/egregore/scripts/_vendored_leyline_sibling_plugins.py",
+        "plugins/imbue/scripts/_vendored_leyline_sibling_plugins.py",
+        "plugins/pensive/scripts/_vendored_leyline_sibling_plugins.py",
+        "plugins/sanctum/scripts/_vendored_leyline_sibling_plugins.py",
+        "plugins/spec-kit/scripts/_vendored_leyline_sibling_plugins.py",
+        "plugins/abstract/src/abstract/_vendored_leyline_sibling_plugins.py",
+        "plugins/cartograph/hooks/_vendored_leyline_sibling_plugins.py",
+        "plugins/pensive/hooks/_vendored_leyline_sibling_plugins.py",
+        "plugins/minister/src/minister/_vendored_leyline_sibling_plugins.py",
+        "plugins/memory-palace/src/memory_palace/_vendored_leyline_sibling_plugins.py",
     ],
 }
 

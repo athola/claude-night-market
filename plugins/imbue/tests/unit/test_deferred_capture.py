@@ -12,6 +12,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "deferred_capture.py"
 
 
@@ -80,3 +82,33 @@ class TestImbueConfig:
         )
         body = json.loads(result.stdout)["body"]
         assert "worthiness scoring" not in body
+
+
+class TestImbueConfigInProcess:
+    """Feature: the wrapper's config, imported the way the coverage gate sees it."""
+
+    def _module(self):
+        import importlib.util  # noqa: PLC0415 - loaded per test, script is not a package
+
+        spec = importlib.util.spec_from_file_location("imbue_deferred_capture", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_config_names_imbue_and_its_source_labels(self) -> None:
+        config = self._module().CONFIG
+        assert config.plugin_name == "imbue"
+        assert set(config.label_colors) == {"deferred", "scope-guard", "feature-review"}
+
+    def test_only_scope_guard_context_is_enriched(self) -> None:
+        enrich = self._module()._enrich
+        assert enrich("scope-guard", "Base").startswith("Base\n\n")
+        assert "worthiness scoring" in enrich("scope-guard", "Base")
+        assert enrich("feature-review", "Base") == "Base"
+
+    def test_missing_leyline_exits_1_with_an_install_hint(self, monkeypatch, capsys):
+        monkeypatch.setitem(sys.modules, "leyline.deferred_capture", None)
+        with pytest.raises(SystemExit) as exc:
+            self._module()
+        assert exc.value.code == 1
+        assert "leyline not found" in capsys.readouterr().err

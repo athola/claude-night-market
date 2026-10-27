@@ -19,20 +19,6 @@ tools:
 - Glob
 - Grep
 skills: sanctum:pr-prep, imbue:proof-of-work
-hooks:
-  PreToolUse:
-  - matcher: Bash
-    command: "# Log quality gate executions\nif echo \"$CLAUDE_TOOL_INPUT\" | grep\
-      \ -qE \"(make|pytest|ruff|npm)\"; then\n  echo \"[pr-agent] Quality gate: $(date)\"\
-      \ >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log\nfi\n"
-    once: false
-  PostToolUse:
-  - matcher: Write
-    command: "# Track PR description generation\nif echo \"$CLAUDE_TOOL_INPUT\" |\
-      \ grep -q \"PR\\|pull\"; then\n  echo \"[pr-agent] PR description written\"\
-      \ >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log\nfi\n"
-  Stop:
-  - command: echo '[pr-agent] PR preparation completed at $(date)' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log
 escalation:
   to: opus
   hints:

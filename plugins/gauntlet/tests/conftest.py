@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import textwrap
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -167,3 +170,24 @@ def mock_urlopen_response():
     ``mock_urlopen_response(body)`` inline.
     """
     return make_urlopen_response
+
+
+def fake_git(
+    staged_files: list[str] | None, email: str = "dev@example.com"
+) -> Callable[..., subprocess.CompletedProcess[str]]:
+    """Return a ``subprocess.run`` stand-in answering the hooks' git calls.
+
+    ``staged_files=None`` makes ``git diff --cached`` fail the way a broken
+    repository does, with ``CalledProcessError``.
+    """
+
+    def run(argv: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        if argv[:3] == ["git", "diff", "--cached"]:
+            if staged_files is None:
+                raise subprocess.CalledProcessError(128, argv, "", "not a repo")
+            return subprocess.CompletedProcess(argv, 0, "\n".join(staged_files), "")
+        if argv[:3] == ["git", "config", "user.email"]:
+            return subprocess.CompletedProcess(argv, 0, email + "\n", "")
+        raise AssertionError(f"unexpected git call: {argv}")
+
+    return run

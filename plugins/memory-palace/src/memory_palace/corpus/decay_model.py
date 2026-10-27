@@ -216,10 +216,11 @@ class DecayModel:
             # Logarithmic: fast initial decay that decelerates over time.
             # Note: the half_life parameter is a scaling factor here, not
             # a true half-life (decay factor at t=half_life is ~0.59, not 0.5).
-            if days >= half_life * 4:
-                return 0.1  # Floor for very old entries
+            # The 0.1 floor is a clamp on the curve, not a cutoff by age:
+            # a cutoff at 4 half-lives dropped the factor from 0.383 to 0.1
+            # in one day.
             ratio = days / half_life
-            return 1.0 / (1.0 + math.log1p(ratio))
+            return max(0.1, 1.0 / (1.0 + math.log1p(ratio)))
 
         # Default to exponential
         return math.pow(0.5, days / half_life)
@@ -271,6 +272,20 @@ class DecayModel:
         """
         return self._validation_dates.get(entry_id)
 
+    @staticmethod
+    def _created_at(entry: dict[str, Any]) -> datetime | None:
+        """Parse the entry's ``created_at``, or None when absent or invalid."""
+        raw = entry.get("created_at")
+        if not raw:
+            return None
+        try:
+            return datetime.fromisoformat(raw)
+        except (ValueError, TypeError):
+            logger.warning(
+                "Invalid created_at for entry %s: %r", entry.get("id", ""), raw
+            )
+            return None
+
     def get_stale_entries(
         self,
         entries: list[dict[str, Any]],
@@ -279,7 +294,9 @@ class DecayModel:
         """Get entries with decay below threshold.
 
         Args:
-            entries: List of entry dicts with 'id' and 'maturity' keys
+            entries: List of entry dicts with 'id' and 'maturity' keys. An
+                entry never validated decays from its ISO 'created_at'; with
+                neither it counts as validated now and is never stale.
             threshold: Decay threshold below which entries are returned
 
         Returns:
@@ -300,7 +317,7 @@ class DecayModel:
             # Get validation date
             last_validated = self._validation_dates.get(entry_id)
             if last_validated is None:
-                last_validated = datetime.now(timezone.utc)
+                last_validated = self._created_at(entry) or datetime.now(timezone.utc)
 
             state = self.calculate_decay(
                 entry_id,

@@ -15,15 +15,20 @@ from __future__ import annotations
 # left a constant whose name contradicted its value.
 #
 # Refreshed by Skill(night-market-model-and-harness-updates).
-CLAUDE_OPUS = "claude-opus-5"
-CLAUDE_SONNET = "claude-sonnet-5"
+CLAUDE_OPUS = "claude-opus-5-5"
+CLAUDE_SONNET = "claude-sonnet-5-5"
 
-# Gemini models (served via gemini CLI)
-GEMINI_3_PRO = "gemini-3-pro"
-GEMINI_3_FLASH = "gemini-3-flash"
+# Gemini models (served via gemini CLI). Named by tier, like the Claude
+# constants. No stable 3.x Pro exists, so Pro is a preview id: watch
+# https://ai.google.dev/gemini-api/docs/deprecations for its shutdown date.
+GEMINI_PRO = "gemini-3.1-pro-preview"
+GEMINI_FLASH = "gemini-3.8-flash"
 
-# Qwen models (served via qwen CLI)
-QWEN_TURBO = "qwen-turbo"
+# Qwen models (served via qwen CLI). Under Qwen OAuth, qwen-code accepts
+# only coder-model and swaps any other --model for it with a warning
+# (QWEN_OAUTH_ALLOWED_MODELS in qwen-code's models/constants.ts).
+QWEN_CODER = "coder-model"
+# Model Studio id, valid only when qwen-code authenticates with an API key.
 QWEN_MAX = "qwen-max"
 
 # MiniMax models (served via the official mmx CLI)
@@ -32,20 +37,19 @@ MINIMAX_M3 = "MiniMax-M3"
 # Retained for callers that explicitly pin the legacy model.
 MINIMAX_M2_7 = "MiniMax-M2.7"
 
-# Meta Muse models. muse-spark-1.2 is served by the muse CLI; the Glimmer
+# Meta Muse models. Muse Spark is served by the muse CLI; the Glimmer
 # weights are Apache 2.0 and run locally, served here through ollama.
-MUSE_SPARK = "muse-spark-1.2"
+MUSE_SPARK = "muse-spark-1.3"
 MUSE_GLIMMER = "muse-glimmer:30b"
 
 # GLM models, served through ccgd / claude-glm or the glm delegation service
-# against Z.ai's Anthropic-compatible endpoint. GLM-5.2 stays defined: 5.3 was
-# still rolling out when it was added, so a caller pinning the older id is
-# making a deliberate choice rather than lagging behind.
+# against Z.ai's Anthropic-compatible endpoint. GLM-5.2 is still priced and
+# stays defined for callers that pin it.
 GLM_52 = "glm-5.2"
 GLM_53 = "glm-5.3"
 
 # Haiku fallback (used when external LLMs are unavailable)
-CLAUDE_HAIKU = "claude-haiku-4-5"
+CLAUDE_HAIKU = "claude-haiku-5-5"
 
 
 def validate_model_ids(model_ids: dict[str, str]) -> None:
@@ -72,9 +76,9 @@ validate_model_ids(
     {
         "CLAUDE_OPUS": CLAUDE_OPUS,
         "CLAUDE_SONNET": CLAUDE_SONNET,
-        "GEMINI_3_PRO": GEMINI_3_PRO,
-        "GEMINI_3_FLASH": GEMINI_3_FLASH,
-        "QWEN_TURBO": QWEN_TURBO,
+        "GEMINI_PRO": GEMINI_PRO,
+        "GEMINI_FLASH": GEMINI_FLASH,
+        "QWEN_CODER": QWEN_CODER,
         "QWEN_MAX": QWEN_MAX,
         "MINIMAX_M3_1_FLASH": MINIMAX_M3_1_FLASH,
         "MINIMAX_M3": MINIMAX_M3,

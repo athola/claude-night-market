@@ -158,7 +158,7 @@ New Information
 
 The `SemanticDeduplicator` uses FAISS cosine similarity (threshold:
 0.8) to detect near-duplicate content before storage.
-When FAISS is unavailable, it falls back to Jaccard word-set similarity.
+When FAISS or numpy is missing, importing it raises `ImportError`.
 Suppressed duplicates increment a counter rather than being stored,
 keeping the corpus dense.
 

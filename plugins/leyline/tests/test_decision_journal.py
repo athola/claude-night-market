@@ -7,6 +7,8 @@ entry append, supersession, idempotency) and the file-level apply helper
 
 from __future__ import annotations
 
+import os
+import sys
 import re
 import subprocess
 import threading
@@ -15,6 +17,7 @@ from pathlib import Path
 import pytest
 
 from leyline.decision_journal import (
+    _atomic_write,
     append_entry,
     apply_append,
     new_file_content,
@@ -305,7 +308,7 @@ def test_append_works_on_vendored_style_scaffold() -> None:
 
 
 def test_newline_in_title_does_not_inject_a_heading() -> None:
-    """C1: a newline in the title must not forge a second `## TR-` heading."""
+    """A newline in the title must not forge a second `## TR-` heading."""
     content = append_entry(
         new_file_content("tradeoffs"),
         "tradeoffs",
@@ -317,13 +320,13 @@ def test_newline_in_title_does_not_inject_a_heading() -> None:
 
 
 def test_next_id_does_not_collide_past_999() -> None:
-    """C2: IDs beyond 999 must keep incrementing, not wrap to a collision."""
+    """IDs beyond 999 must keep incrementing, not wrap to a collision."""
     content = "## TR-999:\n## TR-1000:\n"
     assert next_id(content, "TR") == "TR-1001"
 
 
 def test_options_table_escapes_pipes_in_cells() -> None:
-    """I1: a pipe in an option's pros/cons must not add a stray column."""
+    """A pipe in an option's pros/cons must not add a stray column."""
     content = append_entry(
         new_file_content("tradeoffs"),
         "tradeoffs",
@@ -339,20 +342,20 @@ def test_options_table_escapes_pipes_in_cells() -> None:
 
 
 def test_append_to_malformed_file_raises_clear_error() -> None:
-    """I2: a file missing a structural marker yields a named error, not a bare one."""
+    """A file missing a structural marker yields a named error, not a bare one."""
     broken = "# Tradeoffs\n\nno markers here\n"
     with pytest.raises(ValueError, match="malformed"):
         append_entry(broken, "tradeoffs", {"title": "X", "context": "y"})
 
 
 def test_whitespace_only_title_rejected() -> None:
-    """I4: a whitespace-only title is rejected like an empty one."""
+    """A whitespace-only title is rejected like an empty one."""
     with pytest.raises(ValueError, match="title"):
         append_entry(new_file_content("tradeoffs"), "tradeoffs", {"title": "   "})
 
 
 def test_supersede_entry_without_status_line_raises() -> None:
-    """I5: superseding a hand-edited entry that lost its Status line errors."""
+    """Superseding a hand-edited entry that lost its Status line errors."""
     content = new_file_content("tradeoffs")
     content = append_entry(content, "tradeoffs", {"title": "Old", "context": "x"})
     # Simulate a hand-edit that removed the Status line.
@@ -364,7 +367,7 @@ def test_supersede_entry_without_status_line_raises() -> None:
 
 
 def test_unicode_title_round_trips() -> None:
-    """S5: unicode titles render in both heading and index."""
+    """Unicode titles render in both heading and index."""
     content = append_entry(
         new_file_content("tradeoffs"),
         "tradeoffs",
@@ -374,7 +377,7 @@ def test_unicode_title_round_trips() -> None:
 
 
 def test_same_core_different_status_is_still_deduped() -> None:
-    """S5: the dedup key ignores volatile fields (status), so no duplicate."""
+    """The dedup key ignores volatile fields (status), so no duplicate."""
     base = {"title": "Pick Postgres", "context": "durable"}
     content = append_entry(new_file_content("tradeoffs"), "tradeoffs", dict(base))
     content2 = append_entry(content, "tradeoffs", {**base, "status": "accepted"})
@@ -506,3 +509,60 @@ class TestLockfileIsNotAWorkingTreeArtifact:
                 f"bare '.lock' pattern does not match this suffix; '*.md.lock' "
                 f"does."
             )
+
+
+def test_journal_write_flushes_to_disk_before_the_rename(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The temp file reaches disk before it replaces the target.
+
+    GIVEN a target file to replace
+    WHEN it is written atomically
+    THEN os.fsync runs on the temp file before os.replace publishes it,
+    and on the directory after, so a crash cannot lose the data or the
+    rename.
+    """
+    events: list[str] = []
+    real_fsync, real_replace = os.fsync, os.replace
+
+    def _fsync(fd: int) -> None:
+        events.append("fsync")
+        real_fsync(fd)
+
+    def _replace(src: str, dst: str) -> None:
+        events.append("replace")
+        real_replace(src, dst)
+
+    monkeypatch.setattr(os, "fsync", _fsync)
+    monkeypatch.setattr(os, "replace", _replace)
+    target = tmp_path / "journal.md"
+
+    _atomic_write(target, "entry\n")
+
+    assert events == ["fsync", "replace", "fsync"]
+
+
+def test_directory_sync_is_skipped_on_windows(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Windows cannot open a directory to fsync it.
+
+    GIVEN the platform reports win32
+    WHEN a file is written atomically
+    THEN only the temp file is synced, and the write still succeeds.
+    """
+    events: list[str] = []
+    real_fsync = os.fsync
+
+    def _fsync(fd: int) -> None:
+        events.append("fsync")
+        real_fsync(fd)
+
+    monkeypatch.setattr(os, "fsync", _fsync)
+    monkeypatch.setattr(sys, "platform", "win32")
+    target = tmp_path / "journal.md"
+
+    _atomic_write(target, "entry\n")
+
+    assert events == ["fsync"]
+    assert target.exists()

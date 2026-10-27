@@ -32,11 +32,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import shutil
 import sys
-import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -45,6 +43,9 @@ _SRC = Path(__file__).resolve().parent.parent / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
+from abstract.atomic_write import (  # noqa: E402 - import after sys.path setup
+    write_text_atomic,
+)
 from abstract.utils import get_log_directory  # noqa: E402 - import after sys.path setup
 
 # The pre hook's fallback id. Anything else means the state file was found.
@@ -144,14 +145,7 @@ def correct_file(path: Path, *, apply: bool) -> CorrectionStats:
 
 def _atomic_write(path: Path, lines: list[str]) -> None:
     """Replace ``path`` with ``lines`` without a window of partial content."""
-    fd, tmp_name = tempfile.mkstemp(dir=str(path.parent), suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            handle.write("\n".join(lines) + "\n")
-        os.replace(tmp_name, path)
-    except BaseException:
-        Path(tmp_name).unlink(missing_ok=True)
-        raise
+    write_text_atomic(path, "\n".join(lines) + "\n")
 
 
 def backup_logs(log_dir: Path) -> Path:

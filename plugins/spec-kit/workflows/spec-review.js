@@ -16,7 +16,7 @@ export const meta = {
   description:
     'Read one specification through four independent lenses and report what must be settled before planning starts',
   whenToUse:
-    'Run when a spec is drafted and before /speckit-plan. args.spec is the path; args.constitution points at the rules it must not contradict. Returns blocking gaps; it edits no spec.',
+    'Run when a spec is drafted and before /speckit-plan. args.spec is the path. args.constitution points at the rules it must not contradict. Returns blocking gaps. It edits no spec.',
   phases: [
     { title: 'Lenses', detail: 'four independent readings' },
     { title: 'Gaps', detail: 'what blocks planning' },
@@ -71,18 +71,18 @@ const LENSES = [
   {
     key: 'coverage',
     brief:
-      'Find the cases the spec does not mention: the empty input, the concurrent caller, the partial failure, the actor without permission. Report the ones whose absence would change the design.',
+      'Find the cases the spec does not mention. Examples are the empty input, the concurrent caller, the partial failure, and the actor without permission. Report the ones whose absence would change the design.',
   },
   {
     key: 'constitution',
-    brief: `Read ${constitution} and report where this spec contradicts it. A contradiction the spec does not acknowledge is blocking; one it acknowledges with a reason is a decision to record.`,
+    brief: `Read ${constitution} and report where this spec contradicts it. A contradiction the spec does not acknowledge is blocking. One it acknowledges with a reason is a decision to record.`,
   },
 ]
 
 const read = await parallel(
   LENSES.map((lens) => () =>
     agent(
-      `Read ${spec} through one lens only. ${lens.brief}\n\nMark a finding blocking when planning cannot honestly proceed without settling it. Stay inside your lens; three other readers have the rest.`,
+      `Read ${spec} through one lens only. ${lens.brief}\n\nMark a finding blocking when planning cannot honestly proceed without settling it. Stay inside your lens. Three other readers have the rest.`,
       {
         label: `read:${lens.key}`,
         phase: 'Lenses',
@@ -104,7 +104,7 @@ const findings = reports.flatMap((report) =>
 const blocking = findings.filter((finding) => finding.blocking)
 const coverage = { read: reports.map((r) => r.lens), missing }
 
-if (missing.length) log(`no reading from ${missing.join(', ')}; treat the review as partial`)
+if (missing.length) log(`no reading from ${missing.join(', ')}. Treat the review as partial`)
 
 if (!findings.length) {
   log(`${spec}: no findings from ${reports.length} of ${LENSES.length} lenses`)

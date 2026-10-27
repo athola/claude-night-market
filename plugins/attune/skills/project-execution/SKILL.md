@@ -3,7 +3,6 @@ name: project-execution
 description: Executes implementation plans with progress tracking, checkpoint validation, and quality gates. Use after planning is complete and tasks are ready to implement.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model: sonnet
 tools_allowed: all
 category: workflow
 tags: [execution, implementation, progress-tracking, quality-gates, tdd]
@@ -11,6 +10,8 @@ complexity: intermediate
 model_hint: standard
 estimated_tokens: 2100
 progressive_loading: true
+modules:
+- modules/subagent-fallback.md
 references:
 - references/mission-report.md
 role: library
@@ -158,8 +159,13 @@ the same TDD workflow below.
 The tests are the validation: a delegated implementation that fails the
 RED test is rejected exactly like a local one.
 
-If the result carries a `fallback_reason`, no external model ran.
-Report which providers were tried, then implement the task here.
+If the result's `fallback_reason` is `providers_exhausted`, no external
+model ran.
+Report which providers were tried, then hand the task to a subagent on the
+session's model, following `modules/subagent-fallback.md`.
+Take the same path when conjure is not installed and its skill cannot load.
+If the reason is `delegation_disabled`, implement the task here: the
+operator declined delegation, and a subagent is still a delegation.
 An exhausted chain is not a blocked task and does not belong in
 `docs/lessons-learned.md`.
 
@@ -244,7 +250,7 @@ Save to `.attune/execution-state.json`:
   "current_sprint": "Sprint 1",
   "current_phase": "Phase 1",
   "tasks": {
-    "TASK-001": {
+    "T001": {
       "status": "complete",
       "started_at": "2026-01-02T10:05:00Z",
       "completed_at": "2026-01-02T10:50:00Z",
@@ -252,7 +258,7 @@ Save to `.attune/execution-state.json`:
       "acceptance_criteria_met": true,
       "tests_passing": true
     },
-    "TASK-002": {
+    "T002": {
       "status": "in_progress",
       "started_at": "2026-01-02T14:00:00Z",
       "progress_percent": 60,
@@ -351,7 +357,7 @@ When blocked, apply debugging framework:
 
 **Escalation format**:
 ```markdown
-## Blocker: [TASK-XXX] - [Issue]
+## Blocker: [TNNN] - [Issue]
 
 **Symptom**: [What's happening]
 
@@ -441,8 +447,8 @@ On track? = Estimated completion <= Sprint end date
   `docs/lessons-learned.md` as an `open` entry (a clean run needs none).
 - [ ] Every task was either delegated or held back by a named Keep Local
   clause.
-- [ ] Delegated output passed the same tests a local implementation
-  would have.
+- [ ] Delegated and fallback-subagent output passed the same tests a
+  local implementation would have.
 - [ ] No subsequent phase is auto-invoked (this is the terminal phase).
 
 ## Related Skills

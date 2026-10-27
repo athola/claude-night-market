@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from atomic_file import write_text_atomic
+
 PIPELINE: dict[str, list[str]] = {
     "intake": ["parse", "validate", "prioritize"],
     "build": ["brainstorm", "specify", "blueprint", "execute"],
@@ -283,8 +285,7 @@ def save_manifest(manifest: Manifest, path: Path) -> None:
     """Save a manifest to JSON, creating parent directories as needed."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(manifest.to_dict(), f, indent=2)
+    write_text_atomic(path, json.dumps(manifest.to_dict(), indent=2))
 
 
 def load_manifest(path: Path) -> Manifest:

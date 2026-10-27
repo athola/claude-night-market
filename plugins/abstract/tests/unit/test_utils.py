@@ -58,14 +58,16 @@ class TestFindProjectRoot:
         assert result == tmp_path
 
     @pytest.mark.unit
-    def test_returns_cwd_when_no_marker_found(self, tmp_path):
+    def test_returns_cwd_when_no_marker_found(self, tmp_path, monkeypatch):
         """Returns Path.cwd() when no marker found all the way to root."""
-        # An isolated tmp_path with no markers
-        result = find_project_root(tmp_path)
-        # It will traverse up until it hits the filesystem root.
-        # For a typical tmp_path there usually won't be a marker, so
-        # it should return something (cwd or a parent directory that has one)
-        assert isinstance(result, Path)
+        start = tmp_path / "start"
+        start.mkdir()
+        elsewhere = tmp_path / "elsewhere"
+        elsewhere.mkdir()
+        monkeypatch.chdir(elsewhere)
+        result = find_project_root(start)
+        # cwd is not an ancestor of start, so only the fallback can return it
+        assert result == elsewhere.resolve()
 
 
 # ---------------------------------------------------------------------------
@@ -103,8 +105,8 @@ class TestGetLogDirectory:
         """When create=False (default), directory is not created."""
         monkeypatch.setenv("CLAUDE_HOME", str(tmp_path))
         result = get_log_directory(create=False)
-        # Directory may or may not exist; the key is no error is raised
-        assert isinstance(result, Path)
+        assert result == tmp_path / "skills" / "logs"
+        assert not result.exists()
 
 
 # ---------------------------------------------------------------------------
@@ -611,9 +613,9 @@ class TestLoadConfigWithDefaults:
 
     @pytest.mark.unit
     def test_returns_abstract_config(self, tmp_path):
-        """Returns an AbstractConfig instance."""
+        """Returns the default AbstractConfig when no config file exists."""
         result = load_config_with_defaults(project_root=tmp_path)
-        assert isinstance(result, AbstractConfig)
+        assert result == AbstractConfig()
 
     @pytest.mark.unit
     def test_loads_from_yaml_when_present(self, tmp_path):
@@ -624,7 +626,9 @@ class TestLoadConfigWithDefaults:
         config_file.write_text("debug: true\nverbose: false\n")
 
         result = load_config_with_defaults(project_root=tmp_path)
-        assert isinstance(result, AbstractConfig)
+        # debug defaults to False, so True proves the file was read
+        assert result.debug is True
+        assert result.verbose is False
 
     @pytest.mark.unit
     def test_returns_defaults_when_yaml_invalid(self, tmp_path):
@@ -634,4 +638,4 @@ class TestLoadConfigWithDefaults:
         (config_dir / "abstract_config.yaml").write_text("[invalid yaml {{")
 
         result = load_config_with_defaults(project_root=tmp_path)
-        assert isinstance(result, AbstractConfig)
+        assert result == AbstractConfig()

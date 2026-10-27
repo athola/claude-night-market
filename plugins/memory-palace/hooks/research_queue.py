@@ -57,7 +57,7 @@ RESEARCH_CUES = (
 # Redaction, not detection: anything shaped like a credential is dropped
 # before it can be written to a file that outlives the session.
 SECRET_PATTERN = re.compile(
-    r"(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}"
+    r"((?<![A-Za-z0-9])sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}"
     r"|api[_-]?key\s*[:=]\s*\S+)",
     re.IGNORECASE,
 )
@@ -140,11 +140,18 @@ def _transcript_signal(transcript_path: str) -> tuple[int, str]:
                     continue
                 content = (record.get("message") or {}).get("content")
                 kind = record.get("type")
-                if kind == "user" and not topic and not record.get("isMeta"):
+                if (
+                    kind == "user"
+                    and not topic
+                    and not record.get("isMeta")
+                    and not record.get("isCompactSummary")
+                ):
                     # isMeta marks content the harness injected rather
                     # than content the user typed: an expanded slash
                     # command, a skill body. Those are long enough to
-                    # carry a research cue by accident.
+                    # carry a research cue by accident. isCompactSummary
+                    # marks the summary /compact writes of the private
+                    # session, which must never reach a file under docs/.
                     text = _message_text(content)
                     if _is_topic(text):
                         topic = text

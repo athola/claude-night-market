@@ -30,6 +30,20 @@ from delegation_setup import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _no_real_version_probe(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Answer every provider's version probe without spawning its CLI.
+
+    The probe runs the installed binary by name, so a machine with mmx,
+    claude or ollama on PATH launched each of them once per probe.
+    """
+
+    def fake_run(cmd: list[str], **_kwargs: object) -> subprocess.CompletedProcess:
+        return subprocess.CompletedProcess(cmd, 0, stdout=f"{cmd[0]} 1.0.0\n")
+
+    monkeypatch.setattr("delegation_setup.subprocess.run", fake_run)
+
+
 class TestProbing:
     """Provider state is read from the registry, never hardcoded."""
 
@@ -65,6 +79,54 @@ class TestProbing:
         assert "glm" in rendered
         assert "claude" in rendered
         assert "muse" in rendered
+
+
+class TestVersionProbe:
+    """A CLI that cannot report its version is still installed, version unknown."""
+
+    @pytest.mark.parametrize(
+        "outcome",
+        [
+            pytest.param(OSError("exec format error"), id="cannot-exec"),
+            pytest.param(subprocess.TimeoutExpired("mmx", 5), id="hangs"),
+            pytest.param(
+                subprocess.CompletedProcess([], 2, stdout="", stderr="bad flag"),
+                id="nonzero-exit",
+            ),
+            pytest.param(subprocess.CompletedProcess([], 0, stdout=""), id="silent"),
+        ],
+    )
+    def test_an_unanswered_probe_reports_no_version(
+        self, monkeypatch: pytest.MonkeyPatch, outcome: object
+    ) -> None:
+        """Exec failure, a hang, a nonzero exit and silence all mean unknown."""
+
+        def fake_run(cmd: list[str], **_kwargs: object) -> object:
+            if isinstance(outcome, BaseException):
+                raise outcome
+            return outcome
+
+        monkeypatch.setattr("delegation_setup.shutil.which", lambda n: f"/x/{n}")
+        monkeypatch.setattr("delegation_setup.subprocess.run", fake_run)
+
+        state = probe_provider(Delegator(), "minimax")
+
+        assert state.installed is True
+        assert state.version is None
+
+    def test_the_first_line_of_stderr_is_used_when_stdout_is_empty(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Some CLIs print their version on stderr."""
+        monkeypatch.setattr("delegation_setup.shutil.which", lambda n: f"/x/{n}")
+        monkeypatch.setattr(
+            "delegation_setup.subprocess.run",
+            lambda cmd, **_k: subprocess.CompletedProcess(
+                cmd, 0, stdout="", stderr="mmx 2.4.1\nbuild abc\n"
+            ),
+        )
+
+        assert probe_provider(Delegator(), "minimax").version == "mmx 2.4.1"
 
 
 class TestInstallProvenance:
@@ -279,12 +341,21 @@ class TestCliManagedAuthIsNotOverclaimed:
     """
 
     @pytest.mark.bdd
-    def test_a_cli_managed_provider_is_reported_unknown_not_ok(self) -> None:
+    def test_a_cli_managed_provider_is_reported_unknown_not_ok(
+        self, monkeypatch
+    ) -> None:
         """GIVEN a provider whose auth lives in the CLI.
 
         WHEN the status table is rendered
         THEN its auth cell reads unknown rather than ok
         """
+        # Every provider CLI reads as installed. The claim is about how an
+        # installed cli-auth provider renders, and depending on which CLIs
+        # the machine has made it skip on every CI runner.
+        monkeypatch.setattr(
+            "delegation_setup.shutil.which",
+            lambda name: f"/usr/bin/{name}",
+        )
         delegator = Delegator()
         states = {state.name: state for state in probe_all(delegator)}
         cli_managed = [
@@ -292,14 +363,7 @@ class TestCliManagedAuthIsNotOverclaimed:
             for name, service in delegator.services.items()
             if service.auth_method == "cli" and states[name].installed
         ]
-        if not cli_managed:
-            # The claim under test is about how an *installed* cli-auth
-            # provider is rendered, so there is nothing to render without
-            # one. This was a bare assert, which made the test a function
-            # of which CLIs the machine happened to have: green on a
-            # developer box with mmx, red on every CI runner and on any
-            # contributor who had not installed it.
-            pytest.skip("no installed cli-auth provider on this machine")
+        assert cli_managed, "the registry no longer has a cli-auth provider"
 
         rendered = render_status(probe_all(delegator))
         for name in cli_managed:
@@ -405,6 +469,10 @@ class TestCliManagedAuthIsNotOverclaimed:
         WHEN the status table is rendered
         THEN it still reads ok, because that check really ran
         """
+        monkeypatch.setattr(
+            "delegation_setup.shutil.which",
+            lambda name: f"/usr/bin/{name}",
+        )
         delegator = Delegator()
         for service in delegator.services.values():
             if service.auth_method == "api_key" and service.auth_env_var:
@@ -415,29 +483,25 @@ class TestCliManagedAuthIsNotOverclaimed:
             for name, service in delegator.services.items()
             if service.auth_method == "api_key" and states[name].installed
         ]
-        if not checked:
-            # Same machine dependence as the two cli-auth tests above: the
-            # claim is about how an installed api_key provider renders, so
-            # a runner with no provider CLI has nothing to assert against.
-            pytest.skip("no installed api_key provider on this machine")
+        assert checked, "the registry no longer has an api_key provider"
 
         for name in checked:
             assert states[name].authenticated is True
 
     @pytest.mark.bdd
-    def test_doctor_names_the_verified_login_command(self) -> None:
+    def test_doctor_names_the_verified_login_command(self, monkeypatch) -> None:
         """GIVEN a cli-auth provider with a recorded login command.
 
         WHEN doctor explains it
         THEN the recorded command appears, and none is invented
         """
+        # doctor only names a login command for a provider it found, so
+        # mmx must read as installed whatever this machine has.
+        monkeypatch.setattr(
+            "delegation_setup.shutil.which",
+            lambda name: f"/usr/bin/{name}",
+        )
         delegator = Delegator()
-        states = {state.name: state for state in probe_all(delegator)}
-        if not states["minimax"].installed:
-            # doctor only names a login command for a provider it found,
-            # so this asserts nothing when mmx is absent. Same machine
-            # dependence as the status-table test above.
-            pytest.skip("mmx is not installed on this machine")
 
         lines = "\n".join(doctor_lines(probe_all(delegator)))
         assert "mmx auth login" in lines

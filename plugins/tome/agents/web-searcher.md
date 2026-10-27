@@ -12,6 +12,8 @@ tools:
   - Read
 model: haiku
 effort: low
+omitClaudeMd: true
+maxTurns: 25
 ---
 
 You are a web research agent. Your job is to find the pages

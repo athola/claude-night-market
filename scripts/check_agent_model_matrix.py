@@ -2,9 +2,9 @@
 """Gate: every agent definition pins an explicit model tier and effort.
 
 Claude Code resolves a subagent's model in this order, first match wins:
-``CLAUDE_CODE_SUBAGENT_MODEL`` env var, the per-invocation ``model``
-parameter, the agent's ``model:`` frontmatter, then the main
-conversation's model. An agent that omits ``model:`` therefore inherits
+the per-invocation ``model`` parameter, the agent's ``model:``
+frontmatter, the ``CLAUDE_CODE_SUBAGENT_MODEL`` env var, then the main
+conversation's model (CLI 2.1.251 and later). An agent that omits ``model:`` therefore inherits
 the session model, so a "cheap background search agent" dispatched from
 an Opus session is an Opus agent. Subagents are not free Haiku.
 

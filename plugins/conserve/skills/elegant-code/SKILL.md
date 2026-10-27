@@ -61,12 +61,42 @@ does not hold. Stop at the first rung that solves the problem.
 | # | Rung | Ask | Stop here when | Example |
 |---|------|-----|----------------|---------|
 | 1 | Need-to-exist | Does this need to exist at all? | The requirement is speculative or already met. Delete or defer. | "Config loader for a value used once" -> inline the value |
-| 2 | Builtin / stdlib | Can a language builtin or the standard library do it? | The stdlib covers it. | `str.zfill`, `f"{n:05d}"`, `pathlib`, `itertools` |
-| 3 | Native platform | Is there a native platform or framework feature? | The platform already ships it. | `URLSession` retry, `fetch`, framework validators |
-| 4 | Installed dependency | Is an already-installed, audited dependency enough? | A dep in the lockfile covers it. | reuse `requests`/`urllib3` backoff before adding `tenacity` |
-| 5 | A few lines | Can it be one line or a small explicit block? | A short, obvious block solves it. | a 20-line retry loop over a retry framework |
+| 2 | Already in this repo | Does this codebase already do this somewhere? | A helper, module or convention here covers it. Reuse it. | an existing `estimate_tokens` before writing another |
+| 3 | Builtin / stdlib | Can a language builtin or the standard library do it? | The stdlib covers it. | `str.zfill`, `f"{n:05d}"`, `pathlib`, `itertools` |
+| 4 | Native platform | Is there a native platform or framework feature? | The platform already ships it. | `URLSession` retry, `fetch`, framework validators |
+| 5 | Installed dependency | Is an already-installed, audited dependency enough? | A dep in the lockfile covers it. | reuse `requests`/`urllib3` backoff before adding `tenacity` |
+| 6 | A few lines | Can it be one line or a small explicit block? | A short, obvious block solves it. | a 20-line retry loop over a retry framework |
 
-A *new* dependency is the last resort, below rung 5, not rung 4.
+### Rung 2: one model per concern
+
+Search before writing: `rg` for the function, the concept and its
+likely names. Rung 2 sits above the stdlib because a second way of
+doing something the codebase already does is a redundant model. Each
+one is locally valid, and every later change must translate between
+them. Measured agent adoption leaves complexity raised after the
+velocity gain fades (`docs/knowledge-corpus/decoherence.md`).
+
+- Reuse the model the codebase already uses for the concern, even when
+  the stdlib offers a shorter spelling.
+- Before reusing it, name what rungs 3 to 5 would do for the concern
+  (stdlib, native platform, installed dependency) and compare the
+  contracts. The same contract in a different spelling is reused as it
+  is. A contract that differs with a recorded reason is reused, and the
+  reuse cites that reason. A contract that differs with no recorded
+  reason is raised with both models named before it spreads to new
+  code. A departure is an input the two handle differently: a copied
+  version key in minister ranked `1.10.1-rc1` below `1.10.0`.
+- When a migration is in flight, new code uses the target pattern.
+  Never copy the superseded variant, even when it is the majority of
+  call sites.
+- An addition that gives a concern a second implementation either
+  retires the first in the same change or records why both must stand
+  (in the commit body, or the module docstring when it must outlive
+  the commit).
+- When the existing model is wrong for the case, say so and ask. Do
+  not quietly start a parallel one.
+
+A *new* dependency is the last resort, below rung 6.
 Before adding one, verify it actually exists and is safe with
 `Skill(imbue:dependency-verification)`: generated code imports
 non-existent packages at measurable rates, and recurring fake
@@ -179,7 +209,7 @@ negligence floor before deleting anything.
 
 | Skill | Relationship |
 |-------|--------------|
-| `imbue:dependency-verification` | Rung 4/new-dep gate: confirm a package exists before adding it |
+| `imbue:dependency-verification` | Rung 5/new-dep gate: confirm a package exists before adding it |
 | `leyline:additive-bias-defense` | Review-side burden-of-proof contract this skill generates against |
 | `conserve:code-quality-principles` | KISS/YAGNI principles this ladder operationalizes pre-code |
 | `conserve:unbloat` | Whole-codebase cleanup (this skill is per-change) |
@@ -192,7 +222,11 @@ the current working diff.
 ## Exit Criteria
 
 - [ ] Each addition was walked down the ladder, and the chosen
-      rung is stated (for example, "rung 2: stdlib `zfill`").
+      rung is stated (for example, "rung 3: stdlib `zfill`").
+- [ ] Each addition names the existing model it reused and the
+      standard it matches or departs from, or the search that found
+      none. A second model of a concern carries its
+      retirement of the first, or the recorded reason both stand.
 - [ ] Any new dependency passed `Skill(imbue:dependency-verification)`
       and reuse of an installed dependency was ruled out first.
 - [ ] Every untrusted input has its negligence-floor guard present

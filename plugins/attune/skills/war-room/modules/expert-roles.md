@@ -87,11 +87,10 @@ war-room expert calls it without `skip_permissions`: it answers through
 |--------|---------|-------|-----------|----------|
 | Opus | Standard | Slow | Highest | Final synthesis, complex reasoning |
 | Sonnet | Standard | Medium | High | Strategy, analysis |
-| Gemini Pro | 1M+ | Medium | High | Large codebase analysis |
+| Gemini 3.1 Pro | 1M | Medium | High | Large codebase analysis |
 | GLM-5.3 | Standard | Medium | High | Implementation details |
-| Qwen Turbo | Standard | Fast | Medium | Quick data gathering |
-| Gemini Flash | Standard | Fast | Medium | Rapid challenges |
-| Qwen Max | Standard | Medium | Medium-High | Thorough estimation |
+| Gemini 3.8 Flash | 1M | Fast | Medium | Rapid challenges |
+| Qwen `coder-model` | Standard | Medium | Medium-High | Data gathering and estimation |
 
 ## Phase-to-Expert Mapping
 

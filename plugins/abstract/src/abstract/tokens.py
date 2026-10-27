@@ -14,19 +14,26 @@ from __future__ import annotations
 import re
 import sys
 import warnings
-from pathlib import Path
 
+from ._vendored_leyline_sibling_plugins import add_sibling_src_to_path
 from .frontmatter import FrontmatterProcessor
 
-# Try to delegate basic text→token estimation to leyline
-_LEYLINE_SRC = Path(__file__).resolve().parents[3] / "leyline" / "src"
-sys.path.insert(0, str(_LEYLINE_SRC))
+# One estimator for every install state: leyline's when importable (found
+# beside this plugin in the repo or in the versioned install cache), else a
+# generated copy of the same module, so counts never depend on what is installed.
+# The sibling path is visible only during the import so that importing this
+# module does not reorder sys.path for the rest of the process.
+_LEYLINE_SRC = add_sibling_src_to_path(__file__, "leyline")
 try:
     from leyline.tokens import estimate_tokens as _leyline_estimate_tokens
 
     _HAS_LEYLINE = True
-except ImportError:  # pragma: no cover - optional peer dependency
+except ImportError:  # optional peer dependency
+    from ._vendored_leyline_tokens import estimate_tokens as _leyline_estimate_tokens
+
     _HAS_LEYLINE = False
+finally:
+    sys.path.remove(str(_LEYLINE_SRC))
 
 # Constants for token estimation
 CHARS_PER_TOKEN = 4
@@ -40,8 +47,8 @@ def estimate_text_tokens(text: str) -> int:
     Simple token estimation without content-type adjustments.
     Use this for quick estimates or when content type doesn't matter.
 
-    Delegates to leyline's estimator when available so both plugins
-    share a single base estimation implementation.
+    Uses leyline's estimator when importable and a generated copy of it
+    otherwise, so the count is the same either way.
 
     Named ``estimate_text_tokens`` to avoid collision with
     ``leyline.tokens.estimate_tokens(files, prompt)`` which has an
@@ -60,13 +67,9 @@ def estimate_text_tokens(text: str) -> int:
     """
     if not text:
         return 0
-    if _HAS_LEYLINE:
-        # leyline.tokens.estimate_tokens accepts (files, prompt); pass the
-        # text as the prompt with no files for a pure-text estimate. Wrap in
-        # int() so the return type is concrete when leyline is an optional
-        # peer and mypy treats it as Any via ignore_missing_imports.
-        return int(_leyline_estimate_tokens([], text))
-    return TokenAnalyzer.analyze_content(text)["total_tokens"]
+    # estimate_tokens accepts (files, prompt); pass the text as the prompt
+    # with no files for a pure-text estimate.
+    return int(_leyline_estimate_tokens([], text))
 
 
 def estimate_tokens(text: str) -> int:

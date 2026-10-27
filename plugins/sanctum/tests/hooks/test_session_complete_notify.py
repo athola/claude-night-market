@@ -9,8 +9,11 @@ detection, all with mocked subprocess calls (no real notifications).
 from __future__ import annotations
 
 import json
+import platform
+import runpy
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -29,6 +32,8 @@ from session_complete_notify import (
     run_notification,
     send_notification,
 )
+
+HOOK_PATH = Path(mod.__file__).resolve()
 
 # ---------------------------------------------------------------------------
 # 1. Platform detection: send_notification() routes to the right command
@@ -408,88 +413,120 @@ class TestNotificationStateLoadSaveRoundtrip:
 class TestMainBlockArgumentParsing:
     """Test the if __name__ == '__main__' argument parsing logic.
 
-    Uses runpy.run_path to re-execute the module file so the
-    ``if __name__ == '__main__'`` block actually runs with patched
-    sys.argv and patched callables.
+    Uses runpy.run_path to execute the hook file as ``__main__``, so the
+    dispatch under test is the one in the hook, not a copy of it. Only the
+    outside world is faked: the state directory, the platform, and the
+    notify-send and background-process launches.
     """
 
     @staticmethod
-    def _run_main_block(
-        argv: list[str],
-        patches: dict[str, MagicMock] | None = None,
-    ) -> dict[str, MagicMock]:
-        """Execute the __main__ block with the given argv.
+    def _run_as_script(
+        argv: list[str], monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> dict[str, list]:
+        """Run the hook as a script and return the processes it launched."""
+        launched: dict[str, list] = {"run": [], "popen": []}
+        state_dir = tmp_path / "state"
+        state_dir.mkdir()
+        project = tmp_path / "project"
+        project.mkdir()
 
-        Returns the dict of patch mocks so callers can assert on them.
-        """
-        patches = patches or {}
-        with patch.object(sys, "argv", argv):
-            # Re-execute the module-level __main__ guard
-            # by replaying the conditional from the source
-            if len(sys.argv) > 1:
-                if sys.argv[1] == "--clear-state":
-                    mod.clear_notification_state()
-                elif (
-                    sys.argv[1] == "--background"
-                    and len(sys.argv) >= mod.BACKGROUND_MODE_ARG_COUNT
-                ):
-                    mod.run_notification(session_id=sys.argv[2], cwd=sys.argv[3])
-                elif sys.argv[1] == "--background":
-                    mod.run_notification(
-                        session_id=mod.get_session_id(),
-                        cwd=mod.os.getcwd(),
-                    )
-            else:
-                mod.main()
-        return patches
-
-    @pytest.mark.integration
-    def test_clear_state_arg_calls_clear(self) -> None:
-        """--clear-state invokes clear_notification_state()."""
-        with patch("session_complete_notify.clear_notification_state") as mock_clear:
-            self._run_main_block(["script.py", "--clear-state"])
-
-        mock_clear.assert_called_once()
-
-    @pytest.mark.integration
-    def test_background_with_session_and_cwd(self, tmp_path: Path) -> None:
-        """--background session_id cwd invokes run_notification() with
-        the provided session_id and cwd.
-        """
-        with patch("session_complete_notify.run_notification") as mock_run:
-            self._run_main_block(
-                ["script.py", "--background", "my_session", str(tmp_path)]
-            )
-
-        mock_run.assert_called_once_with(session_id="my_session", cwd=str(tmp_path))
-
-    @pytest.mark.integration
-    def test_background_legacy_fallback(self) -> None:
-        """--background without session_id/cwd uses get_session_id()
-        and os.getcwd() as fallback.
-        """
-        with (
-            patch("session_complete_notify.run_notification") as mock_run,
-            patch(
-                "session_complete_notify.get_session_id",
-                return_value="fallback_id",
-            ),
-            patch(
-                "session_complete_notify.os.getcwd",
-                return_value="/fallback/cwd",
-            ),
+        for var in (
+            "ZELLIJ_SESSION_NAME",
+            "TMUX",
+            "SSH_TTY",
+            "TTY",
+            "GPG_TTY",
+            "TERM_PROGRAM",
+            "CLAUDE_NO_NOTIFICATIONS",
         ):
-            self._run_main_block(["script.py", "--background"])
+            monkeypatch.delenv(var, raising=False)
+        monkeypatch.setenv("PPID", "4242")
+        monkeypatch.setattr(tempfile, "tempdir", str(state_dir))
+        monkeypatch.setattr(platform, "system", lambda: "Linux")
+        monkeypatch.setattr(platform, "release", lambda: "6.1.0-generic")
+        monkeypatch.setattr(
+            subprocess,
+            "run",
+            lambda cmd, **_kw: (
+                launched["run"].append(cmd),
+                subprocess.CompletedProcess(cmd, 0),
+            )[1],
+        )
+        monkeypatch.setattr(
+            subprocess, "Popen", lambda cmd, **_kw: launched["popen"].append(cmd)
+        )
+        monkeypatch.chdir(project)
+        monkeypatch.setattr(sys, "argv", argv)
 
-        mock_run.assert_called_once_with(session_id="fallback_id", cwd="/fallback/cwd")
+        try:
+            runpy.run_path(str(HOOK_PATH), run_name="__main__")
+        except SystemExit as exc:
+            assert exc.code == 0
+        return launched
+
+    @staticmethod
+    def _state(tmp_path: Path, session_id: str) -> dict:
+        state_file = tmp_path / "state" / f".claude-notify-{session_id}.json"
+        return json.loads(state_file.read_text())
 
     @pytest.mark.integration
-    def test_no_args_calls_main(self) -> None:
-        """No arguments invokes main()."""
-        with patch("session_complete_notify.main") as mock_main:
-            self._run_main_block(["script.py"])
+    def test_clear_state_arg_calls_clear(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """--clear-state saves the session state with the input flag cleared."""
+        launched = self._run_as_script(
+            ["script.py", "--clear-state"], monkeypatch, tmp_path
+        )
 
-        mock_main.assert_called_once()
+        state = self._state(tmp_path, "term_4242_project")
+        assert state["notified_since_input"] is False
+        assert launched == {"run": [], "popen": []}
+
+    @pytest.mark.integration
+    def test_background_with_session_and_cwd(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """--background session_id cwd notifies and records that session."""
+        launched = self._run_as_script(
+            ["script.py", "--background", "my_session", str(tmp_path)],
+            monkeypatch,
+            tmp_path,
+        )
+
+        assert len(launched["run"]) == 1
+        assert launched["run"][0][-1].endswith(tmp_path.name)
+        assert self._state(tmp_path, "my_session")["notified_since_input"] is True
+
+    @pytest.mark.integration
+    def test_background_legacy_fallback(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """--background without session_id/cwd derives both from the terminal."""
+        launched = self._run_as_script(
+            ["script.py", "--background"], monkeypatch, tmp_path
+        )
+
+        assert launched["run"][0][-1] == "Awaiting input in: project"
+        state = self._state(tmp_path, "term_4242_project")
+        assert state["notified_since_input"] is True
+
+    @pytest.mark.integration
+    def test_no_args_calls_main(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """No arguments relaunches the hook in the background and exits 0."""
+        launched = self._run_as_script(["script.py"], monkeypatch, tmp_path)
+
+        assert launched["popen"] == [
+            [
+                sys.executable,
+                str(HOOK_PATH),
+                "--background",
+                "term_4242_project",
+                str(tmp_path / "project"),
+            ]
+        ]
+        assert launched["run"] == []
 
     @pytest.mark.integration
     def test_clear_notification_state_silences_os_errors(
@@ -881,6 +918,7 @@ class TestRunNotificationIntegration:
             run_notification("fresh_session", str(tmp_path))
 
         mock_send.assert_called_once()
+        assert json.loads(state_file.read_text())["notified_since_input"] is True
 
     @pytest.mark.integration
     def test_second_call_is_deduplicated(self, tmp_path: Path) -> None:
@@ -1038,6 +1076,17 @@ class TestWindowsBurntToastFallback:
         # Second call should contain BurntToast command
         second_call_cmd = mock_run.call_args_list[1][0][0]
         assert "BurntToast" in second_call_cmd[3]
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("quote", ["\u201c", "\u201d", "\u201e"])
+    def test_burnttoast_escapes_curly_double_quotes(self, quote: str) -> None:
+        """PowerShell ends a double-quoted string on a curly quote too."""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mod._try_burnt_toast(f"a{quote}; calc; {quote}b", "msg", ["powershell"])
+
+        burnt_cmd = mock_run.call_args[0][0][3]
+        assert burnt_cmd.count(quote) == 2
+        assert burnt_cmd.count("`" + quote) == 2
 
     @pytest.mark.integration
     def test_windows_returns_false_when_both_fail(self) -> None:

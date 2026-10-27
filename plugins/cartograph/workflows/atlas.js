@@ -13,7 +13,7 @@ export const meta = {
   description:
     'Generate the architecture, dependency, data-flow and community diagrams of one codebase in parallel and report where they disagree',
   whenToUse:
-    'Run when onboarding to an unfamiliar codebase or documenting one for others. args.root is the directory to map; args.lenses narrows the set. Returns Mermaid sources plus the disagreements between lenses.',
+    'Run when onboarding to an unfamiliar codebase or documenting one for others. args.root is the directory to map. args.lenses narrows the set. Returns Mermaid sources plus the disagreements between lenses.',
   phases: [
     { title: 'Lenses', detail: 'one agent per diagram type' },
     { title: 'Reconcile', detail: 'report what the lenses disagree about' },
@@ -67,7 +67,7 @@ const produced = drawn.filter(Boolean)
 if (missing.length) log(`no diagram from ${missing.join(', ')}`)
 
 if (produced.length < 2) {
-  log(`only ${produced.length} lens produced a diagram; nothing to reconcile`)
+  log(`only ${produced.length} lens produced a diagram. Nothing to reconcile`)
   return { root, diagrams: produced, disagreements: null, missing }
 }
 
@@ -97,7 +97,7 @@ const inventory = produced
   .join('\n')
 
 const disagreements = await agent(
-  `These lenses mapped the same codebase and included different things. Report where they disagree and what each disagreement means.\n\n${inventory}\n\nA module one lens treats as central and another omits is the finding worth reporting. A module absent from every lens is probably dead. Do not smooth the differences into a summary; name them.`,
+  `These lenses mapped the same codebase and included different things. Report where they disagree and what each disagreement means.\n\n${inventory}\n\nA module one lens treats as central and another omits is the finding worth reporting. A module absent from every lens is probably dead. Do not smooth the differences into a summary. Name them.`,
   { label: 'reconcile', phase: 'Reconcile', schema: DISAGREEMENTS },
 )
 

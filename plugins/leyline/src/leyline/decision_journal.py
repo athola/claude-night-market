@@ -25,6 +25,7 @@ import hashlib
 import json
 import os
 import re
+import sys
 import tempfile
 from collections.abc import Iterator
 from datetime import datetime, timezone
@@ -471,11 +472,29 @@ def _atomic_write(path: Path, content: str) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
         os.replace(tmp_name, path)
     except Exception:
         with contextlib.suppress(OSError):
             os.unlink(tmp_name)
         raise
+    _fsync_directory(path.parent)
+
+
+def _fsync_directory(directory: str | os.PathLike[str]) -> None:
+    """Sync ``directory`` so a rename inside it survives a crash.
+
+    Windows cannot open a directory for fsync, and NTFS journals
+    metadata changes such as a rename. The sync is skipped there.
+    """
+    if sys.platform == "win32":
+        return
+    fd = os.open(directory, os.O_RDONLY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
 
 
 def apply_append(

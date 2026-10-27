@@ -1,6 +1,7 @@
 """Tests for delegation_executor.py following TDD/BDD principles."""
 
 import json
+import logging
 import os
 import re
 import shlex
@@ -9,6 +10,7 @@ import subprocess
 # Import the module under test
 import sys
 from dataclasses import replace
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
 
@@ -29,6 +31,8 @@ from delegation_executor import (
     estimate_tokens,
     main,
 )
+
+from tests.scripts._writer_race import race_two_writers
 
 # Constants for magic values
 DEFAULT_TEST_DURATION = 1.5
@@ -501,13 +505,17 @@ class TestDelegator:
         """
         delegator = Delegator(config_dir=temp_config_dir)
 
-        options = {"model": "gemini-3-pro", "output_format": "json", "temperature": 0.7}
+        options = {
+            "model": "gemini-3.1-pro-preview",
+            "output_format": "json",
+            "temperature": 0.7,
+        }
 
         command = delegator.build_command("gemini", "test prompt", options=options)
 
         assert "gemini" in command
         assert "--model" in command
-        assert "gemini-3-pro" in command
+        assert "gemini-3.1-pro-preview" in command
         assert "--output-format" in command
         assert "json" in command
         # Passed but not emitted: gemini rejects --temperature outright, so
@@ -751,6 +759,7 @@ class TestDelegatorCli:
             service="gemini",
         )
         mock_delegator.execute.return_value = mock_result
+        mock_delegator.services = {"gemini": object()}
         mock_delegator_class.return_value = mock_delegator
 
         with patch("builtins.print"):
@@ -1479,3 +1488,144 @@ class TestThePublicSurfaceIsPublic:
         private = [name for name in delegation_executor.__all__ if name.startswith("_")]
 
         assert private == []
+
+
+class TestDelegationUsageLogRotation:
+    """The delegation usage log rotates to one backup instead of growing forever."""
+
+    @staticmethod
+    def _result(success: bool = True) -> ExecutionResult:
+        return ExecutionResult(
+            success=success, stdout="", stderr="", exit_code=0, duration=1.0
+        )
+
+    @staticmethod
+    def _entry(service: str) -> str:
+        return (
+            json.dumps(
+                {
+                    "timestamp": datetime.now().isoformat(),
+                    "service": service,
+                    "success": True,
+                    "duration": 1.0,
+                    "tokens_used": 5,
+                }
+            )
+            + "\n"
+        )
+
+    @pytest.mark.unit
+    def test_log_usage_rotates_when_log_reaches_max_bytes(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A full log moves to usage.jsonl.1 and the new entry starts a fresh log."""
+        monkeypatch.setattr("delegation_executor.MAX_USAGE_LOG_BYTES", 100)
+        delegator = Delegator(config_dir=tmp_path)
+        old = "x" * 120 + "\n"
+        delegator.usage_log.write_text(old)
+
+        delegator.log_usage("gemini", ["gemini", "-p", "hi"], self._result())
+
+        assert (tmp_path / "usage.jsonl.1").read_text() == old
+        lines = delegator.usage_log.read_text().splitlines()
+        assert [json.loads(line)["service"] for line in lines] == ["gemini"]
+
+    @pytest.mark.unit
+    def test_log_usage_still_appends_the_entry_when_rotation_fails(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """A failed rotate keeps the oversized log and still records the call."""
+        monkeypatch.setattr("delegation_executor.MAX_USAGE_LOG_BYTES", 100)
+        delegator = Delegator(config_dir=tmp_path)
+        old = "x" * 120 + "\n"
+        delegator.usage_log.write_text(old)
+        # A non-empty directory at the backup path makes the rename fail.
+        (tmp_path / "usage.jsonl.1").mkdir()
+        (tmp_path / "usage.jsonl.1" / "keep").write_text("")
+
+        with caplog.at_level(logging.WARNING, logger="delegation_executor"):
+            delegator.log_usage("gemini", ["gemini", "-p", "hi"], self._result())
+
+        lines = delegator.usage_log.read_text().splitlines()
+        assert lines[0] == old.strip()
+        assert json.loads(lines[1])["service"] == "gemini"
+        assert "rotate" in caplog.text
+
+    @pytest.mark.unit
+    def test_log_usage_appends_below_max_bytes(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Under the limit entries append and no backup appears."""
+        monkeypatch.setattr("delegation_executor.MAX_USAGE_LOG_BYTES", 10_000)
+        delegator = Delegator(config_dir=tmp_path)
+        delegator.log_usage("gemini", ["gemini"], self._result())
+        delegator.log_usage("qwen", ["qwen"], self._result())
+
+        assert len(delegator.usage_log.read_text().splitlines()) == 2
+        assert not (tmp_path / "usage.jsonl.1").exists()
+
+    @pytest.mark.unit
+    def test_concurrent_writers_rotate_once_and_keep_the_full_backup(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Two processes that both find the log full must rotate it once."""
+        monkeypatch.setattr("delegation_executor.MAX_USAGE_LOG_BYTES", 1000)
+        first = Delegator(config_dir=tmp_path)
+        second = Delegator(config_dir=tmp_path)
+        # Over the limit, while one appended entry stays under it.
+        full = "x" * 1100 + "\n"
+        first.usage_log.write_text(full)
+
+        errors = race_two_writers(
+            monkeypatch,
+            first.usage_log,
+            lambda: first.log_usage("gemini", ["gemini"], self._result()),
+            lambda: second.log_usage("qwen", ["qwen"], self._result()),
+        )
+
+        assert errors == []
+        assert (tmp_path / "usage.jsonl.1").read_text() == full
+        live = [json.loads(line)["service"] for line in first.usage_log.open()]
+        assert sorted(live) == ["gemini", "qwen"]
+
+    @pytest.mark.unit
+    def test_usage_summary_counts_entries_across_a_rotation(
+        self, tmp_path: Path
+    ) -> None:
+        """The summary window reads the backup as well as the live log."""
+        delegator = Delegator(config_dir=tmp_path)
+        (tmp_path / "usage.jsonl.1").write_text(self._entry("gemini"))
+        delegator.usage_log.write_text(self._entry("qwen") + self._entry("qwen"))
+
+        summary = delegator.get_usage_summary(days=7)
+
+        assert summary["total_requests"] == 3
+        assert summary["services"]["gemini"]["requests"] == 1
+
+
+def test_delegation_cli_rejects_an_unknown_service(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Naming a service that is not configured exits 1 with a pointer to the list.
+
+    GIVEN a delegator with its built-in services
+    WHEN the CLI is asked to run a service called "nosuchservice"
+    THEN it exits 1 AND stderr names the service and --list-services.
+    """
+    argv = ["delegation_executor.py", "nosuchservice", "hello"]
+
+    with (
+        patch("pathlib.Path.home", return_value=tmp_path),
+        patch("sys.argv", argv),
+        pytest.raises(SystemExit) as exc_info,
+    ):
+        main()
+
+    assert exc_info.value.code == 1
+    assert (
+        "Unknown service: nosuchservice (see --list-services)"
+        in capsys.readouterr().err
+    )

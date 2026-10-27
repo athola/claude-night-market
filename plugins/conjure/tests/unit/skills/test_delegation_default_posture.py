@@ -134,7 +134,7 @@ def test_each_orchestrator_carries_the_posture(path: Path, anchor: str) -> None:
 @pytest.mark.parametrize(
     ("path", "anchor"),
     [
-        (MISSION, "do the task in the mission itself"),
+        (MISSION, "hand the task to a subagent"),
         (EXECUTION, "fallback_reason"),
         (SUMMON, "not a step failure"),
     ],
@@ -213,3 +213,19 @@ def test_onboarding_warns_that_unknown_is_not_authenticated() -> None:
 
     assert "`unknown` is not `ok`" in text
     assert "exits 0 with nothing" in text
+
+
+@pytest.mark.bdd
+def test_egregore_names_the_subagent_fallback() -> None:
+    """GIVEN egregore's execute step runs attune:project-execution.
+
+    WHEN that skill meets providers_exhausted
+    THEN summon describes the subagent it now dispatches
+
+    The step inherits the attune fallback, and "completes the work
+    locally" told the orchestrator to expect inline work it no longer gets.
+    """
+    text = " ".join(SUMMON.read_text().split())
+
+    assert "completes the work locally" not in text
+    assert "subagent-fallback.md" in text

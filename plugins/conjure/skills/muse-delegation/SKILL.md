@@ -48,8 +48,6 @@ the documented install is a script served from Meta's own domain.
 ## When NOT To Use
 
 - `META_API_KEY` is unset and the run cannot be interactive
-- A specific model must be selected. Meta documents no `--model` flag
-  for `exec`, so the CLI default stands
 - Structured output is required. No output-format flag is documented
   for `exec`
 
@@ -108,8 +106,11 @@ muse exec "Explain the retry logic in this package"
 
 `muse` declares the strengths `code_execution` and `large_context`,
 and ranks behind gemini, qwen, minimax and glm in the candidate order.
-It declares no model ids, so `smart_delegate` leaves model selection
-to the CLI rather than passing a flag Meta does not document.
+It declares `muse-spark-1.3` as its default and passes it with
+`--model`, because Muse Code's own default is `muse-spark-1.2`
+([configuration](https://dev.meta.ai/docs/muse-code/configuration)).
+Meta recommends 1.3 for new work and gives it a 1,048,576-token
+context ([models](https://dev.meta.ai/docs/models)).
 
 ## Muse-Specific Details
 
@@ -118,6 +119,7 @@ to the CLI rather than passing a flag Meta does not document.
 | Binary | `muse` |
 | Headless form | `muse exec <prompt>` |
 | Prompt delivery | positional, no flag |
+| Default model | `muse-spark-1.3` |
 | Version probe | `muse --version` |
 | Auth probe | none published |
 | Auth | `META_API_KEY` |

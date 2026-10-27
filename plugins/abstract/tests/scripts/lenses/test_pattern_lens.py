@@ -64,8 +64,10 @@ def test_shared_friction_pattern_detected():
     }
     ctx = _ctx(metrics=metrics)
     findings = analyze(ctx)
-    # At least detects shared friction
-    [f for f in findings if f.type == "Pattern"]
-    # May or may not detect depending on similarity threshold
-    # Just verify no crash
-    assert isinstance(findings, list)
+    # Both strings reduce to the same terms {too, verbose, output}, so the
+    # Jaccard overlap is 1.0 and the two skills form one friction group.
+    assert len(findings) == 1
+    assert findings[0].type == "Pattern"
+    assert findings[0].severity == "medium"
+    assert "Affected skills: a:one, b:two" in findings[0].evidence
+    assert findings[0].summary.startswith("2 skills share friction")

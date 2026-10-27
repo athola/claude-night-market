@@ -16,7 +16,7 @@ export const meta = {
   description:
     'Judge one completion claim through three independent lenses and report the verdict with any dissent',
   whenToUse:
-    'Run when a completion claim carries real cost if wrong, such as ending an unattended run. args.claim is what was claimed; args.evidence is what was offered. Returns a verdict and every dissenting opinion.',
+    'Run when a completion claim carries real cost if wrong, such as ending an unattended run. args.claim is what was claimed. args.evidence is what was offered. Returns a verdict and every dissenting opinion.',
   phases: [{ title: 'Judge', detail: 'three lenses, no shared reasoning' }],
 }
 
@@ -66,7 +66,7 @@ const LENSES = [
 const judged = await parallel(
   LENSES.map((lens) => () =>
     agent(
-      `Judge one completion claim through a single lens. ${lens.brief}\n\nClaim: ${claim}\n\nEvidence offered:\n${evidence}\n\nDo not weigh the other lenses; another judge has them. Answer complete=false when your lens is not satisfied, even if the work looks good on other grounds.`,
+      `Judge one completion claim through a single lens. ${lens.brief}\n\nClaim: ${claim}\n\nEvidence offered:\n${evidence}\n\nDo not weigh the other lenses. Another judge has them. Answer complete=false when your lens is not satisfied, even if the work looks good on other grounds.`,
       { label: `judge:${lens.key}`, phase: 'Judge', schema: VERDICT },
     ),
   ),

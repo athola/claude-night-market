@@ -43,13 +43,11 @@ The Knowledge Locator provides efficient information retrieval across your memor
 ```bash
 python scripts/memory_palace_cli.py search "authentication" --type semantic
 ```
-**Verification:** Run `python --version` to verify Python environment.
 
 ### List All Palaces
 ```bash
 python scripts/memory_palace_cli.py list
 ```
-**Verification:** Run `python --version` to verify Python environment.
 
 ## When To Use
 

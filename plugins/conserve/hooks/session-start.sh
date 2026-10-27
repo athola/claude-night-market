@@ -8,7 +8,7 @@
 #
 # Hook Input Schema (Claude Code 2.1.2+):
 # {
-#   "agent_type": "string",      // e.g., "code-reviewer", "implementation-agent"
+#   "agent_type": "string",      // only with `claude --agent`, e.g. "pensive:code-reviewer"
 #   "source": "string",          // e.g., "cli", "editor"
 #   "session_id": "string"       // Unique session identifier
 # }
@@ -52,17 +52,21 @@ main() {
   # Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
   HOOK_INPUT=""
   AGENT_TYPE=""
-  if read -t 1 -r HOOK_INPUT 2>/dev/null; then
+  # read fails on a line with no final newline but still stores it.
+  if read -t 1 -r HOOK_INPUT 2>/dev/null || [[ -n "${HOOK_INPUT}" ]]; then
     AGENT_TYPE=$(get_json_field "${HOOK_INPUT}" "agent_type")
     # Validate: only allow alphanumeric, hyphens, and underscores
-    if [[ -n "${AGENT_TYPE}" && ! "${AGENT_TYPE}" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+    if [[ -n "${AGENT_TYPE}" && ! "${AGENT_TYPE}" =~ ^[a-zA-Z0-9_:-]+$ ]]; then
       printf '%s\n' "[conserve] WARNING: Invalid agent_type value, ignoring" >&2
       AGENT_TYPE=""
     fi
   fi
 
   # Lightweight agents that get abbreviated guidance
-  case "${AGENT_TYPE}" in
+  # A plugin agent arrives scoped (`pensive:code-reviewer`); match on the
+  # name after the plugin prefix. Only `claude --agent <name>` sets this:
+  # subagents never fire SessionStart.
+  case "${AGENT_TYPE##*:}" in
     code-reviewer | architecture-reviewer | rust-auditor | bloat-auditor)
       # Review agents: minimal conservation context
       cat <<EOF
@@ -80,9 +84,11 @@ EOF
   # Check bypass mode from environment
   CONSERVATION_MODE="${CONSERVATION_MODE:-normal}"
 
-  # Validate CONSERVATION_MODE to prevent injection of unexpected values
+  # Validate CONSERVATION_MODE to prevent injection of unexpected values.
+  # Only the documented modes pass: off, minimal and the rest were once
+  # accepted here and then ran as normal without a word.
   case "${CONSERVATION_MODE}" in
-    normal | quick | deep | standard | aggressive | minimal | off) ;;
+    normal | quick | deep) ;;
     *)
       printf '%s\n' "[conserve] WARNING: Unknown CONSERVATION_MODE='${CONSERVATION_MODE}', defaulting to 'normal'" >&2
       CONSERVATION_MODE="normal"

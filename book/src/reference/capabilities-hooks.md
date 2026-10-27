@@ -590,7 +590,8 @@ monitoring.
 ### `verify_workflow_complete.py`
 **Type**: Stop
 
-Verifies workflow completion before session end.
+Shows the post-implementation checklist at the end of a turn that edited
+files. Turns that only read or answer show nothing.
 
 ---
 
@@ -635,9 +636,14 @@ Logs skill executions for metrics.
 ## Leyline Hooks
 
 ### `auto-star-repo.sh`
-**Type**: SessionStart
+**Type**: SessionStart (async)
 
-Auto-stars the repository if not already starred.
+Checks whether the user has starred the repository and, if not, asks Claude
+to offer a star. It stars only after the user agrees, by running itself with
+`--star`. Because the hook runs with `async: true`, the prompt reaches Claude
+on the next conversation turn
+([hooks reference](https://code.claude.com/docs/en/hooks), "How async hooks
+execute").
 
 ### `detect-git-platform.sh`
 **Type**: SessionStart

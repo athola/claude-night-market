@@ -80,11 +80,29 @@ def _atomic_write_json(path: str, payload: Any) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             json.dump(payload, handle, indent=2)
+            handle.flush()
+            os.fsync(handle.fileno())
         os.replace(tmp_name, path)
-    except Exception:
+    except BaseException:  # re-raised; an interrupt must not leave the temp file
         with contextlib.suppress(OSError):
             os.unlink(tmp_name)
         raise
+    _fsync_directory(directory)
+
+
+def _fsync_directory(directory: str | os.PathLike[str]) -> None:
+    """Sync ``directory`` so a rename inside it survives a crash.
+
+    Windows cannot open a directory for fsync, and NTFS journals
+    metadata changes such as a rename. The sync is skipped there.
+    """
+    if sys.platform == "win32":
+        return
+    fd = os.open(directory, os.O_RDONLY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
 
 
 class PalaceRepository:
@@ -182,8 +200,9 @@ class PalaceRepository:
         """Persist a palace to disk, creating a backup first.
 
         Replaces ``sensory_encoding`` with ``computational_encoding``
-        in the persisted data. The in-memory dict is not mutated —
-        a shallow copy is written so callers preserve the original.
+        in the persisted data. ``last_modified`` is refreshed on the
+        caller's dict in place; the encoding swap happens on a shallow copy
+        that is the only thing written.
 
         Args:
             palace: The palace to save.

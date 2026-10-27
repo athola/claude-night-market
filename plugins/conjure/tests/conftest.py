@@ -19,6 +19,23 @@ def _delegation_policy_unset(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("CONJURE_DELEGATION", raising=False)
 
 
+@pytest.fixture(autouse=True)
+def _isolated_home(
+    tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch
+) -> Path:
+    """Point HOME at a temp directory for every test.
+
+    The quota tracker and usage logger default to files under
+    ``~/.claude/hooks``. Without this, a test read the developer's real
+    usage and wrote its own entries into it.
+    """
+    # Its own directory, not under tmp_path, so tests that list tmp_path
+    # see only what they wrote.
+    home = tmp_path_factory.mktemp("home")
+    monkeypatch.setenv("HOME", str(home))
+    return home
+
+
 @pytest.fixture
 def temp_config_dir(tmp_path: Path) -> Path:
     """Create a temporary configuration directory."""

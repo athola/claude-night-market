@@ -26,6 +26,7 @@ so the team replicates what worked and avoids what did not.
 | LL-011 | open | A package root put PyYAML in front of every stdlib-only hook | 2026-09-22 |
 | LL-012 | open | uv run pre-commit vouched for hooks that git commit could not run | 2026-09-22 |
 | LL-013 | done | Hooks sent permission decisions Claude Code ignores | 2026-09-28 |
+| LL-014 | open | Split a large working tree into commits from a clean worktree | 2026-10-15 |
 
 ## Lessons
 
@@ -356,7 +357,12 @@ dependency probe that resolved over the network could hold the whole run.
   closed.
 - Action: wire the forced-eval skill-activation gate prototyped under
   `prototypes/forced-eval/`, which targets near-keyword-matching activation.
-  Owner: night-market maintainers. Due: unscheduled. Status: open.
+  Owner: night-market maintainers. Due: unscheduled. Status: closed
+  without wiring, prototype deleted 2026-10-22. Its one live run showed
+  100% baseline activation and no lift. The `superpowers:using-superpowers`
+  session-start text already asks for a skill check before every
+  response, and a second per-turn directive costs accuracy
+  (`.claude/rules/bounded-autonomy.md`).
 - Action: add a layer-count guard for the finite skill Discovery budget of
   about 16K characters, past which skills are dropped silently. Owner:
   night-market maintainers. Due: unscheduled. Status: open.
@@ -702,6 +708,49 @@ tests/unit/hooks/test_vow_output_protocol.py checks the documented values.
 Context-only hooks return no decision. Follow-up: a repo-wide test that every
 PreToolUse hook's output uses only documented keys and values. Owner:
 night-market maintainers. Due: 2026-09-28. Status: done, follow-up open.
+
+## LL-014: Split a large working tree into commits from a clean worktree
+
+- Status: open
+- Date: 2026-10-15
+- Phase: review
+- Category: process
+- Owner: maintainer
+- Links: PR #905, commits f872ed2d2, cf9b0d653, 180b4ef1e
+<!-- key: 66ee9a97cba5 -->
+
+### What happened
+
+Splitting about 760 changed files from the PR #905 fix pass into
+per-plugin commits failed six times on pre-commit checks before all 28
+commits landed.
+
+### What went well / where we got lucky
+
+The commit script was resumable. It skipped any group whose subject was
+already on the branch, and each restart picked up at the failed group.
+
+### What did not work
+
+Committing from the main tree. pre-commit stashed the other groups'
+unstaged files, and restoring that stash conflicted on every commit even
+when no hook changed a file.
+
+### Root cause
+
+Three causes sat outside each commit's own files. The root and conjure
+`uv.lock` files were stale, and every `uv run` in a hook rewrote them.
+Some plugin tests read files from groups not yet committed: abstract's
+repo-wide checkbox test and tome's `docs/metrics` citation test. Hooks
+run in a linked worktree get `GIT_DIR`, which broke the slop ratchet's
+lookup of the committed version.
+
+### Recommendation / action item
+
+Build the commits in a clean git worktree at the base and copy each
+group in. Land lock syncs first. Run the fast hooks (check-noqa, ruff,
+bandit, slop-ratchet) over every file before starting, and commit a test
+with the files it reads.
 
 ## Archive
 

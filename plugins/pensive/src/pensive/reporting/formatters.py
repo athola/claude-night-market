@@ -3,12 +3,22 @@
 from __future__ import annotations
 
 import json
+from importlib import metadata
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-from pensive.utils.severity_mapper import count_by_severity
+from pensive import __version__
+from pensive.utils.severity_mapper import count_by_severity, normalize_severity
+
+
+def _tool_version() -> str:
+    """Report the installed pensive version in SARIF output."""
+    try:
+        return metadata.version("pensive")
+    except metadata.PackageNotFoundError:
+        return __version__
 
 
 class MarkdownFormatter:
@@ -50,7 +60,11 @@ class MarkdownFormatter:
 
         # Group by severity
         for severity in ["critical", "high", "medium", "low"]:
-            severity_findings = [f for f in findings if f.get("severity") == severity]
+            severity_findings = [
+                f
+                for f in findings
+                if normalize_severity(f.get("severity", "low")) == severity
+            ]
             if severity_findings:
                 lines.append(f"## {severity.capitalize()} Priority")
                 lines.append("")
@@ -108,7 +122,7 @@ class SarifFormatter:
                     "tool": {
                         "driver": {
                             "name": "pensive",
-                            "version": "1.0.0",
+                            "version": _tool_version(),
                             "informationUri": "https://github.com/pensive/pensive",
                             "rules": self._generate_rules(findings),
                         }
@@ -184,8 +198,4 @@ class SarifFormatter:
             "medium": "warning",
             "low": "note",
         }
-        return mapping.get(severity.lower(), "warning")
-
-    def to_json(self, results: dict[str, Any]) -> str:
-        """Format results as SARIF JSON string (legacy method)."""
-        return json.dumps(results)
+        return mapping.get(str(severity).lower(), "warning")

@@ -17,6 +17,7 @@ import json
 import logging
 import os
 import random
+import shlex
 import sys
 import tempfile
 import time
@@ -44,6 +45,14 @@ CCR_THRESHOLD_DEFAULT = 25_000
 CCR_HANDLE_HEX_LEN = 12
 DIGEST_HEAD_LINES = 20
 DIGEST_TAIL_LINES = 20
+# A digest is also bounded by characters: a tool result with few newlines
+# (minified JSON, one long log line) passes the line test whole.
+DIGEST_MAX_CHARS = 4_000
+# Resolved at import so the hint is a command the model's Bash can run; that
+# shell has no CLAUDE_PLUGIN_ROOT to expand.
+RETRIEVE_SCRIPT = (
+    Path(__file__).resolve().parent.parent / "scripts" / "context_retrieve.py"
+)
 ARCHIVE_SUBDIR = Path(".claude") / "context-archive"
 
 # Archives accumulate across sessions and /clears with nothing to prune them.
@@ -136,6 +145,11 @@ def extract_tool_response_text(hook_input: dict[str, Any]) -> str:
     if isinstance(resp, str):
         return resp
     if isinstance(resp, dict):
+        read_file = resp.get("file")
+        if isinstance(read_file, dict):
+            content = read_file.get("content")
+            if isinstance(content, str):
+                return content
         parts = [
             str(resp[key])
             for key in ("stdout", "stderr", "content", "output", "text")
@@ -198,9 +212,7 @@ def build_digest(
     lines = text.split("\n")
     total_lines = len(lines)
     total_chars = len(text)
-    retrieve_cmd = (
-        f"python3 ${{CLAUDE_PLUGIN_ROOT}}/scripts/context_retrieve.py {handle}"
-    )
+    retrieve_cmd = f"python3 {shlex.quote(str(RETRIEVE_SCRIPT))} {handle}"
 
     if total_lines <= head + tail:
         body = text
@@ -213,6 +225,11 @@ def build_digest(
                 *lines[-tail:],
             ]
         )
+
+    if len(body) > DIGEST_MAX_CHARS:
+        half = DIGEST_MAX_CHARS // 2
+        elided_chars = len(body) - 2 * half
+        body = f"{body[:half]}\n... [{elided_chars:,} chars elided] ...\n{body[-half:]}"
 
     # Report characters, not bytes: total_chars is len(text) (a character
     # count), so a "KB" label would overstate precision for multibyte UTF-8.
@@ -253,30 +270,42 @@ def _count_tool_result_bytes(content: Any) -> int:
 
 
 def get_session_output_size(session_file: Path, max_bytes: int = 512_000) -> int:
-    """Calculate total size of tool outputs in session.
+    """Calculate total size of tool outputs in the recent end of a session.
 
-    Reads at most *max_bytes* of the file to stay within the hook
-    timeout budget. The result is an approximation for large sessions.
+    Reads at most the last *max_bytes* of the file to stay within the hook
+    timeout budget. The tail is what matters: earlier outputs are the ones
+    compaction already dropped. Claude Code writes each row's blocks under
+    ``message.content``.
     """
     total_size = 0
-    bytes_read = 0
 
     try:
-        with open(session_file, encoding="utf-8", errors="replace") as f:
-            for raw_line in f:
-                bytes_read += len(raw_line)
-                if bytes_read > max_bytes:
-                    break
-                stripped = raw_line.strip()
-                if not stripped:
-                    continue
-                try:
-                    entry = json.loads(stripped)
-                except json.JSONDecodeError:
-                    continue
-                total_size += _count_tool_result_bytes(entry.get("content", ""))
+        with open(session_file, "rb") as f:
+            f.seek(0, os.SEEK_END)
+            size = f.tell()
+            start = max(0, size - max_bytes)
+            f.seek(start)
+            data = f.read().decode("utf-8", errors="replace")
     except (OSError, PermissionError) as e:
         logger.warning("Could not read session file: %s", e)
+        return 0
+
+    lines = data.splitlines()
+    if start > 0 and lines:
+        lines = lines[1:]  # the first line was cut by the seek
+    for raw_line in lines:
+        stripped = raw_line.strip()
+        if not stripped:
+            continue
+        try:
+            entry = json.loads(stripped)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(entry, dict):
+            continue
+        message = entry.get("message")
+        if isinstance(message, dict):
+            total_size += _count_tool_result_bytes(message.get("content", ""))
 
     return total_size
 
@@ -371,8 +400,8 @@ def main() -> int:
 
     # CCR: archive this single oversized output so the original is retrievable
     # on demand (survives /clear and continuation-agent handoffs). The hook
-    # cannot redact the result already in context; its value is the durable
-    # external cache + retrieval handle.
+    # leaves the result in context and adds a bounded digest plus the
+    # retrieval handle.
     output_text = extract_tool_response_text(hook_input)
     if should_archive(output_text):
         try:

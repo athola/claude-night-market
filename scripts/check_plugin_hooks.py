@@ -38,11 +38,13 @@ def _norm(entry) -> str:
         hooks//hooks.json      missed
         ./hooks/./hooks.json   missed
 
-    posixpath.normpath collapses "//" and "/./"; the lstrip removes a leading
-    "./". Plugin manifests use forward slashes on every platform, so posixpath
-    is correct here rather than os.path.
+    posixpath.normpath collapses "//", "/./" and a leading "./". Stripping
+    leading "." and "/" characters on top of that made "../hooks/hooks.json"
+    and ".hooks/hooks.json" compare equal to the auto-loaded file. Plugin
+    manifests use forward slashes on every platform, so posixpath is correct
+    here rather than os.path.
     """
-    return posixpath.normpath(str(entry).strip()).lstrip("./")
+    return posixpath.normpath(str(entry).strip())
 
 
 def check_file(path: Path) -> list[str]:

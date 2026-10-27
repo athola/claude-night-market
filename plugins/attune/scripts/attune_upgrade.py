@@ -4,12 +4,25 @@
 import argparse
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from attune_init import copy_templates
 from project_detector import ProjectDetector
 from template_engine import get_default_variables
+
+
+def _unused_backup_path(path: Path) -> Path:
+    """Return ``<name>.bak``, or a timestamped name when that is taken.
+
+    An earlier upgrade's backup may be the only copy of the user's file.
+    """
+    backup = path.with_name(path.name + ".bak")
+    if not backup.exists():
+        return backup
+    stamp = datetime.now().strftime("%Y%m%dT%H%M%S%f")
+    return path.with_name(f"{path.name}.bak.{stamp}")
 
 
 class ProjectUpgrader:
@@ -246,6 +259,10 @@ class ProjectUpgrader:
                 variables=variables,
                 templates_root=templates_root,
                 force=force,
+                # Only the files that are absent. Without this every
+                # template was rendered, so --force overwrote the user's
+                # existing pyproject.toml and --component was ignored.
+                only_paths=set(missing),
             )
 
         # Update outdated files if requested
@@ -256,16 +273,44 @@ class ProjectUpgrader:
                 for file_path in outdated:
                     response = "y" if force else input(f"Update {file_path}? [y/N]: ")
                     if response.lower() == "y":
-                        # Backup old file
-                        old_file = self.project_path / file_path
-                        backup = old_file.with_suffix(old_file.suffix + ".bak")
-                        if old_file.exists():
-                            old_file.rename(backup)
-                            print(f"  ✓ Backed up to {backup}")
-
-                        affected_files.append(file_path)
+                        if self._replace_outdated(file_path, variables, templates_root):
+                            affected_files.append(file_path)
 
         return affected_files
+
+    def _replace_outdated(
+        self, file_path: str, variables: dict[str, str], templates_root: Path
+    ) -> bool:
+        """Back up one outdated file and render its template in its place.
+
+        The old file is moved aside first, so nothing is overwritten and no
+        prompt fires. A render that fails, or a file with no template, puts
+        the old file back rather than leaving only the backup.
+        """
+        old_file = self.project_path / file_path
+        backup = _unused_backup_path(old_file)
+        if old_file.exists():
+            old_file.rename(backup)
+            print(f"  ✓ Backed up to {backup}")
+        try:
+            rendered = copy_templates(
+                language=self.language,
+                project_path=self.project_path,
+                variables=variables,
+                templates_root=templates_root,
+                force=True,
+                only_paths={file_path},
+            )
+        except BaseException:
+            if backup.exists():
+                backup.replace(old_file)
+            raise
+        if not rendered:
+            if backup.exists():
+                backup.rename(old_file)
+            print(f"  ⊘ No template for {file_path}; left as it was")
+            return False
+        return True
 
     def _infer_variables(self) -> dict[str, str]:
         """Infer template variables from existing project files.

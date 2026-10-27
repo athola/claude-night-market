@@ -100,6 +100,31 @@ class TestFailsClosed:
         assert verdict == "BLOCKED"
         assert "parse" in reason.lower()
 
+    def test_a_result_field_that_is_prose_blocks(self) -> None:
+        """The envelope parsed, but the model answered in prose inside it."""
+        cli = FakeCli(0, json.dumps({"result": "PASS, looks good"}))
+        verdict, reason, _ = ClaudeBabysitter(runner=cli)(
+            task={"id": "T1"}, diff="d", test_output="ok", test_exit=0
+        )
+        assert verdict == "BLOCKED"
+        assert "result field" in reason
+
+    def test_a_result_field_that_is_already_an_object_is_read(self) -> None:
+        cli = FakeCli(0, json.dumps({"result": {"verdict": "PASS", "reason": "r"}}))
+        verdict, reason, _ = ClaudeBabysitter(runner=cli)(
+            task={"id": "T1"}, diff="d", test_output="ok", test_exit=0
+        )
+        assert verdict == "PASS"
+        assert reason == "r"
+
+    def test_an_answer_that_is_not_an_object_blocks(self) -> None:
+        cli = FakeCli(0, json.dumps({"result": json.dumps(["PASS"])}))
+        verdict, reason, _ = ClaudeBabysitter(runner=cli)(
+            task={"id": "T1"}, diff="d", test_output="ok", test_exit=0
+        )
+        assert verdict == "BLOCKED"
+        assert "could not parse the babysitter's answer" in reason
+
     def test_an_unknown_verdict_string_blocks(self) -> None:
         cli = FakeCli(0, envelope("LOOKS_FINE"))
         verdict, _, _ = ClaudeBabysitter(runner=cli)(

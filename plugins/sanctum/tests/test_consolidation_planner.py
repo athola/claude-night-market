@@ -164,6 +164,49 @@ def test_compute_relevance_scores_header_match(tmp_path):
     assert score >= 0.4
 
 
+def test_file_name_credit_needs_a_whole_header_word(tmp_path):
+    """A header word must be a word of the file name, not a substring.
+
+    "on" inside "configuration" earned +0.2
+    and lifted identical content from 0.4 (CREATE_NEW) to 0.6
+    (INTELLIGENT_WEAVE).
+    """
+    cp = _load_script()
+    body = "Release checklist. Notes on the audit cadence live with the team.\n"
+    chunk = cp.ContentChunk(
+        header="Notes on the audit",
+        content="Latency regressions measured in the checkout worker.",
+        category="findings",
+        value="high",
+    )
+    scores = {}
+    for name in ("configuration.md", "release.md"):
+        doc = tmp_path / name
+        doc.write_text(body)
+        scores[name] = cp.compute_relevance(chunk, str(doc))
+
+    assert scores["configuration.md"] == scores["release.md"]
+    route = cp.route_chunk(chunk, [str(tmp_path / "configuration.md")], "A.md")
+    assert route.strategy == "CREATE_NEW"
+
+
+def test_file_name_credit_for_a_matching_word(tmp_path):
+    """A header word that names the file still earns the credit."""
+    cp = _load_script()
+    chunk = cp.ContentChunk(
+        header="Audit notes", content="zzzz", category="findings", value="low"
+    )
+    named = tmp_path / "audit-log.md"
+    other = tmp_path / "release.md"
+    for doc in (named, other):
+        doc.write_text("unrelated text")
+
+    gap = cp.compute_relevance(chunk, str(named)) - cp.compute_relevance(
+        chunk, str(other)
+    )
+    assert abs(gap - 0.2) < 1e-9
+
+
 def test_route_chunk_uses_intelligent_weave_when_match(tmp_path):
     cp = _load_script()
     doc = tmp_path / "findings.md"
@@ -409,3 +452,21 @@ def test_main_plan_json_output(tmp_path, monkeypatch, capsys):
     parsed = json.loads(capsys.readouterr().out)
     assert "routes" in parsed
     assert "summary" in parsed
+
+
+def test_git_untracked_files_returns_names_with_spaces_and_unicode_unquoted(tmp_path):
+    """`git status --porcelain` quotes such names; callers need the real path."""
+    cp = _load_script()
+    _git("init", "-q", "-b", "main", str(tmp_path))
+    _git("-C", str(tmp_path), "config", "user.email", "t@example.com")
+    _git("-C", str(tmp_path), "config", "user.name", "Tester")
+    (tmp_path / "seed.md").write_text("# seed\n")
+    _git("-C", str(tmp_path), "add", "seed.md")
+    _git("-C", str(tmp_path), "commit", "-q", "-m", "init")
+    (tmp_path / "audit report.md").write_text("\n")
+    (tmp_path / "café notes.md").write_text("\n")
+
+    untracked = cp.git_untracked_files(str(tmp_path))
+
+    assert "audit report.md" in untracked
+    assert "café notes.md" in untracked

@@ -59,7 +59,7 @@ Audit Makefiles for best practices, deduplication, and portability.
 - Creating new Makefiles - use abstract:make-dogfood
 - Architecture review - use architecture-review
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `makefile-review:context-mapped`
 2. `makefile-review:dependency-graph`
@@ -155,12 +155,12 @@ the verifier rejects.
 
 ## Exit Criteria
 
-- Context mapped
-- Dependencies analyzed
-- Deduplication reviewed
-- Portability checked
-- Evidence logged
-- Every reported finding carries a `Location` + verbatim `Anchor` confirmed
+- [ ] Context mapped
+- [ ] Dependencies analyzed
+- [ ] Deduplication reviewed
+- [ ] Portability checked
+- [ ] Evidence logged
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor` confirmed
   by `citation_verifier.py` (exit `0`), or unverified findings were dropped
   or labeled `UNVERIFIED`
 ## Troubleshooting

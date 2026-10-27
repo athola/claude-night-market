@@ -7,10 +7,13 @@ its frontmatter. This document records why each one sits where it does.
 
 Claude Code resolves a subagent's model in this order, first match wins:
 
-1. the `CLAUDE_CODE_SUBAGENT_MODEL` environment variable
-2. the per-invocation `model` parameter
-3. the agent's `model:` frontmatter
+1. the per-invocation `model` parameter
+2. the agent's `model:` frontmatter
+3. the `CLAUDE_CODE_SUBAGENT_MODEL` environment variable
 4. the main conversation's model
+
+Before CLI 2.1.251 the environment variable came first.
+`CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` restores that order.
 
 Rung 4 is the trap. The `model` field defaults to `inherit`: an agent
 that omits it runs on whatever the parent session runs on. Explore used
@@ -33,16 +36,18 @@ pipeline steps by the same tiers.
 | Tier | Alias | Effort | Task shape | Relative cost |
 |------|-------|--------|------------|---------------|
 | Lightweight | `haiku` | `low` | Mechanical, single-turn, deterministic output | 1x |
-| Standard | `sonnet` | `medium` | Judgment inside established patterns | 3x |
-| Deep | `opus` | `high` | Architecture, adversarial reasoning, orchestration | 5x |
-| Frontier | `fable` | `high` | Long-running agents where a miss is expensive | 10x |
+| Standard | `sonnet` | `medium` | Judgment inside established patterns | 4x |
+| Deep | `opus` | `high` | Architecture, adversarial reasoning, orchestration | 8x |
+| Frontier | `fable` | `high` | Long-running agents where a miss is expensive | 20x |
 
-Relative cost is input price per MTok from the model card, normalized to
-Haiku: `haiku` $1, `sonnet` $3, `opus` $5, `fable` $10. Output prices
-scale the same way ($5 / $15 / $25 / $50). The multipliers above are
-list prices and need no change on the day a promotion ends.
-Sonnet 5 has an introductory price of $2 / $10 running to 2026-08-31,
-which puts its real multiplier nearer 2x until that date.
+Relative cost is input price per MTok from the models overview
+(2026-10-26), normalized to Haiku 5.5's rate above 100K prompt tokens:
+`haiku` $0.50, `sonnet` $2, `opus` $4, `fable` $10. Output prices scale
+the same way ($2.50 / $10 / $20 / $50). Under 100K prompt tokens Haiku
+costs a fifth of that, $0.10 / $0.50. The aliases resolve to Haiku 5.5,
+Sonnet 5.5, Opus 5.5 and Fable 5.1. Opus 5.5
+defaults to `medium` effort on the API, so the `high` pinned here raises
+it.
 
 `inherit` is not an accepted value. It is the default this matrix exists
 to eliminate.
@@ -263,9 +268,11 @@ they are overriding.
 
 Two escape hatches exist outside the matrix:
 
-- `CLAUDE_CODE_SUBAGENT_MODEL=haiku` forces every subagent down for a
+- `CLAUDE_CODE_SUBAGENT_MODEL=haiku` with
+  `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` forces every subagent down for a
   session, overriding all frontmatter. Useful when quota matters more
-  than quality.
+  than quality. Without `_FORCE` the variable only fills in for agents
+  that pin no model.
 - The per-invocation `model` parameter on a single `Agent` call
   overrides that agent's frontmatter for that call only.
 
