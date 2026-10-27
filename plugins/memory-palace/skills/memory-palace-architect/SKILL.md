@@ -13,7 +13,7 @@ tags:
 dependencies:
 - leyline:progressive-loading
 scripts:
-- palace_manager.py
+- memory_palace_cli.py
 usage_patterns:
 - palace-design
 - domain-analysis
@@ -22,13 +22,9 @@ complexity: intermediate
 model_hint: standard
 estimated_tokens: 600
 ---
-> **Status: unwired**. As of v1.9.4, no command or agent
-> invokes `Skill(memory-palace:memory-palace-architect)`.
-> The `/palace create` command does palace creation directly
-> without routing through this skill. The architectural
-> guidance below is reference material; consult it when
-> designing a new palace by hand. Tracked for follow-up in
-> the April 2026 skill audit.
+> **Status: wired**. The `palace-architect` agent loads this skill
+> for its design method (#618). `/palace create` still creates the
+> palace record directly. This skill decides what goes in it.
 
 # Memory Palace Architect
 
@@ -46,17 +42,17 @@ A memory palace is a mnemonic technique that uses spatial visualization to organ
 
 ### Create a New Palace
 ```bash
-python scripts/palace_manager.py create "My Palace" "programming" --metaphor workshop
+python scripts/memory_palace_cli.py create "My Palace" "programming" --metaphor workshop
 ```
 
 ### List Existing Palaces
 ```bash
-python scripts/palace_manager.py list
+python scripts/memory_palace_cli.py list
 ```
 
 ### View Palace Status
 ```bash
-python scripts/palace_manager.py status
+python scripts/memory_palace_cli.py status
 ```
 
 ## When To Use
@@ -121,14 +117,14 @@ Works with:
 
 ### Common Issues
 
-If palace creation fails, check that the `metaphor` argument matches one of the supported templates (Fortress, Library, Workshop, Garden, Observatory). For script errors, ensure the `palace_manager.py` script has executable permissions and that your Python environment meets the requirements listed in `pyproject.toml`.
+If palace creation fails, check that the `metaphor` argument matches one of the supported templates (Fortress, Library, Workshop, Garden, Observatory). For script errors, ensure your Python environment meets the requirements listed in `pyproject.toml`.
 
 ## Exit Criteria
 
-- [ ] `scripts/palace_manager.py create "<name>" "<domain>" --metaphor
+- [ ] `scripts/memory_palace_cli.py create "<name>" "<domain>" --metaphor
       <template>` completes without error and adds the palace to the
       index
-- [ ] `scripts/palace_manager.py list` shows the newly created palace
+- [ ] `scripts/memory_palace_cli.py list` shows the newly created palace
       by the name supplied during creation
 - [ ] Created palace schema includes spatial coordinates, a sensory
       encoding profile, and a navigation guide
