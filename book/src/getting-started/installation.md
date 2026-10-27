@@ -133,17 +133,21 @@ Several plugins register Setup hooks that run one-time initialization
 Trigger them after installing:
 
 ```bash
-# One-time initialization
-claude --init
+# One-time initialization: runs Setup and SessionStart hooks, then exits
+claude --init-only
 
-# Periodic maintenance (weekly or monthly)
-claude --maintenance
+# Periodic maintenance (weekly or monthly). Print mode only, so it
+# needs a prompt and runs one query.
+claude -p --maintenance "Report what maintenance ran."
 ```
 
-`--init` runs setup tasks like creating knowledge garden directories
-(memory-palace) and initializing caches (conserve).
+`--init-only` runs setup tasks like creating knowledge garden
+directories (memory-palace) and initializing caches (conserve).
 `--maintenance` handles heavier operations like rebuilding indexes,
-cleaning stale captures, and rotating logs.
+cleaning stale captures, and rotating logs. Plain `claude --init` does
+nothing in an interactive session: the
+[CLI reference](https://code.claude.com/docs/en/cli-reference) limits
+`--init` and `--maintenance` to `-p` mode.
 Neither runs automatically on every session.
 
 ## Troubleshooting

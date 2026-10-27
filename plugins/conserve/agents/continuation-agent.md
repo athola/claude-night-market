@@ -248,9 +248,9 @@ you may create a task for it. But first verify via TaskList that no existing tas
 The session state directory and template are created automatically when:
 
 1. The parent agent invokes `Skill(conserve:clear-context)`
-2. OR when `claude --init` is run (recommended for new projects)
+2. OR when `claude --init-only` is run (recommended for new projects)
 
-If the state file is missing, `claude --init` will create the template structure.
+If the state file is missing, `claude --init-only` will create the template structure.
 
 ## Completion Checklist (Final Reminder)
 

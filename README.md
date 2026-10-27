@@ -37,8 +37,8 @@ hooks, which is what macOS ships.
 /plugin install spec-kit@claude-night-market   # Spec-driven dev
 ```
 
-On Claude Code 2.1.275 or later one command adds the marketplace and
-installs a plugin: `/plugin install sanctum --marketplace
+On Claude Code 2.1.275 or later one shell command adds the marketplace
+and installs a plugin: `claude plugin install sanctum --marketplace
 athola/claude-night-market`.
 
 Updates are not automatic. Auto-update is off for third-party
@@ -47,7 +47,8 @@ marketplaces until you turn it on: open `/plugin`, go to
 auto-update**. Without it, run `claude plugin update
 <plugin>@claude-night-market` to pick up a release.
 
-Run `claude --init` once after installing. Two other paths
+Run `claude --init-only` once after installing. It runs the plugins'
+Setup hooks, then exits. Two other paths
 exist: [`npx skills`][skills-cli] pulls the skill files alone
 into `.claude/skills/`, without commands, agents, or hooks, and
 `opkg i gh@athola/claude-night-market --plugins sanctum,pensive`
