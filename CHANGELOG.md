@@ -7,53 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- Conjure defaults MiniMax delegation and fast-response selection to
-  `MiniMax-M3.1-Flash`, with M3 retained for large context. The War Room
-  skeptical analyst uses Flash. Explicit saved and per-call models remain
-  supported, including legacy IDs.
-- Conjure's GLM fast-response selection is `glm-5.3-flash`, replacing
-  `glm-4.7`. The GLM skill states 5.3 and 5.3-Flash prices.
-- Conjure's Muse service and the War Room Systems Engineer pass
-  `--model muse-spark-1.3`. Muse Code otherwise runs its 1.2 default,
-  while Meta recommends 1.3 for new work.
-- War Room's native experts and Haiku fallback name `claude-opus-5-5`,
-  `claude-sonnet-5-5` and `claude-haiku-5-5`, and gauntlet's challenge
-  variations use Haiku 5.5. The upstream ledger records Haiku 5.5.
-  Phantom stays on `claude-sonnet-5`: the 5.5 models accept only the
-  `computer_toolset_20260801` computer-use shape, which phantom does not
-  build yet.
-
-### Fixed
-
-- Conjure's Gemini service and War Room experts named `gemini-3-pro`,
-  which the Gemini API does not list. Default and fast-response
-  delegation now use the stable `gemini-3.8-flash`, and large-context
-  work uses `gemini-3.1-pro-preview`. Gemini prices in the skill docs
-  were 4 to 12 times below the published rates and are corrected.
-- Conjure's Qwen service and War Room experts asked for `qwen-max` and
-  `qwen-turbo` through Qwen OAuth, which runs only `coder-model` and
-  swaps any other model for it with a warning. Usage logs and sealed War
-  Room records named a model that never answered. Both now name
-  `coder-model`, and the Qwen skill's flag table drops `--format` and
-  `--temperature`, which qwen 0.4.0 rejects.
-- `abstract`'s plugin validator passed a `hooks/hooks.json` whose
-  `"hooks"` value was a list or a string, or whose whole document was a
-  list, and printed "Plugin validation passed". Claude Code registers
-  none of that plugin's hooks. It is now a critical issue.
-- Conjure's `provider-sweep` workflow logged "no provider is callable on
-  this machine" when its probes returned nothing at all. It now names
-  the unanswered providers as unprobed and makes the "not callable"
-  claim only about providers a probe examined.
-
-### Removed
-
-- `prototypes/forced-eval/`, the unwired skill-activation hook. Its live
-  measurement found no activation lift over baseline, and the
-  using-superpowers session-start text already asks for the same skill
-  check.
-
 ## [1.10.0] - 2026-10-14
 
 Sweep for Claude Code 2.1.220 to 2.1.289. Several fields this repo wrote
@@ -787,6 +740,53 @@ not reach Reddit, and never searched an option it ruled out.
     Unpaywall.
 - The research workflow takes `entities`. It searches each one no
   channel covered and reports the rest in `coverage.unsearched`.
+
+### Changed (model refresh)
+
+- Conjure defaults MiniMax delegation and fast-response selection to
+  `MiniMax-M3.1-Flash`, with M3 retained for large context. The War Room
+  skeptical analyst uses Flash. Explicit saved and per-call models remain
+  supported, including legacy IDs.
+- Conjure's GLM fast-response selection is `glm-5.3-flash`, replacing
+  `glm-4.7`. The GLM skill states 5.3 and 5.3-Flash prices.
+- Conjure's Muse service and the War Room Systems Engineer pass
+  `--model muse-spark-1.3`. Muse Code otherwise runs its 1.2 default,
+  while Meta recommends 1.3 for new work.
+- War Room's native experts and Haiku fallback name `claude-opus-5-5`,
+  `claude-sonnet-5-5` and `claude-haiku-5-5`, and gauntlet's challenge
+  variations use Haiku 5.5. The upstream ledger records Haiku 5.5.
+  Phantom stays on `claude-sonnet-5`: the 5.5 models accept only the
+  `computer_toolset_20260801` computer-use shape, which phantom does not
+  build yet.
+
+### Fixed (model refresh and review)
+
+- Conjure's Gemini service and War Room experts named `gemini-3-pro`,
+  which the Gemini API does not list. Default and fast-response
+  delegation now use the stable `gemini-3.8-flash`, and large-context
+  work uses `gemini-3.1-pro-preview`. Gemini prices in the skill docs
+  were 4 to 12 times below the published rates and are corrected.
+- Conjure's Qwen service and War Room experts asked for `qwen-max` and
+  `qwen-turbo` through Qwen OAuth, which runs only `coder-model` and
+  swaps any other model for it with a warning. Usage logs and sealed War
+  Room records named a model that never answered. Both now name
+  `coder-model`, and the Qwen skill's flag table drops `--format` and
+  `--temperature`, which qwen 0.4.0 rejects.
+- `abstract`'s plugin validator passed a `hooks/hooks.json` whose
+  `"hooks"` value was a list or a string, or whose whole document was a
+  list, and printed "Plugin validation passed". Claude Code registers
+  none of that plugin's hooks. It is now a critical issue.
+- Conjure's `provider-sweep` workflow logged "no provider is callable on
+  this machine" when its probes returned nothing at all. It now names
+  the unanswered providers as unprobed and makes the "not callable"
+  claim only about providers a probe examined.
+
+### Removed (prototypes)
+
+- `prototypes/forced-eval/`, the unwired skill-activation hook. Its live
+  measurement found no activation lift over baseline, and the
+  using-superpowers session-start text already asks for the same skill
+  check.
 
 ## [1.9.21] - 2026-09-28
 
