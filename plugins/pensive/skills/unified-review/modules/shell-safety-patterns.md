@@ -35,7 +35,12 @@ Detection:
 rg -n '\$[A-Za-z_][A-Za-z_0-9]*[^}]' scripts/
 ```
 
-Fix: `$VAR` → `${VAR}`, `$1` → `${1}`, `$@` → `"${@}"`.
+Fix: `$VAR` → `${VAR}`, `$1` → `${1}`.
+
+The one exception is `"$@"`, which stays bare. Under `set -u`, bash 3.2
+(stock macOS `/bin/sh`) reports `"${@}"` as an unbound variable when
+the script gets no arguments. Only the bare form is exempt. Never
+recommend rewriting `"$@"` as `"${@}"`.
 
 ## :? expansion instead of branching on unset
 

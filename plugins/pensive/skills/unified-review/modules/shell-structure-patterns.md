@@ -11,7 +11,7 @@ tags: [structure, main, library, depcheck, platform, readonly, shfmt]
 
 A script is a **library** if it has no `main()` function (e.g.
 `scripts/logging.sh`). A script is an **executable** if it defines
-`main()` and ends with `main "${@}"`.
+`main()` and ends with `main "$@"`.
 
 Libraries signal their presence by setting a `__`-prefixed guard
 variable (e.g. `__logging_loaded=1`). Callers verify it was sourced
@@ -30,7 +30,7 @@ See also: `shell-safety-patterns.md` → "Library loading check form".
 |----------|---------|------------|
 | Execute bit | No | Yes |
 | `main()` | No | Required |
-| Last line | — | `main "${@}"` |
+| Last line | — | `main "$@"` |
 | `usage()` | Not needed | Recommended |
 | `set -e`/`set -u` | Never | Allowed |
 | `__`-prefixed globals | Yes (guards) | Allowed |
@@ -43,13 +43,13 @@ find scripts/ -name "*.sh" -perm /u+x | while IFS= read -r f; do
 done
 ```
 
-Detection: executable missing `main "${@}"` as last line
+Detection: executable missing `main "$@"` as last line
 
 ```sh
 find scripts/ -name "*.sh" -perm /u+x | while IFS= read -r f; do
   last="$(tail -1 "${f}")"
   case "${last}" in
-    'main "${@}"') : ;;
+    'main "$@"') : ;;
     *) printf 'Missing main call: %s\n' "${f}" ;;
   esac
 done
@@ -86,7 +86,7 @@ belongs inside a named function. The only top-level calls are:
 1. `set -eu` (preamble)
 2. Variable declarations (`readonly`, assignments)
 3. Source statements (`. lib.sh`)
-4. `main "${@}"` on the last line
+4. `main "$@"` on the last line
 
 Detection:
 
@@ -254,8 +254,8 @@ shfmt -p -i 2 -ci -w scripts/*.sh
 ## Checklist
 
 - [ ] Library: no execute bit, no `main()`, `__`-guard present
-- [ ] Executable: starts with preamble, ends with `main "${@}"`
-- [ ] No top-level logic (only declarations, source, `main "${@}"`)
+- [ ] Executable: starts with preamble, ends with `main "$@"`
+- [ ] No top-level logic (only declarations, source, `main "$@"`)
 - [ ] `depcheck()` present when external tools are required
 - [ ] `usage()` present and accepts `-h` / `usage`/`help` variants
 - [ ] `-x`/`-t` flags supported and enable xtrace

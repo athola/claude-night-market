@@ -178,9 +178,27 @@ class TestShellReviewSkillModules:
     def test_structure_patterns_documents_main_rule(self) -> None:
         """structure-patterns.md must document the main() and last-line rule."""
         text = (MODULES_DIR / "shell-structure-patterns.md").read_text(encoding="utf-8")
-        assert 'main "${@}"' in text, (
-            'structure-patterns.md must document `main "${@}"` as the required last line'
+        assert 'main "$@"' in text, (
+            'structure-patterns.md must document `main "$@"` as the required last line'
         )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "module_name", ["shell-structure-patterns.md", "shell-safety-patterns.md"]
+    )
+    def test_no_module_recommends_braced_at(self, module_name: str) -> None:
+        """Under `set -u`, bash 3.2 reports `"${@}"` with no arguments as unbound.
+
+        Only the bare `"$@"` form is exempt, which is why every executable
+        in this repository ends with `main "$@"` and
+        `tests/test_shell_portability.py` asserts it. A review that
+        recommends the braced form would flag correct scripts and suggest
+        a fix that breaks stock macOS `/bin/sh`.
+        """
+        text = (MODULES_DIR / module_name).read_text(encoding="utf-8")
+        assert 'main "${@}"' not in text
+        assert '→ `"${@}"`' not in text
 
     @pytest.mark.bdd
     @pytest.mark.unit
