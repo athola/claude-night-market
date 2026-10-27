@@ -119,7 +119,6 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `extract` | [gauntlet](../plugins/gauntlet.md) | Analyze codebase and build a knowledge base |
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring and optional research enrichment via tome (`--research`) |
 | `friction-detector` | [abstract](../plugins/abstract.md) | Detect friction signals and graduate recurring patterns into rules |
-| `gauntlet-curate` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank; surveys coverage gaps and proposes YAML-valid entries |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
@@ -166,6 +165,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
 | `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
+| `problem-bank` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank; surveys coverage gaps and proposes YAML-valid entries |
 | `progressive-loading` | [leyline](../plugins/leyline.md) | Dynamic content loading |
 | `project-brainstorming` | [attune](../plugins/attune.md) | Socratic ideation workflow |
 | `project-execution` | [attune](../plugins/attune.md) | Systematic implementation |

@@ -1,10 +1,10 @@
 ---
-name: gauntlet-curate
-description: Audits the DSA problem bank for coverage gaps and proposes new YAML entries. Use when refreshing the problem bank during update-plugins runs.
+name: problem-bank
+description: Audits the DSA problem bank for coverage gaps and proposes new YAML entries. Use when the problem bank needs a coverage review.
 model_hint: standard
 ---
 
-# Gauntlet Curate
+# Problem Bank
 
 Survey the DSA problem bank, identify coverage gaps, and propose
 new YAML entries for human review.
@@ -17,12 +17,10 @@ new YAML entries for human review.
 
 ## When This Skill Fires
 
-Invoke this skill manually with `Skill(gauntlet:gauntlet-curate)`
-when the problem bank needs a coverage review. The skill is intended
-to participate in `/update-plugins` runs but is not yet wired into
-that command (see openpackage.yml registration). It is distinct from
-`gauntlet:curate`, which handles per-annotation knowledge capture
-and is what `/gauntlet-curate` invokes today.
+Invoke this skill with `Skill(gauntlet:problem-bank)` when the
+problem bank needs a coverage review. It is distinct from
+`gauntlet:curate`, which handles per-annotation knowledge capture and
+is what the `/gauntlet-curate` command invokes.
 
 ## Steps
 
@@ -36,7 +34,7 @@ and is what `/gauntlet-curate` invokes today.
 
    ```bash
    cd plugins/gauntlet
-   python scripts/curate_problems.py data/problems/ --output /tmp/gauntlet-curate-report.md
+   python scripts/curate_problems.py data/problems/ --output /tmp/problem-bank-report.md
    ```
 
 3. **Identify gaps**: categories whose actual count falls below
@@ -116,7 +114,7 @@ Human review is required before any YAML file changes.
 ## Exit Criteria
 
 - [ ] Script runs without error and produces a markdown report at the
-  path given to `--output` (e.g., `/tmp/gauntlet-curate-report.md`)
+  path given to `--output` (e.g., `/tmp/problem-bank-report.md`)
 - [ ] Report contains a coverage summary table comparing expected
   `neetcode_count` versus actual count for every category in
   `_manifest.yaml`, with gaps sorted largest-first

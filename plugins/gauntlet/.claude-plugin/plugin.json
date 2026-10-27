@@ -6,7 +6,7 @@
     "./skills/challenge",
     "./skills/curate",
     "./skills/extract",
-    "./skills/gauntlet-curate",
+    "./skills/problem-bank",
     "./skills/graph-build",
     "./skills/graph-search",
     "./skills/onboard"

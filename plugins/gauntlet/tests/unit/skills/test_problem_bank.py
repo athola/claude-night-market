@@ -1,4 +1,4 @@
-"""BDD tests for the gauntlet-curate skill.
+"""BDD tests for the problem-bank skill.
 
 These tests verify the *behavior* described in SKILL.md:
 - The skill has valid frontmatter (name, description, model_hint)
@@ -20,7 +20,7 @@ import yaml
 
 # Absolute paths so tests work regardless of cwd.
 _PLUGIN_ROOT = Path(__file__).parents[3]  # plugins/gauntlet/
-_SKILL_DIR = _PLUGIN_ROOT / "skills" / "gauntlet-curate"
+_SKILL_DIR = _PLUGIN_ROOT / "skills" / "problem-bank"
 _SKILL_FILE = _SKILL_DIR / "SKILL.md"
 _MANIFEST = _PLUGIN_ROOT / "openpackage.yml"
 _SCRIPT = _PLUGIN_ROOT / "scripts" / "curate_problems.py"
@@ -62,20 +62,20 @@ def _load_openpackage() -> dict:
 
 class TestGauntletCurateSkillFile:
     """
-    Feature: gauntlet-curate skill file exists with valid structure
+    Feature: problem-bank skill file exists with valid structure
 
     As a gauntlet plugin user
-    I want the gauntlet-curate skill to have a valid SKILL.md
+    I want the problem-bank skill to have a valid SKILL.md
     So that Claude Code can discover and invoke it
     """
 
     @pytest.mark.unit
     def test_skill_file_exists(self):
         """
-        Scenario: SKILL.md is present in skills/gauntlet-curate/
+        Scenario: SKILL.md is present in skills/problem-bank/
         Given the gauntlet plugin
         When the skills directory is inspected
-        Then skills/gauntlet-curate/SKILL.md exists
+        Then skills/problem-bank/SKILL.md exists
         """
         assert _SKILL_FILE.exists(), (
             f"Expected skill file at {_SKILL_FILE} but it was not found."
@@ -101,10 +101,10 @@ class TestGauntletCurateSkillFile:
         Scenario: Skill name follows kebab-case convention
         Given the SKILL.md frontmatter
         When the name field is inspected
-        Then it equals 'gauntlet-curate' (kebab-case)
+        Then it equals 'problem-bank' (kebab-case)
         """
         fm = _parse_skill_frontmatter(_SKILL_FILE)
-        assert fm.get("name") == "gauntlet-curate"
+        assert fm.get("name") == "problem-bank"
 
     @pytest.mark.unit
     def test_skill_description_mentions_problem_bank(self):
@@ -153,7 +153,7 @@ class TestGauntletCurateSkillFile:
 
 class TestGauntletCurateRegistration:
     """
-    Feature: gauntlet-curate is registered in openpackage.yml
+    Feature: problem-bank is registered in openpackage.yml
 
     As a gauntlet plugin maintainer
     I want the new skill registered in openpackage.yml
@@ -163,16 +163,34 @@ class TestGauntletCurateRegistration:
     @pytest.mark.unit
     def test_skill_registered_in_openpackage(self):
         """
-        Scenario: skills list in openpackage.yml includes gauntlet-curate
+        Scenario: skills list in openpackage.yml includes problem-bank
         Given the openpackage.yml manifest
         When the skills list is inspected
-        Then 'skills/gauntlet-curate' is present
+        Then 'skills/problem-bank' is present
         """
         pkg = _load_openpackage()
         skills = pkg.get("skills", [])
-        assert "skills/gauntlet-curate" in skills, (
-            f"'skills/gauntlet-curate' not found in openpackage.yml skills: {skills}"
+        assert "skills/problem-bank" in skills, (
+            f"'skills/problem-bank' not found in openpackage.yml skills: {skills}"
         )
+
+    @pytest.mark.unit
+    def test_no_skill_shares_a_command_name(self):
+        """
+        Scenario: a skill is reachable by its own name
+        Given the gauntlet skills and commands directories
+        When their names are compared
+        Then no skill is named after a command
+
+        This skill was once named gauntlet-curate, the same name as the
+        /gauntlet-curate command, which invokes gauntlet:curate. The
+        command shadowed the skill, and nothing could reach it by name.
+        """
+        skill_names = {
+            p.name for p in (_PLUGIN_ROOT / "skills").iterdir() if p.is_dir()
+        }
+        command_names = {p.stem for p in (_PLUGIN_ROOT / "commands").glob("*.md")}
+        assert skill_names & command_names == set()
 
 
 # ---------------------------------------------------------------------------
@@ -186,7 +204,7 @@ class TestGauntletCurateScriptSafety:
 
     As a gauntlet problem bank curator
     I want assurance that the skill's script cannot overwrite my files
-    So that I can run /gauntlet-curate without risking data loss
+    So that I can invoke Skill(gauntlet:problem-bank) without risking data loss
     """
 
     @pytest.mark.unit
