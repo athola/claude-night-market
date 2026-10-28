@@ -19,7 +19,6 @@ usage_patterns:
 complexity: intermediate
 model_hint: standard
 progressive_loading: true
-module_strategy: workflow-based
 estimated_tokens: 800
 ---
 

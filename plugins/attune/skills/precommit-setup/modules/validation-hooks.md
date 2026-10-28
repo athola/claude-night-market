@@ -2,7 +2,6 @@
 name: validation-hooks
 description: Layer 3 custom validation hooks for project-specific structure and pattern checks.
 parent: precommit-setup
-load_when: enforcing project conventions or schema rules
 ---
 
 # Validation Hooks (Layer 3)

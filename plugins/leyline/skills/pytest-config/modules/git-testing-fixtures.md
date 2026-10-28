@@ -5,10 +5,6 @@ parent_skill: leyline:pytest-config
 category: infrastructure
 tags: [pytest, git, fixtures, testing]
 estimated_tokens: 140
-reusable_by:
-  - "sanctum plugin tests"
-  - "git workflow testing"
-  - "commit/PR testing"
 ---
 
 # Git Repository Testing Fixtures

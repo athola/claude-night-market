@@ -17,7 +17,6 @@ provides:
   - graceful-degradation
 estimated_tokens: 400
 progressive_loading: true
-module_strategy: reference-based
 modules:
 - modules/detection.md
 - modules/fallback.md

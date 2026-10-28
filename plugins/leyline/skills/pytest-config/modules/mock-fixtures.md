@@ -5,10 +5,6 @@ parent_skill: leyline:pytest-config
 category: infrastructure
 tags: [pytest, mocking, fixtures, tools]
 estimated_tokens: 95
-reusable_by:
-  - "skills testing tool interactions"
-  - "agent behavior testing"
-  - "command workflow testing"
 ---
 
 # Mock Tool Fixtures
