@@ -295,6 +295,9 @@ class TestPrBaseRef:
         self, project_with_graph: Path
     ) -> None:
         """End to end: real graph, real git, committed edit, clean tree."""
+        # Without the parser full_build makes an empty graph. The Python 3.9
+        # hook job installs only pytest and pyyaml.
+        pytest.importorskip("tree_sitter_language_pack")
         module = project_with_graph / "m.py"
         module.write_text("def foo():\n    return 1\n")
         _git(project_with_graph, "add", "m.py")
