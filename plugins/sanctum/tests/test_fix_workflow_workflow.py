@@ -1,8 +1,9 @@
 """The shipped fix-workflow analysis script must keep its boundaries.
 
 Two of them are safety properties rather than style: the script must not
-carry an implement or validate stage, because a workflow's subagents run
-in acceptEdits and the script has no shell to check its own work.
+carry an implement or validate stage, because a workflow's subagents take
+the session's permission mode, which in an accept-edits or auto session
+approves every edit, and the script has no shell to check its own work.
 """
 
 from __future__ import annotations
@@ -42,7 +43,7 @@ def test_meta_is_the_first_statement_and_is_complete() -> None:
 
 
 def test_the_script_stops_before_the_implementer() -> None:
-    """GIVEN subagents that run in acceptEdits regardless of session mode.
+    """GIVEN subagents that take the session's permission mode.
 
     WHEN the analysis workflow runs
     THEN it dispatches no implementer and no validator agent
@@ -78,4 +79,4 @@ def test_the_command_explains_when_to_use_which_path() -> None:
     command = COMMAND.read_text()
     assert "workflows/fix-workflow-analysis.js" in command
     assert "a workflow never starts unasked" in command
-    assert "acceptEdits" in command
+    assert "take the\nsession's permission mode" in command

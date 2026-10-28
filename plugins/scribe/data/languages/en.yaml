@@ -506,6 +506,7 @@ tier5:
     patterns:
       - '\bHere''s the thing,'
       - '\bThe thing is,'
+      - '(?:^|(?<=\n)|(?<=[.!?]\s))(?-i:Look),'
       - '\bLet that sink in\b'
       - '\bThe uncomfortable truth is\b'
       - '\blet(?:''s| me) dive (?:right )?in\b'

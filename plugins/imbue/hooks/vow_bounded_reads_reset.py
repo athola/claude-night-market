@@ -26,9 +26,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
     fd_owned_by_us,
+    read_counter_path,
     secure_open,
-    secure_state_dir,
+    session_id_from,
 )
+
+# One definition, shared with the other read-budget hook, so the reset
+# truncates exactly the file the increment writes.
+_counter_path = read_counter_path
+_get_session_id = session_id_from
 
 # fcntl is POSIX-only; degrade to unlocked truncate on Windows.
 try:
@@ -47,42 +53,6 @@ except ImportError:  # pragma: no cover - exercised only on non-POSIX
             "counter resets are not atomic with concurrent increments",
             file=sys.stderr,
         )
-
-
-# Duplicated from vow_bounded_reads.py — a shared import would pay the
-# same startup cost this script is designed to avoid.
-def _counter_path(session_id: str) -> Path:
-    """Return the path to the session-scoped counter file.
-
-    Must match ``vow_bounded_reads._counter_path`` exactly so the reset
-    truncates the same file the increment writes; both resolve to a
-    private per-user dir.
-    """
-    safe_id = (
-        session_id.replace("/", "_").replace("\\", "_") if session_id else "default"
-    )
-    return (
-        secure_state_dir("imbue-vow-state") / f"vow_read_counter_{safe_id[:200]}.json"
-    )
-
-
-# Duplicated from vow_bounded_reads.py — a shared import would pay the
-# same startup cost this script is designed to avoid.
-def _get_session_id(data: dict) -> str:
-    """Extract session ID from stdin data, env var, or a process-scoped token.
-
-    Must match ``vow_bounded_reads._get_session_id`` exactly so the reset
-    targets the same file the increment writes. Issue #580: the last-resort
-    fallback is the parent pid rather than a fixed ``default`` so sessions
-    without a session_id do not share one counter.
-    """
-    sid = data.get("session_id", "")
-    if sid:
-        return str(sid)
-    sid = os.environ.get("CLAUDE_SESSION_ID", "")
-    if sid:
-        return sid
-    return f"pid-{os.getppid()}"
 
 
 def _atomic_reset(path: Path) -> None:

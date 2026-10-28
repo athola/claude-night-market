@@ -13,13 +13,13 @@ Environment variables:
 from __future__ import annotations
 
 import hashlib
+import importlib
 import json
 import logging
 import os
 import random
 import shlex
 import sys
-import tempfile
 import time
 from pathlib import Path
 from typing import Any
@@ -29,6 +29,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 from shared.session_file import (
     resolve_session_file,  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
 )
+
+# By name, for the same reason as the import above.
+_atomic_file = importlib.import_module("shared._vendored_leyline_atomic_file")
 
 logging.basicConfig(level=logging.WARNING, stream=sys.stderr)
 logger = logging.getLogger(__name__)
@@ -175,26 +178,13 @@ def archive_large_output(text: str, archive_dir: Path | str | None = None) -> st
     handle = f"ccr-{digest[:CCR_HANDLE_HEX_LEN]}"
     archive_dir.mkdir(parents=True, exist_ok=True)
     target = archive_dir / f"{handle}.txt"
-    # Atomic write: stage to a temp file in the same directory, then os.replace
-    # onto the target. Two concurrent writers of identical content each rename
-    # their own complete temp file, so a reader (or the loser of the race) only
-    # ever sees a whole file, never a half-written one. errors="replace" mirrors
-    # the hash above: a lone surrogate (e.g. from os.fsdecode of a non-UTF-8
-    # filename) must not raise UnicodeEncodeError, which is a ValueError and
-    # would escape the OSError fail-open guard. It also keeps the file content
-    # consistent with its content-addressed handle.
-    fd, tmp_name = tempfile.mkstemp(dir=archive_dir, prefix=f"{handle}.", suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8", errors="replace") as tmp:
-            tmp.write(text)
-        os.replace(tmp_name, target)
-    except BaseException:
-        # Never leave a stray temp file behind on any failure (write or rename).
-        try:
-            os.unlink(tmp_name)
-        except OSError:
-            pass
-        raise
+    # Atomic write: two concurrent writers of identical content each rename
+    # their own complete temp file, so a reader only ever sees a whole file.
+    # errors="replace" mirrors the hash above: a lone surrogate (e.g. from
+    # os.fsdecode of a non-UTF-8 filename) must not raise UnicodeEncodeError,
+    # which is a ValueError and would escape the OSError fail-open guard. It
+    # also keeps the file content consistent with its content-addressed handle.
+    _atomic_file.write_atomic(target, text.encode("utf-8", "replace"))
     return handle
 
 

@@ -117,21 +117,6 @@ status: ## Show project overview
 	@echo "Agents:   $$(find agents/ -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Tests:    $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "PYTHON: $(PYTHON)"
-	@echo "UV: $(UV)"
-	@echo "UV_RUN: $(UV_RUN)"
-	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
-	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
-	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
-	@echo "COV_DIRS: $(COV_DIRS)"
-	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
-	@echo "MAKEFLAGS: $(MAKEFLAGS)"
-
 # ---------- Demo/Dogfood Targets ----------
 demo-commit: ## Demo commit message generation workflow
 	@echo "=== Sanctum Commit Demo ==="
@@ -515,9 +500,3 @@ demo-update-version: ## Demo update-version command
 	@echo "Execute manually in Claude Code for full functionality."
 	@echo ""
 	@echo "Use /update-version for full workflow."
-
-# Guard against accidental file creation (catch-all for unknown targets)
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

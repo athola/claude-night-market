@@ -34,10 +34,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
     fd_owned_by_us,
+    read_counter_path,
     secure_open,
-    secure_state_dir,
+    session_id_from,
     shadow_mode_active,
 )
+
+# One definition, shared with the other read-budget hook, so the reset
+# truncates exactly the file the increment writes.
+_counter_path = read_counter_path
+_get_session_id = session_id_from
 
 # fcntl is POSIX-only.  On Windows we fall back to unlocked RMW; the
 # small race window is acceptable for an advisory vow on non-POSIX
@@ -75,21 +81,6 @@ _SHORT_READ_LINES = 50
 # discovery phase reads happen far more often than the TTL, so a live
 # counter is never reset by accident.
 _COUNTER_TTL_SECONDS = 8 * 60 * 60
-
-
-def _counter_path(session_id: str) -> Path:
-    """Return the path to the session-scoped counter file.
-
-    Lives in a private per-user dir (mode 0o700) so another user cannot
-    plant a symlink at this predictable name; opens add ``O_NOFOLLOW``
-    as defense in depth. The reset companion computes the same path.
-    """
-    safe_id = (
-        session_id.replace("/", "_").replace("\\", "_") if session_id else "default"
-    )
-    return (
-        secure_state_dir("imbue-vow-state") / f"vow_read_counter_{safe_id[:200]}.json"
-    )
 
 
 def _read_weight(tool_name: str, tool_input: object) -> float:
@@ -226,26 +217,6 @@ def _is_read_tool(tool_name: str) -> bool:
 def _shadow_mode() -> bool:
     """Return True when shadow (warn-only) mode is active."""
     return shadow_mode_active()
-
-
-def _get_session_id(data: dict) -> str:
-    """Extract session ID from stdin data, env var, or a process-scoped token.
-
-    Issue #580: the last-resort fallback must not be a fixed constant. A
-    shared ``default`` filename made every session without a session_id
-    write to the same counter, so a stale count>budget bled into every
-    later session. Falling back to the parent pid (the Claude Code
-    process, stable within a session and distinct across concurrent
-    sessions) keeps each process on its own counter; the TTL reset in
-    ``_atomic_increment`` covers the residual pid-reuse case.
-    """
-    sid = data.get("session_id", "")
-    if sid:
-        return str(sid)
-    sid = os.environ.get("CLAUDE_SESSION_ID", "")
-    if sid:
-        return sid
-    return f"pid-{os.getppid()}"
 
 
 def main() -> None:

@@ -224,6 +224,9 @@ python3 plugins/abstract/scripts/post_review_insights.py \
   reviews/pr-<NNN>-review.md --pr <NNN>
 ```
 
+If `plugins/abstract/scripts/post_review_insights.py` is absent (a marketplace
+install, not a checkout), skip this step and say so.
+
 Each blocker becomes a high-severity `[PR Finding]` discussion, each
 non-blocking row a medium-severity one. The InsightRegistry deduplicates
 by `{type|skill|summary}` content hash with 30-day staleness, so

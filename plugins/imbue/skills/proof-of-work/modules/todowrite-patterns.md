@@ -1,7 +1,7 @@
 ---
 name: todowrite-patterns
 description: Naming conventions for TodoWrite items across imbue skills
-parent_skill: imbue:shared
+parent_skill: imbue:proof-of-work
 category: infrastructure
 estimated_tokens: 150
 ---

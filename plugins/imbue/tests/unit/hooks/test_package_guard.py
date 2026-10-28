@@ -384,3 +384,37 @@ def test_a_typosquat_is_flagged_wherever_the_install_runs(pg, command: str) -> N
     """Subshells, sudo, env prefixes and quoted names all still fetch the name."""
     findings = pg.assess_packages(command, registry_fn=None)
     assert [(f["name"], f["kind"]) for f in findings] == [("reqeusts", "typosquat")]
+
+
+class TestLegitimateNeighborsAreNotTyposquats:
+    """Short real names sit within an edit or two of popular ones."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command", ["pip install numba", "pip install scapy", "cargo add sync"]
+    )
+    def test_a_real_neighbor_is_not_blocked(self, pg, command):
+        kinds = {f["kind"] for f in pg.assess_packages(command)}
+        assert "typosquat" not in kinds
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("name", ["reqeusts", "nmupy", "djnago"])
+    def test_a_real_typo_of_a_long_enough_name_is_still_caught(self, pg, name):
+        assert pg.nearest_known(name, "pypi") is not None
+
+
+class TestNonRegistryTokens:
+    """Extras and local archives are not registry names."""
+
+    @pytest.mark.unit
+    def test_extras_are_stripped_from_the_name(self, pg):
+        assert pg.parse_packages('pip install "requests[security]"') == [
+            ("pypi", "requests")
+        ]
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "token", ["dist/foo-1.0-py3-none-any.whl", "foo.tar.gz", "foo-1.0.zip"]
+    )
+    def test_a_local_archive_is_not_looked_up(self, pg, token):
+        assert pg.parse_packages(f"pip install {token}") == []

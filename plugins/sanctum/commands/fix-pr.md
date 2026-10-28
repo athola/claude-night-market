@@ -286,6 +286,9 @@ python3 plugins/abstract/scripts/post_review_insights.py \
   reviews/pr-<NNN>-fix.md --pr <NNN>
 ```
 
+If `plugins/abstract/scripts/post_review_insights.py` is absent (a marketplace
+install, not a checkout), skip this step and say so.
+
 Each fix becomes a `[PR Finding]` Insight discussion with the
 "recently iterated" body. The InsightRegistry deduplicates against
 the original /pr-review post by content hash, so the discussion is

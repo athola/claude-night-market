@@ -7,6 +7,7 @@ vocabulary, structural, and fiction-specific categories.
 """
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -17,8 +18,12 @@ import pytest
 # fixtures, so they fail if the YAML tier5 section is removed
 # (de-tautologized per Discussion #542).
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+
+import slop_score  # noqa: E402 - scripts/ must join sys.path above before this resolves
 
 from scribe.pattern_loader import (
+    get_phrase_patterns,
     get_ste_patterns,
     get_sycophantic_patterns,
     get_tier5_patterns,
@@ -63,275 +68,287 @@ def _category_hits_including_optional(name: str, text: str) -> int:
     return sum(len(re.compile(p, flags).findall(text)) for p in entry["patterns"])
 
 
+MODULES = Path(__file__).resolve().parents[1] / "skills" / "slop-detector" / "modules"
+
+
+def _findings(text: str, category: str) -> list[str]:
+    """Matches the gate scorer reports for one category, lowercased."""
+    return [
+        finding.match.lower()
+        for finding in slop_score.score_text(text).findings
+        if finding.category == category
+    ]
+
+
 class TestTier1VocabularyPatterns:
     """Feature: Detect highest-confidence AI slop words.
 
-    As a documentation maintainer
-    I want to detect tier-1 slop words
-    So that I can remove obvious AI markers from content
+    The subject is the shipped tier1 word list, reached through the gate
+    scorer in ``scripts/slop_score.py``.
     """
 
-    TIER1_WORDS = [
-        "delve",
-        "embark",
-        "tapestry",
-        "realm",
-        "beacon",
-        "multifaceted",
-        "nuanced",
-        "pivotal",
-        "paramount",
-        "meticulous",
-        "meticulously",
-        "intricate",
-        "showcasing",
-        "leveraging",
-        "streamline",
-        "unleash",
-        "comprehensive",
-    ]
-
-    @pytest.fixture
-    def tier1_pattern(self) -> re.Pattern:
-        """Compile tier-1 detection pattern."""
-        pattern = r"\b(" + "|".join(self.TIER1_WORDS) + r")\b"
-        return re.compile(pattern, re.IGNORECASE)
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("sentence", "word"),
+        [
+            ("Let's delve into the details.", "delve"),
+            ("This creates a rich tapestry of features.", "tapestry"),
+            ("A multifaceted problem needs a plan.", "multifaceted"),
+            ("The realm of tooling keeps growing.", "realm"),
+            ("This comprehensive guide covers setup.", "comprehensive"),
+        ],
+    )
+    def test_shipped_tier1_word_is_scored_in_a_sentence(
+        self, sentence: str, word: str
+    ) -> None:
+        assert _findings(sentence, "tier1") == [word]
 
     @pytest.mark.unit
-    def test_detects_delve(self, tier1_pattern: re.Pattern) -> None:
-        """Scenario: Detect 'delve' as tier-1 slop.
-
-        Given text containing the word 'delve'
-        When scanning for tier-1 patterns
-        Then it should be flagged.
-        """
-        text = "Let's delve into the details."
-        matches = tier1_pattern.findall(text)
-        assert len(matches) == 1
-        assert matches[0].lower() == "delve"
+    def test_tier1_match_ignores_case(self) -> None:
+        assert _findings("Tapestry is the wrong word here.", "tier1") == ["tapestry"]
 
     @pytest.mark.unit
-    def test_detects_tapestry(self, tier1_pattern: re.Pattern) -> None:
-        """Scenario: Detect 'tapestry' as tier-1 slop."""
-        text = "This creates a rich tapestry of features."
-        matches = tier1_pattern.findall(text)
-        assert len(matches) == 1
+    def test_tier1_word_inside_a_longer_word_is_not_scored(self) -> None:
+        assert _findings("The delved-for coins stayed buried.", "tier1") == []
+        assert _findings("Surrealm is a made-up name.", "tier1") == []
 
     @pytest.mark.unit
-    def test_detects_multiple_slop_words(self, tier1_pattern: re.Pattern) -> None:
-        """Scenario: Detect multiple tier-1 words in one passage."""
-        text = """
-        This comprehensive solution leverages cutting-edge technology
-        to delve into the multifaceted realm of documentation.
-        """
-        matches = tier1_pattern.findall(text)
-        # Should find: comprehensive, leverages (leveraging), delve, multifaceted, realm
-        assert len(matches) >= 4
+    def test_each_tier1_hit_adds_the_tier1_weight(self) -> None:
+        score = slop_score.score_text("delve and tapestry and realm")
+
+        assert [f.weight for f in score.findings] == [slop_score.TIER1_WEIGHT] * 3
 
     @pytest.mark.unit
-    def test_clean_text_no_matches(self, tier1_pattern: re.Pattern) -> None:
-        """Scenario: Clean text has no tier-1 matches."""
+    def test_plain_technical_text_has_no_tier1_finding(self) -> None:
         text = "The system processes requests and returns results."
-        matches = tier1_pattern.findall(text)
-        assert len(matches) == 0
+
+        assert _findings(text, "tier1") == []
 
 
 class TestPhrasePatterns:
-    """Feature: Detect AI slop phrase patterns.
+    """Feature: Detect AI slop phrase patterns from the shipped phrase lists."""
 
-    As a documentation maintainer
-    I want to detect formulaic AI phrases
-    So that I can remove them for more direct writing
-    """
-
-    VAPID_OPENERS = [
-        r"in today's fast-paced",
-        r"in an ever-evolving",
-        r"in the dynamic world of",
-        r"as technology continues to evolve",
-    ]
-
-    @pytest.fixture
-    def vapid_pattern(self) -> re.Pattern:
-        """Compile vapid opener pattern."""
-        pattern = "|".join(self.VAPID_OPENERS)
-        return re.compile(pattern, re.IGNORECASE)
+    @staticmethod
+    def _phrase_hits(category: str, text: str) -> list[str]:
+        phrases = get_phrase_patterns(load_language_patterns("en"))
+        return [
+            entry["pattern"]
+            for entry in phrases
+            if entry["category"] == category
+            and re.search(entry["pattern"], text, re.IGNORECASE)
+        ]
 
     @pytest.mark.unit
-    def test_detects_fast_paced_opener(self, vapid_pattern: re.Pattern) -> None:
-        """Scenario: Detect 'In today's fast-paced world' opener."""
-        text = "In today's fast-paced world, documentation is crucial."
-        matches = vapid_pattern.findall(text)
-        assert len(matches) == 1
+    @pytest.mark.parametrize(
+        ("sentence", "phrase"),
+        [
+            (
+                "In today's fast-paced world, documentation is crucial.",
+                "in today's fast-paced world",
+            ),
+            (
+                "In an ever-evolving landscape of technology...",
+                "in an ever-evolving landscape",
+            ),
+            (
+                "As technology continues to evolve, so do docs.",
+                "as technology continues to evolve",
+            ),
+        ],
+    )
+    def test_vapid_opener_is_matched(self, sentence: str, phrase: str) -> None:
+        assert self._phrase_hits("vapid_openers", sentence) == [phrase]
 
     @pytest.mark.unit
-    def test_detects_ever_evolving(self, vapid_pattern: re.Pattern) -> None:
-        """Scenario: Detect 'ever-evolving landscape' pattern."""
-        text = "In an ever-evolving landscape of technology..."
-        matches = vapid_pattern.findall(text)
-        assert len(matches) == 1
-
-    @pytest.mark.unit
-    def test_direct_opener_no_match(self, vapid_pattern: re.Pattern) -> None:
-        """Scenario: Direct opener does not match."""
+    def test_direct_opener_matches_no_phrase_category(self) -> None:
         text = "scribe detects AI patterns in documentation."
-        matches = vapid_pattern.findall(text)
-        assert len(matches) == 0
+        categories = {
+            e["category"] for e in get_phrase_patterns(load_language_patterns("en"))
+        }
+
+        assert [c for c in categories if self._phrase_hits(c, text)] == []
+
+    @pytest.mark.unit
+    def test_vapid_openers_carry_a_score_above_filler(self) -> None:
+        score_by_category = {
+            e["category"]: e["score"]
+            for e in get_phrase_patterns(load_language_patterns("en"))
+        }
+
+        assert score_by_category["vapid_openers"] > score_by_category["filler"]
 
 
 class TestStructuralPatterns:
-    """Feature: Detect structural AI patterns.
+    """Feature: structural thresholds in structural-patterns.md hold when run.
 
-    As a documentation maintainer
-    I want to detect structural patterns like excessive em dashes
-    So that I can normalize document structure
+    The module ships shell snippets that count em dashes and bullet
+    lines. These tests execute those snippets on fixture files and pin
+    the signal tables beside them.
     """
 
-    @pytest.mark.unit
-    def test_em_dash_count(self) -> None:
-        """Scenario: Count em dashes in text."""
-        text = "The system—which handles requests—returns data—quickly."
-        em_dash_count = text.count("—")
-        word_count = len(text.split())
-        density = em_dash_count / word_count * 1000
+    @staticmethod
+    def _module() -> str:
+        return (MODULES / "structural-patterns.md").read_text(encoding="utf-8")
 
-        # 3 em dashes in ~7 words = very high density
-        assert em_dash_count == 3
-        assert density > 100  # Well above threshold
-
-    @pytest.mark.unit
-    def test_normal_em_dash_usage(self) -> None:
-        """Scenario: Normal em dash usage passes."""
-        text = """
-        The system processes requests efficiently. Each request
-        goes through validation—ensuring data integrity—before
-        being stored in the database. Results typically return
-        within 50ms for most queries, though complex aggregations
-        may take longer depending on data volume.
-        """
-        em_dash_count = text.count("—")
-        word_count = len(text.split())
-        density = em_dash_count / word_count * 1000
-
-        # 2 em dashes in ~40 words = ~50/1000, well under 100
-        assert density < 100
+    def _run_snippet(self, heading: str, text: str, tmp_path: Path, var: str) -> int:
+        section = re.search(
+            rf"^{re.escape(heading)}\n.*?```bash\n(.*?)```",
+            self._module(),
+            re.M | re.S,
+        )
+        assert section is not None, f"snippet under {heading!r} not found"
+        document = tmp_path / "doc.md"
+        document.write_text(text, encoding="utf-8")
+        script = f'file="{document}"\n{section.group(1)}\nprintf "%s" "${{{var}}}"'
+        result = subprocess.run(
+            ["bash", "-c", script], capture_output=True, text=True, check=True
+        )
+        return int(result.stdout.strip())
 
     @pytest.mark.unit
-    def test_bullet_ratio_calculation(self) -> None:
-        """Scenario: Calculate bullet point ratio."""
-        text = """# Header
+    def test_em_dash_snippet_reports_density_per_thousand_words(
+        self, tmp_path: Path
+    ) -> None:
+        words = " ".join(["word"] * 97)
+        text = f"{words}—a—b—c\n"  # 100 words, 3 em dashes
 
-- Bullet one
-- Bullet two
-- Bullet three
+        density = self._run_snippet("## Em Dash Analysis", text, tmp_path, "density")
 
-Regular paragraph here.
+        assert density == 30
 
-- Another bullet
-- And another
-"""
-        lines = [line for line in text.strip().split("\n") if line.strip()]
-        bullet_lines = sum(1 for line in lines if line.strip().startswith("-"))
-        total_lines = len(lines)
-        ratio = bullet_lines / total_lines
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("band", "signal"),
+        [
+            ("0-1", "Normal"),
+            ("2-4", "Elevated"),
+            ("5-9", "High AI signal"),
+            ("10+", "Very high AI signal"),
+        ],
+    )
+    def test_em_dash_audit_table_maps_density_band_to_signal(
+        self, band: str, signal: str
+    ) -> None:
+        assert f"| {band} | {signal} |" in self._module()
 
-        # 5 bullet lines out of 8 total = 62.5%
-        assert ratio > 0.5  # Above 50% threshold
+    @pytest.mark.unit
+    def test_prevention_mode_targets_zero_em_dashes(self) -> None:
+        assert "**Target: zero em-dashes.**" in self._module()
+
+    @pytest.mark.unit
+    def test_bullet_snippet_reports_percent_of_lines_that_are_bullets(
+        self, tmp_path: Path
+    ) -> None:
+        text = (
+            "# Header\n- one\n- two\n- three\nProse line.\n"
+            "- four\n- five\nMore prose.\n"
+        )  # 5 bullets of 8 lines
+
+        ratio = self._run_snippet("## Bullet-to-Prose Ratio", text, tmp_path, "ratio")
+
+        assert ratio == 62
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("band", "signal"),
+        [
+            ("0-30%", "Normal"),
+            ("30-50%", "Elevated"),
+            ("50-70%", "High (check context)"),
+            ("70%+", "Very high AI signal"),
+        ],
+    )
+    def test_bullet_table_maps_ratio_band_to_signal(
+        self, band: str, signal: str
+    ) -> None:
+        assert f"| {band} | {signal} |" in self._module()
 
 
 class TestFictionPatterns:
-    """Feature: Detect fiction-specific AI patterns.
+    """Feature: fiction-patterns.md lists the cliche beats with scores.
 
-    As a creative writer
-    I want to detect cliche physical/emotional beats
-    So that I can write more original prose
+    No code scans fiction; the module is the artifact a model follows.
     """
 
-    @pytest.fixture
-    def breath_pattern(self) -> re.Pattern:
-        """Pattern for breath cliches."""
-        return re.compile(
-            r"breath \w+ didn't know|let out a breath|"
-            r"released a breath|exhaled a breath",
-            re.IGNORECASE,
+    @staticmethod
+    def _section(heading: str) -> str:
+        text = (MODULES / "fiction-patterns.md").read_text(encoding="utf-8")
+        match = re.search(
+            rf"^### {re.escape(heading)}.*?(?=^##+ |\Z)", text, re.M | re.S
         )
-
-    @pytest.fixture
-    def wash_pattern(self) -> re.Pattern:
-        """Pattern for emotion washing cliches."""
-        return re.compile(
-            r"(relief|fear|dread|panic|exhaustion) washed over", re.IGNORECASE
-        )
+        assert match is not None, f"{heading!r} not in fiction-patterns.md"
+        return match.group(0)
 
     @pytest.mark.unit
-    def test_detects_breath_cliche(self, breath_pattern: re.Pattern) -> None:
-        """Scenario: Detect 'breath he didn't know' cliche."""
-        text = "He let out a breath he didn't know he was holding."
-        matches = breath_pattern.findall(text)
-        assert len(matches) >= 1
+    @pytest.mark.parametrize(
+        ("heading", "score", "phrase"),
+        [
+            ("Breath Cliches", 3, "breath he didn't know he was holding"),
+            ("Breath Cliches", 3, "let out a breath"),
+            ("Breath Cliches", 3, "released a breath"),
+            ("Emotion Washing", 3, "relief washed over"),
+            ("Emotion Washing", 3, "[emotion] washed over"),
+            ("Body Protest Metaphors", 2, "muscles screamed in protest"),
+        ],
+    )
+    def test_cliche_is_listed_under_its_scored_heading(
+        self, heading: str, score: int, phrase: str
+    ) -> None:
+        section = self._section(heading)
+
+        assert f"(Score: {score} each)" in section
+        assert f'"{phrase}"' in section
 
     @pytest.mark.unit
-    def test_detects_relief_washing(self, wash_pattern: re.Pattern) -> None:
-        """Scenario: Detect 'relief washed over' cliche."""
-        text = "Relief washed over her as the test passed."
-        matches = wash_pattern.findall(text)
-        assert len(matches) == 1
+    def test_original_emotion_phrasing_is_not_listed_as_a_cliche(self) -> None:
+        text = (MODULES / "fiction-patterns.md").read_text(encoding="utf-8")
 
-    @pytest.mark.unit
-    def test_original_emotion_no_match(self, wash_pattern: re.Pattern) -> None:
-        """Scenario: Original emotional description doesn't match."""
-        text = "Her shoulders dropped three inches as tension released."
-        matches = wash_pattern.findall(text)
-        assert len(matches) == 0
+        assert "shoulders dropped three inches" not in text
 
 
 class TestSlopScoring:
-    """Feature: Calculate overall slop score.
-
-    As a documentation maintainer
-    I want a single score representing AI content density
-    So that I can prioritize remediation efforts
-    """
+    """Feature: the gate scorer turns findings into one density score."""
 
     @pytest.mark.unit
-    def test_clean_text_low_score(self) -> None:
-        """Scenario: Clean text has low slop score."""
-        text = """
-        The cache sits between the API and database. When a request
-        arrives, we check Redis first. Cache hits return in under 5ms.
-        """
-        # Simulate scoring: count tier-1 words
-        tier1_words = ["delve", "tapestry", "realm", "comprehensive"]
-        tier1_count = sum(1 for word in tier1_words if word in text.lower())
-        word_count = len(text.split())
-        score = (tier1_count * 3) / word_count * 100
+    def test_plain_text_scores_zero(self) -> None:
+        text = (
+            "The cache holds recent responses. When a request arrives, "
+            "the server checks Redis first. Cache hits return in under 5ms."
+        )
 
-        assert score < 1.0  # Clean threshold
+        assert slop_score.score_text(text).score == 0
 
     @pytest.mark.unit
-    def test_sloppy_text_high_score(self) -> None:
-        """Scenario: Sloppy text has high slop score."""
-        text = """
-        In today's fast-paced world, this comprehensive solution
-        delves into the multifaceted realm of documentation,
-        leveraging cutting-edge technology to unleash the full
-        potential of your content tapestry.
-        """
-        tier1_words = [
-            "delve",
-            "delves",
-            "tapestry",
-            "realm",
-            "comprehensive",
-            "multifaceted",
-            "leveraging",
-            "unleash",
-        ]
-        tier1_count = sum(1 for word in tier1_words if word in text.lower())
-        word_count = len(text.split())
-        score = (tier1_count * 3) / word_count * 100
+    def test_sloppy_text_scores_above_the_ci_threshold(self) -> None:
+        text = (
+            "In today's fast-paced world, this comprehensive solution "
+            "delves into the multifaceted realm of documentation, "
+            "leveraging cutting-edge technology to unleash the full "
+            "potential of your content tapestry."
+        )
 
-        assert score > 5.0  # Heavy slop threshold
+        assert slop_score.score_text(text).score > 3.0
+
+    @pytest.mark.unit
+    def test_score_is_weighted_hits_per_hundred_words(self) -> None:
+        text = "delve " + " ".join(["plain"] * 19)  # one tier1 hit in 20 words
+
+        score = slop_score.score_text(text)
+
+        assert score.words == 20
+        assert score.score == pytest.approx(slop_score.TIER1_WEIGHT / 20 * 100)
+
+    @pytest.mark.unit
+    def test_slop_in_a_code_fence_is_not_scored(self) -> None:
+        text = "Plain prose here.\n\n```\ndelve tapestry realm\n```\n"
+
+        assert slop_score.score_text(text).findings == []
+
+    @pytest.mark.unit
+    def test_allowlisted_word_is_not_scored(self) -> None:
+        score = slop_score.score_text("delve into it", allowlist=frozenset({"delve"}))
+
+        assert score.findings == []
 
 
 class TestTier5SpatialCopula:
@@ -343,64 +360,43 @@ class TestTier5SpatialCopula:
     So that I can replace them with plain "is/has/uses"
     """
 
-    @pytest.fixture
-    def copula_pattern(self) -> re.Pattern:
-        """Pattern for spatial copula verbs."""
-        return re.compile(
-            r"\b(?:lives?|sits?|stands?|rests?|dwells?)"
-            r"\s+(?:in|at|on|between|within|atop)\b",
-            re.IGNORECASE,
-        )
-
-    @pytest.fixture
-    def serves_pattern(self) -> re.Pattern:
-        """Pattern for 'serves as' / 'stands as' / 'boasts'."""
-        return re.compile(
-            r"\b(?:serves?\s+as|stands?\s+as|boasts?|nestled\s+in|rooted\s+in)\b",
-            re.IGNORECASE,
-        )
+    CATEGORY = "spatial_copula"
 
     @pytest.mark.unit
-    def test_detects_lives_in(self, copula_pattern: re.Pattern) -> None:
+    def test_detects_lives_in(self) -> None:
         """Scenario: Detect 'lives in' as spatial copula."""
-        text = "The skill lives in `plugins/scribe/`."
-        matches = copula_pattern.findall(text)
-        assert len(matches) == 1
+        assert (
+            _category_hits(self.CATEGORY, "The skill lives in `plugins/scribe/`.") == 1
+        )
 
     @pytest.mark.unit
-    def test_detects_sits_between(self, copula_pattern: re.Pattern) -> None:
+    def test_detects_sits_between(self) -> None:
         """Scenario: Detect 'sits between' as spatial copula."""
         text = "The cache sits between the API and the database."
-        matches = copula_pattern.findall(text)
-        assert len(matches) == 1
+        assert _category_hits(self.CATEGORY, text) == 1
 
     @pytest.mark.unit
-    def test_detects_stands_as(self, serves_pattern: re.Pattern) -> None:
+    def test_detects_stands_as(self) -> None:
         """Scenario: Detect 'stands as' (copula avoidance, not spatial)."""
         text = "The framework stands as a foundation for new work."
-        matches = serves_pattern.findall(text)
-        assert len(matches) >= 1
+        assert _category_hits(self.CATEGORY, text) >= 1
 
     @pytest.mark.unit
-    def test_detects_boasts(self, serves_pattern: re.Pattern) -> None:
+    def test_detects_boasts(self) -> None:
         """Scenario: Detect 'boasts' (animation of inanimate)."""
         text = "The library boasts 50 features and excellent docs."
-        matches = serves_pattern.findall(text)
-        assert len(matches) >= 1
+        assert _category_hits(self.CATEGORY, text) >= 1
 
     @pytest.mark.unit
-    def test_detects_serves_as(self, serves_pattern: re.Pattern) -> None:
+    def test_detects_serves_as(self) -> None:
         """Scenario: Detect 'serves as'."""
         text = "This pattern serves as the basis for the workflow."
-        matches = serves_pattern.findall(text)
-        assert len(matches) >= 1
+        assert _category_hits(self.CATEGORY, text) >= 1
 
     @pytest.mark.unit
-    def test_plain_is_passes(self, copula_pattern: re.Pattern) -> None:
+    def test_plain_is_passes(self) -> None:
         """Scenario: Plain 'is' does not match."""
-        text = "The skill is in plugins/scribe/."
-        matches = copula_pattern.findall(text)
-        assert len(matches) == 0
+        assert _category_hits(self.CATEGORY, "The skill is in plugins/scribe/.") == 0
 
 
 class TestTier5NegativeParallelism:
@@ -409,100 +405,53 @@ class TestTier5NegativeParallelism:
     The strongest 2026 prose tell per cross-source consensus.
     """
 
-    @pytest.fixture
-    def not_just_pattern(self) -> re.Pattern:
-        return re.compile(
-            r"\bNot\s+just\s+\w+,?\s+but(?:\s+also)?\s+\w+", re.IGNORECASE
-        )
-
-    @pytest.fixture
-    def its_not_pattern(self) -> re.Pattern:
-        # Non-greedy across optional articles/words up to the
-        # comma, then "it's <word>". Real prose uses multi-word
-        # objects like "a tool", "just a phase".
-        return re.compile(
-            r"\bIt's not [\w\s]+?,\s+it's \w+",
-            re.IGNORECASE,
-        )
-
-    @pytest.fixture
-    def no_no_just_pattern(self) -> re.Pattern:
-        return re.compile(r"\bNo \w+\.\s+No \w+\.\s+Just \w+", re.IGNORECASE)
-
-    @pytest.fixture
-    def thats_okay_pattern(self) -> re.Pattern:
-        return re.compile(r"\bAnd that's okay\.", re.IGNORECASE)
-
-    @pytest.fixture
-    def comma_no_pattern(self) -> re.Pattern:
-        # Comma-joined variant of "No X. No Y.": "No X, no Y, no Z".
-        return re.compile(r"\bNo \w+,\s+no \w+(?:,\s+no \w+)*", re.IGNORECASE)
-
-    @pytest.fixture
-    def trailing_not_pattern(self) -> re.Pattern:
-        # Trailing corrective negation: "Y, not X." Catches the
-        # rhetorical tail. Genuine either/or choices ("Python, not
-        # Java") are slop too: rewrite as "Y instead of X".
-        return re.compile(r"\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]")
+    CATEGORY = "negative_parallelism"
 
     @pytest.mark.unit
-    def test_detects_not_just_but(self, not_just_pattern: re.Pattern) -> None:
+    def test_detects_not_just_but(self) -> None:
         """Scenario: Detect 'Not just X, but Y' construction."""
-        text = "Not just fast, but elegant."
-        matches = not_just_pattern.findall(text)
-        assert len(matches) == 1
+        assert _category_hits(self.CATEGORY, "Not just fast, but elegant.") >= 1
 
     @pytest.mark.unit
-    def test_detects_not_just_but_also(self, not_just_pattern: re.Pattern) -> None:
+    def test_detects_not_just_but_also(self) -> None:
         """Scenario: Detect 'Not just X, but also Y' variant."""
-        text = "Not just fast, but also elegant."
-        matches = not_just_pattern.findall(text)
-        assert len(matches) == 1
+        assert _category_hits(self.CATEGORY, "Not just fast, but also elegant.") >= 1
 
     @pytest.mark.unit
-    def test_detects_its_not_its(self, its_not_pattern: re.Pattern) -> None:
+    def test_detects_its_not_its(self) -> None:
         """Scenario: Detect 'It's not X, it's Y' construction."""
         text = "It's not a tool, it's a transformation."
-        matches = its_not_pattern.findall(text)
-        assert len(matches) == 1
+        assert _category_hits(self.CATEGORY, text) >= 1
 
     @pytest.mark.unit
-    def test_detects_no_no_just(self, no_no_just_pattern: re.Pattern) -> None:
+    def test_detects_no_no_just(self) -> None:
         """Scenario: Detect 'No X. No Y. Just Z.' construction."""
-        text = "No friction. No setup. Just code."
-        matches = no_no_just_pattern.findall(text)
-        assert len(matches) == 1
+        assert _category_hits(self.CATEGORY, "No friction. No setup. Just code.") >= 1
 
     @pytest.mark.unit
-    def test_detects_and_thats_okay(self, thats_okay_pattern: re.Pattern) -> None:
+    def test_detects_and_thats_okay(self) -> None:
         """Scenario: Detect 'And that's okay.' closing reassurance."""
         text = "Sometimes the tests fail. And that's okay."
-        matches = thats_okay_pattern.findall(text)
-        assert len(matches) == 1
+        assert _category_hits(self.CATEGORY, text) == 1
 
     @pytest.mark.unit
-    def test_detects_comma_joined_no(self, comma_no_pattern: re.Pattern) -> None:
+    def test_detects_comma_joined_no(self) -> None:
         """Scenario: Detect 'No X, no Y, no Z' comma-joined construction."""
-        text = "No friction, no setup, no config."
-        assert len(comma_no_pattern.findall(text)) == 1
+        assert _category_hits(self.CATEGORY, "No friction, no setup, no config.") >= 1
 
     @pytest.mark.unit
-    def test_detects_trailing_negation(self, trailing_not_pattern: re.Pattern) -> None:
+    def test_detects_trailing_negation(self) -> None:
         """Scenario: Detect trailing 'Y, not X' corrective negation."""
-        text = "The API is clear, not clever."
-        assert len(trailing_not_pattern.findall(text)) == 1
+        assert _category_hits(self.CATEGORY, "The API is clear, not clever.") >= 1
 
     @pytest.mark.unit
-    def test_detects_trailing_negation_proper_noun(
-        self, trailing_not_pattern: re.Pattern
-    ) -> None:
+    def test_detects_trailing_negation_proper_noun(self) -> None:
         """Scenario: Either/or with proper nouns is still slop.
 
         "Python, not Java" is flagged; the rewrite is "Python
         instead of Java", which keeps the contrast without the tail.
         """
-        text = "We use Python, not Java."
-        assert len(trailing_not_pattern.findall(text)) == 1
+        assert _category_hits(self.CATEGORY, "We use Python, not Java.") >= 1
 
     @pytest.mark.unit
     def test_detects_copula_led_corrective_with_article(self) -> None:
@@ -549,190 +498,230 @@ class TestTier5NegativeParallelism:
         )
 
     @pytest.mark.unit
-    def test_comma_no_ignores_single_no(self, comma_no_pattern: re.Pattern) -> None:
+    def test_comma_no_ignores_single_no(self) -> None:
         """Scenario: A single 'No X.' is not the comma-joined pattern."""
-        text = "No config required."
-        assert len(comma_no_pattern.findall(text)) == 0
+        assert _category_hits(self.CATEGORY, "No config required.") == 0
 
     @pytest.mark.unit
-    def test_positive_statement_passes(
-        self,
-        not_just_pattern: re.Pattern,
-        its_not_pattern: re.Pattern,
-    ) -> None:
+    def test_positive_statement_passes(self) -> None:
         """Scenario: Positive statement does not match negative parallelism."""
-        text = "The framework is fast and elegant."
-        assert len(not_just_pattern.findall(text)) == 0
-        assert len(its_not_pattern.findall(text)) == 0
+        assert _category_hits(self.CATEGORY, "The framework is fast and elegant.") == 0
 
 
 class TestTier5PlusSignConjunction:
     """Feature: Detect plus-sign used as 'and' in prose."""
 
-    @pytest.fixture
-    def plus_pattern(self) -> re.Pattern:
-        return re.compile(r"\w\s\+\s\w")
+    CATEGORY = "plus_sign_conjunction"
 
     @pytest.mark.unit
-    def test_detects_plus_in_prose(self, plus_pattern: re.Pattern) -> None:
+    def test_detects_plus_in_prose(self) -> None:
         """Scenario: Detect 'hooks + skills' in prose."""
         text = "The plugin uses hooks + skills together."
-        matches = plus_pattern.findall(text)
-        assert len(matches) >= 1
+        assert _category_hits(self.CATEGORY, text) >= 1
 
     @pytest.mark.unit
     def test_plus_in_version_string_acceptable(self) -> None:
         """Scenario: '3.11+' in version context is acceptable.
 
-        The detection regex requires word-space-plus-space-word,
-        so '3.11+' (no surrounding spaces) does not match.
+        The shipped regex requires word-space-plus-space-word, so
+        '3.11+' (no surrounding spaces) does not match.
         """
-        pattern = re.compile(r"\w\s\+\s\w")
         text = "Requires Python 3.11+ for typing features."
-        matches = pattern.findall(text)
-        assert len(matches) == 0
+        assert _category_hits(self.CATEGORY, text) == 0
 
     @pytest.mark.unit
-    def test_and_passes(self, plus_pattern: re.Pattern) -> None:
+    def test_and_passes(self) -> None:
         """Scenario: Plain 'and' does not match."""
         text = "The plugin uses hooks and skills together."
-        matches = plus_pattern.findall(text)
-        assert len(matches) == 0
+        assert _category_hits(self.CATEGORY, text) == 0
+
+
+class TestTier5ArrowConnector:
+    """Feature: Detect ASCII and Unicode arrows used as prose connectors."""
+
+    CATEGORY = "arrow_connector"
+
+    @pytest.mark.unit
+    def test_category_is_scored_by_default(self) -> None:
+        """Scenario: the arrow rule ships enabled with a positive score."""
+        entry = _tier5_category(self.CATEGORY)
+        assert entry["confidence"] == "high"
+        assert entry["score"] >= 1
+
+    @pytest.mark.unit
+    def test_detects_ascii_arrow_between_words(self) -> None:
+        """Scenario: 'parse -> validate' reads as a prose connector."""
+        text = "The hook runs parse -> validate -> write."
+        assert _category_hits(self.CATEGORY, text) == 2
+
+    @pytest.mark.unit
+    def test_detects_unicode_arrow(self) -> None:
+        """Scenario: a Unicode arrow is a connector too."""
+        assert _category_hits(self.CATEGORY, "Input → output in one pass.") == 1
+
+    @pytest.mark.unit
+    def test_unspaced_ascii_arrow_in_a_signature_passes(self) -> None:
+        """Scenario: '->' without surrounding spaces is not matched."""
+        assert _category_hits(self.CATEGORY, "Use def f()->int style hints.") == 0
+
+    @pytest.mark.unit
+    def test_comparison_operators_pass(self) -> None:
+        """Scenario: '>=' and '--' are not arrows."""
+        assert _category_hits(self.CATEGORY, "Use a >= b and pass --force.") == 0
+
+    @pytest.mark.unit
+    def test_plain_connectors_pass(self) -> None:
+        """Scenario: 'to' and 'into' are the recommended rewrites."""
+        text = "The parser turns input into tokens, then passes them to the checker."
+        assert _category_hits(self.CATEGORY, text) == 0
 
 
 class TestTier5ThroatClearing:
     """Feature: Detect throat-clearing discourse openers."""
 
-    @pytest.fixture
-    def opener_pattern(self) -> re.Pattern:
-        return re.compile(
-            r"^(?:Here's the thing,|Look,\s+[A-Z]|The thing is,|"
-            r"Let me explain\.|Bear with me\.|"
-            r"The uncomfortable truth is)",
-            re.MULTILINE,
-        )
-
-    @pytest.fixture
-    def let_that_sink_pattern(self) -> re.Pattern:
-        return re.compile(r"\bLet that sink in\b", re.IGNORECASE)
+    CATEGORY = "throat_clearing"
 
     @pytest.mark.unit
-    def test_detects_heres_the_thing(self, opener_pattern: re.Pattern) -> None:
+    def test_detects_heres_the_thing(self) -> None:
         """Scenario: Detect 'Here's the thing,' opener."""
         text = "Here's the thing, this approach is fragile."
-        matches = opener_pattern.findall(text)
-        assert len(matches) == 1
+        assert _category_hits(self.CATEGORY, text) == 1
 
     @pytest.mark.unit
-    def test_detects_look_opener(self, opener_pattern: re.Pattern) -> None:
-        """Scenario: Detect 'Look,' as sentence opener."""
-        text = "Look, This is not the right path forward."
-        matches = opener_pattern.findall(text)
-        assert len(matches) == 1
+    def test_detects_the_thing_is(self) -> None:
+        """Scenario: Detect 'The thing is,' opener."""
+        text = "The thing is, this approach is fragile."
+        assert _category_hits(self.CATEGORY, text) == 1
 
     @pytest.mark.unit
-    def test_detects_let_that_sink_in(self, let_that_sink_pattern: re.Pattern) -> None:
+    def test_detects_let_that_sink_in(self) -> None:
         """Scenario: Detect 'Let that sink in.'"""
         text = "The system handles 1M req/s. Let that sink in."
-        matches = let_that_sink_pattern.findall(text)
-        assert len(matches) == 1
+        assert _category_hits(self.CATEGORY, text) == 1
 
     @pytest.mark.unit
-    def test_substantive_opener_passes(self, opener_pattern: re.Pattern) -> None:
+    def test_detects_let_me_explain(self) -> None:
+        """Scenario: Detect 'Let me explain.' with its full stop."""
+        assert _category_hits(self.CATEGORY, "Let me explain. The cache is cold.") == 1
+
+    @pytest.mark.unit
+    def test_substantive_opener_passes(self) -> None:
         """Scenario: Substantive opener does not match."""
         text = "The skill processes input and returns findings."
-        matches = opener_pattern.findall(text)
-        assert len(matches) == 0
+        assert _category_hits(self.CATEGORY, text) == 0
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "Look, this approach is fragile.",
+            "The cache is cold. Look, we can warm it.",
+            "The cache is cold.\nLook, we can warm it.",
+        ],
+    )
+    def test_detects_look_opener_at_sentence_start(self, text: str) -> None:
+        """Scenario: 'Look,' opening a sentence is throat-clearing."""
+        assert _category_hits(self.CATEGORY, text) == 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "Look at the file before editing.",
+            "Take a look, then decide.",
+            "Please look, carefully, at the diff.",
+            "look, a lowercase mid-sentence word, is not an opener.",
+        ],
+    )
+    def test_look_outside_a_sentence_opener_passes(self, text: str) -> None:
+        """Scenario: ordinary uses of 'look' do not match."""
+        assert _category_hits(self.CATEGORY, text) == 0
 
 
 class TestTier5ThreeFragmentBurst:
     """Feature: Detect three-fragment-burst patterns."""
 
-    @pytest.fixture
-    def burst_pattern(self) -> re.Pattern:
-        return re.compile(r"\b([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\.")
+    CATEGORY = "three_fragment_burst"
 
     @pytest.mark.unit
-    def test_detects_three_word_burst(self, burst_pattern: re.Pattern) -> None:
+    def test_detects_three_word_burst(self) -> None:
         """Scenario: Detect 'Focused. Aligned. Measurable.'"""
         text = "Our principles are simple. Focused. Aligned. Measurable."
-        matches = burst_pattern.findall(text)
-        assert len(matches) >= 1
+        assert _category_hits(self.CATEGORY, text) >= 1
 
     @pytest.mark.unit
-    def test_detects_fast_reliable_cheap(self, burst_pattern: re.Pattern) -> None:
+    def test_detects_fast_reliable_cheap(self) -> None:
         """Scenario: Detect 'Fast. Reliable. Cheap.'"""
-        text = "Pick two. Fast. Reliable. Cheap."
-        matches = burst_pattern.findall(text)
-        assert len(matches) >= 1
+        assert _category_hits(self.CATEGORY, "Pick two. Fast. Reliable. Cheap.") >= 1
 
     @pytest.mark.unit
-    def test_normal_short_sentences_no_match(self, burst_pattern: re.Pattern) -> None:
-        """Scenario: Normal short sentences with content don't match."""
+    def test_normal_short_sentences_no_match(self) -> None:
+        """Scenario: Normal short sentences with content don't match.
+
+        The burst regex needs three single-capitalized-word sentences
+        in a row; these are multi-word sentences.
+        """
         text = (
             "The cache works well. It returns results quickly. We added it last week."
         )
-        matches = burst_pattern.findall(text)
-        # These have multi-word sentences; the burst regex needs
-        # exactly three single-capitalized-word sentences in a row
-        assert len(matches) == 0
+        assert _category_hits(self.CATEGORY, text) == 0
 
 
-class TestTier5EmDashPreventionMode:
-    """Feature: Prevention-mode em-dash detection (any em-dash fails).
+class TestEmDashReachesTheScorer:
+    """Feature: Em dashes are scored by the gate and reported by the audit.
 
-    Audit mode tolerates legitimate em-dash usage by human writers.
-    Prevention mode applies to docs an agent just generated, where
-    every em-dash is a finding.
+    The em dash is not a tier5 YAML category: `scripts/slop_score.py`
+    adds it as a rule of its own, so the scorer is the subject here.
     """
 
     @pytest.mark.unit
-    def test_prevention_mode_any_em_dash_is_finding(self) -> None:
-        """Scenario: In prevention mode, even one em dash fails."""
-        text = "The system handles requests—and returns results quickly."
-        em_dash_count = text.count("—")
-        # Prevention mode: nonzero count is a finding
-        assert em_dash_count == 1
-        prevention_failed = em_dash_count > 0
-        assert prevention_failed
+    def test_any_em_dash_is_an_audit_finding(self) -> None:
+        """Scenario: even one em dash is reported, with its line."""
+        hits = slop_score.audit_text("The system handles requests—and returns.\n")
+        em_dash_hits = [hit for hit in hits if hit.category == "em_dash"]
+        assert [(hit.match, hit.line) for hit in em_dash_hits] == [("\u2014", 1)]
 
     @pytest.mark.unit
-    def test_prevention_mode_zero_em_dashes_passes(self) -> None:
-        """Scenario: In prevention mode, zero em dashes passes."""
-        text = "The system handles requests and returns results quickly."
-        em_dash_count = text.count("—")
-        assert em_dash_count == 0
-        prevention_failed = em_dash_count > 0
-        assert not prevention_failed
+    def test_an_em_dash_adds_to_the_gate_score(self) -> None:
+        """Scenario: the gate counts the em dash."""
+        dashed = slop_score.score_text("The system handles requests—quickly.")
+        plain = slop_score.score_text("The system handles requests quickly.")
+        assert dashed.score > plain.score
+
+    @pytest.mark.unit
+    def test_text_without_em_dashes_has_no_em_dash_finding(self) -> None:
+        """Scenario: zero em dashes means no em_dash finding."""
+        hits = slop_score.audit_text("The system handles requests and returns.\n")
+        assert [hit for hit in hits if hit.category == "em_dash"] == []
 
 
 class TestTier5SmartQuotes:
     """Feature: Detect smart quotes outside code blocks."""
 
-    @pytest.fixture
-    def smart_quote_pattern(self) -> re.Pattern:
-        return re.compile(r"[“”‘’]")
+    CATEGORY = "smart_quotes"
 
     @pytest.mark.unit
-    def test_detects_curly_double_quotes(self, smart_quote_pattern: re.Pattern) -> None:
+    def test_detects_curly_double_quotes(self) -> None:
         """Scenario: Detect curly double quotes (“”)."""
         text = "The skill returns a “finding” for each match."
-        matches = smart_quote_pattern.findall(text)
-        assert len(matches) == 2
+        assert _category_hits(self.CATEGORY, text) == 2
 
     @pytest.mark.unit
-    def test_detects_curly_single_quotes(self, smart_quote_pattern: re.Pattern) -> None:
+    def test_detects_curly_single_quotes(self) -> None:
         """Scenario: Detect curly single quotes (‘’)."""
         text = "The flag ‘--strict’ enables prevention mode."
-        matches = smart_quote_pattern.findall(text)
-        assert len(matches) == 2
+        assert _category_hits(self.CATEGORY, text) == 2
 
     @pytest.mark.unit
-    def test_straight_quotes_pass(self, smart_quote_pattern: re.Pattern) -> None:
+    def test_detects_curly_apostrophe(self) -> None:
+        """Scenario: A curly apostrophe in a contraction is a finding."""
+        assert _category_hits(self.CATEGORY, "It’s fine.") == 1
+
+    @pytest.mark.unit
+    def test_straight_quotes_pass(self) -> None:
         """Scenario: Straight quotes do not match."""
         text = 'The skill returns a "finding" for each match.'
-        matches = smart_quote_pattern.findall(text)
-        assert len(matches) == 0
+        assert _category_hits(self.CATEGORY, text) == 0
 
 
 class TestTier5ContrastiveParallelism:

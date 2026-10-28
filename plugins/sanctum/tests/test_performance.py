@@ -1,21 +1,19 @@
-"""Performance benchmarks for continuous improvement workflows.
+"""Scale checks for the continuous improvement audit workflow.
 
-Catches regressions and provides baselines. Marked with pytest.mark.benchmark
-so they can run separately from the main suite.
+Each audit phase runs against typical and large plugin fixtures and the
+test asserts the result is complete and correct. Wall-clock bounds were
+removed: they measured the host (a loaded runner fails them) rather than
+the auditor, and a quadratic rescan shows up as a wrong or missing result
+in the structural assertions below only when it changes behavior.
 """
 
 import json
-import time
 
-import pytest
 from update_plugin_registrations import PluginAuditor
 
-# Mark all tests in this module as benchmarks
-pytestmark = pytest.mark.benchmark
 
-
-class TestAuditPerformance:
-    """Benchmark plugin audit operations."""
+class TestAuditAtScale:
+    """Audit operations return complete results at typical and large sizes."""
 
     def _create_plugin(self, tmp_path, n_commands=10, n_skills=5, n_agents=3):
         """Helper to create a plugin with configurable size."""
@@ -55,159 +53,128 @@ class TestAuditPerformance:
 
         return plugin_dir
 
-    def test_scan_disk_files_performance(self, tmp_path):
-        """Scan should complete in <100ms for typical plugin.
-
-        Rationale: scanning ~18 local tmp files (10 commands, 5 skills,
-        3 agents) is pure filesystem traversal with no I/O amplification.
-        100ms is already 10-100x the observed runtime (~1-5ms); anything
-        slower indicates a regression such as an accidental rglob over a
-        large tree or a blocking network call.
-        """
-        self._create_plugin(tmp_path)
+    def test_scan_disk_files_finds_every_fixture_file(self, tmp_path):
+        """Scan reports each command, skill and agent of a typical plugin."""
+        plugin_dir = self._create_plugin(tmp_path)
         auditor = PluginAuditor(tmp_path, dry_run=True)
 
-        start = time.monotonic()
-        auditor.scan_disk_files(tmp_path / "bench-plugin")
-        duration = time.monotonic() - start
+        found = auditor.scan_disk_files(plugin_dir)
 
-        assert duration < 0.1, f"scan_disk_files took {duration:.3f}s (expected <0.1s)"
+        assert {kind: len(paths) for kind, paths in found.items()} == {
+            "commands": 10,
+            "skills": 5,
+            "agents": 3,
+            "hooks": 0,
+        }
 
-    def test_audit_plugin_performance(self, tmp_path):
-        """Full audit should complete in <200ms for typical plugin.
-
-        Rationale: audit_plugin combines scan_disk_files, read_plugin_json,
-        compare_registrations, and audit_skill_modules. All operations are
-        local I/O on ~18 small tmp files. 200ms is a 20-100x safety margin
-        over observed runtime (~5-10ms); exceeding it strongly signals an
-        algorithmic regression (e.g., O(n^2) file scanning).
-        """
-        self._create_plugin(tmp_path)
+    def test_large_plugin_scan_finds_every_fixture_file(self, tmp_path):
+        """Scan stays complete for 50 commands, 30 skills and 20 agents."""
+        plugin_dir = self._create_plugin(
+            tmp_path, n_commands=50, n_skills=30, n_agents=20
+        )
         auditor = PluginAuditor(tmp_path, dry_run=True)
 
-        start = time.monotonic()
-        auditor.audit_plugin("bench-plugin")
-        duration = time.monotonic() - start
+        found = auditor.scan_disk_files(plugin_dir)
 
-        assert duration < 0.2, f"audit_plugin took {duration:.3f}s (expected <0.2s)"
+        assert (len(found["commands"]), len(found["skills"]), len(found["agents"])) == (
+            50,
+            30,
+            20,
+        )
 
-    def test_large_plugin_performance(self, tmp_path):
-        """Audit a large plugin (50 commands, 30 skills, 20 agents) in <1s.
+    def test_scan_ignores_markdown_nested_in_module_directories(self, tmp_path):
+        """Nested module and steps markdown is not counted as a command."""
+        plugin_dir = self._create_plugin(tmp_path)
+        nested = plugin_dir / "commands" / "cmd-0-modules" / "steps"
+        nested.mkdir(parents=True)
+        (nested / "1-step.md").write_text("# Step")
+        auditor = PluginAuditor(tmp_path, dry_run=True)
 
-        Rationale: 100 files is roughly 5x the typical plugin size. The
-        algorithm is O(n) in file count, so the large-plugin budget is set
-        to 5x the typical-plugin budget (0.2s * 5 = 1.0s), with a small
-        extra cushion for filesystem overhead on slow CI disks.
-        """
+        found = auditor.scan_disk_files(plugin_dir)
+
+        assert len(found["commands"]) == 10
+
+    def test_audit_of_a_fully_registered_plugin_records_no_discrepancy(self, tmp_path):
+        """A plugin whose plugin.json lists every file has nothing to report."""
         self._create_plugin(tmp_path, n_commands=50, n_skills=30, n_agents=20)
         auditor = PluginAuditor(tmp_path, dry_run=True)
 
-        start = time.monotonic()
         auditor.audit_plugin("bench-plugin")
-        duration = time.monotonic() - start
 
-        assert duration < 1.0, (
-            f"Large plugin audit took {duration:.3f}s (expected <1.0s)"
-        )
+        assert auditor.discrepancies == {}
 
-    def test_fix_plugin_performance(self, tmp_path):
-        """Fix operation should complete in <100ms.
+    def test_audit_reports_an_unregistered_command(self, tmp_path):
+        """A command file missing from plugin.json is listed as missing."""
+        plugin_dir = self._create_plugin(tmp_path)
+        (plugin_dir / "commands" / "unregistered.md").write_text("# New")
+        auditor = PluginAuditor(tmp_path, dry_run=True)
 
-        Rationale: fix_plugin reads plugin.json, mutates a dict in memory,
-        and writes one JSON file. Even on a slow disk this should take well
-        under 50ms. 100ms gives a 2x safety margin for CI variance while
-        still catching regressions like accidental full-rescan on fix.
-        """
-        self._create_plugin(tmp_path)
+        auditor.audit_plugin("bench-plugin")
+
+        assert auditor.discrepancies["bench-plugin"]["missing"]["commands"] == [
+            "./commands/unregistered.md"
+        ]
+
+    def test_fix_plugin_registers_the_missing_command_in_plugin_json(self, tmp_path):
+        """Fix writes the missing command into plugin.json."""
+        plugin_dir = self._create_plugin(tmp_path)
         auditor = PluginAuditor(tmp_path, dry_run=False)
         auditor.discrepancies["bench-plugin"] = {
             "missing": {"commands": ["./commands/new-cmd.md"]},
             "stale": {},
         }
 
-        start = time.monotonic()
         auditor.fix_plugin("bench-plugin")
-        duration = time.monotonic() - start
 
-        assert duration < 0.1, f"fix_plugin took {duration:.3f}s (expected <0.1s)"
+        registered = json.loads(
+            (plugin_dir / ".claude-plugin" / "plugin.json").read_text()
+        )["commands"]
+        assert "./commands/new-cmd.md" in registered
 
-    def test_phase2_performance(self, tmp_path):
-        """Phase 2 analysis should complete in <100ms.
+    def test_dry_run_fix_leaves_plugin_json_unchanged(self, tmp_path):
+        """Fix under dry_run does not write plugin.json."""
+        plugin_dir = self._create_plugin(tmp_path)
+        config = plugin_dir / ".claude-plugin" / "plugin.json"
+        before = config.read_text()
+        auditor = PluginAuditor(tmp_path, dry_run=True)
+        auditor.discrepancies["bench-plugin"] = {
+            "missing": {"commands": ["./commands/new-cmd.md"]},
+            "stale": {},
+        }
 
-        Rationale: PerformanceAnalyzer.analyze_plugin returns immediately
-        when its log directory (~/.claude/skills/logs/) does not exist,
-        which is always true in a tmp_path test environment. Even when logs
-        are present the work is in-memory JSON parsing. 100ms is a generous
-        budget; exceeding it likely means an unintended filesystem scan was
-        introduced.
-        """
+        auditor.fix_plugin("bench-plugin")
+
+        assert config.read_text() == before
+
+    def test_skill_performance_without_logs_reports_no_problem_skills(self, tmp_path):
+        """Phase 2 finds no unstable skills when no usage logs exist."""
         self._create_plugin(tmp_path)
         auditor = PluginAuditor(tmp_path, dry_run=True)
 
-        start = time.monotonic()
-        auditor.analyze_skill_performance("bench-plugin")
-        duration = time.monotonic() - start
+        report = auditor.analyze_skill_performance("bench-plugin")
 
-        assert duration < 0.1, f"Phase 2 took {duration:.3f}s (expected <0.1s)"
+        assert report == {
+            "unstable_skills": [],
+            "recent_failures": [],
+            "low_success_rate": [],
+        }
 
-    def test_phase3_performance(self, tmp_path):
-        """Phase 3 meta-evaluation should complete in <100ms.
-
-        Rationale: MetaEvaluator.check_plugin reads SKILL.md files (each a
-        few bytes in the fixture) and applies three simple regex patterns.
-        With 5 skills in the fixture, total I/O is trivial. 100ms is a
-        generous bound; exceeding it suggests a quadratic regex or an
-        unintended recursive file walk was introduced.
-        """
-        self._create_plugin(tmp_path)
+    def test_meta_evaluation_reports_the_three_check_categories(self, tmp_path):
+        """Phase 3 returns one list per documented check."""
+        plugin_dir = self._create_plugin(tmp_path)
         auditor = PluginAuditor(tmp_path, dry_run=True)
-        plugin_dir = tmp_path / "bench-plugin"
 
-        start = time.monotonic()
-        auditor.check_meta_evaluation(plugin_dir)
-        duration = time.monotonic() - start
+        report = auditor.check_meta_evaluation(plugin_dir)
 
-        assert duration < 0.1, f"Phase 3 took {duration:.3f}s (expected <0.1s)"
+        assert set(report) == {"missing_toc", "missing_verification", "missing_tests"}
 
-    def test_compare_registrations_performance(self, tmp_path):
-        """Registration comparison should complete in <50ms.
-
-        Rationale: compare_registrations is pure set arithmetic on the
-        pre-scanned results; no further disk I/O occurs unless a
-        hooks.json is present (which this fixture does not create).
-        50ms is already several orders of magnitude above the observed
-        runtime (~0.1ms). Exceeding it means a disk operation was
-        accidentally added to what must remain a CPU-only comparison.
-        """
+    def test_compare_registrations_matches_a_registered_plugin(self, tmp_path):
+        """Comparing disk to plugin.json for a registered plugin finds no drift."""
         plugin_dir = self._create_plugin(tmp_path)
         auditor = PluginAuditor(tmp_path, dry_run=True)
         on_disk = auditor.scan_disk_files(plugin_dir)
         plugin_json = auditor.read_plugin_json(plugin_dir)
 
-        start = time.monotonic()
-        auditor.compare_registrations(plugin_dir, on_disk, plugin_json)
-        duration = time.monotonic() - start
+        drift = auditor.compare_registrations(plugin_dir, on_disk, plugin_json)
 
-        assert duration < 0.05, (
-            f"compare_registrations took {duration:.3f}s (expected <0.05s)"
-        )
-
-    def test_full_pipeline_performance(self, tmp_path):
-        """Full pipeline (audit + phase 2 + phase 3) should complete in <500ms.
-
-        Rationale: this is the sum of audit_plugin (<0.2s), phase 2
-        (<0.1s), and phase 3 (<0.1s) budgets, plus a 100ms cushion for
-        Python startup variance and tmpfs overhead in CI environments.
-        A regression in any single phase will push this composite test
-        over its limit even if the individual test does not catch it first.
-        """
-        plugin_dir = self._create_plugin(tmp_path)
-        auditor = PluginAuditor(tmp_path, dry_run=True)
-
-        start = time.monotonic()
-        auditor.audit_plugin("bench-plugin")
-        auditor.analyze_skill_performance("bench-plugin")
-        auditor.check_meta_evaluation(plugin_dir)
-        duration = time.monotonic() - start
-
-        assert duration < 0.5, f"Full pipeline took {duration:.3f}s (expected <0.5s)"
+        assert drift == {"missing": {}, "stale": {}}
