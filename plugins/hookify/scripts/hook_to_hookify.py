@@ -183,14 +183,26 @@ class HookAnalyzer(ast.NodeVisitor):
         return "command"  # Default
 
     def _collect_names(self, node: ast.expr) -> list[str]:
-        """Collect all Name nodes from an expression."""
+        """Collect field names from an expression, subscript keys first.
+
+        ``context["command"]`` names its field in the key. Read after the
+        variable names, the key lost to ``context``, whose "text" made
+        every subscripted command check a file-content rule.
+        """
+        keys = []
         names = []
         for child in ast.walk(node):
-            if isinstance(child, ast.Name):
+            if (
+                isinstance(child, ast.Subscript)
+                and isinstance(child.slice, ast.Constant)
+                and isinstance(child.slice.value, str)
+            ):
+                keys.append(child.slice.value)
+            elif isinstance(child, ast.Name):
                 names.append(child.id)
             elif isinstance(child, ast.Attribute):
                 names.append(child.attr)
-        return names
+        return keys + names
 
 
 def analyze_hook(
