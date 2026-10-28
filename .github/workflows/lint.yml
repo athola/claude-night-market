@@ -53,12 +53,12 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v7.0.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.0
+        uses: astral-sh/setup-uv@v10.3.2
 
       # --extra dev on both steps: ruff is an optional extra, and plain
       # `uv run` installs only the default dependency set. Without the flag
