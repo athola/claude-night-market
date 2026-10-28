@@ -205,7 +205,6 @@ disable_error_code = ["arg-type", "return-value", "attr-defined", "assignment", 
 [[tool.mypy.overrides]]
 module = [
     "tests.scripts.test_update_vitality_scores",
-    "tests.scripts.test_update_autonomy_state",
 ]
 disable_error_code = ["attr-defined"]
 
