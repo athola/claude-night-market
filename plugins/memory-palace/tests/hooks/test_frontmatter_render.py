@@ -151,3 +151,16 @@ def _parse_entry(text: str) -> dict:
     parsed = parse_entry_frontmatter(text)
     assert parsed is not None, text[:400]
     return parsed
+
+
+def test_an_astral_character_round_trips_as_utf8() -> None:
+    """The default JSON dump escapes an emoji as a pair YAML reads apart."""
+    import yaml
+
+    from shared.frontmatter import render_frontmatter
+
+    block = render_frontmatter({"topic": "Launch \U0001f680 notes"})
+    topic = yaml.safe_load(block.strip("-\n"))["topic"]
+
+    assert topic == "Launch \U0001f680 notes"
+    topic.encode("utf-8")

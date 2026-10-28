@@ -12,7 +12,6 @@ import fcntl
 import fnmatch
 import json
 import logging
-import sys
 from collections import Counter
 from collections.abc import Iterator
 from dataclasses import asdict, dataclass, field
@@ -29,25 +28,11 @@ try:
         validate_session_id,
     )
 except ImportError:  # pragma: no cover — standalone fallback
-    SessionStore: Any = None
+    from memory_palace._vendored_leyline_session_store import (
+        SessionStore,
+        validate_session_id,
+    )
 
-    import re as _re
-
-    _MAX_SESSION_ID_LEN = 128
-
-    def validate_session_id(session_id: str) -> bool:
-        """Fallback ID validator used when leyline is not installed."""
-        pattern = _re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$")
-        return (
-            bool(pattern.match(session_id))
-            and len(session_id) <= _MAX_SESSION_ID_LEN
-            and ".." not in session_id
-        )
-
-
-# Backward-compatible alias so existing code and tests using the old private
-# name continue to work without modification.
-_validate_session_id = validate_session_id
 
 # Storage location within the plugin data directory
 SESSIONS_DIR = "sessions"
@@ -197,66 +182,14 @@ class SessionQuery:
     offset: int = 0
 
 
-if SessionStore is not None:
+class _SessionRecordStore(SessionStore):
+    """SessionStore subclass that serializes/deserializes SessionRecord objects."""
 
-    class _SessionRecordStore(SessionStore):
-        """SessionStore subclass that serializes/deserializes SessionRecord objects."""
+    def _serialize(self, record: Any) -> Any:
+        return record.to_dict()
 
-        def _serialize(self, record: Any) -> Any:
-            return record.to_dict()
-
-        def _deserialize(self, data: Any) -> Any:
-            return SessionRecord.from_dict(data)
-
-else:  # pragma: no cover — leyline unavailable
-
-    class _SessionRecordStore:
-        """Minimal standalone store when leyline is absent."""
-
-        def __init__(self, sessions_dir: Path) -> None:
-            self.sessions_dir = sessions_dir
-            self.sessions_dir.mkdir(parents=True, exist_ok=True)
-
-        def _session_path(self, session_id: str) -> Path:
-            return self.sessions_dir / f"{session_id}.json"
-
-        def save(self, session_id: str, record: Any) -> Path:
-            """Persist a session record to disk."""
-            if not validate_session_id(session_id):
-                raise ValueError(f"Invalid session ID: {session_id!r}")
-            path = self._session_path(session_id)
-            path.write_text(json.dumps(record.to_dict(), indent=2), encoding="utf-8")
-            return path
-
-        def load(self, session_id: str) -> Any | None:
-            """Load a session record from disk."""
-            path = self._session_path(session_id)
-            if not path.exists():
-                return None
-            try:
-                data = json.loads(path.read_text(encoding="utf-8"))
-                return SessionRecord.from_dict(data)
-            except (json.JSONDecodeError, KeyError, TypeError) as exc:
-                sys.stderr.write(f"Warning: corrupt session {session_id}: {exc}\n")
-                return None
-
-        def list_sessions(self) -> list[str]:
-            """Return sorted list of valid session IDs."""
-            if not self.sessions_dir.exists():
-                return []
-            return sorted(
-                p.stem
-                for p in self.sessions_dir.glob("*.json")
-                if validate_session_id(p.stem)
-            )
-
-        def delete(self, session_id: str) -> bool:
-            """Remove a session file, returning True if it existed."""
-            path = self._session_path(session_id)
-            if path.exists():
-                path.unlink()
-                return True
-            return False
+    def _deserialize(self, data: Any) -> Any:
+        return SessionRecord.from_dict(data)
 
 
 class SessionHistoryManager:

@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any
 
 import yaml
 
+from memory_palace._vendored_leyline_atomic_file import write_atomic
 from memory_palace.paths import user_data_dir
 
 if TYPE_CHECKING:
@@ -260,17 +261,7 @@ class AutonomyStateStore:
         never sees a truncated one and a failed dump keeps the old state.
         """
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = self.state_path.with_name(
-            f"{self.state_path.name}.{os.getpid()}.tmp"
-        )
-        try:
-            with temporary.open("w", encoding="utf-8") as handle:
-                yaml.safe_dump(state.to_dict(), handle, sort_keys=False)
-            os.replace(temporary, self.state_path)
-        except BaseException:
-            with contextlib.suppress(OSError):
-                temporary.unlink()
-            raise
+        write_atomic(self.state_path, yaml.safe_dump(state.to_dict(), sort_keys=False))
         return state
 
     def snapshot(self, *, config_level: int | None = None) -> dict[str, Any]:

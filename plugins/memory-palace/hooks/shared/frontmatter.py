@@ -30,7 +30,10 @@ def _render_scalar(key: str, value: Scalar) -> str:
     if isinstance(value, datetime):
         return value.isoformat()
     if isinstance(value, str):
-        return json.dumps(value)
+        # ensure_ascii would write an emoji as a \ud83d\ude80 surrogate
+        # pair, which YAML reads back as two lone surrogates that cannot
+        # be encoded. Quotes and control characters are still escaped.
+        return json.dumps(value, ensure_ascii=False)
     raise TypeError(f"frontmatter field {key!r} has unsupported type {type(value)}")
 
 

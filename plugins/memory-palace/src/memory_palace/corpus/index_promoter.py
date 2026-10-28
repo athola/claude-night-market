@@ -23,11 +23,8 @@ because promoted and archived entries are no longer ``pending``.
 
 from __future__ import annotations
 
-import contextlib
 import logging
-import os
 import shutil
-import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -38,6 +35,7 @@ try:
 except ImportError:  # pragma: no cover - yaml is a hard runtime dep
     yaml = None  # type: ignore[assignment]  # optional-import fallback sentinel
 
+from memory_palace._vendored_leyline_atomic_file import write_atomic
 from memory_palace.corpus.index_analytics import (
     INERT_ROUTING_TYPE,
     _parse_timestamp,
@@ -208,27 +206,15 @@ def propose_promotions(
 
 
 def _write_index_atomic(index: dict[str, Any], index_path: Path) -> None:
-    """Persist the index via tempfile + os.replace (atomic on POSIX).
-
-    The src package must stay independent of the hook runtime, so this
-    mirrors the hook-side writer rather than importing it across the
-    ``hooks/`` and ``src/`` import-root boundary.
-    """
+    """Persist the index in one rename, as the hook-side writer does."""
     if yaml is None:  # pragma: no cover - yaml is a hard runtime dep
         msg = "PyYAML is required to write the capture index"
         raise RuntimeError(msg)
     index_path.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp_path = tempfile.mkstemp(
-        suffix=".tmp", prefix="memory-palace-index-", dir=index_path.parent
+    write_atomic(
+        index_path,
+        yaml.safe_dump(index, default_flow_style=False, sort_keys=False),
     )
-    try:
-        with os.fdopen(fd, "w") as handle:
-            yaml.safe_dump(index, handle, default_flow_style=False, sort_keys=False)
-        os.replace(tmp_path, index_path)
-    except Exception:
-        with contextlib.suppress(OSError):
-            os.unlink(tmp_path)
-        raise
 
 
 def apply_promotions(

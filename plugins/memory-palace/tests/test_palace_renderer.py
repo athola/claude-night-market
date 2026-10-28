@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from memory_palace import graph_analyzer
 from memory_palace.knowledge_graph import KnowledgeGraph
 from memory_palace.palace_renderer import PalaceRenderer
 
@@ -374,3 +375,19 @@ class TestTemporalViewSQLFilter:
             "SQL query should filter by resident IDs using IN clause; "
             f"actual SQL: {triple_selects[0]!r}"
         )
+
+
+class TestAnalyzerFailuresAreNotHidden:
+    """A bug in the analyzer must fail, not render a plainer diagram."""
+
+    def test_a_programming_error_in_the_analyzer_propagates(
+        self, renderer: PalaceRenderer, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A ZeroDivisionError once hid behind the fallback with no log."""
+
+        def broken(self: object) -> dict[str, float]:
+            raise ZeroDivisionError("edgeless graph")
+
+        monkeypatch.setattr(graph_analyzer.PalaceGraphAnalyzer, "pagerank", broken)
+        with pytest.raises(ZeroDivisionError):
+            renderer.algo_informed_er_graph("p1")

@@ -11,6 +11,7 @@ no-op (idempotent).
 from __future__ import annotations
 
 import copy
+import os
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -24,7 +25,6 @@ from web_research_handler import (  # noqa: E402 - needs the sys.path line above
     detect_null_capture,
 )
 
-from memory_palace.corpus import index_promoter
 from memory_palace.corpus.index_promoter import (
     CorpusUnavailableError,
     Proposal,
@@ -286,12 +286,12 @@ class TestApplyPromotions:
         def _boom(*_args: object) -> None:
             raise OSError("disk full")
 
-        monkeypatch.setattr(index_promoter.os, "replace", _boom)
+        monkeypatch.setattr(os, "replace", _boom)
 
         with pytest.raises(OSError, match="disk full"):
             apply_promotions([proposal], index_path, backup_dir=backup_dir)
 
-        leftovers = list(index_path.parent.glob("memory-palace-index-*.tmp"))
+        leftovers = list(index_path.parent.glob("*.tmp"))
         assert leftovers == []
 
 

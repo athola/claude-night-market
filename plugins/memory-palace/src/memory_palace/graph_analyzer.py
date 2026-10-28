@@ -11,6 +11,10 @@ import networkx as nx  # type: ignore[import-untyped]  # networkx lacks py.typed
 
 from memory_palace.knowledge_graph import KnowledgeGraph
 
+#: What the analyzer raises on a graph networkx cannot analyze. Callers
+#: catch this rather than importing networkx, which ships no type stubs.
+AnalysisError = nx.NetworkXException
+
 _PAGERANK_ALPHA = 0.85
 _PAGERANK_MAX_ITER = 100
 _PAGERANK_TOL = 1e-6

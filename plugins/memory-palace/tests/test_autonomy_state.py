@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -140,13 +141,10 @@ def test_interrupted_save_keeps_the_previous_state(
     store = AutonomyStateStore(state_path=temp_state_path)
     store.set_level(1, domain="security", lock=True, reason="audit")
 
-    def dump_then_crash(data: object, handle: object, **_kw: object) -> None:
-        handle.write("current_level: ")  # type: ignore[attr-defined]  # partial write
+    def crash_before_publish(src: object, dst: object) -> None:
         raise OSError("disk full")
 
-    monkeypatch.setattr(
-        "memory_palace.lifecycle.autonomy_state.yaml.safe_dump", dump_then_crash
-    )
+    monkeypatch.setattr(os, "replace", crash_before_publish)
     with pytest.raises(OSError, match="disk full"):
         store.set_level(3)
     monkeypatch.undo()

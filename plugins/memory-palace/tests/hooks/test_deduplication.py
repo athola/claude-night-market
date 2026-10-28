@@ -73,9 +73,16 @@ class TestGetUrlKey:
         url = "https://example.com?utm_source=twitter&article=123"
         assert get_url_key(url) == "https://example.com?article=123"
 
-    def test_lowercase(self) -> None:
-        """URLs should be lowercased."""
-        assert get_url_key("HTTPS://EXAMPLE.COM/Path") == "https://example.com/path"
+    def test_scheme_and_host_are_lowercased(self) -> None:
+        """Only the case-insensitive parts of a URL are folded."""
+        assert get_url_key("HTTPS://EXAMPLE.COM/Path") == "https://example.com/Path"
+        assert get_url_key("HTTPS://EXAMPLE.COM?Id=X") == "https://example.com?Id=X"
+
+    def test_case_sensitive_ids_stay_distinct(self) -> None:
+        """A video id differing only in case is a different capture."""
+        assert get_url_key("https://youtu.be/AbCdEf") != get_url_key(
+            "https://youtu.be/abcdef"
+        )
 
 
 class TestIsKnown:
