@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 import re
-from typing import Any, ClassVar
+from typing import Any
 
 
 def _version_key(version: str) -> tuple[int, ...]:
@@ -14,17 +14,6 @@ def _version_key(version: str) -> tuple[int, ...]:
 
 class CompatibilityChecker:
     """Check code compatibility across Python versions using AST analysis."""
-
-    FEATURE_VERSIONS: ClassVar[dict[str, str]] = {
-        "match_statement": "3.10",
-        "union_type_syntax": "3.10",
-        "dataclass_slots": "3.10",
-        "walrus_operator": "3.8",
-        "fstrings": "3.6",
-        "async_await": "3.5",
-        "type_hints": "3.5",
-        "from __future__ import annotations": "3.7",
-    }
 
     def check_compatibility(
         self,

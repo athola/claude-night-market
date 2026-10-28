@@ -66,7 +66,6 @@ class HookAnalyzer(ast.NodeVisitor):
     def __init__(self) -> None:
         self.patterns: list[ExtractedPattern] = []
         self.complexity = 0
-        self.has_external_calls = False
         self.has_file_io = False
         self.has_network = False
 

@@ -103,22 +103,6 @@ class FrontmatterProcessor:
     # Plugin agent frontmatter (docs: plugins/components, "Frontmatter fields
     # in plugin agents"). Ignored fields load without error, which is why
     # they are reported rather than passed.
-    PLUGIN_AGENT_FIELDS = (
-        "name",
-        "description",
-        "model",
-        "effort",
-        "maxTurns",
-        "tools",
-        "disallowedTools",
-        "skills",
-        "memory",
-        "background",
-        "omitClaudeMd",
-        "isolation",
-        "color",
-        "experimental",
-    )
     PLUGIN_AGENT_IGNORED_FIELDS = (
         "permissionMode",
         "hooks",
