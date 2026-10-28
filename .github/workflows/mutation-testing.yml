@@ -35,7 +35,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.2
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
 
       - name: Install dependencies
         env:
@@ -43,7 +43,9 @@ jobs:
         run: |
           cd "plugins/$PLUGIN_NAME"
           uv sync --quiet 2>/dev/null
-          uv pip install mutmut --quiet
+          # mutmut 3 dropped --paths-to-mutate and --tests-dir. Click exits 2
+          # on the unknown option, which read as "survivors found" below.
+          uv pip install 'mutmut<3' --quiet
 
       - name: Run mutation testing
         env:
@@ -53,15 +55,23 @@ jobs:
           # Build comma-separated list of directories to mutate
           mutate_paths=$(find . -maxdepth 1 -type d \( -name scripts -o -name src \) -printf '%f/,' | sed 's/,$//')
           if [ -n "$mutate_paths" ]; then
-            # Exit codes: 0=no survivors, 2=survivors found, other=crash
+            # mutmut 2 exit status is a bit mask: 1 fatal, 2 survivors,
+            # 4 timeouts, 8 suspicious. Only the fatal bit fails the job.
             set +e
             uv run mutmut run --paths-to-mutate="$mutate_paths" --tests-dir=tests/ --no-progress
             exit_code=$?
             set -e
-            if [ $exit_code -ne 0 ] && [ $exit_code -ne 2 ]; then
-              echo "::error::mutmut crashed with exit code $exit_code"
+            if [ $((exit_code & 1)) -ne 0 ]; then
+              echo "::error::mutmut failed with exit code $exit_code"
               exit 1
             fi
+            # A run that generated nothing is not a pass.
+            mutants=$(uv run mutmut junitxml | grep -o 'tests="[0-9]*"' | head -1 | tr -dc '0-9')
+            if [ "${mutants:-0}" -eq 0 ]; then
+              echo "::error::mutmut generated no mutants for $mutate_paths"
+              exit 1
+            fi
+            echo "mutmut checked $mutants mutants"
           fi
 
       - name: Generate report

@@ -282,6 +282,16 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
+      # Mods run inside Claude Code, so a broken one breaks the harness.
+      # `make test-mods` skips with a message when `claude` is not on PATH.
+      - id: test-mods
+        name: Validate and Test Plugin Mods
+        entry: make test-mods
+        language: system
+        files: ^plugins/[^/]+/hooks/(hooks\.json|.*\.(ts|tsx|js))$
+        pass_filenames: false
+        stages: [pre-commit]
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
