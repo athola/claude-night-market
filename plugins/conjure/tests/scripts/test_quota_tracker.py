@@ -148,6 +148,58 @@ class TestGeminiQuotaTracker:
         assert estimated > 0
         GeminiQuotaTracker._get_encoder.cache_clear()
 
+    def test_estimate_counts_a_file_holding_a_special_token_string(
+        self, tmp_path: Path
+    ) -> None:
+        """Tokenizer code and LLM docs contain ``<|endoftext|>`` as text.
+
+        tiktoken's ``encode`` raises on special-token text by default, which
+        aborted the whole quota estimate with a traceback.
+        """
+        tiktoken = pytest.importorskip("tiktoken")
+        source = tmp_path / "tok.py"
+        source.write_text('EOS = "<|endoftext|>"\n')
+        GeminiQuotaTracker._get_encoder.cache_clear()
+        encoder = tiktoken.get_encoding("cl100k_base")
+
+        with patch.object(
+            GeminiQuotaTracker, "_get_encoder", staticmethod(lambda: encoder)
+        ):
+            estimated = GeminiQuotaTracker().estimate_task_tokens(
+                [str(source)], prompt_length=0
+            )
+
+        GeminiQuotaTracker._get_encoder.cache_clear()
+        assert estimated > 0
+
+    def test_estimate_tells_the_encoder_to_allow_special_token_text(
+        self, tmp_path: Path
+    ) -> None:
+        """Same guard without tiktoken installed: a stub raises as tiktoken does.
+
+        tiktoken ships in the optional ``full`` extra, so the real-encoder
+        test above is skipped on a base install.
+        """
+        source = tmp_path / "tok.py"
+        source.write_text('EOS = "<|endoftext|>"\n')
+
+        class _StrictEncoder:
+            def encode(self, text: str, **kwargs: object) -> list[int]:
+                if kwargs.get("disallowed_special") != ():
+                    raise ValueError("disallowed special token")
+                return [0] * len(text)
+
+        GeminiQuotaTracker._get_encoder.cache_clear()
+        with patch.object(
+            GeminiQuotaTracker, "_get_encoder", staticmethod(_StrictEncoder)
+        ):
+            estimated = GeminiQuotaTracker().estimate_task_tokens(
+                [str(source)], prompt_length=0
+            )
+        GeminiQuotaTracker._get_encoder.cache_clear()
+
+        assert estimated >= len('EOS = "<|endoftext|>"\n')
+
     def test_estimate_task_tokens_without_encoder(
         self,
         sample_files: list[Path],

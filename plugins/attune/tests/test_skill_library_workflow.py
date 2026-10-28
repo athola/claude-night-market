@@ -77,3 +77,33 @@ def test_the_fixer_stays_in_the_session() -> None:
     content = WORKFLOW.read_text()
     assert "Apply the findings in the session, not here." in content
     assert "Nothing above was verified by running anything." in content
+
+
+PROTOCOL = (
+    PLUGIN_ROOT / "skills" / "skill-library-mission" / "modules" / "review-protocol.md"
+)
+
+
+def test_review_lenses_match_the_protocol_the_skill_promises() -> None:
+    """GIVEN the review protocol the skill's exit criteria name.
+
+    WHEN the workflow dispatches its reviewers
+    THEN it runs exactly the protocol's lenses, so the mission can meet
+    "All three review lenses ran"
+    """
+    protocol = re.findall(r"^\| ([A-Z]+) \|", PROTOCOL.read_text(), re.MULTILINE)
+    content = WORKFLOW.read_text()
+    block = content[
+        content.index("const LENSES = [") : content.index("phase('Author')")
+    ]
+    keys = re.findall(r"key: '([a-z]+)'", block)
+    assert [k.upper() for k in keys] == protocol
+
+
+def test_authoring_prompt_asks_for_the_provenance_section() -> None:
+    """GIVEN the exit criterion that every skill ends with provenance.
+
+    WHEN an authoring agent is dispatched
+    THEN its prompt asks for that section by name
+    """
+    assert "Provenance and maintenance" in WORKFLOW.read_text()

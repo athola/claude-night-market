@@ -21,7 +21,7 @@ export const meta = {
     'Run from /attune:skill-library once the discovery brief exists. Requires an explicit request: a workflow never starts unasked. args carry topics (array of {name, brief}) and libraryRoot. Authoring agents create new skill directories. The review findings come back for the session to apply.',
   phases: [
     { title: 'Author', detail: 'one agent per skill, writing only new files' },
-    { title: 'Review', detail: 'two lenses per skill, reading only' },
+    { title: 'Review', detail: 'three lenses per skill, reading only' },
   ],
 }
 
@@ -66,18 +66,25 @@ const REVIEW = {
   },
 }
 
-// Two lenses, because an author cannot see its own contradiction and a second
-// reader with the same brief tends to repeat the first one's blind spot.
+// The three lenses of modules/review-protocol.md, which the skill's exit
+// criteria require. An author cannot see its own contradiction, and a
+// second reader with the same brief tends to repeat the first one's blind
+// spot. A test keeps this list and the protocol table in step.
 const LENSES = [
   {
-    key: 'accuracy',
+    key: 'factual',
     brief:
-      'Check every claim against the repository. A cited path that does not resolve, a command that does not exist, or a described behavior the code does not have is blocking.',
+      'Check every claim against the repository, and run the skill\'s provenance one-liners. A cited path that does not resolve, a command that does not exist, or a described behavior the code does not have is blocking.',
   },
   {
-    key: 'economy',
+    key: 'doctrine',
     brief:
-      'Check whether this earns a reader\'s time. A skill restating a general practice, or one whose exit criteria cannot be checked from outside a conversation, is important rather than blocking. Report each fact that another skill or file already states. Name that file and propose a link.',
+      'Check the skill against the project\'s own rules and the other skills. A contradiction with a rule, an overstated claim, or guidance that routes around change control is blocking.',
+  },
+  {
+    key: 'usability',
+    brief:
+      'Check whether this earns a reader\'s time. A description that would never fire is blocking. A skill restating a general practice, or one whose exit criteria cannot be checked from outside a conversation, is important rather than blocking. Report each fact that another skill or file already states. Name that file and propose a link.',
   },
 ]
 
@@ -87,7 +94,7 @@ const reviewed = await pipeline(
   topics,
   (topic) =>
     agent(
-      `Author one skill for this project's library.\n\nTopic: ${topic.name}\nBrief: ${topic.brief || 'see the discovery notes in the repository'}\n\nWrite fence: create files only under ${libraryRoot}/${topic.name}/. Do not modify any file that already exists, anywhere. Every claim must cite a path that resolves. Include an Exit Criteria section whose items can be checked from outside a conversation.`,
+      `Author one skill for this project's library.\n\nTopic: ${topic.name}\nBrief: ${topic.brief || 'see the discovery notes in the repository'}\n\nWrite fence: create files only under ${libraryRoot}/${topic.name}/. Do not modify any file that already exists, anywhere. Every claim must cite a path that resolves. Include an Exit Criteria section whose items can be checked from outside a conversation. End with a "Provenance and maintenance" section that gives a one-line re-verification command for each fact that may drift.`,
       { label: `author:${topic.name}`, phase: 'Author', schema: WRITTEN },
     ),
   (written, topic) => {

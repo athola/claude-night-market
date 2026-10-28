@@ -31,7 +31,29 @@ const ALL_PROVIDERS = [
   'glimmer',
 ]
 
-const providers = input.providers || ALL_PROVIDERS
+const KNOWN = ALL_PROVIDERS.join(', ')
+const selection = input.providers ?? null
+// A string would pass `.includes` as a substring match, so only a list
+// is a selection.
+if (selection !== null && !Array.isArray(selection)) {
+  return {
+    started: false,
+    reason: 'providers-not-a-list',
+    next: 'Pass args.providers as a list of provider names. Omit it to run every provider.',
+  }
+}
+const providers = selection ? ALL_PROVIDERS.filter((name) => selection.includes(name)) : ALL_PROVIDERS
+// A misspelled provider must not dispatch an agent at nothing.
+const unknown = (selection || []).filter((name) => !ALL_PROVIDERS.includes(name))
+if (unknown.length) log(`unknown provider ${unknown.join(', ')}. Known providers: ${KNOWN}`)
+if (!providers.length) {
+  return {
+    started: false,
+    reason: 'no-providers-selected',
+    next: `Name one or more known providers in args.providers: ${KNOWN}. Omit it to run every provider.`,
+    unknown,
+  }
+}
 
 const VERDICT = {
   type: 'object',
@@ -64,13 +86,15 @@ const probed = await parallel(
   ),
 )
 
-const verdicts = probed.filter(Boolean)
+// The provider comes from the roster position, not from the name the
+// agent wrote, which may read Gemini or gemini-cli.
+const verdicts = probed
+  .map((verdict, index) => verdict && { ...verdict, provider: providers[index] })
+  .filter(Boolean)
 const ready = verdicts.filter((verdict) => verdict.callable).map((v) => v.provider)
 // A probe that returned nothing says nothing about the provider. Folding it
 // into "not callable" would report a dead agent as a broken machine.
-const unreported = providers.filter(
-  (provider) => !verdicts.some((verdict) => verdict.provider === provider),
-)
+const unreported = providers.filter((provider, index) => !probed[index])
 
 if (unreported.length) {
   log(`no verdict from ${unreported.join(', ')}. Those providers are unprobed, not uncallable`)

@@ -76,7 +76,10 @@ const rollUp = await agent(
   `These milestones were measured independently. Write the program view.\n\n${digest}\n\nLead with the initiative most likely to miss and why. Where two milestones are blocked on the same thing, say so: that is the finding a per-milestone report cannot produce. Do not rank by issue count.`,
   { label: 'roll-up', phase: 'Roll-up' },
 )
+// A dead roll-up agent returns the same null as the skip path above.
+const failed = rollUp ? null : 'roll-up'
+if (failed) log('no result from the roll-up stage. The program view was not written')
 
 log(`${pulses.length} milestones measured, ${pulses.filter((p) => p.risk !== 'on-track').length} not on track`)
 
-return { repo, pulses, rollUp, missing }
+return { repo, pulses, rollUp, missing, failed }

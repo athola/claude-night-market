@@ -47,6 +47,8 @@ import tempfile
 import time
 from pathlib import Path
 
+from _vendored_leyline_atomic_file import write_atomic
+
 # --- Tunables (named to satisfy PLR2004 and document intent) ---------------
 
 #: Default maximum CONTINUE decisions allowed inside the throttle window before
@@ -319,25 +321,13 @@ def _write_throttle(path: Path, count: int, when: float) -> None:
     ``_read_throttle`` reads that as a count of zero, which re-arms an
     exhausted throttle rather than keeping it closed.
     """
-    fd = -1
-    temporary = ""
     try:
-        fd, temporary = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".")
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            fd = -1
-            handle.write(json.dumps({"count": count, "last": when}))
-        os.replace(temporary, str(path))
+        write_atomic(path, json.dumps({"count": count, "last": when}))
     except OSError:
-        if fd >= 0:
-            try:
-                os.close(fd)
-            except OSError:
-                pass
-        if temporary and os.path.exists(temporary):
-            try:
-                os.unlink(temporary)
-            except OSError:
-                pass
+        # Best effort by design: the hook must always exit 0, and a lost
+        # throttle write only delays the next pause. The writer has already
+        # removed its temp file.
+        return
 
 
 def _clear_throttle(path: Path) -> None:

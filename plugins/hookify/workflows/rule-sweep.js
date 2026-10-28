@@ -22,8 +22,32 @@ export const meta = {
 const input = args || {}
 const root = input.root || '.'
 
-const ALL_CATEGORIES = ['security', 'workflow', 'python', 'performance', 'stewardship']
-const categories = input.categories || ALL_CATEGORIES
+// One entry per directory under plugins/hookify/skills/rule-catalog/rules/.
+// A test compares the two.
+const ALL_CATEGORIES = ['documentation', 'git', 'performance', 'python', 'security', 'stewardship', 'workflow']
+const KNOWN = ALL_CATEGORIES.join(', ')
+const selection = input.categories ?? null
+// A string would pass `.includes` as a substring match, so only a list
+// is a selection.
+if (selection !== null && !Array.isArray(selection)) {
+  return {
+    started: false,
+    reason: 'categories-not-a-list',
+    next: 'Pass args.categories as a list of category names. Omit it to run every category.',
+  }
+}
+const categories = selection ? ALL_CATEGORIES.filter((name) => selection.includes(name)) : ALL_CATEGORIES
+// A misspelled category must not dispatch an agent at nothing.
+const unknown = (selection || []).filter((name) => !ALL_CATEGORIES.includes(name))
+if (unknown.length) log(`unknown category ${unknown.join(', ')}. Known categories: ${KNOWN}`)
+if (!categories.length) {
+  return {
+    started: false,
+    reason: 'no-categories-selected',
+    next: `Name one or more known categories in args.categories: ${KNOWN}. Omit it to run every category.`,
+    unknown,
+  }
+}
 
 const STALENESS = {
   type: 'object',
@@ -58,7 +82,10 @@ const swept = await parallel(
 // A category whose sweeper returned nothing is unswept; "no stale rules
 // there" would be the wrong reading.
 const missing = categories.filter((category, index) => !swept[index])
-const reports = swept.filter(Boolean)
+// The category comes from the roster, not from the agent's own report.
+const reports = swept
+  .map((report, index) => report && { ...report, category: categories[index] })
+  .filter(Boolean)
 const stale = reports.flatMap((report) =>
   (report.stale || []).map((entry) => ({ ...entry, category: report.category })),
 )

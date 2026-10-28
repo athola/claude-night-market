@@ -11,7 +11,6 @@ from __future__ import annotations
 import argparse
 import importlib
 import logging
-import os
 import shlex
 import sys
 from collections.abc import Iterable
@@ -33,58 +32,16 @@ add_sibling_src_to_path(__file__, "leyline")
 try:
     from leyline.fs import (
         FILE_OVERHEAD_TOKENS,
-        SKIP_DIRS,
-        SOURCE_EXTENSIONS,
         iter_source_files,
     )
 
     _HAS_LEYLINE_FS = True
 except ImportError:  # pragma: no cover
     _HAS_LEYLINE_FS = False
-    FILE_OVERHEAD_TOKENS = 6
-    SKIP_DIRS = frozenset(
-        {
-            "__pycache__",
-            "node_modules",
-            ".git",
-            "venv",
-            ".venv",
-            "dist",
-            "build",
-            ".pytest_cache",
-        }
+    from _vendored_leyline_fs import (
+        FILE_OVERHEAD_TOKENS,
+        iter_source_files,
     )
-    SOURCE_EXTENSIONS = frozenset(
-        {
-            ".py",
-            ".js",
-            ".ts",
-            ".rs",
-            ".md",
-            ".txt",
-            ".json",
-            ".yaml",
-            ".yml",
-            ".toml",
-        }
-    )
-
-    # Same signature as leyline.fs.iter_source_files: mypy requires the
-    # two conditional definitions to match.
-    def iter_source_files(
-        root_dir: Path,
-        extensions: frozenset[str] | None = None,
-        skip_dirs: frozenset[str] | None = None,
-    ) -> Iterable[Path]:
-        """Fallback directory walker when leyline.fs is unavailable."""
-        effective_ext = extensions if extensions is not None else SOURCE_EXTENSIONS
-        effective_skip = skip_dirs if skip_dirs is not None else SKIP_DIRS
-        for root, dirs, files in os.walk(root_dir):
-            dirs[:] = [d for d in dirs if d not in effective_skip]
-            for file in files:
-                candidate = Path(root) / file
-                if candidate.suffix.lower() in effective_ext:
-                    yield candidate
 
 
 try:
@@ -320,7 +277,10 @@ class GeminiQuotaTracker(QuotaTracker):  # ty: ignore[unsupported-base]
                 # has to be visible to whoever reads the quota.
                 logger.warning("token estimate skips unreadable %s: %s", path, exc)
                 continue
-            tokens += len(encoder.encode(text)) + FILE_OVERHEAD_TOKENS
+            # Source text naming a special token (tokenizer code, LLM docs) is
+            # ordinary text here; tiktoken raises on it unless told otherwise.
+            encoded = encoder.encode(text, disallowed_special=())
+            tokens += len(encoded) + FILE_OVERHEAD_TOKENS
 
         return tokens
 

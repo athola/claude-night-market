@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from minister._vendored_leyline_atomic_file import write_atomic
 from minister._vendored_leyline_sibling_plugins import version_key
 
 
@@ -179,12 +180,8 @@ class ProjectTracker:
             "tasks": [asdict(task) for task in self.data.tasks],
             "last_updated": datetime.now(timezone.utc).isoformat(),
         }
-        # Write beside, then rename: a crash mid-dump leaves the old
-        # tracker intact instead of a truncated one.
-        temporary = self.data_file.with_suffix(self.data_file.suffix + ".tmp")
-        with open(temporary, "w", encoding="utf-8") as file:
-            json.dump(data, file, indent=2)
-        os.replace(temporary, self.data_file)
+        # mode=None: the tracker keeps the permissions a plain write gave it.
+        write_atomic(self.data_file, json.dumps(data, indent=2), mode=None)
 
     def add_task(self, task: Task) -> None:
         """Add a new task to the tracker."""
