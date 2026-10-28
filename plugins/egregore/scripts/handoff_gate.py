@@ -152,6 +152,22 @@ _COMMIT_VALUE_SHORTS = "mFCctu"
 #: and sometimes an injection attempt.
 SHELL_METACHARACTERS = ("&", ";", "|", ">", "<", "`", "$(", "\n")
 
+#: Budget fields the driver reads through ``int()``. Zero is refused too:
+#: ``claude_token_ceiling: 0`` reads as "no ceiling" downstream, the
+#: opposite of what its author meant.
+_BUDGET_NUMBERS = (
+    "max_tasks",
+    "max_attempts_per_task",
+    "implementer_timeout_s",
+    "claude_token_ceiling",
+)
+
+#: Shells that run a string passed with ``-c``, bundled or not.
+_SHELLS = frozenset({"sh", "bash", "zsh", "dash", "ksh", "fish"})
+
+#: The flag that hands each interpreter its code as a string.
+_CODE_FLAGS = {"node": "-e", "perl": "-e", "ruby": "-e"}
+
 
 @dataclass(frozen=True)
 class GateResult:
@@ -257,7 +273,8 @@ def _shape_problems(name: str, data: Mapping[str, Any]) -> list[str]:
     if name == "design.md":
         traces = data["traces"]
         if isinstance(traces, dict) and all(
-            isinstance(ids, list) for ids in traces.values()
+            isinstance(ids, list) and all(isinstance(i, str) for i in ids)
+            for ids in traces.values()
         ):
             return []
         return [f"{name}: 'traces' must map each criterion id to a list of task ids"]
@@ -270,6 +287,10 @@ def _shape_problems(name: str, data: Mapping[str, Any]) -> list[str]:
         and all(isinstance(entry, dict) for entry in entries)
     ):
         return [f"{name}: {key!r} must be a non-empty list of mappings"]
+    if key == "tasks":
+        untyped = [e.get("id") for e in entries if not isinstance(e.get("id"), str)]
+        if untyped:
+            return [f"{name}: every task id must be a string, got {untyped!r}"]
     return [
         f"{name}: task {entry.get('id')} 'evidence' must be a mapping"
         for entry in entries
@@ -286,6 +307,13 @@ def _check_unsafe(docs: dict[str, Any]) -> list[str]:
 
     if not allow_paths:
         problems.append("scope.allow_paths is empty; an item must name its files")
+    elif not (
+        isinstance(allow_paths, list) and all(isinstance(p, str) for p in allow_paths)
+    ):
+        problems.append(
+            f"scope.allow_paths must be a list of paths, got {allow_paths!r}"
+        )
+        allow_paths = []
 
     for path in allow_paths:
         if str(path).strip() in {".", "/", "./"}:
@@ -308,12 +336,14 @@ def _check_unsafe(docs: dict[str, Any]) -> list[str]:
             "scope.spec_ref to justify it"
         )
 
-    max_tasks = (handoff.get("budget") or {}).get("max_tasks")
-    if max_tasks is not None and not _is_plain_int(max_tasks):
-        problems.append(
-            f"budget.max_tasks is {max_tasks!r}, which is not a number. A "
-            "budget that cannot be read is not an absent budget."
-        )
+    budget = handoff.get("budget") or {}
+    for key in _BUDGET_NUMBERS:
+        number = budget.get(key)
+        if number is not None and not (_is_plain_int(number) and number > 0):
+            problems.append(
+                f"budget.{key} is {number!r}, which is not a positive number. "
+                "A budget that cannot be read is not an absent budget."
+            )
 
     for task in docs["tasks.md"].get("tasks") or []:
         expect = (task.get("evidence") or {}).get("expect", "pass")
@@ -381,6 +411,12 @@ def _check_command(name: str, command: str) -> list[str]:
         f"{name} contains {offender!r}, which bypasses a quality gate or destroys work"
         for offender in _command_bypasses(argv)
     ]
+    interpreter = _inline_code(argv)
+    if interpreter:
+        problems.append(
+            f"{name} runs code given as a string ({interpreter!r}), which the "
+            "bypass checks cannot read. Put the code in a script and run that."
+        )
     found = [ch for ch in SHELL_METACHARACTERS if ch in command]
     if found:
         problems.append(
@@ -391,6 +427,35 @@ def _check_command(name: str, command: str) -> list[str]:
     elif not argv:
         problems.append(f"{name} is empty")
     return problems
+
+
+def _inline_code(argv: Sequence[str]) -> str | None:
+    """Return the interpreter in ``argv`` that is handed code as a string.
+
+    ``sh -c "git push --force"`` is one word to ``_command_bypasses``, so
+    whatever the string says is never judged. Only options before the
+    first operand count: ``python -m pytest -c pytest.ini`` passes ``-c``
+    to pytest, not to python.
+    """
+    for index, word in enumerate(argv):
+        tool = word.rsplit("/", 1)[-1]
+        options = []
+        for option in argv[index + 1 :]:
+            if not option.startswith("-"):
+                break
+            options.append(option)
+        if tool == "env" and any(
+            o == "-S" or o.startswith("--split-string") for o in options
+        ):
+            return word
+        if tool in _SHELLS and any(
+            not o.startswith("--") and "c" in o[1:] for o in options
+        ):
+            return word
+        flag = "-c" if tool.startswith("python") else _CODE_FLAGS.get(tool)
+        if flag and any(o.startswith(flag) for o in options):
+            return word
+    return None
 
 
 def _command_bypasses(argv: Sequence[str]) -> list[str]:

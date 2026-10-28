@@ -11,7 +11,8 @@ from dataclasses import asdict, dataclass, fields
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from atomic_file import write_text_atomic
+from _vendored_leyline_atomic_file import write_atomic
+from window import parse_rfc3339
 
 
 @dataclass
@@ -53,9 +54,10 @@ def is_in_cooldown(budget: Budget) -> bool:
     """
     if budget.cooldown_until is None:
         return False
-    cooldown = datetime.fromisoformat(budget.cooldown_until)
-    now = datetime.now(timezone.utc)
-    return cooldown > now
+    cooldown = parse_rfc3339(budget.cooldown_until)
+    # A hand-edited value that does not parse is an unknown reset, not a
+    # past one: resuming into the limit is the failure this guards.
+    return cooldown is None or cooldown > datetime.now(timezone.utc)
 
 
 def save_budget(budget: Budget, path: Path) -> None:
@@ -68,7 +70,7 @@ def save_budget(budget: Budget, path: Path) -> None:
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     data = asdict(budget)
-    write_text_atomic(path, json.dumps(data, indent=2) + "\n")
+    write_atomic(path, json.dumps(data, indent=2) + "\n", mode=None)
 
 
 def load_budget(path: Path) -> Budget:

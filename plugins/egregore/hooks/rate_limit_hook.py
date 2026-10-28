@@ -17,7 +17,7 @@ output and exit code, so it only writes, and fails open.
 from __future__ import annotations
 
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
@@ -27,7 +27,7 @@ from _manifest_utils import (  # noqa: E402 - sibling module on the hook's own p
     has_active_work,
     read_stdin_payload,
 )
-from budget import load_budget, save_budget  # noqa: E402 - scripts/ added above
+from budget import load_budget, parse_rfc3339, save_budget  # noqa: E402 - scripts/ added above
 from config import BudgetConfig, load_config  # noqa: E402 - scripts/ added above
 
 
@@ -61,7 +61,15 @@ def main() -> None:
         budget.record_rate_limit(_padding_minutes(manifest_path.parent / "config.json"))
         padded = budget.cooldown_until
         if recorded is not None and padded is not None:
-            budget.cooldown_until = max(recorded, padded, key=datetime.fromisoformat)
+            # An unreadable recorded instant loses to the fresh one rather
+            # than raising, which would drop the new cooldown on the floor.
+            budget.cooldown_until = max(
+                recorded,
+                padded,
+                key=lambda v: (
+                    parse_rfc3339(v) or datetime.min.replace(tzinfo=timezone.utc)
+                ),
+            )
         save_budget(budget, budget_path)
     except (OSError, ValueError, TypeError, AttributeError) as exc:
         print(f"egregore: could not record rate limit: {exc}", file=sys.stderr)

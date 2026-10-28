@@ -192,9 +192,9 @@ class TaskResult:
 
 
 def _diff_line_count(runner: Runner, workdir: Path) -> int:
-    """Count added and removed lines in the working tree."""
+    """Count added and removed lines against HEAD, staged ones included."""
     total = 0
-    for line in _git_query(runner, workdir, "diff", "--numstat").splitlines():
+    for line in _git_query(runner, workdir, "diff", "HEAD", "--numstat").splitlines():
         parts = line.split()
         if len(parts) >= _NUMSTAT_COUNT_FIELDS:
             total += int(parts[0]) if parts[0].isdigit() else 0
@@ -242,8 +242,8 @@ def _git_unquote(name: str) -> str:
 
 
 def _changed_files(runner: Runner, workdir: Path) -> list[str]:
-    """List the tracked files the implementer modified."""
-    names = _git_query(runner, workdir, "diff", "--name-only")
+    """List the tracked files the implementer modified, staged or not."""
+    names = _git_query(runner, workdir, "diff", "HEAD", "--name-only")
     return [_git_unquote(line.strip()) for line in names.splitlines() if line.strip()]
 
 
@@ -406,7 +406,7 @@ def run_task(
         else:
             sitter_verdict, sitter_reason, next_instruction = babysitter(
                 task=task,
-                diff=_git_query(runner, workdir, "diff", "--unified=0"),
+                diff=_git_query(runner, workdir, "diff", "HEAD", "--unified=0"),
                 test_output=observed.output,
                 test_exit=observed.returncode,
             )
@@ -566,7 +566,7 @@ def _revert_offenders(
 ) -> list[str]:
     """Undo out-of-scope edits. Returns the paths still in the tree.
 
-    Tracked and created files need different commands: ``git checkout --``
+    Tracked and created files need different commands: ``git restore``
     cannot remove a file git has never seen, and exits 1 with "pathspec
     ... did not match any file(s) known to git" while leaving it in place.
 
@@ -581,7 +581,16 @@ def _revert_offenders(
 
     unreverted: list[str] = []
     if modified:
-        result = _git(runner, workdir, "checkout", "--", *modified)
+        result = _git(
+            runner,
+            workdir,
+            "restore",
+            "--source=HEAD",
+            "--staged",
+            "--worktree",
+            "--",
+            *modified,
+        )
         if result.returncode != 0:
             unreverted += modified
     if created:
@@ -609,9 +618,18 @@ def _discard_uncommitted(runner: Runner, worktree: Path) -> Discarded | None:
     if not files and not untracked:
         return None
 
-    diff = _git_query(runner, worktree, "diff")[-DISCARD_DIFF_CHARS:]
+    diff = _git_query(runner, worktree, "diff", "HEAD")[-DISCARD_DIFF_CHARS:]
     if files:
-        _git_query(runner, worktree, "checkout", "--", ".")
+        _git_query(
+            runner,
+            worktree,
+            "restore",
+            "--source=HEAD",
+            "--staged",
+            "--worktree",
+            "--",
+            ".",
+        )
     return Discarded(files=files, untracked=untracked, diff=diff)
 
 
@@ -762,10 +780,9 @@ def _prepare_worktree(
 def _commit_task(runner: Runner, worktree: Path, task: Mapping[str, Any]) -> str | None:
     """Commit one passing task. Returns the failure reason, or ``None``.
 
-    Stages the task's own files rather than ``git add -A``. Staging the
-    whole tree swept in anything the implementer left outside the task,
-    and then hid it from the later scope checks, which read ``git diff``
-    -- the unstaged view -- and so passed vacuously over staged strays.
+    Stages and commits the task's own files only. An implementer can
+    stage a stray itself, and a commit without a pathspec takes the whole
+    index, so the pathspec is what keeps the stray out.
 
     Both exit codes are read. They used to be discarded while the task id
     was appended to ``committed`` unconditionally, so the morning's proof
@@ -773,10 +790,11 @@ def _commit_task(runner: Runner, worktree: Path, task: Mapping[str, Any]) -> str
     change is the ordinary way that happens.
     """
     tid = str(task.get("id"))
-    staged = _git(
-        runner, worktree, "add", "--", *[str(f) for f in task.get("files") or []]
+    files = [str(f) for f in task.get("files") or []]
+    staged = _git(runner, worktree, "add", "--", *files)
+    committed = _git(
+        runner, worktree, "commit", "-m", f"{tid}: {task.get('title')}", "--", *files
     )
-    committed = _git(runner, worktree, "commit", "-m", f"{tid}: {task.get('title')}")
     if staged.returncode == 0 and committed.returncode == 0:
         return None
 

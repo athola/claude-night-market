@@ -105,6 +105,24 @@ class TestIsInCooldown:
         b.cooldown_until = past.isoformat()
         assert is_in_cooldown(b) is False
 
+    def test_a_z_suffixed_instant_is_read(self) -> None:
+        b = Budget()
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        b.cooldown_until = future.strftime("%Y-%m-%dT%H:%M:%SZ")
+        assert is_in_cooldown(b) is True
+
+    def test_a_naive_instant_is_read_as_utc(self) -> None:
+        b = Budget()
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        b.cooldown_until = future.replace(tzinfo=None).isoformat()
+        assert is_in_cooldown(b) is True
+
+    def test_an_unreadable_instant_keeps_the_cooldown(self) -> None:
+        """Unreadable means unknown, and an unknown reset is not a reset."""
+        b = Budget()
+        b.cooldown_until = "soon"
+        assert is_in_cooldown(b) is True
+
 
 class TestSaveLoadBudget:
     """Test save/load roundtrip for budget."""
