@@ -1,7 +1,6 @@
 ---
 name: problem-bank
 description: Audits the DSA problem bank for coverage gaps and proposes new YAML entries. Use when the problem bank needs a coverage review.
-model_hint: standard
 ---
 
 # Problem Bank

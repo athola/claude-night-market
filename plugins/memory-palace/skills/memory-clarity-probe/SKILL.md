@@ -20,7 +20,6 @@ usage_patterns:
   - summary-quality-gate
   - best-of-n-selection
 complexity: simple
-model_hint: standard
 estimated_tokens: 600
 ---
 

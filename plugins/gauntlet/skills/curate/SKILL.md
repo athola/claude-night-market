@@ -1,7 +1,6 @@
 ---
 name: curate
 description: Adds developer-authored annotations to the gauntlet knowledge base. Use when capturing tribal knowledge or rationale not visible in code.
-model_hint: standard
 ---
 
 # Curate Knowledge

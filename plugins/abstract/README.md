@@ -61,7 +61,7 @@ and `meta-architect` assist during review.
   patterns
 - **Python Structure**: `docs/python-structure.md` - package organization
 - **Model Optimization**: `docs/model-optimization-guide.md` - which Claude
-  model each plugin task warrants, with the `model_hint` routing rules
+  model each plugin task warrants and how `effort` and `model` route it
 - **ADRs**: `docs/adr/` - architecture decisions
 - **Multi-Plugin Design**: `docs/multi-plugin-design.md` - composition model
 

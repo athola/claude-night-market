@@ -22,7 +22,6 @@ usage_patterns:
 - knowledge-evaluation
 - application-routing
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 950
 ---
 

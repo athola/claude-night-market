@@ -17,7 +17,6 @@ tools:
 - validate_plugin.py
 - skill_analyzer.py
 progressive_loading: true
-model_hint: standard
 ---
 # Plugin Review
 

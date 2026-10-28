@@ -12,7 +12,6 @@ tags:
 - registers
 tools: []
 complexity: high
-model_hint: opus
 estimated_tokens: 2400
 progressive_loading: true
 modules:

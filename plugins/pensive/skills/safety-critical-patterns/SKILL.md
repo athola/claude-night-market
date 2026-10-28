@@ -12,7 +12,6 @@ tags:
 - verification
 tools: []
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 600
 dependencies:
 - pensive:code-refinement

@@ -19,7 +19,6 @@ usage_patterns:
 - domain-analysis
 - layout-creation
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 600
 ---
 > **Status: wired**. The `palace-architect` agent loads this skill

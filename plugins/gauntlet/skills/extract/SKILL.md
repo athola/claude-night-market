@@ -1,7 +1,6 @@
 ---
 name: extract
 description: Builds the gauntlet knowledge base from AST extraction and AI enrichment. Use when initializing or refreshing codebase knowledge for challenges.
-model_hint: standard
 ---
 
 # Extract Codebase Knowledge

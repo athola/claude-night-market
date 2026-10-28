@@ -15,7 +15,6 @@ usage_patterns:
 - complexity-review
 - pre-merge-performance-check
 complexity: advanced
-model_hint: deep
 estimated_tokens: 280
 progressive_loading: true
 dependencies:

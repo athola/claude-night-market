@@ -107,7 +107,7 @@ house conventions read by repo tooling.
 | `role` | One of `entrypoint`, `library`, `hook-target` (taxonomy below) |
 | `modules` | List of `modules/*.md` spokes this hub can load |
 | `dependencies`, `tags`, `category`, `usage_patterns` | Discovery metadata |
-| `estimated_tokens`, `complexity`, `model_hint`, `alwaysApply`, `tools` | Advisory metadata for tooling and audits |
+| `estimated_tokens`, `complexity`, `alwaysApply`, `tools` | Advisory metadata for tooling and audits |
 
 Role taxonomy (from `docs/skill-integration-guide.md`):
 

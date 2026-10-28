@@ -12,7 +12,6 @@ tags:
 - iteration
 tools: []
 complexity: high
-model_hint: opus
 estimated_tokens: 2000
 progressive_loading: true
 modules:

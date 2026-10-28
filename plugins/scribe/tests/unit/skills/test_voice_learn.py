@@ -51,17 +51,6 @@ class TestVoiceLearnSkillStructure:
         for module_file in required_modules:
             assert (modules_dir / module_file).exists(), f"Module {module_file} missing"
 
-    @pytest.mark.unit
-    def test_skill_uses_opus(self):
-        """
-        Scenario: Learning analysis uses Opus for nuance
-        Given that pattern comparison needs nuanced understanding
-        When I check the model hint
-        Then it specifies opus
-        """
-        content = (SKILL_DIR / "SKILL.md").read_text()
-        assert "model_hint: opus" in content
-
 
 class TestSnapshotManagement:
     """

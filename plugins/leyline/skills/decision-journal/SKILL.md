@@ -2,7 +2,6 @@
 name: decision-journal
 description: Contract for the project decision journal (tradeoffs and lessons-learned logs). Use when recording a decision, tradeoff, or lesson, or building a consumer hook.
 alwaysApply: false
-model_hint: standard
 ---
 
 # Decision Journal Contract

@@ -28,7 +28,6 @@ usage_patterns:
 - quality-validation
 - integration-workflows
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 600
 progressive_loading: true
 modules:

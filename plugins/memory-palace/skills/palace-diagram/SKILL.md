@@ -15,7 +15,6 @@ usage_patterns:
 - palace-visualization
 - knowledge-topology
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 400
 ---
 

@@ -10,7 +10,6 @@ tags:
   - conventions
 tools: []
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 300
 ---
 # Quality Gate

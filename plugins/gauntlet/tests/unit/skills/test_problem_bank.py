@@ -1,7 +1,7 @@
 """BDD tests for the problem-bank skill.
 
 These tests verify the *behavior* described in SKILL.md:
-- The skill has valid frontmatter (name, description, model_hint)
+- The skill has valid frontmatter (name, description)
 - The skill workflow never writes to data/problems/
 - The skill produces a report rather than mutating YAML files
 - The skill is registered in openpackage.yml

@@ -21,7 +21,6 @@ usage_patterns:
 - discovery
 - review-search
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 500
 ---
 

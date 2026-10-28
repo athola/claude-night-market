@@ -50,18 +50,6 @@ class TestVoiceExtractSkillStructure:
         assert "tags:" in content
 
     @pytest.mark.unit
-    def test_skill_declares_opus_model(self):
-        """
-        Scenario: Skill recommends Opus for extraction quality
-        Given the voice-extract SKILL.md
-        When I check the model hint
-        Then it specifies opus (research finding: extraction
-             needs larger model for nuanced features)
-        """
-        content = (SKILL_DIR / "SKILL.md").read_text()
-        assert "model_hint: opus" in content
-
-    @pytest.mark.unit
     def test_skill_has_required_modules(self):
         """
         Scenario: All declared modules exist on disk

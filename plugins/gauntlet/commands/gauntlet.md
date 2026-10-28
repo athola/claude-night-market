@@ -1,6 +1,5 @@
 ---
 description: Run an ad-hoc gauntlet challenge session (5 questions, random scope)
-model_hint: standard
 ---
 
 # Gauntlet Challenge Session

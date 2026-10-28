@@ -20,7 +20,6 @@ usage_patterns:
 - compliance-auditing
 - enforcement-design
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 2800
 role: hook-target
 ---

@@ -13,7 +13,6 @@ token_budget: 30
 progressive_loading: true
 modules:
 - modules/testing-patterns.md
-model_hint: standard
 ---
 # Subagent Testing - TDD for Skills
 

@@ -4,7 +4,6 @@ description: Installs egregore watchdog daemon via launchd or systemd for autono
 alwaysApply: false
 category: setup
 tools: []
-model_hint: standard
 ---
 # Install Watchdog
 

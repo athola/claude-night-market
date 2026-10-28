@@ -19,7 +19,6 @@ usage_patterns:
 - repository-scale-analysis
 - headless-ci-execution
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 600
 references:
 - delegation-core/shared-shell-execution.md

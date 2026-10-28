@@ -11,7 +11,6 @@ tags:
 - additive-bias
 tools: []
 complexity: low
-model_hint: fast
 estimated_tokens: 900
 ---
 

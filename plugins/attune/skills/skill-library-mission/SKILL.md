@@ -24,7 +24,6 @@ usage_patterns:
 - onboarding-library
 - institutional-memory
 complexity: advanced
-model_hint: deep
 estimated_tokens: 700
 progressive_loading: true
 modules:

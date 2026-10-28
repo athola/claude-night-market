@@ -11,7 +11,6 @@ tags:
   - code-review
 tools: []
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 1150
 progressive_loading: false
 modules: []

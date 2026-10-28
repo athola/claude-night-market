@@ -23,7 +23,6 @@ modules:
 - modules/mock-fixtures.md
 - modules/ci-integration.md
 - modules/README.md
-model_hint: standard
 ---
 
 # Pytest Configuration Patterns

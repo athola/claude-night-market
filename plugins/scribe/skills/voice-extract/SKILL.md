@@ -12,7 +12,6 @@ tags:
 - writing
 tools: []
 complexity: high
-model_hint: opus
 estimated_tokens: 3200
 progressive_loading: true
 modules:

@@ -23,7 +23,6 @@ usage_patterns:
 - hotfix-review
 - stakeholder-briefing
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 700
 progressive_loading: true
 modules:

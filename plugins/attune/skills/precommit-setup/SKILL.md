@@ -16,7 +16,6 @@ tags:
 - type-checking
 - testing
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 1800
 progressive_loading: true
 modules:

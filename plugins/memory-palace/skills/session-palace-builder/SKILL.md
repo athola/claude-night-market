@@ -17,7 +17,6 @@ usage_patterns:
 - project-tracking
 - state-management
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 500
 ---
 

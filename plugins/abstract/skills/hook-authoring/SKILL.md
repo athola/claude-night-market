@@ -13,7 +13,6 @@ tags:
 dependencies: []
 estimated_tokens: 1200
 complexity: intermediate
-model_hint: standard
 provides:
   patterns:
   - hook-authoring

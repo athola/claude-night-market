@@ -4,7 +4,6 @@ description: 'Analyze and improve the improvement process. Use for detecting reg
 category: meta-skills
 alwaysApply: false
 trigger: metacognitive, self-modification, improve the improver, meta-improvement, improvement effectiveness, regression detected, improvement failed
-model_hint: standard
 progressive_loading: true
 modules:
 - modules/trace-capture.md

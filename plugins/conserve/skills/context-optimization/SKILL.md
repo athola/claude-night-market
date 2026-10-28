@@ -18,7 +18,6 @@ modules:
 - modules/compression-strategies.md
 - modules/reversible-compression.md
 - modules/log-debugging-hygiene.md
-model_hint: standard
 role: hook-target
 ---
 

@@ -28,7 +28,6 @@ usage_patterns:
 - "cleanup"
 - "unbloat"
 - "prune"
-model_hint: standard
 ---
 
 # Bloat Detector

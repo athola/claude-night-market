@@ -17,7 +17,6 @@ usage_patterns:
 - risk-assessment
 - release-preparation
 complexity: intermediate
-model_hint: standard
 progressive_loading: true
 estimated_tokens: 800
 ---

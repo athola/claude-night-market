@@ -3,7 +3,6 @@ name: shell-review
 description: Deprecated alias for unified-review's shell module. Use when an existing caller still names pensive:shell-review.
 alwaysApply: false
 category: build
-model_hint: standard
 estimated_tokens: 100
 role: entrypoint
 ---
