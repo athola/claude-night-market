@@ -38,7 +38,7 @@ See also: `shell-safety-patterns.md` → "Library loading check form".
 Detection: library with execute bit
 
 ```sh
-find scripts/ -name "*.sh" -perm /u+x | while IFS= read -r f; do
+find scripts/ -name "*.sh" -perm -u+x | while IFS= read -r f; do
   rg -q 'main\(\)' "${f}" || printf 'Library with +x: %s\n' "${f}"
 done
 ```
@@ -46,7 +46,7 @@ done
 Detection: executable missing `main "$@"` as last line
 
 ```sh
-find scripts/ -name "*.sh" -perm /u+x | while IFS= read -r f; do
+find scripts/ -name "*.sh" -perm -u+x | while IFS= read -r f; do
   last="$(tail -1 "${f}")"
   case "${last}" in
     'main "$@"') : ;;

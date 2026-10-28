@@ -27,7 +27,16 @@ def main() -> None:
         f"({finding_count} findings). "
         f"Use /tome:dig to refine or /tome:research --resume to continue."
     )
-    print(json.dumps({"additionalContext": msg}))
+    print(
+        json.dumps(
+            {
+                "hookSpecificOutput": {
+                    "hookEventName": "SessionStart",
+                    "additionalContext": msg,
+                }
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

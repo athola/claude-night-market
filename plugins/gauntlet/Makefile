@@ -49,15 +49,6 @@ status: ## Show project overview
 	@echo "Source:   $$(find src/gauntlet/ -name '*.py' 2>/dev/null | wc -l)"
 	@echo "Tests:    $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "PYTHON: $(PYTHON)"
-	@echo "UV: $(UV)"
-	@echo "UV_RUN: $(UV_RUN)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
-	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
-
 # ---------------------------------------------------------------------------
 # LIVE demo targets: dogfood gauntlet's own scripts on its own codebase.
 # These run actual functionality and produce real output, not static echoes.
@@ -130,8 +121,3 @@ test-gauntlet-onboard: ## Run tests covering onboarding flow logic
 
 Makefile.local:;
 -include Makefile.local
-
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

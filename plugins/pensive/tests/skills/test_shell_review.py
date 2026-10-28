@@ -9,6 +9,7 @@ Fixture-based tests verifying:
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import textwrap
@@ -228,8 +229,38 @@ class TestStructuralRules:
         assert "${MYDIR" in content or "${0%/*}" in content
 
 
+SAFETY_MODULE = (
+    Path(__file__).resolve().parents[2]
+    / "skills"
+    / "unified-review"
+    / "modules"
+    / "shell-safety-patterns.md"
+)
+STRUCTURE_MODULE = SAFETY_MODULE.with_name("shell-structure-patterns.md")
+
+
+def _detection_pattern(module: Path, heading: str) -> str:
+    """Return the single-quoted `rg -n '...'` pattern under a module heading."""
+    text = module.read_text(encoding="utf-8")
+    section = re.search(rf"^## {re.escape(heading)}.*?(?=^## |\Z)", text, re.M | re.S)
+    assert section is not None, f"heading {heading!r} not in {module.name}"
+    match = re.search(r"^rg -n '([^']+)'", section.group(0), re.M)
+    assert match is not None, f"no rg detection command under {heading!r}"
+    return match.group(1)
+
+
+def _rg_matches(pattern: str, script: Path) -> bool:
+    result = subprocess.run(
+        ["rg", "-n", pattern, str(script)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return result.returncode == 0
+
+
 class TestPatternDetection:
-    """Pattern detection tests verifying the skill flags ruleset violations."""
+    """The detection patterns shipped in the shell-review modules fire on violations."""
 
     def _write_fixture(
         self, tmp_path: Path, content: str, name: str = "fixture.sh"
@@ -240,132 +271,70 @@ class TestPatternDetection:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_detects_echo_usage(self, tmp_path: Path) -> None:
-        """Rg pattern from the skill catches raw echo calls."""
-        script = self._write_fixture(
-            tmp_path,
-            """\
-            #!/bin/sh
-            echo "hello world"
-            """,
+    @pytest.mark.parametrize(
+        ("heading", "violation", "clean"),
+        [
+            (
+                "No echo: use log() or printf",
+                'echo "hello world"',
+                "printf '%s\\n' hello",
+            ),
+            (
+                "Braced variable references",
+                "cd $DIR || exit 1",
+                'cd "${DIR}" || exit 1',
+            ),
+            ("cd inside a subshell", "cd /tmp", '(cd "${dir}" && make)'),
+            ("No basename or dirname", 'name=$(basename "$0")', 'name="${0##*/}"'),
+            (
+                "Library loading check form",
+                'if [ -z "$__logging_loaded" ]; then',
+                'case "${__logging_loaded:-NULL}" in',
+            ),
+            ("set -e / set -u in libraries", "set -eu", "log 1 loaded"),
+        ],
+    )
+    def test_shipped_pattern_flags_violation_and_passes_clean_form(
+        self, tmp_path: Path, heading: str, violation: str, clean: str
+    ) -> None:
+        pattern = _detection_pattern(SAFETY_MODULE, heading)
+        bad = self._write_fixture(tmp_path, f"#!/bin/sh\n{violation}\n", "bad.sh")
+        good = self._write_fixture(tmp_path, f"#!/bin/sh\n{clean}\n", "good.sh")
+
+        assert _rg_matches(pattern, bad)
+        assert not _rg_matches(pattern, good)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_shipped_missing_main_check_flags_script_without_main_call(
+        self, tmp_path: Path
+    ) -> None:
+        text = STRUCTURE_MODULE.read_text(encoding="utf-8")
+        block = re.search(
+            r"Detection: executable missing `main \"\$@\"` as last line\n\n```sh\n(.*?)```",
+            text,
+            re.S,
         )
+        assert block is not None, "missing-main detection snippet not found"
+        bad = self._write_fixture(
+            tmp_path, "#!/bin/sh\ndo_thing() {\n  :\n}\ndo_thing\n", "bad.sh"
+        )
+        good = self._write_fixture(
+            tmp_path, '#!/bin/sh\nmain() {\n  :\n}\nmain "$@"\n', "good.sh"
+        )
+        for script in (bad, good):
+            script.chmod(0o755)
+
         result = subprocess.run(
-            ["rg", "-n", r"^\s*echo\s", str(script)],
+            [
+                "sh",
+                "-c",
+                block.group(1).replace("scripts/", f"{tmp_path}/"),
+            ],
             capture_output=True,
             text=True,
             check=False,
         )
-        assert result.returncode == 0, "echo usage must be detectable by rg"
 
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_detects_missing_main_on_last_line(self, tmp_path: Path) -> None:
-        """Scripts where last line is not main \"${@}\" should be flagged."""
-        script = self._write_fixture(
-            tmp_path,
-            """\
-            #!/bin/sh
-            do_thing() {
-              printf '%s\\n' done
-            }
-            do_thing
-            """,
-        )
-        lines = [ln for ln in script.read_text().splitlines() if ln.strip()]
-        assert lines[-1] != 'main "$@"'
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_detects_unbraced_variable(self, tmp_path: Path) -> None:
-        """Rg pattern catches $VAR without braces."""
-        script = self._write_fixture(
-            tmp_path,
-            """\
-            #!/bin/sh
-            DIR=/tmp
-            cd $DIR || exit 1
-            """,
-        )
-        result = subprocess.run(
-            ["rg", "-n", r"\$[A-Za-z_][A-Za-z_0-9]*[^}]", str(script)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        assert result.returncode == 0, "unbraced variables must be detectable"
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_detects_bare_cd_outside_subshell(self, tmp_path: Path) -> None:
-        """Rg pattern catches cd not wrapped in a subshell."""
-        script = self._write_fixture(
-            tmp_path,
-            """\
-            #!/bin/sh
-            cd /tmp
-            rm -f ./*.tmp
-            """,
-        )
-        result = subprocess.run(
-            ["rg", "-n", r"^\s*cd\s+[^(]", str(script)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        assert result.returncode == 0, "bare cd must be detectable"
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_detects_basename_dirname_usage(self, tmp_path: Path) -> None:
-        """Rg pattern catches basename/dirname calls."""
-        script = self._write_fixture(
-            tmp_path,
-            """\
-            #!/bin/sh
-            name=$(basename "$0")
-            dir=$(dirname "$0")
-            """,
-        )
-        result = subprocess.run(
-            ["rg", "-n", r"\bbasename\b|\bdirname\b", str(script)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        assert result.returncode == 0, "basename/dirname must be detectable"
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_good_library_guard_form(self, tmp_path: Path) -> None:
-        """Case \"${__logging_loaded:-NULL}\" in is the required guard form."""
-        script = self._write_fixture(
-            tmp_path,
-            """\
-            #!/bin/sh
-            case "${__logging_loaded:-NULL}" in
-              1) return 0 ;;
-            esac
-            """,
-        )
-        assert 'case "${__logging_loaded:-NULL}"' in script.read_text()
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_bad_library_guard_form_detectable(self, tmp_path: Path) -> None:
-        """If [ -z \"$__logging_loaded\" ] pattern should be flagged."""
-        script = self._write_fixture(
-            tmp_path,
-            """\
-            #!/bin/sh
-            if [ -z "$__logging_loaded" ]; then
-              return 0
-            fi
-            """,
-        )
-        result = subprocess.run(
-            ["rg", r"\[ -z.*__\w+_loaded", str(script)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        assert result.returncode == 0, "non-canonical library guard must be detectable"
+        assert f"Missing main call: {bad}" in result.stdout
+        assert f"Missing main call: {good}" not in result.stdout

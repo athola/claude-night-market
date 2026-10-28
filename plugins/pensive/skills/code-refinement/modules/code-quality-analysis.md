@@ -30,6 +30,9 @@ find . -name "*.py" -not -path "*/.venv/*" | while read f; do
 done | sort | uniq -d -w 100 | head -10
 ```
 
+If `plugins/conserve/scripts/detect_duplicates.py` is absent (a marketplace
+install, not a checkout), skip the duplicate scan and say so.
+
 ### Redundancy Patterns
 
 ```bash

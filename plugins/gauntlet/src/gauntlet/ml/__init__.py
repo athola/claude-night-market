@@ -20,12 +20,22 @@ _log = logging.getLogger(__name__)
 
 _scorer: Scorer | None = None
 
+_DATA_DIR_PREFIX = "gauntlet-"
+
 
 def _get_oracle_port_file() -> Path | None:
-    """Find the oracle daemon's port file if it exists."""
+    """Find the oracle daemon's port file if it exists.
+
+    Claude Code names each plugin's data directory
+    ``plugins/data/<plugin>-<marketplace>`` (see leyline's plugin_data), and
+    oracle writes ``daemon.port`` directly into its own. Oracle's directory
+    is therefore the sibling carrying gauntlet's marketplace suffix.
+    """
     plugin_data = os.environ.get("CLAUDE_PLUGIN_DATA", "")
-    if plugin_data:
-        oracle_port = Path(plugin_data).parent / "oracle" / "daemon.port"
+    gauntlet_dir = Path(plugin_data).name if plugin_data else ""
+    if gauntlet_dir.startswith(_DATA_DIR_PREFIX):
+        marketplace = gauntlet_dir[len(_DATA_DIR_PREFIX) :]
+        oracle_port = Path(plugin_data).parent / f"oracle-{marketplace}" / "daemon.port"
         if oracle_port.exists():
             return oracle_port
     fallback = Path.home() / ".oracle-inference" / "daemon.port"

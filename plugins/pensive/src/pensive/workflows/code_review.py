@@ -40,6 +40,10 @@ class CodeReviewWorkflow:
         A skill that raises ``AnalysisError`` (its way of reporting a
         recoverable failure) or an ``OSError`` is skipped and named in
         ``errors`` and ``skipped_skills``. Any other exception propagates.
+
+        Only a result whose ``info`` carries a ``findings`` list counts as a
+        review. When no skill returned one, the summary says the code was
+        not reviewed instead of reporting it clean.
         """
         repo_path = Path(repo_path)
         self._errors = []
@@ -53,6 +57,7 @@ class CodeReviewWorkflow:
 
         # Execute skills and collect findings
         all_findings: list[dict[str, Any]] = []
+        reviewing_skills: list[str] = []
         for skill_name in skills_to_run:
             try:
                 skill = self._get_skill(skill_name)
@@ -60,9 +65,9 @@ class CodeReviewWorkflow:
                     # Create a simple context for the skill
                     context = _ReviewContext(repo_path, files)
                     result = skill.analyze(context, "")
-                    if result and hasattr(result, "info"):
-                        findings = result.info.get("findings", [])
-                        all_findings.extend(findings)
+                    if result and "findings" in getattr(result, "info", {}):
+                        all_findings.extend(result.info["findings"])
+                        reviewing_skills.append(skill_name)
                 else:
                     self._skipped_skills.append(skill_name)
             except (AnalysisError, OSError) as e:
@@ -72,8 +77,19 @@ class CodeReviewWorkflow:
                 self._skipped_skills.append(skill_name)
 
         # Generate summary and recommendations
-        summary = self._generate_summary(all_findings)
-        recommendations = self._generate_recommendations(all_findings)
+        if reviewing_skills:
+            summary = self._generate_summary(all_findings)
+            recommendations = self._generate_recommendations(all_findings)
+        else:
+            ran = ", ".join(s for s in skills_to_run if s not in self._skipped_skills)
+            summary = (
+                f"No skill reported findings (ran: {ran or 'none'}); "
+                "the code was not reviewed."
+            )
+            recommendations = [
+                "Register a file-level skill such as bug-review, "
+                "or run it through execute_skills"
+            ]
 
         return {
             "findings": all_findings,
@@ -82,6 +98,7 @@ class CodeReviewWorkflow:
             "metrics": {
                 "files_analyzed": len(files),
                 "skills_executed": len(skills_to_run) - len(self._skipped_skills),
+                "skills_with_findings": len(reviewing_skills),
                 "total_findings": len(all_findings),
             },
             "errors": self._errors if self._errors else None,

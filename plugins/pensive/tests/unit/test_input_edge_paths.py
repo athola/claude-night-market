@@ -157,6 +157,43 @@ class TestCodeReviewWorkflowReporting:
         ]
 
     @pytest.mark.unit
+    def test_repo_no_skill_reviewed_is_not_reported_clean(self, tmp_path: Path) -> None:
+        """A plain Python repo selects only unified-review, which finds nothing.
+
+        Its result carries a summary and no findings list, so "No issues
+        found" would claim a review that never happened.
+        """
+        (tmp_path / "a_bad.py").write_text(
+            "def f(x=[]):\n    try:\n        eval(input())\n    except:\n        pass\n"
+        )
+        (tmp_path / "z_ok.py").write_text("x = 1\n")
+
+        report = CodeReviewWorkflow().execute_full_review(tmp_path)
+
+        assert not report["summary"].startswith("No issues found")
+        assert "not reviewed" in report["summary"]
+        assert not any("looks good" in r for r in report["recommendations"])
+        assert report["metrics"]["skills_with_findings"] == 0
+
+    @pytest.mark.unit
+    def test_skill_reporting_an_empty_findings_list_is_a_clean_review(
+        self, tmp_path: Path
+    ) -> None:
+        """An analyzer that returned ``findings: []`` did review the code."""
+        (tmp_path / "app.py").write_text("x = 1\n")
+
+        class _Skill:
+            def analyze(self, _context: object, _path: str) -> AnalysisResult:
+                return AnalysisResult(info={"findings": []})
+
+        workflow = CodeReviewWorkflow()
+        workflow._skill_registry["unified-review"] = _Skill()
+        report = workflow.execute_full_review(tmp_path)
+
+        assert report["summary"] == "No issues found during code review."
+        assert report["metrics"]["skills_with_findings"] == 1
+
+    @pytest.mark.unit
     def test_skill_whose_module_fails_to_import_is_skipped(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:

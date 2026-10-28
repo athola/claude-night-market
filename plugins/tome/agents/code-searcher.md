@@ -79,9 +79,13 @@ existing implementations of the given topic on GitHub.
    )
    ```
 
-   `result_count` in the envelope below is the length of
-   what the parser returned for that query, before any
-   filtering you apply.
+   Parse each WebSearch hit with `parse_github_result`. It
+   returns `None` for a hit with no URL. Skip that hit and
+   record no finding.
+
+   `result_count` in the envelope below is the number of
+   findings the parser returned for that query, before any
+   filtering you apply. A skipped `None` is not a finding.
 
 6. **Return findings** as a JSON object with this
    structure:

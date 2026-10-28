@@ -56,9 +56,13 @@ class TestPreCompactHook:
 
         output = capsys.readouterr().out.strip()
         result = json.loads(output)
-        assert "additionalContext" in result
-        assert "cache eviction" in result["additionalContext"]
-        assert "active" in result["additionalContext"]
+        # The harness reads context only under hookSpecificOutput; a
+        # top-level additionalContext key is silently dropped.
+        assert "additionalContext" not in result
+        specific = result["hookSpecificOutput"]
+        assert specific["hookEventName"] == "PreCompact"
+        assert "cache eviction" in specific["additionalContext"]
+        assert "active" in specific["additionalContext"]
 
     @pytest.mark.unit
     def test_no_output_for_complete_session(

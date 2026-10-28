@@ -28,7 +28,16 @@ def main() -> None:
         return
     topic, _finding_count = result
     msg = f'Tome research session "{topic}" is active.'
-    print(json.dumps({"additionalContext": msg}))
+    print(
+        json.dumps(
+            {
+                "hookSpecificOutput": {
+                    "hookEventName": "PreCompact",
+                    "additionalContext": msg,
+                }
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

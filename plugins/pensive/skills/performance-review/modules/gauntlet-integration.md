@@ -130,6 +130,9 @@ Build the graph once per tree:
 python3 plugins/gauntlet/scripts/graph_build.py <root>
 ```
 
+If `plugins/gauntlet/scripts/graph_build.py` is absent (a marketplace install,
+not a checkout), skip this step and say so.
+
 ## Failure modes and fallbacks
 
 | Condition | Tier 2 | Tier 3 | User-visible effect |

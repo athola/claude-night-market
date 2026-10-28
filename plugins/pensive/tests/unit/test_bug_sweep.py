@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import subprocess
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
@@ -133,6 +134,29 @@ class TestBlastRadiusContextShape:
 
     @pytest.mark.unit
     def test_pr_create_context_is_nested(self, tmp_path, monkeypatch) -> None:
+        # The hook diffs against the merge base with origin/HEAD, so the
+        # project must be a repository whose clone refs name a default branch.
+        for argv in (
+            ["init", "-q", "-b", "master"],
+            ["commit", "-q", "--allow-empty", "-m", "init"],
+            ["update-ref", "refs/remotes/origin/master", "HEAD"],
+            ["symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/master"],
+        ):
+            subprocess.run(
+                [
+                    "git",
+                    "-c",
+                    "user.email=t@example.com",
+                    "-c",
+                    "user.name=t",
+                    "-c",
+                    "commit.gpgsign=false",
+                    *argv,
+                ],
+                cwd=tmp_path,
+                check=True,
+                capture_output=True,
+            )
         monkeypatch.chdir(tmp_path)
         db_path = tmp_path / ".gauntlet" / "graph.db"
         db_path.parent.mkdir()

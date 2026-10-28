@@ -100,10 +100,31 @@ const LENSES = [
 // are for.
 const input = args || {}
 const target = input.target || 'the current working diff'
-const wanted = Array.isArray(input.dimensions) ? input.dimensions : null
-const selected = wanted
-  ? DIMENSIONS.filter((d) => wanted.includes(d.key))
+const KNOWN = DIMENSIONS.map((entry) => entry.key).join(', ')
+const selection = input.dimensions ?? null
+// A string would pass `.includes` as a substring match, so only a list
+// is a selection.
+if (selection !== null && !Array.isArray(selection)) {
+  return {
+    started: false,
+    reason: 'dimensions-not-a-list',
+    next: 'Pass args.dimensions as a list of dimension names. Omit it to run every dimension.',
+  }
+}
+const selected = selection
+  ? DIMENSIONS.filter((entry) => selection.includes(entry.key))
   : DIMENSIONS
+// A misspelled dimension must not read as a clean result.
+const unknown = (selection || []).filter((name) => !DIMENSIONS.some((entry) => entry.key === name))
+if (unknown.length) log(`unknown dimension ${unknown.join(', ')}. Known dimensions: ${KNOWN}`)
+if (!selected.length) {
+  return {
+    started: false,
+    reason: 'no-dimensions-selected',
+    next: `Name one or more known dimensions in args.dimensions: ${KNOWN}. Omit it to run every dimension.`,
+    unknown,
+  }
+}
 const maxFindings = typeof input.maxFindings === 'number' ? input.maxFindings : 0
 const lenses = typeof input.lenses === 'number' ? LENSES.slice(0, input.lenses) : LENSES
 

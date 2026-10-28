@@ -99,6 +99,9 @@ file that tree-sitter cannot parse adds a warning to the result.
 Build the graph with
 `python3 plugins/gauntlet/scripts/graph_build.py <root>`.
 
+If `plugins/gauntlet/scripts/graph_build.py` is absent (a marketplace install,
+not a checkout), skip this step and say so.
+
 ## Related Skills
 
 - `Skill(pensive:performance-review)`: methodology this command

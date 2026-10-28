@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 from unittest.mock import patch
 
@@ -19,6 +20,7 @@ from gauntlet.blast_radius import (
     parse_git_diff_ranges,
 )
 from gauntlet.graph import GraphStore
+from gauntlet.incremental import full_build
 from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
 
 
@@ -439,6 +441,11 @@ class TestLoadWeightsReportsMalformedConfig:
         assert any("config.json" in rec.message for rec in caplog.records)
 
 
+#: Repository top level the analyze_changes tests report from rev-parse.
+#: The graph stores absolute paths under it, as graph_build does.
+_TOP = "/repo"
+
+
 class TestAnalyzeChangesPipeline:
     """
     Feature: End-to-end blast radius analysis
@@ -458,6 +465,16 @@ class TestAnalyzeChangesPipeline:
             f"@@ -{start},{count} +{start},{count} @@\n"
             "+changed\n"
         )
+
+    @staticmethod
+    def _git(diff: str):
+        """Answer git diff with ``diff`` and rev-parse with ``_TOP``."""
+
+        def run(argv: list[str], **_kwargs: object) -> object:
+            stdout = _TOP + "\n" if argv[1] == "rev-parse" else diff
+            return type("R", (), {"returncode": 0, "stdout": stdout})()
+
+        return run
 
     @pytest.mark.unit
     def test_an_empty_diff_reports_no_risk_without_touching_the_graph(
@@ -482,6 +499,29 @@ class TestAnalyzeChangesPipeline:
         assert result["review_priorities"] == []
 
     @pytest.mark.unit
+    def test_unknown_repository_root_reports_an_error_not_a_verdict(
+        self, store: GraphStore
+    ) -> None:
+        """
+        Scenario: git diff succeeds but rev-parse --show-toplevel fails
+        Then the verdict is 'unknown' with the git error attached
+
+        Without the root the diff paths cannot be matched to the graph's
+        absolute paths, and an empty match would read as 'low' risk.
+        """
+        diff = self._diff("app.py", 10, 5)
+
+        def run(argv: list[str], **_kwargs: object) -> object:
+            failed = argv[1] == "rev-parse"
+            return type("R", (), {"returncode": 128 if failed else 0, "stdout": diff})()
+
+        with patch("gauntlet.blast_radius.subprocess.run", side_effect=run):
+            result = analyze_changes(store)
+
+        assert result["overall_risk"] == "unknown"
+        assert "rev-parse" in result["error"]
+
+    @pytest.mark.unit
     def test_an_untested_changed_function_is_reported_and_scored(
         self, store: GraphStore
     ) -> None:
@@ -498,16 +538,14 @@ class TestAnalyzeChangesPipeline:
             GraphNode(
                 kind=NodeKind.FUNCTION,
                 qualified_name="app.py::process",
-                file_path="app.py",
+                file_path=f"{_TOP}/app.py",
                 line_start=10,
                 line_end=20,
             )
         )
 
         with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
-            mock_run.return_value = type(
-                "R", (), {"returncode": 0, "stdout": self._diff("app.py", 10, 5)}
-            )()
+            mock_run.side_effect = self._git(self._diff("app.py", 10, 5))
             result = analyze_changes(store)
 
         assert result["untested_functions"] == ["app.py::process"]
@@ -530,14 +568,14 @@ class TestAnalyzeChangesPipeline:
             GraphNode(
                 kind=NodeKind.FUNCTION,
                 qualified_name="app.py::process",
-                file_path="app.py",
+                file_path=f"{_TOP}/app.py",
                 line_start=10,
                 line_end=20,
             )
         )
         diff = self._diff("app.py", 10, 5)
         with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
-            mock_run.return_value = type("R", (), {"returncode": 0, "stdout": diff})()
+            mock_run.side_effect = self._git(diff)
             default = analyze_changes(store)["risk_scores"]["app.py::process"]
             heavy = analyze_changes(
                 store, weights={**load_weights(None), "test_gap": 0.9}
@@ -565,7 +603,7 @@ class TestAnalyzeChangesPipeline:
             GraphNode(
                 kind=NodeKind.FUNCTION,
                 qualified_name="app.py::process",
-                file_path="app.py",
+                file_path=f"{_TOP}/app.py",
                 line_start=10,
                 line_end=20,
             )
@@ -574,7 +612,7 @@ class TestAnalyzeChangesPipeline:
             GraphNode(
                 kind=NodeKind.FUNCTION,
                 qualified_name="test_app.py::test_process",
-                file_path="test_app.py",
+                file_path=f"{_TOP}/test_app.py",
                 line_start=1,
                 line_end=5,
             )
@@ -588,9 +626,7 @@ class TestAnalyzeChangesPipeline:
         )
 
         with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
-            mock_run.return_value = type(
-                "R", (), {"returncode": 0, "stdout": self._diff("app.py", 10, 5)}
-            )()
+            mock_run.side_effect = self._git(self._diff("app.py", 10, 5))
             result = analyze_changes(store)
 
         assert "app.py::process" not in result["untested_functions"]
@@ -613,19 +649,78 @@ class TestAnalyzeChangesPipeline:
                 GraphNode(
                     kind=NodeKind.FUNCTION,
                     qualified_name=f"app.py::fn_{i}",
-                    file_path="app.py",
+                    file_path=f"{_TOP}/app.py",
                     line_start=10 * (i + 1),
                     line_end=10 * (i + 1) + 5,
                 )
             )
 
         with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
-            mock_run.return_value = type(
-                "R", (), {"returncode": 0, "stdout": self._diff("app.py", 1, 200)}
-            )()
+            mock_run.side_effect = self._git(self._diff("app.py", 1, 200))
             result = analyze_changes(store)
 
         priorities = result["review_priorities"]
         scores = [result["risk_scores"][n["qualified_name"]] for n in priorities]
         assert len(priorities) == 10
         assert scores == sorted(scores, reverse=True)
+
+
+class TestAnalyzeChangesOnABuiltGraph:
+    """
+    Feature: blast radius over a graph built the way production builds it
+
+    graph_build.py resolves the root and stores absolute file paths, while
+    git diff names files relative to the repository top level. Every test
+    above stores relative paths, the one form production never writes.
+    """
+
+    @staticmethod
+    def _git(repo: Path, *args: str) -> None:
+        subprocess.run(
+            [
+                "git",
+                "-c",
+                "user.email=t@example.com",
+                "-c",
+                "user.name=t",
+                "-c",
+                "commit.gpgsign=false",
+                *args,
+            ],
+            cwd=repo,
+            check=True,
+            capture_output=True,
+        )
+
+    @pytest.mark.unit
+    def test_edited_function_is_a_direct_change_in_a_full_build_graph(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Scenario: edit a function after a full build
+        Given a git repo whose graph came from full_build on the resolved root
+        When foo() is edited and analyze_changes runs against HEAD
+        Then foo is a direct change and appears among the affected nodes
+        """
+        repo = (tmp_path / "repo").resolve()
+        repo.mkdir()
+        module = repo / "m.py"
+        module.write_text("def foo():\n    return 1\n\n\ndef bar():\n    return 2\n")
+        self._git(repo, "init", "-q")
+        self._git(repo, "add", "m.py")
+        self._git(repo, "commit", "-q", "-m", "init")
+
+        graph = GraphStore(tmp_path / "graph.db")
+        try:
+            full_build(str(repo), graph)
+            module.write_text(
+                "def foo():\n    return 42\n\n\ndef bar():\n    return 2\n"
+            )
+            monkeypatch.chdir(repo)
+            report = analyze_changes(graph, "HEAD")
+        finally:
+            graph.close()
+
+        affected = {n["qualified_name"] for n in report["affected_nodes"]}
+        assert report["direct_changes"] == 1
+        assert any(qn.endswith("::foo") for qn in affected)

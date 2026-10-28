@@ -12,6 +12,7 @@ import pytest
 from pr_blast_radius import main
 
 from gauntlet.graph import GraphStore
+from gauntlet.incremental import full_build
 
 _HOOK_SCRIPT = Path(__file__).resolve().parents[2] / "hooks" / "pr_blast_radius.py"
 
@@ -26,13 +27,55 @@ _MEDIUM_REPORT = {
 }
 
 
+def _git(repo: Path, *args: str) -> str:
+    return subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.email=t@example.com",
+            "-c",
+            "user.name=t",
+            "-c",
+            "commit.gpgsign=false",
+            *args,
+        ],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def _init_repo_with_origin(repo: Path) -> None:
+    """A git repo on branch ``feature`` whose origin/HEAD names origin/master.
+
+    No remote is contacted: the remote-tracking refs are written directly,
+    which is the state a clone leaves behind.
+    """
+    _git(repo, "init", "-q", "-b", "master")
+    (repo / ".gitignore").write_text(".gauntlet/\n")
+    _git(repo, "add", ".gitignore")
+    _git(repo, "commit", "-q", "-m", "init")
+    _git(repo, "update-ref", "refs/remotes/origin/master", "HEAD")
+    _git(
+        repo,
+        "symbolic-ref",
+        "refs/remotes/origin/HEAD",
+        "refs/remotes/origin/master",
+    )
+    _git(repo, "checkout", "-q", "-b", "feature")
+
+
 @pytest.fixture()
 def project_with_graph(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    """A project root holding an empty .gauntlet/graph.db, used as cwd.
+    """A git project holding an empty .gauntlet/graph.db, used as cwd.
 
     The hook locates graph.db by walking up from the working directory, so
-    the tests set the directory rather than patching the lookup.
+    the tests set the directory rather than patching the lookup. It is a
+    git repository with an origin/HEAD because the hook diffs the branch
+    against its merge base with the PR base.
     """
+    _init_repo_with_origin(tmp_path)
     gauntlet_dir = tmp_path / ".gauntlet"
     gauntlet_dir.mkdir()
     GraphStore(str(gauntlet_dir / "graph.db")).close()
@@ -174,6 +217,99 @@ class TestPrBlastRadiusHook:
         monkeypatch.setitem(sys.modules, "gauntlet.blast_radius", None)
         result = main({"tool_input": {"command": "gh pr create"}})
         assert result is None
+
+
+class TestPrBaseRef:
+    """
+    Feature: the PR's changes are the branch's commits, not the work tree
+
+    At ``gh pr create`` the branch is committed and the tree is usually
+    clean, so diffing against HEAD reported no change for every PR.
+    """
+
+    @pytest.mark.unit
+    def test_diffs_against_the_merge_base_with_the_default_branch(
+        self, project_with_graph: Path
+    ) -> None:
+        (project_with_graph / "m.py").write_text("def foo():\n    return 1\n")
+        _git(project_with_graph, "add", "m.py")
+        _git(project_with_graph, "commit", "-q", "-m", "feature")
+        merge_base = _git(project_with_graph, "merge-base", "HEAD", "origin/master")
+
+        with patch(
+            "gauntlet.blast_radius.analyze_changes", return_value=_MEDIUM_REPORT
+        ) as analyze:
+            main({"tool_input": {"command": "gh pr create --title t"}})
+
+        assert analyze.call_args.kwargs["base_ref"] == merge_base
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("flag", ["--base develop", "-B develop", "--base=develop"])
+    def test_explicit_base_branch_selects_its_merge_base(
+        self, project_with_graph: Path, flag: str
+    ) -> None:
+        _git(project_with_graph, "update-ref", "refs/remotes/origin/develop", "HEAD")
+        (project_with_graph / "m.py").write_text("x = 1\n")
+        _git(project_with_graph, "add", "m.py")
+        _git(project_with_graph, "commit", "-q", "-m", "feature")
+        develop = _git(project_with_graph, "rev-parse", "origin/develop")
+        _git(project_with_graph, "update-ref", "refs/remotes/origin/master", "HEAD")
+
+        with patch(
+            "gauntlet.blast_radius.analyze_changes", return_value=_MEDIUM_REPORT
+        ) as analyze:
+            main({"tool_input": {"command": f"gh pr create {flag} --title t"}})
+
+        assert analyze.call_args.kwargs["base_ref"] == develop
+
+    @pytest.mark.unit
+    def test_unknown_merge_base_adds_no_context(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """Outside a repo with an origin/HEAD the hook says why and stays out."""
+        (tmp_path / ".gauntlet").mkdir()
+        GraphStore(str(tmp_path / ".gauntlet" / "graph.db")).close()
+        monkeypatch.chdir(tmp_path)
+        with patch("gauntlet.blast_radius.analyze_changes") as analyze:
+            result = main({"tool_input": {"command": "gh pr create"}})
+        assert result is None
+        analyze.assert_not_called()
+        assert "no merge base" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_unparseable_command_adds_no_context(
+        self, project_with_graph: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """An unbalanced quote leaves the PR base unknown, so no report."""
+        with patch("gauntlet.blast_radius.analyze_changes") as analyze:
+            result = main({"tool_input": {"command": 'gh pr create --title "x'}})
+        assert result is None
+        analyze.assert_not_called()
+        assert "no merge base" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_committed_branch_change_reaches_the_report_from_a_clean_tree(
+        self, project_with_graph: Path
+    ) -> None:
+        """End to end: real graph, real git, committed edit, clean tree."""
+        module = project_with_graph / "m.py"
+        module.write_text("def foo():\n    return 1\n")
+        _git(project_with_graph, "add", "m.py")
+        _git(project_with_graph, "commit", "-q", "-m", "add foo")
+        db = project_with_graph / ".gauntlet" / "graph.db"
+        with GraphStore(str(db)) as graph:
+            full_build(str(project_with_graph.resolve()), graph)
+        assert _git(project_with_graph, "status", "--porcelain") == ""
+
+        result = main({"tool_input": {"command": "gh pr create"}})
+
+        assert result is not None
+        context = result["hookSpecificOutput"]["additionalContext"]
+        assert "0 nodes affected" not in context
+        assert "foo" in context
 
 
 class TestScriptEntryPoint:

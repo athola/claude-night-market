@@ -130,24 +130,51 @@ class TestGetOraclePortFile:
     """
 
     @pytest.mark.unit
-    def test_returns_port_file_from_claude_plugin_data_env(self, tmp_path: Path):
+    def test_finds_oracle_port_in_marketplace_suffixed_sibling_dir(
+        self, tmp_path: Path
+    ):
         """
-        Scenario: CLAUDE_PLUGIN_DATA points to a gauntlet data directory
-        Given CLAUDE_PLUGIN_DATA is set and oracle/daemon.port exists as a sibling
+        Scenario: Claude Code names data dirs <plugin>-<marketplace>
+        Given CLAUDE_PLUGIN_DATA is plugins/data/gauntlet-claude-night-market
+        And oracle wrote plugins/data/oracle-claude-night-market/daemon.port
         When _get_oracle_port_file() is called
-        Then it returns the path to oracle/daemon.port
+        Then it returns oracle's port file
         """
-        gauntlet_data = tmp_path / "gauntlet"
-        gauntlet_data.mkdir()
-        oracle_dir = tmp_path / "oracle"
+        data_root = tmp_path / ".claude" / "plugins" / "data"
+        gauntlet_data = data_root / "gauntlet-claude-night-market"
+        gauntlet_data.mkdir(parents=True)
+        oracle_dir = data_root / "oracle-claude-night-market"
         oracle_dir.mkdir()
         port_file = oracle_dir / "daemon.port"
         port_file.write_text("9001")
 
         with patch.dict("os.environ", {"CLAUDE_PLUGIN_DATA": str(gauntlet_data)}):
-            result = _get_oracle_port_file()
+            with patch("gauntlet.ml.Path.home", return_value=tmp_path):
+                result = _get_oracle_port_file()
 
         assert result == port_file
+
+    @pytest.mark.unit
+    def test_ignores_oracle_dir_from_another_marketplace(self, tmp_path: Path):
+        """
+        Scenario: an oracle installed from a different marketplace
+        Given gauntlet's data dir is gauntlet-claude-night-market
+        And only oracle-other-market/daemon.port exists
+        When _get_oracle_port_file() is called
+        Then it returns None rather than another install's daemon
+        """
+        data_root = tmp_path / "data"
+        gauntlet_data = data_root / "gauntlet-claude-night-market"
+        gauntlet_data.mkdir(parents=True)
+        other = data_root / "oracle-other-market"
+        other.mkdir()
+        (other / "daemon.port").write_text("9001")
+
+        with patch.dict("os.environ", {"CLAUDE_PLUGIN_DATA": str(gauntlet_data)}):
+            with patch("gauntlet.ml.Path.home", return_value=tmp_path):
+                result = _get_oracle_port_file()
+
+        assert result is None
 
     @pytest.mark.unit
     def test_returns_none_when_plugin_data_port_file_missing(self, tmp_path: Path):
