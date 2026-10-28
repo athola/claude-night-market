@@ -230,13 +230,6 @@ class AbstractCLI(ABC):
             help="Suppress non-essential output",
         )
 
-        # Project root
-        parser.add_argument(
-            "--project-root",
-            type=Path,
-            help="Project root directory (auto-detected if not specified)",
-        )
-
         # Config file
         parser.add_argument(
             "--config",

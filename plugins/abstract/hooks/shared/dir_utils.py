@@ -24,6 +24,9 @@ from abstract.paths import (  # noqa: E402 - import after sys.path setup
     get_config_dir as _get_config_dir,
 )
 from abstract.paths import (
+    get_experience_library_dir as _get_experience_library_dir,
+)
+from abstract.paths import (
     get_log_directory as _get_log_directory,
 )
 from abstract.paths import (
@@ -44,3 +47,8 @@ def get_log_directory() -> Path:
 def get_config_dir() -> Path:
     """Return ~/.claude/skills/discussions/ (created)."""
     return _get_config_dir(create=True)
+
+
+def get_experience_library_dir() -> Path:
+    """Return ~/.claude/skills/experience-library/ (not created)."""
+    return _get_experience_library_dir()

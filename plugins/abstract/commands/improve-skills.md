@@ -41,6 +41,9 @@ Part of Issue #69 Phase 5, this command closes the self-improvement loop by:
    - How (implementation approach)
 5. **Optionally implements**:
    - Updates skill files
+   - Records each change with `scripts/record_skill_improvement.py`,
+     which bumps the adaptation version and opens the evaluation window
+     (skill-improver agent, step 5C)
    - Runs validation tests
    - Creates commit
 

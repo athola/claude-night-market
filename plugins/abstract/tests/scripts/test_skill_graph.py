@@ -13,6 +13,7 @@ import json
 import re
 import sys
 import textwrap
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -32,7 +33,9 @@ from skill_graph import (  # noqa: E402 - import after sys.path mutation
     detect_dangling_refs,
     detect_isolates,
     detect_uncalled_libraries,
+    detect_unearned_utilities,
     extract_skill_references,
+    generate_report,
     main,
     rank_hubs,
     rank_orchestrators,
@@ -1040,3 +1043,78 @@ class TestCli:
             {"source": "fixtureplugin:alpha", "target": "fixtureplugin:absent"}
         ]
         assert capsys.readouterr().out == ""
+
+
+class TestUnearnedUtilities:
+    """shared-utility-consumer-rule.md: a utility skill earns two consumers.
+
+    Utility-named (``*-core``, ``*-shared``, ``shared-*``, ``*-patterns``)
+    skills older than 30 days with fewer than two inbound references are
+    flagged, unless their frontmatter carries ``fold_back_exception``.
+    """
+
+    NOW = datetime(2026, 10, 28, tzinfo=timezone.utc)
+
+    @staticmethod
+    def _skill(root: Path, name: str, body: str = "", front: str = "") -> Path:
+        path = root / "p" / "skills" / name / "SKILL.md"
+        path.parent.mkdir(parents=True)
+        path.write_text(f"---\nname: {name}\n{front}---\n{body}\n")
+        return path
+
+    def _flagged(self, root: Path, ages: dict[str, int]) -> list[str]:
+        def added_at(skill_md: Path):
+            return self.NOW - timedelta(days=ages[skill_md.parent.name])
+
+        return detect_unearned_utilities(
+            build_graph(root), root, added_at=added_at, now=self.NOW
+        )
+
+    def test_an_old_utility_with_no_consumer_is_flagged(self, tmp_path: Path) -> None:
+        self._skill(tmp_path, "foo-core")
+        assert self._flagged(tmp_path, {"foo-core": 40}) == ["p:foo-core"]
+
+    def test_a_young_utility_is_in_its_grace_period(self, tmp_path: Path) -> None:
+        self._skill(tmp_path, "shared-bits")
+        assert self._flagged(tmp_path, {"shared-bits": 10}) == []
+
+    def test_a_documented_exception_is_not_flagged(self, tmp_path: Path) -> None:
+        self._skill(tmp_path, "bar-patterns", front="fold_back_exception: '#1'\n")
+        assert self._flagged(tmp_path, {"bar-patterns": 90}) == []
+
+    def test_a_skill_and_a_command_are_two_consumers(self, tmp_path: Path) -> None:
+        self._skill(tmp_path, "qux-shared")
+        self._skill(tmp_path, "user", body="Skill(p:qux-shared)")
+        command = tmp_path / "p" / "commands" / "go.md"
+        command.parent.mkdir(parents=True)
+        command.write_text("Load p:qux-shared first.\n")
+        ages = {"qux-shared": 90, "user": 90}
+        assert self._flagged(tmp_path, ages) == []
+
+    def test_one_consumer_is_not_enough(self, tmp_path: Path) -> None:
+        self._skill(tmp_path, "qux-shared")
+        self._skill(tmp_path, "user", body="Skill(p:qux-shared)")
+        ages = {"qux-shared": 90, "user": 90}
+        assert self._flagged(tmp_path, ages) == ["p:qux-shared"]
+
+    def test_a_non_utility_name_is_never_flagged(self, tmp_path: Path) -> None:
+        self._skill(tmp_path, "plain")
+        assert self._flagged(tmp_path, {"plain": 400}) == []
+
+    def test_the_report_carries_the_unearned_list(self, tmp_path: Path) -> None:
+        self._skill(tmp_path, "foo-core")
+        assert generate_report(tmp_path)["unearned_utilities"] == []
+
+    def test_a_paradigm_named_core_is_not_a_utility(self, tmp_path: Path) -> None:
+        """Functional Core is a paradigm's name, not a utility role."""
+        self._skill(tmp_path, "architecture-paradigm-functional-core")
+        ages = {"architecture-paradigm-functional-core": 400}
+        assert self._flagged(tmp_path, ages) == []
+
+    def test_without_yaml_the_check_reports_nothing_rather_than_guessing(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Without PyYAML every utility would look unconsumed."""
+        monkeypatch.setattr(sys.modules["skill_graph"], "_yaml", None)
+        self._skill(tmp_path, "foo-core")
+        assert self._flagged(tmp_path, {"foo-core": 400}) == []

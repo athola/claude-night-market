@@ -23,6 +23,7 @@ class SkillVersionManager:
         self.skill_file = skill_file
         self.frontmatter: dict[str, Any] = {}
         self.body: str = ""
+        self._raw_frontmatter: str = ""
         self._parse()
 
     def _parse(self) -> None:
@@ -32,7 +33,8 @@ class SkillVersionManager:
         content = self.skill_file.read_text()
         match = re.match(r"^---\n(.*?)\n---\n?(.*)", content, re.DOTALL)
         if match:
-            self.frontmatter = yaml.safe_load(match.group(1)) or {}
+            self._raw_frontmatter = match.group(1)
+            self.frontmatter = yaml.safe_load(self._raw_frontmatter) or {}
             self.body = match.group(2)
         else:
             self.frontmatter = {}
@@ -90,6 +92,24 @@ class SkillVersionManager:
         return new_version
 
     def _write(self) -> None:
-        """Write frontmatter + body back to file."""
-        fm_str = yaml.dump(self.frontmatter, default_flow_style=False, sort_keys=False)
+        """Write the adaptation block back, leaving other frontmatter lines as-is.
+
+        Dumping the whole frontmatter folded long descriptions, dropped
+        quoting and comments, and turned every improvement of a checked-in
+        SKILL.md into a frontmatter-wide diff. Only the adaptation block
+        changes, so only it is re-serialized.
+        """
+        kept = re.sub(
+            r"^adaptation:[^\n]*\n?(?:[ \t-][^\n]*\n?)*",
+            "",
+            self._raw_frontmatter,
+            flags=re.MULTILINE,
+        ).rstrip("\n")
+        block = yaml.dump(
+            {"adaptation": self.frontmatter["adaptation"]},
+            default_flow_style=False,
+            sort_keys=False,
+        )
+        fm_str = f"{kept}\n{block}" if kept else block
         self.skill_file.write_text(f"---\n{fm_str}---\n{self.body}")
+        self._raw_frontmatter = fm_str.rstrip("\n")

@@ -248,6 +248,12 @@ class TestQueueFlagging:
 
         code, out, _ = _run_main(monkeypatch, capsys, tmp_path, _skill_payload())
 
-        assert (code, out) == (0, "")
+        assert code == 0
         stored = json.loads(queue_file.read_text())["skills"][SKILL]
         assert stored["flagged_count"] == 0
+        if held == "evaluating":
+            # Counted toward the evaluation window instead of flagged
+            # (tests/hooks/test_self_adapting_loop.py covers the window).
+            assert "evaluation" in json.loads(out)["hookSpecificOutput"]
+        else:
+            assert out == ""

@@ -11,18 +11,24 @@ import contextlib
 import fcntl
 import json
 import os
+import sys
 from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .atomic_write import write_text_atomic
-from .utils import emit_warn
+from ._vendored_leyline_atomic_file import write_atomic
 
 
 def _warn(message: str) -> None:
-    """Forward to the shared stderr writer (D-12)."""
-    emit_warn("improvement_queue", message)
+    """Write the same line as ``utils.emit_warn`` (D-12), without importing it.
+
+    ``utils`` imports PyYAML, and the homeostatic monitor hook imports this
+    module under a python3 that lacks it. The import failed, the hook's
+    ``_HAS_QUEUE`` guard turned it into silence, and no skill was flagged
+    or evaluated.
+    """
+    sys.stderr.write(f"improvement_queue: {message}\n")
 
 
 class ImprovementQueue:
@@ -86,13 +92,16 @@ class ImprovementQueue:
         """
         self.queue_file.parent.mkdir(parents=True, exist_ok=True)
         try:
-            write_text_atomic(
-                self.queue_file, json.dumps({"skills": self.skills}, indent=2)
-            )
+            write_atomic(self.queue_file, json.dumps({"skills": self.skills}, indent=2))
         except OSError as e:
             _warn(f"failed to save queue to {self.queue_file}: {e}")
+            raise
 
     TRIGGER_THRESHOLD = 3
+
+    # Every flag appends an id and the file is rewritten on each run, so
+    # an unbounded list grows the queue file for the life of the skill.
+    MAX_EXECUTION_IDS = 50
 
     @contextlib.contextmanager
     def _locked_reload(self) -> Iterator[bool]:
@@ -137,6 +146,7 @@ class ImprovementQueue:
             entry["stability_gap"] = stability_gap
             entry["last_flagged"] = datetime.now(timezone.utc).isoformat()
             entry["execution_ids"].append(execution_id)
+            del entry["execution_ids"][: -self.MAX_EXECUTION_IDS]
             self._save()
             return True
 
@@ -179,6 +189,7 @@ class ImprovementQueue:
             entry["evaluating"] = True
             entry["eval_start"] = datetime.now(timezone.utc).isoformat()
             entry["eval_executions"] = 0
+            entry["eval_gaps"] = []
             entry["eval_target"] = 10
             entry["baseline_gap"] = baseline_gap
             entry["flagged_count"] = 0

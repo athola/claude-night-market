@@ -10,14 +10,43 @@ Zero external dependencies - uses only Python standard library.
 
 from __future__ import annotations
 
+import importlib
 import json
 import sys
 import traceback
 from datetime import datetime, timezone
 
-from shared.dir_utils import get_observability_dir
+from shared.dir_utils import get_experience_library_dir, get_observability_dir
 from shared.hook_io import read_hook_payload
 from shared.skill_utils import parse_skill_name
+
+# By name, after shared.dir_utils has put src/ on sys.path; a plain
+# import would sort ahead of it and fail under the operator's python3.
+_experience = importlib.import_module("abstract.experience_library")
+
+# ADR-0006: at most 3 exemplars of ~500 tokens, at ~4 characters a token.
+MAX_EXEMPLARS = 3
+MAX_EXEMPLAR_CHARS = 2000
+
+
+def experience_context(skill_ref: str) -> str:
+    """Return recent successful calls of this skill, or "" when none.
+
+    A library that cannot be read costs the exemplars, not the hook.
+    """
+    library_dir = get_experience_library_dir()
+    if not library_dir.is_dir():
+        return ""
+    try:
+        library = _experience.ExperienceLibrary(library_dir)
+        entries = library.recent_entries(skill_ref, MAX_EXEMPLARS)
+    except OSError as e:
+        sys.stderr.write(f"pre_skill_execution: experience library unread: {e}\n")
+        return ""
+    if not entries:
+        return ""
+    exemplars = str(_experience.format_context(entries, MAX_EXEMPLAR_CHARS))
+    return f"\n[Experience] Recent successful {skill_ref} calls:\n" + exemplars
 
 
 def main() -> None:
@@ -61,6 +90,7 @@ def main() -> None:
         # Output hook data with additionalContext (Claude Code 2.1.9+)
         # Inject skill execution context visible to Claude
         additional_context = f"[Skill Invocation] Executing {skill_ref}"
+        additional_context += experience_context(skill_ref)
 
         output = {
             "hookSpecificOutput": {

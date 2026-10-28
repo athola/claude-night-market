@@ -184,6 +184,67 @@ def _flag_and_build_output(
     )
 
 
+def _advance_evaluation(
+    claude_home: Path, skill_ref: str, gap: float
+) -> dict[str, Any] | None:
+    """Count this execution toward an open evaluation window.
+
+    ``flag_skill`` refuses an evaluating skill, so this is the only path
+    that moves one out of ``evaluating``: each execution is recorded and
+    the window is decided once it holds ``eval_target`` of them.
+
+    Returns:
+        Output fields for the hook report, or None when the skill is not
+        under evaluation. A missing queue file is not created.
+
+    """
+    queue_file = claude_home / "skills" / "improvement-queue.json"
+    if not queue_file.exists():
+        return None
+    queue = ImprovementQueue(queue_file)
+    if queue.skills.get(skill_ref, {}).get("status") != "evaluating":
+        return None
+    if not queue.record_eval_execution(skill_ref, gap):
+        return None
+    if not queue.is_eval_complete(skill_ref):
+        entry = queue.skills[skill_ref]
+        return {
+            "evaluation": {
+                "executions": entry["eval_executions"],
+                "target": entry.get("eval_target", 10),
+            }
+        }
+    decision = queue.evaluate(skill_ref)
+    sys.stderr.write(f"HOMEOSTATIC: {skill_ref} evaluation finished: {decision}\n")
+    return {"evaluation_decision": decision}
+
+
+def _evaluation_report(
+    claude_home: Path, skill_ref: str, health: SkillHealth
+) -> dict | None:
+    """Return the hook output for an evaluating skill, else None."""
+    if not _HAS_QUEUE:
+        return None
+    try:
+        evaluation = _advance_evaluation(claude_home, skill_ref, health.gap)
+    except OSError as e:
+        sys.stderr.write(
+            f"homeostatic_monitor: evaluation not recorded for {skill_ref}: {e}\n"
+        )
+        return None
+    if evaluation is None:
+        return None
+    if health.gap <= STABILITY_GAP_THRESHOLD:
+        status = "healthy"
+    elif health.gap > CRITICAL_GAP_THRESHOLD:
+        status = "critical"
+    else:
+        status = "degrading"
+    return _build_output(
+        skill_ref, health.gap, status, health.velocity, health.trend, **evaluation
+    )
+
+
 # Stewardship integration: lightweight velocity read
 
 
@@ -263,6 +324,15 @@ def main() -> None:
             trend = None
 
         velocity = _stewardship_velocity(claude_home)
+
+        # Before the healthy exit: a window exists to watch the executions
+        # that follow an improvement, and those are meant to be healthy.
+        report = _evaluation_report(
+            claude_home, skill_ref, SkillHealth(gap, velocity, trend)
+        )
+        if report is not None:
+            print(json.dumps(report))
+            sys.exit(0)
 
         if gap <= STABILITY_GAP_THRESHOLD:
             print(json.dumps(_build_output(skill_ref, gap, "healthy", velocity, trend)))

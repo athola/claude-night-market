@@ -170,32 +170,8 @@ verify-install: ## Verify installation works correctly
 	@$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --version 2>/dev/null && echo "[OK] CLI tools work correctly" || echo "[WARNING] CLI tools may need adjustment"
 	@echo "[OK] Installation verification complete"
 
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "PYTHON: $(PYTHON)"
-	@echo "UV: $(UV)"
-	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "PYTHONPATH: $(PYTHONPATH)"
-	@echo "BUILD_DIR: $(BUILD_DIR)"
-	@echo "DOCS_BUILD_DIR: $(DOCS_BUILD_DIR)"
-	@echo "SCRIPTS_DIR: $(SCRIPTS_DIR)"
-	@echo "HOOKS_DIR: $(HOOKS_DIR)"
-	@echo "SKILLS_DIR: $(SKILLS_DIR)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
-	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
-	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
-	@echo "COV_DIRS: $(COV_DIRS)"
-	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
-	@echo "MAKEFLAGS: $(MAKEFLAGS)"
-
 mutation-test: ## Run mutation testing
-	@if command -v mutmut >/dev/null 2>&1; then \
-		mutmut run --paths-to-mutate src/abstract --tests-dir tests/; \
-	else \
-		echo "mutmut not installed (pip install mutmut)"; \
-	fi
+	$(MUTMUT) run --paths-to-mutate src/abstract --tests-dir tests/
 
 # ---------- Demo/Dogfood Targets (LIVE) ----------
 demo-validation: ## Demonstrate plugin validation (LIVE)
@@ -224,12 +200,16 @@ demo-verify: ## Demonstrate the finding-verifier promotion gate (LIVE)
 	@echo "=== Finding-Verifier Promotion Gate Demo (LIVE) ==="
 	@echo ""
 	@echo "Finding at a live location (gate should NOT skip):"
-	@$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/finding_verifier.py \
-		--where "plugins/abstract/scripts/finding_verifier.py:50-60" || true
+	@out=$$($(UV_RUN_PYTHON) $(SCRIPTS_DIR)/finding_verifier.py \
+		--where "plugins/abstract/scripts/finding_verifier.py:50-60"); \
+		printf '%s\n' "$$out"; \
+		case "$$out" in *"skip_promotion: False"*) ;; *) echo "[FAIL] the live location was skipped"; exit 1 ;; esac
 	@echo ""
 	@echo "Finding whose location was refactored away (gate SHOULD skip):"
-	@$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/finding_verifier.py \
-		--where "plugins/abstract/scripts/removed_long_ago.py" || true
+	@out=$$($(UV_RUN_PYTHON) $(SCRIPTS_DIR)/finding_verifier.py \
+		--where "plugins/abstract/scripts/removed_long_ago.py"); \
+		printf '%s\n' "$$out"; \
+		case "$$out" in *"skip_promotion: True"*) ;; *) echo "[FAIL] the removed location was not skipped"; exit 1 ;; esac
 
 plugin-check: demo-validation demo-tokens demo-analyzer demo-verify ## Run all live demos
 	@echo ""
@@ -260,10 +240,3 @@ test-validate-plugin: ## Test validate-plugin command (runs plugin structure tes
 	$(PYTEST) tests/ -v -k "plugin" --tb=short
 	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py .
 	@echo "[OK] validate-plugin works"
-
-
-# Guard against accidental file creation (catch-all for unknown targets)
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

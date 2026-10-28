@@ -25,6 +25,10 @@ from collections.abc import Sequence
 # 0.2 dip rather than a full drop.
 WINDOW = 5
 
+# Runs the gap judges. The history only grows, so a minimum over all of it
+# could only rise: three early failures flagged a skill on every later run.
+RECENT_RUNS = 20
+
 
 def _checked(outcomes: Sequence[float]) -> Sequence[float]:
     for outcome in outcomes:
@@ -50,10 +54,10 @@ def worst_window_rate(outcomes: Sequence[float], window: int = WINDOW) -> float:
 
 
 def stability_gap(outcomes: Sequence[float], window: int = WINDOW) -> float:
-    """Shortfall of the worst window: ``1 - worst_window_rate``.
+    """Shortfall of the worst window over the last ``RECENT_RUNS`` runs.
 
     0.0 until there is a full window of runs to judge.
     """
     if len(_checked(outcomes)) < window:
         return 0.0
-    return 1.0 - min(_window_rates(outcomes, window))
+    return 1.0 - min(_window_rates(outcomes[-RECENT_RUNS:], window))

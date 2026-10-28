@@ -12,23 +12,15 @@ For token-related utilities, use the `tokens` module directly.
 
 from __future__ import annotations
 
-import json
 import logging
 import re
-import sys
 import warnings
 from pathlib import Path
-from typing import Any
 
 import yaml
 
 from .config import AbstractConfig, SkillValidationConfig
 from .frontmatter import FrontmatterProcessor
-
-# Re-exported: these are pure path and markdown lookups and live in
-# modules that import nothing outside the standard library, so a hook
-# or a bare-python3 script can reach them without PyYAML. Callers here
-# are unchanged.
 from .markdown_fields import extract_bold_field, extract_section
 from .paths import (
     get_config_dir,
@@ -36,6 +28,12 @@ from .paths import (
     get_log_directory,
     get_observability_dir,
 )
+
+# Re-exported: these are pure path and markdown lookups and live in
+# modules that import nothing outside the standard library, so a hook
+# or a bare-python3 script can reach them without PyYAML. Callers here
+# are unchanged.
+from .stdlib_helpers import emit_warn, safe_json_load
 
 logger = logging.getLogger(__name__)
 
@@ -111,25 +109,6 @@ def load_config_with_defaults(project_root: Path | None = None) -> AbstractConfi
             logger.debug(f"Failed to load config from {config_file}: {e}")
 
     return AbstractConfig()
-
-
-def safe_json_load(path: Path, default: Any = None) -> Any:
-    """Load JSON from a file, returning a default value on any error.
-
-    Args:
-        path: Path to the JSON file.
-        default: Value to return if the file is missing or malformed.
-
-    Returns:
-        Parsed JSON data, or default on FileNotFoundError, OSError,
-        or json.JSONDecodeError.
-
-    """
-    try:
-        return json.loads(path.read_text())
-    except (FileNotFoundError, OSError, json.JSONDecodeError) as e:
-        logger.debug("safe_json_load: %s: %s", path, e)
-        return default
 
 
 def extract_frontmatter(content: str) -> tuple[str, str]:
@@ -437,14 +416,3 @@ def find_dependency_file(skill_path: Path, dependency_name: str) -> Path | None:
             return path
 
     return None
-
-
-def emit_warn(module: str, message: str) -> None:
-    """Write a newline-terminated ``module: message`` line to stderr.
-
-    Centralised replacement for the per-module ``_warn`` helpers
-    (D-12) used by improvement_queue, improvement_memory, and
-    performance_tracker. Stderr (not logging) is the contract
-    those modules' tests assert on via ``capsys``.
-    """
-    sys.stderr.write(f"{module}: {message}\n")

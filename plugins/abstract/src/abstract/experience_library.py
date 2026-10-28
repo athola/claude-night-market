@@ -1,8 +1,8 @@
 """Experience library for storing successful skill execution trajectories.
 
-Stores task descriptions, approaches, and outcomes from successful
-skill executions. Retrieved via keyword similarity matching.
-TODO(#296): context injection is planned but not yet implemented.
+The PostToolUse logger stores each successful Skill call that carried
+args; the PreToolUse hook injects the most recent entries for the same
+skill as additionalContext.
 
 Part of the self-adapting system. See:
 docs/adr/0006-self-adapting-skill-health.md
@@ -32,7 +32,8 @@ class ExecutionTrajectory:
     task_description: str
     approach_taken: str
     outcome: str
-    duration_ms: int
+    # None when the hooks could not time the call (#671); never a fake 0.
+    duration_ms: int | None
     tools_used: list[str] = field(default_factory=list)
     key_decisions: list[str] = field(default_factory=list)
 
@@ -112,6 +113,19 @@ class ExperienceLibrary:
                 continue
         return entries
 
+    def recent_entries(self, skill_ref: str, limit: int) -> list[dict[str, Any]]:
+        """Return up to ``limit`` entries, newest first.
+
+        Reads without creating the skill directory: the PreToolUse hook
+        calls this for every skill, most of which have no entries.
+        """
+        safe_name = skill_ref.replace(":", "_").replace("/", "_")
+        if not (self.library_dir / safe_name).is_dir():
+            return []
+        entries = self.list_entries(skill_ref)
+        entries.sort(key=lambda e: str(e.get("stored_at", "")), reverse=True)
+        return entries[:limit]
+
     def _prune(self, skill_ref: str) -> None:
         """Keep only the most recent MAX_ENTRIES_PER_SKILL entries."""
         skill_dir = self._skill_dir(skill_ref)
@@ -119,3 +133,20 @@ class ExperienceLibrary:
         while len(files) > MAX_ENTRIES_PER_SKILL:
             oldest = files.pop(0)
             oldest.unlink()
+
+
+def format_context(entries: list[dict[str, Any]], max_chars_each: int) -> str:
+    """Render entries as context text, each cut to ``max_chars_each``.
+
+    The cap bounds what a long args string can add to every later
+    invocation of the skill.
+    """
+    blocks = []
+    for entry in entries:
+        lines = [f"- Task: {entry.get('task_description', '')}"]
+        if entry.get("approach_taken"):
+            lines.append(f"  Approach: {entry['approach_taken']}")
+        if entry.get("tools_used"):
+            lines.append(f"  Tools: {', '.join(entry['tools_used'])}")
+        blocks.append("\n".join(lines)[:max_chars_each])
+    return "\n".join(blocks)

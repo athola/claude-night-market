@@ -13,11 +13,11 @@ Issue: https://github.com/athola/claude-night-market/issues/69
 from __future__ import annotations
 
 import fcntl
+import importlib
 import json
 import os
 import re
 import sys
-import tempfile
 import time
 import traceback
 from collections import defaultdict
@@ -26,11 +26,20 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from shared.dir_utils import get_log_directory, get_observability_dir
+from shared.dir_utils import (
+    get_experience_library_dir,
+    get_log_directory,
+    get_observability_dir,
+)
 from shared.hook_io import read_hook_payload, tool_response_text
 from shared.skill_utils import parse_skill_name
 from shared.stability import stability_gap as windowed_stability_gap
 from shared.stability import worst_window_rate
+
+# By name, after shared.dir_utils has put src/ on sys.path; a plain
+# import would sort ahead of it and fail under the operator's python3.
+_experience = importlib.import_module("abstract.experience_library")
+_atomic_file = importlib.import_module("abstract._vendored_leyline_atomic_file")
 
 # Threshold for triggering stability gap warnings
 # Based on Avalanche paper: gap > 0.3 indicates significant instability
@@ -91,18 +100,10 @@ class ContinualEvaluator:
         loaded as empty and saved back, erasing every skill.
         """
         self.history_file.parent.mkdir(parents=True, exist_ok=True)
-        fd, tmp_name = tempfile.mkstemp(
-            dir=self.history_file.parent, prefix=".history.", suffix=".tmp"
+        _atomic_file.write_atomic(
+            self.history_file,
+            json.dumps(dict(self.skill_history), indent=None, separators=(",", ":")),
         )
-        try:
-            with os.fdopen(fd, "w") as f:
-                json.dump(
-                    dict(self.skill_history), f, indent=None, separators=(",", ":")
-                )
-            os.replace(tmp_name, self.history_file)
-        except OSError:
-            Path(tmp_name).unlink(missing_ok=True)
-            raise
 
     def evaluate_iteration(
         self, skill_ref: str, success: bool, duration_ms: int | None
@@ -377,6 +378,29 @@ def save_log_entry(log_entry: dict[str, Any]) -> None:
         f.write(json.dumps(log_entry) + "\n")
 
 
+def store_experience(tool_input: dict[str, Any], log_entry: dict[str, Any]) -> None:
+    """Record a successful call in the experience library (ADR-0006).
+
+    Only the args are known here, so approach and tools stay empty. A
+    call without args is skipped: it names no task to recall, and every
+    such call would hash to the same entry.
+    """
+    task = str(tool_input.get("args") or "").strip()
+    if log_entry["outcome"] != "success" or not task:
+        return
+    try:
+        library = _experience.ExperienceLibrary(get_experience_library_dir())
+        library.store(
+            skill_ref=log_entry["skill"],
+            task_description=sanitize_output(task, max_length=2000),
+            approach_taken="",
+            outcome="success",
+            duration_ms=log_entry["duration_ms"],
+        )
+    except OSError as e:
+        sys.stderr.write(f"skill_execution_logger: experience not stored: {e}\n")
+
+
 def main() -> None:
     """PostToolUse hook entry point."""
     try:
@@ -453,6 +477,7 @@ def main() -> None:
 
         # Save log entry
         save_log_entry(log_entry)
+        store_experience(tool_input, log_entry)
 
         # Check for stability gap (automatic improvement trigger)
         if log_entry.get("continual_metrics"):

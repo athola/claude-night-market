@@ -162,17 +162,11 @@ git commit -m "Add validated hook"  # Commit validated hook
 
 ## Implementation
 
-Uses the abstract validation framework:
-```python
-from abstract.validation import HookValidator
+Runs abstract's hook validator script, which detects JSON or Python
+hooks and prints the errors, warnings and info it finds:
 
-validator = HookValidator()
-results = validator.validate_hook("hooks/my-hook.py")
-
-if results.security.passed and results.performance.score > 80:
-    print("Hook validated successfully")
-else:
-    print(f"Issues found: {results.issues}")
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/hook_validator.py" hooks/my-hook.py -v
 ```
 
 ## Output Formats
