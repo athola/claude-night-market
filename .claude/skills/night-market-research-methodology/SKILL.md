@@ -25,10 +25,10 @@ tests.
 
 2. **Predict numbers before running.** Write down the expected
    measurement first, then measure. In-repo anchor: the forced-eval
-   harness labels expected activations in
-   `prototypes/forced-eval/activation_cases.json` before any run,
-   then compares baseline against treatment with a McNemar paired
-   test (a significance test for paired binary outcomes).
+   harness (removed in 7566cb323, recoverable from its parent) labeled
+   expected activations before any run, then compared baseline against
+   treatment with a McNemar paired test (a significance test for paired
+   binary outcomes).
 
 3. **Survive assigned adversarial refutation.** Assign a reviewer or
    agent whose explicit job is to break the claim. Use
@@ -241,8 +241,10 @@ gh api graphql -f query='query {
 
 ### Activation lift: does a skill actually fire?
 
-`prototypes/forced-eval/` (commit `5683e89b`) measures whether a
-forced-evaluation hook lifts skill activation:
+`prototypes/forced-eval/` (added in `5683e89b`, removed in
+`7566cb323`) measured whether a forced-evaluation hook lifts skill
+activation. Restore it with
+`git checkout 7566cb323^ -- prototypes/forced-eval`.
 
 - `activation_cases.json` holds labeled prompts with expected
   `Skill()` activations, recorded before measurement.
@@ -252,15 +254,9 @@ forced-evaluation hook lifts skill activation:
   McNemar paired test. True-negative cases count false activations,
   so a high positive rate alone is not treated as success.
 
-Status: PROTOTYPE, not wired into any plugin.json. The harness is
-unit-tested but the live lift is unmeasured as of 2026-07-02 (the
-README says so). Run the harness tests:
-
-```bash
-uv run python -m pytest prototypes/forced-eval/ -q
-```
-
-Verified 2026-07-02: 20 passed.
+Status: removed 2026-10-23. Its one live run found 100% baseline
+activation and no lift, so the hook was never wired. Once restored,
+`uv run python -m pytest prototypes/forced-eval/ -q` runs its tests.
 
 ### Mutation testing: are the tests real?
 
@@ -351,8 +347,8 @@ one-line re-verification:
   and `python3 scripts/check_skill_exit_criteria_drift.py`
 - Issue states (#454 CLOSED, #457 CLOSED, #574 OPEN on 2026-07-02):
   `gh issue view 574 --json state -q .state`
-- Forced-eval lift still unmeasured:
-  `rg -n "not measured" prototypes/forced-eval/README.md`
+- Forced-eval harness removal and its finding:
+  `git show -s 7566cb323`
 - Background doc dirs still gitignored:
   `git check-ignore docs/research docs/backlog docs/superpowers`
 - Mutation exit-code semantics:

@@ -37,7 +37,7 @@ Follow these before starting any problem below.
 | # | Problem | Primary repo asset | Status |
 |---|---------|--------------------|--------|
 | 1 | Completion integrity in autonomous loops | egregore gate + herald judge + imbue verifier-integrity | Open, active campaign |
-| 2 | Skill-graph governance at scale | forced-eval activation harness + ratchets | Open |
+| 2 | Skill-graph governance at scale | ratchets + skill graph (activation harness removed) | Open |
 | 3 | Collective memory across context resets | ADR-0007 Discussions + memory-palace | Open, partially blocked |
 | 4 | Insight-palace bridge under a hook budget | Draft spec v0.1.0 + hook infrastructure | Open, spec drafted |
 | 5 | Behavioral contract attestation | ADR-0008 SLSA path + trust workflow | Open |
@@ -110,22 +110,20 @@ This repo carries 197 registered skills (198 SKILL.md files on disk,
 find count 2026-07-02) against a finite skill discovery budget of
 about 16K characters. Skills past the budget are dropped silently
 (`docs/quality-gates.md`, Follow-on work section). The activation
-layer does near-keyword matching, so relevant skills fail to fire
-(`prototypes/forced-eval/README.md`). No one, here or elsewhere, has
+layer does near-keyword matching, so relevant skills can fail to fire.
+No one, here or elsewhere, has
 published a principled activation-quality metric: a way to say "this
 skill library activates the right skill X% of the time, and change Y
 moved that number."
 
 ### This repo's specific asset
 
-- An activation-lift measurement harness:
-  `prototypes/forced-eval/measure_activation.py` (commit 5683e89b).
-  It runs labeled prompts through `claude -p` with and without a
-  forced-eval hook, counts expected `Skill()` events, tracks
-  false activations on true-negative cases, and applies a paired
-  McNemar significance test. The dataset
-  (`prototypes/forced-eval/activation_cases.json`) is deliberately
-  small. The README says to expand it before trusting the rates.
+- A removed activation-lift harness, recoverable from history with
+  `git checkout 7566cb323^ -- prototypes/forced-eval`. It ran labeled
+  prompts through `claude -p` with and without a forced-eval hook and
+  applied a paired McNemar test. Its one live run found 100% baseline
+  activation and no lift, and commit 7566cb323 removed it on
+  2026-10-23. A rerun needs a larger labeled set than its small one.
 - Ratchets that already hold the graph steady:
   `scripts/check_skill_graph_drift.py` (dangling Skill() refs) and
   `scripts/check_skill_exit_criteria_drift.py`.
@@ -139,20 +137,15 @@ moved that number."
 
 ### First three steps in this repo
 
-1. Expand `prototypes/forced-eval/activation_cases.json` with labeled
-   positive and true-negative prompts for the pensive review skills.
-2. Baseline: run the harness dry, then live.
-
-   ```bash
-   cd prototypes/forced-eval
-   uv run python measure_activation.py            # dry run, spends nothing
-   uv run python measure_activation.py --live \
-       --root "$PWD/../../plugins/pensive" --repeats 3
-   ```
-
-3. Consolidate `pensive:shell-review` and `pensive:makefile-review`
-   into `pensive:unified-review` as modules (issue #574 item 1, one PR
-   per skill, thin command alias stubs kept), then re-run step 2.
+1. Restore the harness with
+   `git checkout 7566cb323^ -- prototypes/forced-eval` and expand
+   `activation_cases.json` with labeled positive and true-negative
+   prompts for the pensive review skills.
+2. Baseline: run `measure_activation.py` dry, then with
+   `--live --root plugins/pensive --repeats 3`.
+3. Fold `pensive:makefile-review` into `pensive:unified-review` as a
+   module (#616), then re-run step 2. `pensive:shell-review` was
+   folded first (#615) without a before measurement.
 
 ### You have a result when
 

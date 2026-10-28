@@ -240,8 +240,8 @@ Warm cache average: 12.2ms
 
 ## Related Documentation
 
-- **Main Performance Guide:** `/HOOK_PERFORMANCE.md`
-- **Scope-Guard Skill:** `plugins/imbue/skills/scope-guard/skill.md`
+- **Main Performance Guide:** `docs/performance/hooks.md`
+- **Scope-Guard Skill:** `plugins/imbue/skills/scope-guard/SKILL.md`
 - **Hook Types:** `plugins/abstract/skills/hook-authoring/modules/hook-types.md`
 
 ## Performance History

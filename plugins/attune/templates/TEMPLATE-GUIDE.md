@@ -27,7 +27,7 @@ From official Claude Code docs:
 1. Read appropriate template
 2. Apply to component
 3. Validate: `/abstract:validate-plugin attune`
-4. Check budget: `/conserve:estimate-tokens`
+4. Check budget: `/abstract:context-report`
 5. Commit
 
 ## Trigger Keyword Strategy

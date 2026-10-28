@@ -343,7 +343,7 @@ The `research-queue-integration` hook automatically queues:
 - Research-focused sessions with substantial findings
 - Manual additions via queue entry creation
 
-**Queue entry format**: See `docs/knowledge-corpus/queue/README.md`
+**Queue entry format**: written by `hooks/research_queue.py`, one YAML file per entry
 
 ### Queue Status Workflow
 

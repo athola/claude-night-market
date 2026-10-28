@@ -351,7 +351,7 @@ Next Steps (TDD Workflow):
 
 4. VALIDATE & DEPLOY
    - Run final validation: /validate-plugin
-   - Analyze tokens: /estimate-tokens skills/${skill_name}
+   - Analyze tokens: /context-report skills/${skill_name}
    - Update version to 1.0.0
    - Remove 'draft' status
 ```

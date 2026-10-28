@@ -9,7 +9,7 @@ Bulk update version strings across all version files in the repository.
 ### Features
 
 - **Recursive search**: Finds all pyproject.toml, Cargo.toml, and package.json files
-- **Nested support**: Handles nested version files (e.g., `plugins/memory-palace/hooks/pyproject.toml`)
+- **Nested support**: Handles nested version files (e.g., a `pyproject.toml` below a plugin root)
 - **Smart exclusion**: Automatically excludes virtual environments and build directories
 - **Safe operation**: Dry-run mode to preview changes before applying
 
