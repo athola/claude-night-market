@@ -23,6 +23,9 @@ _SQLITE_GRAPH_BASE = "plugins/leyline/src/leyline/sqlite_graph_base.py"
 _SIBLING_PLUGINS = "plugins/leyline/src/leyline/sibling_plugins.py"
 _FS = "plugins/leyline/src/leyline/fs.py"
 _TOKENS = "plugins/leyline/src/leyline/tokens.py"
+_SESSION_STORE = "plugins/leyline/src/leyline/session_store.py"
+_REPORT_FORMATTER = "plugins/abstract/src/abstract/report_formatter.py"
+_ATOMIC_FILE = "plugins/leyline/src/leyline/atomic_file.py"
 
 #: Canonical source path to the copies generated from it, repo-relative.
 VENDORED: dict[str, list[str]] = {
@@ -36,8 +39,17 @@ VENDORED: dict[str, list[str]] = {
         "_vendored_leyline_sqlite_graph_base.py",
     ],
     # tokens.py loads its sibling fs copy by name, so the two go together.
-    _FS: ["plugins/abstract/src/abstract/_vendored_leyline_fs.py"],
+    _FS: [
+        "plugins/abstract/src/abstract/_vendored_leyline_fs.py",
+        "plugins/conjure/scripts/_vendored_leyline_fs.py",
+    ],
+    # abstract, not leyline: imbue's validator falls back on its report shape.
+    _REPORT_FORMATTER: ["plugins/imbue/scripts/_vendored_abstract_report_formatter.py"],
     _TOKENS: ["plugins/abstract/src/abstract/_vendored_leyline_tokens.py"],
+    _SESSION_STORE: [
+        "plugins/tome/src/tome/_vendored_leyline_session_store.py",
+        "plugins/memory-palace/src/memory_palace/_vendored_leyline_session_store.py",
+    ],
     _SIBLING_PLUGINS: [
         "plugins/abstract/scripts/_vendored_leyline_sibling_plugins.py",
         "plugins/attune/scripts/_vendored_leyline_sibling_plugins.py",
@@ -53,6 +65,15 @@ VENDORED: dict[str, list[str]] = {
         "plugins/pensive/hooks/_vendored_leyline_sibling_plugins.py",
         "plugins/minister/src/minister/_vendored_leyline_sibling_plugins.py",
         "plugins/memory-palace/src/memory_palace/_vendored_leyline_sibling_plugins.py",
+    ],
+    _ATOMIC_FILE: [
+        "plugins/abstract/src/abstract/_vendored_leyline_atomic_file.py",
+        "plugins/conserve/hooks/shared/_vendored_leyline_atomic_file.py",
+        "plugins/egregore/scripts/_vendored_leyline_atomic_file.py",
+        "plugins/herald/hooks/_vendored_leyline_atomic_file.py",
+        "plugins/memory-palace/src/memory_palace/_vendored_leyline_atomic_file.py",
+        "plugins/minister/src/minister/_vendored_leyline_atomic_file.py",
+        "plugins/spec-kit/src/speckit/_vendored_leyline_atomic_file.py",
     ],
 }
 

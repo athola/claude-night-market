@@ -140,39 +140,30 @@ Other plugins should import this instead of reimplementing frontmatter parsing.
 
 ```python
 # quota-management pattern
-from leyline import QuotaManager
+from leyline.quota_tracker import QuotaTracker
 
-manager = QuotaManager(
-    daily_limit=1000,
-    hourly_limit=100,
-    burst_limit=10
-)
-
-if manager.can_proceed():
-    # Make API call
-    manager.record_usage()
+tracker = QuotaTracker(service="my-service")
+level, warnings = tracker.get_quota_status()
+if level != "critical":
+    # Make the API call, then record it
+    tracker.record_request(tokens=500)
 ```
 
 ### Telemetry
 
 ```python
 # usage-logging pattern
-from leyline import UsageLogger
+from leyline.usage_logger import UsageEvent, UsageLogger
 
-logger = UsageLogger(output="telemetry.csv")
-logger.log_tool_use("WebFetch", tokens=500, latency_ms=1200)
+logger = UsageLogger(service="my-service")
+logger.log_usage(UsageEvent("WebFetch", tokens=500, duration=1.2))
 ```
 
 ### Storage Abstraction
 
-```python
-# storage-templates pattern
-from leyline import Storage
-
-storage = Storage.from_config()
-storage.save("key", data)
-data = storage.load("key")
-```
+The storage-templates skill is guidance with no Python API: it gives
+directory layouts and file templates for a plugin to copy, not a class
+to import.
 
 ## Discussion Operations (GitHub Only)
 

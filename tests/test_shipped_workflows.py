@@ -626,7 +626,7 @@ _DEAD_AGENT_CASES: dict[str, tuple[dict, str]] = {
         "no corpus from plugins/gauntlet",
     ),
     "herald": ({"claim": "done", "evidence": "tests pass"}, "no judge returned"),
-    "hookify": ({"root": ".", "categories": ["bash"]}, "no sweep from bash"),
+    "hookify": ({"root": ".", "categories": ["git"]}, "no sweep from git"),
     "imbue": ({"claims": ["tests pass"]}, "not checked: tests pass"),
     "leyline": ({"plugins": ["leyline"]}, "no report from leyline"),
     "memory-palace": ({"question": "q", "palaces": ["p"]}, "no result from p"),
@@ -675,3 +675,338 @@ def test_a_workflow_whose_agents_all_fail_says_what_it_dropped(plugin: str) -> N
     result = out["result"] if isinstance(out["result"], dict) else {}
     reported = list(out["log"]) + [f"failed: {result.get('failed')}"]
     assert any(expected in line for line in reported), reported
+
+
+# ---------------------------------------------------------------------------
+# Selections, labels and synthesis stages (B1 review, 2026-10-28).
+# ---------------------------------------------------------------------------
+
+
+def _script(plugin: str) -> Path:
+    (script,) = (PLUGINS / plugin / "workflows").glob("*.js")
+    return script
+
+
+_NO_DISPATCH = "throw new Error('agent dispatched for ' + opts.label);"
+
+#: plugin -> (the arg that narrows its roster, the other args it needs)
+_SELECTIONS: dict[str, tuple[str, dict]] = {
+    "parseltongue": ("lenses", {"paths": ["x.py"]}),
+    "cartograph": ("lenses", {"root": "."}),
+    "pensive": ("dimensions", {}),
+    "hookify": ("categories", {"root": "."}),
+    "conjure": ("providers", {}),
+    "archetypes": ("candidates", {"requirements": "a small API"}),
+}
+
+
+class TestRosterSelection:
+    """A selection that runs nothing refuses rather than reading as clean.
+
+    A misspelled lens used to dispatch zero agents and return empty
+    findings with an empty missing list, which is a clean review.
+    """
+
+    @pytest.mark.parametrize("plugin", sorted(_SELECTIONS))
+    def test_a_selection_that_is_not_a_list_is_refused(self, plugin: str) -> None:
+        key, extra = _SELECTIONS[plugin]
+        out = _run_workflow(_script(plugin), _NO_DISPATCH, {**extra, key: "a,b"})
+        assert out["result"]["started"] is False
+        assert out["result"]["reason"] == f"{key}-not-a-list"
+        assert out["result"]["next"]
+
+    @pytest.mark.parametrize("plugin", sorted(_SELECTIONS))
+    def test_an_empty_selection_is_refused(self, plugin: str) -> None:
+        key, extra = _SELECTIONS[plugin]
+        out = _run_workflow(_script(plugin), _NO_DISPATCH, {**extra, key: []})
+        assert out["result"]["started"] is False
+        assert out["result"]["reason"] == f"no-{key}-selected"
+
+    @pytest.mark.parametrize("plugin", sorted(_SELECTIONS))
+    def test_only_unknown_names_are_refused_and_named(self, plugin: str) -> None:
+        key, extra = _SELECTIONS[plugin]
+        out = _run_workflow(_script(plugin), _NO_DISPATCH, {**extra, key: ["nosuch"]})
+        assert out["result"]["started"] is False
+        assert out["result"]["reason"] == f"no-{key}-selected"
+        assert out["result"]["unknown"] == ["nosuch"]
+
+
+def test_rule_sweep_default_roster_is_every_catalog_category() -> None:
+    """The header promises every rule in the catalog."""
+    on_disk = sorted(
+        p.name
+        for p in (PLUGINS / "hookify" / "skills" / "rule-catalog" / "rules").iterdir()
+        if p.is_dir()
+    )
+    out = _run_workflow(
+        _script("hookify"),
+        "return { category: 'x', stale: [] };",
+        {"root": "."},
+    )
+    assert sorted(out["result"]["coverage"]["swept"]) == on_disk
+
+
+def test_paradigm_panel_accepts_short_names_and_reads_the_real_skill() -> None:
+    """`hexagonal` must reach Skill(archetypes:architecture-paradigm-hexagonal)."""
+    out = _run_workflow(
+        _script("archetypes"),
+        "globalThis.p = globalThis.p || []; globalThis.p.push(prompt);"
+        "if (opts.label === 'compare') return 'c';"
+        "return { paradigm: 'x', score: 5, fits: [], costs: [], prompts: globalThis.p };",
+        {"requirements": "r", "candidates": ["hexagonal"]},
+    )
+    ranked = out["result"]["ranked"]
+    assert ranked[0]["paradigm"] == "hexagonal"
+    assert (
+        "Skill(archetypes:architecture-paradigm-hexagonal)" in ranked[0]["prompts"][0]
+    )
+
+
+def test_paradigm_panel_known_list_matches_the_skills_on_disk() -> None:
+    names = sorted(
+        p.name.removeprefix("architecture-paradigm-")
+        for p in (PLUGINS / "archetypes" / "skills").iterdir()
+        if p.name.startswith("architecture-paradigm-")
+    )
+    content = _script("archetypes").read_text(encoding="utf-8")
+    block = re.search(r"const PARADIGMS = \[(.*?)\]", content, re.DOTALL)
+    assert block, "paradigm-panel.js must list PARADIGMS"
+    assert sorted(re.findall(r"'([\w-]+)'", block.group(1))) == names
+
+
+#: One stage-1 answer every fan-out schema accepts. Every label field
+#: holds WRONG, the string an agent invents, so a script that trusts the
+#: agent's label instead of its own roster shows it.
+_UNIVERSAL = {
+    "lens": "WRONG",
+    "layer": "WRONG",
+    "area": "WRONG",
+    "subsystem": "WRONG",
+    "plugin": "WRONG",
+    "palace": "WRONG",
+    "milestone": "WRONG",
+    "skill": "WRONG",
+    "paradigm": "WRONG",
+    "category": "WRONG",
+    "provider": "WRONG",
+    "findings": [
+        {
+            "location": "a.py:1",
+            "problem": "p",
+            "doc": "d",
+            "requirement": "r",
+            "kind": "dead-code",
+            "evidence": "e",
+            "blocking": True,
+            "lines": 3,
+        },
+        {
+            "location": "b.py:2",
+            "problem": "q",
+            "doc": "d",
+            "requirement": "s",
+            "kind": "duplication",
+            "evidence": "f",
+            "blocking": False,
+            "lines": 9,
+        },
+    ],
+    "entries": [{"concept": "c", "whatItDoes": "w", "whyItExists": "y"}],
+    "violations": [],
+    "satisfied": ["s"],
+    "stale": [],
+    "hits": [{"note": "n", "relevance": 1, "excerpt": "e"}],
+    "openIssues": 1,
+    "closedIssues": 0,
+    "risk": "at-risk",
+    "score": 5,
+    "basis": "b",
+    "source": "oracle",
+    "fits": [],
+    "costs": ["c"],
+    "mermaid": "m",
+    "nodes": ["n"],
+    "callable": True,
+    "cause": "ready",
+}
+
+#: plugin -> (args that reach the synthesis stage, its agent label)
+_SYNTHESIS: dict[str, tuple[dict, str]] = {
+    "archetypes": ({"requirements": "r", "candidates": ["layered"]}, "compare"),
+    "cartograph": ({"root": "."}, "reconcile"),
+    "conserve": ({"areas": ["a"]}, "consolidate"),
+    "gauntlet": ({"subsystems": ["a", "b"]}, "merge"),
+    "leyline": ({"plugins": ["a", "b"]}, "contracts"),
+    "memory-palace": ({"question": "q", "palaces": ["p"]}, "rank"),
+    "minister": ({"milestones": ["v1"]}, "roll-up"),
+    "oracle": ({"skills": ["a/SKILL.md"]}, "calibrate"),
+    "parseltongue": ({"paths": ["x.py"]}, "merge"),
+    "scribe": ({"docs": ["README.md"]}, "rank"),
+    "spec-kit": ({"spec": "s.md"}, "gaps"),
+}
+
+
+def _universal_agent(dead_label: str = "") -> str:
+    return (
+        f"if (opts.label === {json.dumps(dead_label)}) return null;"
+        f"return {json.dumps(_UNIVERSAL)};"
+    )
+
+
+@pytest.mark.parametrize("plugin", sorted(_SYNTHESIS))
+def test_a_dead_synthesis_agent_is_named_not_skipped(plugin: str) -> None:
+    """GIVEN stage one answered WHEN the synthesis agent returns null
+    THEN the result names the stage as failed and the log says so.
+
+    The deliberate skip path returns the same null, so without the name a
+    dead synthesis agent reads as a run with nothing to synthesize.
+    """
+    args, label = _SYNTHESIS[plugin]
+    out = _run_workflow(_script(plugin), _universal_agent(label), args)
+    assert out["result"]["failed"] == label
+    assert any(label in line for line in out["log"]), out["log"]
+
+
+@pytest.mark.parametrize("plugin", sorted(_SYNTHESIS))
+def test_a_live_synthesis_agent_names_no_failure(plugin: str) -> None:
+    args, _ = _SYNTHESIS[plugin]
+    out = _run_workflow(_script(plugin), _universal_agent(), args)
+    assert out["result"]["failed"] is None
+
+
+#: plugin -> (args, path to the per-item label list, the labels expected)
+_LABELS: dict[str, tuple[dict, tuple[str, ...], list[str]]] = {
+    "parseltongue": (
+        {"paths": ["x.py"], "lenses": ["lint", "types"]},
+        ("coverage", "reviewed"),
+        ["lint", "types"],
+    ),
+    "spec-kit": (
+        {"spec": "s.md"},
+        ("coverage", "read"),
+        ["testability", "consistency", "coverage", "constitution"],
+    ),
+    "hookify": (
+        {"root": ".", "categories": ["git", "python"]},
+        ("coverage", "swept"),
+        ["git", "python"],
+    ),
+    "leyline": ({"plugins": ["a", "b"]}, ("coverage", "checked"), ["a", "b"]),
+    "memory-palace": (
+        {"question": "q", "palaces": ["p1", "p2"]},
+        ("coverage", "searched"),
+        ["p1", "p2"],
+    ),
+    "scribe": (
+        {"docs": ["README.md"]},
+        ("coverage", "reviewed"),
+        ["critical", "economy", "audience", "sentence", "evidence"],
+    ),
+}
+
+
+@pytest.mark.parametrize("plugin", sorted(_LABELS))
+def test_labels_come_from_the_roster_not_the_agent(plugin: str) -> None:
+    """`reviewed` and `missing` must share one vocabulary: the roster's."""
+    args, path, expected = _LABELS[plugin]
+    out = _run_workflow(_script(plugin), _universal_agent(), args)
+    node = out["result"]
+    for key in path:
+        node = node[key]
+    assert node == expected
+
+
+def test_doc_sweep_counts_critical_findings_whatever_the_agent_calls_its_layer() -> (
+    None
+):
+    out = _run_workflow(_script("scribe"), _universal_agent(), {"docs": ["README.md"]})
+    assert len(out["result"]["critical"]) == 2
+    assert out["log"][-1].endswith("2 critical")
+
+
+def test_provider_sweep_matches_verdicts_by_roster_position() -> None:
+    """A probe that writes `Gemini` is still the gemini probe."""
+    out = _run_workflow(
+        _script("conjure"),
+        "return { provider: 'Gemini', callable: true, cause: 'ready' };",
+        {"providers": ["gemini"]},
+    )
+    assert out["result"]["ready"] == ["gemini"]
+    assert out["result"]["unreported"] == []
+
+
+def test_bloat_sweep_keeps_the_area_and_ranks_by_lines_saved() -> None:
+    out = _run_workflow(
+        _script("conserve"),
+        "if (opts.label === 'consolidate') return { duplications: [] };"
+        "const lines = opts.label === 'scan:b' ? 50 : 5;"
+        "return { area: 'WRONG', findings: [{ kind: 'dead-code', location: 'x', evidence: 'e', lines }] };",
+        {"areas": ["a", "b"]},
+    )
+    findings = out["result"]["findings"]
+    assert [(f["area"], f["lines"]) for f in findings] == [("b", 50), ("a", 5)]
+
+
+def test_quality_bench_keeps_an_unavailable_score_out_of_the_distribution() -> None:
+    out = _run_workflow(
+        _script("oracle"),
+        "return { skill: 's', basis: 'daemon not running', source: 'unavailable' };",
+        {"skills": ["a/SKILL.md"]},
+    )
+    assert out["result"]["scores"] == []
+    assert out["result"]["unscored"] == ["a/SKILL.md"]
+    assert out["result"]["calibration"] is None
+
+
+def test_capture_set_moves_a_capture_with_no_asset_to_failed() -> None:
+    out = _run_workflow(
+        _script("scry"),
+        "return { flow: opts.label, captured: true };",
+        {"flows": [{"name": "f"}]},
+    )
+    assert out["result"]["assets"] == []
+    assert len(out["result"]["failed"]) == 1
+
+
+class TestSanctumAnalysisBranches:
+    """A dead analyst and an empty answer are different outcomes."""
+
+    RECREATION = {"steps": ["s"], "friction": ["f"], "components": []}
+
+    def _agent(self, analysis: object) -> str:
+        return (
+            f"if (opts.label === 'recreate') return {json.dumps(self.RECREATION)};"
+            f"if (opts.label === 'analyse') return {json.dumps(analysis)};"
+            "return null;"
+        )
+
+    def test_a_dead_analyst_says_re_run(self) -> None:
+        out = _run_workflow(_script("sanctum"), self._agent(None), {"slice": "s"})
+        assert out["result"]["failed"] == "analyse"
+        assert "Re-run" in out["result"]["next"]
+
+    def test_no_options_says_the_slice_may_not_need_one(self) -> None:
+        out = _run_workflow(
+            _script("sanctum"), self._agent({"options": []}), {"slice": "s"}
+        )
+        assert out["result"]["failed"] == "analyse"
+        assert "may not need one" in out["result"]["next"]
+
+
+_ARGS_IN_PROSE = re.compile(r"\bargs\.(\w+)")
+
+
+@pytest.mark.parametrize(
+    "script", _workflow_scripts(), ids=lambda p: p.parent.parent.name
+)
+def test_every_arg_when_to_use_advertises_is_read(script: Path) -> None:
+    """The skill listing shows whenToUse to the model verbatim.
+
+    An advertised arg that no code reads is passed and silently ignored.
+    """
+    content = script.read_text(encoding="utf-8")
+    when = re.search(r"whenToUse:\s*\n?\s*(['\"`])(.*?)(?<!\\)\1", content, re.DOTALL)
+    assert when, f"{script}: no whenToUse"
+    advertised = set(_ARGS_IN_PROSE.findall(when.group(2)))
+    read = set(_INPUT_FIELD.findall(content))
+    assert advertised <= read, sorted(advertised - read)

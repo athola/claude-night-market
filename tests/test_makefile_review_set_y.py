@@ -126,7 +126,7 @@ def test_attune_dev_setup_fails_when_hook_install_fails(tmp_path: Path) -> None:
 def test_pensive_mutation_test_reports_surviving_mutants(tmp_path: Path) -> None:
     """Any mutmut failure printed "mutmut not installed" and exited 0."""
     shims = _shim(tmp_path, "mutmut", "echo '3 mutants survived'\nexit 2")
-    result = _make("pensive", "mutation-test", path_prefix=str(shims))
+    result = _make("pensive", "mutation-test", f"MUTMUT={shims / 'mutmut'}")
     assert result.returncode != 0
     assert "not installed" not in result.stdout
 

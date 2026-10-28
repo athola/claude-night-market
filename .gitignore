@@ -212,3 +212,6 @@ docs/migrations/
 # knowledge-intake. They are unreviewed until intake promotes them into
 # docs/knowledge-corpus/ or prunes them.
 docs/knowledge-corpus/queue/
+
+# Scan history written by scribe:slop-detector (modules/reporting.md).
+.slop-history/

@@ -113,7 +113,7 @@ print_entries() {
     0) return 0 ;;
   esac
   log 4 "${header}"
-  for entry in "${@}"; do
+  for entry in "$@"; do
     log 4 "  - ${entry}"
   done
 }

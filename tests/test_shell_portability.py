@@ -102,11 +102,14 @@ def test_root_makefile_hashes_with_a_tool_macos_ships() -> None:
 
 def test_shared_includes_say_when_make_is_too_old_to_honor_them() -> None:
     """GNU make 3.81 silently ignores .SHELLFLAGS and .ONESHELL, so every
-    recipe runs without -euo pipefail. The include must say so.
+    recipe runs without -euo pipefail. The include must say so. Both
+    shared includes take the shell block from base.mk.
     """
+    make_dir = PLUGINS / "abstract" / "config" / "make"
+    assert "MAKE_VERSION" in (make_dir / "base.mk").read_text()
     for name in ("common.mk", "markdown-only.mk"):
-        body = (PLUGINS / "abstract" / "config" / "make" / name).read_text()
-        assert "MAKE_VERSION" in body, name
+        body = (make_dir / name).read_text()
+        assert "base.mk" in body, name
 
 
 def test_no_notparallel_with_prerequisites() -> None:

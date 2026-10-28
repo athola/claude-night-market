@@ -109,7 +109,9 @@ rejects any value outside the four named above.
 Feeding it a fifth prints `Invalid settings` naming
 the file and the key.
 `tests/test_workflow_spend_posture.py` replays that
-check. What the guideline then does to the model's
+check when `claude` is on PATH. CI does not install
+the CLI, so there the replay skips and only the
+allowed-value test runs. What the guideline then does to the model's
 sizing is documented, not measured here.
 
 Two things follow from pinning it in a settings file:

@@ -113,21 +113,27 @@ def test_side_effect_commands_run_only_when_a_person_types_them() -> None:
         assert frontmatter.get("disable-model-invocation") is True, command
 
 
-def _frontmatter_lines(path: Path) -> list[str]:
-    return path.read_text(encoding="utf-8").split("---\n")[1].splitlines()
-
-
 def test_no_command_uses_the_underscore_spelling_of_user_invocable() -> None:
     """The field is `user-invocable`; `user_invocable` is ignored silently.
 
-    Lines are matched rather than parsed, because some command frontmatter
-    in this repository does not parse as YAML.
+    Frontmatter is parsed, so `"user_invocable" :` and a quoted key are
+    caught as well as the plain spelling. The parse is safe for every
+    command: `test_every_skill_and_command_frontmatter_loads.py` in the
+    abstract plugin asserts all of it is valid YAML.
     """
     offenders = [
         command.relative_to(REPO_ROOT)
         for command in sorted(REPO_ROOT.glob("plugins/*/commands/*.md"))
-        if any(
-            line.startswith("user_invocable:") for line in _frontmatter_lines(command)
-        )
+        if "user_invocable" in (_frontmatter(command) or {})
     ]
     assert not offenders, f"inert user_invocable key in {offenders}"
+
+
+def test_frontmatter_parse_sees_a_quoted_or_spaced_underscore_key(
+    tmp_path: Path,
+) -> None:
+    """The scan above must not depend on the key's exact spelling."""
+    command = tmp_path / "cmd.md"
+    command.write_text('---\n"user_invocable" : true\n---\nBody\n', encoding="utf-8")
+
+    assert "user_invocable" in _frontmatter(command)

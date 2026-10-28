@@ -62,13 +62,24 @@ it functions purely as a Python library plugin.
 ### Exception: gauntlet (recorded 2026-09-03)
 
 `gauntlet` owns the code knowledge graph (`gauntlet.graph`,
-`gauntlet.communities`). Consumer: cartograph, whose
+`gauntlet.communities`). Consumers: cartograph, whose
 `graph_community_refresh.py` PostToolUse hook imports both at runtime
 through sys.path injection inside a try/except and is inert when gauntlet
-is absent. The same rules as leyline, abstract and herald apply. The edge
-was implemented before it was recorded; cartograph's plugin.json now
-declares it, as egregore's declares herald and minister's declares
-leyline. The manifest says what the code does.
+is absent, and pensive, whose performance review and
+`pr_blast_radius.py` hook import the graph the same way and drop their
+graph output when it is missing. The same rules as leyline, abstract and
+herald apply. Both edges were implemented before they were recorded.
+cartograph's and pensive's plugin.json declare them, as egregore's
+declares herald and minister's declares leyline. The manifest says what
+the code does.
+
+### Exception: memory-palace (recorded 2026-10-28)
+
+`memory-palace` owns the knowledge graph analyzer and the embedding
+index. Consumer: tome, which imports them for thread analysis and
+semantic retrieval (ADR-0018). The same rules apply, and tome's
+plugin.json declares the edge. `tests/test_plugin_dependency_manifest.py`
+pins every runtime edge, so an undeclared one fails there first.
 
 ## Architecture
 
@@ -228,5 +239,4 @@ capabilities.
 ## Related
 
 - `docs/guides/plugin-dependency-pattern.md` - Detailed implementation guide
-- `plugins/abstract/examples/sanctum_integration_example.py`
-- `plugins/sanctum/examples/abstract_integration_example.py`
+- `plugins/attune/scripts/tasks_manager.py` - a live guarded consumer

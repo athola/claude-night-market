@@ -28,8 +28,9 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW_DIR = REPO_ROOT / ".github" / "workflows"
 
-# `make test-ecosystem` runs the root suite alone and needs none of this,
-# so the target has to end where the word ends.
+# `make test-ecosystem` runs the root suite alone. It needs shellcheck and
+# shfmt, for the two root gates below, but not ripgrep, so the full-sweep
+# rule has to end where the word ends.
 FULL_SWEEP = re.compile(r"make test(?!\S)")
 
 REQUIRED_TOOLS = ("shellcheck", "shfmt", "ripgrep")
@@ -88,3 +89,36 @@ def test_every_downloaded_shfmt_binary_is_checksum_verified() -> None:
                     f"{path.name}: shfmt is installed before it is verified"
                 )
     assert downloads, "no workflow downloads shfmt; this guard is vacuous"
+
+
+#: Root gates that skip, rather than fail, when their binary is absent.
+ROOT_SHELL_GATES = {
+    "shellcheck": "test_shellcheck_gate_covers_the_repository.py",
+    "shfmt": "test_shell_scripts_are_shfmt_formatted.py",
+}
+
+
+def _ecosystem_workflow() -> dict:
+    return yaml.safe_load((WORKFLOW_DIR / "ecosystem-tests.yml").read_text())
+
+
+@pytest.mark.parametrize("tool", sorted(ROOT_SHELL_GATES))
+def test_ecosystem_job_installs_what_its_shell_gates_need(tool: str) -> None:
+    """A gate that skips on a runner without the tool never asserts there."""
+    assert (REPO_ROOT / "tests" / ROOT_SHELL_GATES[tool]).is_file()
+    job = _ecosystem_workflow()["jobs"]["ecosystem-tests"]
+    steps = " ".join(str(step.get("run", "")) for step in job["steps"])
+    assert tool in steps
+
+
+@pytest.mark.parametrize("event", ["push", "pull_request"])
+@pytest.mark.parametrize(
+    "path", ["**/*.sh", ".github/workflows/**", "scripts/**", "plugins/*/scripts/**"]
+)
+def test_ecosystem_workflow_runs_when_a_shell_or_workflow_file_changes(
+    event: str, path: str
+) -> None:
+    """The shell gates and this workflow guard read these files."""
+    # PyYAML reads the bare key `on` as the boolean True.
+    triggers = _ecosystem_workflow()[True]
+    assert path in triggers[event]["paths"]

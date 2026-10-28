@@ -58,3 +58,25 @@ def test_the_four_edges_the_review_found_are_declared() -> None:
     assert "leyline" in index["gauntlet"]
     assert "gauntlet" in index["pensive"]
     assert "memory-palace" in index["tome"]
+
+
+def test_every_runtime_edge_is_declared_by_its_consumer() -> None:
+    """ADR-0001: the manifest says what the code does.
+
+    Build-time edges (abstract's tooling) are exempt by the ADR. A
+    runtime import a consumer does not declare is invisible to anyone
+    reading its plugin.json before changing the provider.
+    """
+    committed = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    undeclared = []
+    for provider, edge in committed["dependencies"].items():
+        if edge["type"] != "runtime":
+            continue
+        for consumer in edge["dependents"]:
+            manifest = (
+                REPO_ROOT / "plugins" / consumer / ".claude-plugin" / "plugin.json"
+            )
+            declared = json.loads(manifest.read_text(encoding="utf-8"))
+            if provider not in declared.get("dependencies", []):
+                undeclared.append(f"{consumer} -> {provider}")
+    assert undeclared == []
