@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `gauntlet:curate`, so the problem-bank auditor could not be reached
   by name (#618). The command keeps its name and behavior. No caller in
   this repository used the old skill name.
+- **The `model_hint` frontmatter key is gone from every skill, command
+  and agent.** Nothing read it, and Claude Code ignores it, so skills
+  marked `model_hint: opus` always ran on the session model. Use
+  `effort`, or a skill's `model:`, to route.
 
 ### Deprecated
 
@@ -25,6 +29,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   focus, the same as `/full-review shell`. `Skill(pensive:shell-review)`
   is a redirect stub for one release and will be removed in the release
   after.
+
+### Removed
+
+- `abstract` `correct_fabricated_durations.py`, a one-shot migration that
+  already ran. `memory-palace` `update_autonomy_state.py` and the
+  `telemetry/autonomy_history.json` it read, which nothing wrote. The
+  `abstract` hook configs `post-evaluation.json` and `pre-skill-load.json`,
+  which no `hooks.json` registered.
+
+### Fixed
+
+- **`/hookify:from-hook` runs the converter.** The command described
+  `scripts/hook_to_hookify.py` without calling it. The converter also
+  read `context["command"]` as a file-content check, which made every
+  such hook an `event: file` rule. It now reads the subscript key first.
+- Three module frontmatters with an unquoted `: ` in `description` failed
+  to parse as YAML, and the attune agent template wrote `tools_allowed`
+  and `max_iterations`, names the harness never reads.
 
 ## [1.10.0] - 2026-10-14
 
