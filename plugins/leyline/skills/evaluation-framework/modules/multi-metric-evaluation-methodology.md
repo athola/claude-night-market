@@ -1,6 +1,6 @@
 ---
 name: multi-metric-evaluation-methodology
-description: Methods for combining multiple metrics into a decision: weighted sums, Pareto fronts, lexicographic ordering, TOPSIS, and when each fits
+description: "Methods for combining multiple metrics into a decision: weighted sums, Pareto fronts, lexicographic ordering, TOPSIS, and when each fits"
 category: evaluation
 tags: [mcda, weighted-sum, pareto, lexicographic, topsis, methodology]
 estimated_tokens: 950
