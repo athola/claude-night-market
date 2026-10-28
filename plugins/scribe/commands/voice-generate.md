@@ -41,7 +41,8 @@ Generate text in a trained writing voice.
 1. Loads voice profile and selected register
 2. Asks for source material (notes, topic, outline)
 3. Frames source material as "raw notes to think through"
-4. Generates text using Opus with full voice features
+4. Generates text with full voice features, on Opus or larger
+   (dispatched to an Opus subagent from a Sonnet or Haiku session)
 5. Auto-fixes hard failures (banned phrases, em dashes)
 6. Dispatches prose and craft review agents (if --review)
 7. Presents advisory tables for user decisions

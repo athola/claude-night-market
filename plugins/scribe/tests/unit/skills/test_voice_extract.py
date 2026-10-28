@@ -6,6 +6,7 @@ I want to extract my writing voice from samples
 So that AI-generated text can match my personal style
 """
 
+import re
 from pathlib import Path
 
 import pytest
@@ -179,3 +180,27 @@ class TestVoiceExtractStorageModel:
         content = (SKILL_DIR / "modules" / "register-creation.md").read_text()
         assert "Default Register" in content
         assert "Inherits" in content or "inherit" in content
+
+
+class TestOpusRouting:
+    """
+    Feature: The extraction passes run on Opus when the session is smaller
+
+    As a writer on a Sonnet or Haiku session
+    I want the extraction passes sent to an Opus subagent
+    So that the voice is not flattened by the smaller model
+    """
+
+    @pytest.mark.unit
+    def test_small_session_dispatches_to_opus_subagent(self):
+        """
+        Scenario: The skill names a live Opus dispatch for Steps 2-4
+        Given the SKILL.md
+        When I read its model routing
+        Then it dispatches an Agent with model: opus
+        And it does so only from a Sonnet or Haiku session,
+            so an Opus or Fable session is never downgraded
+        """
+        content = (SKILL_DIR / "SKILL.md").read_text()
+        assert re.search(r"Agent\(general-purpose\):\n\s+- model: opus", content)
+        assert "Sonnet or Haiku" in content
