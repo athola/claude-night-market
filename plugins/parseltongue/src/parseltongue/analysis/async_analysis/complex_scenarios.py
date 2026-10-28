@@ -12,13 +12,23 @@ __all__ = ["analyze_complex_scenarios", "suggest_improvements"]
 
 def _analyze_cache_patterns(code: str, complex_analysis: dict[str, Any]) -> None:
     """Analyze cache stampede prevention patterns."""
-    if "cache" in code.lower():
-        prevents_stampede = "create_task" in code or "future" in code.lower()
-        uses_futures = "create_task" in code or "future" in code.lower()
-        complex_analysis["cache_anti_pattern"] = {
-            "prevents_cache_stampede": prevents_stampede,
-            "uses_futures": uses_futures,
-        }
+    if "cache" not in code.lower():
+        return
+    tree, _ = parse_code(code)
+    if tree is None:
+        return
+    futures = False
+    locks = False
+    for node in ast.walk(tree):
+        name = node.attr if isinstance(node, ast.Attribute) else None
+        if isinstance(node, ast.Name):
+            name = node.id
+        futures = futures or name in ("Future", "create_task", "ensure_future")
+        locks = locks or name == "Lock"
+    complex_analysis["cache_anti_pattern"] = {
+        "prevents_cache_stampede": futures or locks,
+        "uses_futures": futures,
+    }
 
 
 def _analyze_rate_limiting(code: str, complex_analysis: dict[str, Any]) -> None:

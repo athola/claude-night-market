@@ -10,6 +10,13 @@ from ._base import is_call_to, parse_code
 __all__ = ["detect_blocking_calls", "detect_missing_await"]
 
 
+def _is_blocking_sleep(call: ast.Call) -> bool:
+    """Match time.sleep() and a bare sleep(); asyncio.sleep() is not blocking."""
+    return is_call_to(call, "time.sleep") or (
+        isinstance(call.func, ast.Name) and call.func.id == "sleep"
+    )
+
+
 def _collect_sync_function_info(
     tree: ast.Module,
     sync_func_names: set[str],
@@ -22,9 +29,7 @@ def _collect_sync_function_info(
         ):
             sync_func_names.add(node.name)
             for child in ast.walk(node):
-                if isinstance(child, ast.Call) and (
-                    is_call_to(child, "time.sleep") or is_call_to(child, "sleep")
-                ):
+                if isinstance(child, ast.Call) and _is_blocking_sleep(child):
                     sync_func_blocking.setdefault(node.name, []).append("time_sleep")
 
 
@@ -34,7 +39,7 @@ def _check_time_sleep(
     recommendations: list[str],
 ) -> None:
     """Check for time.sleep() calls."""
-    if is_call_to(call, "time.sleep") or is_call_to(call, "sleep"):
+    if _is_blocking_sleep(call):
         blocking_patterns["time_sleep"] = {"blocks_event_loop": True}
         recommendations.append("Replace time.sleep() with asyncio.sleep()")
 
@@ -158,33 +163,59 @@ async def detect_missing_await(
             return {"missing_awaits": {}, **(err or {})}
 
     missing_awaits: dict[str, Any] = {}
+    coroutine_names = {
+        node.name for node in ast.walk(tree) if isinstance(node, ast.AsyncFunctionDef)
+    }
 
     for node in ast.walk(tree):
-        if isinstance(node, ast.AsyncFunctionDef):
-            function_name = node.name
-
-            for child in node.body:
-                if isinstance(child, ast.Assign) and isinstance(child.value, ast.Call):
-                    call_name = None
-                    if isinstance(child.value.func, ast.Name):
-                        call_name = child.value.func.id
-                    elif isinstance(child.value.func, ast.Attribute):
-                        call_name = child.value.func.attr
-
-                    if call_name and any(
-                        keyword in call_name.lower()
-                        for keyword in [
-                            "fetch",
-                            "get",
-                            "post",
-                            "api",
-                            "async",
-                            "call",
-                        ]
-                    ):
-                        missing_awaits[function_name] = {
-                            "line_number": child.lineno,
-                            "suggestion": "Add await before the coroutine call",
-                        }
+        if not isinstance(node, ast.AsyncFunctionDef):
+            continue
+        lines = [
+            call.lineno
+            for call in _unawaited_calls(node.body)
+            if _callee_name(call) in coroutine_names
+        ]
+        if lines:
+            missing_awaits[node.name] = {
+                "line_number": lines[0],
+                "line_numbers": lines,
+                "suggestion": "Add await before the coroutine call",
+            }
 
     return {"missing_awaits": missing_awaits}
+
+
+def _callee_name(call: ast.Call) -> str | None:
+    """Name a call targets: ``f()`` and ``self.f()`` / ``cls.f()`` give ``f``."""
+    func = call.func
+    if isinstance(func, ast.Name):
+        return func.id
+    if (
+        isinstance(func, ast.Attribute)
+        and isinstance(func.value, ast.Name)
+        and func.value.id in ("self", "cls")
+    ):
+        return func.attr
+    return None
+
+
+def _unawaited_calls(body: list[ast.stmt]) -> list[ast.Call]:
+    """Collect calls used as a statement or an assigned value, not awaited.
+
+    Nested function and class bodies are skipped: they get their own pass.
+    """
+    calls: list[ast.Call] = []
+    for stmt in body:
+        if isinstance(stmt, (ast.Expr, ast.Assign, ast.AnnAssign)) and isinstance(
+            stmt.value, ast.Call
+        ):
+            calls.append(stmt.value)
+        for field in ("body", "orelse", "finalbody"):
+            nested = getattr(stmt, field, None)
+            if isinstance(nested, list) and not isinstance(
+                stmt, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+            ):
+                calls.extend(_unawaited_calls(nested))
+        for handler in getattr(stmt, "handlers", []):
+            calls.extend(_unawaited_calls(handler.body))
+    return calls
