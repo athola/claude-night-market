@@ -475,11 +475,9 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `noqa_guard.py` | leyline | PreToolUse | Block inline lint suppression directives |
 | `permission_denied_logger.py` | conserve | PermissionDenied | Log auto-mode permission denials for observability |
 | `permission_request.py` | conserve | PermissionRequest | Permission automation |
-| `post-evaluation.json` | abstract | Config | Quality scoring config |
 | `post_implementation_policy.py` | sanctum | SessionStart | Requires docs/tests updates |
 | `post_learnings_stop.py` | abstract | Stop | Post learnings to GitHub Discussions on session stop |
 | `pr_blast_radius.py` | pensive | PreToolUse | Surface blast radius context on PR creation |
-| `pre-skill-load.json` | abstract | Config | Pre-load validation |
 | `pre_compact.py` | tome | PreCompact | Checkpoint active research session |
 | `pre_compact_preserve.py` | conserve | PreCompact | Preserve critical context before compression |
 | `pre_skill_execution.py` | abstract | PreToolUse | Skill execution tracking |

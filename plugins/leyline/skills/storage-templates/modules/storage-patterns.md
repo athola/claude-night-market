@@ -39,7 +39,7 @@ pattern to a caller:
 | Backend | Real File |
 |---------|-----------|
 | JSONL append log | `plugins/memory-palace/data/intake_queue.jsonl` |
-| YAML config | `plugins/memory-palace/data/seed_topics.yaml` |
+| YAML config | `plugins/memory-palace/hooks/memory-palace-config.yaml` |
 | JSON-per-session | `plugins/memory-palace/data/sessions/<uuid>.json` |
 | SQLite | `plugins/memory-palace/src/memory_palace/knowledge_graph.py` |
 | Markdown staging | `plugins/memory-palace/data/staging/*.md` |

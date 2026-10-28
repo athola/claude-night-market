@@ -66,8 +66,6 @@ and maintaining Claude Code plugins. It's the toolkit for plugin developers.
 | `aggregate_learnings_daily.py` | UserPromptSubmit | Daily learning aggregation with severity-based issue creation |
 | `pre_skill_execution.py` | PreToolUse | Skill execution tracking |
 | `skill_execution_logger.py` | PostToolUse | Skill metrics logging |
-| `post-evaluation.json` | Config | Quality scoring and improvement tracking |
-| `pre-skill-load.json` | Config | Pre-load validation for dependencies |
 
 ## Insight Engine
 
