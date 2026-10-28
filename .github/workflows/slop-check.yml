@@ -69,7 +69,7 @@ jobs:
         run: |
           set -o pipefail
           uv run --with pyyaml python scripts/slop_score.py \
-            --threshold 3.0 --top 0 --max-over 20 plugins | tee -a scan.txt
+            --threshold 3.0 --top 0 --max-over 18 plugins | tee -a scan.txt
 
       # The gate above scores two directories whole. Markdown anywhere
       # else was ungated, and gating it whole would fail an unrelated
