@@ -163,7 +163,8 @@ Entries are classified by decay status:
 
 ### Source Lineage Tracking
 
-Hybrid lineage tracking based on source importance:
+Hybrid lineage tracking based on source importance. Lineage is
+provenance only and does not feed the quality score:
 
 **Full Lineage** (for important sources):
 - Primary source with complete metadata
