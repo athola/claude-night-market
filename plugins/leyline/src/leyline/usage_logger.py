@@ -1,14 +1,15 @@
-#!/usr/bin/env python3
 """Session-aware usage logging for audit trails and analytics.
 
 This is a generalized usage logger that can be used by any plugin
 for tracking operations, costs, and building analytics.
 
 Usage:
-    from leyline.usage_logger import UsageLogger
+    from leyline.usage_logger import UsageEvent, UsageLogger
 
     logger = UsageLogger(service="my-service")
     logger.log_usage(UsageEvent("operation", tokens=1000, success=True, duration=2.5))
+
+Query from a shell with ``python -m leyline.usage_logger <service> --summary``.
 """
 
 from __future__ import annotations
@@ -94,7 +95,7 @@ class UsageLogger:
                 session = json.loads(self.session_file.read_text())
                 # Check if session is still active
                 if time.time() - session.get("last_activity", 0) < self.SESSION_TIMEOUT:
-                    return session["session_id"]
+                    return str(session["session_id"])
             except (json.JSONDecodeError, KeyError):
                 _log.warning(
                     "Session file unreadable, resetting: %s", self.session_file
@@ -148,7 +149,7 @@ class UsageLogger:
 
         self._update_session_activity()
 
-    def get_recent_operations(self, hours: int = 24) -> list[dict]:
+    def get_recent_operations(self, hours: int = 24) -> list[dict[str, Any]]:
         """Get operations from the last N hours."""
         if not self.log_file.exists():
             return []
@@ -169,7 +170,7 @@ class UsageLogger:
 
         return operations
 
-    def get_usage_summary(self, days: int = 7) -> dict:
+    def get_usage_summary(self, days: int = 7) -> dict[str, Any]:
         """Get usage summary for the last N days."""
         operations = self.get_recent_operations(hours=days * 24)
 
@@ -194,7 +195,7 @@ class UsageLogger:
             "estimated_cost": total_tokens / 1_000_000 * 0.5,  # Rough estimate
         }
 
-    def get_recent_errors(self, count: int = 10) -> list[dict]:
+    def get_recent_errors(self, count: int = 10) -> list[dict[str, Any]]:
         """Get recent error entries."""
         if not self.log_file.exists():
             return []
@@ -214,7 +215,9 @@ class UsageLogger:
 
         return errors
 
-    def get_session_operations(self, session_id: str | None = None) -> list[dict]:
+    def get_session_operations(
+        self, session_id: str | None = None
+    ) -> list[dict[str, Any]]:
         """Get all operations for a session."""
         target_session = session_id or self.session_id
 

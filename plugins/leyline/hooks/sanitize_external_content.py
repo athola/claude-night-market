@@ -173,16 +173,25 @@ _BLOCKED_LARGE_CONTENT_MESSAGE = (
 def _sanitize_large_content(content: str) -> str:
     """Scan oversized content in chunks using fast substring checks only.
 
-    Regex scanning is too slow above _MAX_SCAN_SIZE, so this uses
-    plain substring membership checks over overlapping chunks and
-    blocks the whole payload on the first match.
+    Regex scanning is too slow above _MAX_SCAN_SIZE, so the role and
+    phrase checks are plain substring membership over overlapping
+    chunks. The anchored hidden-text regexes run per chunk. The first
+    match blocks the whole payload.
     """
     chunk_size = _MAX_SCAN_SIZE
     overlap = 1024  # 1KB overlap to catch patterns at boundaries
     pos = 0
     while pos < len(content):
         end = min(pos + chunk_size, len(content))
-        chunk = _INVISIBLE_FORMAT_CHARS.sub("", content[pos:end]).lower()
+        raw = _INVISIBLE_FORMAT_CHARS.sub("", content[pos:end])
+        # The hidden-text rules have no substring form (any property may
+        # precede display:none, any word may sit inside a comment), and
+        # each starts at a literal anchor, so they run here too.
+        if _INSTRUCTION_COMMENT.search(raw) or any(
+            pattern.search(raw) for pattern in _INVISIBLE_TEXT
+        ):
+            return _BLOCKED_LARGE_CONTENT_MESSAGE
+        chunk = raw.lower()
         # The regex patterns accept any whitespace run ("ignore\n
         # previous", "eval (", "</ system>"). Normalize it so the
         # substring checks block the same text.

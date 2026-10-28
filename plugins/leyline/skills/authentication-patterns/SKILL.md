@@ -64,7 +64,8 @@ Common authentication patterns for integrating with external services. Provides 
 
 ### Verify Authentication
 ```python
-from leyline.auth import verify_auth, AuthMethod
+# Sketch: implement verify_auth and AuthMethod in your plugin.
+# leyline ships no auth module.
 
 # API Key verification
 status = verify_auth(

@@ -15,9 +15,11 @@ Feature: Star Prompt on Session Start
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import stat
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -255,9 +257,10 @@ class TestStarPromptOutputBehavior:
         WHEN Claude reads it
         THEN it includes the command to star via the script.
         """
-        assert "auto-star-repo.sh --star" in hook_source, (
-            "Prompt must tell Claude to run the script with --star"
-        )
+        body = _extract_function(hook_source, "star_command")
+        assert body is not None, "star_command function must exist"
+        assert "--star" in body, "Prompt must tell Claude to run the script with --star"
+        assert '"$(star_command)"' in hook_source, "Prompt must embed star_command"
 
 
 class TestStarPromptOptOut:
@@ -402,3 +405,95 @@ class TestXtraceKeepsTheTokenOut:
         assert "+ " in run.stderr, "xtrace did not run"
         assert "sekrit-token-123" not in run.stderr
         assert "sekrit-token-123" not in run.stdout
+
+
+def _run_with_shims(
+    tmp_path: Path, shims: dict[str, str], args: list[str]
+) -> subprocess.CompletedProcess[str]:
+    """Run the hook with *shims* (name to /bin/sh body) first on PATH.
+
+    CLAUDE_PLUGIN_ROOT is left unset, as it is in the Bash tool's
+    environment where the model runs the command the hook prints.
+    """
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    for name, body in shims.items():
+        shim = bin_dir / name
+        shim.write_text(f"#!/bin/sh\n{body}\n")
+        shim.chmod(0o755)
+    env = {
+        "HOME": str(tmp_path),
+        "PATH": f"{bin_dir}:/usr/bin:/bin",
+        "GH_TOKEN": "token-without-star-scope",
+    }
+    return subprocess.run(
+        ["bash", str(HOOK_PATH), *args],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+
+
+# A curl that answers every request with 403: like the real one, it exits
+# 22 only when asked to fail on HTTP errors.
+_CURL_403 = (
+    'for arg in "$@"; do case "$arg" in -f|-fsS|--fail) exit 22 ;; esac; done\n'
+    "printf 403\nexit 0"
+)
+_GH_LOGGED_OUT = "exit 1"
+_GH_NOT_STARRED = (
+    'case "$1" in auth) exit 0 ;; esac\nprintf "HTTP/2.0 404 Not Found\\n"\nexit 1'
+)
+
+
+class TestStarPromptCommandRuns:
+    """The prompt's command must run from the Bash tool's environment."""
+
+    @pytest.mark.unit
+    def test_prompt_names_the_script_by_absolute_path(self, tmp_path: Path) -> None:
+        """
+        GIVEN a user who has not starred the repo and no CLAUDE_PLUGIN_ROOT
+        WHEN the hook emits the star prompt
+        THEN the command in it names this script by absolute path
+        and carries no unexpanded variable.
+        """
+        run = _run_with_shims(tmp_path, {"gh": _GH_NOT_STARRED}, [])
+
+        assert run.returncode == 0, run.stderr
+        context = json.loads(run.stdout)["hookSpecificOutput"]["additionalContext"]
+        assert "star-prompt" in context
+        assert "${" not in context
+        assert f"bash '{HOOK_PATH.resolve()}' --star" in context
+
+
+class TestStarFailureIsReported:
+    """--star must not report success when no method starred the repo."""
+
+    @pytest.mark.unit
+    def test_star_exits_nonzero_when_every_method_fails(self, tmp_path: Path) -> None:
+        """
+        GIVEN gh logged out and a token the API answers with 403
+        WHEN --star runs
+        THEN it exits nonzero and logs an error the model can relay.
+        """
+        run = _run_with_shims(
+            tmp_path, {"gh": _GH_LOGGED_OUT, "curl": _CURL_403}, ["--star"]
+        )
+
+        assert run.returncode != 0
+        assert "[ERROR]" in run.stderr
+
+    @pytest.mark.unit
+    def test_star_exits_zero_when_the_put_succeeds(self, tmp_path: Path) -> None:
+        """
+        GIVEN gh logged out and a curl whose PUT succeeds
+        WHEN --star runs
+        THEN it exits 0.
+        """
+        run = _run_with_shims(
+            tmp_path, {"gh": _GH_LOGGED_OUT, "curl": "exit 0"}, ["--star"]
+        )
+
+        assert run.returncode == 0, run.stderr

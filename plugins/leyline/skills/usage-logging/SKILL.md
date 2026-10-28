@@ -85,23 +85,27 @@ Sessions group related operations:
 
 ### Initialize Logger
 ```python
-from leyline.usage_logger import UsageLogger
+from leyline.usage_logger import UsageEvent, UsageLogger
 
 logger = UsageLogger(service="my-service")
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
+**Verification:** `python -m leyline.usage_logger --help` prints the
+query options.
 
 ### Log Operations
 ```python
 logger.log_usage(
-    operation="analyze_files",
-    tokens=5000,
-    success=True,
-    duration=2.5,
-    metadata={"files": 10},
+    UsageEvent(
+        "analyze_files",
+        tokens=5000,
+        success=True,
+        duration=2.5,
+        metadata={"files": 10},
+    )
 )
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
+**Verification:** `plugins/leyline/tests/unit/test_usage_logger_quick_start.py`
+runs this call and reads it back.
 
 ### Query Usage
 ```python

@@ -86,7 +86,8 @@ class ExecutionResult:
 
 ### Register Services
 ```python
-from leyline.service_registry import ServiceRegistry
+# Sketch: implement ServiceRegistry and ServiceConfig in your plugin.
+# leyline ships no service_registry module.
 
 registry = ServiceRegistry()
 

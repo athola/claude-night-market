@@ -72,18 +72,30 @@ def _scan_uv_lock(lockfile: Path, blocklist: Blocklist) -> list[dict[str, Any]]:
     return findings
 
 
+# ``name[extras] == version``, then a marker, comment, continuation or
+# the end. Hash lines (``--hash=...``) and options never match.
+_REQUIREMENT_PIN = re.compile(
+    r"^\s*(?P<name>[A-Za-z0-9][A-Za-z0-9._-]*)\s*(?:\[[^\]]*\])?"
+    r"\s*==\s*(?P<version>[^\s;#\\]+)"
+)
+
+
+def _normalize(name: str) -> str:
+    """PEP 503: case and runs of ``-``, ``_`` and ``.`` do not distinguish names."""
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
 def _scan_requirements(reqfile: Path, blocklist: Blocklist) -> list[dict[str, Any]]:
     """Check a requirements.txt for known compromised pinned versions."""
     findings = []
     for raw_line in reqfile.read_text().splitlines():
-        line = raw_line.strip()
-        if "==" not in line or line.startswith("#"):
+        pin = _REQUIREMENT_PIN.match(raw_line)
+        if not pin:
             continue
-        name, version = line.split("==", 1)
-        name = name.strip().lower()
-        version = version.strip().split(";")[0].strip()  # strip markers
+        name = _normalize(pin.group("name"))
+        version = pin.group("version")
         for pkg, entries in blocklist.items():
-            if name != pkg.lower():
+            if name != _normalize(pkg):
                 continue
             for entry in entries:
                 if version in entry["versions"]:
@@ -98,6 +110,21 @@ def _scan_requirements(reqfile: Path, blocklist: Blocklist) -> list[dict[str, An
                         }
                     )
     return findings
+
+
+# Not the project's own lockfiles, and large enough that walking them on
+# every SessionStart risks the hook timeout.
+_SKIPPED_DIRS = frozenset({".venv", "node_modules", ".git"})
+
+
+def _project_lockfiles(root: Path) -> list[Path]:
+    """Every ``uv.lock`` under ``root``, without descending skipped trees."""
+    found = []
+    for directory, subdirs, files in os.walk(root):
+        subdirs[:] = sorted(d for d in subdirs if d not in _SKIPPED_DIRS)
+        if "uv.lock" in files:
+            found.append(Path(directory) / "uv.lock")
+    return found
 
 
 def main() -> None:
@@ -122,9 +149,7 @@ def main() -> None:
     all_findings: list[dict[str, Any]] = []
 
     # Scan lockfiles in current project
-    for lockfile in cwd.rglob("uv.lock"):
-        if ".venv" in lockfile.parts:
-            continue
+    for lockfile in _project_lockfiles(cwd):
         all_findings.extend(_scan_uv_lock(lockfile, blocklist))
 
     for reqfile in cwd.glob("requirements*.txt"):

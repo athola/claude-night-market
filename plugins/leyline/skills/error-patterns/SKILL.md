@@ -77,7 +77,8 @@ class ErrorCategory(Enum):
 
 ### Standard Error Handler
 ```python
-from leyline.error_patterns import handle_error, ErrorCategory
+# Sketch: implement handle_error and ErrorCategory in your plugin.
+# leyline ships no error_patterns module.
 
 try:
     result = service.execute(prompt)

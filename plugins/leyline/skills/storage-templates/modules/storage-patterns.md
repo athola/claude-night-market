@@ -190,50 +190,25 @@ file. The fix is to write to a sibling tempfile and rename
 into place. On POSIX, `os.replace` is atomic on the same
 filesystem.
 
-The reference implementation is in
-`plugins/memory-palace/src/memory_palace/migration.py` as
-`_atomic_write_json`. Copy the shape:
+Use `leyline.atomic_file.write_atomic(path, content)`, which
+takes `str` or `bytes` and an optional `mode`. A plugin that
+cannot import leyline at runtime gets a generated copy: add a
+target to `VENDORED` in `scripts/sync_vendored.py`, run it,
+and import `_vendored_leyline_atomic_file`. Do not hand-write
+another copy.
 
-```python
-import json, os, tempfile, contextlib
-from pathlib import Path
-from typing import Any
+Four properties matter:
 
-
-def write_atomic_json(target: Path, data: dict[str, Any]) -> None:
-    """Write JSON to target atomically via a sibling tempfile."""
-    tmp_path: str | None = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            dir=str(target.parent),
-            prefix=target.name + ".",
-            suffix=".tmp",
-            delete=False,
-        ) as tmp:
-            tmp_path = tmp.name
-            json.dump(data, tmp, indent=2)
-            tmp.flush()
-            os.fsync(tmp.fileno())
-        os.replace(tmp_path, str(target))
-        tmp_path = None
-    except OSError:
-        if tmp_path is not None:
-            with contextlib.suppress(OSError):
-                os.unlink(tmp_path)
-        raise
-```
-
-Three properties matter:
-
-1. The tempfile is in the same directory as the target so
-   `os.replace` is a same-filesystem rename.
-2. `flush()` then `fsync()` before the rename, so a crash
-   between rename and the next sync still leaves the data on
-   disk.
-3. On error the original file is untouched and the tempfile
-   is cleaned up.
+1. The tempfile sits in the target's directory, which makes
+   `os.replace` a same-filesystem rename. Its name is unique
+   per call, and concurrent writers never share it.
+2. `flush()` then `fsync()` run before the rename, and the
+   directory is synced after it. A crash loses neither the
+   data nor the rename.
+3. On any error, `KeyboardInterrupt` included, the original
+   file is untouched and the tempfile is removed.
+4. The file is created 0600 unless the caller passes `mode`.
+   `mode=None` keeps the target's existing mode.
 
 For SQLite, the equivalent is to wrap the change in a
 transaction. SQLite's WAL mode handles the atomic-rename
