@@ -216,3 +216,19 @@ def test_cli_exits_with_one_line_message_on_unreadable_state(
     message = str(exited.value.code)
     assert "is unreadable" in message
     assert "\n" not in message
+
+
+def test_save_keeps_the_umask_mode_other_readers_rely_on(
+    temp_state_path: Path,
+) -> None:
+    """Readers under another uid keep access to the state file.
+
+    It was written through open() before, with the umask's mode. An
+    owner-only 0600 would lock those readers out without an error.
+    """
+    old_umask = os.umask(0o022)
+    try:
+        AutonomyStateStore(state_path=temp_state_path).load()
+    finally:
+        os.umask(old_umask)
+    assert temp_state_path.stat().st_mode & 0o777 == 0o644

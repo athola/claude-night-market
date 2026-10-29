@@ -135,8 +135,9 @@ class PalaceGraphAnalyzer:
         # Modularity is undefined without edges: greedy_modularity_communities
         # divides by total edge weight and raises ZeroDivisionError. A noded
         # but edgeless graph is a legal state (e.g. entities with no synapses),
-        # so treat each node as its own singleton community.
-        if ug.number_of_edges() == 0:
+        # and so is one whose synapses all have strength 0.0. Treat each node
+        # as its own singleton community in both.
+        if ug.size(weight="weight") == 0:
             return {idx: {node} for idx, node in enumerate(ug.nodes)}
 
         communities = nx.community.greedy_modularity_communities(ug, weight="weight")

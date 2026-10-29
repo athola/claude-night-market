@@ -261,7 +261,13 @@ class AutonomyStateStore:
         never sees a truncated one and a failed dump keeps the old state.
         """
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
-        write_atomic(self.state_path, yaml.safe_dump(state.to_dict(), sort_keys=False))
+        # mode=None keeps the umask mode open() gave this file before, so
+        # a reader under another uid is not locked out by 0600.
+        write_atomic(
+            self.state_path,
+            yaml.safe_dump(state.to_dict(), sort_keys=False),
+            mode=None,
+        )
         return state
 
     def snapshot(self, *, config_level: int | None = None) -> dict[str, Any]:

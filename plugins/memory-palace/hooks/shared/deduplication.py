@@ -117,14 +117,23 @@ def get_url_key(url: str) -> str:
 
     # Scheme and host are case-insensitive; a path or query may not be
     # (a video id, a base64 token), so folding it merged distinct pages.
+    # A string with no scheme is folded whole, since its host cannot be
+    # told apart from its path.
     scheme, sep, rest = url.rstrip("/").partition("://")
     if not sep:
         return scheme.lower()
-    host_end = len(rest)
-    for mark in "/?":
-        if mark in rest:
-            host_end = min(host_end, rest.index(mark))
-    return f"{scheme.lower()}://{rest[:host_end].lower()}{rest[host_end:]}"
+    host = rest.split("/", 1)[0].split("?", 1)[0]
+    return f"{scheme.lower()}://{host.lower()}{rest[len(host) :]}"
+
+
+def _legacy_url_key(url: str) -> str:
+    """Return the key older index entries were stored under.
+
+    Before path and query case were kept, the whole normalized URL was
+    lowercased. Lookups try this key too, so existing entries are not
+    orphaned and re-captured as duplicates.
+    """
+    return get_url_key(url).lower()
 
 
 def _warn_no_yaml_once() -> None:
@@ -223,8 +232,8 @@ def is_known(
         return True
 
     if url:
-        url_key = get_url_key(url)
-        if url_key in index.get("entries", {}):
+        entries = index.get("entries", {})
+        if get_url_key(url) in entries or _legacy_url_key(url) in entries:
             return True
 
     if path:
@@ -272,8 +281,8 @@ def get_entry(url: str | None = None, path: str | None = None) -> dict[str, Any]
     index = _load_index()
 
     if url:
-        url_key = get_url_key(url)
-        entry = index.get("entries", {}).get(url_key)
+        entries = index.get("entries", {})
+        entry = entries.get(get_url_key(url)) or entries.get(_legacy_url_key(url))
         return entry if isinstance(entry, dict) else None
 
     if path:

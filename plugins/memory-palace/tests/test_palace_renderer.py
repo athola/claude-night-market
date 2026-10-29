@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import networkx as nx
 import pytest
 
 from memory_palace import graph_analyzer
@@ -391,3 +392,32 @@ class TestAnalyzerFailuresAreNotHidden:
         monkeypatch.setattr(graph_analyzer.PalaceGraphAnalyzer, "pagerank", broken)
         with pytest.raises(ZeroDivisionError):
             renderer.algo_informed_er_graph("p1")
+
+
+class TestAnalysisFailuresFallBackToThePlainGraph:
+    """A graph networkx cannot analyze still renders."""
+
+    def test_a_pagerank_that_does_not_converge_renders_the_plain_graph(
+        self, renderer: PalaceRenderer, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A non-converging PageRank falls back instead of raising."""
+
+        def diverges(self: object) -> dict[str, float]:
+            raise nx.PowerIterationFailedConvergence(100)
+
+        monkeypatch.setattr(graph_analyzer.PalaceGraphAnalyzer, "pagerank", diverges)
+        assert renderer.algo_informed_er_graph("p1") == renderer._plain_er_graph("p1")
+
+    def test_a_zero_strength_synapse_still_renders(self) -> None:
+        """A synapse of strength 0.0 makes the total weight zero."""
+        zero = KnowledgeGraph(":memory:")
+        zero.upsert_entity("p1", "palace", "Palace")
+        zero.upsert_entity("a", "concept", "A")
+        zero.upsert_entity("b", "concept", "B")
+        zero.add_residency("a", palace_id="p1", role="patron")
+        zero.add_residency("b", palace_id="p1", role="patron")
+        zero.create_synapse("a", "b", strength=0.0)
+        assert (
+            PalaceRenderer(zero).algo_informed_er_graph("p1").startswith("flowchart LR")
+        )
+        zero.close()
