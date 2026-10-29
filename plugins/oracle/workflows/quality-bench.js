@@ -59,18 +59,24 @@ const scored = await parallel(
 // the distribution shifts the calibration it was meant to be read against.
 // A score the oracle did not produce is unscored too. It would rank a
 // guess inside the distribution.
-const unscored = skills.filter(
-  (skill, index) => !scored[index] || scored[index].source !== 'oracle' || typeof scored[index].score !== 'number',
-)
-const scores = scored.filter(
-  (entry) => entry && entry.source === 'oracle' && typeof entry.score === 'number',
-)
+const isOracleScore = (entry) => entry.source === 'oracle' && typeof entry.score === 'number'
+const scores = scored.filter((entry) => entry && isOracleScore(entry))
+// Derived from scores. The two lists then partition the skills.
+const unscored = skills.filter((skill, index) => !scores.includes(scored[index]))
+// Two causes need different fixes. A dead scorer agent needs a re-run.
+// A scorer that found the daemon down needs the daemon provisioned.
+const dropped = skills.filter((skill, index) => !scored[index])
+const unavailable = skills.filter((skill, index) => scored[index] && scored[index].source === 'unavailable')
 
 if (unscored.length) log(`no score for ${unscored.join(', ')}`)
+if (dropped.length) log(`no reply from the scorer for ${dropped.join(', ')}. Re-run these skills`)
+if (unavailable.length) {
+  log(`daemon unavailable for ${unavailable.join(', ')}. Check whether the oracle daemon is provisioned`)
+}
 
 if (!scores.length) {
-  log('no skill scored. Check whether the oracle daemon is provisioned')
-  return { skills, scores: [], calibration: null, unscored }
+  log('no skill scored')
+  return { skills, scores: [], calibration: null, unscored, unavailable, dropped }
 }
 
 const ordered = [...scores].sort((left, right) => left.score - right.score)
@@ -86,4 +92,4 @@ if (failed) log('no result from the calibrate stage. The scores are uncalibrated
 
 log(`${scores.length} skills scored, range ${ordered[0].score} to ${ordered[ordered.length - 1].score}`)
 
-return { skills, scores: ordered, calibration, unscored, failed }
+return { skills, scores: ordered, calibration, unscored, unavailable, dropped, failed }

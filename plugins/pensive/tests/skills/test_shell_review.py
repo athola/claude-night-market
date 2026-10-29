@@ -1,4 +1,4 @@
-"""Tests for the shell-review skill.
+"""Tests for unified-review's shell review module and its four rule modules.
 
 Fixture-based tests verifying:
 - Reference scripts exist and self-validate (shellcheck + shfmt)
@@ -338,3 +338,19 @@ class TestPatternDetection:
 
         assert f"Missing main call: {bad}" in result.stdout
         assert f"Missing main call: {good}" not in result.stdout
+
+
+UNIFIED_REVIEW_MODULES = (
+    Path(__file__).resolve().parents[2] / "skills" / "unified-review" / "modules"
+)
+
+
+@pytest.mark.parametrize(
+    "module", sorted(UNIFIED_REVIEW_MODULES.glob("shell-*.md")), ids=lambda p: p.name
+)
+def test_moved_shell_modules_name_unified_review_as_their_parent(
+    module: Path,
+) -> None:
+    """The deprecated shell-review stub no longer loads these modules."""
+    parents = re.findall(r"^parent_skill:\s*(\S+)", module.read_text(), re.MULTILINE)
+    assert parents in ([], ["pensive:unified-review"])

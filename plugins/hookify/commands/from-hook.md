@@ -21,8 +21,9 @@ Convert Python SDK hooks to declarative hookify rules.
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/hook_to_hookify.py" $ARGUMENTS
 ```
 
-Add `-v` to see why a hook was not converted. Report the generated rules
-and every hook listed as unconvertible.
+The script prints each hook it did not convert, with the reason, to
+stderr as a `Not converted:` line. It exits 1 when no hook converted.
+Report the generated rules and every `Not converted:` line.
 
 ## What It Does
 

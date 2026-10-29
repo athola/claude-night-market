@@ -15,6 +15,11 @@ from typing import Any
 # Statuses memory-palace gives a capture nobody has reviewed yet.
 _PENDING = frozenset({"pending", "pending_review"})
 
+# memory-palace's render_frontmatter writes every string JSON-quoted
+# (``status: "pending_review"``). Older captures are bare.
+_STATUS = re.compile(r"^status:\s*[\"']?(\w+)", re.IGNORECASE | re.MULTILINE)
+_PRIORITY = re.compile(r"^priority:\s*[\"']?(\w+)", re.IGNORECASE | re.MULTILINE)
+
 
 def _palace_staging_dir() -> Path:
     """Where memory-palace stages captures, mirroring its ``persistent_root``.
@@ -24,14 +29,15 @@ def _palace_staging_dir() -> Path:
     data directory Claude Code provisions. Captures stopped going to
     ``~/.claude/memory-palace/queue`` when memory-palace moved its data
     root (#661), which left this check reading a directory nothing wrote.
+    With several marketplace installs, the first in sorted order is read.
     """
     relocated = os.environ.get("MEMORY_PALACE_DATA_DIR")
     if relocated:
         return Path(relocated) / "data" / "staging"
     data = Path.home() / ".claude" / "plugins" / "data"
-    for root in sorted(data.glob("memory-palace-*")):
-        return root / "data" / "staging"
-    return data / "memory-palace-claude-night-market" / "data" / "staging"
+    roots = sorted(data.glob("memory-palace-*"))
+    root = roots[0] if roots else data / "memory-palace-claude-night-market"
+    return root / "data" / "staging"
 
 
 class KnowledgeQueueChecker:
@@ -59,8 +65,8 @@ class KnowledgeQueueChecker:
                 stat = item_file.stat()
 
                 # Extract metadata from frontmatter
-                priority_match = re.search(r"priority:\s*(\w+)", content, re.IGNORECASE)
-                status_match = re.search(r"status:\s*(\w+)", content, re.IGNORECASE)
+                priority_match = _PRIORITY.search(content)
+                status_match = _STATUS.search(content)
 
                 priority = priority_match.group(1) if priority_match else "medium"
                 status = status_match.group(1) if status_match else "pending"

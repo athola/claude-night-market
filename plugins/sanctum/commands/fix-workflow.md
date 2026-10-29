@@ -113,8 +113,9 @@ only runs when asked for: a workflow never starts unasked.
 
 It deliberately stops before step 5. A workflow's subagents take the
 session's permission mode, so in an accept-edits or auto session an
-implementer stage there would apply edits nobody saw proposed. The script also has
-no shell, so it cannot run one acceptance criterion it writes.
+implementer stage there would apply edits nobody saw proposed.
+The script also has no shell, so it cannot run one acceptance
+criterion it writes.
 Implementation and validation stay in the session, where the diff is
 visible and a command can actually be run.
 

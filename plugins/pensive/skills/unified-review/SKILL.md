@@ -258,7 +258,8 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 - [Review workflow core](modules/review-workflow-core.md) - standard 5-step workflow pattern for all pensive reviews
 - [Output format templates](modules/output-format-templates.md) - finding entry, severity, action item templates
 - [Quality checklist patterns](modules/quality-checklist-patterns.md) - pre-review, analysis, evidence, deliverable checklists
-- [Shell review](modules/shell-review.md) - shell script audit, with its exit-code, portability, safety and structure modules
+- [Shell review](modules/shell-review.md) - shell script audit, with its
+  exit-code, portability, safety and structure modules
 
 ## Troubleshooting
 

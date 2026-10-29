@@ -16,6 +16,7 @@ import json
 import shlex
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -42,8 +43,13 @@ def _find_gauntlet_src() -> Path | None:
     return None
 
 
-#: Per git call. hooks.json gives this hook 5s in total, and the blast
-#: radius analysis still needs its own git calls after these two.
+#: hooks.json kills this hook at 5s. The spare second covers interpreter
+#: start-up and the graph queries after the analysis's git calls. A killed
+#: hook adds no context and prints nothing. The analysis's git calls get
+#: only what the merge-base lookup and gauntlet's import left of this.
+_HOOK_BUDGET_SECONDS = 4.0
+
+#: Per merge-base git call. Two of them run before the analysis.
 _GIT_TIMEOUT_SECONDS = 1.0
 
 
@@ -89,7 +95,7 @@ def _merge_base(command: str) -> str:
     return _git("merge-base", "HEAD", base)
 
 
-def _analyze(db_path: Path, base_ref: str) -> dict[str, Any] | None:
+def _analyze(db_path: Path, base_ref: str, deadline: float) -> dict[str, Any] | None:
     """Run gauntlet's blast radius analysis, or None when it cannot run."""
     gauntlet_src = _find_gauntlet_src()
     if gauntlet_src and str(gauntlet_src) not in sys.path:
@@ -101,7 +107,10 @@ def _analyze(db_path: Path, base_ref: str) -> dict[str, Any] | None:
 
         with _gg.GraphStore(str(db_path)) as graph:
             report: dict[str, Any] = _br.analyze_changes(
-                graph, base_ref=base_ref, weights=_br.load_weights(db_path.parent)
+                graph,
+                base_ref=base_ref,
+                timeout=max(deadline - time.monotonic(), 0.0),
+                weights=_br.load_weights(db_path.parent),
             )
     except (ImportError, ModuleNotFoundError):
         return None
@@ -128,6 +137,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if db_path is None:
         return None
 
+    deadline = time.monotonic() + _HOOK_BUDGET_SECONDS
     try:
         base_ref = _merge_base(command)
     except (_NoMergeBaseError, ValueError) as exc:
@@ -135,7 +145,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         print(f"pr_blast_radius: no merge base: {exc}", file=sys.stderr)
         return None
 
-    report = _analyze(db_path, base_ref)
+    report = _analyze(db_path, base_ref, deadline)
     if report is None:
         return None
 

@@ -66,7 +66,7 @@ class YamlScorer:
         """Load model coefficients from YAML."""
         if not _HAS_YAML:
             # PyYAML unavailable: stay unloaded so available() returns False
-            # and the score() fallback returns 0.0 (issue #518).
+            # and score() returns None (issue #518).
             self._loaded = False
             return
         # _HAS_YAML implies _yaml is the imported pyyaml module.
@@ -95,10 +95,13 @@ class YamlScorer:
             _log.warning("Failed to load model from %s: %s", model_path, exc)
             self._loaded = False
 
-    def score(self, features: dict[str, float]) -> float:
-        """Compute dot product of weights and features, plus intercept."""
+    def score(self, features: dict[str, float]) -> float | None:
+        """Compute dot product of weights and features, plus intercept.
+
+        None when no model loaded: 0.0 is a real score and would be blended.
+        """
         if not self._loaded:
-            return 0.0
+            return None
         linear = sum(w * features.get(name, 0.0) for name, w in self._weights.items())
         linear += self._intercept
         if self._use_sigmoid:

@@ -750,6 +750,24 @@ class TestResolveCallTargetsScope:
         assert store.resolve_call_targets() == 0
 
     @pytest.mark.unit
+    def test_bare_call_resolves_to_the_free_function_beside_a_same_named_method(
+        self, store: GraphStore
+    ) -> None:
+        """`run()` reaches b.py::run; `Job.run` is not a second candidate."""
+        store.upsert_node(_make_node("app.py::main", file_path="app.py"))
+        store.upsert_node(_make_node("b.py::run", file_path="b.py"))
+        store.upsert_node(
+            _make_node("db.py::Job", kind=NodeKind.CLASS, file_path="db.py")
+        )
+        store.upsert_node(_make_node("db.py::Job.run", file_path="db.py"))
+        store.upsert_edge(
+            _make_edge(source="app.py::main", target="run", file_path="app.py")
+        )
+        assert store.resolve_call_targets() == 1
+        targets = [e.target_qn for e in store.get_edges_by_source("app.py::main")]
+        assert targets == ["b.py::run"]
+
+    @pytest.mark.unit
     def test_bare_call_never_resolves_to_a_method_in_the_same_file(
         self, store: GraphStore
     ) -> None:

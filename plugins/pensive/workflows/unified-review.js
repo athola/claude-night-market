@@ -126,7 +126,17 @@ if (!selected.length) {
   }
 }
 const maxFindings = typeof input.maxFindings === 'number' ? input.maxFindings : 0
-const lenses = typeof input.lenses === 'number' ? LENSES.slice(0, input.lenses) : LENSES
+// Zero lenses hears no verdict, and every finding then drops out of both
+// the survived and the unverified lists. That reads as a clean review.
+const lensCount = input.lenses ?? LENSES.length
+if (!Number.isInteger(lensCount) || lensCount < 1 || lensCount > LENSES.length) {
+  return {
+    started: false,
+    reason: 'lenses-out-of-range',
+    next: `Pass args.lenses as a whole number from 1 to ${LENSES.length}. Omit it to verify with every lens.`,
+  }
+}
+const lenses = LENSES.slice(0, lensCount)
 
 if (selected.length < DIMENSIONS.length) {
   const dropped = DIMENSIONS.filter((d) => !selected.includes(d)).map((d) => d.key)

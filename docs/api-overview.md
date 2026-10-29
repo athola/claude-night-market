@@ -146,8 +146,9 @@ Skills provide release health gates and initiative pulse dashboards.
 ONNX Runtime inference sidecar for the plugin ecosystem.
 Runs an HTTP daemon in an isolated Python 3.11+ venv
 provisioned by uv, serving model inference on localhost.
-Other plugins discover the daemon via a port file in
-`$CLAUDE_PLUGIN_DATA/oracle/`. Explicit opt-in activation:
+Other plugins discover the daemon via `daemon.port` in
+oracle's data directory, `oracle-<marketplace>/`, a sibling
+of their own. Explicit opt-in activation:
 installing the plugin does nothing until the user runs
 `/oracle:setup`. Provides the `setup` command and a
 `sidecar-status` skill.

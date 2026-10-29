@@ -115,9 +115,19 @@ class TestVersionValidation:
 
 @pytest.mark.unit
 class TestCodeQualityAnalysis:
-    def test_code_quality_analysis_cannot_be_bypassed(self, command_text: str) -> None:
-        assert "Code Quality Analysis (MANDATORY - NON-NEGOTIABLE)" in command_text
-        assert "REQUIRED and cannot be bypassed" in command_text
+    def test_the_version_waiver_does_not_waive_code_quality_analysis(
+        self, command_text: str, version_text: str
+    ) -> None:
+        """The waiver's scope is the behavior; the heading's wording is not."""
+        assert "### Code Quality Analysis" in command_text
+        bypass = version_text.split("## Bypass Mechanism")[1].split(
+            "## Output Format", maxsplit=1
+        )[0]
+        flag = command_text.split("/pr-review --skip-version-check", maxsplit=1)[0]
+        flag_comment = flag.rsplit("\n#", 1)[1]
+        for waiver in (bypass, flag_comment):
+            assert "quality" not in waiver.lower()
+            assert "duplication" not in waiver.lower()
 
     def test_exact_duplication_over_ten_lines_is_blocking(
         self, command_text: str
@@ -171,9 +181,11 @@ class TestMandatoryOutputPhases:
     def test_concise_mode_waives_test_plan_and_description(
         self, command_text: str, skill_text: str
     ) -> None:
-        assert "only the\nreview comment applies" in command_text
-        assert (
-            "no test plan\n      comment or description update was posted" in skill_text
+        # Whitespace is collapsed before comparing. Re-wrapping the prose
+        # must not read as a change in what it says.
+        assert "only the review comment applies" in " ".join(command_text.split())
+        assert "no test plan comment or description update was posted" in " ".join(
+            skill_text.split()
         )
 
 

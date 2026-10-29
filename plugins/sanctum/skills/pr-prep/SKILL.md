@@ -194,7 +194,9 @@ Write the final PR description to the specified path, then display the file path
 
 ## Notes
 
-Do not include tool or AI attribution in the PR text. If changes are required mid-process, re-run quality gates. This skill covers preparation. Pushing changes and opening the PR happen outside it.
+Do not include tool or AI attribution in the PR text. If changes are
+required mid-process, re-run quality gates. This skill covers
+preparation. Pushing changes and opening the PR happen outside it.
 
 ## Supporting Modules
 

@@ -65,9 +65,10 @@ if (selection !== null && !Array.isArray(selection)) {
   }
 }
 // The skill name and the short name both select a paradigm.
-const named = (selection || DEFAULT_CANDIDATES).map((name) =>
-  String(name).startsWith(PREFIX) ? String(name).slice(PREFIX.length) : String(name),
-)
+const named = (selection || DEFAULT_CANDIDATES).map((name) => {
+  const text = String(name)
+  return text.startsWith(PREFIX) ? text.slice(PREFIX.length) : text
+})
 const candidates = named.filter((name) => PARADIGMS.includes(name))
 const unknown = named.filter((name) => !PARADIGMS.includes(name))
 if (unknown.length) log(`unknown paradigm ${unknown.join(', ')}. Known paradigms: ${KNOWN}`)
@@ -113,7 +114,7 @@ const ranked = scored
 if (unscored.length) log(`no score for ${unscored.join(', ')}. They are unscored, not last`)
 
 if (!ranked.length) {
-  return { started: true, ranked: [], comparison: null, unscored }
+  return { started: true, ranked: [], comparison: null, unscored, failed: 'score' }
 }
 
 const summary = ranked

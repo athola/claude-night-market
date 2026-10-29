@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
+import pr_blast_radius
 import pytest
 from pr_blast_radius import main
 
@@ -242,6 +243,43 @@ class TestPrBaseRef:
             main({"tool_input": {"command": "gh pr create --title t"}})
 
         assert analyze.call_args.kwargs["base_ref"] == merge_base
+
+    @pytest.mark.unit
+    def test_analysis_git_budget_fits_inside_the_hook_limit(
+        self, project_with_graph: Path
+    ) -> None:
+        """hooks.json kills this hook at 5s; gauntlet's own default is 10s."""
+        hooks = json.loads((_HOOK_SCRIPT.parent / "hooks.json").read_text())
+        entry = next(
+            hook
+            for group in hooks["hooks"]["PreToolUse"]
+            for hook in group["hooks"]
+            if "pr_blast_radius.py" in hook["command"]
+        )
+
+        with patch(
+            "gauntlet.blast_radius.analyze_changes", return_value=_MEDIUM_REPORT
+        ) as analyze:
+            main({"tool_input": {"command": "gh pr create --title t"}})
+
+        assert 0 < analyze.call_args.kwargs["timeout"] < entry["timeout"]
+
+    @pytest.mark.unit
+    def test_analysis_gets_only_the_budget_the_merge_base_left(
+        self, project_with_graph: Path
+    ) -> None:
+        """Time spent finding the merge base comes out of the analysis budget."""
+        clock = iter([100.0, 103.5])
+        with (
+            patch.object(pr_blast_radius.time, "monotonic", lambda: next(clock)),
+            patch(
+                "gauntlet.blast_radius.analyze_changes", return_value=_MEDIUM_REPORT
+            ) as analyze,
+        ):
+            main({"tool_input": {"command": "gh pr create --title t"}})
+
+        expected = pr_blast_radius._HOOK_BUDGET_SECONDS - 3.5
+        assert analyze.call_args.kwargs["timeout"] == pytest.approx(expected)
 
     @pytest.mark.unit
     @pytest.mark.parametrize("flag", ["--base develop", "-B develop", "--base=develop"])

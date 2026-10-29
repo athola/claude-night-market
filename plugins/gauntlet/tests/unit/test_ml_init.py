@@ -16,6 +16,7 @@ from gauntlet.ml import (
 )
 from gauntlet.ml.scorer import SidecarScorer, YamlScorer
 from gauntlet.models import Challenge
+from tests.conftest import make_urlopen_response
 
 
 def _challenge(
@@ -118,6 +119,28 @@ class TestScoreAnswerQuality:
         result = score_answer_quality(ch, "")
         assert result is not None
         assert result < 0.2
+
+
+class TestScoreAnswerQualityRoundTrips:
+    """One HTTP request per answer: the score itself."""
+
+    @pytest.mark.unit
+    def test_a_sidecar_answer_costs_one_infer_request_and_no_health_check(
+        self, tmp_path: Path
+    ) -> None:
+        port_file = tmp_path / "daemon.port"
+        port_file.write_text("12345")
+        ml_mod._scorer = SidecarScorer(port_file)
+        try:
+            with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
+                mock_urlopen.return_value = make_urlopen_response(b'{"score": 0.6}')
+                result = score_answer_quality(_challenge("explain_why", "a"), "a")
+            urls = [call.args[0].full_url for call in mock_urlopen.call_args_list]
+        finally:
+            ml_mod._scorer = None
+
+        assert result == pytest.approx(0.6)
+        assert urls == ["http://127.0.0.1:12345/infer"]
 
 
 class TestGetOraclePortFile:

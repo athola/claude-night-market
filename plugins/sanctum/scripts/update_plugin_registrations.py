@@ -879,6 +879,14 @@ class PluginAuditor(_ScanningMixin, _ComparisonMixin, _ReportingMixin):
                 meta_eval_report[plugin_name] = meta_issues
 
         queue_items = self.check_knowledge_queue()
+        # An absent directory and an empty queue both yield [], and only
+        # the first means the lookup guessed the wrong palace location.
+        queue_dir = self.queue_checker.queue_dir
+        if not queue_dir.exists():
+            print(
+                "\nKnowledge queue not checked: no memory-palace staging "
+                f"directory at {queue_dir}"
+            )
 
         print(f"\n{'=' * 60}")
         print("AUDIT SUMMARY")

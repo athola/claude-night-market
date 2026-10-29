@@ -85,8 +85,7 @@ def score_answer_quality(
     Returns None when the model file is missing or corrupt,
     allowing callers to fall back to word-overlap scoring.
     """
-    scorer = _get_scorer()
-    if not scorer.available():
-        return None
+    # score() itself returns None without a backend. Asking available()
+    # first cost the sidecar a /health round trip per answer.
     features = extract_answer_features(challenge, answer)
-    return scorer.score(features)
+    return _get_scorer().score(features)

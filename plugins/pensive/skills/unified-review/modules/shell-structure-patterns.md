@@ -1,5 +1,5 @@
 ---
-parent_skill: pensive:shell-review
+parent_skill: pensive:unified-review
 module: structure-patterns
 description: Library vs executable structure, main(), preamble, depcheck(), platform detection
 tags: [structure, main, library, depcheck, platform, readonly, shfmt]

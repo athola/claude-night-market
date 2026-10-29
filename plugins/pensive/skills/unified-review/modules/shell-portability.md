@@ -1,5 +1,5 @@
 ---
-parent_skill: pensive:shell-review
+parent_skill: pensive:unified-review
 module: portability
 description: POSIX vs Bash compatibility and cross-platform considerations
 tags: [posix, bash, portability, cross-platform]

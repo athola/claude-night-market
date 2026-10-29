@@ -521,6 +521,62 @@ class TestAnalyzeChangesPipeline:
         assert result["overall_risk"] == "unknown"
         assert "rev-parse" in result["error"]
 
+    @staticmethod
+    def _timed_git(diff_seconds: float, clock: list[float], timeouts: dict):
+        """Answer git like ``_git``; the diff call advances ``clock``.
+
+        A zero or negative budget raises TimeoutExpired, as subprocess.run
+        does once its deadline has passed.
+        """
+
+        def run(argv: list[str], *, timeout: float, **_kwargs: object) -> object:
+            timeouts[argv[1]] = timeout
+            if timeout <= 0:
+                raise subprocess.TimeoutExpired(argv, timeout)
+            if argv[1] == "diff":
+                clock[0] += diff_seconds
+                stdout = TestAnalyzeChangesPipeline._diff("app.py", 10, 5)
+            else:
+                stdout = _TOP + "\n"
+            return type("R", (), {"returncode": 0, "stdout": stdout})()
+
+        return run
+
+    @pytest.mark.unit
+    def test_rev_parse_gets_only_the_budget_the_diff_left(
+        self, store: GraphStore
+    ) -> None:
+        """The two git calls share one deadline, not one each."""
+        clock = [100.0]
+        timeouts: dict[str, float] = {}
+        run = self._timed_git(3.2, clock, timeouts)
+        with (
+            patch("gauntlet.blast_radius.time.monotonic", lambda: clock[0]),
+            patch("gauntlet.blast_radius.subprocess.run", side_effect=run),
+        ):
+            analyze_changes(store, timeout=4.0)
+
+        assert timeouts["diff"] == 4.0
+        assert timeouts["rev-parse"] == pytest.approx(0.8)
+
+    @pytest.mark.unit
+    def test_a_spent_budget_reports_an_error_without_running_rev_parse_long(
+        self, store: GraphStore
+    ) -> None:
+        """A diff that used the whole budget leaves rev-parse 0.0, not a hang."""
+        clock = [100.0]
+        timeouts: dict[str, float] = {}
+        run = self._timed_git(5.0, clock, timeouts)
+        with (
+            patch("gauntlet.blast_radius.time.monotonic", lambda: clock[0]),
+            patch("gauntlet.blast_radius.subprocess.run", side_effect=run),
+        ):
+            result = analyze_changes(store, timeout=4.0)
+
+        assert timeouts["rev-parse"] == 0.0
+        assert result["overall_risk"] == "unknown"
+        assert "rev-parse" in result["error"]
+
     @pytest.mark.unit
     def test_an_untested_changed_function_is_reported_and_scored(
         self, store: GraphStore

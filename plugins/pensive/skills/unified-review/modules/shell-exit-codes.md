@@ -1,5 +1,5 @@
 ---
-parent_skill: pensive:shell-review
+parent_skill: pensive:unified-review
 module: exit-codes
 description: Exit code propagation patterns and pipeline pitfalls
 tags: [exit-codes, pipelines, error-handling, pipefail]

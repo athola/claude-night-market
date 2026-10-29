@@ -63,7 +63,8 @@ _HUNK_PATTERN = re.compile(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 _FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+)$")
 
 
-#: Default budget for the one git call this module makes.
+#: Default budget for the module's git calls (diff, then rev-parse), shared
+#: by both through one deadline in analyze_changes.
 #:
 #: Callers running inside a hook must pass their own budget instead. A hook
 #: that is killed by the harness returns no decision at all, which for
@@ -244,8 +245,8 @@ def analyze_changes(
     ``weights`` is what ``load_weights`` returns for the graph's
     ``.gauntlet`` directory; None scores with the defaults.
     """
-    # Both git calls share one budget: a hook caller sized ``timeout`` to
-    # its own kill deadline, so the pair must not take twice as long.
+    # Both git calls share one budget. pensive's pr_blast_radius hook passes
+    # what is left of its kill deadline, and the pair must fit inside it.
     deadline = time.monotonic() + timeout
     try:
         repo_relative = parse_git_diff_ranges(base_ref, timeout)

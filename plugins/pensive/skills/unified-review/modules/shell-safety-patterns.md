@@ -1,5 +1,5 @@
 ---
-parent_skill: pensive:shell-review
+parent_skill: pensive:unified-review
 module: safety-patterns
 description: "POSIX safety rules: no echo, braced vars, :? expansion, cd subshells"
 tags: [safety, posix, quoting, expansion, cd]

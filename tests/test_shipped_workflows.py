@@ -1010,3 +1010,54 @@ def test_every_arg_when_to_use_advertises_is_read(script: Path) -> None:
     advertised = set(_ARGS_IN_PROSE.findall(when.group(2)))
     read = set(_INPUT_FIELD.findall(content))
     assert advertised <= read, sorted(advertised - read)
+
+
+# ---------------------------------------------------------------------------
+# PR #992 review: result shapes and argument guards (G6).
+# ---------------------------------------------------------------------------
+
+
+def test_paradigm_panel_names_the_score_stage_when_every_scorer_died() -> None:
+    """The early return carries `failed` like the final one does."""
+    out = _run_workflow(
+        _script("archetypes"),
+        "return null;",
+        {"candidates": ["layered"], "requirements": "a small API"},
+    )
+    assert out["result"]["failed"] == "score"
+    assert out["result"]["unscored"] == ["layered"]
+
+
+class TestQualityBenchSeparatesDeadScorersFromADownDaemon:
+    """A dead scorer agent must not send the operator to fix the daemon."""
+
+    def test_dead_scorers_are_dropped_and_the_daemon_is_not_blamed(self) -> None:
+        out = _run_workflow(_script("oracle"), "return null;", {"skills": ["a:b"]})
+        assert out["result"]["dropped"] == ["a:b"]
+        assert out["result"]["unavailable"] == []
+        assert not any("daemon" in line for line in out["log"]), out["log"]
+
+    def test_an_unavailable_daemon_is_named(self) -> None:
+        out = _run_workflow(
+            _script("oracle"),
+            "return { skill: 's', basis: 'down', source: 'unavailable' };",
+            {"skills": ["a:b"]},
+        )
+        assert out["result"]["unavailable"] == ["a:b"]
+        assert out["result"]["dropped"] == []
+        assert any("daemon" in line for line in out["log"]), out["log"]
+
+
+@pytest.mark.parametrize("lenses", [0, -1, 4, 1.5, "2"])
+def test_unified_review_refuses_a_lens_count_outside_the_roster(lenses) -> None:
+    """`lenses: 0` verified nothing and reported zero surviving findings."""
+    out = _run_workflow(_script("pensive"), _NO_DISPATCH, {"lenses": lenses})
+    assert out["result"]["started"] is False
+    assert out["result"]["reason"] == "lenses-out-of-range"
+    assert out["result"]["next"]
+
+
+def test_unified_review_runs_with_one_lens() -> None:
+    out = _run_workflow(_script("pensive"), "return { findings: [] };", {"lenses": 1})
+    assert out["result"].get("started") is not False
+    assert any("1 of 3 lenses" in line for line in out["log"]), out["log"]
