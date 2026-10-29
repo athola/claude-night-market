@@ -82,20 +82,18 @@ class CodeTransformationSkill:
         self, code: str, tree: ast.Module
     ) -> tuple[str, list[dict[str, Any]]]:
         """Rewrite modernizable expressions in place, leaving other text as is."""
-        edits: list[_Edit] = []
+        edits = [e for e in (_rewrite(n, code) for n in ast.walk(tree)) if e]
+        rewritten, kept = _apply_edits(code, edits)
+
+        # Report only edits that reached the output, not nested ones dropped.
         transforms: list[dict[str, Any]] = []
         seen_types: set[str] = set()
-
-        for node in ast.walk(tree):
-            edit = _rewrite(node, code)
-            if edit is None:
-                continue
-            edits.append(edit)
+        for edit in kept:
             if edit.kind not in seen_types:
                 seen_types.add(edit.kind)
                 transforms.append({"type": edit.kind, "description": edit.description})
 
-        return _apply_edits(code, edits), transforms
+        return rewritten, transforms
 
 
 class _Edit:
@@ -224,8 +222,11 @@ def _generator_call(node: ast.Call, code: str) -> _Edit | None:
     )
 
 
-def _apply_edits(code: str, edits: list[_Edit]) -> str:
-    """Apply edits outermost-first; an edit nested in an applied one is dropped."""
+def _apply_edits(code: str, edits: list[_Edit]) -> tuple[str, list[_Edit]]:
+    """Apply edits outermost-first; an edit nested in an applied one is dropped.
+
+    Returns the rewritten code and the edits that were applied, in source order.
+    """
     raw = code.encode("utf-8")
     offsets = [0]
     for line in raw.split(b"\n"):
@@ -246,4 +247,4 @@ def _apply_edits(code: str, edits: list[_Edit]) -> str:
             last_end = end
     for start, end, edit in reversed(kept):
         raw = raw[:start] + edit.replacement.encode("utf-8") + raw[end:]
-    return raw.decode("utf-8")
+    return raw.decode("utf-8"), [edit for _, _, edit in kept]

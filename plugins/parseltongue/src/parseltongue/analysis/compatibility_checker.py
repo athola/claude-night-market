@@ -66,11 +66,15 @@ class CompatibilityChecker:
                 "features": features_found,
                 "issues": issues,
                 "recommendations": recommendations,
-                "compatible_versions": [
-                    v
-                    for v in target_versions
-                    if features_found and _version_key(v) >= _version_key(min_version)
-                ],
+                "compatible_versions": (
+                    [
+                        v
+                        for v in target_versions
+                        if _version_key(v) >= _version_key(min_version)
+                    ]
+                    if features_found
+                    else []
+                ),
                 "error": "Could not fully parse code",
             }
 
@@ -153,18 +157,21 @@ class CompatibilityChecker:
         issues: list[dict[str, str]],
     ) -> None:
         """Check for version-specific features by walking the AST."""
+        union_reported = False
         for node in ast.walk(tree):
             if _has_union_annotation(node):
                 features_found.append(
                     {"feature": "union_type_syntax", "min_version": "3.10"}
                 )
-                issues.append(
-                    {
-                        "feature": "union_type_syntax",
-                        "status": "requires_3.10+",
-                        "min_version": "3.10",
-                    }
-                )
+                if not union_reported:
+                    union_reported = True
+                    issues.append(
+                        {
+                            "feature": "union_type_syntax",
+                            "status": "requires_3.10+",
+                            "min_version": "3.10",
+                        }
+                    )
             if isinstance(node, ast.NamedExpr):
                 features_found.append(
                     {"feature": "walrus_operator", "min_version": "3.8"}

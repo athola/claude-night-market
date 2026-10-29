@@ -17,14 +17,13 @@ def _analyze_cache_patterns(code: str, complex_analysis: dict[str, Any]) -> None
     tree, _ = parse_code(code)
     if tree is None:
         return
-    futures = False
-    locks = False
-    for node in ast.walk(tree):
-        name = node.attr if isinstance(node, ast.Attribute) else None
-        if isinstance(node, ast.Name):
-            name = node.id
-        futures = futures or name in ("Future", "create_task", "ensure_future")
-        locks = locks or name == "Lock"
+    names = {
+        node.id if isinstance(node, ast.Name) else node.attr
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.Name, ast.Attribute))
+    }
+    futures = not names.isdisjoint({"Future", "create_task", "ensure_future"})
+    locks = "Lock" in names
     complex_analysis["cache_anti_pattern"] = {
         "prevents_cache_stampede": futures or locks,
         "uses_futures": futures,

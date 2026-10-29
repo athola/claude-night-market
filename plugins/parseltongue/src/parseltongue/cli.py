@@ -77,19 +77,20 @@ def main(argv: list[str] | None = None) -> int:
         else ""
     )
 
-    if path.is_file():
-        sources = {path.name: path.read_text(encoding="utf-8", errors="replace")}
-    else:
-        sources = _read_directory(path)
+    single_file = path.is_file()
+    sources = (
+        {path.name: path.read_text(encoding="utf-8", errors="replace")}
+        if single_file
+        else _read_directory(path)
+    )
     sources = {name: code for name, code in sources.items() if code}
     if not sources:
         print("No Python code found.", file=sys.stderr)
         return 1
 
-    if path.is_file():
-        result = _run_command(
-            args.command, next(iter(sources.values())), args.target_version, test_code
-        )
+    if single_file:
+        (code,) = sources.values()
+        result = _run_command(args.command, code, args.target_version, test_code)
     else:
         files = {
             name: _run_command(args.command, code, args.target_version, test_code)
