@@ -165,8 +165,25 @@ _BUDGET_NUMBERS = (
 #: Shells that run a string passed with ``-c``, bundled or not.
 _SHELLS = frozenset({"sh", "bash", "zsh", "dash", "ksh", "fish"})
 
-#: The flag that hands each interpreter its code as a string.
-_CODE_FLAGS = {"node": "-e", "perl": "-e", "ruby": "-e"}
+#: Per interpreter: the short-option letters and the long options that
+#: hand it code as a string. A letter counts inside a bundle (``-Ic``,
+#: ``-pe``). ``ruby -r`` is absent: it loads a library, not a string.
+_CODE_OPTIONS = {
+    "node": ("ep", ("--eval", "--print")),
+    "perl": ("eE", ()),
+    "ruby": ("e", ()),
+}
+
+#: Options that take the next word as their value, per interpreter. The
+#: value is skipped, not read as the program: ``bash -o pipefail -c``.
+_VALUE_OPTIONS = {
+    "shell": frozenset({"-o", "+o", "-O", "+O", "--rcfile", "--init-file"}),
+    "python": frozenset({"-W", "-X"}),
+    "node": frozenset({"-r", "--require", "--import", "--loader"}),
+    "perl": frozenset({"-I", "-M", "-m"}),
+    "ruby": frozenset({"-r", "-I", "-C"}),
+    "env": frozenset({"-u", "--unset", "-C", "--chdir"}),
+}
 
 
 @dataclass(frozen=True)
@@ -345,6 +362,8 @@ def _check_unsafe(docs: dict[str, Any]) -> list[str]:
                 "A budget that cannot be read is not an absent budget."
             )
 
+    problems.extend(_check_plan_fallback(handoff))
+
     for task in docs["tasks.md"].get("tasks") or []:
         expect = (task.get("evidence") or {}).get("expect", "pass")
         if expect not in _LEGAL_EXPECT:
@@ -429,33 +448,75 @@ def _check_command(name: str, command: str) -> list[str]:
     return problems
 
 
+def _check_plan_fallback(handoff: dict[str, Any]) -> list[str]:
+    """Refuse an ``allow_on_plan_fallback`` that is not a YAML boolean.
+
+    The runner reads it through bool(), and bool("false") is True.
+    """
+    fallback = (handoff.get("implementer") or {}).get("allow_on_plan_fallback")
+    if fallback is None or isinstance(fallback, bool):
+        return []
+    return [
+        f"implementer.allow_on_plan_fallback is {fallback!r}, which is not "
+        "a boolean. A quoted value would read as true."
+    ]
+
+
 def _inline_code(argv: Sequence[str]) -> str | None:
     """Return the interpreter in ``argv`` that is handed code as a string.
 
     ``sh -c "git push --force"`` is one word to ``_command_bypasses``, so
-    whatever the string says is never judged. Only options before the
-    first operand count: ``python -m pytest -c pytest.ini`` passes ``-c``
-    to pytest, not to python.
+    whatever the string says is never judged. Only the interpreter's own
+    options count: the scan skips the value of an option that takes one
+    (``bash -o pipefail -c``) and stops at the first operand, at ``--``,
+    and at python's ``-m``. ``python -m pytest -c pytest.ini`` passes
+    ``-c`` to pytest, not to python.
     """
     for index, word in enumerate(argv):
         tool = word.rsplit("/", 1)[-1]
-        options = []
-        for option in argv[index + 1 :]:
-            if not option.startswith("-"):
-                break
-            options.append(option)
+        family = (
+            "shell"
+            if tool in _SHELLS
+            else "python"
+            if tool.startswith("python")
+            else tool
+        )
+        options = _interpreter_options(argv[index + 1 :], family)
         if tool == "env" and any(
             o == "-S" or o.startswith("--split-string") for o in options
         ):
             return word
-        if tool in _SHELLS and any(
-            not o.startswith("--") and "c" in o[1:] for o in options
-        ):
-            return word
-        flag = "-c" if tool.startswith("python") else _CODE_FLAGS.get(tool)
-        if flag and any(o.startswith(flag) for o in options):
+        letters, longs = _CODE_OPTIONS.get(tool, ("", ()))
+        if family in ("shell", "python"):
+            letters = "c"
+        if any(_hands_over_code(o, letters, longs) for o in options):
             return word
     return None
+
+
+def _interpreter_options(words: Sequence[str], family: str) -> list[str]:
+    """Return the option words that belong to the interpreter itself."""
+    takes_value = _VALUE_OPTIONS.get(family, frozenset())
+    options: list[str] = []
+    skip_value = False
+    for word in words:
+        if skip_value:
+            skip_value = False
+            continue
+        if word == "--" or not (word.startswith("-") or word in ("+o", "+O")):
+            break
+        options.append(word)
+        if family == "python" and word == "-m":
+            break
+        skip_value = word in takes_value
+    return options
+
+
+def _hands_over_code(option: str, letters: str, longs: Sequence[str]) -> bool:
+    """Say whether one option word passes code to its interpreter."""
+    if option.startswith("--"):
+        return option.split("=", 1)[0] in longs
+    return any(letter in option[1:] for letter in letters)
 
 
 def _command_bypasses(argv: Sequence[str]) -> list[str]:
@@ -702,6 +763,12 @@ def _check_tasks(
 
     for task in tasks:
         tid = task.get("id")
+        if not task.get("files"):
+            # The runner commits with the task's files as the pathspec;
+            # with none, `git commit` takes everything staged.
+            problems.append(
+                f"task {tid} names no files; its commit would take the whole index"
+            )
         for path in task.get("files") or []:
             if not any(scope.within(a, str(path)) for a in allow_paths if a):
                 problems.append(

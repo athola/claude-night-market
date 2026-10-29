@@ -1070,6 +1070,21 @@ class TestInlineCodeIsRefused:
             'env -S "git commit -n"',
             "python3 -c print(1)",
             "node -e 1",
+            'bash -o pipefail -c "git push --force origin main"',
+            'bash -o errexit -o pipefail -c "git push -f"',
+            "python3 -Ic print(1)",
+            "python3 -W ignore -c print(1)",
+            "python3 -X dev -c print(1)",
+            "bash -xc id",
+            "node --eval 1",
+            "node --eval=1",
+            "node -p 1",
+            "node --print 1",
+            "node --no-warnings -e 1",
+            "perl -E 1",
+            "perl -Mstrict -e 1",
+            "perl -le 1",
+            "ruby -w -e 1",
         ],
     )
     def test_inline_code_is_refused(self, tmp_path: Path, command: str) -> None:
@@ -1080,9 +1095,23 @@ class TestInlineCodeIsRefused:
         assert result.state == "UNSAFE"
         assert any("runs code given as a string" in p for p in result.problems)
 
-    def test_a_script_path_is_still_admitted(self, tmp_path: Path) -> None:
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "bash scripts/check.sh",
+            # Options after the module or script belong to that program.
+            "python3 -m pytest -c pytest.ini",
+            "python3 -W ignore -m pytest -c pytest.ini",
+            "bash scripts/check.sh -c",
+            "python3 scripts/run.py -c config.toml",
+            "node scripts/build.js -e production",
+        ],
+    )
+    def test_options_after_the_program_are_admitted(
+        self, tmp_path: Path, command: str
+    ) -> None:
         handoff = GOOD_HANDOFF.replace(
-            "test: uv run pytest tests/ -q", "test: bash scripts/check.sh"
+            "test: uv run pytest tests/ -q", f"test: '{command}'"
         )
         result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
         assert result.state == "READY", result.problems
@@ -1133,3 +1162,44 @@ class TestEveryBudgetNumberIsChecked:
         result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
         assert result.state == "UNSAFE"
         assert any(bad.split(":", maxsplit=1)[0] in p for p in result.problems)
+
+
+class TestATaskMustNameItsFiles:
+    """A task without files commits with no pathspec, which takes the index."""
+
+    @pytest.mark.parametrize("files_line", ["    files: []\n", ""])
+    def test_a_task_with_no_files_is_refused(
+        self, tmp_path: Path, files_line: str
+    ) -> None:
+        tasks = GOOD_TASKS.replace(
+            "    files: [plugins/conjure/scripts/delegation_executor.py]\n",
+            files_line,
+        )
+        result = gate.check_item(write_item(tmp_path, **{"tasks.md": tasks}))
+        assert result.state == "INCOHERENT"
+        assert any("T2 names no files" in p for p in result.problems)
+
+
+class TestPlanFallbackIsARealBool:
+    """The runner reads allow_on_plan_fallback through bool(); "false" is truthy."""
+
+    @pytest.mark.parametrize("raw", ['"false"', '"true"', "0", "yes-please"])
+    def test_a_non_bool_plan_fallback_is_refused(
+        self, tmp_path: Path, raw: str
+    ) -> None:
+        handoff = GOOD_HANDOFF.replace(
+            "allow_on_plan_fallback: false", f"allow_on_plan_fallback: {raw}", 1
+        )
+        result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
+        assert result.state == "UNSAFE"
+        assert any("allow_on_plan_fallback" in p for p in result.problems)
+
+    @pytest.mark.parametrize("raw", ["true", "false"])
+    def test_a_real_bool_plan_fallback_is_admitted(
+        self, tmp_path: Path, raw: str
+    ) -> None:
+        handoff = GOOD_HANDOFF.replace(
+            "allow_on_plan_fallback: false", f"allow_on_plan_fallback: {raw}", 1
+        )
+        result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
+        assert result.state == "READY", result.problems

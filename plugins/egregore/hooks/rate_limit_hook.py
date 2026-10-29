@@ -27,8 +27,9 @@ from _manifest_utils import (  # noqa: E402 - sibling module on the hook's own p
     has_active_work,
     read_stdin_payload,
 )
-from budget import load_budget, parse_rfc3339, save_budget  # noqa: E402 - scripts/ added above
+from budget import load_budget, save_budget  # noqa: E402 - scripts/ added above
 from config import BudgetConfig, load_config  # noqa: E402 - scripts/ added above
+from window import parse_rfc3339  # noqa: E402 - scripts/ added above
 
 
 def _padding_minutes(config_path: Path) -> int:

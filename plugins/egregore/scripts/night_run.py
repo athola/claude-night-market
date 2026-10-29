@@ -531,6 +531,11 @@ class GitFailed(Exception):
         )
 
 
+#: Put HEAD back on both the index and the worktree for the given paths.
+#: Both restore sites fix the stray-staging defect and must stay identical.
+_RESTORE_FROM_HEAD = ("restore", "--source=HEAD", "--staged", "--worktree", "--")
+
+
 def _git(runner: Runner, workdir: Path, *args: str) -> Completed:
     """Run one git command as argv, for a caller that reads the exit code."""
     return runner.run(["git", *args], cwd=workdir)
@@ -581,16 +586,7 @@ def _revert_offenders(
 
     unreverted: list[str] = []
     if modified:
-        result = _git(
-            runner,
-            workdir,
-            "restore",
-            "--source=HEAD",
-            "--staged",
-            "--worktree",
-            "--",
-            *modified,
-        )
+        result = _git(runner, workdir, *_RESTORE_FROM_HEAD, *modified)
         if result.returncode != 0:
             unreverted += modified
     if created:
@@ -620,16 +616,7 @@ def _discard_uncommitted(runner: Runner, worktree: Path) -> Discarded | None:
 
     diff = _git_query(runner, worktree, "diff", "HEAD")[-DISCARD_DIFF_CHARS:]
     if files:
-        _git_query(
-            runner,
-            worktree,
-            "restore",
-            "--source=HEAD",
-            "--staged",
-            "--worktree",
-            "--",
-            ".",
-        )
+        _git_query(runner, worktree, *_RESTORE_FROM_HEAD, ".")
     return Discarded(files=files, untracked=untracked, diff=diff)
 
 

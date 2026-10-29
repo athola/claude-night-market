@@ -49,7 +49,8 @@ def is_in_cooldown(budget: Budget) -> bool:
         budget: The budget to check.
 
     Returns:
-        True if cooldown_until is set and in the future.
+        True if cooldown_until is set and either in the future or
+        unparsable (an unknown reset is treated as still active).
 
     """
     if budget.cooldown_until is None:

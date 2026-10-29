@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import stat
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -116,6 +117,21 @@ class TestIsInCooldown:
         future = datetime.now(timezone.utc) + timedelta(minutes=30)
         b.cooldown_until = future.replace(tzinfo=None).isoformat()
         assert is_in_cooldown(b) is True
+
+    def test_a_past_naive_instant_is_utc_even_when_local_time_is_behind(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Read as Los Angeles time, 30 minutes ago UTC would be hours ahead."""
+        monkeypatch.setenv("TZ", "America/Los_Angeles")
+        time.tzset()
+        try:
+            b = Budget()
+            past = datetime.now(timezone.utc) - timedelta(minutes=30)
+            b.cooldown_until = past.replace(tzinfo=None).isoformat()
+            assert is_in_cooldown(b) is False
+        finally:
+            monkeypatch.undo()
+            time.tzset()
 
     def test_an_unreadable_instant_keeps_the_cooldown(self) -> None:
         """Unreadable means unknown, and an unknown reset is not a reset."""
