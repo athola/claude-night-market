@@ -80,6 +80,12 @@ extend-ignore = [
     "D415",     # Allow first line not ending in period/question/exclamation
     "D205",     # Allow blank line after summary
 ]
+# Generated hooks copied into user projects. They call git like
+# scripts/ does, by name, resolved through PATH at runtime.
+"templates/**/*.template" = [
+    "S603",     # Allow subprocess calls (argv is fixed, no user input)
+    "S607",     # Allow partial executable path (git is resolved on PATH)
+]
 "scripts/**/*.py" = [
     "S310",     # Allow URL open (validated with _validate_https_url)
     "S603",     # Allow subprocess calls (inputs are validated)

@@ -7,7 +7,7 @@
           {
             "type": "command",
             "if": "Bash(git commit*)",
-            "command": "uv run python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre_commit_tdd.py || true"
+            "command": "uv run python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre_commit_tdd.py"
           }
         ]
       }

@@ -40,3 +40,9 @@ def test_the_tdd_hook_fires_only_on_git_commit() -> None:
     [(group, hook)] = _entries()
     assert group["matcher"] == "Bash"
     assert hook["if"] == "Bash(git commit*)"
+
+
+def test_the_tdd_hook_command_does_not_mask_its_exit_status() -> None:
+    """``|| true`` also hid ``uv: command not found`` and any traceback."""
+    [(_, hook)] = _entries()
+    assert "||" not in hook["command"]
