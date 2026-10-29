@@ -65,9 +65,15 @@ plugin and keep their state under `~/.claude/skills/` (or
 
 5. **Re-evaluation Window**: the same script marks the skill
    `evaluating` with the current gap as `baseline_gap`. The monitor
-   records each later execution of that skill, healthy or not. After 10,
-   it decides: a mean gap below the baseline sets `promoted`, anything
-   else sets `pending_rollback_review`. The decision appears in the hook
+   records each later execution of that skill, healthy or not. The script
+   stores how many outcomes the history held when the window opened, and
+   the monitor judges the window on the outcomes after that position
+   only, so the failures that flagged the skill do not count against the
+   change. After 10 executions it decides: a window gap below the
+   baseline sets `promoted`, anything else sets `pending_rollback_review`.
+   It also records the closed window in `ImprovementMemory` (success
+   rate before the window as `before_score`, inside it as `after_score`)
+   and in `PerformanceTracker`. The decision appears in the hook
    output as `evaluation_decision` and on stderr. A skill with no
    execution history, or not in the queue, gets the version bump and no
    window, and the script says so. The window advances only when the
@@ -85,6 +91,17 @@ plugin and keep their state under `~/.claude/skills/` (or
    (`hooks/pre_skill_execution.py`) adds the 3 most recent entries for
    the invoked skill to its `additionalContext`, each capped at 2,000
    characters (about 500 tokens). Selection is by recency.
+
+   Scope: the library sits under `~/.claude`, which every project
+   shares, and the args can carry text a third party wrote. Each entry
+   therefore records a project key, the hash of the git toplevel (the
+   working directory outside a repository), and the hook recalls only
+   entries with the current project's key. Entries stored before the key
+   existed carry none and are never recalled. The recalled block is
+   fenced in `<recalled-data>` markers under a line stating that it is
+   data, not instructions. Sanitizing redacts secrets only and does not
+   neutralize instructions, so the fence and the project filter are the
+   protection.
 
 ### Human-Gated Rollback
 

@@ -29,18 +29,16 @@ from .paths import (
     get_observability_dir,
 )
 
-# Re-exported: these are pure path and markdown lookups and live in
-# modules that import nothing outside the standard library, so a hook
-# or a bare-python3 script can reach them without PyYAML. Callers here
-# are unchanged.
-from .stdlib_helpers import emit_warn, safe_json_load
+# Re-exported so existing ``utils.safe_json_load`` callers are unchanged;
+# the helper lives in a stdlib-only module a hook can import without
+# PyYAML.
+from .stdlib_helpers import safe_json_load
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
     "check_meta_skill_indicators",
     "count_sections",
-    "emit_warn",
     "extract_dependencies",
     # Frontmatter utilities
     "extract_frontmatter",

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 import textwrap
 from datetime import datetime, timedelta, timezone
@@ -26,6 +27,7 @@ from skill_graph import (  # noqa: E402 - import after sys.path mutation
     VALID_ROLES,
     SkillGraph,
     SkillNode,
+    _git_added_at,
     _is_placeholder,
     build_graph,
     classify_by_role,
@@ -1096,6 +1098,53 @@ class TestUnearnedUtilities:
         self._skill(tmp_path, "user", body="Skill(p:qux-shared)")
         ages = {"qux-shared": 90, "user": 90}
         assert self._flagged(tmp_path, ages) == ["p:qux-shared"]
+
+    def test_undated_utilities_are_reported_not_silently_skipped(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        self._skill(tmp_path, "foo-core")
+        self._skill(tmp_path, "plain")
+
+        flagged = detect_unearned_utilities(
+            build_graph(tmp_path), tmp_path, added_at=lambda _path: None, now=self.NOW
+        )
+
+        assert flagged == []
+        assert "1 utility-named skill(s) not judged" in capsys.readouterr().err
+
+    def test_git_failure_is_reported_on_stderr(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """A directory git refuses must not read as an empty history."""
+        skill_md = tmp_path / "SKILL.md"
+        skill_md.write_text("x")
+        refused = subprocess.CompletedProcess(
+            [], 128, stdout="", stderr="fatal: detected dubious ownership\n"
+        )
+        monkeypatch.setattr(subprocess, "run", lambda *_a, **_k: refused)
+
+        assert _git_added_at(skill_md) is None
+        assert "git log failed" in capsys.readouterr().err
+
+    def test_missing_git_binary_is_reported_not_raised(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        skill_md = tmp_path / "SKILL.md"
+        skill_md.write_text("x")
+
+        def no_git(*_args: object, **_kwargs: object) -> None:
+            raise FileNotFoundError("git")
+
+        monkeypatch.setattr(subprocess, "run", no_git)
+
+        assert _git_added_at(skill_md) is None
+        assert "git unavailable" in capsys.readouterr().err
 
     def test_a_non_utility_name_is_never_flagged(self, tmp_path: Path) -> None:
         self._skill(tmp_path, "plain")

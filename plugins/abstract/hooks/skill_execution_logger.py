@@ -378,7 +378,9 @@ def save_log_entry(log_entry: dict[str, Any]) -> None:
         f.write(json.dumps(log_entry) + "\n")
 
 
-def store_experience(tool_input: dict[str, Any], log_entry: dict[str, Any]) -> None:
+def store_experience(
+    tool_input: dict[str, Any], log_entry: dict[str, Any], cwd: str | None = None
+) -> None:
     """Record a successful call in the experience library (ADR-0006).
 
     Only the args are known here, so approach and tools stay empty. A
@@ -392,6 +394,7 @@ def store_experience(tool_input: dict[str, Any], log_entry: dict[str, Any]) -> N
         library = _experience.ExperienceLibrary(get_experience_library_dir())
         library.store(
             skill_ref=log_entry["skill"],
+            project=_experience.project_key(Path(cwd or os.getcwd())),
             task_description=sanitize_output(task, max_length=2000),
             approach_taken="",
             outcome="success",
@@ -477,7 +480,7 @@ def main() -> None:
 
         # Save log entry
         save_log_entry(log_entry)
-        store_experience(tool_input, log_entry)
+        store_experience(tool_input, log_entry, payload.get("cwd"))
 
         # Check for stability gap (automatic improvement trigger)
         if log_entry.get("continual_metrics"):

@@ -15,7 +15,6 @@ Needs PyYAML, so run it under the plugin environment:
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
@@ -25,8 +24,9 @@ for _path in (_PLUGIN / "src", _PLUGIN / "hooks"):
         sys.path.insert(0, str(_path))
 
 from abstract.improvement_queue import ImprovementQueue
-from abstract.paths import get_log_directory
+from abstract.paths import get_improvement_queue_path, get_log_directory
 from abstract.skill_versioning import SkillVersionManager
+from abstract.stdlib_helpers import safe_json_load
 from shared.stability import stability_gap
 
 
@@ -35,22 +35,31 @@ def skill_ref_for(skill_file: Path) -> str | None:
     skill_dir = skill_file.resolve().parent
     if skill_file.name != "SKILL.md" or skill_dir.parent.name != "skills":
         return None
-    return f"{skill_dir.parent.parent.name}:{skill_dir.name}"
+    plugin_root = skill_dir.parent.parent
+    # A marketplace install nests the plugin under its version directory,
+    # so the directory name is the version there; the manifest names it.
+    manifest = safe_json_load(plugin_root / ".claude-plugin" / "plugin.json", {})
+    plugin = manifest.get("name") if isinstance(manifest, dict) else None
+    return f"{plugin or plugin_root.name}:{skill_dir.name}"
 
 
 def current_metrics(skill_ref: str) -> dict[str, float] | None:
-    """Read the gap the monitor would compute now, or None without history."""
-    history_file = get_log_directory() / ".history.json"
-    if not history_file.exists():
-        return None
+    """Read the gap the monitor would compute now, or None without history.
+
+    ``run_count`` is the history position the evaluation window opens at.
+    """
+    history = safe_json_load(get_log_directory() / ".history.json", {})
     accuracies = (
-        json.loads(history_file.read_text()).get(skill_ref, {}).get("accuracies", [])
+        history.get(skill_ref, {}).get("accuracies", [])
+        if isinstance(history, dict)
+        else []
     )
     if not accuracies:
         return None
     return {
         "success_rate": sum(accuracies) / len(accuracies),
         "stability_gap": stability_gap(accuracies),
+        "run_count": len(accuracies),
     }
 
 
@@ -66,20 +75,25 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"{args.skill_file} is not <plugin>/skills/<skill>/SKILL.md")
 
     metrics = current_metrics(skill_ref)
-    version = SkillVersionManager(args.skill_file).bump_version(
-        args.summary, metrics or {}
-    )
+    baseline = {k: v for k, v in (metrics or {}).items() if k != "run_count"}
+    version = SkillVersionManager(args.skill_file).bump_version(args.summary, baseline)
     print(f"{skill_ref}: adaptation version {version}")
 
     if metrics is None:
         print(f"{skill_ref}: no execution history, so no evaluation window")
         return 0
-    queue_file = get_log_directory().parent / "improvement-queue.json"
+    queue_file = get_improvement_queue_path()
     queue = ImprovementQueue(queue_file) if queue_file.exists() else None
     if queue is None or skill_ref not in queue.skills:
         print(f"{skill_ref}: not in the improvement queue, so no evaluation window")
         return 0
-    queue.start_evaluation(skill_ref, metrics["stability_gap"])
+    queue.start_evaluation(
+        skill_ref,
+        metrics["stability_gap"],
+        history_position=int(metrics["run_count"]),
+        version=version,
+        change_summary=args.summary,
+    )
     print(
         f"{skill_ref}: evaluating against baseline gap {metrics['stability_gap']:.2f}"
     )

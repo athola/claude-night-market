@@ -389,22 +389,35 @@ UTILITY_GRACE_DAYS = 30
 
 
 def _git_added_at(skill_md: Path) -> datetime | None:
-    """When git first saw ``skill_md``, or None outside a repository."""
-    added = subprocess.run(
-        [
-            "git",
-            "log",
-            "--diff-filter=A",
-            "--follow",
-            "--format=%ct",
-            "--",
-            skill_md.name,
-        ],
-        cwd=skill_md.parent,
-        capture_output=True,
-        text=True,
-        check=False,
-    ).stdout.split()
+    """When git first saw ``skill_md``, or None when git cannot say.
+
+    A refusal (not a repository, dubious ownership) or a missing binary is
+    reported on stderr: either one would otherwise look like a skill git
+    has no history for.
+    """
+    try:
+        log = subprocess.run(
+            [
+                "git",
+                "log",
+                "--diff-filter=A",
+                "--follow",
+                "--format=%ct",
+                "--",
+                skill_md.name,
+            ],
+            cwd=skill_md.parent,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        sys.stderr.write("skill_graph: git unavailable; skill ages are unknown\n")
+        return None
+    if log.returncode != 0:
+        sys.stderr.write(f"skill_graph: git log failed: {log.stderr.strip()}\n")
+        return None
+    added = log.stdout.split()
     if not added:
         return None
     return datetime.fromtimestamp(int(added[-1]), tz=timezone.utc)
@@ -436,6 +449,7 @@ def detect_unearned_utilities(
         for path in plugins_root.glob(f"*/{kind}/*.md")
     ]
     unearned = []
+    undated = 0
     for key, node in graph.nodes.items():
         if not _UTILITY_NAME.search(node.name) or node.name.startswith(
             _PARADIGM_PREFIX
@@ -444,7 +458,10 @@ def detect_unearned_utilities(
         if "fold_back_exception" in _parse_frontmatter(node.text):
             continue
         added = added_at(node.path)
-        if added is None or (now - added).days < UTILITY_GRACE_DAYS:
+        if added is None:
+            undated += 1
+            continue
+        if (now - added).days < UTILITY_GRACE_DAYS:
             continue
         mention = re.compile(rf"(?<![\w-]){re.escape(key)}(?![\w-])")
         consumers = len(graph.inbound.get(key, ())) + sum(
@@ -452,6 +469,11 @@ def detect_unearned_utilities(
         )
         if consumers < MIN_UTILITY_CONSUMERS:
             unearned.append(key)
+    if undated:
+        sys.stderr.write(
+            f"skill_graph: {undated} utility-named skill(s) not judged: "
+            "git gave no add date\n"
+        )
     return sorted(unearned)
 
 

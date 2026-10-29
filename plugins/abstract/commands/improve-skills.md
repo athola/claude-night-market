@@ -203,7 +203,8 @@ For each improvement (if not --dry-run):
 2. Add error recovery:
    - Suggest creating PROOF.md if missing
    - Show example of valid acceptance_criteria
-3. Update frontmatter version: 2.0.0 → 2.1.0
+3. Record with `scripts/record_skill_improvement.py`
+   (adaptation 1.0.0 → 1.1.0)
 
 **Expected Impact**:
 - Reduce failure rate from 42% to <10%

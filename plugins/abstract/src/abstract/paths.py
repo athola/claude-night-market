@@ -21,6 +21,7 @@ from pathlib import Path
 __all__ = [
     "get_config_dir",
     "get_experience_library_dir",
+    "get_improvement_queue_path",
     "get_learnings_path",
     "get_log_directory",
     "get_observability_dir",
@@ -103,11 +104,26 @@ def get_learnings_path() -> Path:
 def get_experience_library_dir() -> Path:
     """Get the experience library root (ADR-0006, component 6).
 
-    Not created here: ``ExperienceLibrary`` creates it on first store,
-    and a reader must not leave empty directories behind.
+    Not created here: constructing an ``ExperienceLibrary`` creates it,
+    so a reader checks ``is_dir()`` first and must not leave empty
+    directories behind.
 
     Returns:
         Path to ~/.claude/skills/experience-library/ (or under $CLAUDE_HOME).
 
     """
     return _claude_home() / "skills" / "experience-library"
+
+
+def get_improvement_queue_path(claude_home: Path | None = None) -> Path:
+    """Get the improvement queue file the monitor and the recorder share.
+
+    Args:
+        claude_home: Root to resolve under; defaults to ``CLAUDE_HOME``
+            or ``~/.claude``.
+
+    Returns:
+        Path to ``skills/improvement-queue.json`` under that root.
+
+    """
+    return (claude_home or _claude_home()) / "skills" / "improvement-queue.json"

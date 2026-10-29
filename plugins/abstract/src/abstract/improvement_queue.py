@@ -11,24 +11,18 @@ import contextlib
 import fcntl
 import json
 import os
-import sys
 from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from ._vendored_leyline_atomic_file import write_atomic
+from .stdlib_helpers import emit_warn
 
 
 def _warn(message: str) -> None:
-    """Write the same line as ``utils.emit_warn`` (D-12), without importing it.
-
-    ``utils`` imports PyYAML, and the homeostatic monitor hook imports this
-    module under a python3 that lacks it. The import failed, the hook's
-    ``_HAS_QUEUE`` guard turned it into silence, and no skill was flagged
-    or evaluated.
-    """
-    sys.stderr.write(f"improvement_queue: {message}\n")
+    """Forward to the shared stderr writer (D-12)."""
+    emit_warn("improvement_queue", message)
 
 
 class ImprovementQueue:
@@ -98,6 +92,7 @@ class ImprovementQueue:
             raise
 
     TRIGGER_THRESHOLD = 3
+    EVAL_TARGET = 10
 
     # Every flag appends an id and the file is rewritten on each run, so
     # an unbounded list grows the queue file for the life of the skill.
@@ -168,8 +163,21 @@ class ImprovementQueue:
             and entry.get("flagged_count", 0) >= self.TRIGGER_THRESHOLD
         ]
 
-    def start_evaluation(self, skill_ref: str, baseline_gap: float) -> bool:
+    def start_evaluation(
+        self,
+        skill_ref: str,
+        baseline_gap: float,
+        history_position: int = 0,
+        version: str = "",
+        change_summary: str = "",
+    ) -> bool:
         """Mark a skill as under evaluation after improvement.
+
+        ``history_position`` is how many outcomes the skill's history held
+        when the window opened. The window is judged on the outcomes after
+        it, so the failures that flagged the skill do not count against
+        the change. ``version`` and ``change_summary`` describe the change
+        for the improvement memory entry written when the window closes.
 
         Side effects:
             Resets ``flagged_count`` to 0 and clears ``execution_ids``
@@ -186,11 +194,13 @@ class ImprovementQueue:
                 _warn(f"start_evaluation called for unknown skill {skill_ref!r}")
                 return False
             entry["status"] = "evaluating"
-            entry["evaluating"] = True
             entry["eval_start"] = datetime.now(timezone.utc).isoformat()
             entry["eval_executions"] = 0
             entry["eval_gaps"] = []
-            entry["eval_target"] = 10
+            entry["eval_target"] = self.EVAL_TARGET
+            entry["eval_history_start"] = history_position
+            entry["eval_version"] = version
+            entry["eval_change_summary"] = change_summary
             entry["baseline_gap"] = baseline_gap
             entry["flagged_count"] = 0
             entry["execution_ids"] = []
@@ -229,7 +239,10 @@ class ImprovementQueue:
         entry = self.skills.get(skill_ref)
         if not entry or entry.get("status") != "evaluating":
             return False
-        return bool(entry.get("eval_executions", 0) >= entry.get("eval_target", 10))
+        return bool(
+            entry.get("eval_executions", 0)
+            >= entry.get("eval_target", self.EVAL_TARGET)
+        )
 
     def evaluate(self, skill_ref: str) -> str:
         """Make promotion/rollback decision after evaluation completes.
@@ -246,21 +259,19 @@ class ImprovementQueue:
 
             baseline = entry.get("baseline_gap", 0)
             eval_gaps: list[float] = entry.get("eval_gaps", [])
-            avg_gap = (
-                sum(eval_gaps) / len(eval_gaps)
-                if eval_gaps
-                else entry.get("stability_gap", 0)
-            )
+            # Each recorded gap already covers every run since the window
+            # opened, so the last one is the window's. Averaging them would
+            # count the early, short slices as if they were full windows.
+            window_gap = eval_gaps[-1] if eval_gaps else entry.get("stability_gap", 0)
 
-            if avg_gap < baseline:
+            if window_gap < baseline:
                 entry["status"] = "promoted"
                 decision = "promote"
             else:
                 entry["status"] = "pending_rollback_review"
                 entry["regression_detected"] = datetime.now(timezone.utc).isoformat()
-                entry["current_gap"] = avg_gap
+                entry["current_gap"] = window_gap
                 decision = "pending_rollback_review"
 
-            entry["evaluating"] = False
             self._save()
             return decision

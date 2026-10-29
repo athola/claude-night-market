@@ -72,7 +72,7 @@ def test_evaluate_keeps_a_flag_written_after_it_loaded(tmp_path: Path) -> None:
 
     on_disk = ImprovementQueue(queue_file)
     assert "abstract:alpha" in on_disk.skills
-    assert on_disk.skills["abstract:beta"]["evaluating"] is False
+    assert on_disk.skills["abstract:beta"]["status"] != "evaluating"
 
 
 def test_save_does_not_depend_on_a_fixed_shared_temp_path(tmp_path: Path) -> None:

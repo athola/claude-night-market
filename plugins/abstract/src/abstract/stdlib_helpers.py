@@ -18,20 +18,20 @@ logger = logging.getLogger(__name__)
 
 
 def safe_json_load(path: Path, default: Any = None) -> Any:
-    """Load JSON from a file, returning a default value on any error.
+    """Load JSON from a file, or return default when it is missing or unreadable.
 
     Args:
         path: Path to the JSON file.
         default: Value to return if the file is missing or malformed.
 
     Returns:
-        Parsed JSON data, or default on FileNotFoundError, OSError,
-        or json.JSONDecodeError.
+        Parsed JSON data, or default on an OSError (which includes a
+        missing file) or a ValueError (invalid JSON or invalid UTF-8).
 
     """
     try:
         return json.loads(path.read_text())
-    except (FileNotFoundError, OSError, json.JSONDecodeError) as e:
+    except (OSError, ValueError) as e:
         logger.debug("safe_json_load: %s: %s", path, e)
         return default
 

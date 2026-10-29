@@ -18,6 +18,10 @@ import pytest
 from abstract.improvement_queue import ImprovementQueue
 from abstract.skill_versioning import SkillVersionManager
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+
+from record_skill_improvement import skill_ref_for  # noqa: E402 - needs the path above
+
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "record_skill_improvement.py"
 SKILL = "demo:widget"
 # Worst five-run window rate 0.4: gap 0.6.
@@ -111,3 +115,50 @@ def test_path_outside_a_skills_tree_is_rejected(tmp_path: Path) -> None:
 
     assert result.returncode == 2
     assert stray.read_text() == "---\nname: stray\n---\n"
+
+
+@pytest.mark.unit
+def test_window_opens_at_the_history_position_and_carries_the_change(
+    tmp_path: Path,
+) -> None:
+    home = tmp_path / "home"
+    skill_file = _skill_file(tmp_path)
+    _seed_history(home)
+    _queue(home).flag_skill(SKILL, 0.6, "exec-1")
+
+    result = _run(home, str(skill_file), "--summary", "added examples")
+
+    assert result.returncode == 0, result.stderr
+    entry = _queue(home).skills[SKILL]
+    assert entry["eval_history_start"] == len(CRITICAL)
+    assert entry["eval_version"] == "1.1.0"
+    assert entry["eval_change_summary"] == "added examples"
+
+
+@pytest.mark.unit
+def test_corrupt_history_is_treated_as_no_history(tmp_path: Path) -> None:
+    home = tmp_path / "home"
+    skill_file = _skill_file(tmp_path)
+    logs = home / "skills" / "logs"
+    logs.mkdir(parents=True)
+    (logs / ".history.json").write_text("{not json")
+
+    result = _run(home, str(skill_file), "--summary", "added examples")
+
+    assert result.returncode == 0, result.stderr
+    assert "Traceback" not in result.stderr
+    assert "no execution history" in result.stdout
+
+
+@pytest.mark.unit
+def test_versioned_plugin_cache_path_names_the_plugin_not_the_version(
+    tmp_path: Path,
+) -> None:
+    plugin_root = tmp_path / "cache" / "mkt" / "demo" / "1.9.21"
+    (plugin_root / ".claude-plugin").mkdir(parents=True)
+    (plugin_root / ".claude-plugin" / "plugin.json").write_text('{"name": "demo"}')
+    skill_file = plugin_root / "skills" / "widget" / "SKILL.md"
+    skill_file.parent.mkdir(parents=True)
+    skill_file.write_text("---\nname: widget\n---\n")
+
+    assert skill_ref_for(skill_file) == "demo:widget"

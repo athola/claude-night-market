@@ -169,6 +169,19 @@ class TestVersionHistoryProperty:
         assert "1.0.0" in versions
 
 
+class TestSeededBaseline:
+    """A skill without an adaptation block starts with no measured baseline."""
+
+    @pytest.mark.unit
+    def test_seed_entry_holds_no_invented_metrics(self, tmp_path: Path) -> None:
+        skill_file = tmp_path / "SKILL.md"
+        skill_file.write_text("---\nname: bare\n---\n\nBody\n")
+
+        mgr = SkillVersionManager(skill_file)
+
+        assert mgr.version_history[0]["baseline_metrics"] == {}
+
+
 # ---------------------------------------------------------------------------
 # Tests: bump_version
 # ---------------------------------------------------------------------------

@@ -49,10 +49,9 @@ class SkillVersionManager:
                     {
                         "version": "1.0.0",
                         "timestamp": datetime.now(timezone.utc).isoformat(),
-                        "baseline_metrics": {
-                            "success_rate": 0.0,
-                            "stability_gap": 0.0,
-                        },
+                        # Nothing was measured before the first bump; zeros
+                        # here would read as a skill that never worked.
+                        "baseline_metrics": {},
                     }
                 ],
             }

@@ -378,9 +378,11 @@ carries and the system `python3` may not. It does two things:
   executions and reports `promote` or
   `pending_rollback_review`.
 
-It prints the new version. Use that value in step 6. A skill
-with no execution history, or not in the queue, gets the
-version bump and no evaluation window. The script says so.
+It prints the new version. A skill with no execution history,
+or not in the queue, gets the version bump and no evaluation
+window. The script says so. The command runs from a repository
+checkout of this plugin; a marketplace install has no
+`plugins/abstract` directory to point `--directory` at.
 
 #### D. Validate Changes
 
@@ -420,27 +422,17 @@ Data source: ~/.claude/skills/LEARNINGS.md"
 
 ### 6. Track Improvements (Hyperagents pattern)
 
-**Record improvement outcome in ImprovementMemory** so
-future improvement cycles can learn from what worked:
+**Record insights in ImprovementMemory** so future improvement
+cycles can learn from what worked. Do not record the outcome by
+hand: the homeostatic monitor writes it when the evaluation window
+closes, with the success rate before the window as `before_score`
+and the rate inside it as `after_score`.
 
 ```python
-from abstract.improvement_memory import ImprovementMemory, ImprovementOutcome
+from abstract.improvement_memory import ImprovementMemory
 from pathlib import Path
 
 memory = ImprovementMemory(Path.home() / ".claude/skills/improvement_memory.json")
-
-# Record the improvement outcome
-memory.record_improvement_outcome(
-    skill_ref="imbue:proof-of-work",
-    outcome=ImprovementOutcome(
-        version="1.1.0",  # printed by record_skill_improvement.py
-        change_summary="Added error handling + examples",
-        before_score=0.423,  # Previous success rate
-        after_score=0.423,  # Will be updated after eval window
-        hypothesis="Error handling reduces failure rate by "
-        "catching missing prerequisites",
-    ),
-)
 
 # Record causal hypothesis for future reference
 memory.record_insight(
