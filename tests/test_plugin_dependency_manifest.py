@@ -20,7 +20,9 @@ MANIFEST = REPO_ROOT / "docs" / "plugin-dependencies.json"
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from generate_dependency_map import (
+    find_plugins,
     generate_map,  # noqa: E402 - scripts/ goes on sys.path first
+    scan_python_imports,
 )
 
 
@@ -65,18 +67,18 @@ def test_every_runtime_edge_is_declared_by_its_consumer() -> None:
 
     Build-time edges (abstract's tooling) are exempt by the ADR. A
     runtime import a consumer does not declare is invisible to anyone
-    reading its plugin.json before changing the provider.
+    reading its plugin.json before changing the provider. The manifest
+    merges edge types per provider, and abstract is "build+runtime", so
+    the runtime edges come from the generator's import scan per consumer.
     """
-    committed = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    plugins_dir = REPO_ROOT / "plugins"
+    names = find_plugins(plugins_dir)
     undeclared = []
-    for provider, edge in committed["dependencies"].items():
-        if edge["type"] != "runtime":
-            continue
-        for consumer in edge["dependents"]:
-            manifest = (
-                REPO_ROOT / "plugins" / consumer / ".claude-plugin" / "plugin.json"
-            )
-            declared = json.loads(manifest.read_text(encoding="utf-8"))
-            if provider not in declared.get("dependencies", []):
-                undeclared.append(f"{consumer} -> {provider}")
+    for consumer in names:
+        plugin_dir = plugins_dir / consumer
+        manifest = plugin_dir / ".claude-plugin" / "plugin.json"
+        declared = json.loads(manifest.read_text(encoding="utf-8"))
+        for edge in scan_python_imports(plugin_dir, consumer, names):
+            if edge["plugin"] not in declared.get("dependencies", []):
+                undeclared.append(f"{consumer} -> {edge['plugin']} ({edge['reason']})")
     assert undeclared == []

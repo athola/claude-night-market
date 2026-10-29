@@ -151,9 +151,9 @@ def test_write_brings_a_stale_copy_back_in_line(tmp_path: Path) -> None:
         ),
     ],
 )
-def test_each_fallback_imports_the_vendored_copy(
+def test_each_consumer_imports_the_vendored_copy(
     consumer: str, vendored_module: str
 ) -> None:
-    """The fallback branch must use the copy, not an inline rewrite."""
+    """A consumer uses the generated copy, not an inline rewrite."""
     text = (REPO_ROOT / consumer).read_text(encoding="utf-8")
     assert vendored_module in text, consumer

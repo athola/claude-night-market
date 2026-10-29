@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generated": "2026-10-28",
+  "generated": "2026-10-29",
   "dependencies": {
     "abstract": {
       "dependents": [
@@ -31,6 +31,7 @@
     },
     "gauntlet": {
       "dependents": [
+        "cartograph",
         "pensive"
       ],
       "type": "runtime",
@@ -89,7 +90,8 @@
       "leyline"
     ],
     "cartograph": [
-      "abstract"
+      "abstract",
+      "gauntlet"
     ],
     "conjure": [
       "abstract",

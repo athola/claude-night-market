@@ -183,8 +183,9 @@ improves skill activation accuracy at the cost of budget.
 2026-10-28: 340 components carry 40,741 description chars, 77,801 with
 per-component overhead. The validator's total is 90,000 (`DEFAULT_BUDGET`
 in `plugins/abstract/scripts/validate_budget.py`, which carries the
-arithmetic): about 9% of a 1M window, sized to 340 components at the
-160-char cap. The total only warns. The per-description cap is the one
+arithmetic): about 9% of a 1M window. At the 160-char cap each component
+costs 269 chars with overhead, so the total covers 334 components, six
+fewer than ship today. The total only warns. The per-description cap is the one
 hard failure, so a growing component count never blocks an unrelated
 commit. The cost of that choice: on a 200k-context session the listing
 exceeds the 16,000-char fallback several times over, and the harness

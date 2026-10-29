@@ -22,6 +22,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 from generate_dependency_map import (
     find_plugins,
     generate_map,
+    scan_declared_deps,
     scan_makefile_deps,
     scan_pyproject_deps,
     scan_python_imports,
@@ -316,6 +317,26 @@ class TestScanPythonImports:
         )
         assert deps == []
 
+    def test_detects_an_import_made_only_by_a_hook(self, tmp_path: Path) -> None:
+        """A hook is runtime code: cartograph imports gauntlet only there."""
+        hooks = tmp_path / "alpha" / "hooks"
+        hooks.mkdir(parents=True)
+        (hooks / "refresh.py").write_text(
+            "try:\n    from beta.graph import Store\nexcept ImportError:\n    Store = None\n"
+        )
+        deps = scan_python_imports(tmp_path / "alpha", "alpha", ["alpha", "beta"])
+        assert [d["plugin"] for d in deps] == ["beta"]
+
+    def test_prose_naming_a_plugin_is_not_an_import(self, tmp_path: Path) -> None:
+        """Docstring text like 'cannot import beta' gave vendored copies a phantom edge."""
+        src = tmp_path / "alpha" / "src"
+        src.mkdir(parents=True)
+        (src / "_vendored_copy.py").write_text(
+            '"""Plugins that cannot import beta carry this copy.\n\nfrom beta import x\n"""\n'
+            "import json\n"
+        )
+        assert scan_python_imports(tmp_path / "alpha", "alpha", ["alpha", "beta"]) == []
+
     def test_handles_hyphenated_names(
         self,
         tmp_path: Path,
@@ -491,3 +512,31 @@ class TestDependencyMapIntegration:
         assert out_file.exists()
         data = json.loads(out_file.read_text())
         assert "version" in data
+
+
+class TestScanDeclaredDeps:
+    """plugin.json ``dependencies`` are runtime edges no import scan sees.
+
+    egregore loads herald by file path (``spec_from_file_location``), so
+    once the scan parsed imports instead of matching text, the edge left
+    the manifest.
+    """
+
+    def test_declared_dependencies_are_runtime_edges(self, tmp_path: Path) -> None:
+        meta = tmp_path / "alpha" / ".claude-plugin"
+        meta.mkdir(parents=True)
+        (meta / "plugin.json").write_text(
+            json.dumps({"name": "alpha", "dependencies": ["beta", "missing"]})
+        )
+        deps = scan_declared_deps(tmp_path / "alpha", ["alpha", "beta"])
+        assert deps == [
+            {"plugin": "beta", "type": "runtime", "reason": "Declared in plugin.json"}
+        ]
+
+    def test_a_plugin_with_no_declared_dependencies_has_none(
+        self, tmp_path: Path
+    ) -> None:
+        meta = tmp_path / "alpha" / ".claude-plugin"
+        meta.mkdir(parents=True)
+        (meta / "plugin.json").write_text(json.dumps({"name": "alpha"}))
+        assert scan_declared_deps(tmp_path / "alpha", ["alpha", "beta"]) == []

@@ -43,7 +43,7 @@ and runs without leyline installed.
 `abstract` is a second infrastructure plugin that provides shared base classes
 for cross-plugin reuse (e.g., `tasks_manager_base` for Claude Code Tasks
 integration).
-Consumers: attune, sanctum, spec-kit.
+Consumers: attune, imbue, sanctum, spec-kit.
 The same rules as leyline apply: imports must be guarded with try/except
 ImportError and the consumer must degrade gracefully when abstract is absent.
 

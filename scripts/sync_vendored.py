@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Copy stdlib-only leyline modules into the plugins that fall back on them.
+"""Copy stdlib-only shared modules into plugins that cannot import them.
 
 Plugin isolation forbids a cross-plugin import, so a plugin that must
-work without leyline installed carries a copy. Copies kept by hand
+work without leyline (or abstract) installed carries a copy. Some
+consumers try the canonical module first and use the copy as a
+fallback. The ``atomic_file`` and ``sibling_plugins`` consumers import
+the copy unconditionally: adding a canonical-first import there would
+add the cross-plugin import the copy exists to avoid. Copies kept by hand
 drifted, so each one is generated from its canonical source here and
 ``--check`` fails CI when a copy is stale. Only modules whose imports
 are stdlib (or optional, like leyline's guarded ``yaml``) belong in

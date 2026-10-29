@@ -18,6 +18,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and agent.** Nothing read it, and Claude Code ignores it, so skills
   marked `model_hint: opus` always ran on the session model. Use
   `effort`, or a skill's `model:`, to route.
+- **Breaking: `abstract`'s CLI no longer accepts `--project-root`.** The
+  flag was parsed and never read.
+- **gauntlet's `SidecarScorer.score` and `YamlScorer.score` return `None`**
+  when no score is available, in place of a 0.0 that callers read as a
+  real score.
+- **abstract judges skill stability on the last 20 runs**, so a skill
+  that failed once can recover. An improvement's evaluation window is
+  judged only on the runs recorded after it opened.
+- **abstract's experience library is scoped to the project.** Exemplars
+  from one project are no longer injected into another, and the
+  injected block is marked as recalled data. Entries stored before this
+  change have no project and are not recalled.
+- **egregore's handoff gate refuses three more inputs**: a shell or
+  interpreter handed code as a string (`bash -o pipefail -c`,
+  `python3 -Ic`, `node --eval`), a task with no `files` (its commit
+  would take the whole index), and an `allow_on_plan_fallback` that is
+  not a boolean.
+- **sanctum's knowledge-queue check reads memory-palace's staging
+  directory**, quoted or unquoted frontmatter alike. It had read a
+  directory nothing writes.
+- **attune's hooks template runs on `git commit` and reaches the
+  model.** The generated hook never ran, and its advice went to stdout,
+  which the harness drops.
 
 ### Deprecated
 
@@ -47,6 +70,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Three module frontmatters with an unquoted `: ` in `description` failed
   to parse as YAML, and the attune agent template wrote `tools_allowed`
   and `max_iterations`, names the harness never reads.
+- **leyline's content sanitizer checks hidden text on payloads over
+  100 KB**, including a comment that straddles a chunk boundary, and
+  scans comments in linear time. A 100 KB run of `<!--` took 35
+  seconds.
+- **memory-palace frontmatter keeps emoji readable and escapes control
+  characters.** A title holding U+0092 wrote a file YAML refuses to
+  load. URL deduplication keeps the path's case and still finds entries
+  stored under the old lowercase key.
+- **imbue's package guard** scales its typo distance with name length
+  and reads extras, scoped npm names, and archive paths correctly.
 
 ## [1.10.0] - 2026-10-14
 

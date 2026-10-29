@@ -1,8 +1,8 @@
 """Guard that any workflow running the full sweep installs shell tooling.
 
-`make test` runs every plugin suite, and pensive's shell-review suite is
-the one that shells out to external binaries: five pattern-detection
-tests invoke `rg`, and four more call shellcheck and shfmt.
+`make test` runs every plugin suite, and pensive's shell pattern tests
+are the ones that shell out to external binaries: the pattern-detection
+cases invoke `rg`, and four more tests call shellcheck and shfmt.
 
 `plugin-tests.yml` installs all three for its pensive matrix job.
 `trust-attestation.yml` did not, so its `make test` failed the whole
