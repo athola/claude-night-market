@@ -225,17 +225,19 @@ jobs:
 
           **Version:** v${VERSION} | **Skills:** ${SKILLS} | **Agents:** ${AGENTS}
 
-          Submit PRs to awesome-openclaw lists locally:
+          Submit to awesome-openclaw lists locally. vincentkoc/awesome-openclaw
+          takes no PR without an approved "Add Resource Request" issue, so open
+          that first, then pass its number:
 
           \`\`\`bash
-          ./scripts/awesome-submit.sh v${VERSION}
+          ./scripts/awesome-submit.sh v${VERSION} --issue vincentkoc/awesome-openclaw#<number>
           \`\`\`
 
-          Or dry run first:
+          Preview the README change first:
 
           \`\`\`bash
           ./scripts/awesome-submit.sh v${VERSION} --dry-run
           \`\`\`
 
-          Targets: vincentkoc/awesome-openclaw, SamurAIGPT/awesome-openclaw
+          Targets: vincentkoc/awesome-openclaw
           SUMMARYEOF
