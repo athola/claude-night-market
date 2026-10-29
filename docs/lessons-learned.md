@@ -27,6 +27,7 @@ so the team replicates what worked and avoids what did not.
 | LL-012 | open | uv run pre-commit vouched for hooks that git commit could not run | 2026-09-22 |
 | LL-013 | done | Hooks sent permission decisions Claude Code ignores | 2026-09-28 |
 | LL-014 | open | Split a large working tree into commits from a clean worktree | 2026-10-15 |
+| LL-015 | open | A review fix shipped a regression its own test could not see | 2026-10-29 |
 
 ## Lessons
 
@@ -751,6 +752,59 @@ Build the commits in a clean git worktree at the base and copy each
 group in. Land lock syncs first. Run the fast hooks (check-noqa, ruff,
 bandit, slop-ratchet) over every file before starting, and commit a test
 with the files it reads.
+
+## LL-015: A review fix shipped a regression its own test could not see
+
+- Status: open
+- Date: 2026-10-29
+- Phase: review
+- Category: testing
+- Owner: maintainer
+- Links: PR #992, commits ccc9f2b7c, 4bb049577, da34c3fc0, f16aca339
+<!-- key: 27a5fbd101b9 -->
+
+### What happened
+
+The first round of review fixes on PR #992 changed memory-palace
+frontmatter to `ensure_ascii=False` to keep emoji readable. That also let
+raw C1 control characters through: a page title holding U+0092 wrote a
+capture YAML refuses to load. The fix's test checked emoji only, and a
+second review caught it (T1-1).
+
+The second round shipped two more past their own tests. The sanitizer fix
+(T2-1) moved a quadratic comment regex from 100 KB chunks onto the whole
+payload: a 100 KB run of `<!--` took 35 seconds. The handoff-gate fix (B2)
+refused ordinary commands such as `python -m pytest -c pytest.ini`.
+
+### What went well / where we got lucky
+
+Reading each agent's diff before committing caught both second-round
+regressions, and revert-testing the blocking fixes confirmed their tests
+fail without them. A sanitizer timing probe with adversarial input showed
+the quadratic cost in one command.
+
+### What did not work
+
+Fix agents worked test-first against each finding as written. A test
+that pins the reported case does not guard the inputs beside it: other
+control characters, input of the adversary's chosen size, or options
+that belong to the program being run.
+
+### Root cause
+
+The fix briefs pinned a design but named no case the fix had to leave
+unchanged. One brief's pinned design was itself too broad ("scan every
+option word"), and the agent's test asserted the false refusal as
+correct.
+
+### Recommendation / action item
+
+- Action: every fix brief names at least one input the fix must leave
+  unchanged, and the test includes it as an admitted or unchanged case.
+  Owner: maintainer. Status: open.
+- Action: time any regex change to a sanitizer or other trust-boundary
+  scanner on input of the adversary's choosing before it lands. Owner:
+  maintainer. Status: open.
 
 ## Archive
 
