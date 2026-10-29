@@ -109,8 +109,8 @@ class TestContextPlan:
 
     def test_exhausted_budget_requires_user_approval(self, skill_text: str) -> None:
         """Scenario: exhausted budget requires user approval."""
-        step = _section(skill_text, "## Step 2")
-        assert "Do NOT\n  self-authorize additional reads" in step
+        step = " ".join(_section(skill_text, "## Step 2").split())
+        assert "Do NOT self-authorize additional reads" in step
 
     def test_glob_and_files_with_matches_grep_are_free(self, skill_text: str) -> None:
         """Scenario: glob and files with matches grep are free."""

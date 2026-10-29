@@ -32,10 +32,10 @@ from collections.abc import Callable
 __all__ = [
     "KNOWN_POPULAR",
     "assess_packages",
-    "levenshtein",
     "nearest_known",
     "normalize_name",
     "parse_packages",
+    "typo_distance",
 ]
 
 # Ecosystem install-command signatures. Each entry maps a regex that
@@ -210,7 +210,7 @@ def _allowed_distance(name: str) -> int:
     return _TYPOSQUAT_MAX_DISTANCE
 
 
-def _typo_distance(a: str, b: str) -> int:
+def typo_distance(a: str, b: str) -> int:
     """Levenshtein distance with an adjacent swap counted as one edit.
 
     A swapped pair (``nmupy``) is the commonest typo and the commonest
@@ -298,26 +298,6 @@ def _strip_version(token: str) -> str:
     return re.split(r"[@<>=!~^\[]", token, maxsplit=1)[0]
 
 
-def levenshtein(a: str, b: str) -> int:
-    """Return the Levenshtein edit distance between two strings."""
-    if a == b:
-        return 0
-    if not a:
-        return len(b)
-    if not b:
-        return len(a)
-    previous = list(range(len(b) + 1))
-    for i, ca in enumerate(a, start=1):
-        current = [i]
-        for j, cb in enumerate(b, start=1):
-            cost = 0 if ca == cb else 1
-            current.append(
-                min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + cost)
-            )
-        previous = current
-    return previous[-1]
-
-
 _PEP503_SEPARATORS = re.compile(r"[-_.]+")
 
 
@@ -351,7 +331,7 @@ def nearest_known(name: str, ecosystem: str) -> str | None:
         # A length gap larger than the threshold cannot be within distance.
         if abs(len(candidate) - len(name)) > allowed:
             continue
-        distance = _typo_distance(name, candidate)
+        distance = typo_distance(name, candidate)
         if distance < best_distance:
             best_distance = distance
             best = candidate

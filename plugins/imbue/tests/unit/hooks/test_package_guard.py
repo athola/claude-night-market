@@ -99,23 +99,36 @@ class TestParsePackages:
         assert pg.parse_packages("pip install ==1.0") == []
 
 
-class TestLevenshtein:
-    """Feature: edit distance for typosquat detection."""
+class TestTypoDistance:
+    """Feature: edit distance for typosquat detection.
+
+    ``nearest_known`` ranks candidates by this distance. The cases pin the
+    function that decides a verdict, adjacent swaps included.
+    """
 
     @pytest.mark.unit
     @pytest.mark.parametrize(
         "a,b,expected",
         [
             ("requests", "requests", 0),
-            ("requests", "reqeusts", 2),
+            ("requests", "reqeusts", 1),
+            ("numpy", "nmupy", 1),
             ("numpy", "numpi", 1),
+            ("ab", "ba", 1),
             ("abc", "", 3),
             ("", "abc", 3),
             ("", "", 0),
         ],
     )
-    def test_distance(self, pg, a, b, expected):
-        assert pg.levenshtein(a, b) == expected
+    def test_an_adjacent_swap_costs_one_edit(self, pg, a, b, expected):
+        assert pg.typo_distance(a, b) == expected
+
+    @pytest.mark.unit
+    def test_the_module_exports_one_edit_distance(self, pg):
+        """A second, unused distance function would drift from this one."""
+        assert "typo_distance" in pg.__all__
+        assert not hasattr(pg, "levenshtein")
+        assert not hasattr(pg, "_typo_distance")
 
 
 class TestNearestKnown:

@@ -34,10 +34,7 @@ try:
         FILE_OVERHEAD_TOKENS,
         iter_source_files,
     )
-
-    _HAS_LEYLINE_FS = True
 except ImportError:  # pragma: no cover
-    _HAS_LEYLINE_FS = False
     from _vendored_leyline_fs import (
         FILE_OVERHEAD_TOKENS,
         iter_source_files,

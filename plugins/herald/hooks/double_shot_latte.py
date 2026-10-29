@@ -313,21 +313,25 @@ def _read_throttle(path: Path) -> tuple[int, float]:
         return 0, 0.0
 
 
-def _write_throttle(path: Path, count: int, when: float) -> None:
-    """Persist throttle state atomically, ignoring write failures.
+def _write_throttle(path: Path, count: int, when: float) -> bool:
+    """Persist throttle state atomically; return False if it was not stored.
 
     Written to a sibling temp file and renamed, because an in-place
     truncating write leaves a window where the file parses as nothing.
     ``_read_throttle`` reads that as a count of zero, which re-arms an
     exhausted throttle rather than keeping it closed.
+
+    A write that fails every time (a full temp dir, or a file of that name
+    owned by another user in sticky ``/tmp``) leaves the count at zero
+    forever, which disables the loop guard. The caller must stop rather
+    than continue when this returns False.
     """
     try:
         write_atomic(path, json.dumps({"count": count, "last": when}))
-    except OSError:
-        # Best effort by design: the hook must always exit 0, and a lost
-        # throttle write only delays the next pause. The writer has already
-        # removed its temp file.
-        return
+    except OSError as exc:
+        sys.stderr.write(f"double-shot-latte: throttle write to {path} failed: {exc}\n")
+        return False
+    return True
 
 
 def _clear_throttle(path: Path) -> None:
@@ -455,7 +459,11 @@ def decide(event: dict[str, object], now: float) -> dict[str, str]:
         count, last = _read_throttle(throttle)
         if (now - last) > THROTTLE_WINDOW_SECONDS:
             count = 0
-        _write_throttle(throttle, count + 1, now)
+        if not _write_throttle(throttle, count + 1, now):
+            return _approve(
+                "Continuation count could not be saved; allowing stop so "
+                "the loop guard stays in force."
+            )
         return _block(reason)
 
     _clear_throttle(throttle)

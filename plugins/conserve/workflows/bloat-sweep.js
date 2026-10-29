@@ -14,7 +14,7 @@ export const meta = {
   description:
     'Run the deep bloat scan across several code areas at once and consolidate the findings that span more than one',
   whenToUse:
-    'Run after a tier-1 scan flags areas, or before a release. args.areas lists the directories to scan. Returns findings ranked by what deleting them would save. It deletes nothing.',
+    'Run after a tier-1 scan flags areas, or before a release. args.areas lists the directories to scan. Returns findings ranked by what deleting them would save. Findings with no line count come last. It deletes nothing.',
   phases: [
     { title: 'Scan', detail: 'one agent per flagged area' },
     { title: 'Consolidate', detail: 'find the duplication that spans areas' },
@@ -77,10 +77,23 @@ const reports = scanned
   .map((report, index) => report && { ...report, area: areas[index] })
   .filter(Boolean)
 // Each finding keeps its area, which the consolidator needs to tell one
-// area from two. Ranked here by the lines deleting it would save.
+// area from two. Ranked here by the lines deleting it would save. A
+// scanner may leave the count out (unused-dep, god-object). Those rank
+// after every measured finding with lines: null. A missing count means
+// the savings were never measured.
+const measured = (finding) => typeof finding.lines === 'number'
 const all = reports
-  .flatMap((report) => (report.findings || []).map((finding) => ({ ...finding, area: report.area })))
-  .sort((left, right) => (right.lines || 0) - (left.lines || 0))
+  .flatMap((report) =>
+    (report.findings || []).map((finding) => ({
+      ...finding,
+      area: report.area,
+      lines: measured(finding) ? finding.lines : null,
+    })),
+  )
+  .sort((left, right) => {
+    if (measured(left) !== measured(right)) return measured(left) ? -1 : 1
+    return measured(left) ? right.lines - left.lines : 0
+  })
 const coverage = { scanned: areas.filter((area, index) => scanned[index]), missing }
 
 if (missing.length) log(`no scan from ${missing.join(', ')}. Those areas are unscanned, not clean`)
