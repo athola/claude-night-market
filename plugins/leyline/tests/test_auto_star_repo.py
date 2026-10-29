@@ -18,6 +18,8 @@ from __future__ import annotations
 import json
 import os
 import re
+import shlex
+import shutil
 import stat
 import subprocess
 from pathlib import Path
@@ -466,6 +468,38 @@ class TestStarPromptCommandRuns:
         assert "star-prompt" in context
         assert "${" not in context
         assert f"bash '{HOOK_PATH.resolve()}' --star" in context
+
+    @pytest.mark.unit
+    def test_a_path_with_an_apostrophe_names_the_same_script(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        GIVEN the hook installed under a directory named o'brien
+        WHEN the hook emits the star prompt
+        THEN the shell reads the command's path as that script's path.
+        """
+        home = tmp_path / "o'brien"
+        home.mkdir()
+        hook = home / HOOK_PATH.name
+        shutil.copy2(HOOK_PATH, hook)
+        bin_dir = tmp_path / "bin"
+        bin_dir.mkdir()
+        gh = bin_dir / "gh"
+        gh.write_text(f"#!/bin/sh\n{_GH_NOT_STARRED}\n")
+        gh.chmod(0o755)
+        run = subprocess.run(
+            ["bash", str(hook)],
+            env={"HOME": str(tmp_path), "PATH": f"{bin_dir}:/usr/bin:/bin"},
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+
+        assert run.returncode == 0, run.stderr
+        context = json.loads(run.stdout)["hookSpecificOutput"]["additionalContext"]
+        command = context.split("run: ", 1)[1].split(". If they decline", 1)[0]
+        assert shlex.split(command) == ["bash", str(hook), "--star"]
 
 
 class TestStarFailureIsReported:

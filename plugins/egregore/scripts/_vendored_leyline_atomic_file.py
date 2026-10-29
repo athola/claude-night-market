@@ -38,10 +38,12 @@ def write_atomic(
     already has, or for a new file the mode ``open`` would give it, so a
     save never narrows who may read the file.
 
-    On any failure, ``KeyboardInterrupt`` included, the temp file is
-    removed and the error propagates, leaving ``path`` as it was. The
-    file and then its directory are synced, so a crash after return
-    loses neither the data nor the rename.
+    If writing or renaming fails, ``KeyboardInterrupt`` included, the
+    temp file is removed, the error propagates, and ``path`` is
+    unchanged. If the directory sync after the rename fails, the error
+    propagates with the new content already in place. The file and then
+    its directory are synced, so a crash after return loses neither the
+    data nor the rename.
     """
     target = Path(path)
     data = content.encode("utf-8") if isinstance(content, str) else content

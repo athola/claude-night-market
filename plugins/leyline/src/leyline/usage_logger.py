@@ -107,7 +107,11 @@ class UsageLogger:
         return session_id
 
     def _save_session(self, session_id: str) -> None:
-        """Save session state."""
+        """Start ``session_id`` afresh: ``created_at`` and ``last_activity`` are now.
+
+        Overwrites the session file. Calling it on a live session resets
+        its creation time.
+        """
         session = {
             "session_id": session_id,
             "created_at": time.time(),
@@ -129,7 +133,12 @@ class UsageLogger:
                 )
 
     def log_usage(self, event: UsageEvent) -> None:
-        """Log a usage entry."""
+        """Append ``event`` to ``<service>.jsonl`` and mark the session active.
+
+        The entry is stamped with the current UTC time and this logger's
+        session id. Refreshing ``last_activity`` keeps the session from
+        timing out while it is in use.
+        """
         entry = LogEntry(
             timestamp=datetime.utcnow().isoformat() + "Z",
             session_id=self.session_id,
@@ -196,7 +205,11 @@ class UsageLogger:
         }
 
     def get_recent_errors(self, count: int = 10) -> list[dict[str, Any]]:
-        """Get recent error entries."""
+        """Return up to ``count`` failed entries, newest first.
+
+        An entry counts as an error only when its ``success`` field is
+        ``False``. An entry with no ``success`` field is not one.
+        """
         if not self.log_file.exists():
             return []
 
@@ -218,7 +231,10 @@ class UsageLogger:
     def get_session_operations(
         self, session_id: str | None = None
     ) -> list[dict[str, Any]]:
-        """Get all operations for a session."""
+        """Return every entry logged under ``session_id``, oldest first.
+
+        ``None`` means this logger's current session.
+        """
         target_session = session_id or self.session_id
 
         if not self.log_file.exists():

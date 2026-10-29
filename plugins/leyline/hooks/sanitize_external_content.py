@@ -61,10 +61,35 @@ _INVISIBLE_TEXT = [
     ]
 ]
 
-_INSTRUCTION_COMMENT = re.compile(
-    r"<!--[^>]*(?:ignore|override|forget|you are)[^>]*-->",
-    re.IGNORECASE,
-)
+_COMMENT_INSTRUCTION = re.compile(r"ignore|override|forget|you are", re.IGNORECASE)
+
+
+def _instruction_comment_spans(text: str) -> list[tuple[int, int]]:
+    """Return ``(start, end)`` of each comment carrying an instruction word.
+
+    Same matches as ``<!--[^>]*(ignore|...)[^>]*-->``, found in one pass.
+    That regex retried from every ``<!--`` to the end of the text: a
+    100 KB run of ``<!--`` with no ``>`` took 35 seconds. A match cannot
+    cross a ``>``, so from each opener the only candidate ends at the
+    first ``>`` after it, and every later opener before that ``>`` sees
+    a subset of the same text.
+    """
+    spans = []
+    start = text.find("<!--")
+    while start != -1:
+        close = text.find(">", start + 4)
+        if close == -1:
+            break
+        body_end = close - 2
+        if (
+            body_end >= start + 4
+            and text[body_end : close + 1] == "-->"
+            and _COMMENT_INSTRUCTION.search(text, start + 4, body_end)
+        ):
+            spans.append((start, close + 1))
+        start = text.find("<!--", close + 1)
+    return spans
+
 
 # Every Unicode format (Cf) character, as of Unicode 15. None renders,
 # so any of them can split "ignore previous" for the scanner while the
@@ -171,26 +196,30 @@ _BLOCKED_LARGE_CONTENT_MESSAGE = (
 
 
 def _sanitize_large_content(content: str) -> str:
-    """Scan oversized content in chunks using fast substring checks only.
+    """Scan oversized content, blocking the whole payload on any match.
 
-    Regex scanning is too slow above _MAX_SCAN_SIZE, so the role and
-    phrase checks are plain substring membership over overlapping
-    chunks. The anchored hidden-text regexes run per chunk. The first
-    match blocks the whole payload.
+    The hidden-text regexes run once over the whole text. Each starts at
+    a literal anchor (``<!--`` or ``style``) and can run any length past
+    it, which no fixed chunk overlap covers: a comment opening before a
+    chunk boundary and closing 2KB after it was never wholly inside one
+    chunk. The unanchored role and phrase patterns are too slow at this
+    size and become substring checks over overlapping chunks.
     """
+    stripped = _INVISIBLE_FORMAT_CHARS.sub("", content)
+    # The hidden-text rules have no substring form (any property may
+    # precede display:none, any word may sit inside a comment).
+    if _instruction_comment_spans(stripped) or any(
+        pattern.search(stripped) for pattern in _INVISIBLE_TEXT
+    ):
+        return _BLOCKED_LARGE_CONTENT_MESSAGE
     chunk_size = _MAX_SCAN_SIZE
-    overlap = 1024  # 1KB overlap to catch patterns at boundaries
+    # Longer than every _FAST_CHECKS entry. A whitespace run wider than
+    # this between two words of a phrase can still straddle a boundary.
+    overlap = 1024
     pos = 0
-    while pos < len(content):
-        end = min(pos + chunk_size, len(content))
-        raw = _INVISIBLE_FORMAT_CHARS.sub("", content[pos:end])
-        # The hidden-text rules have no substring form (any property may
-        # precede display:none, any word may sit inside a comment), and
-        # each starts at a literal anchor, so they run here too.
-        if _INSTRUCTION_COMMENT.search(raw) or any(
-            pattern.search(raw) for pattern in _INVISIBLE_TEXT
-        ):
-            return _BLOCKED_LARGE_CONTENT_MESSAGE
+    while pos < len(stripped):
+        end = min(pos + chunk_size, len(stripped))
+        raw = stripped[pos:end]
         chunk = raw.lower()
         # The regex patterns accept any whitespace run ("ignore\n
         # previous", "eval (", "</ system>"). Normalize it so the
@@ -224,7 +253,8 @@ def _sanitize_regular_content(content: str) -> str:
     for pattern in _INVISIBLE_TEXT:
         modified = pattern.sub("[BLOCKED]", modified)
 
-    modified = _INSTRUCTION_COMMENT.sub("[BLOCKED]", modified)
+    for start, end in reversed(_instruction_comment_spans(modified)):
+        modified = modified[:start] + "[BLOCKED]" + modified[end:]
 
     for pattern in _MEDIUM_SEVERITY:
         modified = pattern.sub(lambda m: f"`{m.group(0)}`", modified)
@@ -240,8 +270,8 @@ def sanitize_output(content: str | None) -> str:
     High-severity patterns are replaced with [BLOCKED].
     Medium-severity patterns are escaped with backticks.
     Returns empty string for None or non-string input.
-    For content over _MAX_SCAN_SIZE, uses fast substring
-    checks and blocks if any match.
+    For content over _MAX_SCAN_SIZE, the role and phrase checks
+    become fast substring checks, and any match blocks the payload.
     """
     if not content or not isinstance(content, str):
         return ""
