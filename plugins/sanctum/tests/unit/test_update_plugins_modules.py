@@ -474,3 +474,101 @@ def test_log_entry_older_than_the_window_is_ignored(tmp_path: Path) -> None:
     report = PerformanceAnalyzer(log_dir=tmp_path).analyze_plugin("demo", days=7)
 
     assert report["recent_failures"] == []
+
+
+class TestKnowledgeQueueReadsMemoryPalaceStaging:
+    """The checker reads where memory-palace writes captures today."""
+
+    @pytest.mark.unit
+    def test_default_dir_is_the_palace_staging_dir(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("MEMORY_PALACE_DATA_DIR", raising=False)
+        monkeypatch.setenv("HOME", str(tmp_path))
+        staging = (
+            tmp_path
+            / ".claude"
+            / "plugins"
+            / "data"
+            / "memory-palace-claude-night-market"
+            / "data"
+            / "staging"
+        )
+        staging.mkdir(parents=True)
+
+        assert KnowledgeQueueChecker().queue_dir == staging
+
+    @pytest.mark.unit
+    def test_a_fork_marketplace_palace_is_found(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("MEMORY_PALACE_DATA_DIR", raising=False)
+        monkeypatch.setenv("HOME", str(tmp_path))
+        data = tmp_path / ".claude" / "plugins" / "data"
+        (data / "memory-palace-myfork").mkdir(parents=True)
+        expected = data / "memory-palace-myfork" / "data" / "staging"
+        assert KnowledgeQueueChecker().queue_dir == expected
+
+    @pytest.mark.unit
+    def test_no_palace_install_falls_back_to_the_default_name(
+        self, tmp_path, monkeypatch
+    ):
+        monkeypatch.delenv("MEMORY_PALACE_DATA_DIR", raising=False)
+        monkeypatch.setenv("HOME", str(tmp_path))
+        expected = (
+            tmp_path
+            / ".claude"
+            / "plugins"
+            / "data"
+            / "memory-palace-claude-night-market"
+            / "data"
+            / "staging"
+        )
+        assert KnowledgeQueueChecker().queue_dir == expected
+
+    @pytest.mark.unit
+    def test_the_relocation_variable_wins(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("MEMORY_PALACE_DATA_DIR", str(tmp_path / "palace"))
+        expected = tmp_path / "palace" / "data" / "staging"
+        assert KnowledgeQueueChecker().queue_dir == expected
+
+    @pytest.mark.unit
+    def test_a_capture_awaiting_review_is_pending(self, tmp_path):
+        (tmp_path / "webfetch-1.md").write_text(
+            "---\nstatus: pending_review\npriority: medium\n---\n\n# Title\n"
+        )
+        found = KnowledgeQueueChecker(queue_dir=tmp_path).check_queue()
+        assert [item["file"] for item in found] == ["webfetch-1.md"]
+
+
+def _palace_capture(fields: dict) -> str:
+    """Mirror memory-palace's ``render_frontmatter`` for string fields.
+
+    sanctum cannot import memory-palace (ADR-0001). The writer emits every
+    string as ``json.dumps(value)``, so this is the byte-for-byte form a
+    capture has on disk today.
+    """
+    lines = [f"{key}: {json.dumps(value)}" for key, value in fields.items()]
+    return "\n".join(["---", *lines, "---", "", "# Title", ""])
+
+
+class TestKnowledgeQueueReadsQuotedFrontmatter:
+    """memory-palace quotes every string value it writes."""
+
+    @pytest.mark.unit
+    def test_a_quoted_processed_capture_is_not_pending(self, tmp_path):
+        (tmp_path / "done.md").write_text(
+            _palace_capture({"status": "processed", "priority": "high"})
+        )
+        assert KnowledgeQueueChecker(queue_dir=tmp_path).check_queue() == []
+
+    @pytest.mark.unit
+    def test_a_quoted_priority_is_read(self, tmp_path):
+        (tmp_path / "todo.md").write_text(
+            _palace_capture({"status": "pending_review", "priority": "high"})
+        )
+        found = KnowledgeQueueChecker(queue_dir=tmp_path).check_queue()
+        assert [item["priority"] for item in found] == ["high"]
+
+    @pytest.mark.unit
+    def test_an_unquoted_processed_capture_is_not_pending(self, tmp_path):
+        (tmp_path / "old.md").write_text(
+            "---\nstatus: processed\npriority: low\n---\n\n# Title\n"
+        )
+        assert KnowledgeQueueChecker(queue_dir=tmp_path).check_queue() == []

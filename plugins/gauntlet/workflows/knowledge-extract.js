@@ -13,7 +13,7 @@ export const meta = {
   description:
     'Extract and enrich the gauntlet knowledge base one subsystem per agent, then merge into a single corpus',
   whenToUse:
-    'Run when initializing the knowledge base or after a large refactor. args.subsystems lists the directories. args.depth selects how much rationale to capture. Returns the merged corpus for the skill to write.',
+    'Run when initializing the knowledge base or after a large refactor. args.subsystems lists the directories. Returns the merged corpus for the skill to write.',
   phases: [
     { title: 'Extract', detail: 'one agent per subsystem' },
     { title: 'Merge', detail: 'reconcile overlapping concepts' },
@@ -86,7 +86,10 @@ const merged = await agent(
   `These entries came from separate subsystem extractions that could not see each other. Reconcile them.\n\n${concepts}\n\nWhere two subsystems described the same concept differently, that difference is either a real boundary or a misunderstanding, and you should say which. Where a concept appears in one subsystem and is used by another, link them. Do not merge two concepts that share a name and nothing else.`,
   { label: 'merge', phase: 'Merge' },
 )
+// A dead merge agent returns the same null as the skip path above.
+const failed = merged ? null : 'merge'
+if (failed) log('no result from the merge stage. The corpora are unreconciled, not reconciled clean')
 
 log(`${entries.length} entries across ${corpora.length} subsystems`)
 
-return { subsystems, entries, merged, missing }
+return { subsystems, entries, merged, missing, failed }

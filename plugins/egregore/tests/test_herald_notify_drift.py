@@ -7,10 +7,11 @@ because ADR-0001 (Plugin Dependency Isolation) forbids a cross-plugin
 import. When that load raises, a second branch in the same file supplies
 stubs so egregore still starts.
 
-That shape leaves three surfaces that can drift, and none of them is
-covered by the 26 tests egregore shares byte-for-byte with herald. Those
-tests exercise herald's own function objects through an egregore-shaped
-name, so they pass whatever egregore does:
+That shape leaves three surfaces that can drift. egregore's own
+test_notify.py no longer repeats herald's cases for the two functions it
+re-exports unchanged (validate_webhook_url, create_github_alert), because
+those would exercise herald's function objects through an egregore-shaped
+name and pass whatever egregore does. The three surfaces are:
 
 1. the stub branch, which runs on exactly the machines nobody tests on
 2. egregore's kwargs-to-``AlertContext`` wrappers, which are its own code

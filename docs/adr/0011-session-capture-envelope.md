@@ -116,11 +116,13 @@ unified view glob both directories and decode the envelope.
 ## Acceptance criteria
 
 - [x] ADR drafted explaining the chosen split (this document)
-- [ ] friction-detector SKILL.md references the envelope schema and
+- [x] friction-detector SKILL.md references the envelope schema and
+  ``schema_version`` field (`plugins/abstract/skills/friction-detector/SKILL.md`,
+  guarded by `test_friction_detector.py`)
+- [x] trace-capture module references the envelope schema and
   ``schema_version`` field
-- [ ] trace-capture module references the envelope schema and
-  ``schema_version`` field
-- [ ] Migration path documented for existing per-session files
+  (`plugins/abstract/skills/metacognitive-self-mod/modules/trace-capture.md`)
+- [x] Migration path documented for existing per-session files
   (this ADR's "Migration path" section)
 
 ## Source

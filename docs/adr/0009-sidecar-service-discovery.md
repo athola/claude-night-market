@@ -57,8 +57,14 @@ after startup.
 Clients read this file to discover the daemon's address.
 
 ```
-${CLAUDE_PLUGIN_DATA}/<plugin-name>/daemon.port
+${CLAUDE_PLUGIN_DATA}/daemon.port
 ```
+
+`CLAUDE_PLUGIN_DATA` is already per-plugin: Claude Code 2.1.78+
+names `~/.claude/plugins/data/<plugin>-<marketplace>/`. A client in
+another plugin finds the daemon's directory as a sibling of its own
+data directory with the plugin name swapped, keeping the
+`-<marketplace>` suffix. `leyline/plugin_data.py` holds that layout.
 
 Fallback location when `CLAUDE_PLUGIN_DATA` is not set:
 
@@ -106,7 +112,7 @@ Sidecar daemons MUST NOT start automatically.
 Activation requires an explicit sentinel file:
 
 ```
-${CLAUDE_PLUGIN_DATA}/<plugin-name>/.oracle-enabled
+${CLAUDE_PLUGIN_DATA}/.oracle-enabled
 ```
 
 The sentinel is created by a user-facing setup command

@@ -1,0 +1,236 @@
+"""BDD tests for the problem-bank skill.
+
+These tests verify the *behavior* described in SKILL.md:
+- The skill has valid frontmatter (name, description)
+- The skill workflow never writes to data/problems/
+- The skill produces a report rather than mutating YAML files
+- The skill is registered in openpackage.yml
+
+The backing implementation lives in scripts/curate_problems.py, whose
+unit tests are in tests/unit/test_curate_problems.py.  These tests focus
+on the *skill contract*: what callers of the skill can rely on.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+import yaml
+
+# Absolute paths so tests work regardless of cwd.
+_PLUGIN_ROOT = Path(__file__).parents[3]  # plugins/gauntlet/
+_SKILL_DIR = _PLUGIN_ROOT / "skills" / "problem-bank"
+_SKILL_FILE = _SKILL_DIR / "SKILL.md"
+_MANIFEST = _PLUGIN_ROOT / "openpackage.yml"
+_SCRIPT = _PLUGIN_ROOT / "scripts" / "curate_problems.py"
+
+# Required frontmatter fields per issue #388 acceptance criteria.
+# Version was removed (was a duplicate of plugin.json, see CHANGELOG 1.9.6).
+_REQUIRED_FRONTMATTER = {"name", "description"}
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _parse_skill_frontmatter(skill_file: Path) -> dict:
+    """Extract YAML frontmatter between the first two '---' delimiters."""
+    text = skill_file.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return {}
+    end = next(
+        (i for i, ln in enumerate(lines[1:], start=1) if ln.strip() == "---"),
+        None,
+    )
+    if end is None:
+        return {}
+    fm_text = "\n".join(lines[1:end])
+    return yaml.safe_load(fm_text) or {}
+
+
+def _load_openpackage() -> dict:
+    return yaml.safe_load(_MANIFEST.read_text(encoding="utf-8")) or {}
+
+
+# ---------------------------------------------------------------------------
+# Feature: Skill file structure
+# ---------------------------------------------------------------------------
+
+
+class TestGauntletCurateSkillFile:
+    """
+    Feature: problem-bank skill file exists with valid structure
+
+    As a gauntlet plugin user
+    I want the problem-bank skill to have a valid SKILL.md
+    So that Claude Code can discover and invoke it
+    """
+
+    @pytest.mark.unit
+    def test_skill_file_exists(self):
+        """
+        Scenario: SKILL.md is present in skills/problem-bank/
+        Given the gauntlet plugin
+        When the skills directory is inspected
+        Then skills/problem-bank/SKILL.md exists
+        """
+        assert _SKILL_FILE.exists(), (
+            f"Expected skill file at {_SKILL_FILE} but it was not found."
+        )
+
+    @pytest.mark.unit
+    def test_skill_frontmatter_has_required_fields(self):
+        """
+        Scenario: Frontmatter contains name and description
+        Given the SKILL.md file
+        When frontmatter is parsed
+        Then name and description are present and non-empty
+        """
+        fm = _parse_skill_frontmatter(_SKILL_FILE)
+        missing = _REQUIRED_FRONTMATTER - set(fm.keys())
+        assert not missing, f"Frontmatter missing fields: {missing}"
+        for field in _REQUIRED_FRONTMATTER:
+            assert fm[field], f"Frontmatter field '{field}' is empty."
+
+    @pytest.mark.unit
+    def test_skill_name_is_kebab_case(self):
+        """
+        Scenario: Skill name follows kebab-case convention
+        Given the SKILL.md frontmatter
+        When the name field is inspected
+        Then it equals 'problem-bank' (kebab-case)
+        """
+        fm = _parse_skill_frontmatter(_SKILL_FILE)
+        assert fm.get("name") == "problem-bank"
+
+    @pytest.mark.unit
+    def test_skill_description_mentions_problem_bank(self):
+        """
+        Scenario: Skill description is discoverable by /update-plugins routing
+        Given the SKILL.md frontmatter description
+        When it is inspected for key routing terms
+        Then it mentions 'problem' and 'yaml' (case-insensitive)
+        """
+        fm = _parse_skill_frontmatter(_SKILL_FILE)
+        desc = str(fm.get("description", "")).lower()
+        assert "problem" in desc, "Description should mention 'problem'."
+        assert "yaml" in desc, "Description should mention 'yaml'."
+
+    @pytest.mark.unit
+    def test_skill_body_contains_safety_constraint_section(self):
+        """
+        Scenario: SKILL.md documents the no-overwrite safety constraint
+        Given the SKILL.md body text
+        When it is scanned for safety language
+        Then it explicitly states that data/problems/ files are never modified
+        """
+        body = _SKILL_FILE.read_text(encoding="utf-8").lower()
+        assert "never" in body and "data/problems" in body, (
+            "SKILL.md must explicitly state the no-write safety constraint."
+        )
+
+    @pytest.mark.unit
+    def test_skill_body_references_curate_script(self):
+        """
+        Scenario: SKILL.md instructs callers to use curate_problems.py
+        Given the SKILL.md body text
+        When it is scanned for script references
+        Then 'curate_problems.py' appears in the text
+        """
+        body = _SKILL_FILE.read_text(encoding="utf-8")
+        assert "curate_problems.py" in body, (
+            "SKILL.md must reference the curate_problems.py script."
+        )
+
+
+# ---------------------------------------------------------------------------
+# Feature: Plugin registration
+# ---------------------------------------------------------------------------
+
+
+class TestGauntletCurateRegistration:
+    """
+    Feature: problem-bank is registered in openpackage.yml
+
+    As a gauntlet plugin maintainer
+    I want the new skill registered in openpackage.yml
+    So that Claude Code discovers it when the plugin loads
+    """
+
+    @pytest.mark.unit
+    def test_skill_registered_in_openpackage(self):
+        """
+        Scenario: skills list in openpackage.yml includes problem-bank
+        Given the openpackage.yml manifest
+        When the skills list is inspected
+        Then 'skills/problem-bank' is present
+        """
+        pkg = _load_openpackage()
+        skills = pkg.get("skills", [])
+        assert "skills/problem-bank" in skills, (
+            f"'skills/problem-bank' not found in openpackage.yml skills: {skills}"
+        )
+
+    @pytest.mark.unit
+    def test_no_skill_shares_a_command_name(self):
+        """
+        Scenario: a skill is reachable by its own name
+        Given the gauntlet skills and commands directories
+        When their names are compared
+        Then no skill is named after a command
+
+        This skill was once named gauntlet-curate, the same name as the
+        /gauntlet-curate command, which invokes gauntlet:curate. The
+        command shadowed the skill, and nothing could reach it by name.
+        """
+        skill_names = {
+            p.name for p in (_PLUGIN_ROOT / "skills").iterdir() if p.is_dir()
+        }
+        command_names = {p.stem for p in (_PLUGIN_ROOT / "commands").glob("*.md")}
+        assert skill_names & command_names == set()
+
+
+# ---------------------------------------------------------------------------
+# Feature: Backing script safety contract
+# ---------------------------------------------------------------------------
+
+
+class TestGauntletCurateScriptSafety:
+    """
+    Feature: Backing script is read-only
+
+    As a gauntlet problem bank curator
+    I want assurance that the skill's script cannot overwrite my files
+    So that I can invoke Skill(gauntlet:problem-bank) without risking data loss
+    """
+
+    @pytest.mark.unit
+    def test_backing_script_exists(self):
+        """
+        Scenario: curate_problems.py exists in scripts/
+        Given the gauntlet plugin
+        When the scripts directory is inspected
+        Then scripts/curate_problems.py exists
+        """
+        assert _SCRIPT.exists(), (
+            f"Expected backing script at {_SCRIPT} but it was not found."
+        )
+
+    @pytest.mark.unit
+    def test_backing_script_has_no_write_flag(self):
+        """
+        Scenario: curate_problems.py source code contains no --write flag
+        Given the source of curate_problems.py
+        When it is scanned for write-mode flags
+        Then neither '--write' nor '--fix' appears as an add_argument call
+        """
+        source = _SCRIPT.read_text(encoding="utf-8")
+        assert '"--write"' not in source and "'--write'" not in source, (
+            "curate_problems.py must not define a --write flag."
+        )
+        assert '"--fix"' not in source and "'--fix'" not in source, (
+            "curate_problems.py must not define a --fix flag."
+        )

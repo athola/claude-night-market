@@ -18,7 +18,6 @@ usage_patterns:
 - revert-test-quality-check
 - evidence-capture
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 650
 progressive_loading: false
 dependencies:

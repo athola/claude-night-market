@@ -18,7 +18,6 @@ dependencies:
     - modules/competitive-review.md
     - modules/named-register-invocation.md
 complexity: basic
-model_hint: fast
 estimated_tokens: 300
 ---
 # Latent Space Engineering

@@ -4,7 +4,6 @@ description: 'Detect friction signals; graduate patterns into rules. Use for ses
 category: workflow-optimization
 alwaysApply: false
 trigger: friction, friction detection, session retrospective, learning pipeline, recurring mistakes, pattern graduation, friction report
-model_hint: standard
 ---
 
 # Friction-to-Learning Pipeline

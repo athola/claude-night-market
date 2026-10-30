@@ -152,6 +152,39 @@ _COMMIT_VALUE_SHORTS = "mFCctu"
 #: and sometimes an injection attempt.
 SHELL_METACHARACTERS = ("&", ";", "|", ">", "<", "`", "$(", "\n")
 
+#: Budget fields the driver reads through ``int()``. Zero is refused too:
+#: ``claude_token_ceiling: 0`` reads as "no ceiling" downstream, the
+#: opposite of what its author meant.
+_BUDGET_NUMBERS = (
+    "max_tasks",
+    "max_attempts_per_task",
+    "implementer_timeout_s",
+    "claude_token_ceiling",
+)
+
+#: Shells that run a string passed with ``-c``, bundled or not.
+_SHELLS = frozenset({"sh", "bash", "zsh", "dash", "ksh", "fish"})
+
+#: Per interpreter: the short-option letters and the long options that
+#: hand it code as a string. A letter counts inside a bundle (``-Ic``,
+#: ``-pe``). ``ruby -r`` is absent: it loads a library, not a string.
+_CODE_OPTIONS = {
+    "node": ("ep", ("--eval", "--print")),
+    "perl": ("eE", ()),
+    "ruby": ("e", ()),
+}
+
+#: Options that take the next word as their value, per interpreter. The
+#: value is skipped, not read as the program: ``bash -o pipefail -c``.
+_VALUE_OPTIONS = {
+    "shell": frozenset({"-o", "+o", "-O", "+O", "--rcfile", "--init-file"}),
+    "python": frozenset({"-W", "-X"}),
+    "node": frozenset({"-r", "--require", "--import", "--loader"}),
+    "perl": frozenset({"-I", "-M", "-m"}),
+    "ruby": frozenset({"-r", "-I", "-C"}),
+    "env": frozenset({"-u", "--unset", "-C", "--chdir"}),
+}
+
 
 @dataclass(frozen=True)
 class GateResult:
@@ -257,7 +290,8 @@ def _shape_problems(name: str, data: Mapping[str, Any]) -> list[str]:
     if name == "design.md":
         traces = data["traces"]
         if isinstance(traces, dict) and all(
-            isinstance(ids, list) for ids in traces.values()
+            isinstance(ids, list) and all(isinstance(i, str) for i in ids)
+            for ids in traces.values()
         ):
             return []
         return [f"{name}: 'traces' must map each criterion id to a list of task ids"]
@@ -270,6 +304,10 @@ def _shape_problems(name: str, data: Mapping[str, Any]) -> list[str]:
         and all(isinstance(entry, dict) for entry in entries)
     ):
         return [f"{name}: {key!r} must be a non-empty list of mappings"]
+    if key == "tasks":
+        untyped = [e.get("id") for e in entries if not isinstance(e.get("id"), str)]
+        if untyped:
+            return [f"{name}: every task id must be a string, got {untyped!r}"]
     return [
         f"{name}: task {entry.get('id')} 'evidence' must be a mapping"
         for entry in entries
@@ -286,6 +324,13 @@ def _check_unsafe(docs: dict[str, Any]) -> list[str]:
 
     if not allow_paths:
         problems.append("scope.allow_paths is empty; an item must name its files")
+    elif not (
+        isinstance(allow_paths, list) and all(isinstance(p, str) for p in allow_paths)
+    ):
+        problems.append(
+            f"scope.allow_paths must be a list of paths, got {allow_paths!r}"
+        )
+        allow_paths = []
 
     for path in allow_paths:
         if str(path).strip() in {".", "/", "./"}:
@@ -308,12 +353,16 @@ def _check_unsafe(docs: dict[str, Any]) -> list[str]:
             "scope.spec_ref to justify it"
         )
 
-    max_tasks = (handoff.get("budget") or {}).get("max_tasks")
-    if max_tasks is not None and not _is_plain_int(max_tasks):
-        problems.append(
-            f"budget.max_tasks is {max_tasks!r}, which is not a number. A "
-            "budget that cannot be read is not an absent budget."
-        )
+    budget = handoff.get("budget") or {}
+    for key in _BUDGET_NUMBERS:
+        number = budget.get(key)
+        if number is not None and not (_is_plain_int(number) and number > 0):
+            problems.append(
+                f"budget.{key} is {number!r}, which is not a positive number. "
+                "A budget that cannot be read is not an absent budget."
+            )
+
+    problems.extend(_check_plan_fallback(handoff))
 
     for task in docs["tasks.md"].get("tasks") or []:
         expect = (task.get("evidence") or {}).get("expect", "pass")
@@ -381,6 +430,12 @@ def _check_command(name: str, command: str) -> list[str]:
         f"{name} contains {offender!r}, which bypasses a quality gate or destroys work"
         for offender in _command_bypasses(argv)
     ]
+    interpreter = _inline_code(argv)
+    if interpreter:
+        problems.append(
+            f"{name} runs code given as a string ({interpreter!r}), which the "
+            "bypass checks cannot read. Put the code in a script and run that."
+        )
     found = [ch for ch in SHELL_METACHARACTERS if ch in command]
     if found:
         problems.append(
@@ -391,6 +446,77 @@ def _check_command(name: str, command: str) -> list[str]:
     elif not argv:
         problems.append(f"{name} is empty")
     return problems
+
+
+def _check_plan_fallback(handoff: dict[str, Any]) -> list[str]:
+    """Refuse an ``allow_on_plan_fallback`` that is not a YAML boolean.
+
+    The runner reads it through bool(), and bool("false") is True.
+    """
+    fallback = (handoff.get("implementer") or {}).get("allow_on_plan_fallback")
+    if fallback is None or isinstance(fallback, bool):
+        return []
+    return [
+        f"implementer.allow_on_plan_fallback is {fallback!r}, which is not "
+        "a boolean. A quoted value would read as true."
+    ]
+
+
+def _inline_code(argv: Sequence[str]) -> str | None:
+    """Return the interpreter in ``argv`` that is handed code as a string.
+
+    ``sh -c "git push --force"`` is one word to ``_command_bypasses``, so
+    whatever the string says is never judged. Only the interpreter's own
+    options count: the scan skips the value of an option that takes one
+    (``bash -o pipefail -c``) and stops at the first operand, at ``--``,
+    and at python's ``-m``. ``python -m pytest -c pytest.ini`` passes
+    ``-c`` to pytest, not to python.
+    """
+    for index, word in enumerate(argv):
+        tool = word.rsplit("/", 1)[-1]
+        family = (
+            "shell"
+            if tool in _SHELLS
+            else "python"
+            if tool.startswith("python")
+            else tool
+        )
+        options = _interpreter_options(argv[index + 1 :], family)
+        if tool == "env" and any(
+            o == "-S" or o.startswith("--split-string") for o in options
+        ):
+            return word
+        letters, longs = _CODE_OPTIONS.get(tool, ("", ()))
+        if family in ("shell", "python"):
+            letters = "c"
+        if any(_hands_over_code(o, letters, longs) for o in options):
+            return word
+    return None
+
+
+def _interpreter_options(words: Sequence[str], family: str) -> list[str]:
+    """Return the option words that belong to the interpreter itself."""
+    takes_value = _VALUE_OPTIONS.get(family, frozenset())
+    options: list[str] = []
+    skip_value = False
+    for word in words:
+        if skip_value:
+            skip_value = False
+            continue
+        if word == "--" or not (word.startswith("-") or word in ("+o", "+O")):
+            break
+        options.append(word)
+        if family == "python" and word == "-m":
+            break
+        skip_value = word in takes_value
+    return options
+
+
+def _hands_over_code(option: str, letters: str, longs: Sequence[str]) -> bool:
+    """Say whether one option word passes code to its interpreter."""
+    if option.startswith("--"):
+        return option.split("=", 1)[0] in longs
+    return any(letter in option[1:] for letter in letters)
 
 
 def _command_bypasses(argv: Sequence[str]) -> list[str]:
@@ -637,6 +763,12 @@ def _check_tasks(
 
     for task in tasks:
         tid = task.get("id")
+        if not task.get("files"):
+            # The runner commits with the task's files as the pathspec;
+            # with none, `git commit` takes everything staged.
+            problems.append(
+                f"task {tid} names no files; its commit would take the whole index"
+            )
         for path in task.get("files") or []:
             if not any(scope.within(a, str(path)) for a in allow_paths if a):
                 problems.append(

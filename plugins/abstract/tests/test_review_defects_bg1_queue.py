@@ -72,7 +72,7 @@ def test_evaluate_keeps_a_flag_written_after_it_loaded(tmp_path: Path) -> None:
 
     on_disk = ImprovementQueue(queue_file)
     assert "abstract:alpha" in on_disk.skills
-    assert on_disk.skills["abstract:beta"]["evaluating"] is False
+    assert on_disk.skills["abstract:beta"]["status"] != "evaluating"
 
 
 def test_save_does_not_depend_on_a_fixed_shared_temp_path(tmp_path: Path) -> None:
@@ -181,19 +181,47 @@ def test_flag_skill_skips_a_skill_another_process_put_under_evaluation(
 
 
 @pytest.mark.skipif(os.geteuid() == 0, reason="root ignores directory write permission")
-def test_save_into_read_only_directory_warns_instead_of_raising(
-    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+def test_save_into_read_only_directory_raises_rather_than_reporting_a_flag(
+    tmp_path: Path,
 ) -> None:
+    """A flag that was not persisted must not read as one that was.
+
+    The save used to warn and return, and flag_skill then returned True,
+    so the hook reported a flag the next run would not see. The hook
+    catches OSError and still prints its health report.
+    """
     queue_dir = tmp_path / "skills"
     queue_file = queue_dir / "improvement-queue.json"
     queue = ImprovementQueue(queue_file)
     queue_file.with_name(queue_file.name + ".lock").touch()
     queue_dir.chmod(0o500)
     try:
-        queue.flag_skill("abstract:alpha", 0.4, "session-1")
+        with pytest.raises(OSError):
+            queue.flag_skill("abstract:alpha", 0.4, "session-1")
     finally:
         queue_dir.chmod(0o700)
-    assert "failed to save queue" in capsys.readouterr().err
+
+
+def test_a_second_evaluation_window_starts_with_no_gaps(tmp_path: Path) -> None:
+    queue = ImprovementQueue(tmp_path / "q.json")
+    queue.flag_skill("abstract:alpha", 0.5, "s1")
+    queue.start_evaluation("abstract:alpha", baseline_gap=0.5)
+    for _ in range(10):
+        queue.record_eval_execution("abstract:alpha", 0.9)
+    queue.evaluate("abstract:alpha")
+
+    queue.start_evaluation("abstract:alpha", baseline_gap=0.5)
+
+    assert queue.skills["abstract:alpha"]["eval_gaps"] == []
+
+
+def test_execution_ids_stay_bounded(tmp_path: Path) -> None:
+    queue = ImprovementQueue(tmp_path / "q.json")
+    for run in range(500):
+        queue.flag_skill("abstract:alpha", 0.5, f"s{run}")
+    ids = queue.skills["abstract:alpha"]["execution_ids"]
+    assert len(ids) == ImprovementQueue.MAX_EXECUTION_IDS
+    assert ids[-1] == "s499"
 
 
 def test_saved_queue_is_private_to_its_owner(tmp_path: Path) -> None:

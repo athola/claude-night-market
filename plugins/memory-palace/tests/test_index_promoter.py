@@ -11,6 +11,7 @@ no-op (idempotent).
 from __future__ import annotations
 
 import copy
+import os
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -24,7 +25,6 @@ from web_research_handler import (  # noqa: E402 - needs the sys.path line above
     detect_null_capture,
 )
 
-from memory_palace.corpus import index_promoter
 from memory_palace.corpus.index_promoter import (
     CorpusUnavailableError,
     Proposal,
@@ -35,6 +35,7 @@ from memory_palace.corpus.index_promoter import (
     propose_promotions,
     propose_title_repairs,
 )
+from memory_palace.corpus.titles import TITLE_MAX_CHARS, slug_title_from_url
 
 
 def _iso(days_ago: float) -> str:
@@ -285,12 +286,12 @@ class TestApplyPromotions:
         def _boom(*_args: object) -> None:
             raise OSError("disk full")
 
-        monkeypatch.setattr(index_promoter.os, "replace", _boom)
+        monkeypatch.setattr(os, "replace", _boom)
 
         with pytest.raises(OSError, match="disk full"):
             apply_promotions([proposal], index_path, backup_dir=backup_dir)
 
-        leftovers = list(index_path.parent.glob("memory-palace-index-*.tmp"))
+        leftovers = list(index_path.parent.glob("*.tmp"))
         assert leftovers == []
 
 
@@ -714,6 +715,37 @@ class TestProposeTitleRepairs:
     def test_missing_url_is_skipped_not_crashed(self) -> None:
         """Given an entry with no URL, skip it rather than fail."""
         index = {"entries": {"k": {"title": "Response"}}}
+        assert propose_title_repairs(index) == []
+
+    @pytest.mark.unit
+    def test_title_cut_at_the_old_slice_length_is_proposed(self) -> None:
+        """Given a title the old extractor sliced to 100 chars, repair it.
+
+        The old extractor stored ``line[:100]``. The length rule rejects
+        only lines longer than the limit, so a line already cut to
+        exactly the limit passed it, and the issue's own example of a
+        truncated preamble stayed in the committed index.
+        """
+        sliced = (
+            "To get accurate answers to your questions about ServiceTitan's "
+            "developer integration process, I'd re"
+        )
+        url = "https://developer.servicetitan.io/docs/get-going-fast/"
+        index = {"entries": {url: _entry(title=sliced, url=url)}}
+        proposals = propose_title_repairs(index)
+        assert [p.changes["title"] for p in proposals] == ["Get Going Fast"]
+
+    @pytest.mark.unit
+    def test_slug_title_at_the_slice_length_is_not_churned(self) -> None:
+        """Given a 100-char title that already is the URL slug, propose nothing."""
+        url = (
+            "https://www.workifystaffing.com/post/workify-staffing-and-builderfax-"
+            "announce-transformational-strategic-alliance-to-redefine-skilled-tra"
+        )
+        slug = slug_title_from_url(url)
+        assert slug is not None
+        assert len(slug) == TITLE_MAX_CHARS
+        index = {"entries": {url: _entry(title=slug, url=url)}}
         assert propose_title_repairs(index) == []
 
 

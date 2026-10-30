@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import ast
 import os
 import sys
+from pathlib import Path
 
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
@@ -201,3 +203,52 @@ class TestYamlUnavailable:
         assert is_path_excluded(".git/config")
         assert is_knowledge_path("docs/guide.md")
         assert should_process_path("docs/guide.md")
+
+
+def test_every_caller_side_default_matches_config_defaults() -> None:
+    """A hook's ``config.get(key, default)`` must restate the table, not differ.
+
+    get_config() merges CONFIG_DEFAULTS, so a caller-side default only
+    applies to a config built by hand. If it disagrees with the table, the
+    two paths behave differently and nothing shows it.
+    """
+    sections = {
+        "config": CONFIG_DEFAULTS,
+        "feature_flags": CONFIG_DEFAULTS["feature_flags"],
+        "telemetry_config": CONFIG_DEFAULTS["telemetry"],
+    }
+
+    def table_for(receiver: ast.expr) -> dict | None:
+        if isinstance(receiver, ast.Name):
+            return sections.get(receiver.id)
+        if (
+            isinstance(receiver, ast.Call)
+            and isinstance(receiver.func, ast.Attribute)
+            and receiver.func.attr == "get"
+            and receiver.args
+            and isinstance(receiver.args[0], ast.Constant)
+        ):
+            return sections.get(receiver.args[0].value)
+        return None
+
+    hooks = Path(__file__).resolve().parents[2] / "hooks"
+    checked, mismatched = 0, []
+    for hook in sorted(hooks.glob("*.py")):
+        for node in ast.walk(ast.parse(hook.read_text())):
+            if not (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "get"
+                and len(node.args) == 2
+                and all(isinstance(a, ast.Constant) for a in node.args)
+            ):
+                continue
+            table = table_for(node.func.value)
+            key, default = node.args[0].value, node.args[1].value
+            if table is None or key not in table:
+                continue
+            checked += 1
+            if table[key] != default:
+                mismatched.append(f"{hook.name}:{node.lineno} {key}={default!r}")
+    assert checked > 0, "no caller-side defaults found; the sweep is vacuous"
+    assert mismatched == []

@@ -16,7 +16,6 @@ usage_patterns:
 - research-handoff
 - corpus-ingestion
 complexity: simple
-model_hint: standard
 estimated_tokens: 400
 ---
 

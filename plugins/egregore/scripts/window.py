@@ -108,7 +108,7 @@ def classify(text: str) -> Optional[str]:
     return None
 
 
-def _parse_rfc3339(value: str) -> Optional[datetime]:
+def parse_rfc3339(value: str) -> Optional[datetime]:
     """Parse an RFC 3339 instant, returning None rather than raising."""
     try:
         parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
@@ -133,7 +133,7 @@ def parse_reset(
     candidates = [
         parsed
         for name in RESET_HEADERS
-        if (parsed := _parse_rfc3339(headers.get(name, ""))) is not None
+        if (parsed := parse_rfc3339(headers.get(name, ""))) is not None
     ]
     if candidates:
         latest = max(candidates)
@@ -153,7 +153,7 @@ def parse_reset(
 
     match = _SPEND_TIME.search(text or "")
     if match:
-        parsed = _parse_rfc3339(f"{match.group(1)}T{match.group(2)}:00Z")
+        parsed = parse_rfc3339(f"{match.group(1)}T{match.group(2)}:00Z")
         if parsed and parsed > moment:
             return parsed
     return None

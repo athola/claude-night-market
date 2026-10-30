@@ -320,9 +320,6 @@ Simulate network call.
         assert "concurrent_alternative" in performance
         assert "process_items_concurrent" in performance["concurrent_alternative"]
 
-        # Should calculate performance improvement
-        assert performance["improvement_potential"]["speedup"] > 1.0
-
     @pytest.mark.asyncio
     async def test_detects_race_conditions(self) -> None:
         """

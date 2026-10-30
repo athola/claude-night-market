@@ -20,7 +20,9 @@ MANIFEST = REPO_ROOT / "docs" / "plugin-dependencies.json"
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from generate_dependency_map import (
+    find_plugins,
     generate_map,  # noqa: E402 - scripts/ goes on sys.path first
+    scan_python_imports,
 )
 
 
@@ -58,3 +60,25 @@ def test_the_four_edges_the_review_found_are_declared() -> None:
     assert "leyline" in index["gauntlet"]
     assert "gauntlet" in index["pensive"]
     assert "memory-palace" in index["tome"]
+
+
+def test_every_runtime_edge_is_declared_by_its_consumer() -> None:
+    """ADR-0001: the manifest says what the code does.
+
+    Build-time edges (abstract's tooling) are exempt by the ADR. A
+    runtime import a consumer does not declare is invisible to anyone
+    reading its plugin.json before changing the provider. The manifest
+    merges edge types per provider, and abstract is "build+runtime", so
+    the runtime edges come from the generator's import scan per consumer.
+    """
+    plugins_dir = REPO_ROOT / "plugins"
+    names = find_plugins(plugins_dir)
+    undeclared = []
+    for consumer in names:
+        plugin_dir = plugins_dir / consumer
+        manifest = plugin_dir / ".claude-plugin" / "plugin.json"
+        declared = json.loads(manifest.read_text(encoding="utf-8"))
+        for edge in scan_python_imports(plugin_dir, consumer, names):
+            if edge["plugin"] not in declared.get("dependencies", []):
+                undeclared.append(f"{consumer} -> {edge['plugin']} ({edge['reason']})")
+    assert undeclared == []

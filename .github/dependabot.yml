@@ -1,0 +1,8 @@
+# Third-party actions are pinned to commit SHAs, which
+# scripts/check_pinned_versions.py skips. This keeps those pins moving.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

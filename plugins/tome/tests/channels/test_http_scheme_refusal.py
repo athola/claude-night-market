@@ -166,6 +166,40 @@ def test_search_reddit_stops_at_the_budget_and_names_the_skipped_subreddits() ->
 
 
 @pytest.mark.unit
+def test_search_reddit_does_not_sleep_for_subreddits_the_budget_skips() -> None:
+    """Spacing belongs between requests, never before a skipped subreddit.
+
+    Sleeping first made 45 subreddits cost 88s of spacing after the budget
+    was gone, past the 120s Bash cap the budget exists to stay under.
+    """
+    now = [0.0]
+    fetched: list[str] = []
+    waits: list[float] = []
+
+    def slow_fetch(url: str, **kwargs: object) -> http.Response:
+        fetched.append(url)
+        now[0] += 50.0
+        return http.Response(200, "", {})
+
+    def sleep(seconds: float) -> None:
+        waits.append(seconds)
+        now[0] += seconds
+
+    fetch_cli.search_reddit(
+        "x",
+        [f"s{i}" for i in range(45)],
+        fetch=slow_fetch,
+        sleep=sleep,
+        budget_seconds=75.0,
+        clock=lambda: now[0],
+    )
+
+    assert len(fetched) == 2
+    assert len(waits) == len(fetched) - 1
+    assert now[0] < 120.0
+
+
+@pytest.mark.unit
 def test_find_full_text_stops_at_the_budget() -> None:
     now = [0.0]
 

@@ -14,8 +14,8 @@ description: "[Role] - [capability] to achieve [outcome]. Use when: [context], [
 # session's, and a dated ID is retired on a rolling basis.
 model: sonnet
 effort: medium
-tools_allowed: [Read, Write, Grep, Glob]
-max_iterations: 10
+tools: [Read, Write, Grep, Glob]
+maxTurns: 10
 category: agent
 tags: [relevant, keywords]
 complexity: intermediate
@@ -48,8 +48,8 @@ name: project-architect
 description: Architecture design specialist - analyzes requirements and generates component-based system architecture with technology selection. Use when: designing system architecture, defining components, selecting technology stack, making architectural decisions.
 model: sonnet
 effort: medium
-tools_allowed: [Read, Write, Grep, Glob]
-max_iterations: 10
+tools: [Read, Write, Grep, Glob]
+maxTurns: 10
 ---
 ```
 

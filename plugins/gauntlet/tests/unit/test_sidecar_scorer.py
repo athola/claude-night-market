@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from unittest.mock import patch
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 
 import pytest
 
@@ -33,15 +33,15 @@ class TestSidecarScorer:
         assert scorer.available() is False
 
     @pytest.mark.unit
-    def test_score_returns_zero_when_unavailable(self, tmp_path: Path):
+    def test_score_returns_none_when_unavailable(self, tmp_path: Path):
         """
         Scenario: Oracle unavailable returns 0.0
         Given no oracle daemon running
         When score is called
-        Then it returns 0.0
+        Then it returns None
         """
         scorer = SidecarScorer(tmp_path / "nonexistent.port")
-        assert scorer.score({"feat_a": 1.0}) == 0.0
+        assert scorer.score({"feat_a": 1.0}) is None
 
     @pytest.mark.unit
     def test_available_when_daemon_healthy(self, tmp_path: Path):
@@ -141,19 +141,19 @@ class TestSidecarScorer:
         assert scorer.available() is False
 
     @pytest.mark.unit
-    def test_score_returns_zero_when_port_file_has_non_integer_content(
+    def test_score_returns_none_when_port_file_has_non_integer_content(
         self, tmp_path: Path
     ):
         """
         Scenario: score() returns 0.0 when port file is non-integer
         Given a port file that contains "garbage"
         When score() is called
-        Then it returns 0.0
+        Then it returns None
         """
         port_file = tmp_path / "daemon.port"
         port_file.write_text("garbage")
         scorer = SidecarScorer(port_file)
-        assert scorer.score({"feat_a": 1.0}) == 0.0
+        assert scorer.score({"feat_a": 1.0}) is None
 
     # ------------------------------------------------------------------
     # Health check network errors (lines 126, 133-134)
@@ -276,12 +276,12 @@ class TestSidecarScorer:
     # ------------------------------------------------------------------
 
     @pytest.mark.unit
-    def test_score_returns_zero_on_url_error_during_infer(self, tmp_path: Path):
+    def test_score_returns_none_on_url_error_during_infer(self, tmp_path: Path):
         """
         Scenario: Network error during /infer call
         Given a valid port file but urlopen raises URLError on /infer
         When score() is called
-        Then it returns 0.0 and resets the cached URL
+        Then it returns None and resets the cached URL
         """
         port_file = tmp_path / "daemon.port"
         port_file.write_text("12345")
@@ -291,16 +291,16 @@ class TestSidecarScorer:
         with patch("gauntlet.ml.scorer.urlopen", side_effect=URLError("timeout")):
             result = scorer.score({"feat_a": 1.0})
 
-        assert result == 0.0
+        assert result is None
         assert scorer._base_url is None
 
     @pytest.mark.unit
-    def test_score_returns_zero_on_malformed_json_from_infer(self, tmp_path: Path):
+    def test_score_returns_none_on_malformed_json_from_infer(self, tmp_path: Path):
         """
         Scenario: Daemon returns malformed JSON on /infer
         Given a valid port file and a daemon that returns bad JSON
         When score() is called
-        Then it returns 0.0 and resets the cached URL
+        Then it returns None and resets the cached URL
         """
         port_file = tmp_path / "daemon.port"
         port_file.write_text("12345")
@@ -311,16 +311,16 @@ class TestSidecarScorer:
             mock_urlopen.return_value = make_urlopen_response(b"{{bad json}}")
             result = scorer.score({"feat_a": 1.0})
 
-        assert result == 0.0
+        assert result is None
         assert scorer._base_url is None
 
     @pytest.mark.unit
-    def test_score_returns_zero_on_value_error_from_infer(self, tmp_path: Path):
+    def test_score_returns_none_on_value_error_from_infer(self, tmp_path: Path):
         """
         Scenario: Daemon returns JSON with a non-numeric score field
         Given a valid port file and a daemon that returns {"score": "NaN"}
         When score() is called
-        Then it returns 0.0 and resets the cached URL
+        Then it returns None and resets the cached URL
         """
         port_file = tmp_path / "daemon.port"
         port_file.write_text("12345")
@@ -333,5 +333,28 @@ class TestSidecarScorer:
             )
             result = scorer.score({"feat_a": 1.0})
 
-        assert result == 0.0
+        assert result is None
         assert scorer._base_url is None
+
+
+class TestAnUnusableResponseIsNotAZeroScore:
+    """A malformed or refused answer must not blend in as a real 0.0."""
+
+    @pytest.mark.unit
+    def test_a_response_without_a_score_is_none(self, tmp_path: Path) -> None:
+        port_file = tmp_path / "daemon.port"
+        port_file.write_text("12345")
+        with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
+            mock_urlopen.return_value = make_urlopen_response(b'{"blend": {}}')
+            assert SidecarScorer(port_file).score({"feat_a": 1.0}) is None
+
+    @pytest.mark.unit
+    def test_an_http_error_keeps_the_daemon_address(self, tmp_path: Path) -> None:
+        """The daemon answered; a 400 is a bad request, not an outage."""
+        port_file = tmp_path / "daemon.port"
+        port_file.write_text("12345")
+        scorer = SidecarScorer(port_file)
+        refused = HTTPError("http://127.0.0.1:12345/infer", 400, "bad", {}, None)
+        with patch("gauntlet.ml.scorer.urlopen", side_effect=refused):
+            assert scorer.score({"feat_a": 1.0}) is None
+        assert scorer._base_url is not None

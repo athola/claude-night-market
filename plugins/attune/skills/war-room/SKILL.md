@@ -6,7 +6,6 @@ alwaysApply: false
 category: strategic-planning
 tags: [deliberation, multi-llm, strategy, decision-making, council, reversibility]
 complexity: advanced
-model_hint: deep
 estimated_tokens: 2500
 progressive_loading: true
 modules:

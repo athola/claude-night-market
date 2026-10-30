@@ -109,22 +109,6 @@ status: ## Show project overview
 	@echo "Tools:  $$(find tools/ src/ -name '*.py' 2>/dev/null | wc -l)"
 	@echo "Tests:  $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "PYTHON: $(PYTHON)"
-	@echo "UV: $(UV)"
-	@echo "UV_RUN: $(UV_RUN)"
-	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "PYTHONPATH: $(PYTHONPATH)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
-	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
-	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
-	@echo "COV_DIRS: $(COV_DIRS)"
-	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
-	@echo "MAKEFLAGS: $(MAKEFLAGS)"
-
 # ---------- Plugin control ----------
 enable:
 	$(PY) scripts/memory_palace_cli.py enable
@@ -180,11 +164,7 @@ clean-queue: ## Remove auto-generated queue files from tests
 
 # ---------- Advanced Testing ----------
 mutation-test: ## Run mutation testing
-	@if command -v mutmut >/dev/null 2>&1; then \
-		mutmut run --paths-to-mutate src/memory_palace --tests-dir tests/; \
-	else \
-		echo "mutmut not installed (pip install mutmut)"; \
-	fi
+	$(MUTMUT) run --paths-to-mutate src/memory_palace --tests-dir tests/
 
 benchmark: ## Run performance benchmarks (memory operations)
 	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
@@ -363,9 +343,3 @@ test-review-room: ## Test review-room command (runs review-room unit tests)
 test-skill-logs: ## Test skill-logs command (runs skill logging unit tests)
 	@echo "Running skill-logs tests..."
 	$(PYTEST) tests/ -v -k "skill and log"
-
-# Guard against accidental file creation (catch-all for unknown targets)
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

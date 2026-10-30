@@ -13,7 +13,6 @@ tags:
 - replay
 tools: []
 complexity: medium
-model_hint: standard
 estimated_tokens: 1500
 progressive_loading: false
 dependencies:

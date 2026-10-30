@@ -38,14 +38,15 @@ def recommend_tdd_workflow(code: str) -> dict[str, Any]:
             "test_" + re.sub(r"[^a-z0-9_]", "_", requirement.lower()).strip("_")[:50]
         )
 
+        first_word = re.sub(r"[^a-z0-9_]", "", requirement.split()[0].lower())
         step: dict[str, Any] = {
             "description": f"Implement: {requirement}",
             "test_name": test_name,
             "implementation_hint": f"Start with the simplest "
             f"implementation for: {requirement}",
             "test_cases": [
-                f"test_{requirement.split()[0].lower()}_success",
-                f"test_{requirement.split()[0].lower()}_failure",
+                f"test_{first_word}_success",
+                f"test_{first_word}_failure",
             ],
         }
         steps.append(step)

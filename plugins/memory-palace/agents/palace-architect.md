@@ -57,7 +57,9 @@ Returns palace specification with:
 
 ## Implementation
 
-Uses the palace_manager.py tool for palace creation:
+Load `Skill(memory-palace:memory-palace-architect)` for the design
+method and its modules before designing. Create the palace record with
+the plugin CLI:
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/src/memory_palace/palace_manager.py create "<name>" "<domain>" --metaphor <type>
+python ${CLAUDE_PLUGIN_ROOT}/scripts/memory_palace_cli.py create "<name>" "<domain>" --metaphor <type>
 ```

@@ -7,7 +7,7 @@ import logging
 import math
 from pathlib import Path as _Path
 from typing import Protocol
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 # Issue #518: PyYAML is declared in pyproject.toml but the gauntlet
@@ -32,8 +32,8 @@ class Scorer(Protocol):
     Phase 2: SidecarScorer (HTTP to localhost daemon).
     """
 
-    def score(self, features: dict[str, float]) -> float:
-        """Return a score for the given feature vector."""
+    def score(self, features: dict[str, float]) -> float | None:
+        """Return a score for the feature vector, or None when there is none."""
         ...  # pragma: no cover
 
     def available(self) -> bool:
@@ -66,7 +66,7 @@ class YamlScorer:
         """Load model coefficients from YAML."""
         if not _HAS_YAML:
             # PyYAML unavailable: stay unloaded so available() returns False
-            # and the score() fallback returns 0.0 (issue #518).
+            # and score() returns None (issue #518).
             self._loaded = False
             return
         # _HAS_YAML implies _yaml is the imported pyyaml module.
@@ -95,10 +95,13 @@ class YamlScorer:
             _log.warning("Failed to load model from %s: %s", model_path, exc)
             self._loaded = False
 
-    def score(self, features: dict[str, float]) -> float:
-        """Compute dot product of weights and features, plus intercept."""
+    def score(self, features: dict[str, float]) -> float | None:
+        """Compute dot product of weights and features, plus intercept.
+
+        None when no model loaded: 0.0 is a real score and would be blended.
+        """
         if not self._loaded:
-            return 0.0
+            return None
         linear = sum(w * features.get(name, 0.0) for name, w in self._weights.items())
         linear += self._intercept
         if self._use_sigmoid:
@@ -168,15 +171,17 @@ class SidecarScorer:
             self._base_url = None
             return False
 
-    def score(self, features: dict[str, float]) -> float:
-        """Send features to daemon and return score.
+    def score(self, features: dict[str, float]) -> float | None:
+        """Send features to daemon and return score, or None without one.
 
-        Also caches blend weights from the response so
-        ``blend_weights`` reflects the model's configuration.
+        None, not 0.0, for an unreachable daemon or an answer with no
+        score: 0.0 is a real score and would be blended into the ranking.
+        Also caches blend weights from the response so ``blend_weights``
+        reflects the model's configuration.
         """
         base = self._resolve_url()
         if base is None:
-            return 0.0
+            return None
         try:
             body = _json.dumps(
                 {
@@ -197,10 +202,15 @@ class SidecarScorer:
                         float(blend.get("word_overlap_weight", 0.5)),
                         float(blend.get("ml_weight", 0.5)),
                     )
-                return float(data.get("score", 0.0))
+                if "score" not in data:
+                    return None
+                return float(data["score"])
+        except HTTPError:
+            # The daemon answered; a 400/404 is a bad request, not an outage.
+            return None
         except (URLError, OSError, _json.JSONDecodeError, ValueError):
             self._base_url = None
-            return 0.0
+            return None
 
     @property
     def blend_weights(self) -> tuple[float, float]:

@@ -1053,3 +1053,153 @@ class TestFrontmatterAndCommandEdgesAreRefused:
         assert out.startswith(f"MISSING ({gate.MISSING})")
         assert "  - " in out
         assert "design.md" in out
+
+
+class TestInlineCodeIsRefused:
+    """A shell or interpreter given code as a string hides it from the gate.
+
+    The bypass checks read argv words. ``sh -c "git push --force"`` is one
+    word to them, so the force push went through unread.
+    """
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            'sh -c "git push --force origin main"',
+            'bash -c "git commit --no-verify -m x"',
+            'env -S "git commit -n"',
+            "python3 -c print(1)",
+            "node -e 1",
+            'bash -o pipefail -c "git push --force origin main"',
+            'bash -o errexit -o pipefail -c "git push -f"',
+            "python3 -Ic print(1)",
+            "python3 -W ignore -c print(1)",
+            "python3 -X dev -c print(1)",
+            "bash -xc id",
+            "node --eval 1",
+            "node --eval=1",
+            "node -p 1",
+            "node --print 1",
+            "node --no-warnings -e 1",
+            "perl -E 1",
+            "perl -Mstrict -e 1",
+            "perl -le 1",
+            "ruby -w -e 1",
+        ],
+    )
+    def test_inline_code_is_refused(self, tmp_path: Path, command: str) -> None:
+        handoff = GOOD_HANDOFF.replace(
+            "test: uv run pytest tests/ -q", f"test: '{command}'"
+        )
+        result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
+        assert result.state == "UNSAFE"
+        assert any("runs code given as a string" in p for p in result.problems)
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "bash scripts/check.sh",
+            # Options after the module or script belong to that program.
+            "python3 -m pytest -c pytest.ini",
+            "python3 -W ignore -m pytest -c pytest.ini",
+            "bash scripts/check.sh -c",
+            "python3 scripts/run.py -c config.toml",
+            "node scripts/build.js -e production",
+        ],
+    )
+    def test_options_after_the_program_are_admitted(
+        self, tmp_path: Path, command: str
+    ) -> None:
+        handoff = GOOD_HANDOFF.replace(
+            "test: uv run pytest tests/ -q", f"test: '{command}'"
+        )
+        result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
+        assert result.state == "READY", result.problems
+
+
+class TestIdsAndPathsAreTyped:
+    """Shapes the later checks hash or iterate are refused, not raised on."""
+
+    def test_a_list_task_id_is_malformed_not_a_crash(self, tmp_path: Path) -> None:
+        tasks = GOOD_TASKS.replace("  - id: T1\n", "  - id: [1]\n", 1)
+        result = gate.check_item(write_item(tmp_path, **{"tasks.md": tasks}))
+        assert result.state == "MALFORMED"
+        assert any("id must be a string" in p for p in result.problems)
+
+    def test_a_list_trace_entry_is_malformed_not_a_crash(self, tmp_path: Path) -> None:
+        design = GOOD_DESIGN.replace("AC1: [T1, T2]", "AC1: [[1], T2]")
+        result = gate.check_item(write_item(tmp_path, **{"design.md": design}))
+        assert result.state == "MALFORMED"
+
+    def test_a_string_allow_paths_is_refused(self, tmp_path: Path) -> None:
+        handoff = GOOD_HANDOFF.replace(
+            "  allow_paths:\n"
+            "    - plugins/conjure/scripts/delegation_executor.py\n"
+            "    - plugins/conjure/tests/test_delegation_error_paths.py\n",
+            "  allow_paths: plugins/conjure\n",
+        )
+        result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
+        assert result.state == "UNSAFE"
+        assert any("allow_paths must be a list" in p for p in result.problems)
+
+
+class TestEveryBudgetNumberIsChecked:
+    """The driver reads these through int(); the gate must read them first."""
+
+    @pytest.mark.parametrize(
+        ("line", "bad"),
+        [
+            ("max_attempts_per_task: 3", "max_attempts_per_task: three"),
+            ("implementer_timeout_s: 900", "implementer_timeout_s: '900'"),
+            ("claude_token_ceiling: 120000", "claude_token_ceiling: 0"),
+            ("max_tasks: 6", "max_tasks: -1"),
+        ],
+    )
+    def test_an_unreadable_or_non_positive_budget_is_refused(
+        self, tmp_path: Path, line: str, bad: str
+    ) -> None:
+        handoff = GOOD_HANDOFF.replace(line, bad)
+        result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
+        assert result.state == "UNSAFE"
+        assert any(bad.split(":", maxsplit=1)[0] in p for p in result.problems)
+
+
+class TestATaskMustNameItsFiles:
+    """A task without files commits with no pathspec, which takes the index."""
+
+    @pytest.mark.parametrize("files_line", ["    files: []\n", ""])
+    def test_a_task_with_no_files_is_refused(
+        self, tmp_path: Path, files_line: str
+    ) -> None:
+        tasks = GOOD_TASKS.replace(
+            "    files: [plugins/conjure/scripts/delegation_executor.py]\n",
+            files_line,
+        )
+        result = gate.check_item(write_item(tmp_path, **{"tasks.md": tasks}))
+        assert result.state == "INCOHERENT"
+        assert any("T2 names no files" in p for p in result.problems)
+
+
+class TestPlanFallbackIsARealBool:
+    """The runner reads allow_on_plan_fallback through bool(); "false" is truthy."""
+
+    @pytest.mark.parametrize("raw", ['"false"', '"true"', "0", "yes-please"])
+    def test_a_non_bool_plan_fallback_is_refused(
+        self, tmp_path: Path, raw: str
+    ) -> None:
+        handoff = GOOD_HANDOFF.replace(
+            "allow_on_plan_fallback: false", f"allow_on_plan_fallback: {raw}", 1
+        )
+        result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
+        assert result.state == "UNSAFE"
+        assert any("allow_on_plan_fallback" in p for p in result.problems)
+
+    @pytest.mark.parametrize("raw", ["true", "false"])
+    def test_a_real_bool_plan_fallback_is_admitted(
+        self, tmp_path: Path, raw: str
+    ) -> None:
+        handoff = GOOD_HANDOFF.replace(
+            "allow_on_plan_fallback: false", f"allow_on_plan_fallback: {raw}", 1
+        )
+        result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
+        assert result.state == "READY", result.problems

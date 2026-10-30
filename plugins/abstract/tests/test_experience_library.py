@@ -2,7 +2,9 @@
 
 from pathlib import Path
 
-from abstract.experience_library import ExperienceLibrary
+from abstract.experience_library import ExperienceLibrary, format_context
+
+PROJECT = "proj-a"
 
 
 class TestExperienceLibraryStorage:
@@ -12,6 +14,7 @@ class TestExperienceLibraryStorage:
         """Given a successful execution, when stored, then file created."""
         lib = ExperienceLibrary(tmp_path / "experience-library")
         lib.store(
+            project=PROJECT,
             skill_ref="abstract:test-skill",
             task_description="Generate API docs from OpenAPI spec",
             approach_taken="Used jinja2 templates",
@@ -28,6 +31,7 @@ class TestExperienceLibraryStorage:
         """Given a failed execution, when stored, then rejected."""
         lib = ExperienceLibrary(tmp_path / "experience-library")
         lib.store(
+            project=PROJECT,
             skill_ref="abstract:test-skill",
             task_description="Failed attempt",
             approach_taken="Wrong approach",
@@ -41,7 +45,84 @@ class TestExperienceLibraryStorage:
 
 
 class TestExperienceLibraryRetrieval:
-    """Test retrieving similar past experiences."""
+    """Recent entries are what the PreToolUse hook injects."""
+
+    def test_recent_entries_returns_newest_first_up_to_limit(
+        self, tmp_path: Path
+    ) -> None:
+        lib = ExperienceLibrary(tmp_path / "experience-library")
+        # Hash filenames sort in an order unrelated to insertion.
+        for task in ("alpha", "bravo", "charlie", "delta"):
+            lib.store(
+                project=PROJECT,
+                skill_ref="abstract:test-skill",
+                task_description=task,
+                approach_taken="",
+                outcome="success",
+                duration_ms=1,
+            )
+
+        recent = lib.recent_entries("abstract:test-skill", limit=3, project=PROJECT)
+
+        assert [e["task_description"] for e in recent] == [
+            "delta",
+            "charlie",
+            "bravo",
+        ]
+
+    def test_recent_entries_for_unknown_skill_creates_nothing(
+        self, tmp_path: Path
+    ) -> None:
+        lib = ExperienceLibrary(tmp_path / "experience-library")
+
+        assert lib.recent_entries("abstract:never-run", limit=3, project=PROJECT) == []
+        assert not (tmp_path / "experience-library" / "abstract_never-run").exists()
+
+    def test_recent_entries_skip_other_projects_and_non_objects(
+        self, tmp_path: Path
+    ) -> None:
+        lib = ExperienceLibrary(tmp_path / "experience-library")
+        for project in ("proj-a", "proj-b"):
+            lib.store(
+                project=project,
+                skill_ref="abstract:test-skill",
+                task_description="same task",
+                approach_taken="",
+                outcome="success",
+                duration_ms=1,
+            )
+        (
+            tmp_path / "experience-library" / "abstract_test-skill" / "null.json"
+        ).write_text("null")
+
+        recent = lib.recent_entries("abstract:test-skill", limit=5, project="proj-b")
+
+        assert [e["project"] for e in recent] == ["proj-b"]
+        assert len(lib.list_entries("abstract:test-skill")) == 2
+
+    def test_untimed_execution_is_stored_without_a_duration(
+        self, tmp_path: Path
+    ) -> None:
+        lib = ExperienceLibrary(tmp_path / "experience-library")
+        lib.store(
+            project=PROJECT,
+            skill_ref="abstract:test-skill",
+            task_description="untimed",
+            approach_taken="",
+            outcome="success",
+            duration_ms=None,
+        )
+
+        assert lib.list_entries("abstract:test-skill")[0]["duration_ms"] is None
+
+    def test_format_context_caps_each_entry(self) -> None:
+        entries = [{"task_description": "y" * 9000}, {"task_description": "short"}]
+
+        text = format_context(entries, max_chars_each=200)
+
+        assert "short" in text
+        assert "y" * 150 in text
+        assert "y" * 200 not in text
 
 
 class TestExperienceLibraryPruning:
@@ -52,6 +133,7 @@ class TestExperienceLibraryPruning:
         lib = ExperienceLibrary(tmp_path / "experience-library")
         for i in range(25):
             lib.store(
+                project=PROJECT,
                 skill_ref="abstract:test-skill",
                 task_description=f"Task {i} unique description",
                 approach_taken=f"Approach {i}",
@@ -71,6 +153,7 @@ class TestExperienceLibraryEdgeCases:
         """Given corrupt JSON file in library, when listing, then skip gracefully."""
         lib = ExperienceLibrary(tmp_path / "experience-library")
         lib.store(
+            project=PROJECT,
             skill_ref="abstract:test-skill",
             task_description="Valid entry",
             approach_taken="Good approach",

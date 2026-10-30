@@ -4,7 +4,6 @@ name: framework-detection
 description: Language and test framework detection patterns
 category: testing
 tags: [testing, framework-detection, language-detection]
-load_priority: 1
 estimated_tokens: 250
 ---
 

@@ -58,22 +58,6 @@ status: ## Show project overview
 	@echo "Agents:   $$(find agents/ -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Tests:    $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "PYTHON: $(PYTHON)"
-	@echo "UV: $(UV)"
-	@echo "UV_RUN: $(UV_RUN)"
-	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "PYTHONPATH: $(PYTHONPATH)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
-	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
-	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
-	@echo "COV_DIRS: $(COV_DIRS)"
-	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
-	@echo "MAKEFLAGS: $(MAKEFLAGS)"
-
 # ---------- Demo/Dogfood Targets ----------
 demo-init: ## Demo project initialization workflow
 	@echo "=== Attune Project Init Demo ==="
@@ -176,7 +160,3 @@ Makefile.local:;
 -include Makefile.local
 
 # Catch-all rule
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

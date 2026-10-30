@@ -97,7 +97,10 @@ const read = await parallel(
 // constitution lens is the one missing, an empty blocking list is the
 // exact answer that unblocks planning, and it would be unearned.
 const missing = LENSES.filter((lens, index) => !read[index]).map((lens) => lens.key)
-const reports = read.filter(Boolean)
+// The lens comes from the roster, not from the agent's own report.
+const reports = read
+  .map((report, index) => report && { ...report, lens: LENSES[index].key })
+  .filter(Boolean)
 const findings = reports.flatMap((report) =>
   (report.findings || []).map((finding) => ({ ...finding, lens: report.lens })),
 )
@@ -139,7 +142,10 @@ const gaps = await agent(
   `These findings came from four blind readings of ${spec}. Write what must be settled before planning starts.\n\n${digest}\n\nWhere two lenses found the same underlying gap, say it once. A requirement that is both untestable and uncovered is one gap about a requirement nobody has thought through. Order by what blocks the most downstream work, and state plainly if nothing blocks.`,
   { label: 'gaps', phase: 'Gaps', schema: GAPS },
 )
+// A dead gaps agent returns the same null as the skip path above.
+const failed = gaps ? null : 'gaps'
+if (failed) log('no result from the gaps stage. The gap report was not produced. Do not start planning from this run')
 
 log(`${findings.length} findings on ${spec}, ${blocking.length} blocking`)
 
-return { spec, findings, blocking, gaps, coverage }
+return { spec, findings, blocking, gaps, coverage, failed }

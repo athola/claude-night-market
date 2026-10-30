@@ -13,9 +13,12 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -375,6 +378,105 @@ def detect_uncalled_libraries(graph: SkillGraph) -> list[str]:
     return sorted(uncalled)
 
 
+# shared-utility-consumer-rule.md: names that claim a utility role, the
+# consumers such a skill must earn, and the grace period to earn them in.
+_UTILITY_NAME = re.compile(r"(-core|-shared|-patterns)$|^shared-")
+# archetypes' paradigm skills carry the paradigm's own name ("Functional
+# Core"), which is not a claim to be shared scaffolding.
+_PARADIGM_PREFIX = "architecture-paradigm-"
+MIN_UTILITY_CONSUMERS = 2
+UTILITY_GRACE_DAYS = 30
+
+
+def _git_added_at(skill_md: Path) -> datetime | None:
+    """When git first saw ``skill_md``, or None when git cannot say.
+
+    A refusal (not a repository, dubious ownership) or a missing binary is
+    reported on stderr: either one would otherwise look like a skill git
+    has no history for.
+    """
+    try:
+        log = subprocess.run(
+            [
+                "git",
+                "log",
+                "--diff-filter=A",
+                "--follow",
+                "--format=%ct",
+                "--",
+                skill_md.name,
+            ],
+            cwd=skill_md.parent,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        sys.stderr.write("skill_graph: git unavailable; skill ages are unknown\n")
+        return None
+    if log.returncode != 0:
+        sys.stderr.write(f"skill_graph: git log failed: {log.stderr.strip()}\n")
+        return None
+    added = log.stdout.split()
+    if not added:
+        return None
+    return datetime.fromtimestamp(int(added[-1]), tz=timezone.utc)
+
+
+def detect_unearned_utilities(
+    graph: SkillGraph,
+    plugins_root: Path,
+    added_at: Callable[[Path], datetime | None] = _git_added_at,
+    now: datetime | None = None,
+) -> list[str]:
+    """Return utility-named skills past their grace period with too few consumers.
+
+    A consumer is a skill whose ``Skill()`` reference or frontmatter
+    dependency names it, or a command or agent file that mentions
+    ``plugin:name``. A skill whose frontmatter carries
+    ``fold_back_exception`` has a documented second-consumer plan and is
+    skipped. One with no recorded add date is skipped too: its age is
+    unknown, not old.
+    """
+    if _yaml is None:
+        # Frontmatter dependencies are most of the inbound edges, so
+        # without PyYAML every utility would look unconsumed.
+        return []
+    now = now or datetime.now(timezone.utc)
+    prose = [
+        path.read_text(encoding="utf-8", errors="replace")
+        for kind in ("commands", "agents")
+        for path in plugins_root.glob(f"*/{kind}/*.md")
+    ]
+    unearned = []
+    undated = 0
+    for key, node in graph.nodes.items():
+        if not _UTILITY_NAME.search(node.name) or node.name.startswith(
+            _PARADIGM_PREFIX
+        ):
+            continue
+        if "fold_back_exception" in _parse_frontmatter(node.text):
+            continue
+        added = added_at(node.path)
+        if added is None:
+            undated += 1
+            continue
+        if (now - added).days < UTILITY_GRACE_DAYS:
+            continue
+        mention = re.compile(rf"(?<![\w-]){re.escape(key)}(?![\w-])")
+        consumers = len(graph.inbound.get(key, ())) + sum(
+            1 for text in prose if mention.search(text)
+        )
+        if consumers < MIN_UTILITY_CONSUMERS:
+            unearned.append(key)
+    if undated:
+        sys.stderr.write(
+            f"skill_graph: {undated} utility-named skill(s) not judged: "
+            "git gave no add date\n"
+        )
+    return sorted(unearned)
+
+
 def classify_by_role(graph: SkillGraph) -> dict[str, list[str]]:
     """Bin skills by declared role, with `unset` for legacy skills.
 
@@ -467,6 +569,7 @@ def generate_report(plugins_root: Path, top_n: int = 10) -> dict:
     classified = classify_dangling_refs(graph)
     by_role = classify_by_role(graph)
     uncalled_libs = detect_uncalled_libraries(graph)
+    unearned = detect_unearned_utilities(graph, plugins_root)
     return {
         "marketplace": str(plugins_root),
         "totals": {
@@ -488,6 +591,7 @@ def generate_report(plugins_root: Path, top_n: int = 10) -> dict:
         ],
         "isolates": detect_isolates(graph),
         "uncalled_libraries": uncalled_libs,
+        "unearned_utilities": unearned,
         "by_role": by_role,
         "dangling_refs": {
             "bugs": [{"source": s, "target": t} for s, t in classified["bugs"]],
@@ -539,6 +643,14 @@ def _format_text_report(report: dict) -> str:
         )
         for u in report["uncalled_libraries"]:
             lines.append(f"  {u}")
+    if report["unearned_utilities"]:
+        lines.append("")
+        lines.append(
+            f"Utility skills short of {MIN_UTILITY_CONSUMERS} consumers after "
+            f"{UTILITY_GRACE_DAYS} days ({len(report['unearned_utilities'])}):"
+        )
+        for u in report["unearned_utilities"]:
+            lines.append(f"  {u}")
     bugs = report["dangling_refs"]["bugs"]
     if bugs:
         lines.append("")
@@ -556,6 +668,13 @@ def _format_text_report(report: dict) -> str:
 
 def main() -> int:
     """CLI entry point: emit a graph report for a plugins tree."""
+    if _yaml is None:
+        print(
+            "skill_graph: PyYAML is missing, so frontmatter dependencies are "
+            "skipped and the graph is incomplete. Run it with "
+            "`uv run --with pyyaml python`.",
+            file=sys.stderr,
+        )
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--plugins-root",

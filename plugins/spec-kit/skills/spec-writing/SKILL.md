@@ -17,7 +17,6 @@ usage_patterns:
 - requirements-documentation
 - user-story-creation
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 1200
 progressive_loading: true
 modules:

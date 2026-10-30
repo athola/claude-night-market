@@ -30,6 +30,10 @@ name: Ecosystem Tests (root tests/ suite)
 #
 # `tests/test_ci_covers_ecosystem_gates.py` derives both sides from their
 # sources and fails if they drift apart again.
+#
+# `**/*.sh`, `scripts/**` and `plugins/*/scripts/**` are here for the
+# shellcheck and shfmt gates, and `.github/workflows/**` for the guards that
+# read every workflow, such as `test_ci_installs_shell_tooling.py`.
 
 on:
   push:
@@ -46,7 +50,10 @@ on:
       - "conftest.py"
       - "pyproject.toml"
       - "Makefile"
-      - ".github/workflows/ecosystem-tests.yml"
+      - ".github/workflows/**"
+      - "**/*.sh"
+      - "scripts/**"
+      - "plugins/*/scripts/**"
   pull_request:
     paths:
       - "plugins/*/skills/**"
@@ -60,7 +67,10 @@ on:
       - "conftest.py"
       - "pyproject.toml"
       - "Makefile"
-      - ".github/workflows/ecosystem-tests.yml"
+      - ".github/workflows/**"
+      - "**/*.sh"
+      - "scripts/**"
+      - "plugins/*/scripts/**"
   workflow_dispatch:
 
 concurrency:
@@ -75,12 +85,27 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v7.0.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.0
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+
+      # The shellcheck and shfmt gates in tests/ skip when their binary is
+      # absent, and the runner image ships no shfmt.
+      - name: Install shell tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          curl -fsSL -o /tmp/shfmt \
+            https://github.com/mvdan/sh/releases/download/v3.13.1/shfmt_v3.13.1_linux_amd64
+          # sha256 of that asset as the GitHub release API publishes it
+          # (assets[].digest). A changed binary fails the job here.
+          echo "fb096c5d1ac6beabbdbaa2874d025badb03ee07929f0c9ff67563ce8c75398b1  /tmp/shfmt" | sha256sum -c -
+          sudo install -m 0755 /tmp/shfmt /usr/local/bin/shfmt
+          shellcheck --version
+          shfmt --version
 
       - name: Run root ecosystem suite
         run: make test-ecosystem

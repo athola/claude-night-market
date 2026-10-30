@@ -14,7 +14,7 @@ export const meta = {
   description:
     'Run the deep bloat scan across several code areas at once and consolidate the findings that span more than one',
   whenToUse:
-    'Run after a tier-1 scan flags areas, or before a release. args.areas lists the directories to scan. args.tier selects the depth. Returns findings ranked by what deleting them would save. It deletes nothing.',
+    'Run after a tier-1 scan flags areas, or before a release. args.areas lists the directories to scan. Returns findings ranked by what deleting them would save. Findings with no line count come last. It deletes nothing.',
   phases: [
     { title: 'Scan', detail: 'one agent per flagged area' },
     { title: 'Consolidate', detail: 'find the duplication that spans areas' },
@@ -73,8 +73,27 @@ const scanned = await parallel(
 
 // An area whose scanner returned nothing is unscanned, not clean.
 const missing = areas.filter((area, index) => !scanned[index])
-const reports = scanned.filter(Boolean)
-const all = reports.flatMap((report) => report.findings || [])
+const reports = scanned
+  .map((report, index) => report && { ...report, area: areas[index] })
+  .filter(Boolean)
+// Each finding keeps its area, which the consolidator needs to tell one
+// area from two. Ranked here by the lines deleting it would save. A
+// scanner may leave the count out (unused-dep, god-object). Those rank
+// after every measured finding with lines: null. A missing count means
+// the savings were never measured.
+const measured = (finding) => typeof finding.lines === 'number'
+const all = reports
+  .flatMap((report) =>
+    (report.findings || []).map((finding) => ({
+      ...finding,
+      area: report.area,
+      lines: measured(finding) ? finding.lines : null,
+    })),
+  )
+  .sort((left, right) => {
+    if (measured(left) !== measured(right)) return measured(left) ? -1 : 1
+    return measured(left) ? right.lines - left.lines : 0
+  })
 const coverage = { scanned: areas.filter((area, index) => scanned[index]), missing }
 
 if (missing.length) log(`no scan from ${missing.join(', ')}. Those areas are unscanned, not clean`)
@@ -106,14 +125,17 @@ const CROSS_AREA = {
 }
 
 const digest = all
-  .map((finding) => `${finding.kind} @ ${finding.location}: ${finding.evidence}`)
+  .map((finding) => `[${finding.area}] ${finding.kind} @ ${finding.location}: ${finding.evidence}`)
   .join('\n')
 
 const crossArea = await agent(
-  `These findings came from separate area scans that could not see each other. Report the duplication that spans more than one area, which no single scan could have found. A function name with different bodies in two areas is one concern modeled twice. Report it with each site.\n\n${digest}\n\nRank what remains by the lines deleting it would save, and say for each whether deletion or integration is the better move. The repository prefers integration over deletion where integration is possible.`,
+  `These findings came from separate area scans that could not see each other. Report the duplication that spans more than one area, which no single scan could have found. A function name with different bodies in two areas is one concern modeled twice. Report it with each site.\n\n${digest}\n\nFor each duplication, say whether deletion or integration is the better move. The repository prefers integration over deletion where integration is possible.`,
   { label: 'consolidate', phase: 'Consolidate', schema: CROSS_AREA },
 )
+// A dead consolidate agent returns the same null as the skip path above.
+const failed = crossArea ? null : 'consolidate'
+if (failed) log('no result from the consolidate stage. Cross-area duplication is unchecked, not absent')
 
 log(`${all.length} findings across ${reports.length} areas`)
 
-return { areas, findings: all, crossArea, coverage }
+return { areas, findings: all, crossArea, coverage, failed }

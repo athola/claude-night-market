@@ -636,7 +636,47 @@ where a plain comment is the honest shape are in
    gh pr diff $PR_NUMBER > /tmp/pr_diff.txt
    ```
 
-10. **Post Line-Specific Comments via Reviews API**
+10. **Post One Formal Review (GitHub and GitLab)**
+
+   Post every finding as one review the platform records as a review,
+   with a verdict, not as separate PR comments. Write the findings to a
+   JSON list of `{id, severity, path, line, body}` (`line` may be null)
+   and the summary to a markdown file, then run:
+
+   ```bash
+   python3 plugins/sanctum/scripts/post_formal_review.py \
+     --platform github --repo OWNER/REPO --pr "$PR_NUMBER" \
+     --findings /tmp/findings.json --summary /tmp/summary.md
+   # GitLab: --platform gitlab --project GROUP/PROJECT --pr "$MR_IID"
+   ```
+
+   The script does the following:
+
+   - **GitHub:** a pending review gets one thread per finding, then is
+     submitted. A finding on a line outside the diff becomes a
+     file-level thread, and one in a file the PR does not touch goes in
+     the review body.
+   - **GitLab:** one draft note per finding, published together with
+     `reviewer_state` (`requested_changes` or `reviewed`), plus an
+     approval when nothing needs fixing.
+   - **Verdict:** it picks the event from the table in step 11,
+     including COMMENT on your own PR.
+
+   Exit 3 means you already have a pending draft review on the PR.
+   GitHub allows one, and GitLab's publish sends every draft you hold, so
+   finishing the review would publish comments you have not sent. Show
+   the user the draft count and ask. Rerun with `--pending join` to add
+   these findings to the draft and submit them together, or let the user
+   submit or discard the draft first. Do not fall back to separate
+   comments.
+
+   Bitbucket: no formal review path is verified here. Use the manual
+   steps below and say so in the summary.
+
+   Steps 10a and 11 below are the manual fallback when the script
+   cannot run.
+
+10a. **Fallback: Post Line-Specific Comments via Reviews API**
 
    **IMPORTANT:** Use the reviews endpoint with a comments array. The individual comments endpoint does NOT support `line`/`side` parameters reliably.
 

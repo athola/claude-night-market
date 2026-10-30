@@ -53,7 +53,11 @@ def test_orchestrator_points_at_the_fallback_module(path: Path) -> None:
 
 
 def test_execution_frontmatter_lists_the_module() -> None:
-    """A module missing from frontmatter is not loaded progressively."""
+    """The repo audit expects every module the skill uses to be listed.
+
+    `meta_evaluation.py` reads the `modules:` key; the runtime load path is
+    the prose pointer pinned by `test_orchestrator_points_at_the_fallback_module`.
+    """
     front = EXECUTION.read_text().split("---")[1]
 
     assert "- modules/subagent-fallback.md" in front

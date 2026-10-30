@@ -113,3 +113,21 @@ def test_root_ruff_config_selects_fa102() -> None:
     config = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     lint = config["tool"]["ruff"]["lint"]
     assert "FA102" in lint["select"]
+
+
+@pytest.mark.parametrize("event", ["push", "pull_request"])
+def test_python39_gate_runs_when_a_hook_import_chain_changes(event: str) -> None:
+    """Hooks import plugin `src/` packages, so a `src/` change can break 3.9."""
+    workflow = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    # PyYAML reads the bare key `on` as the boolean True.
+    assert "plugins/*/src/**" in workflow[True][event]["paths"]
+
+
+def test_python39_gate_imports_every_registered_hook_under_3_9() -> None:
+    workflow = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    job = workflow["jobs"]["hook-imports"]
+    text = " ".join(
+        str(step.get("run", "")) + str(step.get("with", "")) for step in job["steps"]
+    )
+    assert "tests/test_hooks_import_without_project_deps.py" in text
+    assert "3.9" in text

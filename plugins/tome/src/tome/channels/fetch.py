@@ -247,9 +247,9 @@ def search_reddit(  # noqa: PLR0913 - four keyword-only seams (fetch, sleep, bud
     queries: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
     for index, subreddit in enumerate(subreddits):
-        if index:
-            sleep(REDDIT_SPACING_SECONDS)
         found = []
+        # Budget first: spacing before a subreddit that is then skipped spends
+        # the time the budget exists to save.
         if clock() >= deadline:
             error = _spent("reddit")
             error["message"] = f"r/{subreddit}: {_BUDGET_SPENT}"
@@ -262,6 +262,8 @@ def search_reddit(  # noqa: PLR0913 - four keyword-only seams (fetch, sleep, bud
                 }
             )
             continue
+        if index:
+            sleep(REDDIT_SPACING_SECONDS)
         reply = fetch(
             discourse.build_reddit_rss_search_url(topic, subreddit), deadline=deadline
         )

@@ -81,16 +81,18 @@ echo "Repository: $OWNER/$REPO"
 echo "PR: #$PR_NUM"
 
 # Fetch all review threads with their IDs and resolution status
-THREADS_JSON=$(gh api graphql -f query="
-query {
+THREADS_JSON=$(gh api graphql --paginate --slurp -f query="
+query(\$endCursor: String) {
   repository(owner: \"$OWNER\", name: \"$REPO\") {
     pullRequest(number: $PR_NUM) {
-      reviewThreads(first: 100) {
+      reviewThreads(first: 100, after: \$endCursor) {
+        pageInfo { hasNextPage endCursor }
         nodes {
           id
           isResolved
           path
           line
+          subjectType
           comments(first: 1) {
             nodes {
               body
@@ -104,7 +106,7 @@ query {
 }")
 
 # Count unresolved threads
-UNRESOLVED_COUNT=$(echo "$THREADS_JSON" | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+UNRESOLVED_COUNT=$(echo "$THREADS_JSON" | jq '[.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
 
 echo "Unresolved threads: $UNRESOLVED_COUNT"
 
@@ -184,15 +186,17 @@ done
 After replying to and resolving all threads, you MUST verify the resolution was successful:
 ```bash
 # Re-use variables from pre-flight check
-VERIFICATION=$(gh api graphql -f query="
-query {
+VERIFICATION=$(gh api graphql --paginate --slurp -f query="
+query(\$endCursor: String) {
   repository(owner: \"$OWNER\", name: \"$REPO\") {
     pullRequest(number: $PR_NUM) {
-      reviewThreads(first: 100) {
+      reviewThreads(first: 100, after: \$endCursor) {
+        pageInfo { hasNextPage endCursor }
         nodes {
           isResolved
           path
           line
+          subjectType
         }
       }
     }
@@ -200,7 +204,7 @@ query {
 }")
 
 # Count remaining unresolved threads
-REMAINING=$(echo "$VERIFICATION" | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+REMAINING=$(echo "$VERIFICATION" | jq '[.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
 
 echo "Verification: $REMAINING unresolved threads remaining"
 
@@ -209,7 +213,7 @@ if [[ "$REMAINING" -eq 0 ]]; then
 else
   echo "FAILED: $REMAINING threads still unresolved"
   # Show which threads are still unresolved
-  echo "$VERIFICATION" | jq -r '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | "  - \(.path):\(.line)"'
+  echo "$VERIFICATION" | jq -r '.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | "  - \(.path):\(.line // "file")"'
   echo ""
   echo "RESOLUTION REQUIRED:"
   echo "1. Review the above threads and determine why they weren't resolved"

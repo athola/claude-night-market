@@ -2,7 +2,6 @@
 name: ci-integration
 description: GitHub Actions and GitLab CI workflow patterns mirroring local pre-commit checks.
 parent: precommit-setup
-load_when: configuring CI to run the same checks as pre-commit
 ---
 
 # CI Integration

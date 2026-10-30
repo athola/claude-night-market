@@ -17,7 +17,6 @@ usage_patterns:
 - local-model-delegation
 - offline-fallback
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 550
 references:
 - delegation-core/shared-shell-execution.md

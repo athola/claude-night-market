@@ -25,7 +25,6 @@ usage_patterns:
 - quarterly-posture-audit
 - pre-release-security-gate
 complexity: advanced
-model_hint: deep
 estimated_tokens: 1100
 progressive_loading: true
 dependencies:

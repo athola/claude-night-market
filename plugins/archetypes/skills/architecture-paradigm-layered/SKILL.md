@@ -17,7 +17,6 @@ usage_patterns:
 - team-structure-alignment
 - compliance-requirements
 complexity: low
-model_hint: fast
 estimated_tokens: 700
 ---
 

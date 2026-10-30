@@ -413,12 +413,8 @@ def generate_review_list() -> list[Path]:
 Use lifecycle management in your domain:
 
 ```python
-from leyline.storage_templates import (
-    check_promotion_eligibility,
-    promote_content,
-    archive_content,
-    generate_review_schedule,
-)
+# Sketch: these functions are yours to write. leyline ships no
+# storage_templates module.
 
 # Check if content ready for promotion
 if check_promotion_eligibility("async-patterns.md"):

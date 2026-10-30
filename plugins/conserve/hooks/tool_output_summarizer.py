@@ -19,13 +19,13 @@ import os
 import random
 import shlex
 import sys
-import tempfile
 import time
 from pathlib import Path
 from typing import Any
 
 # D-05: shared resolver lives at hooks/shared/session_file.py.
 sys.path.insert(0, str(Path(__file__).parent))
+from shared._vendored_leyline_atomic_file import write_atomic
 from shared.session_file import (
     resolve_session_file,  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
 )
@@ -175,26 +175,13 @@ def archive_large_output(text: str, archive_dir: Path | str | None = None) -> st
     handle = f"ccr-{digest[:CCR_HANDLE_HEX_LEN]}"
     archive_dir.mkdir(parents=True, exist_ok=True)
     target = archive_dir / f"{handle}.txt"
-    # Atomic write: stage to a temp file in the same directory, then os.replace
-    # onto the target. Two concurrent writers of identical content each rename
-    # their own complete temp file, so a reader (or the loser of the race) only
-    # ever sees a whole file, never a half-written one. errors="replace" mirrors
-    # the hash above: a lone surrogate (e.g. from os.fsdecode of a non-UTF-8
-    # filename) must not raise UnicodeEncodeError, which is a ValueError and
-    # would escape the OSError fail-open guard. It also keeps the file content
-    # consistent with its content-addressed handle.
-    fd, tmp_name = tempfile.mkstemp(dir=archive_dir, prefix=f"{handle}.", suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8", errors="replace") as tmp:
-            tmp.write(text)
-        os.replace(tmp_name, target)
-    except BaseException:
-        # Never leave a stray temp file behind on any failure (write or rename).
-        try:
-            os.unlink(tmp_name)
-        except OSError:
-            pass
-        raise
+    # Atomic write: two concurrent writers of identical content each rename
+    # their own complete temp file, so a reader only ever sees a whole file.
+    # errors="replace" mirrors the hash above: a lone surrogate (e.g. from
+    # os.fsdecode of a non-UTF-8 filename) must not raise UnicodeEncodeError,
+    # which is a ValueError and would escape the OSError fail-open guard. It
+    # also keeps the file content consistent with its content-addressed handle.
+    write_atomic(target, text.encode("utf-8", "replace"))
     return handle
 
 

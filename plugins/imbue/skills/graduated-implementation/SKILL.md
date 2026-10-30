@@ -17,7 +17,6 @@ usage_patterns:
 - competence-gated-ramp
 - magenta-hand-fly-check
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 2300
 modules:
 - modules/advancement-gate.md

@@ -3,12 +3,20 @@
 
 When `gh pr create` is run, analyze the blast radius of the
 branch's changes and add risk context as additionalContext.
+
+The branch's changes are everything since its merge base with the PR
+base (``--base``/``-B``, else the remote default branch named by
+``origin/HEAD``). At PR time the work is committed, so a diff against
+HEAD would be empty.
 """
 
 from __future__ import annotations
 
 import json
+import shlex
+import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +43,88 @@ def _find_gauntlet_src() -> Path | None:
     return None
 
 
+#: hooks.json kills this hook at 5s. The spare second covers interpreter
+#: start-up and the graph queries after the analysis's git calls. A killed
+#: hook adds no context and prints nothing. The analysis's git calls get
+#: only what the merge-base lookup and gauntlet's import left of this.
+_HOOK_BUDGET_SECONDS = 4.0
+
+#: Per merge-base git call. Two of them run before the analysis.
+_GIT_TIMEOUT_SECONDS = 1.0
+
+
+class _NoMergeBaseError(RuntimeError):
+    """The PR base or its merge base with HEAD could not be determined."""
+
+
+def _git(*args: str) -> str:
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            capture_output=True,
+            text=True,
+            timeout=_GIT_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError) as exc:
+        raise _NoMergeBaseError(f"git {args[0]} could not run: {exc!r}") from exc
+    if result.returncode != 0:
+        msg = f"git {' '.join(args)} exited with {result.returncode}"
+        raise _NoMergeBaseError(msg)
+    return result.stdout.strip()
+
+
+def _explicit_base(command: str) -> str | None:
+    """Return the branch named by ``--base``/``-B`` in the gh command."""
+    tokens = shlex.split(command)
+    for i, token in enumerate(tokens):
+        if token.startswith("--base="):
+            return token.split("=", 1)[1]
+        if token in ("--base", "-B") and i + 1 < len(tokens):
+            return tokens[i + 1]
+    return None
+
+
+def _merge_base(command: str) -> str:
+    """Return the commit the PR's changes are measured from."""
+    branch = _explicit_base(command)
+    if branch is None:
+        base = _git("symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD")
+    else:
+        base = f"origin/{branch}"
+    return _git("merge-base", "HEAD", base)
+
+
+def _analyze(db_path: Path, base_ref: str, deadline: float) -> dict[str, Any] | None:
+    """Run gauntlet's blast radius analysis, or None when it cannot run."""
+    gauntlet_src = _find_gauntlet_src()
+    if gauntlet_src and str(gauntlet_src) not in sys.path:
+        sys.path.insert(0, str(gauntlet_src))
+
+    try:
+        import gauntlet.blast_radius as _br
+        import gauntlet.graph as _gg
+
+        with _gg.GraphStore(str(db_path)) as graph:
+            report: dict[str, Any] = _br.analyze_changes(
+                graph,
+                base_ref=base_ref,
+                timeout=max(deadline - time.monotonic(), 0.0),
+                weights=_br.load_weights(db_path.parent),
+            )
+    except (ImportError, ModuleNotFoundError):
+        return None
+    except (OSError, ValueError) as exc:
+        print(f"pr_blast_radius: analysis failed: {exc}", file=sys.stderr)
+        return None
+
+    if "error" in report:
+        print(f"pr_blast_radius: analysis skipped: {report['error']}", file=sys.stderr)
+        return None
+
+    return report
+
+
 def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     """Surface blast radius analysis when creating a PR."""
     tool_input = hook_input.get("tool_input", {})
@@ -47,26 +137,16 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if db_path is None:
         return None
 
-    gauntlet_src = _find_gauntlet_src()
-    if gauntlet_src and str(gauntlet_src) not in sys.path:
-        sys.path.insert(0, str(gauntlet_src))
-
+    deadline = time.monotonic() + _HOOK_BUDGET_SECONDS
     try:
-        import gauntlet.blast_radius as _br
-        import gauntlet.graph as _gg
-
-        with _gg.GraphStore(str(db_path)) as graph:
-            report = _br.analyze_changes(
-                graph, base_ref="HEAD", weights=_br.load_weights(db_path.parent)
-            )
-    except (ImportError, ModuleNotFoundError):
-        return None
-    except (OSError, ValueError) as exc:
-        print(f"pr_blast_radius: analysis failed: {exc}", file=sys.stderr)
+        base_ref = _merge_base(command)
+    except (_NoMergeBaseError, ValueError) as exc:
+        # ValueError: shlex could not split an unbalanced quote.
+        print(f"pr_blast_radius: no merge base: {exc}", file=sys.stderr)
         return None
 
-    if "error" in report:
-        print(f"pr_blast_radius: analysis skipped: {report['error']}", file=sys.stderr)
+    report = _analyze(db_path, base_ref, deadline)
+    if report is None:
         return None
 
     overall = report.get("overall_risk", "none")

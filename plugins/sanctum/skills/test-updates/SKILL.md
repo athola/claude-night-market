@@ -20,7 +20,6 @@ usage_patterns:
 - test-enhancement
 - quality-validation
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 1500
 modules:
 - modules/bdd-patterns.md

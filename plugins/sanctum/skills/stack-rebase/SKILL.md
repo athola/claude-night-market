@@ -11,7 +11,6 @@ tags:
 - cascade
 tools: []
 complexity: medium
-model_hint: standard
 estimated_tokens: 900
 dependencies:
 - sanctum:stack-create

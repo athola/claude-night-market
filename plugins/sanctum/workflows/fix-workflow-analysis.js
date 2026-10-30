@@ -113,7 +113,10 @@ const analysis = await agent(
   { label: 'analyse', phase: 'Analyse', agentType: 'sanctum:workflow-improvement-analysis-agent', schema: OPTIONS },
 )
 
-if (!analysis || !analysis.options.length) {
+if (!analysis) {
+  return { started: true, recreation, failed: 'analyse', next: 'The analysis stage returned nothing. Re-run, or generate the options in the session.' }
+}
+if (!analysis.options.length) {
   return { started: true, recreation, failed: 'analyse', next: 'No improvement options were produced. The slice may not need one.' }
 }
 

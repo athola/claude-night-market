@@ -31,7 +31,7 @@ def test_a_failed_write_leaves_the_previous_content_intact(
     def explode(*args: object, **kwargs: object) -> None:
         raise OSError("disk full")
 
-    monkeypatch.setattr(json, "dump", explode)
+    monkeypatch.setattr(os, "replace", explode)
     with pytest.raises(OSError):
         _atomic_write_json(str(target), {"id": "replacement"})
 
@@ -47,7 +47,7 @@ def test_a_failed_write_leaves_no_temporary_file_behind(
     def explode(*args: object, **kwargs: object) -> None:
         raise OSError("disk full")
 
-    monkeypatch.setattr(json, "dump", explode)
+    monkeypatch.setattr(os, "replace", explode)
     with pytest.raises(OSError):
         _atomic_write_json(str(target), {"id": "replacement"})
 

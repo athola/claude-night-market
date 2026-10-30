@@ -12,7 +12,6 @@ tags:
 - iteration
 tools: []
 complexity: high
-model_hint: opus
 estimated_tokens: 2000
 progressive_loading: true
 modules:
@@ -82,6 +81,22 @@ SNAP_DIR="$PROFILE_DIR/learning/snapshots"
 ```
 
 Read all three stages for the target piece.
+
+Steps 2-4 need Opus or larger: telling a tone adjustment from a
+precision edit takes the nuance Sonnet flattens. When this
+session runs Sonnet or Haiku, run them as one dispatch:
+
+```
+Agent(general-purpose):
+  - model: opus
+  - prompt: {Steps 2-4 of this skill, the three snapshot paths,
+    and learning/accumulator.json}
+```
+
+The subagent sees nothing from this conversation and reads the
+snapshots from disk. It returns the proposals and does not write
+the profile. Step 5 approval stays in this session. On an Opus or
+Fable session, run the steps inline.
 
 ## Step 2: Diff Analysis
 

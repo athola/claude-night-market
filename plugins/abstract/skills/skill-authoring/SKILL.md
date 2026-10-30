@@ -28,7 +28,6 @@ dependencies:
 - modular-skills
 - abstract:skill-graph-audit
 estimated_tokens: 1500
-model_hint: standard
 ---
 # Skill Authoring Guide
 

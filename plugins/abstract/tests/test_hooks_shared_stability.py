@@ -65,3 +65,12 @@ def test_worst_window_rate_of_no_runs_is_zero_not_an_error() -> None:
     THEN it is 0.0.
     """
     assert worst_window_rate([]) == 0.0
+
+
+def test_a_skill_recovers_once_its_recent_runs_pass() -> None:
+    """Old failures stop counting: the gap judges recent runs only."""
+    assert stability_gap([0, 0, 0, 1, 1] + [1] * 200) == pytest.approx(0.0)
+
+
+def test_recent_failures_still_count_after_a_long_clean_history() -> None:
+    assert stability_gap([1] * 200 + [0] * WINDOW) > 0.3

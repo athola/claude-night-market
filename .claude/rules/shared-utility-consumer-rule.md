@@ -14,15 +14,23 @@ This rule prevents AP-3 (Strategy Pattern for One Function) at the
 skill-graph level: scaffolding for hypothetical future composition
 that never materializes.
 
-**Detection heuristic** (used by ``abstract:skill-graph-audit``):
+**Detection** (``detect_unearned_utilities`` in
+``plugins/abstract/scripts/skill_graph.py``, reported by
+``abstract:skill-graph-audit``):
 
 ```
-inbound_refs = grep -r "Skill(<plugin>:<name>)" plugins/ tests/
-              + grep -r "<plugin>:<name>" plugins/*/commands/
-              + grep -r "<plugin>:<name>" plugins/*/agents/
-if inbound_refs < 2 and age_days > 30 and is_utility_named:
+inbound_refs = skills naming it in Skill() or frontmatter dependencies
+             + plugins/*/commands/*.md and plugins/*/agents/*.md
+               mentioning <plugin>:<name>
+age_days     = days since git first added its SKILL.md
+if is_utility_named and inbound_refs < 2 and age_days >= 30
+   and no fold_back_exception:
     flag for fold-back
 ```
+
+archetypes' ``architecture-paradigm-*`` skills are skipped: "Functional
+Core" names a paradigm, not a utility role. The check reports nothing
+when PyYAML is missing, because frontmatter edges would be invisible.
 
 **Why this rule exists:**
 

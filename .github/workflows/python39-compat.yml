@@ -15,16 +15,21 @@ name: Python 3.9 Hook Compatibility (issue #204)
 #      import time on Python 3.9.
 #   2. pytest hooks: runs only the tests that exercise hook
 #      scripts under CPython 3.9.
+#   3. hook imports: imports every registered hook under CPython 3.9.
+#      Hooks import plugin `src/` packages, and the whole transitive
+#      chain has to stay 3.9-compatible, so `src/**` triggers this too.
 
 on:
   push:
     branches: [main, master]
     paths:
       - "plugins/*/hooks/**"
+      - "plugins/*/src/**"
       - ".github/workflows/python39-compat.yml"
   pull_request:
     paths:
       - "plugins/*/hooks/**"
+      - "plugins/*/src/**"
       - ".github/workflows/python39-compat.yml"
   workflow_dispatch:
 
@@ -46,12 +51,12 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v7.0.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: "3.9"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.0
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
 
       - name: Install ruff
         run: uv tool install ruff
@@ -113,12 +118,12 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Set up Python 3.9
-        uses: actions/setup-python@v7.0.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: "3.9"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.0
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
 
       # Hook scripts use only stdlib; we install pytest in an
       # isolated venv to avoid the plugin's requires-python
@@ -142,3 +147,28 @@ jobs:
           .venv/bin/python -m pytest ${{ matrix.hook_test_path }} \
             -v --tb=short \
             --override-ini="addopts="
+
+  # ------------------------------------------------------------------ #
+  # Gate 3: every registered hook imports under Python 3.9              #
+  # The root gate imports each hook in a subprocess of the interpreter   #
+  # running pytest, so running it on 3.9 checks the 3.9 import chain.    #
+  # ------------------------------------------------------------------ #
+  hook-imports:
+    name: hook imports under 3.9
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: "3.9"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+
+      - name: Import every registered hook under Python 3.9
+        run: |
+          uv run --python 3.9 --no-project --with pytest \
+            python -m pytest tests/test_hooks_import_without_project_deps.py \
+            -q --tb=short --override-ini="addopts="

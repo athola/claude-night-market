@@ -3,11 +3,9 @@ name: project-execution
 description: Executes implementation plans with progress tracking, checkpoint validation, and quality gates. Use after planning is complete and tasks are ready to implement.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-tools_allowed: all
 category: workflow
 tags: [execution, implementation, progress-tracking, quality-gates, tdd]
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 2100
 progressive_loading: true
 modules:

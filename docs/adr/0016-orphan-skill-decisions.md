@@ -1,8 +1,8 @@
 # ADR-0016: Wire-or-Archive Decisions for Three Orphan Skills
 
 **Date**: 2026-05-06
-**Status**: Proposed. Decisions recorded 2026-05-06; wire-up still
-unticked as of 2026-09-03.
+**Status**: Accepted. Decisions recorded 2026-05-06. Decisions 1 and
+3 amended 2026-10-27 (#618), and all three are now carried out.
 **Deciders**: Claude Night Market maintainers
 **Source**: Issue #456, Discussion #449 Wave-3 backlog item 4
 
@@ -29,15 +29,21 @@ ambiguity from the skill graph.
 Per-skill decisions follow the issue's three criteria: demand
 signal, wiring cost, reference value if archived.
 
-### 1. ``gauntlet:gauntlet-curate``: WIRE
+### 1. ``gauntlet:gauntlet-curate``: RENAME to ``gauntlet:problem-bank`` (amended 2026-10-27)
 
-- **Demand signal**: ``/update-plugins`` already includes a
-  "refresh problem bank" step in its workflow description; the
-  skill exists to satisfy it.
-- **Wiring cost**: small. ``sanctum:update-plugins`` SKILL.md
-  needs one ``Skill(gauntlet:gauntlet-curate)`` invocation in the
-  problem-bank refresh step.
-- **Action**: Wire in the next ``/sanctum:update-plugins`` PR.
+The original decision was to wire the skill into ``/update-plugins``,
+on the premise that the command already had a problem-bank refresh
+step. It has none. ``/update-plugins`` audits plugin.json
+registrations, and no ``sanctum:update-plugins`` skill exists to edit.
+
+The orphaning had a different cause. The ``/gauntlet-curate`` command
+shares the skill's name and invokes ``gauntlet:curate``, the annotation
+skill. The command shadowed the skill, and nothing could reach it by
+name.
+
+- **Action**: rename the skill to ``problem-bank`` (#618). A test in
+  ``plugins/gauntlet/tests/unit/skills/test_problem_bank.py`` fails if
+  any gauntlet skill shares a command's name again.
 
 ### 2. ``memory-palace:palace-diagram``: WIRE
 
@@ -48,18 +54,20 @@ signal, wiring cost, reference value if archived.
   command that delegates to the existing skill.
 - **Action**: Wire as a slash command in a follow-up PR.
 
-### 3. ``memory-palace:memory-palace-architect``: ARCHIVE
+### 3. ``memory-palace:memory-palace-architect``: WIRE (amended 2026-10-27)
 
-- **Demand signal**: low. The audit found no inbound consumers
-  and no recent demand. The content is reference material
-  (design patterns for spatial knowledge layouts).
-- **Wiring cost**: large. A ``/palace create`` workflow does not
-  exist and would require its own design.
-- **Reference value**: high. The prose itself is a useful
-  reference for anyone designing a palace.
-- **Action**: Convert SKILL.md to ``docs/palace-design.md``;
-  remove from active skill graph; preserve content as a static
-  reference page.
+The original decision was ARCHIVE, on a wiring cost judged large
+because no ``/palace create`` workflow routes through the skill. That
+missed the ``palace-architect`` agent, which exists to design palaces
+and restated the skill's five-step method without loading it. Five
+sibling skills also route readers to this one by name. Archiving it
+would have broken their routing.
+
+- **Wiring cost**: one line. The agent loads
+  ``Skill(memory-palace:memory-palace-architect)`` (#618).
+- **Also fixed**: the skill and the agent both told the reader to run
+  ``palace_manager.py``, which has no CLI entry point. Both now cite
+  ``scripts/memory_palace_cli.py create``.
 
 ## Consequences
 
@@ -79,12 +87,12 @@ signal, wiring cost, reference value if archived.
 ## Acceptance criteria
 
 - [x] Each of the 3 skills has a documented decision (this ADR)
-- [ ] ``gauntlet:gauntlet-curate`` wired into
-  ``/sanctum:update-plugins``
-- [ ] ``memory-palace:palace-diagram`` wired as
-  ``/palace diagram <id>``
-- [ ] ``memory-palace:memory-palace-architect`` archived; content
-  preserved at ``docs/palace-design.md`` if useful
+- [x] ``gauntlet:gauntlet-curate`` renamed to ``gauntlet:problem-bank``
+  so the ``/gauntlet-curate`` command no longer shadows it (#618)
+- [x] ``memory-palace:palace-diagram`` wired as
+  ``/palace diagram <id>`` (#582)
+- [x] ``memory-palace:memory-palace-architect`` wired through the
+  ``palace-architect`` agent (#618, amended from archive)
 - [ ] ``abstract:skill-graph-audit`` confirms zero remaining
   orphans for these three skills
 

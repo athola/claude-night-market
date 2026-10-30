@@ -12,6 +12,7 @@ Output: JSON to stdout (--stdout) or docs/plugin-dependencies.json
 from __future__ import annotations
 
 import argparse
+import ast
 import datetime
 import json
 import re
@@ -123,6 +124,33 @@ def scan_pyproject_deps(
     return deps
 
 
+def scan_declared_deps(plugin_dir: Path, all_plugins: list) -> list:
+    """Return the runtime edges the plugin declares in its plugin.json.
+
+    Some edges have no import statement: egregore loads herald's notify
+    module by file path, and gauntlet reaches oracle over HTTP. The
+    declaration is the only record of those.
+    """
+    manifest = plugin_dir / ".claude-plugin" / "plugin.json"
+    declared = json.loads(manifest.read_text(encoding="utf-8")).get("dependencies", [])
+    return [
+        {"plugin": name, "type": "runtime", "reason": "Declared in plugin.json"}
+        for name in declared
+        if name in all_plugins
+    ]
+
+
+def _imported_top_levels(tree: ast.AST) -> list[str]:
+    """Top-level package named by each absolute import in *tree*."""
+    names = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            names.extend(alias.name.split(".")[0] for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module and not node.level:
+            names.append(node.module.split(".")[0])
+    return names
+
+
 def scan_python_imports(
     plugin_dir: Path,
     plugin_name: str,
@@ -137,7 +165,8 @@ def scan_python_imports(
     for p in all_plugins:
         import_names[p.replace("-", "_")] = p
 
-    src_dirs = [plugin_dir / "src", plugin_dir / "scripts"]
+    # Hooks are runtime code too: cartograph imports gauntlet only there.
+    src_dirs = [plugin_dir / "src", plugin_dir / "scripts", plugin_dir / "hooks"]
     for src_dir in src_dirs:
         if not src_dir.exists():
             continue
@@ -146,26 +175,20 @@ def scan_python_imports(
                 content = py_file.read_text(encoding="utf-8")
             except (OSError, UnicodeDecodeError):
                 continue
-            for line in content.splitlines():
-                # Skip comments
-                stripped = line.strip()
-                if stripped.startswith("#"):
+            # Parsed, not matched line by line: a docstring saying "cannot
+            # import leyline" gave every vendored copy a phantom edge.
+            for imp_name in _imported_top_levels(ast.parse(content, str(py_file))):
+                orig_name = import_names.get(imp_name)
+                if orig_name is None or orig_name == plugin_name or orig_name in seen:
                     continue
-                for imp_name, orig_name in import_names.items():
-                    if orig_name == plugin_name:
-                        continue
-                    if orig_name in seen:
-                        continue
-                    pattern = rf"(?:from|import)\s+{re.escape(imp_name)}\b"
-                    if re.search(pattern, line):
-                        seen.add(orig_name)
-                        deps.append(
-                            {
-                                "plugin": orig_name,
-                                "type": "runtime",
-                                "reason": f"Python import in {py_file.name}",
-                            }
-                        )
+                seen.add(orig_name)
+                deps.append(
+                    {
+                        "plugin": orig_name,
+                        "type": "runtime",
+                        "reason": f"Python import in {py_file.name}",
+                    }
+                )
     return deps
 
 
@@ -190,6 +213,7 @@ def generate_map(plugins_dir: Path) -> dict:
         all_deps.extend(
             scan_python_imports(plugin_dir, plugin, all_plugins),
         )
+        all_deps.extend(scan_declared_deps(plugin_dir, all_plugins))
 
         # Deduplicate and build reverse index + type tracking
         seen_plugins = set()

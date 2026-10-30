@@ -16,7 +16,6 @@ usage_patterns:
 - event-driven-architectures
 - cost-optimization
 complexity: medium
-model_hint: standard
 estimated_tokens: 700
 ---
 # The Serverless Architecture Paradigm

@@ -86,3 +86,27 @@ class TestVersionBump:
         assert mgr2.current_version == "1.1.0"
         # Body should be preserved
         assert "Content here." in skill_file.read_text()
+
+
+class TestBumpLeavesOtherFrontmatterAlone:
+    """A bump rewrites the adaptation block and nothing else."""
+
+    def test_bump_preserves_every_other_frontmatter_line(self, tmp_path: Path) -> None:
+        long_description = (
+            "description: 'Guide creating Claude Code skills with TDD and"
+            " persuasion principles. Use for new skill development.'"
+        )
+        other_lines = f"name: test-skill\n{long_description}\n# kept comment\n"
+        skill_file = tmp_path / "SKILL.md"
+        skill_file.write_text(f"---\n{other_lines}---\n\n# Body\n")
+        mgr = SkillVersionManager(skill_file)
+        mgr.bump_version("first", {"stability_gap": 0.4})
+
+        mgr = SkillVersionManager(skill_file)
+        mgr.bump_version("second", {"stability_gap": 0.3})
+
+        text = skill_file.read_text()
+        assert text.startswith(f"---\n{other_lines}adaptation:\n")
+        assert text.endswith("---\n\n# Body\n")
+        assert text.count("adaptation:") == 1
+        assert SkillVersionManager(skill_file).current_version == "1.2.0"

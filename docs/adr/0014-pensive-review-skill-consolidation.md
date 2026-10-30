@@ -1,9 +1,9 @@
 # ADR-0014: Pensive Review-Skill Consolidation
 
 **Date**: 2026-05-06
-**Status**: Proposed. Accepted 2026-05-06 as sequencing only; no
-implementation as of 2026-09-03, and the premise has moved: pensive has
-10 review-named skills, not 9.
+**Status**: Accepted 2026-05-06 as sequencing. PR-A (shell-review)
+landed 2026-10-27 (#615). PR-B (makefile-review, #616) is pending. The
+premise has moved: pensive has 10 review-named skills, not 9.
 **Deciders**: Claude Night Market maintainers
 **Source**: Issue #453, Discussion #449 Wave-3 backlog item 1
 
@@ -68,8 +68,9 @@ Any remaining external references convert to
 ## Acceptance criteria
 
 - [x] Decision recorded (this ADR)
-- [ ] PR-A merged: shell-review folded; alias stub in place;
-  CHANGELOG entry under deprecations
+- [x] PR-A: shell-review folded into
+  ``unified-review/modules/shell-review.md``, alias stub in place,
+  CHANGELOG entry under deprecations (#615)
 - [ ] PR-B merged: makefile-review folded; alias stub in place;
   CHANGELOG entry under deprecations
 - [ ] One release elapses; deprecation removal PR queued

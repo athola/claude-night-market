@@ -508,8 +508,7 @@ entries:
     stored_at: data/staging/webfetch-to-get-accurate-answers-to-your-questions-about-2026-07-05_11-04-19.md
     importance_score: 87
     last_updated: '2026-07-05T11:04:19.259977+00:00'
-    title: To get accurate answers to your questions about ServiceTitan's developer
-      integration process, I'd re
+    title: Get Going Fast
     maturity: growing
     routing_type: meta
     url: https://developer.servicetitan.io/docs/get-going-fast/
@@ -1301,8 +1300,7 @@ entries:
     stored_at: data/staging/webfetch-dataland-s-description-states-ai-agents-for-2026-07-10_11-04-08.md
     importance_score: 80
     last_updated: '2026-07-10T11:04:08.746791+00:00'
-    title: 'Dataland''s description states: "AI agents for customer support. Dataland
-      is the applied AI lab for c'
+    title: Sidekick
     maturity: growing
     routing_type: meta
     url: https://www.ycombinator.com/companies/sidekick
@@ -1977,8 +1975,7 @@ entries:
     stored_at: data/staging/webfetch-to-answer-your-question-with-exact-quotes-i-would-2026-07-13_14-08-53.md
     importance_score: 80
     last_updated: '2026-07-13T14:08:53.891427+00:00'
-    title: To answer your question with exact quotes, I would need access to the full
-      interview transcript, whi
+    title: Eric Evans Interview Ddd
     maturity: growing
     routing_type: meta
     url: https://www.infoq.com/news/2009/06/eric-evans-interview-ddd/
@@ -2951,8 +2948,7 @@ entries:
     stored_at: data/staging/webfetch-to-provide-the-requested-financial-details-i-2026-07-16_11-16-10.md
     importance_score: 79
     last_updated: '2026-07-16T11:16:10.316248+00:00'
-    title: To provide the requested financial details, I would need access to the
-      actual checkout or trial page
+    title: Trial
     maturity: growing
     routing_type: meta
     url: https://skilledtrades.interplaylearning.com/trial?pid=price_1MgX9pESz4v8E49OBaGruLcz&gid=a197bfd1-43b3-438b-a3f0-f3a0a02110a6
@@ -4312,8 +4308,7 @@ entries:
     stored_at: data/staging/webfetch-i-don-t-have-any-content-to-analyze-in-your-2026-07-19_11-02-53.md
     importance_score: 80
     last_updated: '2026-07-19T11:02:53.924646+00:00'
-    title: I don't have any content to analyze in your request. The "Web page content:"
-      section you provided is
+    title: Fieldhelp
     maturity: growing
     routing_type: meta
     url: https://www.indiehackers.com/product/fieldhelp
@@ -4547,8 +4542,7 @@ entries:
     stored_at: data/staging/webfetch-to-locate-such-content-you-would-need-to-access-2026-07-20_11-04-36.md
     importance_score: 80
     last_updated: '2026-07-20T11:04:36.380257+00:00'
-    title: To locate such content, you would need to access the forum's search function
-      or browse specific proj
+    title: Latest Activity
     maturity: growing
     routing_type: meta
     url: https://www.garagejournal.com/forum/whats-new/latest-activity
@@ -9776,7 +9770,7 @@ entries:
     stored_at: data/staging/webfetch-original-url-https-campus-skills-com-blog-le-2026-08-06_11-07-57.md
     importance_score: 50
     last_updated: '2026-08-06T11:07:57.191008+00:00'
-    title: 'Original URL: https://campus-skills.com/blog/le-livret-electronique-dapprentissage-de-campus-skills/'
+    title: Le Livret Electronique Dapprentissage De Campus Skills
     maturity: seedling
     routing_type: archived
     null_capture: redirect-notice

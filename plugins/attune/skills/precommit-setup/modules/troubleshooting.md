@@ -2,7 +2,6 @@
 name: troubleshooting
 description: Performance tuning and failure-recovery patterns for slow or broken pre-commit hooks.
 parent: precommit-setup
-load_when: hooks are slow or failing
 ---
 
 # Performance and Troubleshooting

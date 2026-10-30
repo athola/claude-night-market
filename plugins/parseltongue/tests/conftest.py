@@ -581,6 +581,9 @@ def async_issues():
     """Fixture containing code with async issues."""
     return {
         "missing_await": """
+async def api_call():
+    return {}
+
 async def fetch_data():
     data = api_call()  # Missing await
     return data

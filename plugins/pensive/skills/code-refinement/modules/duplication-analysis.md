@@ -34,6 +34,9 @@ find . -name "*.py" -not -path "*/.venv/*" -not -path "*/node_modules/*" | while
 done | sort | uniq -d -w 100
 ```
 
+If `plugins/conserve/scripts/detect_duplicates.py` is absent (a marketplace
+install, not a checkout), skip the duplicate scan and say so.
+
 ### 2. Similar Function Signatures
 
 ```bash
@@ -49,6 +52,9 @@ grep -rn "function \|const .* = (" --include="*.ts" --include="*.js" . | \
 grep -rn "^pub fn \|^fn " --include="*.rs" . | \
   sed 's/(.*//' | sort -t: -k2 | uniq -f1 -d
 ```
+
+If `plugins/conserve/scripts/detect_duplicates.py` is absent (a marketplace
+install, not a checkout), skip the duplicate scan and say so.
 
 ### 3. Structural Similarity
 

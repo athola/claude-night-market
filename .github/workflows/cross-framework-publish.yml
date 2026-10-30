@@ -25,8 +25,10 @@ on:
         type: boolean
         default: false
 
+# Read-only by default. Only build-and-release creates a release, so only it
+# gets contents: write. The publish jobs read an artifact and write a summary.
 permissions:
-  contents: write
+  contents: read
 
 env:
   PYTHON_VERSION: "3.12"
@@ -34,6 +36,8 @@ env:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       version: ${{ steps.version.outputs.version }}
       skill_count: ${{ steps.build.outputs.skill_count }}
@@ -41,12 +45,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v7.0.0
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.0
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
 
       - name: Extract version from tag
         id: version
@@ -221,17 +225,19 @@ jobs:
 
           **Version:** v${VERSION} | **Skills:** ${SKILLS} | **Agents:** ${AGENTS}
 
-          Submit PRs to awesome-openclaw lists locally:
+          Submit to awesome-openclaw lists locally. vincentkoc/awesome-openclaw
+          takes no PR without an approved "Add Resource Request" issue, so open
+          that first, then pass its number:
 
           \`\`\`bash
-          ./scripts/awesome-submit.sh v${VERSION}
+          ./scripts/awesome-submit.sh v${VERSION} --issue vincentkoc/awesome-openclaw#<number>
           \`\`\`
 
-          Or dry run first:
+          Preview the README change first:
 
           \`\`\`bash
           ./scripts/awesome-submit.sh v${VERSION} --dry-run
           \`\`\`
 
-          Targets: vincentkoc/awesome-openclaw, SamurAIGPT/awesome-openclaw
+          Targets: vincentkoc/awesome-openclaw
           SUMMARYEOF

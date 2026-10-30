@@ -119,7 +119,6 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `extract` | [gauntlet](../plugins/gauntlet.md) | Analyze codebase and build a knowledge base |
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring and optional research enrichment via tome (`--research`) |
 | `friction-detector` | [abstract](../plugins/abstract.md) | Detect friction signals and graduate recurring patterns into rules |
-| `gauntlet-curate` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank; surveys coverage gaps and proposes YAML-valid entries |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
@@ -166,6 +165,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
 | `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
+| `problem-bank` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank; surveys coverage gaps and proposes YAML-valid entries |
 | `progressive-loading` | [leyline](../plugins/leyline.md) | Dynamic content loading |
 | `project-brainstorming` | [attune](../plugins/attune.md) | Socratic ideation workflow |
 | `project-execution` | [attune](../plugins/attune.md) | Systematic implementation |
@@ -202,7 +202,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `session-replay` | [scribe](../plugins/scribe.md) | Convert session JSONL into GIF/MP4/WebM replays via VHS |
 | `session-to-post` | [scribe](../plugins/scribe.md) | Convert sessions into shareable blog posts or case studies |
 | `setup` | [oracle](../plugins/oracle.md) | Install and configure the oracle ONNX inference daemon |
-| `shell-review` | [pensive](../plugins/pensive.md) | Shell script auditing for safety and portability |
+| `shell-review` | [pensive](../plugins/pensive.md) | Deprecated alias for unified-review's shell module |
 | `simplified-technical-english` | [scribe](../plugins/scribe.md) | Apply an ASD-STE100-derived register to operator and procedural text |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
 | `skill-graph-audit` | [abstract](../plugins/abstract.md) | Map Skill() refs across plugins; detect hubs, isolates, dangling targets |
@@ -475,11 +475,9 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `noqa_guard.py` | leyline | PreToolUse | Block inline lint suppression directives |
 | `permission_denied_logger.py` | conserve | PermissionDenied | Log auto-mode permission denials for observability |
 | `permission_request.py` | conserve | PermissionRequest | Permission automation |
-| `post-evaluation.json` | abstract | Config | Quality scoring config |
 | `post_implementation_policy.py` | sanctum | SessionStart | Requires docs/tests updates |
 | `post_learnings_stop.py` | abstract | Stop | Post learnings to GitHub Discussions on session stop |
 | `pr_blast_radius.py` | pensive | PreToolUse | Surface blast radius context on PR creation |
-| `pre-skill-load.json` | abstract | Config | Pre-load validation |
 | `pre_compact.py` | tome | PreCompact | Checkpoint active research session |
 | `pre_compact_preserve.py` | conserve | PreCompact | Preserve critical context before compression |
 | `pre_skill_execution.py` | abstract | PreToolUse | Skill execution tracking |

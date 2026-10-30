@@ -1,7 +1,6 @@
 ---
 name: curate
 description: Adds developer-authored annotations to the gauntlet knowledge base. Use when capturing tribal knowledge or rationale not visible in code.
-model_hint: standard
 ---
 
 # Curate Knowledge
@@ -11,7 +10,7 @@ Add developer-authored annotations to the knowledge base.
 ## When NOT To Use
 
 - Knowledge derivable from the code itself (use `gauntlet:extract`)
-- The DSA problem bank (use `gauntlet:gauntlet-curate`)
+- The DSA problem bank (use `gauntlet:problem-bank`)
 
 ## Steps
 

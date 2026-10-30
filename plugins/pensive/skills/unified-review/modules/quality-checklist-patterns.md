@@ -4,7 +4,6 @@ description: Reusable quality checklist patterns for review validation
 parent_skill: pensive:unified-review
 category: review-infrastructure
 tags: [quality, checklist, validation, completeness]
-reusable_by: [pensive:bug-review, pensive:api-review, pensive:architecture-review, pensive:test-review, pensive:rust-review, pensive:makefile-review, pensive:math-review, pensive:unified-review]
 estimated_tokens: 300
 ---
 

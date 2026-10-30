@@ -22,8 +22,8 @@ from memory_palace.session_history import (
     SessionQuery,
     SessionRecord,
     SessionUnit,
-    _validate_session_id,
     merge_handoff_units,
+    validate_session_id,
 )
 
 # ---------------------------------------------------------------------------
@@ -904,27 +904,27 @@ class TestSessionIdSanitization:
             mgr.get_session("foo\\bar")
 
     @pytest.mark.unit
-    def test_validate_session_id_helper(self) -> None:
-        """Scenario: The _validate_session_id helper covers edge cases.
+    def testvalidate_session_id_helper(self) -> None:
+        """Scenario: The validate_session_id helper covers edge cases.
 
         Given various valid and invalid IDs
         Then the helper returns the correct boolean.
         """
         # Valid
-        assert _validate_session_id("sess-001") is True
-        assert _validate_session_id("a") is True
-        assert _validate_session_id("ABC.def-123_ghi") is True
+        assert validate_session_id("sess-001") is True
+        assert validate_session_id("a") is True
+        assert validate_session_id("ABC.def-123_ghi") is True
 
         # Invalid
-        assert _validate_session_id("") is False
-        assert _validate_session_id("..") is False
-        assert _validate_session_id("../etc") is False
-        assert _validate_session_id("/absolute") is False
-        assert _validate_session_id(".hidden") is False
-        assert _validate_session_id("-start") is False
-        assert _validate_session_id("_start") is False
-        assert _validate_session_id("has space") is False
-        assert _validate_session_id("a/../b") is False
+        assert validate_session_id("") is False
+        assert validate_session_id("..") is False
+        assert validate_session_id("../etc") is False
+        assert validate_session_id("/absolute") is False
+        assert validate_session_id(".hidden") is False
+        assert validate_session_id("-start") is False
+        assert validate_session_id("_start") is False
+        assert validate_session_id("has space") is False
+        assert validate_session_id("a/../b") is False
 
 
 # --- Typed handoff units ----------------------------------------------------

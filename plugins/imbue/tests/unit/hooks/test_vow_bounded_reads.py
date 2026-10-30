@@ -1483,3 +1483,28 @@ class TestIncrementErrorPaths:
         assert exc.value.code == 0
         assert captured.out == ""
         assert "internal error" in captured.err
+
+
+class TestIncrementAndResetShareOneDefinition:
+    """The reset must truncate the file the increment writes.
+
+    Two hand-kept copies of the path and session-id helpers held that by
+    docstring only; one shared definition holds it by construction.
+    """
+
+    @pytest.fixture
+    def reset_module(self):
+        module_path = Path(__file__).parents[3] / "hooks" / "vow_bounded_reads_reset.py"
+        spec = importlib.util.spec_from_file_location(
+            "vow_bounded_reads_reset", module_path
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_both_hooks_use_the_shared_helpers(self, hook_module, reset_module):
+        shared = sys.modules["shared.vow_utils"]
+        assert hook_module._counter_path is shared.read_counter_path
+        assert reset_module._counter_path is shared.read_counter_path
+        assert hook_module._get_session_id is shared.session_id_from
+        assert reset_module._get_session_id is shared.session_id_from

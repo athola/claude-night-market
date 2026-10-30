@@ -245,3 +245,26 @@ class TestTopLevelCatch:
         assert code == 0
         assert out == ""
         assert "skill_execution_logger error:" in err
+
+
+class TestSaveHistoryCleanup:
+    """An interrupted history save leaves the old file and no temp file."""
+
+    @pytest.mark.unit
+    def test_interrupt_during_save_removes_the_temp_file(
+        self, hook: ModuleType, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        history_file = tmp_path / "logs" / ".history.json"
+        history_file.parent.mkdir()
+        history_file.write_text('{"seed:0": {"accuracies": [1], "durations": [5]}}')
+        evaluator = hook.ContinualEvaluator(history_file)
+
+        def interrupt(src: str, dst: object) -> None:
+            raise KeyboardInterrupt
+
+        monkeypatch.setattr(os, "replace", interrupt)
+        with pytest.raises(KeyboardInterrupt):
+            evaluator._save_history()
+
+        assert [p.name for p in history_file.parent.iterdir()] == [".history.json"]
+        assert "seed:0" in json.loads(history_file.read_text())

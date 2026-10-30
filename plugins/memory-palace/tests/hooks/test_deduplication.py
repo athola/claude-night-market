@@ -73,9 +73,16 @@ class TestGetUrlKey:
         url = "https://example.com?utm_source=twitter&article=123"
         assert get_url_key(url) == "https://example.com?article=123"
 
-    def test_lowercase(self) -> None:
-        """URLs should be lowercased."""
-        assert get_url_key("HTTPS://EXAMPLE.COM/Path") == "https://example.com/path"
+    def test_scheme_and_host_are_lowercased(self) -> None:
+        """Only the case-insensitive parts of a URL are folded."""
+        assert get_url_key("HTTPS://EXAMPLE.COM/Path") == "https://example.com/Path"
+        assert get_url_key("HTTPS://EXAMPLE.COM?Id=X") == "https://example.com?Id=X"
+
+    def test_case_sensitive_ids_stay_distinct(self) -> None:
+        """A video id differing only in case is a different capture."""
+        assert get_url_key("https://youtu.be/AbCdEf") != get_url_key(
+            "https://youtu.be/abcdef"
+        )
 
 
 class TestIsKnown:
@@ -1015,4 +1022,40 @@ class TestStagingBudget:
             f"git add budgets {recorded['timeout']}s against a {min(caps)}s "
             f"hook cap, leaving no margin for the fetch, checks and write "
             f"that already ran in the same invocation"
+        )
+
+
+class TestLegacyUrlKeys:
+    """Index entries written under the old fully lowercased key stay found."""
+
+    @staticmethod
+    def _write_legacy_index(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+        index_path = tmp_path / "legacy-index.yaml"
+        index_path.write_text(
+            "entries:\n  https://youtu.be/abcdef:\n    title: old\nhashes: {}\n"
+        )
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+        monkeypatch.setattr(dedup_module, "yaml", real_yaml)
+        monkeypatch.setattr(dedup_module, "_index_cache", None)
+
+    def test_an_entry_under_the_legacy_lowercase_key_is_still_known(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """An index written before the case fix still dedupes its URLs."""
+        self._write_legacy_index(monkeypatch, tmp_path)
+        assert is_known(url="https://youtu.be/AbCdEf")
+        assert get_entry(url="https://youtu.be/AbCdEf") == {"title": "old"}
+
+    def test_a_different_url_is_not_matched_by_the_legacy_key(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """The legacy lookup matches only the same URL, case aside."""
+        self._write_legacy_index(monkeypatch, tmp_path)
+        assert not is_known(url="https://youtu.be/zzzzzz")
+        assert get_entry(url="https://youtu.be/zzzzzz") is None
+
+    def test_a_schemeless_url_is_folded_whole(self) -> None:
+        """Without a scheme there is no host to split off, as before."""
+        assert get_url_key("example.com/watch?v=AbC") == get_url_key(
+            "example.com/watch?v=abc"
         )

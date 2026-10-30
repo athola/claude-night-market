@@ -32,10 +32,10 @@ from collections.abc import Callable
 __all__ = [
     "KNOWN_POPULAR",
     "assess_packages",
-    "levenshtein",
     "nearest_known",
     "normalize_name",
     "parse_packages",
+    "typo_distance",
 ]
 
 # Ecosystem install-command signatures. Each entry maps a regex that
@@ -74,7 +74,9 @@ _COMMAND_PREFIX_RE = re.compile(
     r"|[A-Za-z_][A-Za-z0-9_]*=\S*\s+)+"
 )
 # Targets that are local paths or VCS/URL references, never a registry name.
-_NON_REGISTRY_RE = re.compile(r"(^[./~])|(^[a-z]+\+)|(://)|(\.git$)|(^\.$)")
+_NON_REGISTRY_RE = re.compile(
+    r"(^[./~])|(^[a-z]+\+)|(://)|(\.git$)|(^\.$)|(^[^@].*/)|(\.(whl|zip|tar\.gz|tgz)$)"
+)
 
 # Curated known-popular packages per ecosystem. Two jobs:
 #   - common installs short-circuit before any network call;
@@ -94,6 +96,7 @@ KNOWN_POPULAR: dict[str, frozenset[str]] = {
             "aiohttp",
             "pytest",
             "scipy",
+            "scapy",
             "scikit-learn",
             "matplotlib",
             "pillow",
@@ -187,6 +190,44 @@ KNOWN_POPULAR: dict[str, frozenset[str]] = {
 _TYPOSQUAT_MAX_DISTANCE = 2
 
 
+# Below these lengths a name gets no typo distance, then one edit.
+_SHORT_NAME = 5
+_MEDIUM_NAME = 8
+
+
+def _allowed_distance(name: str) -> int:
+    """Edits a name of this length may be from a popular one and still be a typo.
+
+    Short names crowd together: ``sync`` is one edit from ``syn`` and
+    ``numba`` two from ``numpy``, both real. A flat distance of 2 blocked
+    them in enforce mode. Under five characters nothing is judged, under
+    eight one edit is, and longer names get the full two.
+    """
+    if len(name) < _SHORT_NAME:
+        return 0
+    if len(name) < _MEDIUM_NAME:
+        return 1
+    return _TYPOSQUAT_MAX_DISTANCE
+
+
+def typo_distance(a: str, b: str) -> int:
+    """Levenshtein distance with an adjacent swap counted as one edit.
+
+    A swapped pair (``nmupy``) is the commonest typo and the commonest
+    squat, and plain Levenshtein charges it two.
+    """
+    rows = [list(range(len(b) + 1))]
+    for i in range(1, len(a) + 1):
+        row = [i] + [0] * len(b)
+        for j in range(1, len(b) + 1):
+            cost = 0 if a[i - 1] == b[j - 1] else 1
+            row[j] = min(rows[i - 1][j] + 1, row[j - 1] + 1, rows[i - 1][j - 1] + cost)
+            if i > 1 and j > 1 and a[i - 1] == b[j - 2] and a[i - 2] == b[j - 1]:
+                row[j] = min(row[j], rows[i - 2][j - 2] + 1)
+        rows.append(row)
+    return rows[-1][-1]
+
+
 def parse_packages(command: str) -> list[tuple[str, str]]:
     """Return ``(ecosystem, name)`` pairs an install command would fetch.
 
@@ -254,27 +295,7 @@ def _strip_version(token: str) -> str:
         scope, _, rest = token.partition("/")
         rest = re.split(r"[@<>=!~^]", rest, maxsplit=1)[0]
         return f"{scope}/{rest}"
-    return re.split(r"[@<>=!~^]", token, maxsplit=1)[0]
-
-
-def levenshtein(a: str, b: str) -> int:
-    """Return the Levenshtein edit distance between two strings."""
-    if a == b:
-        return 0
-    if not a:
-        return len(b)
-    if not b:
-        return len(a)
-    previous = list(range(len(b) + 1))
-    for i, ca in enumerate(a, start=1):
-        current = [i]
-        for j, cb in enumerate(b, start=1):
-            cost = 0 if ca == cb else 1
-            current.append(
-                min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + cost)
-            )
-        previous = current
-    return previous[-1]
+    return re.split(r"[@<>=!~^\[]", token, maxsplit=1)[0]
 
 
 _PEP503_SEPARATORS = re.compile(r"[-_.]+")
@@ -303,17 +324,18 @@ def nearest_known(name: str, ecosystem: str) -> str | None:
     name = normalize_name(name, ecosystem)
     if name in known:
         return None
+    allowed = _allowed_distance(name)
     best: str | None = None
-    best_distance = _TYPOSQUAT_MAX_DISTANCE + 1
+    best_distance = allowed + 1
     for candidate in known:
         # A length gap larger than the threshold cannot be within distance.
-        if abs(len(candidate) - len(name)) > _TYPOSQUAT_MAX_DISTANCE:
+        if abs(len(candidate) - len(name)) > allowed:
             continue
-        distance = levenshtein(name, candidate)
+        distance = typo_distance(name, candidate)
         if distance < best_distance:
             best_distance = distance
             best = candidate
-    if best is not None and 1 <= best_distance <= _TYPOSQUAT_MAX_DISTANCE:
+    if best is not None and 1 <= best_distance <= allowed:
         return best
     return None
 

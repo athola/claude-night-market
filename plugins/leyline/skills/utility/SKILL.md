@@ -24,7 +24,6 @@ usage_patterns:
 - continuation-decisions
 - model-tier-selection
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 600
 progressive_loading: true
 modules:

@@ -31,9 +31,6 @@ except ImportError:
 
 # Evaluation thresholds (configurable)
 MIN_CODE_BLOCK_LINES = 3  # Skip language annotation check for blocks shorter than this
-MODULE_REFERENCE_WEIGHT = 2  # Points deducted for missing module references
-CODE_EXAMPLE_WEIGHT = 1  # Points deducted per unannotated code block
-CROSS_REFERENCE_WEIGHT = 2  # Points deducted for broken cross-references
 
 
 class MetaEvaluator:

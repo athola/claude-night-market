@@ -71,26 +71,57 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
 
-    code = path.read_text(encoding="utf-8", errors="replace") if path.is_file() else ""
-    if not code and path.is_dir():
-        # Concatenate all .py files in the directory
-        parts = []
-        for py_file in sorted(path.rglob("*.py")):
-            parts.append(py_file.read_text(encoding="utf-8", errors="replace"))
-        code = "\n".join(parts)
-
-    if not code:
-        print("No Python code found.", file=sys.stderr)
-        return 1
-
     test_code = (
         args.test_path.read_text(encoding="utf-8", errors="replace")
         if args.test_path
         else ""
     )
-    result = _run_command(args.command, code, args.target_version, test_code)
+
+    single_file = path.is_file()
+    sources = (
+        {path.name: path.read_text(encoding="utf-8", errors="replace")}
+        if single_file
+        else _read_directory(path)
+    )
+    sources = {name: code for name, code in sources.items() if code}
+    if not sources:
+        print("No Python code found.", file=sys.stderr)
+        return 1
+
+    if single_file:
+        (code,) = sources.values()
+        result = _run_command(args.command, code, args.target_version, test_code)
+    else:
+        files = {
+            name: _run_command(args.command, code, args.target_version, test_code)
+            for name, code in sources.items()
+        }
+        result = {"files": files}
+        if any("error" in report for report in files.values()):
+            result["error"] = "one or more files failed to analyze"
     print(json.dumps(result, indent=2, default=str))
     return 1 if "error" in result else 0
+
+
+_SKIPPED_DIRECTORIES = frozenset(
+    {"venv", "env", "node_modules", "site-packages", "__pycache__"}
+)
+
+
+def _read_directory(root: Path) -> dict[str, str]:
+    """Read each .py file under root, skipping hidden and environment dirs."""
+    sources: dict[str, str] = {}
+    for py_file in sorted(root.rglob("*.py")):
+        relative = py_file.relative_to(root)
+        parents = relative.parts[:-1]
+        if any(
+            part.startswith(".") or part in _SKIPPED_DIRECTORIES for part in parents
+        ):
+            continue
+        sources[relative.as_posix()] = py_file.read_text(
+            encoding="utf-8", errors="replace"
+        )
+    return sources
 
 
 def _run_command(

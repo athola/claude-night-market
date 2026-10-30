@@ -14,7 +14,6 @@ tags:
 - reddit
 tools: []
 complexity: medium
-model_hint: standard
 estimated_tokens: 3100
 progressive_loading: true
 modules:

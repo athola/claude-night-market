@@ -66,7 +66,6 @@ class HookAnalyzer(ast.NodeVisitor):
     def __init__(self) -> None:
         self.patterns: list[ExtractedPattern] = []
         self.complexity = 0
-        self.has_external_calls = False
         self.has_file_io = False
         self.has_network = False
 
@@ -184,14 +183,26 @@ class HookAnalyzer(ast.NodeVisitor):
         return "command"  # Default
 
     def _collect_names(self, node: ast.expr) -> list[str]:
-        """Collect all Name nodes from an expression."""
+        """Collect field names from an expression, subscript keys first.
+
+        ``context["command"]`` names its field in the key. Read after the
+        variable names, the key lost to ``context``, whose "text" made
+        every subscripted command check a file-content rule.
+        """
+        keys = []
         names = []
         for child in ast.walk(node):
-            if isinstance(child, ast.Name):
+            if (
+                isinstance(child, ast.Subscript)
+                and isinstance(child.slice, ast.Constant)
+                and isinstance(child.slice.value, str)
+            ):
+                keys.append(child.slice.value)
+            elif isinstance(child, ast.Name):
                 names.append(child.id)
             elif isinstance(child, ast.Attribute):
                 names.append(child.attr)
-        return names
+        return keys + names
 
 
 def analyze_hook(
@@ -338,6 +349,12 @@ def _detect_tool_event(analysis: HookAnalysis) -> str:
     return "bash"
 
 
+def _yaml_single_quoted(text: str) -> str:
+    """Quote for YAML, where a single-quoted scalar escapes ' as ''."""
+    escaped = text.replace("'", "''")
+    return f"'{escaped}'"
+
+
 def generate_hookify_rule(analysis: HookAnalysis) -> str:
     """Generate a hookify rule from analysis results.
 
@@ -372,14 +389,14 @@ def generate_hookify_rule(analysis: HookAnalysis) -> str:
     if len(analysis.patterns) == 1:
         p = analysis.patterns[0]
         if p.pattern_type == "regex":
-            lines.append(f"pattern: '{p.pattern}'")
+            lines.append(f"pattern: {_yaml_single_quoted(p.pattern)}")
         else:
             lines.extend(
                 [
                     "conditions:",
                     f"  - field: {p.field}",
                     f"    operator: {p.pattern_type}",
-                    f"    pattern: '{p.pattern}'",
+                    f"    pattern: {_yaml_single_quoted(p.pattern)}",
                 ]
             )
     else:
@@ -389,7 +406,7 @@ def generate_hookify_rule(analysis: HookAnalysis) -> str:
                 [
                     f"  - field: {p.field}",
                     f"    operator: {p.pattern_type if p.pattern_type != 'regex' else 'regex_match'}",
-                    f"    pattern: '{p.pattern}'",
+                    f"    pattern: {_yaml_single_quoted(p.pattern)}",
                 ]
             )
 
@@ -475,8 +492,6 @@ def main() -> int:
         if args.verbose:
             status = "✓" if analysis.convertible else "✗"
             print(f"{status} {f.name}: {len(analysis.patterns)} patterns")
-            if not analysis.convertible:
-                print(f"  Reason: {analysis.reason}")
 
     # Generate output
     output_lines = ["# Converted Hookify Rules\n"]
@@ -489,6 +504,11 @@ def main() -> int:
                 output_lines.append(f"\n## {analysis.file_path.stem}\n")
                 output_lines.append(rule)
                 converted += 1
+                continue
+        # A dropped hook is a guard the user believes they still have.
+        # Name it whether or not -v was given.
+        reason = analysis.reason or "no rule could be generated"
+        print(f"Not converted: {analysis.file_path}: {reason}", file=sys.stderr)
 
     output = "\n".join(output_lines)
 
@@ -499,7 +519,7 @@ def main() -> int:
         print(output)
 
     print(f"\nSummary: {converted}/{len(results)} hooks convertible")
-    return 0
+    return 0 if converted else 1
 
 
 if __name__ == "__main__":

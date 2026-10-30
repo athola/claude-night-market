@@ -211,7 +211,7 @@ Before committing enhanced skill:
 
 Check with:
 ```bash
-/conserve:estimate-tokens plugins/attune/skills/*/SKILL.md
+/abstract:context-report plugins/attune/skills
 ```
 
 ## Anti-Patterns to Avoid

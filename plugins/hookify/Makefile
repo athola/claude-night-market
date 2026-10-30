@@ -45,15 +45,6 @@ status: ## Show project overview
 	@echo "Agents:   $$(find agents/ -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Python:   $$(find . -name '*.py' -not -path '*/__pycache__/*' 2>/dev/null | wc -l) files"
 
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "PYTHON: $(PYTHON)"
-	@echo "UV: $(UV)"
-	@echo "UV_RUN: $(UV_RUN)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
-	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
-
 # ---------- Demo/Dogfood Targets ----------
 demo-matchers: ## Demo pattern matcher functionality
 	@echo "=== Hookify Pattern Matchers Demo ==="
@@ -81,9 +72,3 @@ test: test-unit ## Run all tests
 # Include local overrides if they exist
 Makefile.local:;
 -include Makefile.local
-
-# Guard against accidental file creation (catch-all for unknown targets)
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

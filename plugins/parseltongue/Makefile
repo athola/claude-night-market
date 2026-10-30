@@ -108,11 +108,7 @@ benchmark: ## Run performance benchmarks
 	fi
 
 mutation-test: ## Run mutation testing
-	@if command -v mutmut >/dev/null 2>&1; then \
-		mutmut run --paths-to-mutate src/parseltongue --tests-dir tests/; \
-	else \
-		echo "mutmut not installed (pip install mutmut)"; exit 1; \
-	fi
+	$(MUTMUT) run --paths-to-mutate src/parseltongue --tests-dir tests/
 
 test-structure: ## Verify test structure
 	@echo "Checking test structure..."
@@ -156,22 +152,6 @@ status: ## Show project overview
 	@echo "Skills: $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
 	@echo "Tests:  $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 	@echo "Source: $$(find src/ -name '*.py' 2>/dev/null | wc -l) Python files"
-
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "PYTHON: $(PYTHON)"
-	@echo "UV: $(UV)"
-	@echo "UV_RUN: $(UV_RUN)"
-	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "PYTHONPATH: $(PYTHONPATH)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
-	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
-	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
-	@echo "COV_DIRS: $(COV_DIRS)"
-	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
-	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
 # ---------- Demo/Dogfood Targets (LIVE) ----------
 demo-tests: ## Run tests to demonstrate testing patterns (LIVE)
@@ -258,12 +238,3 @@ test-run-profiler: ## Test run-profiler command (runs performance tests)
 
 test-check-async: ## Test check-async command (runs async pattern tests)
 	$(PYTEST) tests/test_async_patterns.py tests/test_async_edge_cases.py -v
-
-
-
-
-# Guard against accidental file creation (catch-all for unknown targets)
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

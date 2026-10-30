@@ -34,6 +34,9 @@ Runs `validate_plugin.py` on each affected plugin to verify:
 python3 plugins/abstract/scripts/validate_plugin.py plugins/<plugin>
 ```
 
+If `plugins/abstract/scripts/validate_plugin.py` is absent (a marketplace
+install, not a checkout), skip this step and say so.
+
 ### Phase 1c: Modernization Audit
 
 Checks all hooks for outdated patterns against the Claude Code SDK spec.

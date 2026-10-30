@@ -11,7 +11,6 @@ import hashlib
 import os
 import subprocess
 import sys
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from types import ModuleType
@@ -33,6 +32,7 @@ _SRC = str(Path(__file__).resolve().parents[2] / "src")
 if _SRC not in sys.path:
     sys.path.insert(0, _SRC)
 
+from memory_palace._vendored_leyline_atomic_file import write_atomic
 from memory_palace.paths import persistent_root as _persistent_root
 
 # Try to use xxhash for speed, fall back to hashlib
@@ -115,7 +115,25 @@ def get_url_key(url: str) -> str:
         ]
         url = f"{base}?{'&'.join(kept)}" if kept else base
 
-    return url.rstrip("/").lower()
+    # Scheme and host are case-insensitive; a path or query may not be
+    # (a video id, a base64 token), so folding it merged distinct pages.
+    # A string with no scheme is folded whole, since its host cannot be
+    # told apart from its path.
+    scheme, sep, rest = url.rstrip("/").partition("://")
+    if not sep:
+        return scheme.lower()
+    host = rest.split("/", 1)[0].split("?", 1)[0]
+    return f"{scheme.lower()}://{host.lower()}{rest[len(host) :]}"
+
+
+def _legacy_url_key(url: str) -> str:
+    """Return the key older index entries were stored under.
+
+    Before path and query case were kept, the whole normalized URL was
+    lowercased. Lookups try this key too, so existing entries are not
+    orphaned and re-captured as duplicates.
+    """
+    return get_url_key(url).lower()
 
 
 def _warn_no_yaml_once() -> None:
@@ -214,8 +232,8 @@ def is_known(
         return True
 
     if url:
-        url_key = get_url_key(url)
-        if url_key in index.get("entries", {}):
+        entries = index.get("entries", {})
+        if get_url_key(url) in entries or _legacy_url_key(url) in entries:
             return True
 
     if path:
@@ -263,8 +281,8 @@ def get_entry(url: str | None = None, path: str | None = None) -> dict[str, Any]
     index = _load_index()
 
     if url:
-        url_key = get_url_key(url)
-        entry = index.get("entries", {}).get(url_key)
+        entries = index.get("entries", {})
+        entry = entries.get(get_url_key(url)) or entries.get(_legacy_url_key(url))
         return entry if isinstance(entry, dict) else None
 
     if path:
@@ -384,22 +402,9 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
         _set_aside_corrupt_index(index_path)
         _index_load_failed = False
 
-    # Write to temp file in same directory (validates same filesystem for atomic rename)
-    fd, tmp_path = tempfile.mkstemp(
-        suffix=".tmp",
-        prefix="memory-palace-index-",
-        dir=index_path.parent,
+    write_atomic(
+        index_path, yaml.safe_dump(index, default_flow_style=False, sort_keys=False)
     )
-    try:
-        with os.fdopen(fd, "w") as f:
-            yaml.safe_dump(index, f, default_flow_style=False, sort_keys=False)
-        # Atomic rename (works on POSIX, best-effort on Windows)
-        os.replace(tmp_path, index_path)
-    except Exception:
-        # Clean up temp file on failure
-        with contextlib.suppress(OSError):
-            os.unlink(tmp_path)
-        raise
 
     _stage_index(index_path)
 

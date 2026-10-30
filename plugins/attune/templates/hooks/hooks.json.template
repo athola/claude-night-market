@@ -2,13 +2,12 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": {
-          "tool_name": "Bash"
-        },
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'git commit' && uv run python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre_commit_tdd.py || true"
+            "if": "Bash(git commit*)",
+            "command": "uv run python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre_commit_tdd.py"
           }
         ]
       }

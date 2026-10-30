@@ -41,6 +41,9 @@ Part of Issue #69 Phase 5, this command closes the self-improvement loop by:
    - How (implementation approach)
 5. **Optionally implements**:
    - Updates skill files
+   - Records each change with `scripts/record_skill_improvement.py`,
+     which bumps the adaptation version and opens the evaluation window
+     (skill-improver agent, step 5C)
    - Runs validation tests
    - Creates commit
 
@@ -200,7 +203,8 @@ For each improvement (if not --dry-run):
 2. Add error recovery:
    - Suggest creating PROOF.md if missing
    - Show example of valid acceptance_criteria
-3. Update frontmatter version: 2.0.0 → 2.1.0
+3. Record with `scripts/record_skill_improvement.py`
+   (adaptation 1.0.0 → 1.1.0)
 
 **Expected Impact**:
 - Reduce failure rate from 42% to <10%

@@ -44,7 +44,6 @@ dev = [
     "pre-commit>=4.3.0",
     "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
-    "ty>=0.0.82",
     "typos>=1.50.2",
 ]
 
@@ -52,7 +51,6 @@ dev = [
 dev = [
     "bandit>=1.8.6,<2.0",
     "pre-commit>=4.3.0",
-    "ty>=0.0.82",
     "typos>=1.50.2",
     "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
@@ -207,7 +205,6 @@ disable_error_code = ["arg-type", "return-value", "attr-defined", "assignment", 
 [[tool.mypy.overrides]]
 module = [
     "tests.scripts.test_update_vitality_scores",
-    "tests.scripts.test_update_autonomy_state",
 ]
 disable_error_code = ["attr-defined"]
 

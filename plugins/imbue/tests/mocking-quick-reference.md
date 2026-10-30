@@ -206,8 +206,8 @@ mock = MagicMock(name="MyMock", spec=["valid_method1", "valid_method2"])
 
 ## More Information
 
-- Full Standards: `tests/MOCKING_STANDARDS.md`
-- Summary: `tests/STANDARDIZATION_SUMMARY.md`
+- Full Standards: `tests/mocking-standards.md`
+- Summary: `tests/standardization-summary.md`
 - Examples: `tests/unit/agents/test_review_analyst.py`
 
 ## Quick Commands

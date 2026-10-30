@@ -25,7 +25,6 @@ usage_patterns:
 - decision-frameworks
 - rubric-design
 complexity: beginner
-model_hint: fast
 estimated_tokens: 550
 progressive_loading: true
 modules:

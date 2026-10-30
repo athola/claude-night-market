@@ -62,9 +62,31 @@ const SPECIALISTS = [
   { key: 'tests', agentType: 'parseltongue:python-tester', brief: 'Report branches with no test, and tests that would still pass if the behavior they name were broken. The second is the more valuable finding.' },
 ]
 
-const specialists = input.lenses
-  ? SPECIALISTS.filter((specialist) => input.lenses.includes(specialist.key))
+const KNOWN = SPECIALISTS.map((specialist) => specialist.key).join(', ')
+const selection = input.lenses ?? null
+// A string would pass `.includes` as a substring match, so only a list
+// is a selection.
+if (selection !== null && !Array.isArray(selection)) {
+  return {
+    started: false,
+    reason: 'lenses-not-a-list',
+    next: 'Pass args.lenses as a list of lens names. Omit it to run every lens.',
+  }
+}
+const specialists = selection
+  ? SPECIALISTS.filter((specialist) => selection.includes(specialist.key))
   : SPECIALISTS
+// A misspelled lens must not read as a clean review.
+const unknown = (selection || []).filter((name) => !SPECIALISTS.some((s) => s.key === name))
+if (unknown.length) log(`unknown lens ${unknown.join(', ')}. Known lenses: ${KNOWN}`)
+if (!specialists.length) {
+  return {
+    started: false,
+    reason: 'no-lenses-selected',
+    next: `Name one or more known lenses in args.lenses: ${KNOWN}. Omit it to run every lens.`,
+    unknown,
+  }
+}
 
 const swept = await parallel(
   specialists.map((specialist) => () =>
@@ -82,8 +104,12 @@ const swept = await parallel(
 
 // A specialist that returned nothing left its lens unreviewed. A
 // dropped tests lens would otherwise read as full coverage.
-const missing = specialists.filter((specialist, index) => !swept[index]).map((s) => s.key || s.lens || String(s))
-const reports = swept.filter(Boolean)
+const missing = specialists.filter((specialist, index) => !swept[index]).map((s) => s.key)
+// The lens comes from the roster, not from the agent's own report, so
+// reviewed and missing share one vocabulary.
+const reports = swept
+  .map((report, index) => report && { ...report, lens: specialists[index].key })
+  .filter(Boolean)
 const findings = reports.flatMap((report) =>
   (report.findings || []).map((finding) => ({ ...finding, lens: report.lens })),
 )
@@ -104,7 +130,10 @@ const merged = await agent(
   `These findings came from four specialists that could not see each other. Merge them.\n\n${digest}\n\nWhere two specialists point at the same location, decide whether they found one cause or two, and say which. A function that is both untested and superlinear is one finding about a function nobody has exercised, not two. Rank by what a maintainer should fix first.`,
   { label: 'merge', phase: 'Merge' },
 )
+// A dead merge agent returns the same null as the skip path above.
+const failed = merged ? null : 'merge'
+if (failed) log('no result from the merge stage. The findings are unmerged, not merged clean')
 
 log(`${findings.length} findings from ${reports.length} specialists over ${paths.length} paths`)
 
-return { paths, findings, merged, coverage }
+return { paths, findings, merged, coverage, failed }

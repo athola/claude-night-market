@@ -36,7 +36,6 @@ class TokenUsageTracker:
         )
         self.max_limit = max_limit if max_limit is not None else self.DEFAULT_MAX_LIMIT
         self.usage_history: list[dict[str, Any]] = []
-        self._analysis_cache: dict[str, Any] | None = None
 
     def analyze_skill_tokens(self, skill_name: str) -> dict[str, Any]:
         """Analyze tokens for a single skill."""

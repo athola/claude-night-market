@@ -1,8 +1,8 @@
 """Experience library for storing successful skill execution trajectories.
 
-Stores task descriptions, approaches, and outcomes from successful
-skill executions. Retrieved via keyword similarity matching.
-TODO(#296): context injection is planned but not yet implemented.
+The PostToolUse logger stores each successful Skill call that carried
+args; the PreToolUse hook injects the most recent entries for the same
+skill as additionalContext.
 
 Part of the self-adapting system. See:
 docs/adr/0006-self-adapting-skill-health.md
@@ -24,15 +24,31 @@ logger = logging.getLogger(__name__)
 MAX_ENTRIES_PER_SKILL = 20
 
 
+def project_key(cwd: Path) -> str:
+    """Identify the project a call ran in: its git toplevel, else ``cwd``.
+
+    The library lives under ``~/.claude`` and is shared by every project,
+    so an entry is only safe to recall in the project that stored it.
+    Walking up to ``.git`` (a directory, or a file in a worktree) gives
+    the toplevel without a subprocess on every Skill call.
+    """
+    start = cwd.resolve()
+    root = next((d for d in (start, *start.parents) if (d / ".git").exists()), start)
+    return hashlib.sha256(str(root).encode("utf-8", "replace")).hexdigest()[:16]
+
+
 @dataclass
 class ExecutionTrajectory:
     """A single execution trajectory to store in the library."""
 
     skill_ref: str
+    # Required: an entry stored without one could never match at read time.
+    project: str
     task_description: str
     approach_taken: str
     outcome: str
-    duration_ms: int
+    # None when the hooks could not time the call (#671); never a fake 0.
+    duration_ms: int | None
     tools_used: list[str] = field(default_factory=list)
     key_decisions: list[str] = field(default_factory=list)
 
@@ -44,16 +60,20 @@ class ExperienceLibrary:
         self.library_dir = library_dir
         self.library_dir.mkdir(parents=True, exist_ok=True)
 
+    def _skill_path(self, skill_ref: str) -> Path:
+        """Directory for a skill's experiences, not created."""
+        return self.library_dir / skill_ref.replace(":", "_").replace("/", "_")
+
     def _skill_dir(self, skill_ref: str) -> Path:
         """Get directory for a specific skill's experiences."""
-        safe_name = skill_ref.replace(":", "_").replace("/", "_")
-        d = self.library_dir / safe_name
+        d = self._skill_path(skill_ref)
         d.mkdir(parents=True, exist_ok=True)
         return d
 
-    def _task_hash(self, task_description: str) -> str:
-        """Generate a short hash for a task description."""
-        return hashlib.sha256(task_description.encode()).hexdigest()[:12]
+    def _task_hash(self, project: str, task_description: str) -> str:
+        """Short hash of project and task; projects never share a file."""
+        key = f"{project}\0{task_description}"
+        return hashlib.sha256(key.encode("utf-8", "replace")).hexdigest()[:12]
 
     def store(
         self, trajectory: ExecutionTrajectory | None = None, **kwargs: Any
@@ -70,6 +90,7 @@ class ExperienceLibrary:
             return False
 
         entry = {
+            "project": trajectory.project,
             "task_description": trajectory.task_description,
             "approach_taken": trajectory.approach_taken,
             "outcome": trajectory.outcome,
@@ -80,7 +101,7 @@ class ExperienceLibrary:
         }
 
         skill_dir = self._skill_dir(trajectory.skill_ref)
-        task_hash = self._task_hash(trajectory.task_description)
+        task_hash = self._task_hash(trajectory.project, trajectory.task_description)
         entry_file = skill_dir / f"{task_hash}.json"
         try:
             entry_file.write_text(json.dumps(entry, indent=2))
@@ -99,7 +120,7 @@ class ExperienceLibrary:
         entries = []
         for f in sorted(skill_dir.glob("*.json")):
             try:
-                entries.append(json.loads(f.read_text()))
+                entry = json.loads(f.read_text())
             except json.JSONDecodeError:
                 sys.stderr.write(
                     f"experience_library: corrupt JSON in entry {f}, skipping\n"
@@ -110,7 +131,30 @@ class ExperienceLibrary:
                     f"experience_library: failed to read entry {f}: {e}, skipping\n"
                 )
                 continue
+            if isinstance(entry, dict):
+                entries.append(entry)
+            else:
+                sys.stderr.write(
+                    f"experience_library: entry {f} is not an object, skipping\n"
+                )
         return entries
+
+    def recent_entries(
+        self, skill_ref: str, limit: int, project: str
+    ) -> list[dict[str, Any]]:
+        """Return up to ``limit`` entries stored by ``project``, newest first.
+
+        Reads without creating the skill directory: the PreToolUse hook
+        calls this for every skill, most of which have no entries. An
+        entry with no project predates the scoping and matches nothing.
+        """
+        if not self._skill_path(skill_ref).is_dir():
+            return []
+        entries = [
+            e for e in self.list_entries(skill_ref) if e.get("project") == project
+        ]
+        entries.sort(key=lambda e: str(e.get("stored_at", "")), reverse=True)
+        return entries[:limit]
 
     def _prune(self, skill_ref: str) -> None:
         """Keep only the most recent MAX_ENTRIES_PER_SKILL entries."""
@@ -119,3 +163,20 @@ class ExperienceLibrary:
         while len(files) > MAX_ENTRIES_PER_SKILL:
             oldest = files.pop(0)
             oldest.unlink()
+
+
+def format_context(entries: list[dict[str, Any]], max_chars_each: int) -> str:
+    """Render entries as context text, each cut to ``max_chars_each``.
+
+    The cap bounds what a long args string can add to every later
+    invocation of the skill.
+    """
+    blocks = []
+    for entry in entries:
+        lines = [f"- Task: {entry.get('task_description', '')}"]
+        if entry.get("approach_taken"):
+            lines.append(f"  Approach: {entry['approach_taken']}")
+        if entry.get("tools_used"):
+            lines.append(f"  Tools: {', '.join(entry['tools_used'])}")
+        blocks.append("\n".join(lines)[:max_chars_each])
+    return "\n".join(blocks)

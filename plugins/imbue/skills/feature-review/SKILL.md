@@ -20,7 +20,6 @@ usage_patterns:
 - github-integration
 - research-enrichment
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 3500
 modules:
 - modules/scoring-framework.md

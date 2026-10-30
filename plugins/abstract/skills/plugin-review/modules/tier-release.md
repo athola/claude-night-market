@@ -47,6 +47,9 @@ Run `python3 plugins/sanctum/scripts/meta_evaluation.py`
 to validate that evaluation-related skills (skills-eval,
 hooks-eval, rules-eval) meet their own quality standards.
 
+If `plugins/sanctum/scripts/meta_evaluation.py` is absent (a marketplace
+install, not a checkout), skip this step and say so.
+
 ### 6. Cross-Plugin Dependency Validation
 
 Regenerate the dependency map and compare with the committed

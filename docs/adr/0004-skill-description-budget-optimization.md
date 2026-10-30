@@ -1,7 +1,7 @@
 # ADR 0004: Skill Description Budget Optimization
 
 **Date**: 2025-12-31
-**Updated**: 2026-05-21
+**Updated**: 2026-10-28
 **Status**: Accepted (Updated)
 **Context**: Slash Command Character Budget Management
 
@@ -168,7 +168,8 @@ Claude-selected).
 
 ## Monitoring
 
-1. ✅ Pre-commit hook (`validate-description-budget`) enforces limit
+1. ✅ Pre-commit hook (`validate-description-budget`) fails on a description
+   over 160 chars and warns on the total
 2. ✅ Validator tracks per-description lengths (160 char max)
 3. ⏳ Monitor for description creep in future PRs
 4. ⏳ Consider archetypes consolidation if headroom shrinks
@@ -176,10 +177,20 @@ Claude-selected).
 ## Summary
 
 After the 2026-05 overhaul, all descriptions use action-oriented triggers
-("Use when/before/after/for"). Raw budget is ~35k chars (~70k with overhead),
-within the 1M context window's ~80k available. Validator ceiling is 60,000
-chars (enforced by pre-commit hook). Growth is intentional: trigger phrasing
+("Use when/before/after/for"). Growth is intentional: trigger phrasing
 improves skill activation accuracy at the cost of budget.
+
+2026-10-28: 340 components carry 40,741 description chars, 77,801 with
+per-component overhead. The validator's total is 90,000 (`DEFAULT_BUDGET`
+in `plugins/abstract/scripts/validate_budget.py`, which carries the
+arithmetic): about 9% of a 1M window. At the 160-char cap each component
+costs 269 chars with overhead, so the total covers 334 components, six
+fewer than ship today. The total only warns. The per-description cap is the one
+hard failure, so a growing component count never blocks an unrelated
+commit. The cost of that choice: on a 200k-context session the listing
+exceeds the 16,000-char fallback several times over, and the harness
+truncates it. Such a session sees only part of the skill list.
+`SLASH_COMMAND_TOOL_CHAR_BUDGET` raises the limit there.
 
 ## Related
 

@@ -140,12 +140,19 @@ def _check_timeout_error_handling(node: ast.AsyncFunctionDef) -> bool:
     for child in ast.walk(node):
         if isinstance(child, ast.Try):
             for handler in child.handlers:
-                if handler.type:
+                if handler.type is None:
+                    continue
+                caught = (
+                    handler.type.elts
+                    if isinstance(handler.type, ast.Tuple)
+                    else [handler.type]
+                )
+                for exception in caught:
                     type_name = ""
-                    if isinstance(handler.type, ast.Name):
-                        type_name = handler.type.id
-                    elif isinstance(handler.type, ast.Attribute):
-                        type_name = handler.type.attr
+                    if isinstance(exception, ast.Name):
+                        type_name = exception.id
+                    elif isinstance(exception, ast.Attribute):
+                        type_name = exception.attr
                     if "TimeoutError" in type_name:
                         return True
     return False

@@ -107,21 +107,6 @@ status: ## Show project overview
 	@echo "Scripts: $$(find scripts/ -name '*.py' 2>/dev/null | wc -l)"
 	@echo "Hooks:   $$(find hooks/ -name '*.py' 2>/dev/null | wc -l)"
 
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "PYTHON: $(PYTHON)"
-	@echo "UV: $(UV)"
-	@echo "UV_RUN: $(UV_RUN)"
-	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
-	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
-	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
-	@echo "COV_DIRS: $(COV_DIRS)"
-	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
-	@echo "MAKEFLAGS: $(MAKEFLAGS)"
-
 # Delegation specific commands
 quota-status: ## Check delegation quota status
 	@echo "Checking delegation quota status..."
@@ -216,11 +201,7 @@ delegate-test: ## Test all delegation services
 
 # ---------- Advanced Testing ----------
 mutation-test: ## Run mutation testing
-	@if command -v mutmut >/dev/null 2>&1; then \
-		mutmut run --paths-to-mutate scripts --tests-dir tests/; \
-	else \
-		echo "mutmut not installed (pip install mutmut)"; \
-	fi
+	$(MUTMUT) run --paths-to-mutate scripts --tests-dir tests/
 
 benchmark: ## Run performance benchmarks (API delegation latency)
 	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
@@ -327,10 +308,3 @@ test-status: ## Test delegation status command
 	elif [ $$status -ne 0 ]; then \
 		exit $$status; \
 	fi
-
-
-# Guard against accidental file creation (catch-all for unknown targets)
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

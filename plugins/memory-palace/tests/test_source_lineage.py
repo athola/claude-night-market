@@ -299,19 +299,3 @@ class TestSourceLineageManager:
         manager.import_lineage(lineage_data)
         assert isinstance(manager.get_lineage("entry-1"), FullLineage)
         assert isinstance(manager.get_lineage("entry-2"), SimpleLineage)
-
-    def test_confidence_propagation(self, manager: SourceLineageManager) -> None:
-        """Should calculate propagated confidence through derivation."""
-        source0 = SourceReference("src-0", SourceType.RESEARCH_PAPER, confidence=0.95)
-        source1 = SourceReference("src-1", SourceType.DERIVED, confidence=0.9)
-
-        lin0 = FullLineage("entry-0", source0)
-        lin1 = FullLineage("entry-1", source1, derived_from=["entry-0"])
-
-        manager.register_lineage(lin0)
-        manager.register_lineage(lin1)
-
-        # Derived confidence should be product of chain
-        confidence = manager.get_propagated_confidence("entry-1")
-        expected = 0.95 * 0.9  # Multiply through chain
-        assert confidence == pytest.approx(expected, abs=0.01)

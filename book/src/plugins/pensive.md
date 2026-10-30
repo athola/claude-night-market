@@ -27,7 +27,7 @@ selecting the right skills for each codebase.
 | `test-review` | Test quality review | Ensuring tests verify behavior |
 | `makefile-review` | Makefile best practices | Reviewing Makefile quality |
 | `math-review` | Mathematical correctness | Reviewing mathematical logic |
-| `shell-review` | Shell script auditing | Exit codes, portability, safety patterns |
+| `shell-review` | Deprecated alias for unified-review's shell module | Exit codes, portability, safety patterns |
 | `safety-critical-patterns` | NASA Power of 10 rules | Robust, verifiable code with context-appropriate rigor |
 | `code-refinement` | Code quality analysis | Duplication, efficiency, clean code violations |
 | `performance-review` | Time and space complexity review | Detecting hotspots via Python AST (Tier 1) with optional gauntlet enrichment |

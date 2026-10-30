@@ -8,6 +8,22 @@ from typing import Any
 
 from ._constants import HEAVY_PARAMETRIZE_THRESHOLD, MIN_FUNCTIONS_FOR_PARAMETRIZE
 
+_FUNCTION_NODES = (ast.FunctionDef, ast.AsyncFunctionDef)
+# Assertion helpers that are not spelled ``assert*``: pytest.raises(),
+# pytest.warns() and unittest's self.fail().
+_ASSERTING_CALLS = frozenset({"raises", "warns", "fail"})
+# Capitalized callables that are values or test doubles, not a class under
+# test that a fixture should build.
+_NON_FIXTURE_CONSTRUCTORS = frozenset(
+    {"Path", "PurePath", "Mock", "MagicMock", "AsyncMock"}
+)
+_EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
+
+
+def _names_test(test_name: str, function_name: str) -> bool:
+    """Return True when function_name is a whole underscore-run of test_name."""
+    return bool(re.search(rf"(?:^|_){re.escape(function_name)}(?:_|$)", test_name))
+
 
 class TestStructureMixin:
     """AST-based analysis of test structure, coverage, and performance."""
@@ -84,7 +100,7 @@ class TestStructureMixin:
             if isinstance(node, ast.ClassDef) and node.name.startswith("Test"):
                 structure["test_classes"].append(node.name)
 
-            if isinstance(node, ast.FunctionDef):
+            if isinstance(node, _FUNCTION_NODES):
                 if node.name.startswith("test_"):
                     structure["test_methods"].append(
                         {
@@ -133,7 +149,7 @@ class TestStructureMixin:
 
         self._check_direct_instantiation(tree, anti_patterns)
         self._check_private_method_testing(code, anti_patterns)
-        self._check_assertions(tree, code, anti_patterns)
+        self._check_assertions(tree, anti_patterns)
 
         return {"anti_patterns": anti_patterns}
 
@@ -147,12 +163,15 @@ class TestStructureMixin:
             anti_patterns: Dictionary to update with findings
         """
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+            if isinstance(node, _FUNCTION_NODES) and node.name.startswith("test_"):
                 for child in ast.walk(node):
                     if (
                         isinstance(child, ast.Call)
                         and isinstance(child.func, ast.Name)
                         and child.func.id[0].isupper()
+                        and child.func.id not in _NON_FIXTURE_CONSTRUCTORS
+                        and not child.func.id.endswith(_EXCEPTION_SUFFIXES)
+                        and "no_fixture_reuse" not in anti_patterns
                     ):
                         anti_patterns["no_fixture_reuse"] = {
                             "creates_new_instance": True,
@@ -177,32 +196,28 @@ class TestStructureMixin:
                 "Test public API instead of private methods"
             )
 
-    def _check_assertions(
-        self, tree: ast.AST, code: str, anti_patterns: dict[str, Any]
-    ) -> None:
+    def _check_assertions(self, tree: ast.AST, anti_patterns: dict[str, Any]) -> None:
         """Check for presence of assertions in test functions.
 
         Args:
             tree: AST tree to analyze
-            code: Original code string
             anti_patterns: Dictionary to update with findings
         """
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
-                has_assert = False
-                for child in ast.walk(node):
-                    if isinstance(child, ast.Assert):
-                        has_assert = True
-                    if (
+            if isinstance(node, _FUNCTION_NODES) and node.name.startswith("test_"):
+                has_assert = any(
+                    isinstance(child, ast.Assert)
+                    or (
                         isinstance(child, ast.Call)
                         and isinstance(child.func, ast.Attribute)
-                        and child.func.attr.startswith("assert")
-                    ):
-                        has_assert = True
-                source_segment = ast.get_source_segment(code, node)
-                if not has_assert and (
-                    source_segment is None or "assert" not in source_segment
-                ):
+                        and (
+                            child.func.attr.startswith("assert")
+                            or child.func.attr in _ASSERTING_CALLS
+                        )
+                    )
+                    for child in ast.walk(node)
+                )
+                if not has_assert:
                     anti_patterns["no_assertions"] = True
                     anti_patterns["recommendations"].append(
                         "Add assertions to verify behavior"
@@ -236,8 +251,7 @@ class TestStructureMixin:
         public_methods = [m for m in source_methods if not m.startswith("_")]
         covered_methods = 0
         for method in public_methods:
-            pattern = re.compile(rf"(?:^|_){re.escape(method)}(?:_|$)")
-            if any(pattern.search(t) for t in tested_methods):
+            if any(_names_test(t, method) for t in tested_methods):
                 covered_methods += 1
             else:
                 coverage["uncovered_methods"].append(method)
@@ -281,7 +295,7 @@ class TestStructureMixin:
                 return source_methods, branch_count
 
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef):
+            if isinstance(node, _FUNCTION_NODES):
                 source_methods.append(node.name)
             if isinstance(node, ast.If):
                 branch_count += 1
@@ -314,7 +328,7 @@ class TestStructureMixin:
                 return tested_methods
 
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+            if isinstance(node, _FUNCTION_NODES) and node.name.startswith("test_"):
                 name = node.name.replace("test_", "", 1)
                 tested_methods.append(name)
 
@@ -341,12 +355,27 @@ class TestStructureMixin:
         tested_branches = 0
 
         if branch_count > 0:
-            # Check if error branches are tested
-            if "raises" not in test_code and "Error" in source_code:
-                coverage["uncovered_branches"].append("index_error_branch")
+            # An exception the source raises is covered when the tests name it.
+            for exception in self._raised_exceptions(source_code):
+                if not re.search(rf"\b{re.escape(exception)}\b", test_code):
+                    coverage["uncovered_branches"].append(exception)
             tested_branches = max(0, branch_count - len(coverage["uncovered_branches"]))
 
         return tested_branches
+
+    def _raised_exceptions(self, source_code: str) -> list[str]:
+        """List exception class names raised in source, in first-seen order."""
+        tree, _ = self._parse_code(source_code)
+        if tree is None:
+            return []
+        raised: list[str] = []
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Raise) or node.exc is None:
+                continue
+            target = node.exc.func if isinstance(node.exc, ast.Call) else node.exc
+            if isinstance(target, ast.Name) and target.id not in raised:
+                raised.append(target.id)
+        return raised
 
     def analyze_mock_usage(self, code: str) -> dict[str, Any]:
         """Analyze mock usage patterns in test code.
@@ -448,7 +477,7 @@ class TestStructureMixin:
                 return source_functions, source_classes
 
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef) and not node.name.startswith("_"):
+            if isinstance(node, _FUNCTION_NODES) and not node.name.startswith("_"):
                 source_functions.append(node.name)
             if isinstance(node, ast.ClassDef):
                 source_classes.append(node.name)
@@ -477,7 +506,7 @@ class TestStructureMixin:
         tested_names = set(test_info.get("tested_functions", []))
         for func in source_functions:
             if func not in tested_names and f"test_{func}" not in tested_names:
-                has_test = any(func in t for t in tested_names)
+                has_test = any(_names_test(t, func) for t in tested_names)
                 if not has_test:
                     recommendations.append(
                         {
@@ -565,7 +594,7 @@ class TestStructureMixin:
                 return info
 
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+            if isinstance(node, _FUNCTION_NODES) and node.name.startswith("test_"):
                 info["test_count"] += 1
                 name = node.name.replace("test_", "", 1)
                 info["tested_functions"].append(name)
@@ -575,7 +604,7 @@ class TestStructureMixin:
                     info["uses_fixtures"] = True
 
             # Check for decorators
-            if isinstance(node, ast.FunctionDef):
+            if isinstance(node, _FUNCTION_NODES):
                 for dec in node.decorator_list:
                     if isinstance(dec, ast.Attribute) and dec.attr == "parametrize":
                         info["uses_parametrize"] = True

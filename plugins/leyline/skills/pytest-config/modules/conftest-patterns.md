@@ -5,9 +5,6 @@ parent_skill: leyline:pytest-config
 category: infrastructure
 tags: [pytest, fixtures, conftest, testing]
 estimated_tokens: 220
-reusable_by:
-  - "plugins/*/tests/conftest.py"
-  - "test infrastructure setup"
 ---
 
 # Conftest.py Patterns

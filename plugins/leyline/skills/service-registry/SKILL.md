@@ -28,7 +28,6 @@ usage_patterns:
 - unified-execution
 - configuration-management
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 550
 progressive_loading: true
 modules:
@@ -87,7 +86,8 @@ class ExecutionResult:
 
 ### Register Services
 ```python
-from leyline.service_registry import ServiceRegistry
+# Sketch: implement ServiceRegistry and ServiceConfig in your plugin.
+# leyline ships no service_registry module.
 
 registry = ServiceRegistry()
 

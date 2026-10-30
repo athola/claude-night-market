@@ -4,7 +4,6 @@ description: Testing anti-patterns to avoid with before/after code examples
 parent_skill: leyline:testing-quality-standards
 category: infrastructure
 estimated_tokens: 600
-reusable_by: [pensive:test-review, parseltongue:python-testing, sanctum skills]
 ---
 
 # Testing Anti-Patterns

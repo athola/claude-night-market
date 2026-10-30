@@ -18,7 +18,6 @@ usage_patterns:
 - session-resume
 - cross-session-recall
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 900
 ---
 

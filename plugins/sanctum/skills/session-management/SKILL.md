@@ -10,7 +10,6 @@ tags:
 - debugging
 tools: []
 complexity: low
-model_hint: fast
 estimated_tokens: 400
 ---
 # Session Management

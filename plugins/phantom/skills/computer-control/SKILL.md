@@ -2,7 +2,6 @@
 name: computer-control
 description: Automates desktop GUI workflows via computer use API with screenshot capture. Use when scripting GUI interactions or recording browser sessions for tutorials.
 alwaysApply: false
-model_hint: standard
 ---
 # Computer Control Skill
 

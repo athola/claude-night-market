@@ -24,18 +24,6 @@ status: ## Show project overview
 	@echo "Skills: $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
 	@echo "Total markdown: $$(find . -name '*.md' 2>/dev/null | wc -l) files"
 
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
-	@echo "SKILLS_DIR: $(SKILLS_DIR)"
-	@echo "COMMANDS_DIR: $(COMMANDS_DIR)"
-	@echo "AGENTS_DIR: $(AGENTS_DIR)"
-	@echo "DOCS_DIR: $(DOCS_DIR)"
-	@echo "SCRIPTS_DIR: $(SCRIPTS_DIR)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "MAKEFLAGS: $(MAKEFLAGS)"
-
 # ---------- Maintenance ----------
 clean: ## Clean any generated files
 	@echo "Nothing to clean (markdown-only plugin)"
@@ -85,9 +73,3 @@ plugin-check: demo-paradigms demo-skills status ## Run all demo workflows
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
 -include Makefile.local
-
-# Guard against accidental file creation (catch-all for unknown targets)
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

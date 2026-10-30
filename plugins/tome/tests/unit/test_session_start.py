@@ -75,9 +75,13 @@ class TestSessionStartHook:
 
         output = capsys.readouterr().out.strip()
         result = json.loads(output)
-        assert "additionalContext" in result
-        assert "async patterns" in result["additionalContext"]
-        assert "2 findings" in result["additionalContext"]
+        # The harness reads context only under hookSpecificOutput; a
+        # top-level additionalContext key is silently dropped.
+        assert "additionalContext" not in result
+        specific = result["hookSpecificOutput"]
+        assert specific["hookEventName"] == "SessionStart"
+        assert "async patterns" in specific["additionalContext"]
+        assert "2 findings" in specific["additionalContext"]
 
     @pytest.mark.unit
     def test_no_output_for_complete_session(

@@ -12,7 +12,6 @@ tags:
 - controlled-language
 tools: []
 complexity: medium
-model_hint: fast
 estimated_tokens: 1200
 progressive_loading: true
 modules:

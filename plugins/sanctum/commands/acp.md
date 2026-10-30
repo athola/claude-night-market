@@ -1,6 +1,5 @@
 ---
 description: Stage changes, generate conventional commit message, commit, and push to current branch. One-shot git add-commit-push.
-model_hint: fast
 ---
 
 # Add, Commit, Push

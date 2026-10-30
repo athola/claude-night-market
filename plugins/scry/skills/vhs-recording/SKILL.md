@@ -12,7 +12,6 @@ tags:
 - tutorial
 tools: []
 complexity: medium
-model_hint: standard
 estimated_tokens: 600
 progressive_loading: true
 modules:

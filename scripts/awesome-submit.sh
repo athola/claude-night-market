@@ -3,8 +3,8 @@
 # Uses your existing `gh auth` session. No PAT or secrets needed.
 #
 # Usage:
-#   ./scripts/awesome-submit.sh v1.8.1
 #   ./scripts/awesome-submit.sh v1.8.1 --dry-run
+#   ./scripts/awesome-submit.sh v1.8.1 --issue vincentkoc/awesome-openclaw#123
 
 set -euo pipefail
 
@@ -23,13 +23,20 @@ REPO_ROOT="$(cd "${MYDIR%/}/.." && pwd)"
 readonly REPO_ROOT
 readonly REQUIRED_DEPENDENCIES="gh git python3"
 
+# Each target: repo|README section the entry goes under|submission flow.
+# "issue-first" lists close PRs that arrive without an approved issue.
+# SamurAIGPT/awesome-openclaw is gone: it was transferred and renamed to a
+# Meta Muse connector catalog, and following the redirect opened an
+# off-topic PR there (closed). Re-check a list's CONTRIBUTING.md before
+# adding it here.
 readonly TARGETS=(
-  "vincentkoc/awesome-openclaw"
-  "SamurAIGPT/awesome-openclaw"
+  "vincentkoc/awesome-openclaw|## Skills and Skill Indexes|issue-first"
 )
 
 DRY_RUN=false
 VERSION=""
+# Space-separated owner/repo#N, one per approved resource-request issue.
+APPROVED_ISSUES=""
 XTRACE=0
 FORK_OWNER=""
 SKILLS=""
@@ -42,6 +49,7 @@ usage() {
   printf '  -h          Show this help and exit (exit 0)\n'
   printf '  -x, -t      Enable xtrace (set -x) for debugging\n'
   printf '  --dry-run   Commit in a clone of each upstream; fork, push and open no PR\n'
+  printf '  --issue R   Approved issue for a list, as owner/repo#N (repeatable)\n'
   printf '  VERSION     Release version, v1.8.1 or 1.8.1 (default: abstract plugin.json)\n'
 }
 
@@ -61,7 +69,9 @@ depcheck() {
 
 parse_args() {
   local arg
-  for arg in "$@"; do
+  while [ "$#" -gt 0 ]; do
+    arg="${1}"
+    shift
     case "${arg}" in
       *[uU][sS][aA][gG][eE] | *[hH][eE][lL][pP] | -h)
         usage
@@ -69,12 +79,32 @@ parse_args() {
         ;;
       -x | -t) XTRACE=1 ;;
       --dry-run) DRY_RUN=true ;;
+      --issue)
+        case "${1:-}" in
+          */*#[0-9]*) APPROVED_ISSUES="${APPROVED_ISSUES:+"${APPROVED_ISSUES} "}${1}" ;;
+          *)
+            log 4 "--issue needs owner/repo#N, got: ${1:-nothing}"
+            exit 1
+            ;;
+        esac
+        shift
+        ;;
       v*) VERSION="${arg}" ;;
       [0-9]*) VERSION="v${arg}" ;;
       *)
         log 4 "Unknown argument: ${arg}"
         exit 1
         ;;
+    esac
+  done
+}
+
+# Print the approved issue recorded for a target, or nothing.
+approved_issue() {
+  local target="${1:?approved_issue needs a target}" issue
+  for issue in ${APPROVED_ISSUES}; do
+    case "${issue}" in
+      "${target}#"*) printf '%s\n' "${issue}" ;;
     esac
   done
 }
@@ -109,11 +139,38 @@ print(json.load(open(os.path.join(os.environ["REPO_ROOT"], "clawhub/manifest.jso
 # Runs in a subshell per target: the cd into the clone and the cleanup
 # trap end with it, and set -e still aborts the whole run on a failure.
 submit_target() {
-  local target="${1:?submit_target needs a target}"
+  local spec="${1:?submit_target needs a target}"
+  local target section flow issue resolved
   local base_owner repo_name branch fork_name existing existing_num existing_url
   local clone_source lease existing_pr
 
+  target="${spec%%|*}"
+  section="${spec#*|}"
+  flow="${section#*|}"
+  section="${section%%|*}"
+
   log "=== ${target} ==="
+
+  # A transferred or renamed repo answers under its new name, and it is a
+  # different list with its own scope.
+  resolved=$(gh api "repos/${target}" --jq .full_name 2>/dev/null || true)
+  case "${resolved}" in
+    "${target}") ;;
+    *)
+      log 3 "${target} now resolves to ${resolved:-nothing}; skipping. Read its CONTRIBUTING.md before adding it back."
+      return 0
+      ;;
+  esac
+
+  issue=$(approved_issue "${target}")
+  case "${flow}:${issue}:${DRY_RUN}" in
+    issue-first::false)
+      log "${target} takes no PR without an approved issue."
+      log "Open an 'Add Resource Request' issue there first, disclose that you maintain night-market, and name the section '${section}'."
+      log "Once a maintainer approves it, rerun with: --issue ${target}#<number>"
+      return 0
+      ;;
+  esac
 
   base_owner="${target%%/*}"
   repo_name="${target#*/}"
@@ -189,23 +246,23 @@ submit_target() {
     return 0
   fi
 
-  # Insert after ## Skills header, or append
-  if grep -q "## Skills" README.md; then
-    ENTRY_LINE="${ENTRY}" python3 <<'PYEOF'
-import os, re
-entry = os.environ["ENTRY_LINE"]
-content = open("README.md").read()
-m = re.search(r"(## Skills[^\n]*\n(?:.*?\n)*?)(\n## |\Z)", content, re.DOTALL)
-if m:
-    before = m.group(1).rstrip()
-    after = m.group(2)
-    content = content[:m.start()] + before + "\n" + entry + "\n" + after + content[m.end():]
-else:
-    content += "\n" + entry + "\n"
-open("README.md", "w").write(content)
+  # The entry goes at the end of the target's own section. A list without
+  # that heading is refused: appending at end of file put the line after
+  # the README footer, in no list at all.
+  if ! env ENTRY_LINE="${ENTRY}" SECTION="${section}" python3 <<'PYEOF'; then
+import os, sys
+entry, section = os.environ["ENTRY_LINE"], os.environ["SECTION"]
+lines = open("README.md").read().split("\n")
+if section not in lines:
+    sys.exit(1)
+start = lines.index(section) + 1
+end = next((i for i in range(start, len(lines)) if lines[i].startswith("## ")), len(lines))
+last = max((i for i in range(start, end) if lines[i].startswith("- ")), default=start)
+lines.insert(last + 1, entry)
+open("README.md", "w").write("\n".join(lines))
 PYEOF
-  else
-    printf '\n%s\n' "${ENTRY}" >>README.md
+    log 3 "${target} has no '${section}' section; skipping. Check where its CONTRIBUTING.md wants skills listed."
+    return 0
   fi
 
   if git diff --quiet; then
@@ -253,13 +310,9 @@ PYEOF
     --repo "${target}" \
     --head "${FORK_OWNER}:${branch}" \
     --title "Add night-market skills" \
-    --body "$(
-      cat <<'PRBODYEOF'
-Adds [Claude Night Market](https://github.com/athola/claude-night-market)
--- curated skills for code review, testing, documentation, architecture,
-and git workflows. MIT licensed, published on ClawHub.
-PRBODYEOF
-    )"
+    --body "Adds [Claude Night Market](https://github.com/athola/claude-night-market) under ${section}: curated skills for code review, testing, documentation, architecture, and git workflows. MIT licensed, published on ClawHub.
+
+Approved in ${issue:-no issue}. I maintain night-market."
   log "PR created on ${target}"
 }
 

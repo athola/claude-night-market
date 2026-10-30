@@ -5,14 +5,14 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-import os
-import tempfile
 import time
 import warnings
 from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
 from typing import Any, TypeVar
+
+from speckit._vendored_leyline_atomic_file import write_atomic
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -146,19 +146,9 @@ class SpecKitCache:
 
         # Store in file-based cache
         cache_path = self._get_cache_path(cache_key)
-        tmp_name: str | None = None
         try:
-            # A per-call temp name: a fixed sibling let concurrent writers
-            # clobber each other and a leftover at that path break set().
-            fd, tmp_name = tempfile.mkstemp(
-                dir=cache_path.parent, prefix=cache_path.name + ".", suffix=".tmp"
-            )
-            with open(fd, "w", encoding="utf-8") as f:
-                json.dump(value, f, ensure_ascii=False, indent=2)
-            os.replace(tmp_name, cache_path)
+            write_atomic(cache_path, json.dumps(value, ensure_ascii=False, indent=2))
         except (OSError, TypeError, ValueError):
-            if tmp_name is not None:
-                Path(tmp_name).unlink(missing_ok=True)
             # The comment promised a log and the body dropped the error, so
             # a read-only cache directory meant the file cache silently
             # never populated and set() returned None either way. The

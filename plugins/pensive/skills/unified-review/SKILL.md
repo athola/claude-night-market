@@ -15,12 +15,21 @@ usage_patterns:
 - full-review
 - focused-review
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 400
 progressive_loading: true
 dependencies:
 - imbue:proof-of-work
+- imbue:review-core
 - imbue:structured-output
+modules:
+- modules/review-workflow-core.md
+- modules/output-format-templates.md
+- modules/quality-checklist-patterns.md
+- modules/shell-review.md
+- modules/shell-exit-codes.md
+- modules/shell-portability.md
+- modules/shell-safety-patterns.md
+- modules/shell-structure-patterns.md
 orchestrates:
 - pensive:rust-review
 - pensive:api-review
@@ -77,6 +86,7 @@ Intelligently selects and executes appropriate review skills based on codebase a
 | API changes (`openapi.yaml`, `routes/`) | api-review, architecture-review | Public API surfaces |
 | Test files (`test_*.py`, `*_test.go`) | test-review, bug-review | Test infrastructure |
 | Makefile/build system | makefile-review, architecture-review | Build complexity |
+| Shell scripts (`*.sh`, git hooks) | shell-review module | Shell changes |
 | Mathematical algorithms | math-review, bug-review | Numerical computation |
 | Architecture docs/ADRs | architecture-review, api-review | System design |
 | General code quality | bug-review, test-review | Default review |
@@ -101,6 +111,8 @@ if has_test_files():
     schedule_skill("test-review")
 if has_makefiles():
     schedule_skill("makefile-review")
+if has_shell_scripts():
+    schedule_module("shell-review")
 if has_math_code():
     schedule_skill("math-review")
 if has_architecture_changes():
@@ -125,7 +137,7 @@ Use this mapping to resolve skill names to agent types:
 | code-refinement | `pensive:code-refiner` | Duplication, quality |
 | math-review | `general-purpose` | Prompt: invoke `Skill(pensive:math-review)` |
 | makefile-review | `general-purpose` | Prompt: invoke `Skill(pensive:makefile-review)` |
-| shell-review | `general-purpose` | Prompt: invoke `Skill(pensive:shell-review)` |
+| shell-review | `general-purpose` | Prompt: follow this skill's `modules/shell-review.md` |
 
 **Sub-agent isolation (required).** One lens must not color how the
 next is read. Two ways to get that, and the second only runs when the
@@ -191,6 +203,7 @@ Run specific review domains:
 - `/full-review architecture` → architecture-review only
 - `/full-review bugs` → bug-review only
 - `/full-review tests` → test-review only
+- `/full-review shell` → the shell-review module only (also `/shell-review`)
 
 ### Full Review Mode
 Run all applicable review skills:
@@ -245,6 +258,8 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 - [Review workflow core](modules/review-workflow-core.md) - standard 5-step workflow pattern for all pensive reviews
 - [Output format templates](modules/output-format-templates.md) - finding entry, severity, action item templates
 - [Quality checklist patterns](modules/quality-checklist-patterns.md) - pre-review, analysis, evidence, deliverable checklists
+- [Shell review](modules/shell-review.md) - shell script audit, with its
+  exit-code, portability, safety and structure modules
 
 ## Troubleshooting
 
