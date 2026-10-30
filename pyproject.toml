@@ -24,7 +24,7 @@ include = [
 [project.optional-dependencies]
 dev = [
   "ruff>=0.16.8",
-  "mypy>=1.18.2,<2",
+  "mypy>=1.18.2,<3",
   "pre-commit>=4.6.2",
   "bandit>=1.9.4,<2.0",
   # Root tests/test_root_plugin_test_imports.py collects plugins/pensive/tests
