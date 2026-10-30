@@ -19,7 +19,7 @@ the full list of command options.
 
 | Output | Phase | Verification |
 |--------|-------|--------------|
-| Review comment | Phase 4 | `gh pr view --json comments` contains "PR Review" |
+| Review | Phase 4 | `gh pr view --json comments,reviews`: a review or comment body contains "PR Review" |
 | Test plan comment | Phase 5 | `gh pr view --json comments` contains "Test Plan" |
 | PR description | Phase 6 | `gh pr view --json body` is non-empty and contains "Review Summary" |
 
@@ -29,7 +29,7 @@ the full list of command options.
 # Validate all mandatory outputs
 PR_NUMBER=${1:-$(gh pr view --json number -q '.number')}
 
-REVIEW_EXISTS=$(gh pr view $PR_NUMBER --json comments --jq '[.comments[].body | contains("PR Review")] | any')
+REVIEW_EXISTS=$(gh pr view $PR_NUMBER --json comments,reviews --jq '[(.comments[].body, .reviews[].body) | contains("PR Review")] | any')
 TEST_PLAN_EXISTS=$(gh pr view $PR_NUMBER --json comments --jq '[.comments[].body | ascii_downcase | contains("test plan")] | any')
 DESCRIPTION_EXISTS=$(gh pr view $PR_NUMBER --json body --jq '.body | length > 0')
 

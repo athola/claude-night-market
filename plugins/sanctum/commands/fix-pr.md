@@ -339,16 +339,17 @@ REPO=$(echo "$REPO_FULL" | cut -d'/' -f2)
 PR_NUM=$(gh pr view --json number -q .number)
 
 # Check for unresolved threads
-UNRESOLVED=$(gh api graphql -f query="
-query {
+UNRESOLVED=$(gh api graphql --paginate --slurp -f query="
+query(\$endCursor: String) {
   repository(owner: \"$OWNER\", name: \"$REPO\") {
     pullRequest(number: $PR_NUM) {
-      reviewThreads(first: 100) {
+      reviewThreads(first: 100, after: \$endCursor) {
+        pageInfo { hasNextPage endCursor }
         nodes { isResolved }
       }
     }
   }
-}" --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+}" | jq '[.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
 
 if [[ "$UNRESOLVED" -gt 0 ]]; then
   echo "❌ GATE 1 FAILED: $UNRESOLVED unresolved threads"

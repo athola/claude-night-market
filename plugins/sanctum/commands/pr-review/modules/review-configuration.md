@@ -165,9 +165,13 @@ Issue: File approaching size threshold
 gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews \
   --jq '.[] | select(.state == "PENDING")'
 
-# If pending review exists, add comments to it instead of creating new
-# Use the existing review_id for subsequent comments
 ```
+
+A pending draft review of yours blocks creating another, and submitting it would
+publish your unsent comments with the new findings.
+`plugins/sanctum/scripts/post_formal_review.py` exits 3 with the draft's comment
+count. Ask before rerunning with `--pending join`, which adds the findings to
+the draft and submits it as one review.
 
 **Authentication Issues:**
 ```bash

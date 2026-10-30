@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`/pr-review` posts one formal review on GitHub and GitLab.**
+  `plugins/sanctum/scripts/post_formal_review.py` puts every finding in a
+  single review with a verdict, file-level threads for lines outside the
+  diff, and GitLab draft notes published with a reviewer state. A pending
+  draft review of yours stops it (exit 3) instead of falling back to
+  separate comments, and `--pending join` adds the findings to the draft.
+  `/fix-pr` and `/resolve-threads` page through every review thread, and
+  read findings that have no thread from the review body.
 - **Breaking: `gauntlet:gauntlet-curate` is now `gauntlet:problem-bank`.**
   The `/gauntlet-curate` command shares the old name and invokes
   `gauntlet:curate`, so the problem-bank auditor could not be reached

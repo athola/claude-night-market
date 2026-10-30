@@ -2,6 +2,11 @@
 
 Reusable patterns for posting comments to GitHub PRs via the `gh` CLI.
 
+For a full review, use `plugins/sanctum/scripts/post_formal_review.py`. It posts
+every finding as one formal review with a verdict, on GitHub or GitLab, and
+handles lines outside the diff and an existing pending draft. The patterns below
+are for single comments and for when the script cannot run.
+
 ## Key API Differences
 
 | Endpoint | Use Case | Notes |

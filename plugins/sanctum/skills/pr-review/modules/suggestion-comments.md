@@ -69,6 +69,11 @@ For a block that replaces several lines, anchor the range with
 `side` is `RIGHT` for additions and context, `LEFT` for deletions
 ([REST reference][gh-rest]).
 
+A single-line suggestion can go in a finding's body for
+`plugins/sanctum/scripts/post_formal_review.py`, which anchors it to the line
+inside the formal review. The script takes no `start_line`, so a multi-line
+range still needs the call above.
+
 ## GitLab: Positioned Discussion
 
 `glab mr note` cannot anchor to a line. A suggestion needs a
