@@ -538,6 +538,14 @@ def draft(root: Path, config: dict, call=claude_call) -> dict:
     ses = _session(root, config, call)
     roles, budget = ses.roles, ses.budget
     rows = _new_rows(root, ses, ses.items, [])
+    # A writer reply that does not parse yields no rows for its whole batch:
+    # the first full draft lost 11 items that way. Redraft them once, then
+    # record what is still short rather than leave it to the coverage gate.
+    # One item per retry call, so an item whose reply never parses cannot
+    # take its batch-mates down with it a second time.
+    for item_id in _short_items(rows, ses.items):
+        cases = [Case.from_dict(r) for r in rows]
+        rows += _new_rows(root, ses, [ses.by_id[item_id]], cases)
     for n, (source, prompt) in enumerate(draft_negatives(budget, roles["writer"])):
         rows.append(
             Case(
@@ -559,8 +567,15 @@ def draft(root: Path, config: dict, call=claude_call) -> dict:
             "spent_usd": round(budget.spent, 4),
             "stopped": stopped,
             "failed_calls": budget.failures,
+            "unfilled_items": _short_items(rows, ses.items),
         },
     )
+
+
+def _short_items(rows: list[dict], items: list[Item]) -> list[str]:
+    cases = [Case.from_dict(r) for r in rows]
+    gaps = coverage_gaps(cases, items, min_negatives=0, min_sources=0)
+    return sorted(gaps["items"])
 
 
 def _load_rows(root: Path) -> list[dict]:

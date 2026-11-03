@@ -91,14 +91,19 @@ with more than one name, and hard links failed every case (smoke run,
 
 The answer key is written by a writer model and checked by a judge
 model, both chosen so that neither resolves to a measured arm. The
-writer drafts from item bodies and the judge reads body excerpts of the
-router's top eight, never descriptions. Bodies often repeat description
-wording, and echo risk falls without vanishing. The judge only sees the
-router's shortlist, which ties its picks to the router's recall. The
-router also proposes labels. The router gate therefore measures
-agreement with its own proposals and cannot show correctness. Every
-report prints the share of positive cases whose target only the router
-proposed.
+writer drafts from item bodies and the judge reads body excerpts, never
+descriptions. Bodies often repeat description wording, and echo risk
+falls without vanishing. The judge's candidates are the router's top
+eight plus the writer's target. Without the target the judge could only
+disagree when the router ranked it low, and the first draft lost 328 of
+628 positive labels that way. The router's own answer is recorded on
+each label and never queues it. The router gate therefore measures
+agreement with labels the router did not choose, and still cannot show
+that the model activates anything.
+
+A writer reply that does not parse drops its whole batch. `draft`
+redrafts each short item once, alone, and lists any still short under
+`unfilled_items` in `adjudicate.yaml`. `repair` fills them later.
 
 ## Cost model
 

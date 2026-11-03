@@ -411,3 +411,40 @@ def test_requeue_rebuilds_the_queue_without_spending(plugin_tree):
     after = labeling.requeue(plugin_tree)
     assert after["spent_usd"] == before["spent_usd"]
     assert after["disagreements"] == before["disagreements"]
+
+
+def _garbles_first_writer_batch():
+    # The first full draft lost 11 items to one writer reply that did not parse.
+    state = {"garbled": False}
+
+    def call(model, prompt):
+        writer_batch = "### ITEM" in prompt and "hasty reader" not in prompt
+        if writer_batch and not state["garbled"]:
+            state["garbled"] = True
+            return {"result": "Here are the prompts: [{oops"}, 0.01
+        return _fake_model(model, prompt)
+
+    return call
+
+
+def test_draft_redrafts_items_a_garbled_writer_reply_left_short(plugin_tree):
+    (plugin_tree / "evals/activation").mkdir(parents=True)
+    config = {**CONFIG, "resolved": resolve(CONFIG, call=_probe)}
+    queue = draft(plugin_tree, config, call=_garbles_first_writer_batch())
+    cases = load_cases(plugin_tree / "evals/activation/labels")
+    for item in build_inventory(plugin_tree):
+        assert sum(c.is_positive and c.target == item.id for c in cases) == 3
+    assert queue["unfilled_items"] == []
+
+
+def test_draft_records_items_still_short_after_the_retry(plugin_tree):
+    (plugin_tree / "evals/activation").mkdir(parents=True)
+    config = {**CONFIG, "resolved": resolve(CONFIG, call=_probe)}
+
+    def never_writes_beta(model, prompt):
+        if "### ITEM beta:sweep" in prompt and "PROMPT" not in prompt:
+            return {"result": "not json"}, 0.01
+        return _fake_model(model, prompt)
+
+    queue = draft(plugin_tree, config, call=never_writes_beta)
+    assert queue["unfilled_items"] == ["beta:sweep"]
