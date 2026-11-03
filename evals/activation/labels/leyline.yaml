@@ -1,0 +1,1329 @@
+schema_version: 1
+cases:
+- id: leyline.additive-bias-defense.p1
+  type: positive
+  prompt: Reviewing this PR, the author added a new helper, an extra abstraction used
+    once, and some error handling nobody asked for. How do I challenge each addition
+    and decide whether it's justified or needs evidence?
+  target: leyline:additive-bias-defense
+  competitor: null
+  cluster: leyline:additive-bias-defense
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:additive-bias-defense
+    judge: leyline:additive-bias-defense
+- id: leyline.additive-bias-defense.p2
+  type: positive
+  prompt: The model keeps reinventing utilities that already exist in our codebase
+    and tweaking tests to fit its changes. I want a checklist of questions to push
+    back on every proposed addition and a verdict for each.
+  target: leyline:additive-bias-defense
+  competitor: null
+  cluster: leyline:additive-bias-defense
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:gate-audit; judge: leyline:additive-bias-defense'
+  proposals:
+    router: egregore:gate-audit
+    judge: leyline:additive-bias-defense
+- id: leyline.additive-bias-defense.p3
+  type: near_miss
+  prompt: Claude proposed adding a new config layer, a retry wrapper and three helper
+    classes for a two-line fix. Give me a set of questions to challenge each of those
+    additions before I accept any of them.
+  target: leyline:additive-bias-defense
+  competitor: gauntlet:challenge
+  cluster: leyline:additive-bias-defense
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at egregore:gate-audit; router: abstract:skill-audit; judge: leyline:additive-bias-defense/gauntlet:challenge'
+  proposals:
+    aimed_at: egregore:gate-audit
+    router: abstract:skill-audit
+    judge: leyline:additive-bias-defense
+    judge_runner_up: gauntlet:challenge
+- id: leyline.authentication-patterns.p1
+  type: positive
+  prompt: I'm wiring up a plugin to call an external API that might use an API key,
+    OAuth, or a session token. What's a clean pattern for verifying credentials and
+    telling the user what to do when auth fails?
+  target: leyline:authentication-patterns
+  competitor: null
+  cluster: leyline:authentication-patterns
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:authentication-patterns
+    judge: leyline:authentication-patterns
+- id: leyline.authentication-patterns.p2
+  type: positive
+  prompt: Write a check that confirms GEMINI_API_KEY is set and then does a smoke-test
+    request to verify it really works, with a helpful suggested action if it doesn't.
+  target: leyline:authentication-patterns
+  competitor: null
+  cluster: leyline:authentication-patterns
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: phantom:surface-check; judge: leyline:authentication-patterns/conjure:provider-sweep'
+  proposals:
+    router: phantom:surface-check
+    judge: leyline:authentication-patterns
+    judge_runner_up: conjure:provider-sweep
+- id: leyline.authentication-patterns.p3
+  type: near_miss
+  prompt: I'm wiring my plugin up to the Gemini API and need to check the GEMINI_API_KEY
+    is valid before making calls, with a clear message and suggested action if auth
+    fails. What's a good pattern for that?
+  target: leyline:authentication-patterns
+  competitor: conjure:gemini-delegation
+  cluster: leyline:authentication-patterns
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:evaluate-skill; router: conjure:gemini-delegation; judge:
+    leyline:authentication-patterns/conjure:gemini-delegation'
+  proposals:
+    aimed_at: abstract:evaluate-skill
+    router: conjure:gemini-delegation
+    judge: leyline:authentication-patterns
+    judge_runner_up: conjure:gemini-delegation
+- id: leyline.content-sanitization.p1
+  type: positive
+  prompt: My skill pulls GitHub issue bodies and web pages into the prompt. What should
+    I strip or wrap before the model reads them to defend against prompt injection,
+    like hidden text and zero-width characters?
+  target: leyline:content-sanitization
+  competitor: null
+  cluster: leyline:content-sanitization
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:glimmer-delegation; judge: leyline:content-sanitization/tome:web-search'
+  proposals:
+    router: conjure:glimmer-delegation
+    judge: leyline:content-sanitization
+    judge_runner_up: tome:web-search
+- id: leyline.content-sanitization.p2
+  type: positive
+  prompt: I'm fetching content with curl and gh api and storing it in a variable before
+    processing. What sanitization steps do I need to apply manually, and what should
+    I never do with that content, like eval or shell=True?
+  target: leyline:content-sanitization
+  competitor: null
+  cluster: leyline:content-sanitization
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: leyline:content-sanitization; judge: None'
+  proposals:
+    router: leyline:content-sanitization
+    judge: null
+- id: leyline.content-sanitization.p3
+  type: near_miss
+  prompt: My hook pulls GitHub issue bodies with gh and feeds them into the agent
+    prompt. How do I clean that text first so a malicious issue can't inject instructions,
+    like hidden text or 'ignore previous' strings?
+  target: leyline:content-sanitization
+  competitor: abstract:create-hook
+  cluster: leyline:content-sanitization
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:analyze-skill; router: minister:create-issue; judge: leyline:content-sanitization/abstract:create-hook'
+  proposals:
+    aimed_at: abstract:analyze-skill
+    router: minister:create-issue
+    judge: leyline:content-sanitization
+    judge_runner_up: abstract:create-hook
+- id: leyline.damage-control.p1
+  type: positive
+  prompt: My agent died halfway through a refactor and I've got a bunch of half-written
+    files in the working tree. How do I figure out what's safe to keep and resume
+    from?
+  target: leyline:damage-control
+  competitor: null
+  cluster: leyline:damage-control
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: oracle:quality-bench; judge: leyline:damage-control/None'
+  proposals:
+    router: oracle:quality-bench
+    judge: leyline:damage-control
+    judge_runner_up: null
+- id: leyline.damage-control.p2
+  type: positive
+  prompt: The task list says three files were generated but only one is on disk and
+    git index shows something different. Need to reconcile this mess before continuing.
+  target: leyline:damage-control
+  competitor: null
+  cluster: leyline:damage-control
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:git-workspace-review; judge: leyline:damage-control/sanctum:git-workspace-review'
+  proposals:
+    router: sanctum:git-workspace-review
+    judge: leyline:damage-control
+    judge_runner_up: sanctum:git-workspace-review
+- id: leyline.damage-control.p3
+  type: near_miss
+  prompt: My agent crashed halfway through a refactor and left half-written files,
+    and now git rebase is throwing conflicts it can't resolve. The task list doesn't
+    match what's on disk either. How do I recover without losing work?
+  target: leyline:damage-control
+  competitor: sanctum:stack-rebase
+  cluster: leyline:damage-control
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: hookify:rule-sweep;
+    judge: leyline:damage-control/sanctum:stack-rebase'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: hookify:rule-sweep
+    judge: leyline:damage-control
+    judge_runner_up: sanctum:stack-rebase
+- id: leyline.decision-journal.p1
+  type: positive
+  prompt: We just picked Postgres over DynamoDB for the orders service. I want to
+    log what we gave up by not going with Dynamo so it's recorded in docs/tradeoffs.md.
+  target: leyline:decision-journal
+  competitor: null
+  cluster: leyline:decision-journal
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: oracle:quality-bench; judge: leyline:decision-journal/archetypes:architecture-paradigm-modular-monolith'
+  proposals:
+    router: oracle:quality-bench
+    judge: leyline:decision-journal
+    judge_runner_up: archetypes:architecture-paradigm-modular-monolith
+- id: leyline.decision-journal.p2
+  type: positive
+  prompt: That retry-queue approach failed and we had to rewrite it. Help me draft
+    a blameless lessons-learned entry and append it to the journal after I confirm.
+  target: leyline:decision-journal
+  competitor: null
+  cluster: leyline:decision-journal
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: leyline:decision-journal; judge: None'
+  proposals:
+    router: leyline:decision-journal
+    judge: null
+- id: leyline.decision-journal.p3
+  type: near_miss
+  prompt: We just settled on Postgres over DynamoDB for the job queue and gave up
+    multi-region writes to get it. We also burned two days on a Redis streams approach
+    that went nowhere. Get both written down in the repo's docs so the reasoning and
+    the rejected options survive, and so nobody blames anyone for the Redis detour.
+  target: leyline:decision-journal
+  competitor: scribe:doc-sweep
+  cluster: leyline:decision-journal
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: pensive:unified-review; judge:
+    leyline:decision-journal/scribe:doc-sweep'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: pensive:unified-review
+    judge: leyline:decision-journal
+    judge_runner_up: scribe:doc-sweep
+- id: leyline.deferred-capture.p1
+  type: positive
+  prompt: I'm writing a deferred-capture script for my plugin that files a GitHub
+    issue with a [Deferred] prefix. What CLI args and issue body template does it
+    need to follow?
+  target: leyline:deferred-capture
+  competitor: null
+  cluster: leyline:deferred-capture
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: leyline:deferred-capture; judge: None'
+  proposals:
+    router: leyline:deferred-capture
+    judge: null
+- id: leyline.deferred-capture.p2
+  type: positive
+  prompt: Check whether my plugin's deferred issue wrapper conforms to the spec, and
+    I need to add a new source label for it. What colors and fields are expected?
+  target: leyline:deferred-capture
+  competitor: null
+  cluster: leyline:deferred-capture
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: leyline:deferred-capture; judge: None'
+  proposals:
+    router: leyline:deferred-capture
+    judge: null
+- id: leyline.deferred-capture.p3
+  type: near_miss
+  prompt: I'm building the deferred-item wrapper script for our new plugin. It should
+    take a title, a source and a context string, tag issues with the deferred label,
+    and support a dry-run. Can you check my argparse setup and issue body against
+    what the other plugins' wrappers do, so they all stay consistent?
+  target: leyline:deferred-capture
+  competitor: hookify:rule-sweep
+  cluster: leyline:deferred-capture
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at minister:create-issue; router: leyline:deferred-capture; judge:
+    leyline:deferred-capture/None'
+  proposals:
+    aimed_at: minister:create-issue
+    router: leyline:deferred-capture
+    judge: leyline:deferred-capture
+    judge_runner_up: null
+- id: leyline.document-conversion.p1
+  type: positive
+  prompt: I've got a vendor spec as a PDF and a pricing sheet in XLSX. Convert both
+    to markdown so I can feed them into the analysis step.
+  target: leyline:document-conversion
+  competitor: null
+  cluster: leyline:document-conversion
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: None'
+  proposals:
+    router: parseltongue:python-async
+    judge: null
+- id: leyline.document-conversion.p2
+  type: positive
+  prompt: Import this .docx requirements doc into the repo as an editable markdown
+    file. What do I do if the markitdown MCP server isn't set up?
+  target: leyline:document-conversion
+  competitor: null
+  cluster: leyline:document-conversion
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: leyline:document-conversion; judge: None'
+  proposals:
+    router: leyline:document-conversion
+    judge: null
+- id: leyline.document-conversion.p3
+  type: near_miss
+  prompt: A vendor sent about 200 files, a mix of PDF, DOCX and PPTX, and I need them
+    all as markdown before I feed them to our summarizer. The Python script should
+    run the conversions concurrently and still have a backup path when the main converter
+    chokes on a file. What's the right way to set that up?
+  target: leyline:document-conversion
+  competitor: hookify:rule-sweep
+  cluster: leyline:document-conversion
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-async; router: hookify:rule-sweep; judge: leyline:document-conversion/None'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: hookify:rule-sweep
+    judge: leyline:document-conversion
+    judge_runner_up: null
+- id: leyline.error-patterns.p1
+  type: positive
+  prompt: I'm wrapping an API client and want to classify failures into transient,
+    permanent, and config errors, with sensible handling for 429s and auth failures.
+    What's a good structure?
+  target: leyline:error-patterns
+  competitor: null
+  cluster: leyline:error-patterns
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:authentication-patterns; judge: leyline:error-patterns'
+  proposals:
+    router: leyline:authentication-patterns
+    judge: leyline:error-patterns
+- id: leyline.error-patterns.p2
+  type: positive
+  prompt: Our integration keeps blowing up on timeouts and context-too-large 400s
+    in production. Set up consistent error handling with retry and graceful degradation.
+  target: leyline:error-patterns
+  competitor: null
+  cluster: leyline:error-patterns
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:error-patterns
+    judge: leyline:error-patterns
+- id: leyline.error-patterns.p3
+  type: near_miss
+  prompt: Our integration with a third-party API keeps blowing up with 429s, timeouts
+    and the occasional bad-config failure, and each call site handles them differently.
+    I want one consistent way to sort errors into retry-worthy, permanent and needs-user-action,
+    with graceful degradation. Auth isn't the problem, the credentials are fine.
+  target: leyline:error-patterns
+  competitor: egregore:dismiss
+  cluster: leyline:error-patterns
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at leyline:authentication-patterns; router: egregore:dismiss; judge:
+    leyline:error-patterns/None'
+  proposals:
+    aimed_at: leyline:authentication-patterns
+    router: egregore:dismiss
+    judge: leyline:error-patterns
+    judge_runner_up: null
+- id: leyline.evaluation-framework.p1
+  type: positive
+  prompt: 'I need a rubric for scoring incoming feature proposals: weighted criteria
+    that sum to 1.0, and score thresholds that decide accept, review, or reject.'
+  target: leyline:evaluation-framework
+  competitor: null
+  cluster: leyline:evaluation-framework
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:quota-management; judge: leyline:evaluation-framework'
+  proposals:
+    router: leyline:quota-management
+    judge: leyline:evaluation-framework
+- id: leyline.evaluation-framework.p2
+  type: positive
+  prompt: Build a quality gate that computes a weighted total from several criterion
+    scores and maps it to approve or request-changes bands.
+  target: leyline:evaluation-framework
+  competitor: null
+  cluster: leyline:evaluation-framework
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:gate-audit; judge: leyline:evaluation-framework'
+  proposals:
+    router: egregore:gate-audit
+    judge: leyline:evaluation-framework
+- id: leyline.evaluation-framework.p3
+  type: near_miss
+  prompt: I need a scoring rubric to rank incoming vendor proposals. Cost, security
+    posture and integration effort should carry different weights. Anything over 80
+    gets auto-approved, 60 to 80 goes to manual review, and below that is rejected.
+    Help me build the weighted scoring and threshold logic so we can reuse it for
+    other things later.
+  target: leyline:evaluation-framework
+  competitor: pensive:harden
+  cluster: leyline:evaluation-framework
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:paradigm-panel; router: leyline:evaluation-framework;
+    judge: leyline:evaluation-framework/None'
+  proposals:
+    aimed_at: archetypes:paradigm-panel
+    router: leyline:evaluation-framework
+    judge: leyline:evaluation-framework
+    judge_runner_up: null
+- id: leyline.git-platform.p1
+  type: positive
+  prompt: This repo might be on GitLab. What's the equivalent of `gh pr create` and
+    `gh issue comment` so my script works on either forge?
+  target: leyline:git-platform
+  competitor: null
+  cluster: leyline:git-platform
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:git-platform
+    judge: leyline:git-platform
+- id: leyline.git-platform.p2
+  type: positive
+  prompt: I need to resolve review threads and list MR comments from a CI script,
+    but I don't know if the project is GitHub or GitLab. How do I detect it and pick
+    the right CLI?
+  target: leyline:git-platform
+  competitor: null
+  cluster: leyline:git-platform
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:resolve-threads; judge: leyline:git-platform/sanctum:resolve-threads'
+  proposals:
+    router: sanctum:resolve-threads
+    judge: leyline:git-platform
+    judge_runner_up: sanctum:resolve-threads
+- id: leyline.git-platform.p3
+  type: near_miss
+  prompt: Our team is moving some repos from GitHub to GitLab. I have scripts that
+    open PRs, comment on them and check issue status with gh. What are the equivalent
+    commands and terminology on the GitLab side, and how should the script pick the
+    right ones per repo?
+  target: leyline:git-platform
+  competitor: hookify:rule-sweep
+  cluster: leyline:git-platform
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: hookify:rule-sweep;
+    judge: leyline:git-platform/None'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: hookify:rule-sweep
+    judge: leyline:git-platform
+    judge_runner_up: null
+- id: leyline.loop-optimization.p1
+  type: positive
+  prompt: A teammate hand-unrolled a hot loop in our C++ code and says it's faster.
+    Should I keep it or let the compiler handle it?
+  target: leyline:loop-optimization
+  competitor: null
+  cluster: leyline:loop-optimization
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:loop-optimization
+    judge: leyline:loop-optimization
+- id: leyline.loop-optimization.p2
+  type: positive
+  prompt: My profiled inner loop won't auto-vectorize with gcc. What should I check
+    before reaching for intrinsics, and what about a Python version of the same loop?
+  target: leyline:loop-optimization
+  competitor: null
+  cluster: leyline:loop-optimization
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:loop-optimization
+    judge: leyline:loop-optimization
+- id: leyline.loop-optimization.p3
+  type: near_miss
+  prompt: Perf profile shows our C++ parsing inner loop is hot. A teammate hand-unrolled
+    it 8x and replaced the multiplies with bit shifts, and says that's why it's faster.
+    I suspect -O3 already does this and we may have broken vectorization. Should we
+    keep their version?
+  target: leyline:loop-optimization
+  competitor: leyline:plugin-health
+  cluster: leyline:loop-optimization
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-sweep; router: leyline:loop-optimization; judge:
+    leyline:loop-optimization/None'
+  proposals:
+    aimed_at: parseltongue:python-sweep
+    router: leyline:loop-optimization
+    judge: leyline:loop-optimization
+    judge_runner_up: null
+- id: leyline.markdown-formatting.p1
+  type: positive
+  prompt: I'm cleaning up our README before committing. Some lines run way past 80
+    columns and the diffs are ugly. Can you rewrap the paragraphs without touching
+    the tables or code blocks?
+  target: leyline:markdown-formatting
+  competitor: null
+  cluster: leyline:markdown-formatting
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: gauntlet:graph-build; judge: leyline:markdown-formatting/sanctum:update-readme'
+  proposals:
+    router: gauntlet:graph-build
+    judge: leyline:markdown-formatting
+    judge_runner_up: sanctum:update-readme
+- id: leyline.markdown-formatting.p2
+  type: positive
+  prompt: This docs file has underlined headings with ==== and ---- and no blank lines
+    around the headings or before the bullet lists. Fix it up so it's consistent.
+  target: leyline:markdown-formatting
+  competitor: null
+  cluster: leyline:markdown-formatting
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: leyline:markdown-formatting/scribe:doc-sweep'
+  proposals:
+    router: conjure:provider-sweep
+    judge: leyline:markdown-formatting
+    judge_runner_up: scribe:doc-sweep
+- id: leyline.markdown-formatting.p3
+  type: near_miss
+  prompt: I'm cleaning up the docs folder that describes our system architecture.
+    Some files have prose running way past 80 columns, headings with no blank line
+    around them, and a few underline-style headings. Can you reflow the text and fix
+    the structure without touching the tables or code blocks?
+  target: leyline:markdown-formatting
+  competitor: hookify:rule-sweep
+  cluster: leyline:markdown-formatting
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigms; router: hookify:rule-sweep;
+    judge: leyline:markdown-formatting/None'
+  proposals:
+    aimed_at: archetypes:architecture-paradigms
+    router: hookify:rule-sweep
+    judge: leyline:markdown-formatting
+    judge_runner_up: null
+- id: leyline.plugin-health.p1
+  type: positive
+  prompt: I want to run a check across all 24 plugins in parallel to see if each one's
+    plugin.json matches the skills and hooks on disk, then flag any contract that
+    none of them satisfy. How do I set that up as a workflow script?
+  target: leyline:plugin-health
+  competitor: null
+  cluster: leyline:plugin-health
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:plugin-health
+    judge: leyline:plugin-health
+- id: leyline.plugin-health.p2
+  type: positive
+  prompt: Write a script that fans out one agent per plugin to verify hook registration,
+    declared dependencies, and vendored helpers, and then does a final pass over the
+    combined results. It should handle a plugin whose checker returned nothing.
+  target: leyline:plugin-health
+  competitor: null
+  cluster: leyline:plugin-health
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:plugin-health
+    judge: leyline:plugin-health
+- id: leyline.plugin-health.p3
+  type: near_miss
+  prompt: We have around two dozen plugins in the repo and I want every one of them
+    checked in parallel for manifest consistency, hook registration, and declared
+    dependencies. I also want to know if any shared helper contract fails across all
+    of them. I'll pass the plugin names.
+  target: leyline:plugin-health
+  competitor: minister:initiative-pulse
+  cluster: leyline:plugin-health
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: leyline:plugin-health; judge: leyline:plugin-health/None'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: leyline:plugin-health
+    judge: leyline:plugin-health
+    judge_runner_up: null
+- id: leyline.progressive-loading.p1
+  type: positive
+  prompt: My skill covers several unrelated workflows and loads every module up front,
+    which burns context. How do I make it load only the modules that match the user's
+    intent and check the token budget first?
+  target: leyline:progressive-loading
+  competitor: null
+  cluster: leyline:progressive-loading
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:token-conservation; judge: leyline:progressive-loading/abstract:modular-skills'
+  proposals:
+    router: conserve:token-conservation
+    judge: leyline:progressive-loading
+    judge_runner_up: abstract:modular-skills
+- id: leyline.progressive-loading.p2
+  type: positive
+  prompt: Show me how to structure a hub skill that picks which module files to pull
+    in on demand using frontmatter and @modules directives, and uses MECWMonitor to
+    decide whether the next one fits.
+  target: leyline:progressive-loading
+  competitor: null
+  cluster: leyline:progressive-loading
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:progressive-loading
+    judge: leyline:progressive-loading
+- id: leyline.progressive-loading.p3
+  type: near_miss
+  prompt: I'm building a hub skill with several spoke modules. I want it to pull in
+    only the modules that match the detected context and to stay inside the token
+    budget during long sessions. How should I declare and load the modules so the
+    unneeded ones never enter context?
+  target: leyline:progressive-loading
+  competitor: abstract:modular-skills
+  cluster: leyline:progressive-loading
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:modular-skills; router: abstract:modular-skills; judge:
+    leyline:progressive-loading/abstract:modular-skills'
+  proposals:
+    aimed_at: abstract:modular-skills
+    router: abstract:modular-skills
+    judge: leyline:progressive-loading
+    judge_runner_up: abstract:modular-skills
+- id: leyline.pytest-config.p1
+  type: positive
+  prompt: 'Set up pyproject.toml pytest settings for a new plugin: testpaths, strict
+    markers, unit/integration/slow markers, and an 80% coverage floor with branch
+    coverage.'
+  target: leyline:pytest-config
+  competitor: null
+  cluster: leyline:pytest-config
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:pytest-config
+    judge: leyline:pytest-config
+- id: leyline.pytest-config.p2
+  type: positive
+  prompt: I need a shared conftest.py with fixtures for a throwaway git repo and mocked
+    Bash and TodoWrite tools, plus a GitHub Actions job that runs the tests. What's
+    the standard layout?
+  target: leyline:pytest-config
+  competitor: null
+  cluster: leyline:pytest-config
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:plugin-health; judge: leyline:pytest-config/parseltongue:python-testing'
+  proposals:
+    router: leyline:plugin-health
+    judge: leyline:pytest-config
+    judge_runner_up: parseltongue:python-testing
+- id: leyline.pytest-config.p3
+  type: near_miss
+  prompt: Set up pyproject pytest options for our plugin so every plugin in the repo
+    shares the same markers, a coverage threshold of 80, and strict markers. Also
+    give me a conftest.py layout for the shared fixtures.
+  target: leyline:pytest-config
+  competitor: leyline:plugin-health
+  cluster: leyline:pytest-config
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:workflow-setup; router: leyline:plugin-health; judge: leyline:pytest-config/leyline:plugin-health'
+  proposals:
+    aimed_at: attune:workflow-setup
+    router: leyline:plugin-health
+    judge: leyline:pytest-config
+    judge_runner_up: leyline:plugin-health
+- id: leyline.quota-management.p1
+  type: positive
+  prompt: My integration with a rate-limited API keeps hitting 429s. I want to track
+    requests and tokens per minute and per day, warn at 80%, and defer non-urgent
+    work above 95%.
+  target: leyline:quota-management
+  competitor: null
+  cluster: leyline:quota-management
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:clear-context; judge: leyline:quota-management'
+  proposals:
+    router: conserve:clear-context
+    judge: leyline:quota-management
+- id: leyline.quota-management.p2
+  type: positive
+  prompt: Before kicking off a big batch job, how can I estimate its token cost and
+    check whether we have enough quota left, then record actual usage afterward?
+  target: leyline:quota-management
+  competitor: null
+  cluster: leyline:quota-management
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:usage-logging; judge: leyline:quota-management'
+  proposals:
+    router: leyline:usage-logging
+    judge: leyline:quota-management
+- id: leyline.quota-management.p3
+  type: near_miss
+  prompt: My integration calls a rate-limited API and I want it to track cumulative
+    token usage across sessions. It should warn at 80%, defer non-urgent work at 95%,
+    and switch to a secondary service when the daily limit is nearly gone.
+  target: leyline:quota-management
+  competitor: conserve:token-conservation
+  cluster: leyline:quota-management
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conserve:clear-context; router: conserve:clear-context; judge:
+    leyline:quota-management/conserve:token-conservation'
+  proposals:
+    aimed_at: conserve:clear-context
+    router: conserve:clear-context
+    judge: leyline:quota-management
+    judge_runner_up: conserve:token-conservation
+- id: leyline.risk-classification.p1
+  type: positive
+  prompt: I'm assigning tasks to agents and want to tag each one as safe, caution,
+    or dangerous based on the files it touches, so migrations and auth changes get
+    extra review before anything runs in parallel.
+  target: leyline:risk-classification
+  competitor: null
+  cluster: leyline:risk-classification
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:evidence-sweep; judge: leyline:risk-classification/egregore:gate-audit'
+  proposals:
+    router: imbue:evidence-sweep
+    judge: leyline:risk-classification
+    judge_runner_up: egregore:gate-audit
+- id: leyline.risk-classification.p2
+  type: positive
+  prompt: How should I label a task that deletes production data or deploys to prod?
+    I want it to require human approval and add a risk tier to the task metadata.
+  target: leyline:risk-classification
+  competitor: null
+  cluster: leyline:risk-classification
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:dismiss; judge: leyline:risk-classification/egregore:gate-audit'
+  proposals:
+    router: egregore:dismiss
+    judge: leyline:risk-classification
+    judge_runner_up: egregore:gate-audit
+- id: leyline.risk-classification.p3
+  type: near_miss
+  prompt: Before I hand these tasks to parallel agents, tag each item on the checklist
+    with a risk level. Auth changes and DB migrations should get stricter verification
+    than test or docs edits. I also need to know which tasks are safe to run at the
+    same time.
+  target: leyline:risk-classification
+  competitor: pensive:unified-review
+  cluster: leyline:risk-classification
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: parseltongue:python-sweep; judge:
+    leyline:risk-classification/pensive:unified-review'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: parseltongue:python-sweep
+    judge: leyline:risk-classification
+    judge_runner_up: pensive:unified-review
+- id: leyline.sem-integration.p1
+  type: positive
+  prompt: I'm writing a skill that reads git diff output. I'd like it to use sem for
+    entity-level diffs when it's installed and fall back to plain git diff when it
+    isn't, with the same output shape either way.
+  target: leyline:sem-integration
+  competitor: null
+  cluster: leyline:sem-integration
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: leyline:sem-integration; judge: None'
+  proposals:
+    router: leyline:sem-integration
+    judge: null
+- id: leyline.sem-integration.p2
+  type: positive
+  prompt: What's the right way to detect whether sem is available once per session,
+    offer to install it if missing, and use it for impact analysis of a changed function?
+  target: leyline:sem-integration
+  competitor: null
+  cluster: leyline:sem-integration
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:git-catchup; judge: leyline:sem-integration/sanctum:git-catchup'
+  proposals:
+    router: sanctum:git-catchup
+    judge: leyline:sem-integration
+    judge_runner_up: sanctum:git-catchup
+- id: leyline.sem-integration.p3
+  type: near_miss
+  prompt: I'm writing a skill that reads git diff output to list changed functions
+    and classes. I want it to use semantic diffs when the sem tool is installed, and
+    to fall back to plain git diff name lists with the same output shape when it isn't.
+    Where should the detection and fallback logic go?
+  target: leyline:sem-integration
+  competitor: abstract:skill-audit
+  cluster: leyline:sem-integration
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: leyline:sem-integration; judge: leyline:sem-integration/abstract:skill-audit'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: leyline:sem-integration
+    judge: leyline:sem-integration
+    judge_runner_up: abstract:skill-audit
+- id: leyline.service-registry.p1
+  type: positive
+  prompt: I'm building a plugin that talks to several external CLIs like gemini and
+    others. I need a registry holding each one's command, auth env var, and quota
+    limits, with health checks and failover to a healthy one.
+  target: leyline:service-registry
+  competitor: null
+  cluster: leyline:service-registry
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: leyline:service-registry; judge: None'
+  proposals:
+    router: leyline:service-registry
+    judge: null
+- id: leyline.service-registry.p2
+  type: positive
+  prompt: Help me design a ServiceConfig and ExecutionResult setup so I can run a
+    prompt through whichever external service is up and pick one by requirements like
+    large context.
+  target: leyline:service-registry
+  competitor: null
+  cluster: leyline:service-registry
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: scribe:doc-sweep; judge: None'
+  proposals:
+    router: scribe:doc-sweep
+    judge: null
+- id: leyline.service-registry.p3
+  type: near_miss
+  prompt: I need a registry in my plugin that tracks several external CLI-backed services,
+    each with its own auth env var and quota limits. It should run commands through
+    one interface, health-check them, and fail over to another service when one is
+    down. What's a good structure?
+  target: leyline:service-registry
+  competitor: leyline:quota-management
+  cluster: leyline:service-registry
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:provider-sweep; router: leyline:service-registry; judge:
+    leyline:service-registry/leyline:quota-management'
+  proposals:
+    aimed_at: conjure:provider-sweep
+    router: leyline:service-registry
+    judge: leyline:service-registry
+    judge_runner_up: leyline:quota-management
+- id: leyline.stewardship.p1
+  type: positive
+  prompt: I'm about to commit some changes to one of our plugins. I noticed a stale
+    example in the README and an unused import while I was in there. Should I fold
+    those fixes in, and how should I think about leaving this area better than I found
+    it?
+  target: leyline:stewardship
+  competitor: null
+  cluster: leyline:stewardship
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: leyline:stewardship/sanctum:acp'
+  proposals:
+    router: parseltongue:python-async
+    judge: leyline:stewardship
+    judge_runner_up: sanctum:acp
+- id: leyline.stewardship.p2
+  type: positive
+  prompt: I wrote a clever generic factory abstraction for our plugin's loaders. Before
+    I open the PR, help me sanity-check whether it will still be easy for a new contributor
+    to understand after a bunch of future refactors.
+  target: leyline:stewardship
+  competitor: null
+  cluster: leyline:stewardship
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:plugin-health; judge: leyline:stewardship/leyline:additive-bias-defense'
+  proposals:
+    router: leyline:plugin-health
+    judge: leyline:stewardship
+    judge_runner_up: leyline:additive-bias-defense
+- id: leyline.stewardship.p3
+  type: near_miss
+  prompt: I'm about to refactor part of a plugin and want to follow the project's
+    guiding principles on leaving things better for the next contributor. What should
+    I weigh while making design decisions, and what should I reflect on before I commit?
+  target: leyline:stewardship
+  competitor: parseltongue:python-async
+  cluster: leyline:stewardship
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:hooks-eval; router: parseltongue:python-async; judge:
+    leyline:stewardship/None'
+  proposals:
+    aimed_at: abstract:hooks-eval
+    router: parseltongue:python-async
+    judge: leyline:stewardship
+    judge_runner_up: null
+- id: leyline.storage-templates.p1
+  type: positive
+  prompt: I'm building a notes system where ideas start as rough drafts, get promoted
+    as they prove useful, and eventually get archived. Help me set up markdown templates
+    with frontmatter and a file naming scheme for each stage.
+  target: leyline:storage-templates
+  competitor: null
+  cluster: leyline:storage-templates
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: attune:mission; judge: None'
+  proposals:
+    router: attune:mission
+    judge: null
+- id: leyline.storage-templates.p2
+  type: positive
+  prompt: What's a good convention for naming knowledge-base files so short-lived
+    early ideas are date-prefixed but stable, proven docs just use a topic slug? I
+    also want rules for when something graduates to the next stage.
+  target: leyline:storage-templates
+  competitor: null
+  cluster: leyline:storage-templates
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: tome:web-search; judge: None'
+  proposals:
+    router: tome:web-search
+    judge: null
+- id: leyline.storage-templates.p3
+  type: near_miss
+  prompt: I'm setting up a docs folder where every entry starts as a rough idea and
+    gets promoted once it's proven. Give me a frontmatter template and a file naming
+    convention for each stage, from first draft through stable to archived.
+  target: leyline:storage-templates
+  competitor: scribe:doc-sweep
+  cluster: leyline:storage-templates
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:paradigm-panel; router: scribe:doc-sweep; judge: leyline:storage-templates/None'
+  proposals:
+    aimed_at: archetypes:paradigm-panel
+    router: scribe:doc-sweep
+    judge: leyline:storage-templates
+    judge_runner_up: null
+- id: leyline.supply-chain-advisory.p1
+  type: positive
+  prompt: A security advisory just came out saying a version of one of our Python
+    dependencies was published with a malicious payload. How do I check all the uv.lock
+    files and virtualenvs on my machine for the bad version and block it going forward?
+  target: leyline:supply-chain-advisory
+  competitor: null
+  cluster: leyline:supply-chain-advisory
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:version-updates; judge: leyline:supply-chain-advisory/pensive:harden'
+  proposals:
+    router: sanctum:version-updates
+    judge: leyline:supply-chain-advisory
+    judge_runner_up: pensive:harden
+- id: leyline.supply-chain-advisory.p2
+  type: positive
+  prompt: We suspect a compromised PyPI package got into our build. Walk me through
+    adding it to the known-bad versions list, excluding it in pyproject.toml, and
+    running the scan to confirm we detect it.
+  target: leyline:supply-chain-advisory
+  competitor: null
+  cluster: leyline:supply-chain-advisory
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: parseltongue:python-packaging; judge: None'
+  proposals:
+    router: parseltongue:python-packaging
+    judge: null
+- id: leyline.supply-chain-advisory.p3
+  type: near_miss
+  prompt: An advisory just went out saying a version of one of our Python dependencies
+    was compromised. Check our pyproject files for the bad versions, pin them out,
+    and record the incident so the session warning picks it up.
+  target: leyline:supply-chain-advisory
+  competitor: sanctum:version-updates
+  cluster: leyline:supply-chain-advisory
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: sanctum:version-updates; judge: leyline:supply-chain-advisory/sanctum:version-updates'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: sanctum:version-updates
+    judge: leyline:supply-chain-advisory
+    judge_runner_up: sanctum:version-updates
+- id: leyline.testing-quality-standards.p1
+  type: positive
+  prompt: What coverage targets should we enforce for our plugin? Part of it is legacy
+    code and part is a critical payments module. I want to set up quality gates in
+    pyproject.toml and a checklist for reviewing the test suite.
+  target: leyline:testing-quality-standards
+  competitor: null
+  cluster: leyline:testing-quality-standards
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:testing-quality-standards
+    judge: leyline:testing-quality-standards
+- id: leyline.testing-quality-standards.p2
+  type: positive
+  prompt: Our test suite has flaky tests, order dependencies, and too much mocking.
+    Give me a standard to validate it against, including how to test markdown skill
+    files that an LLM interprets.
+  target: leyline:testing-quality-standards
+  competitor: null
+  cluster: leyline:testing-quality-standards
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-testing; judge: leyline:testing-quality-standards'
+  proposals:
+    router: parseltongue:python-testing
+    judge: leyline:testing-quality-standards
+- id: leyline.testing-quality-standards.p3
+  type: near_miss
+  prompt: What coverage target and quality checklist should our test suite meet before
+    we call it ready? I want to check naming, isolation, flakiness and mocking levels
+    against a shared standard.
+  target: leyline:testing-quality-standards
+  competitor: parseltongue:analyze-tests
+  cluster: leyline:testing-quality-standards
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:test-skill; router: leyline:testing-quality-standards;
+    judge: leyline:testing-quality-standards/parseltongue:analyze-tests'
+  proposals:
+    aimed_at: abstract:test-skill
+    router: leyline:testing-quality-standards
+    judge: leyline:testing-quality-standards
+    judge_runner_up: parseltongue:analyze-tests
+- id: leyline.ticket-writing.p1
+  type: positive
+  prompt: I need to file a Jira ticket for some deferred work that came out of a code
+    review. Help me write it so someone coming from the MR can immediately see what
+    was decided and why.
+  target: leyline:ticket-writing
+  competitor: null
+  cluster: leyline:ticket-writing
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:ticket-writing
+    judge: leyline:ticket-writing
+- id: leyline.ticket-writing.p2
+  type: positive
+  prompt: This GitLab issue I drafted is a wall of text with implementation steps
+    and empty template headings. Rewrite it to be much shorter, and make sure it links
+    to the merge request.
+  target: leyline:ticket-writing
+  competitor: null
+  cluster: leyline:ticket-writing
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:spec-review; judge: leyline:ticket-writing/minister:create-issue'
+  proposals:
+    router: spec-kit:spec-review
+    judge: leyline:ticket-writing
+    judge_runner_up: minister:create-issue
+- id: leyline.ticket-writing.p3
+  type: near_miss
+  prompt: Review turned up some Makefile target work we're deferring. Draft the tracker
+    ticket for it so someone coming from the MR sees what we decided and why without
+    opening comments.
+  target: leyline:ticket-writing
+  competitor: pensive:makefile-review
+  cluster: leyline:ticket-writing
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:make-dogfood; router: leyline:ticket-writing; judge: leyline:ticket-writing/pensive:makefile-review'
+  proposals:
+    aimed_at: abstract:make-dogfood
+    router: leyline:ticket-writing
+    judge: leyline:ticket-writing
+    judge_runner_up: pensive:makefile-review
+- id: leyline.usage-logging.p1
+  type: positive
+  prompt: I want to record every operation my service performs, with token counts,
+    duration, and success flag, into a JSONL file grouped by session so I can later
+    query the last 24 hours and see recent errors. How do I set that up?
+  target: leyline:usage-logging
+  competitor: null
+  cluster: leyline:usage-logging
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: leyline:usage-logging/conserve:token-conservation'
+  proposals:
+    router: parseltongue:python-async
+    judge: leyline:usage-logging
+    judge_runner_up: conserve:token-conservation
+- id: leyline.usage-logging.p2
+  type: positive
+  prompt: Need an audit trail of per-call costs across sessions for debugging. Show
+    me how to initialize the logger, log an event with metadata, and pull a 7-day
+    usage summary with estimated cost.
+  target: leyline:usage-logging
+  competitor: null
+  cluster: leyline:usage-logging
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:usage-logging
+    judge: leyline:usage-logging
+- id: leyline.usage-logging.p3
+  type: near_miss
+  prompt: I want every operation in my plugin to write a JSONL line with session ID,
+    token count, duration and success flag, so I can later see which skill calls cost
+    the most. How do I set that up?
+  target: leyline:usage-logging
+  competitor: conserve:token-conservation
+  cluster: leyline:usage-logging
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:analyze-skill; router: parseltongue:python-async; judge:
+    leyline:usage-logging/conserve:token-conservation'
+  proposals:
+    aimed_at: abstract:analyze-skill
+    router: parseltongue:python-async
+    judge: leyline:usage-logging
+    judge_runner_up: conserve:token-conservation
+- id: leyline.utility.p1
+  type: positive
+  prompt: My agent loop keeps making redundant search calls and sometimes stops too
+    early. How can I score each candidate action, like retrieve, delegate, verify,
+    or stop, so it decides whether another tool call is worth the cost?
+  target: leyline:utility
+  competitor: null
+  cluster: leyline:utility
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:utility
+    judge: leyline:utility
+- id: leyline.utility.p2
+  type: positive
+  prompt: I need a way to decide whether to spawn a sub-agent or just answer from
+    current context, with a step budget and a cutoff when nothing looks worth doing.
+    Can you set up a gain-minus-costs scoring approach for it?
+  target: leyline:utility
+  competitor: null
+  cluster: leyline:utility
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: leyline:utility
+    judge: leyline:utility
+- id: leyline.utility.p3
+  type: near_miss
+  prompt: My agent keeps calling search again and again, or else stops too early.
+    How do I score each next step, whether to retrieve, delegate to a sub-agent or
+    just answer, by expected gain minus cost, and pick a model tier?
+  target: leyline:utility
+  competitor: conserve:agent-expenditure
+  cluster: leyline:utility
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:provider-sweep; router: leyline:utility; judge: leyline:utility/conserve:agent-expenditure'
+  proposals:
+    aimed_at: conjure:provider-sweep
+    router: leyline:utility
+    judge: leyline:utility
+    judge_runner_up: conserve:agent-expenditure
+- id: leyline.verify-plugin.p1
+  type: positive
+  prompt: Before I install this plugin from a repo I don't recognize, can I check
+    its track record of passing assertions in GitHub Actions and get a trusted or
+    untrusted recommendation?
+  target: leyline:verify-plugin
+  competitor: null
+  cluster: leyline:verify-plugin
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: leyline:verify-plugin/leyline:plugin-health'
+  proposals:
+    router: parseltongue:python-async
+    judge: leyline:verify-plugin
+    judge_runner_up: leyline:plugin-health
+- id: leyline.verify-plugin.p2
+  type: positive
+  prompt: I want a CI step that fails the deployment if a plugin's L3 verification
+    pass rate is below 90%. How do I run that check and get JSON output with a proper
+    exit code?
+  target: leyline:verify-plugin
+  competitor: null
+  cluster: leyline:verify-plugin
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:plugin-health; judge: leyline:verify-plugin/leyline:plugin-health'
+  proposals:
+    router: leyline:plugin-health
+    judge: leyline:verify-plugin
+    judge_runner_up: leyline:plugin-health
+- id: leyline.verify-plugin.p3
+  type: near_miss
+  prompt: Before I install this plugin from a repo I don't know, check its GitHub
+    Actions history and tell me whether it's trusted, with pass rates per assertion
+    level.
+  target: leyline:verify-plugin
+  competitor: leyline:plugin-health
+  cluster: leyline:verify-plugin
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:hooks-eval; router: conjure:provider-sweep; judge: leyline:verify-plugin/leyline:plugin-health'
+  proposals:
+    aimed_at: abstract:hooks-eval
+    router: conjure:provider-sweep
+    judge: leyline:verify-plugin
+    judge_runner_up: leyline:plugin-health

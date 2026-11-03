@@ -344,3 +344,70 @@ def test_repair_fills_short_items_and_rejudges_unseen_targets(plugin_tree, monke
 def test_first_draft_rows_backfill_their_proposals_from_notes(row, expected):
     labeling.backfill_proposals(row)
     assert {k: row["proposals"][k] for k in expected} == expected
+
+
+@pytest.mark.parametrize(
+    ("row", "queued"),
+    [
+        (
+            {
+                "type": "positive",
+                "target": "a:x",
+                "proposals": {"router": "a:y", "judge": "a:x"},
+            },
+            False,
+        ),
+        (
+            {
+                "type": "positive",
+                "target": "a:x",
+                "proposals": {"router": "a:x", "judge": "a:y"},
+            },
+            True,
+        ),
+        (
+            {
+                "type": "positive",
+                "target": "a:x",
+                "proposals": {"router": "a:x", "judge": None},
+            },
+            True,
+        ),
+        (
+            {
+                "type": "near_miss",
+                "target": "a:x",
+                "competitor": "a:z",
+                "proposals": {"aimed_at": "a:y", "router": "a:q", "judge": "a:x"},
+            },
+            False,
+        ),
+        (
+            {
+                "type": "negative",
+                "target": None,
+                "proposals": {"router": "a:z", "judge": None},
+            },
+            False,
+        ),
+        (
+            {
+                "type": "negative",
+                "target": None,
+                "proposals": {"router": "a:z", "judge": "a:z"},
+            },
+            True,
+        ),
+    ],
+)
+def test_queue_follows_the_judge_not_the_lexical_router(row, queued):
+    assert labeling.disagrees(row) is queued
+
+
+def test_requeue_rebuilds_the_queue_without_spending(plugin_tree):
+    (plugin_tree / "evals/activation").mkdir(parents=True)
+    config = {**CONFIG, "resolved": resolve(CONFIG, call=_probe)}
+    before = draft(plugin_tree, config, call=_fake_model)
+    after = labeling.requeue(plugin_tree)
+    assert after["spent_usd"] == before["spent_usd"]
+    assert after["disagreements"] == before["disagreements"]

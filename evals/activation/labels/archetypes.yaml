@@ -1,0 +1,812 @@
+schema_version: 1
+cases:
+- id: archetypes.architecture-paradigm-client-server.p1
+  type: positive
+  prompt: We're building a mobile app that talks to a backend API, and old app versions
+    will stay in the wild for months. Help me plan version skew handling, document
+    the API contract, and write the ADR on trust boundaries.
+  target: archetypes:architecture-paradigm-client-server
+  competitor: null
+  cluster: archetypes:architecture-paradigm-client-server
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-client-server
+    judge: archetypes:architecture-paradigm-client-server
+- id: archetypes.architecture-paradigm-client-server.p2
+  type: positive
+  prompt: Our notes app needs to work offline and sync directly between devices without
+    always going through a server. How should I handle peer discovery and conflict
+    resolution like CRDTs vs last-write-wins?
+  target: archetypes:architecture-paradigm-client-server
+  competitor: null
+  cluster: archetypes:architecture-paradigm-client-server
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-client-server
+    judge: archetypes:architecture-paradigm-client-server
+- id: archetypes.architecture-paradigm-client-server.p3
+  type: near_miss
+  prompt: Our mobile app talks to a backend API, and old app versions stay in the
+    wild for months. How do we handle version skew between clients and the server,
+    and sync after being offline?
+  target: archetypes:architecture-paradigm-client-server
+  competitor: sanctum:version-updates
+  cluster: archetypes:architecture-paradigm-client-server
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:version-updates; router: archetypes:architecture-paradigm-client-server;
+    judge: archetypes:architecture-paradigm-client-server/None'
+  proposals:
+    aimed_at: sanctum:version-updates
+    router: archetypes:architecture-paradigm-client-server
+    judge: archetypes:architecture-paradigm-client-server
+    judge_runner_up: null
+- id: archetypes.architecture-paradigm-cqrs-es.p1
+  type: positive
+  prompt: We need a full audit trail of every change to an order and the ability to
+    rebuild read models or ask what an order looked like yesterday. Walk me through
+    designing the command side and projections.
+  target: archetypes:architecture-paradigm-cqrs-es
+  competitor: null
+  cluster: archetypes:architecture-paradigm-cqrs-es
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:stack-mode; judge: archetypes:architecture-paradigm-cqrs-es'
+  proposals:
+    router: sanctum:stack-mode
+    judge: archetypes:architecture-paradigm-cqrs-es
+- id: archetypes.architecture-paradigm-cqrs-es.p2
+  type: positive
+  prompt: Our event-sourced system keeps having projection lag and schema drift when
+    we change event shapes. What should we put in place for replay, snapshots, a schema
+    registry and versioning gates in CI?
+  target: archetypes:architecture-paradigm-cqrs-es
+  competitor: null
+  cluster: archetypes:architecture-paradigm-cqrs-es
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:validate-plugin; judge: archetypes:architecture-paradigm-cqrs-es'
+  proposals:
+    router: abstract:validate-plugin
+    judge: archetypes:architecture-paradigm-cqrs-es
+- id: archetypes.architecture-paradigm-cqrs-es.p3
+  type: near_miss
+  prompt: We need an immutable record of every account change and the ability to rebuild
+    read models from it. How should we split the write side from the read side?
+  target: archetypes:architecture-paradigm-cqrs-es
+  competitor: gauntlet:gauntlet-extract
+  cluster: archetypes:architecture-paradigm-cqrs-es
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:validate-plugin; router: gauntlet:gauntlet-extract; judge:
+    archetypes:architecture-paradigm-cqrs-es/None'
+  proposals:
+    aimed_at: abstract:validate-plugin
+    router: gauntlet:gauntlet-extract
+    judge: archetypes:architecture-paradigm-cqrs-es
+    judge_runner_up: null
+- id: archetypes.architecture-paradigm-domain-driven.p1
+  type: positive
+  prompt: Our team keeps adding DTOs, mappers and repository interfaces everywhere
+    because 'that's what DDD says'. Is that actually necessary for a young project,
+    or should I start simpler?
+  target: archetypes:architecture-paradigm-domain-driven
+  competitor: null
+  cluster: archetypes:architecture-paradigm-domain-driven
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: archetypes:architecture-paradigm-domain-driven/None'
+  proposals:
+    router: hookify:rule-sweep
+    judge: archetypes:architecture-paradigm-domain-driven
+    judge_runner_up: null
+- id: archetypes.architecture-paradigm-domain-driven.p2
+  type: positive
+  prompt: We're modeling an insurance claims system and I'm not sure where to start.
+    How do I find subdomains and bounded contexts by working with the claims adjusters
+    rather than jumping to entities and aggregates?
+  target: archetypes:architecture-paradigm-domain-driven
+  competitor: null
+  cluster: archetypes:architecture-paradigm-domain-driven
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:evidence-sweep; judge: archetypes:architecture-paradigm-domain-driven/archetypes:paradigm-panel'
+  proposals:
+    router: imbue:evidence-sweep
+    judge: archetypes:architecture-paradigm-domain-driven
+    judge_runner_up: archetypes:paradigm-panel
+- id: archetypes.architecture-paradigm-domain-driven.p3
+  type: near_miss
+  prompt: My team keeps adding DTOs and mappers between every layer, saying DDD requires
+    it. How should we model our billing domain with the finance people instead?
+  target: archetypes:architecture-paradigm-domain-driven
+  competitor: attune:arch-init
+  cluster: archetypes:architecture-paradigm-domain-driven
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:promote-discussions; router: memory-palace:palace-sweep;
+    judge: archetypes:architecture-paradigm-domain-driven/attune:arch-init'
+  proposals:
+    aimed_at: abstract:promote-discussions
+    router: memory-palace:palace-sweep
+    judge: archetypes:architecture-paradigm-domain-driven
+    judge_runner_up: attune:arch-init
+- id: archetypes.architecture-paradigm-event-driven.p1
+  type: positive
+  prompt: Several services need to react whenever an order is placed, and we want
+    to add new consumers without touching the order service. Help me pick between
+    choreography and a saga orchestrator and plan the broker setup.
+  target: archetypes:architecture-paradigm-event-driven
+  competitor: null
+  cluster: archetypes:architecture-paradigm-event-driven
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:architecture-paradigm-modular-monolith; judge: archetypes:architecture-paradigm-event-driven/archetypes:paradigm-panel'
+  proposals:
+    router: archetypes:architecture-paradigm-modular-monolith
+    judge: archetypes:architecture-paradigm-event-driven
+    judge_runner_up: archetypes:paradigm-panel
+- id: archetypes.architecture-paradigm-event-driven.p2
+  type: positive
+  prompt: Our Kafka consumers sometimes get stuck and nobody notices. What failure
+    handling and observability should we add, like dead-letter queues, idempotent
+    consumers, consumer lag dashboards and tracing?
+  target: archetypes:architecture-paradigm-event-driven
+  competitor: null
+  cluster: archetypes:architecture-paradigm-event-driven
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-event-driven
+    judge: archetypes:architecture-paradigm-event-driven
+- id: archetypes.architecture-paradigm-event-driven.p3
+  type: near_miss
+  prompt: Several of our services need to react when an order is placed. Should I
+    use pub/sub with dead-letter queues and event replay, and how do I handle ordering
+    and idempotent consumers?
+  target: archetypes:architecture-paradigm-event-driven
+  competitor: archetypes:paradigm-panel
+  cluster: archetypes:architecture-paradigm-event-driven
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-microservices; router: parseltongue:python-async;
+    judge: archetypes:architecture-paradigm-event-driven/archetypes:paradigm-panel'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-microservices
+    router: parseltongue:python-async
+    judge: archetypes:architecture-paradigm-event-driven
+    judge_runner_up: archetypes:paradigm-panel
+- id: archetypes.architecture-paradigm-functional-core.p1
+  type: positive
+  prompt: Our order pricing and discount code is tangled up with database calls and
+    HTTP requests, so every test needs heavy mocking and runs slow. How do I restructure
+    it so the business rules are pure functions on plain data and only a thin outer
+    layer does the I/O?
+  target: archetypes:architecture-paradigm-functional-core
+  competitor: null
+  cluster: archetypes:architecture-paradigm-functional-core
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-functional-core
+    judge: archetypes:architecture-paradigm-functional-core
+- id: archetypes.architecture-paradigm-functional-core.p2
+  type: positive
+  prompt: I want the domain logic to return commands like PersistOrder or NotifyUser
+    instead of performing them, and have a small runner execute those. Help me plan
+    migrating our most-changed modules to this approach incrementally.
+  target: archetypes:architecture-paradigm-functional-core
+  competitor: null
+  cluster: archetypes:architecture-paradigm-functional-core
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-functional-core
+    judge: archetypes:architecture-paradigm-functional-core
+- id: archetypes.architecture-paradigm-functional-core.p3
+  type: near_miss
+  prompt: Our pricing rules are tangled up with database calls, so the tests are slow
+    and brittle. How do I pull the rules into pure functions and keep I/O at the edges
+    in our Python service?
+  target: archetypes:architecture-paradigm-functional-core
+  competitor: archetypes:architecture-paradigm-domain-driven
+  cluster: archetypes:architecture-paradigm-functional-core
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-async; router: archetypes:architecture-paradigm-functional-core;
+    judge: archetypes:architecture-paradigm-functional-core/archetypes:architecture-paradigm-domain-driven'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: archetypes:architecture-paradigm-functional-core
+    judge: archetypes:architecture-paradigm-functional-core
+    judge_runner_up: archetypes:architecture-paradigm-domain-driven
+- id: archetypes.architecture-paradigm-hexagonal.p1
+  type: positive
+  prompt: We keep swapping databases and third-party APIs and each time the domain
+    code breaks. Help me set up ports and adapters so the core only depends on interfaces
+    we own, and write contract tests for each adapter.
+  target: archetypes:architecture-paradigm-hexagonal
+  competitor: null
+  cluster: archetypes:architecture-paradigm-hexagonal
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: phantom:surface-check; judge: archetypes:architecture-paradigm-hexagonal/archetypes:architecture-paradigm-domain-driven'
+  proposals:
+    router: phantom:surface-check
+    judge: archetypes:architecture-paradigm-hexagonal
+    judge_runner_up: archetypes:architecture-paradigm-domain-driven
+- id: archetypes.architecture-paradigm-hexagonal.p2
+  type: positive
+  prompt: Our repository interface exposes HTTP headers and ORM types to the domain
+    layer. How do I redesign the inbound and outbound interfaces so the core stays
+    ignorant of frameworks, and enforce that with an architecture test?
+  target: archetypes:architecture-paradigm-hexagonal
+  competitor: null
+  cluster: archetypes:architecture-paradigm-hexagonal
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:unified-review; judge: archetypes:architecture-paradigm-hexagonal/archetypes:architecture-paradigm-domain-driven'
+  proposals:
+    router: pensive:unified-review
+    judge: archetypes:architecture-paradigm-hexagonal
+    judge_runner_up: archetypes:architecture-paradigm-domain-driven
+- id: archetypes.architecture-paradigm-hexagonal.p3
+  type: near_miss
+  prompt: Our order-processing code calls Postgres, Stripe and Kafka directly from
+    the business logic, so every test needs real infrastructure. I want to define
+    interfaces for what the core needs from the outside and for what triggers it,
+    then swap in fakes for tests. How should I structure this?
+  target: archetypes:architecture-paradigm-hexagonal
+  competitor: archetypes:architecture-paradigm-functional-core
+  cluster: archetypes:architecture-paradigm-hexagonal
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-domain-driven; router: archetypes:architecture-paradigm-functional-core;
+    judge: archetypes:architecture-paradigm-hexagonal/archetypes:architecture-paradigm-functional-core'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-domain-driven
+    router: archetypes:architecture-paradigm-functional-core
+    judge: archetypes:architecture-paradigm-hexagonal
+    judge_runner_up: archetypes:architecture-paradigm-functional-core
+- id: archetypes.architecture-paradigm-layered.p1
+  type: positive
+  prompt: We have a moderate-sized monolith where controllers are hitting the database
+    directly. I want to set up presentation, service, domain and data access tiers
+    with imports only going downward, and fail CI if someone breaks that rule.
+  target: archetypes:architecture-paradigm-layered
+  competitor: null
+  cluster: archetypes:architecture-paradigm-layered
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:architecture-paradigm-modular-monolith; judge: archetypes:architecture-paradigm-layered'
+  proposals:
+    router: archetypes:architecture-paradigm-modular-monolith
+    judge: archetypes:architecture-paradigm-layered
+- id: archetypes.architecture-paradigm-layered.p2
+  type: positive
+  prompt: Compliance wants UI, business logic and persistence clearly separated in
+    our Java app. Help me define the layer stack, decide where logging and auth belong,
+    and add ArchUnit checks.
+  target: archetypes:architecture-paradigm-layered
+  competitor: null
+  cluster: archetypes:architecture-paradigm-layered
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:architecture-paradigm-functional-core; judge: archetypes:architecture-paradigm-layered/archetypes:architecture-paradigm-domain-driven'
+  proposals:
+    router: archetypes:architecture-paradigm-functional-core
+    judge: archetypes:architecture-paradigm-layered
+    judge_runner_up: archetypes:architecture-paradigm-domain-driven
+- id: archetypes.architecture-paradigm-layered.p3
+  type: near_miss
+  prompt: Our Django app has views reaching straight into the ORM and models importing
+    from views. I want clear presentation, service, domain and data-access tiers,
+    with a check that blocks upward imports before a commit lands. How should I set
+    that up?
+  target: archetypes:architecture-paradigm-layered
+  competitor: archetypes:architecture-paradigm-domain-driven
+  cluster: archetypes:architecture-paradigm-layered
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:hooks-eval; router: archetypes:architecture-paradigm-domain-driven;
+    judge: archetypes:architecture-paradigm-layered/archetypes:architecture-paradigm-domain-driven'
+  proposals:
+    aimed_at: abstract:hooks-eval
+    router: archetypes:architecture-paradigm-domain-driven
+    judge: archetypes:architecture-paradigm-layered
+    judge_runner_up: archetypes:architecture-paradigm-domain-driven
+- id: archetypes.architecture-paradigm-microkernel.p1
+  type: positive
+  prompt: We're building an editor-like platform where third parties write extensions.
+    I need a minimal stable core with a plugin contract, lifecycle hooks, version
+    compatibility checks, and sandboxing so a bad plugin can't crash everything.
+  target: archetypes:architecture-paradigm-microkernel
+  competitor: null
+  cluster: archetypes:architecture-paradigm-microkernel
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-microkernel
+    judge: archetypes:architecture-paradigm-microkernel
+- id: archetypes.architecture-paradigm-microkernel.p2
+  type: positive
+  prompt: Every customer wants custom features and we keep stuffing them into the
+    main app. How do I move this to a small core with loadable extensions, plus an
+    SDK and a validation pipeline for plugin authors?
+  target: archetypes:architecture-paradigm-microkernel
+  competitor: null
+  cluster: archetypes:architecture-paradigm-microkernel
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:plugin-health; judge: archetypes:architecture-paradigm-microkernel/archetypes:paradigm-panel'
+  proposals:
+    router: leyline:plugin-health
+    judge: archetypes:architecture-paradigm-microkernel
+    judge_runner_up: archetypes:paradigm-panel
+- id: archetypes.architecture-paradigm-microkernel.p3
+  type: near_miss
+  prompt: I'm building a data ingestion tool where outside contributors write their
+    own parsers. I want a small stable core that handles lifecycle and messaging,
+    and parsers loaded as extensions with version checks and isolation so a bad one
+    can't take everything down. How should I lay it out?
+  target: archetypes:architecture-paradigm-microkernel
+  competitor: archetypes:architecture-paradigm-functional-core
+  cluster: archetypes:architecture-paradigm-microkernel
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: parseltongue:python-async;
+    judge: archetypes:architecture-paradigm-microkernel/archetypes:architecture-paradigm-functional-core'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: parseltongue:python-async
+    judge: archetypes:architecture-paradigm-microkernel
+    judge_runner_up: archetypes:architecture-paradigm-functional-core
+- id: archetypes.architecture-paradigm-microservices.p1
+  type: positive
+  prompt: Our org has six teams that want to release independently and some parts
+    need to scale very differently. Help me draw service boundaries around business
+    capabilities, give each its own datastore, and plan resilience like circuit breakers
+    and SLOs.
+  target: archetypes:architecture-paradigm-microservices
+  competitor: null
+  cluster: archetypes:architecture-paradigm-microservices
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:architecture-paradigm-domain-driven; judge: archetypes:architecture-paradigm-microservices'
+  proposals:
+    router: archetypes:architecture-paradigm-domain-driven
+    judge: archetypes:architecture-paradigm-microservices
+- id: archetypes.architecture-paradigm-microservices.p2
+  type: positive
+  prompt: We're considering splitting our backend into services. What do we need in
+    place first, like tracing, service discovery and contract testing, and how should
+    services share data without a common database?
+  target: archetypes:architecture-paradigm-microservices
+  competitor: null
+  cluster: archetypes:architecture-paradigm-microservices
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:service-registry; judge: archetypes:architecture-paradigm-microservices/archetypes:architecture-paradigm-modular-monolith'
+  proposals:
+    router: leyline:service-registry
+    judge: archetypes:architecture-paradigm-microservices
+    judge_runner_up: archetypes:architecture-paradigm-modular-monolith
+- id: archetypes.architecture-paradigm-microservices.p3
+  type: near_miss
+  prompt: We have five teams that want to ship on their own schedules, and billing
+    and search have very different scaling needs. Help me plan splitting our app into
+    separately deployed services, each with its own database, with data shared only
+    through APIs or events.
+  target: archetypes:architecture-paradigm-microservices
+  competitor: archetypes:architecture-paradigm-domain-driven
+  cluster: archetypes:architecture-paradigm-microservices
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-modular-monolith; router: archetypes:architecture-paradigm-microservices;
+    judge: archetypes:architecture-paradigm-microservices/archetypes:architecture-paradigm-domain-driven'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-modular-monolith
+    router: archetypes:architecture-paradigm-microservices
+    judge: archetypes:architecture-paradigm-microservices
+    judge_runner_up: archetypes:architecture-paradigm-domain-driven
+- id: archetypes.architecture-paradigm-modular-monolith.p1
+  type: positive
+  prompt: Our single deployable has tangled internal dependencies that slow releases.
+    I want clear module boundaries per business capability, with builds that fail
+    on forbidden cross-module imports, while keeping the option to extract services
+    later.
+  target: archetypes:architecture-paradigm-modular-monolith
+  competitor: null
+  cluster: archetypes:architecture-paradigm-modular-monolith
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:progressive-loading; judge: archetypes:architecture-paradigm-modular-monolith'
+  proposals:
+    router: leyline:progressive-loading
+    judge: archetypes:architecture-paradigm-modular-monolith
+- id: archetypes.architecture-paradigm-modular-monolith.p2
+  type: positive
+  prompt: Teams keep reaching into each other's database tables in our monolith. How
+    do I make modules talk only through public facades or events and stop the codebase
+    turning into a big ball of mud?
+  target: archetypes:architecture-paradigm-modular-monolith
+  competitor: null
+  cluster: archetypes:architecture-paradigm-modular-monolith
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:dismiss; judge: archetypes:architecture-paradigm-modular-monolith'
+  proposals:
+    router: egregore:dismiss
+    judge: archetypes:architecture-paradigm-modular-monolith
+- id: archetypes.architecture-paradigm-modular-monolith.p3
+  type: near_miss
+  prompt: Our single deployable has packages reaching into each other's database tables
+    and release velocity is suffering. I want each module to expose only a public
+    facade, plus a build test that fails when someone adds a forbidden cross-module
+    import, so we can split things out later if needed.
+  target: archetypes:architecture-paradigm-modular-monolith
+  competitor: archetypes:architecture-paradigm-space-based
+  cluster: archetypes:architecture-paradigm-modular-monolith
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at egregore:dismiss; router: archetypes:architecture-paradigm-space-based;
+    judge: archetypes:architecture-paradigm-modular-monolith/None'
+  proposals:
+    aimed_at: egregore:dismiss
+    router: archetypes:architecture-paradigm-space-based
+    judge: archetypes:architecture-paradigm-modular-monolith
+    judge_runner_up: null
+- id: archetypes.architecture-paradigm-pipeline.p1
+  type: positive
+  prompt: I'm designing an ETL job where records go through parse, validate, enrich
+    and load steps. I want each step independently scalable with queues between them,
+    back-pressure handling, and per-stage metrics.
+  target: archetypes:architecture-paradigm-pipeline
+  competitor: null
+  cluster: archetypes:architecture-paradigm-pipeline
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: archetypes:architecture-paradigm-pipeline'
+  proposals:
+    router: parseltongue:python-async
+    judge: archetypes:architecture-paradigm-pipeline
+- id: archetypes.architecture-paradigm-pipeline.p2
+  type: positive
+  prompt: How should I structure a streaming analytics flow as stateless stages connected
+    by Kafka, with schema checks between stages and a way to replay data when a stage
+    fails?
+  target: archetypes:architecture-paradigm-pipeline
+  competitor: null
+  cluster: archetypes:architecture-paradigm-pipeline
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-pipeline
+    judge: archetypes:architecture-paradigm-pipeline
+- id: archetypes.architecture-paradigm-pipeline.p3
+  type: near_miss
+  prompt: Our nightly job extracts records, cleans them, enriches them via a slow
+    API, then loads them into the warehouse. I want each step to be a single-purpose
+    stage with a defined input and output schema, connected by queues with backpressure,
+    so I can scale the enrichment stage on its own.
+  target: archetypes:architecture-paradigm-pipeline
+  competitor: memory-palace:session-handoff
+  cluster: archetypes:architecture-paradigm-pipeline
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: memory-palace:session-handoff;
+    judge: archetypes:architecture-paradigm-pipeline/None'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: memory-palace:session-handoff
+    judge: archetypes:architecture-paradigm-pipeline
+    judge_runner_up: null
+- id: archetypes.architecture-paradigm-serverless.p1
+  type: positive
+  prompt: We have bursty, event-driven workloads like image uploads and webhooks.
+    Help me design this as small stateless cloud functions with idempotent handlers,
+    cold-start mitigation, and deployment through CDK or SAM.
+  target: archetypes:architecture-paradigm-serverless
+  competitor: null
+  cluster: archetypes:architecture-paradigm-serverless
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-serverless
+    judge: archetypes:architecture-paradigm-serverless
+- id: archetypes.architecture-paradigm-serverless.p2
+  type: positive
+  prompt: I want to cut ops overhead and pay per execution. How do I move our queue-triggered
+    jobs to Lambda-style functions, keep state in managed services, and limit vendor
+    lock-in and cost?
+  target: archetypes:architecture-paradigm-serverless
+  competitor: null
+  cluster: archetypes:architecture-paradigm-serverless
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-serverless
+    judge: archetypes:architecture-paradigm-serverless
+- id: archetypes.architecture-paradigm-serverless.p3
+  type: near_miss
+  prompt: Image uploads arrive in unpredictable bursts and then nothing for hours.
+    I want to move the resize and tagging work to cloud functions with pay-per-use
+    billing, make handlers idempotent, keep state in managed services, and handle
+    cold starts and least-privilege roles per function.
+  target: archetypes:architecture-paradigm-serverless
+  competitor: sanctum:stack-push
+  cluster: archetypes:architecture-paradigm-serverless
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-event-driven; router: archetypes:architecture-paradigm-serverless;
+    judge: archetypes:architecture-paradigm-serverless/None'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-event-driven
+    router: archetypes:architecture-paradigm-serverless
+    judge: archetypes:architecture-paradigm-serverless
+    judge_runner_up: null
+- id: archetypes.architecture-paradigm-service-based.p1
+  type: positive
+  prompt: We have four teams sharing one big Postgres database behind our ERP-ish
+    system. Leadership wants teams to ship independently but we're nowhere near ready
+    to run 40 microservices. How should we carve this up into a handful of coarse
+    services and handle the shared schema?
+  target: archetypes:architecture-paradigm-service-based
+  competitor: null
+  cluster: archetypes:architecture-paradigm-service-based
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-service-based
+    judge: archetypes:architecture-paradigm-service-based
+- id: archetypes.architecture-paradigm-service-based.p2
+  type: positive
+  prompt: Help me write the ADR for splitting our order, billing, and inventory domains
+    into a few deployable services with OpenAPI contracts, an API gateway, and clear
+    table ownership, while keeping the single database for now.
+  target: archetypes:architecture-paradigm-service-based
+  competitor: null
+  cluster: archetypes:architecture-paradigm-service-based
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: gauntlet:knowledge-extract; judge: archetypes:architecture-paradigm-service-based/None'
+  proposals:
+    router: gauntlet:knowledge-extract
+    judge: archetypes:architecture-paradigm-service-based
+    judge_runner_up: null
+- id: archetypes.architecture-paradigm-service-based.p3
+  type: near_miss
+  prompt: We have a large ERP-style system on one shared Postgres and three teams
+    that need some deployment independence. I don't want dozens of microservices.
+    Help me group it into a handful of coarse services with published OpenAPI contracts,
+    schema ownership, and a gateway in front.
+  target: archetypes:architecture-paradigm-service-based
+  competitor: archetypes:architecture-paradigm-microservices
+  cluster: archetypes:architecture-paradigm-service-based
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:analyze-skill; router: archetypes:architecture-paradigm-service-based;
+    judge: archetypes:architecture-paradigm-service-based/archetypes:architecture-paradigm-microservices'
+  proposals:
+    aimed_at: abstract:analyze-skill
+    router: archetypes:architecture-paradigm-service-based
+    judge: archetypes:architecture-paradigm-service-based
+    judge_runner_up: archetypes:architecture-paradigm-microservices
+- id: archetypes.architecture-paradigm-space-based.p1
+  type: positive
+  prompt: Our ticketing platform gets hammered during on-sale events and the single
+    database node falls over. We're considering partitioning traffic into identical
+    processing units with an in-memory data grid like Hazelcast or Ignite and write-behind
+    to the DB. How do I design this?
+  target: archetypes:architecture-paradigm-space-based
+  competitor: null
+  cluster: archetypes:architecture-paradigm-space-based
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-space-based
+    judge: archetypes:architecture-paradigm-space-based
+- id: archetypes.architecture-paradigm-space-based.p2
+  type: positive
+  prompt: I need a runbook and failover plan for a replicated in-memory cache setup
+    where each processing unit holds its own partition of data. What should I cover
+    for split-brain recovery, replication lag monitoring, and load testing the scale-out?
+  target: archetypes:architecture-paradigm-space-based
+  competitor: null
+  cluster: archetypes:architecture-paradigm-space-based
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:architecture-paradigm-space-based
+    judge: archetypes:architecture-paradigm-space-based
+- id: archetypes.architecture-paradigm-space-based.p3
+  type: near_miss
+  prompt: our checkout service falls over on flash-sale days because the single Postgres
+    node can't keep up with session and cart state. I want to split traffic into identical
+    self-contained workers that each hold their own replicated in-memory cache, with
+    write-behind to the DB. how should I design the grid, replication mode, and failover?
+  target: archetypes:architecture-paradigm-space-based
+  competitor: pensive:unified-review
+  cluster: archetypes:architecture-paradigm-space-based
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at pensive:unified-review; router: pensive:unified-review; judge:
+    archetypes:architecture-paradigm-space-based/None'
+  proposals:
+    aimed_at: pensive:unified-review
+    router: pensive:unified-review
+    judge: archetypes:architecture-paradigm-space-based
+    judge_runner_up: null
+- id: archetypes.architecture-paradigms.p1
+  type: positive
+  prompt: I'm designing a new backend for a 30-person engineering org with moderately
+    complex domain logic and I don't know whether to go microservices, modular monolith,
+    hexagonal or something else. Help me pick based on team size and needs.
+  target: archetypes:architecture-paradigms
+  competitor: null
+  cluster: archetypes:architecture-paradigms
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:architecture-paradigm-cqrs-es; judge: archetypes:architecture-paradigms/archetypes:architecture-paradigm-modular-monolith'
+  proposals:
+    router: archetypes:architecture-paradigm-cqrs-es
+    judge: archetypes:architecture-paradigms
+    judge_runner_up: archetypes:architecture-paradigm-modular-monolith
+- id: archetypes.architecture-paradigms.p2
+  type: positive
+  prompt: We have a legacy system we need to modernize and also want better testability
+    of business rules. Walk me through which architectural styles fit and compare
+    the options before I commit.
+  target: archetypes:architecture-paradigms
+  competitor: null
+  cluster: archetypes:architecture-paradigms
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:architecture-paradigm-domain-driven; judge: archetypes:architecture-paradigms'
+  proposals:
+    router: archetypes:architecture-paradigm-domain-driven
+    judge: archetypes:architecture-paradigms
+- id: archetypes.architecture-paradigms.p3
+  type: near_miss
+  prompt: we're building a new platform with several teams, bursty traffic and some
+    heavy business rules, and I honestly don't know which architecture style fits.
+    can you walk me through the options and point me to the right one?
+  target: archetypes:architecture-paradigms
+  competitor: archetypes:paradigm-panel
+  cluster: archetypes:architecture-paradigms
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: archetypes:architecture-paradigm-domain-driven;
+    judge: archetypes:architecture-paradigms/archetypes:paradigm-panel'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: archetypes:architecture-paradigm-domain-driven
+    judge: archetypes:architecture-paradigms
+    judge_runner_up: archetypes:paradigm-panel
+- id: archetypes.paradigm-panel.p1
+  type: positive
+  prompt: 'Run a scored comparison of event-driven, layered, and microkernel against
+    these requirements: plugin-based extensibility, 10 devs, moderate traffic. I want
+    a ranked result with the runner-up and what the winner gives up.'
+  target: archetypes:paradigm-panel
+  competitor: null
+  cluster: archetypes:paradigm-panel
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:paradigm-panel
+    judge: archetypes:paradigm-panel
+- id: archetypes.paradigm-panel.p2
+  type: positive
+  prompt: I keep picking whatever architecture I read about first. Can you have independent
+    judges score a spread of candidate paradigms against my requirements so I can
+    see the second-best option and record an ADR myself?
+  target: archetypes:paradigm-panel
+  competitor: null
+  cluster: archetypes:paradigm-panel
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: archetypes:paradigm-panel
+    judge: archetypes:paradigm-panel
+- id: archetypes.paradigm-panel.p3
+  type: near_miss
+  prompt: I have a written requirements doc for our new logistics system. Instead
+    of picking an architecture style by gut feel, score every candidate style independently
+    against these requirements and give me a ranked comparison with the runner-up
+    and what the winner gives up, so I can write the ADR.
+  target: archetypes:paradigm-panel
+  competitor: oracle:quality-bench
+  cluster: archetypes:paradigm-panel
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-async; router: archetypes:paradigm-panel; judge:
+    None/None'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: archetypes:paradigm-panel
+    judge: null
+    judge_runner_up: null

@@ -1,0 +1,894 @@
+schema_version: 1
+cases:
+- id: neg.001
+  type: negative
+  prompt: this function has like four nested ifs for parsing the config, can you flatten
+    it with early returns? it's in utils/config_loader.py, load_settings()
+  target: null
+  competitor: null
+  cluster: refactoring a Python function
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: conjure:provider-sweep (16.47); judge: None'
+  proposals:
+    router: conjure:provider-sweep
+    router_score: 16.47
+    judge: null
+- id: neg.002
+  type: negative
+  prompt: I have a Python function that builds a list with a for loop and append,
+    and then filters it in a second loop. can you collapse it into a comprehension
+    without making it unreadable
+  target: null
+  competitor: null
+  cluster: refactoring a Python function
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: leyline:loop-optimization (22.28); judge: None'
+  proposals:
+    router: leyline:loop-optimization
+    router_score: 22.28
+    judge: null
+- id: neg.003
+  type: negative
+  prompt: split process_order() into smaller functions, it does validation, price
+    calc and DB writes all in one 80-line blob
+  target: null
+  competitor: null
+  cluster: refactoring a Python function
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: sanctum:stack-mode (10.08); judge: None'
+  proposals:
+    router: sanctum:stack-mode
+    router_score: 10.08
+    judge: null
+- id: neg.004
+  type: negative
+  prompt: my function takes 9 positional args and I keep mixing them up. how should
+    I restructure it, dataclass or kwargs?
+  target: null
+  competitor: null
+  cluster: refactoring a Python function
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: parseltongue:python-async (14.12); judge: None'
+  proposals:
+    router: parseltongue:python-async
+    router_score: 14.12
+    judge: null
+- id: neg.005
+  type: negative
+  prompt: can you make this recursive fibonacci helper iterative? it blows the recursion
+    limit at n around 1000
+  target: null
+  competitor: null
+  cluster: refactoring a Python function
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: conjure:provider-sweep (9.83); judge: None'
+  proposals:
+    router: conjure:provider-sweep
+    router_score: 9.83
+    judge: null
+- id: neg.006
+  type: negative
+  prompt: 'test_parse_date is failing with AssertionError: datetime(2024,1,5) != datetime(2024,5,1).
+    looks like day/month swapped, can you find why'
+  target: null
+  competitor: null
+  cluster: fixing a failing unit test
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: gauntlet:gauntlet (12.27); judge: None'
+  proposals:
+    router: gauntlet:gauntlet
+    router_score: 12.27
+    judge: null
+- id: neg.007
+  type: negative
+  prompt: my pytest passes alone but fails when I run the whole suite. something is
+    leaking state between tests, help me find it
+  target: null
+  competitor: null
+  cluster: fixing a failing unit test
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: pensive:code-refinement (14.91); judge: parseltongue:python-testing'
+  proposals:
+    router: pensive:code-refinement
+    router_score: 14.91
+    judge: parseltongue:python-testing
+- id: neg.008
+  type: negative
+  prompt: 'jest test says ''Expected: 3, Received: undefined'' for my cart total function.
+    here''s the test and the function, what''s wrong'
+  target: null
+  competitor: null
+  cluster: fixing a failing unit test
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: leyline:testing-quality-standards (14.95); judge: None'
+  proposals:
+    router: leyline:testing-quality-standards
+    router_score: 14.95
+    judge: null
+- id: neg.009
+  type: negative
+  prompt: this unit test mocks requests.get but the real network call still happens.
+    why isn't the patch applying?
+  target: null
+  competitor: null
+  cluster: fixing a failing unit test
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: conjure:provider-sweep (8.44); judge: None'
+  proposals:
+    router: conjure:provider-sweep
+    router_score: 8.44
+    judge: null
+- id: neg.010
+  type: negative
+  prompt: after I changed the return type of get_user to include a role field, 6 tests
+    in test_users.py broke. help me update them properly
+  target: null
+  competitor: null
+  cluster: fixing a failing unit test
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: sanctum:update-tests (18.05); judge: sanctum:update-tests'
+  proposals:
+    router: sanctum:update-tests
+    router_score: 18.05
+    judge: sanctum:update-tests
+- id: neg.011
+  type: negative
+  prompt: rustc says 'cannot borrow `v` as mutable because it is also borrowed as
+    immutable'. what does that mean and how do I fix my loop
+  target: null
+  competitor: null
+  cluster: explaining a compiler error
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: herald:judge-panel (10.66); judge: None'
+  proposals:
+    router: herald:judge-panel
+    router_score: 10.66
+    judge: null
+- id: neg.012
+  type: negative
+  prompt: 'getting ''error: expected '';'' before ''}'' token'' in my C file but the
+    line it points to looks fine. what''s going on'
+  target: null
+  competitor: null
+  cluster: explaining a compiler error
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: spec-kit:spec-review (11.79); judge: None'
+  proposals:
+    router: spec-kit:spec-review
+    router_score: 11.79
+    judge: null
+- id: neg.013
+  type: negative
+  prompt: 'TypeScript is yelling: Type ''string | undefined'' is not assignable to
+    type ''string''. how do I deal with this without just slapping a cast on it'
+  target: null
+  competitor: null
+  cluster: explaining a compiler error
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: imbue:graduated-implementation (13.74); judge: None'
+  proposals:
+    router: imbue:graduated-implementation
+    router_score: 13.74
+    judge: null
+- id: neg.014
+  type: negative
+  prompt: 'javac gives ''incompatible types: possible lossy conversion from double
+    to int'' on my average calculation, explain please'
+  target: null
+  competitor: null
+  cluster: explaining a compiler error
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: leyline:document-conversion (5.99); judge: None'
+  proposals:
+    router: leyline:document-conversion
+    router_score: 5.99
+    judge: null
+- id: neg.015
+  type: negative
+  prompt: 'go build fails with ''declared and not used: err''. I thought I was using
+    it, what am I missing'
+  target: null
+  competitor: null
+  cluster: explaining a compiler error
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: parseltongue:python-async (19.88); judge: None'
+  proposals:
+    router: parseltongue:python-async
+    router_score: 19.88
+    judge: null
+- id: neg.016
+  type: negative
+  prompt: write a Postgres query that returns the top 3 customers by total order amount
+    for each month in 2024
+  target: null
+  competitor: null
+  cluster: writing a SQL query
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: egregore:gate-audit (10.32); judge: None'
+  proposals:
+    router: egregore:gate-audit
+    router_score: 10.32
+    judge: null
+- id: neg.017
+  type: negative
+  prompt: I need all users who signed up but never placed an order. tables are users(id,
+    email) and orders(id, user_id, total)
+  target: null
+  competitor: null
+  cluster: writing a SQL query
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: conserve:unbloat (8.29); judge: None'
+  proposals:
+    router: conserve:unbloat
+    router_score: 8.29
+    judge: null
+- id: neg.018
+  type: negative
+  prompt: how do I get the second highest salary from an employees table without using
+    LIMIT/OFFSET
+  target: null
+  competitor: null
+  cluster: writing a SQL query
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: sanctum:do-issue (8.34); judge: None'
+  proposals:
+    router: sanctum:do-issue
+    router_score: 8.34
+    judge: null
+- id: neg.019
+  type: negative
+  prompt: query to find duplicate emails in the contacts table and show how many times
+    each appears
+  target: null
+  competitor: null
+  cluster: writing a SQL query
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: conserve:unbloat (9.86); judge: None'
+  proposals:
+    router: conserve:unbloat
+    router_score: 9.86
+    judge: null
+- id: neg.020
+  type: negative
+  prompt: can you write a MySQL update that sets status='archived' for rows in tickets
+    where updated_at is older than 90 days
+  target: null
+  competitor: null
+  cluster: writing a SQL query
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: leyline:ticket-writing (14.82); judge: None'
+  proposals:
+    router: leyline:ticket-writing
+    router_score: 14.82
+    judge: null
+- id: neg.021
+  type: negative
+  prompt: rename the variable `tmp` to `pending_invoice` everywhere in billing.py,
+    but leave the `tmp` in the comments alone
+  target: null
+  competitor: null
+  cluster: renaming variables across a file
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: conjure:glimmer-delegation (11.83); judge: None'
+  proposals:
+    router: conjure:glimmer-delegation
+    router_score: 11.83
+    judge: null
+- id: neg.022
+  type: negative
+  prompt: in this JS file change every `usr` to `currentUser`, including the function
+    params and the destructured ones
+  target: null
+  competitor: null
+  cluster: renaming variables across a file
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: memory-palace:palace-sweep (13.43); judge: None'
+  proposals:
+    router: memory-palace:palace-sweep
+    router_score: 13.43
+    judge: null
+- id: neg.023
+  type: negative
+  prompt: my class has self.cnt all over the place, rename it to self.retry_count
+    in counter.py
+  target: null
+  competitor: null
+  cluster: renaming variables across a file
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: abstract:metacognitive-self-mod (11.95); judge: None'
+  proposals:
+    router: abstract:metacognitive-self-mod
+    router_score: 11.95
+    judge: null
+- id: neg.024
+  type: negative
+  prompt: convert all the camelCase local variable names in this Python script to
+    snake_case
+  target: null
+  competitor: null
+  cluster: renaming variables across a file
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: scribe:session-to-post (12.67); judge: None'
+  proposals:
+    router: scribe:session-to-post
+    router_score: 12.67
+    judge: null
+- id: neg.025
+  type: negative
+  prompt: rename function fetchData to loadProfile in api.ts and update every call
+    in that same file
+  target: null
+  competitor: null
+  cluster: renaming variables across a file
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: cartograph:call-chain (9.60); judge: None'
+  proposals:
+    router: cartograph:call-chain
+    router_score: 9.6
+    judge: null
+- id: neg.026
+  type: negative
+  prompt: what's the actual difference between a process and a thread? I keep mixing
+    them up
+  target: null
+  competitor: null
+  cluster: general programming concept questions
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: scribe:session-to-post (12.49); judge: None'
+  proposals:
+    router: scribe:session-to-post
+    router_score: 12.49
+    judge: null
+- id: neg.027
+  type: negative
+  prompt: can you explain closures in JavaScript with a small example, I don't get
+    why the counter keeps its value
+  target: null
+  competitor: null
+  cluster: general programming concept questions
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: leyline:ticket-writing (11.58); judge: None'
+  proposals:
+    router: leyline:ticket-writing
+    router_score: 11.58
+    judge: null
+- id: neg.028
+  type: negative
+  prompt: when is it better to use composition over inheritance? concrete example
+    please
+  target: null
+  competitor: null
+  cluster: general programming concept questions
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: cartograph:class-diagram (11.33); judge: None'
+  proposals:
+    router: cartograph:class-diagram
+    router_score: 11.33
+    judge: null
+- id: neg.029
+  type: negative
+  prompt: what does it mean for a function to be idempotent and why do people care
+    for HTTP PUT
+  target: null
+  competitor: null
+  cluster: general programming concept questions
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: sanctum:git-catchup (14.52); judge: None'
+  proposals:
+    router: sanctum:git-catchup
+    router_score: 14.52
+    judge: null
+- id: neg.030
+  type: negative
+  prompt: explain the difference between pass by value and pass by reference, and
+    what Python actually does
+  target: null
+  competitor: null
+  cluster: general programming concept questions
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: sanctum:sync-capabilities (11.89); judge: None'
+  proposals:
+    router: sanctum:sync-capabilities
+    router_score: 11.89
+    judge: null
+- id: neg.031
+  type: negative
+  prompt: in docker-compose.yml change the postgres port mapping from 5432:5432 to
+    5433:5432
+  target: null
+  competitor: null
+  cluster: editing a YAML config value
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: pensive:blast-radius (10.82); judge: None'
+  proposals:
+    router: pensive:blast-radius
+    router_score: 10.82
+    judge: null
+- id: neg.032
+  type: negative
+  prompt: bump the replicas in deployment.yaml from 2 to 4
+  target: null
+  competitor: null
+  cluster: editing a YAML config value
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: gauntlet:problem-bank (7.12); judge: None'
+  proposals:
+    router: gauntlet:problem-bank
+    router_score: 7.12
+    judge: null
+- id: neg.033
+  type: negative
+  prompt: in my GitHub Actions workflow, change the node-version from 18 to 20
+  target: null
+  competitor: null
+  cluster: editing a YAML config value
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: pensive:blast-radius (10.82); judge: None'
+  proposals:
+    router: pensive:blast-radius
+    router_score: 10.82
+    judge: null
+- id: neg.034
+  type: negative
+  prompt: set log_level to debug in config/app.yaml under the logging section
+  target: null
+  competitor: null
+  cluster: editing a YAML config value
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: conserve:filter-log (10.24); judge: None'
+  proposals:
+    router: conserve:filter-log
+    router_score: 10.24
+    judge: null
+- id: neg.035
+  type: negative
+  prompt: 'my values.yaml has image.tag: latest, change it to v2.3.1'
+  target: null
+  competitor: null
+  cluster: editing a YAML config value
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: sanctum:create-tag (8.38); judge: None'
+  proposals:
+    router: sanctum:create-tag
+    router_score: 8.38
+    judge: null
+- id: neg.036
+  type: negative
+  prompt: my button text isn't centered vertically inside the div, here's the CSS.
+    what do I change
+  target: null
+  competitor: null
+  cluster: small frontend CSS fixes
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: pensive:blast-radius (8.87); judge: None'
+  proposals:
+    router: pensive:blast-radius
+    router_score: 8.87
+    judge: null
+- id: neg.037
+  type: negative
+  prompt: 'the navbar overlaps the page content when I scroll, it''s position: fixed.
+    how do I stop content hiding under it'
+  target: null
+  competitor: null
+  cluster: small frontend CSS fixes
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: parseltongue:python-async (13.60); judge: None'
+  proposals:
+    router: parseltongue:python-async
+    router_score: 13.6
+    judge: null
+- id: neg.038
+  type: negative
+  prompt: make these three cards sit side by side and wrap to a column on mobile
+  target: null
+  competitor: null
+  cluster: small frontend CSS fixes
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: archetypes:architecture-paradigm-functional-core (9.73); judge:
+    None'
+  proposals:
+    router: archetypes:architecture-paradigm-functional-core
+    router_score: 9.73
+    judge: null
+- id: neg.039
+  type: negative
+  prompt: image is overflowing its container on small screens, keep aspect ratio and
+    shrink it
+  target: null
+  competitor: null
+  cluster: small frontend CSS fixes
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: scribe:doc-sweep (8.40); judge: None'
+  proposals:
+    router: scribe:doc-sweep
+    router_score: 8.4
+    judge: null
+- id: neg.040
+  type: negative
+  prompt: hover color on my link isn't changing, I set a:hover but something else
+    is winning. how do I debug the specificity
+  target: null
+  competitor: null
+  cluster: small frontend CSS fixes
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: parseltongue:python-async (13.01); judge: None'
+  proposals:
+    router: parseltongue:python-async
+    router_score: 13.01
+    judge: null
+- id: neg.041
+  type: negative
+  prompt: 'here''s a Python traceback ending in KeyError: ''user_id'' from inside
+    handlers/session.py line 42. walk me through where it came from'
+  target: null
+  competitor: null
+  cluster: reading a stack trace
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: tome:cite (13.37); judge: None'
+  proposals:
+    router: tome:cite
+    router_score: 13.37
+    judge: null
+- id: neg.042
+  type: negative
+  prompt: Java NullPointerException trace, the top frame is in my code at OrderService.java:88.
+    what's likely null?
+  target: null
+  competitor: null
+  cluster: reading a stack trace
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: spec-kit:spec-review (7.85); judge: None'
+  proposals:
+    router: spec-kit:spec-review
+    router_score: 7.85
+    judge: null
+- id: neg.043
+  type: negative
+  prompt: 'Node crashed with ''UnhandledPromiseRejectionWarning: TypeError: Cannot
+    read properties of undefined (reading map)''. help me read the trace'
+  target: null
+  competitor: null
+  cluster: reading a stack trace
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: gauntlet:challenge (11.20); judge: None'
+  proposals:
+    router: gauntlet:challenge
+    router_score: 11.2
+    judge: null
+- id: neg.044
+  type: negative
+  prompt: got a segfault with a gdb backtrace pointing into memcpy. how do I tell
+    which of my frames passed the bad pointer
+  target: null
+  competitor: null
+  cluster: reading a stack trace
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: scribe:session-replay (9.29); judge: None'
+  proposals:
+    router: scribe:session-replay
+    router_score: 9.29
+    judge: null
+- id: neg.045
+  type: negative
+  prompt: this Django 500 trace is huge, which frame is actually mine and which ones
+    are framework noise?
+  target: null
+  competitor: null
+  cluster: reading a stack trace
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: conjure:provider-setup (17.18); judge: None'
+  proposals:
+    router: conjure:provider-setup
+    router_score: 17.18
+    judge: null
+- id: neg.046
+  type: negative
+  prompt: regex to match US phone numbers like (555) 123-4567 and 555-123-4567
+  target: null
+  competitor: null
+  cluster: writing a regular expression
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: archetypes:architecture-paradigm-pipeline (5.38); judge: None'
+  proposals:
+    router: archetypes:architecture-paradigm-pipeline
+    router_score: 5.38
+    judge: null
+- id: neg.047
+  type: negative
+  prompt: need a regex that pulls the version number like 1.12.3 out of strings like
+    'app-v1.12.3-beta.zip'
+  target: null
+  competitor: null
+  cluster: writing a regular expression
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: conserve:bloat-scan (11.51); judge: None'
+  proposals:
+    router: conserve:bloat-scan
+    router_score: 11.51
+    judge: null
+- id: neg.048
+  type: negative
+  prompt: 'write a Python regex that validates a hex color, with or without the leading
+    #, 3 or 6 digits'
+  target: null
+  competitor: null
+  cluster: writing a regular expression
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: parseltongue:python-testing (10.12); judge: None'
+  proposals:
+    router: parseltongue:python-testing
+    router_score: 10.12
+    judge: null
+- id: neg.049
+  type: negative
+  prompt: regex to find all lines in a log that start with an ISO timestamp and contain
+    the word ERROR
+  target: null
+  competitor: null
+  cluster: writing a regular expression
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: pensive:full-review (12.63); judge: None'
+  proposals:
+    router: pensive:full-review
+    router_score: 12.63
+    judge: null
+- id: neg.050
+  type: negative
+  prompt: how do I match a quoted string in JS regex but allow escaped quotes inside
+    it
+  target: null
+  competitor: null
+  cluster: writing a regular expression
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: parseltongue:python-async (6.50); judge: None'
+  proposals:
+    router: parseltongue:python-async
+    router_score: 6.5
+    judge: null
+- id: neg.051
+  type: negative
+  prompt: one-liner to find the 10 largest files under the current directory
+  target: null
+  competitor: null
+  cluster: shell one-liners
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: cartograph:atlas (11.23); judge: None'
+  proposals:
+    router: cartograph:atlas
+    router_score: 11.23
+    judge: null
+- id: neg.052
+  type: negative
+  prompt: how do I count how many lines in access.log contain a 500 status, grouped
+    by the URL
+  target: null
+  competitor: null
+  cluster: shell one-liners
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: cartograph:call-chain (11.30); judge: conserve:filter-log'
+  proposals:
+    router: cartograph:call-chain
+    router_score: 11.3
+    judge: conserve:filter-log
+- id: neg.053
+  type: negative
+  prompt: bash command to rename all .jpeg files in a folder to .jpg
+  target: null
+  competitor: null
+  cluster: shell one-liners
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: sanctum:stack-mode (14.75); judge: None'
+  proposals:
+    router: sanctum:stack-mode
+    router_score: 14.75
+    judge: null
+- id: neg.054
+  type: negative
+  prompt: kill whatever process is listening on port 3000, on mac
+  target: null
+  competitor: null
+  cluster: shell one-liners
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: conserve:mcp-code-execution (6.94); judge: None'
+  proposals:
+    router: conserve:mcp-code-execution
+    router_score: 6.94
+    judge: null
+- id: neg.055
+  type: negative
+  prompt: one-liner to delete all node_modules folders recursively under ~/projects
+  target: null
+  competitor: null
+  cluster: shell one-liners
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: imbue:stewardship-health (7.84); judge: None'
+  proposals:
+    router: imbue:stewardship-health
+    router_score: 7.84
+    judge: null
+- id: neg.056
+  type: negative
+  prompt: I need to check membership in a collection of 1M ids really often. list,
+    set, or something else?
+  target: null
+  competitor: null
+  cluster: data structure choice
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: abstract:skill-audit (10.87); judge: None'
+  proposals:
+    router: abstract:skill-audit
+    router_score: 10.87
+    judge: null
+- id: neg.057
+  type: negative
+  prompt: what should I use for a fixed-size cache that drops the oldest item when
+    full?
+  target: null
+  competitor: null
+  cluster: data structure choice
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: pensive:full-review (13.19); judge: None'
+  proposals:
+    router: pensive:full-review
+    router_score: 13.19
+    judge: null
+- id: neg.058
+  type: negative
+  prompt: I keep inserting at the front of a Python list in a loop and it's slow.
+    what structure fits better
+  target: null
+  competitor: null
+  cluster: data structure choice
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: abstract:skill-audit (13.84); judge: parseltongue:python-performance'
+  proposals:
+    router: abstract:skill-audit
+    router_score: 13.84
+    judge: parseltongue:python-performance
+- id: neg.059
+  type: negative
+  prompt: for a task scheduler that always runs the highest priority job next, which
+    data structure should I use
+  target: null
+  competitor: null
+  cluster: data structure choice
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: conserve:cpu-gpu-performance (12.37); judge: None'
+  proposals:
+    router: conserve:cpu-gpu-performance
+    router_score: 12.37
+    judge: null
+- id: neg.060
+  type: negative
+  prompt: should I store these key-value pairs in a dict or a sorted array of tuples
+    if I mostly do range lookups?
+  target: null
+  competitor: null
+  cluster: data structure choice
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router top: parseltongue:python-async (13.75); judge: None'
+  proposals:
+    router: parseltongue:python-async
+    router_score: 13.75
+    judge: null

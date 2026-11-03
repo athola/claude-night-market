@@ -1,0 +1,141 @@
+schema_version: 1
+cases:
+- id: oracle.oracle-setup.p1
+  type: positive
+  prompt: set up the oracle plugin so the inference daemon is ready next session
+  target: oracle:oracle-setup
+  competitor: null
+  cluster: oracle:oracle-setup
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: oracle:oracle-setup
+    judge: oracle:oracle-setup
+- id: oracle.oracle-setup.p2
+  type: positive
+  prompt: run the oracle setup command, I just installed the plugin and haven't done
+    anything else yet
+  target: oracle:oracle-setup
+  competitor: null
+  cluster: oracle:oracle-setup
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: oracle:oracle-setup
+    judge: oracle:oracle-setup
+- id: oracle.oracle-setup.p3
+  type: near_miss
+  prompt: /oracle-setup
+  target: oracle:oracle-setup
+  competitor: oracle:setup
+  cluster: oracle:oracle-setup
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at oracle:setup; router: oracle:oracle-setup; judge: oracle:oracle-setup/oracle:setup'
+  proposals:
+    aimed_at: oracle:setup
+    router: oracle:oracle-setup
+    judge: oracle:oracle-setup
+    judge_runner_up: oracle:setup
+- id: oracle.quality-bench.p1
+  type: positive
+  prompt: score all the SKILL.md files under plugins/ for quality with the oracle
+    and show me where each one sits in the overall distribution
+  target: oracle:quality-bench
+  competitor: null
+  cluster: oracle:quality-bench
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: oracle:quality-bench
+    judge: oracle:quality-bench
+- id: oracle.quality-bench.p2
+  type: positive
+  prompt: batch-run the oracle inference over these five skill files at once and calibrate
+    the scores against each other
+  target: oracle:quality-bench
+  competitor: null
+  cluster: oracle:quality-bench
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: oracle:oracle-setup; judge: oracle:quality-bench'
+  proposals:
+    router: oracle:oracle-setup
+    judge: oracle:quality-bench
+- id: oracle.quality-bench.p3
+  type: near_miss
+  prompt: Run the quality oracle over every SKILL.md in the plugins directory in one
+    sweep and tell me which ones score low relative to the rest, not just the raw
+    numbers.
+  target: oracle:quality-bench
+  competitor: imbue:evidence-sweep
+  cluster: oracle:quality-bench
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at oracle:oracle-setup; router: oracle:quality-bench; judge: oracle:quality-bench/imbue:evidence-sweep'
+  proposals:
+    aimed_at: oracle:oracle-setup
+    router: oracle:quality-bench
+    judge: oracle:quality-bench
+    judge_runner_up: imbue:evidence-sweep
+- id: oracle.setup.p1
+  type: positive
+  prompt: create the python venv with uv and install onnxruntime for the oracle plugin,
+    then verify it imports
+  target: oracle:setup
+  competitor: null
+  cluster: oracle:setup
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: oracle:setup
+    judge: oracle:setup
+- id: oracle.setup.p2
+  type: positive
+  prompt: the oracle daemon isn't running because the environment was never provisioned.
+    how do I provision it and confirm onnxruntime works?
+  target: oracle:setup
+  competitor: null
+  cluster: oracle:setup
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: oracle:oracle-setup; judge: oracle:setup'
+  proposals:
+    router: oracle:oracle-setup
+    judge: oracle:setup
+- id: oracle.setup.p3
+  type: near_miss
+  prompt: The inference daemon won't start because there's no venv for it. Create
+    the Python 3.11 environment with uv, install onnxruntime, confirm it imports,
+    and make sure a failed attempt doesn't leave a half-built venv that blocks a retry.
+  target: oracle:setup
+  competitor: oracle:oracle-setup
+  cluster: oracle:setup
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at oracle:oracle-setup; router: oracle:setup; judge: oracle:setup/oracle:oracle-setup'
+  proposals:
+    aimed_at: oracle:oracle-setup
+    router: oracle:setup
+    judge: oracle:setup
+    judge_runner_up: oracle:oracle-setup

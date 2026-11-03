@@ -13,6 +13,7 @@ Usage (uv run python -m scripts.activation.<command>):
   labeling resolve           probe each configured model once (spends ~$0.05 each)
   labeling draft             write labels/<plugin>.yaml and adjudicate.yaml
   labeling repair            fill short items, re-judge rows the judge never saw
+  labeling requeue           rebuild adjudicate.yaml from the labels, no spend
   labeling queue             list prompts still awaiting adjudication
 """
 
@@ -422,17 +423,18 @@ def backfill_proposals(row: dict) -> dict:
 
 
 def disagrees(row: dict) -> bool:
-    proposals = row.get("proposals") or {}
+    """Whether a label goes to a person.
+
+    The judge decides: it reads item bodies, while the router only
+    matches words and its rank-1 missed 319 of 628 judge-confirmed
+    positives on the first full draft. A router-only mismatch is kept in
+    ``proposals`` and reported as echo risk, not queued. A near-miss
+    competitor only feeds the report breakdown, so it never queues.
+    """
+    judge = (row.get("proposals") or {}).get("judge")
     if row["type"] == "negative":
-        return proposals.get("judge") is not None
-    if (
-        proposals.get("router") != row["target"]
-        or proposals.get("judge") != row["target"]
-    ):
-        return True
-    return row["type"] == "near_miss" and row.get("competitor") != proposals.get(
-        "aimed_at"
-    )
+        return judge is not None
+    return judge != row["target"]
 
 
 def _write_labels(root: Path, rows: list[dict], meta: dict) -> dict:
@@ -568,6 +570,18 @@ def _load_rows(root: Path) -> list[dict]:
     return rows
 
 
+def requeue(root: Path) -> dict:
+    """Rebuild adjudicate.yaml from the label files. Spends nothing."""
+    rows = [backfill_proposals(r) for r in _load_rows(root)]
+    previous = (
+        yaml.safe_load((root / "evals/activation/adjudicate.yaml").read_text()) or {}
+    )
+    meta = {
+        k: v for k, v in previous.items() if k not in ("disagreements", "audit_sample")
+    }
+    return _write_labels(root, rows, meta)
+
+
 def repair(root: Path, config: dict, call=claude_call) -> dict:
     """Fill items short of coverage and re-judge rows whose target the
     judge never saw (outside the router's top 8). Adjudicated rows are
@@ -641,6 +655,12 @@ def main(argv: list[str] | None = None) -> int:
                 f"repaired: filled {len(queue['repaired']['filled_items'])} items, re-judged "
                 f"{queue['repaired']['rejudged']}; {len(queue['disagreements'])} disagreements "
                 f"and {len(queue['audit_sample'])} audit cases; total spent ${queue['spent_usd']:.2f}\n"
+            )
+        elif command == "requeue":
+            queue = requeue(root)
+            sys.stdout.write(
+                f"{len(queue['disagreements'])} disagreements and "
+                f"{len(queue['audit_sample'])} audit cases queued\n"
             )
         elif command == "queue":
             remaining = pending(root)

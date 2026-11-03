@@ -1,0 +1,645 @@
+schema_version: 1
+cases:
+- id: gauntlet.challenge.p1
+  type: positive
+  prompt: Quiz me on this codebase. Pick something from the knowledge base and grade
+    my answer, then keep my streak going.
+  target: gauntlet:challenge
+  competitor: null
+  cluster: gauntlet:challenge
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: gauntlet:gauntlet-extract; judge: gauntlet:challenge'
+  proposals:
+    router: gauntlet:gauntlet-extract
+    judge: gauntlet:challenge
+- id: gauntlet.challenge.p2
+  type: positive
+  prompt: I think there's a pending question from the pre-commit gate. Evaluate my
+    last message as the answer and give me the next one if I got it wrong.
+  target: gauntlet:challenge
+  competitor: null
+  cluster: gauntlet:challenge
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:karpathy-principles; judge: gauntlet:challenge/herald:judge-panel'
+  proposals:
+    router: imbue:karpathy-principles
+    judge: gauntlet:challenge
+    judge_runner_up: herald:judge-panel
+- id: gauntlet.challenge.p3
+  type: near_miss
+  prompt: I already have the knowledge file built for this repo. Quiz me on how the
+    payment retry logic works and grade my answer, and keep my streak going if I get
+    it right.
+  target: gauntlet:challenge
+  competitor: gauntlet:knowledge-extract
+  cluster: gauntlet:challenge
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:extract; router: archetypes:architecture-paradigm-functional-core;
+    judge: gauntlet:challenge/gauntlet:knowledge-extract'
+  proposals:
+    aimed_at: gauntlet:extract
+    router: archetypes:architecture-paradigm-functional-core
+    judge: gauntlet:challenge
+    judge_runner_up: gauntlet:knowledge-extract
+- id: gauntlet.curate.p1
+  type: positive
+  prompt: I want to record why we chose the retry backoff in the payments module so
+    future teammates get asked about it. Walk me through adding that note.
+  target: gauntlet:curate
+  competitor: null
+  cluster: gauntlet:curate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: gauntlet:curate/None'
+  proposals:
+    router: hookify:rule-sweep
+    judge: gauntlet:curate
+    judge_runner_up: null
+- id: gauntlet.curate.p2
+  type: positive
+  prompt: Add a manual annotation capturing a rule about our billing code that no
+    parser could infer, with the history behind it, saved as a YAML file.
+  target: gauntlet:curate
+  competitor: null
+  cluster: gauntlet:curate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: gauntlet:curate/gauntlet:gauntlet-curate'
+  proposals:
+    router: hookify:rule-sweep
+    judge: gauntlet:curate
+    judge_runner_up: gauntlet:gauntlet-curate
+- id: gauntlet.curate.p3
+  type: near_miss
+  prompt: Our webhook handler retries exactly three times because the vendor rate-limits
+    at four, and nobody knows that from reading the code. Write that down as a YAML
+    note for the notifications module so future questions pick it up.
+  target: gauntlet:curate
+  competitor: leyline:quota-management
+  cluster: gauntlet:curate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:provider-sweep; router: leyline:quota-management; judge:
+    gauntlet:curate/None'
+  proposals:
+    aimed_at: conjure:provider-sweep
+    router: leyline:quota-management
+    judge: gauntlet:curate
+    judge_runner_up: null
+- id: gauntlet.extract.p1
+  type: positive
+  prompt: Rebuild the knowledge base for this repo by parsing the source and enriching
+    entries, without wiping the notes people wrote by hand.
+  target: gauntlet:extract
+  competitor: null
+  cluster: gauntlet:extract
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: gauntlet:gauntlet-extract; judge: gauntlet:gauntlet-extract'
+  proposals:
+    router: gauntlet:gauntlet-extract
+    judge: gauntlet:gauntlet-extract
+- id: gauntlet.extract.p2
+  type: positive
+  prompt: Scan ./services and generate the knowledge.json with a breakdown of entries
+    by category and where coverage is thin.
+  target: gauntlet:extract
+  competitor: null
+  cluster: gauntlet:extract
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: gauntlet:problem-bank; judge: gauntlet:extract/gauntlet:problem-bank'
+  proposals:
+    router: gauntlet:problem-bank
+    judge: gauntlet:extract
+    judge_runner_up: gauntlet:problem-bank
+- id: gauntlet.extract.p3
+  type: near_miss
+  prompt: Rebuild the knowledge base for this repo from the code in the current directory.
+    It's a small project, so one pass is fine. Keep the hand-written notes I already
+    have and show me the category counts and coverage gaps.
+  target: gauntlet:extract
+  competitor: gauntlet:gauntlet-extract
+  cluster: gauntlet:extract
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:knowledge-extract; router: gauntlet:gauntlet-extract;
+    judge: gauntlet:extract/gauntlet:gauntlet-extract'
+  proposals:
+    aimed_at: gauntlet:knowledge-extract
+    router: gauntlet:gauntlet-extract
+    judge: gauntlet:extract
+    judge_runner_up: gauntlet:gauntlet-extract
+- id: gauntlet.gauntlet-curate.p1
+  type: positive
+  prompt: /gauntlet-curate src/auth/session.py
+  target: gauntlet:gauntlet-curate
+  competitor: null
+  cluster: gauntlet:gauntlet-curate
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: gauntlet:gauntlet-curate
+    judge: gauntlet:gauntlet-curate
+- id: gauntlet.gauntlet-curate.p2
+  type: positive
+  prompt: Kick off the interactive flow to add my own annotation to the knowledge
+    base.
+  target: gauntlet:gauntlet-curate
+  competitor: null
+  cluster: gauntlet:gauntlet-curate
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: gauntlet:gauntlet-curate
+    judge: gauntlet:gauntlet-curate
+- id: gauntlet.gauntlet-curate.p3
+  type: near_miss
+  prompt: /gauntlet-curate src/ledger/reconcile.py. I want to add a note on why we
+    round half-even there instead of half-up.
+  target: gauntlet:gauntlet-curate
+  competitor: gauntlet:curate
+  cluster: gauntlet:gauntlet-curate
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:curate; router: gauntlet:gauntlet-curate; judge: gauntlet:gauntlet-curate/gauntlet:curate'
+  proposals:
+    aimed_at: gauntlet:curate
+    router: gauntlet:gauntlet-curate
+    judge: gauntlet:gauntlet-curate
+    judge_runner_up: gauntlet:curate
+- id: gauntlet.gauntlet-extract.p1
+  type: positive
+  prompt: /gauntlet-extract ./backend
+  target: gauntlet:gauntlet-extract
+  competitor: null
+  cluster: gauntlet:gauntlet-extract
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: gauntlet:gauntlet-extract
+    judge: gauntlet:gauntlet-extract
+- id: gauntlet.gauntlet-extract.p2
+  type: positive
+  prompt: Re-analyze the current directory and refresh the gauntlet knowledge file.
+  target: gauntlet:gauntlet-extract
+  competitor: null
+  cluster: gauntlet:gauntlet-extract
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: gauntlet:gauntlet-extract
+    judge: gauntlet:gauntlet-extract
+- id: gauntlet.gauntlet-extract.p3
+  type: near_miss
+  prompt: Re-analyze ./services/api only and refresh the knowledge JSON from it. Don't
+    touch the rest of the repo.
+  target: gauntlet:gauntlet-extract
+  competitor: gauntlet:extract
+  cluster: gauntlet:gauntlet-extract
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:extract; router: tome:research; judge: gauntlet:gauntlet-extract/gauntlet:extract'
+  proposals:
+    aimed_at: gauntlet:extract
+    router: tome:research
+    judge: gauntlet:gauntlet-extract
+    judge_runner_up: gauntlet:extract
+- id: gauntlet.gauntlet-graph.p1
+  type: positive
+  prompt: How many nodes and edges are in the code graph, and when was it last built?
+  target: gauntlet:gauntlet-graph
+  competitor: null
+  cluster: gauntlet:gauntlet-graph
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: cartograph:call-chain; judge: gauntlet:gauntlet-graph'
+  proposals:
+    router: cartograph:call-chain
+    judge: gauntlet:gauntlet-graph
+- id: gauntlet.gauntlet-graph.p2
+  type: positive
+  prompt: Search the code graph for entities named PaymentProcessor, then rebuild
+    the graph for ./lib.
+  target: gauntlet:gauntlet-graph
+  competitor: null
+  cluster: gauntlet:gauntlet-graph
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: gauntlet:graph-search; judge: gauntlet:gauntlet-graph'
+  proposals:
+    router: gauntlet:graph-search
+    judge: gauntlet:gauntlet-graph
+- id: gauntlet.gauntlet-graph.p3
+  type: near_miss
+  prompt: How many nodes and edges are in the code graph right now, and when was it
+    last built? Just give me the stats, no tracing.
+  target: gauntlet:gauntlet-graph
+  competitor: gauntlet:graph-build
+  cluster: gauntlet:gauntlet-graph
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at cartograph:call-chain; router: cartograph:call-chain; judge: gauntlet:gauntlet-graph/gauntlet:graph-build'
+  proposals:
+    aimed_at: cartograph:call-chain
+    router: cartograph:call-chain
+    judge: gauntlet:gauntlet-graph
+    judge_runner_up: gauntlet:graph-build
+- id: gauntlet.gauntlet-onboard.p1
+  type: positive
+  prompt: I just joined the team and want to pick up the guided codebase walkthrough
+    where I left off yesterday
+  target: gauntlet:gauntlet-onboard
+  competitor: null
+  cluster: gauntlet:gauntlet-onboard
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: gauntlet:gauntlet-onboard/cartograph:atlas'
+  proposals:
+    router: parseltongue:python-async
+    judge: gauntlet:gauntlet-onboard
+    judge_runner_up: cartograph:atlas
+- id: gauntlet.gauntlet-onboard.p2
+  type: positive
+  prompt: restart my onboarding from the very beginning, I want to redo the whole
+    path from scratch
+  target: gauntlet:gauntlet-onboard
+  competitor: null
+  cluster: gauntlet:gauntlet-onboard
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: gauntlet:gauntlet-onboard
+    judge: gauntlet:gauntlet-onboard
+- id: gauntlet.gauntlet-onboard.p3
+  type: near_miss
+  prompt: I just joined the team and got lost halfway through the guided ramp-up.
+    Put me back at stage 3, or restart from the beginning if that's easier.
+  target: gauntlet:gauntlet-onboard
+  competitor: gauntlet:gauntlet-extract
+  cluster: gauntlet:gauntlet-onboard
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: tome:cite;
+    judge: gauntlet:gauntlet-onboard/gauntlet:gauntlet-extract'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: tome:cite
+    judge: gauntlet:gauntlet-onboard
+    judge_runner_up: gauntlet:gauntlet-extract
+- id: gauntlet.gauntlet-progress.p1
+  type: positive
+  prompt: how am I doing on the gauntlet challenges? show my accuracy and current
+    streak
+  target: gauntlet:gauntlet-progress
+  competitor: null
+  cluster: gauntlet:gauntlet-progress
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: gauntlet:gauntlet-progress
+    judge: gauntlet:gauntlet-progress
+- id: gauntlet.gauntlet-progress.p2
+  type: positive
+  prompt: show my stats broken down by category and when I last did a session
+  target: gauntlet:gauntlet-progress
+  competitor: null
+  cluster: gauntlet:gauntlet-progress
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: gauntlet:gauntlet-progress
+    judge: gauntlet:gauntlet-progress
+- id: gauntlet.gauntlet-progress.p3
+  type: near_miss
+  prompt: how am I doing on the codebase quiz stuff? want to see my hit rate per topic
+    and whether my streak is still alive
+  target: gauntlet:gauntlet-progress
+  competitor: tome:research
+  cluster: gauntlet:gauntlet-progress
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at egregore:status; router: tome:research; judge: gauntlet:gauntlet-progress/None'
+  proposals:
+    aimed_at: egregore:status
+    router: tome:research
+    judge: gauntlet:gauntlet-progress
+    judge_runner_up: null
+- id: gauntlet.gauntlet.p1
+  type: positive
+  prompt: Start a gauntlet round with 10 questions limited to the src/api directory.
+  target: gauntlet:gauntlet
+  competitor: null
+  cluster: gauntlet:gauntlet
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: gauntlet:gauntlet-onboard; judge: gauntlet:gauntlet'
+  proposals:
+    router: gauntlet:gauntlet-onboard
+    judge: gauntlet:gauntlet
+- id: gauntlet.gauntlet.p2
+  type: positive
+  prompt: Run a quick 5-question session on this project, force it to be a particular
+    challenge type.
+  target: gauntlet:gauntlet
+  competitor: null
+  cluster: gauntlet:gauntlet
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: gauntlet:gauntlet
+    judge: gauntlet:gauntlet
+- id: gauntlet.gauntlet.p3
+  type: near_miss
+  prompt: Give me a quick round of 5 questions, limited to src/billing, and make them
+    all the same type.
+  target: gauntlet:gauntlet
+  competitor: gauntlet:challenge
+  cluster: gauntlet:gauntlet
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:gauntlet-onboard; router: gauntlet:gauntlet; judge: gauntlet:gauntlet/gauntlet:challenge'
+  proposals:
+    aimed_at: gauntlet:gauntlet-onboard
+    router: gauntlet:gauntlet
+    judge: gauntlet:gauntlet
+    judge_runner_up: gauntlet:challenge
+- id: gauntlet.graph-build.p1
+  type: positive
+  prompt: index this repo into a code knowledge graph so I can look at structure,
+    and only reparse what changed since last time
+  target: gauntlet:graph-build
+  competitor: null
+  cluster: gauntlet:graph-build
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:git-catchup; judge: gauntlet:graph-build'
+  proposals:
+    router: sanctum:git-catchup
+    judge: gauntlet:graph-build
+- id: gauntlet.graph-build.p2
+  type: positive
+  prompt: I just refactored a bunch of modules, refresh the graph database before
+    I run any impact analysis
+  target: gauntlet:graph-build
+  competitor: null
+  cluster: gauntlet:graph-build
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: gauntlet:graph-build'
+  proposals:
+    router: parseltongue:python-async
+    judge: gauntlet:graph-build
+- id: gauntlet.graph-build.p3
+  type: near_miss
+  prompt: I just merged a big refactor and want the code graph in .gauntlet refreshed
+    so it reflects the new file layout. only re-parse what changed if possible
+  target: gauntlet:graph-build
+  competitor: gauntlet:gauntlet-graph
+  cluster: gauntlet:graph-build
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:gauntlet-graph; router: gauntlet:gauntlet-graph; judge:
+    gauntlet:graph-build/gauntlet:gauntlet-graph'
+  proposals:
+    aimed_at: gauntlet:gauntlet-graph
+    router: gauntlet:gauntlet-graph
+    judge: gauntlet:graph-build
+    judge_runner_up: gauntlet:gauntlet-graph
+- id: gauntlet.graph-search.p1
+  type: positive
+  prompt: find where UserService is defined in the code graph, just classes
+  target: gauntlet:graph-search
+  competitor: null
+  cluster: gauntlet:graph-search
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: gauntlet:gauntlet-graph; judge: gauntlet:graph-search'
+  proposals:
+    router: gauntlet:gauntlet-graph
+    judge: gauntlet:graph-search
+- id: gauntlet.graph-search.p2
+  type: positive
+  prompt: look up get_users in the knowledge graph and give me the top 20 matches
+    with file paths and line numbers
+  target: gauntlet:graph-search
+  competitor: null
+  cluster: gauntlet:graph-search
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: gauntlet:graph-build; judge: gauntlet:graph-search'
+  proposals:
+    router: gauntlet:graph-build
+    judge: gauntlet:graph-search
+- id: gauntlet.graph-search.p3
+  type: near_miss
+  prompt: find where UserService is defined in the indexed graph, only classes, and
+    show me file and line numbers for the top matches
+  target: gauntlet:graph-search
+  competitor: gauntlet:gauntlet-graph
+  cluster: gauntlet:graph-search
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:gauntlet-graph; router: gauntlet:gauntlet-graph; judge:
+    gauntlet:graph-search/gauntlet:gauntlet-graph'
+  proposals:
+    aimed_at: gauntlet:gauntlet-graph
+    router: gauntlet:gauntlet-graph
+    judge: gauntlet:graph-search
+    judge_runner_up: gauntlet:gauntlet-graph
+- id: gauntlet.knowledge-extract.p1
+  type: positive
+  prompt: 'build the onboarding knowledge base for our monorepo, but do it per subsystem
+    in parallel: api, billing, auth, and workers'
+  target: gauntlet:knowledge-extract
+  competitor: null
+  cluster: gauntlet:knowledge-extract
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: gauntlet:knowledge-extract
+    judge: gauntlet:knowledge-extract
+- id: gauntlet.knowledge-extract.p2
+  type: positive
+  prompt: 'extract why each module exists across these directories: src/ingest, src/scheduler,
+    src/storage, then reconcile overlapping concepts'
+  target: gauntlet:knowledge-extract
+  competitor: null
+  cluster: gauntlet:knowledge-extract
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: gauntlet:knowledge-extract
+    judge: gauntlet:knowledge-extract
+- id: gauntlet.knowledge-extract.p3
+  type: near_miss
+  prompt: our monorepo has about a dozen subsystems under services/ and I want the
+    knowledge base rebuilt, with each subsystem's modules documented for what they
+    do and why they exist, run in parallel per directory so quality holds up on the
+    later ones
+  target: gauntlet:knowledge-extract
+  competitor: cartograph:atlas
+  cluster: gauntlet:knowledge-extract
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:gauntlet-extract; router: gauntlet:knowledge-extract;
+    judge: gauntlet:knowledge-extract/None'
+  proposals:
+    aimed_at: gauntlet:gauntlet-extract
+    router: gauntlet:knowledge-extract
+    judge: gauntlet:knowledge-extract
+    judge_runner_up: null
+- id: gauntlet.onboard.p1
+  type: positive
+  prompt: take me through staged learning of this codebase, starting with architecture
+    and data flow questions, with hints on my first try
+  target: gauntlet:onboard
+  competitor: null
+  cluster: gauntlet:onboard
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: gauntlet:challenge; judge: gauntlet:onboard'
+  proposals:
+    router: gauntlet:challenge
+    judge: gauntlet:onboard
+- id: gauntlet.onboard.p2
+  type: positive
+  prompt: I'm a new hire; quiz me stage by stage and only advance me when I'm scoring
+    80% or better
+  target: gauntlet:onboard
+  competitor: null
+  cluster: gauntlet:onboard
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: gauntlet:onboard/None'
+  proposals:
+    router: parseltongue:python-async
+    judge: gauntlet:onboard
+    judge_runner_up: null
+- id: gauntlet.onboard.p3
+  type: near_miss
+  prompt: I'm new on this team, walk me through the codebase step by step starting
+    from the big picture, and pick up where I left off last time
+  target: gauntlet:onboard
+  competitor: scribe:tech-tutorial
+  cluster: gauntlet:onboard
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: scribe:tech-tutorial;
+    judge: gauntlet:onboard/None'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: scribe:tech-tutorial
+    judge: gauntlet:onboard
+    judge_runner_up: null
+- id: gauntlet.problem-bank.p1
+  type: positive
+  prompt: check which algorithm categories in our DSA problem bank are below the NeetCode
+    counts and draft new problems for the gaps
+  target: gauntlet:problem-bank
+  competitor: null
+  cluster: gauntlet:problem-bank
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: gauntlet:problem-bank; judge: None'
+  proposals:
+    router: gauntlet:problem-bank
+    judge: null
+- id: gauntlet.problem-bank.p2
+  type: positive
+  prompt: survey coverage of the practice problem YAML files and propose new entries
+    for me to review, without touching the existing ones
+  target: gauntlet:problem-bank
+  competitor: null
+  cluster: gauntlet:problem-bank
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: gauntlet:problem-bank; judge: None'
+  proposals:
+    router: gauntlet:problem-bank
+    judge: null
+- id: gauntlet.problem-bank.p3
+  type: near_miss
+  prompt: check which algorithm categories in our DSA practice problems fall short
+    of the NeetCode counts and draft new YAML entries for the gaps so I can review
+    them before anything gets added
+  target: gauntlet:problem-bank
+  competitor: hookify:rule-sweep
+  cluster: gauntlet:problem-bank
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at hookify:rule-sweep; router: gauntlet:problem-bank; judge: gauntlet:problem-bank/None'
+  proposals:
+    aimed_at: hookify:rule-sweep
+    router: gauntlet:problem-bank
+    judge: gauntlet:problem-bank
+    judge_runner_up: null

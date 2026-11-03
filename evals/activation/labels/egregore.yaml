@@ -1,0 +1,335 @@
+schema_version: 1
+cases:
+- id: egregore.dismiss.p1
+  type: positive
+  prompt: The autonomous agent is chewing through my API quota and I want it to stop
+    now, but keep its progress so I can pick it back up tomorrow.
+  target: egregore:dismiss
+  competitor: null
+  cluster: egregore:dismiss
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: egregore:dismiss/None'
+  proposals:
+    router: conjure:provider-sweep
+    judge: egregore:dismiss
+    judge_runner_up: null
+- id: egregore.dismiss.p2
+  type: positive
+  prompt: Something's going wrong with the overnight run and it's touching more work
+    items. Shut it down cleanly, pause everything, and make sure the watchdog doesn't
+    relaunch it.
+  target: egregore:dismiss
+  competitor: null
+  cluster: egregore:dismiss
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: egregore:dismiss/None'
+  proposals:
+    router: hookify:rule-sweep
+    judge: egregore:dismiss
+    judge_runner_up: null
+- id: egregore.dismiss.p3
+  type: near_miss
+  prompt: The autonomous agent is chewing through my API quota and it's started touching
+    items I didn't want it to. Stop it now, but keep all the in-progress work so I
+    can pick it back up tomorrow.
+  target: egregore:dismiss
+  competitor: conjure:provider-sweep
+  cluster: egregore:dismiss
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at conjure:provider-sweep; router: conjure:provider-sweep; judge:
+    None/None'
+  proposals:
+    aimed_at: conjure:provider-sweep
+    router: conjure:provider-sweep
+    judge: null
+    judge_runner_up: null
+- id: egregore.gate-audit.p1
+  type: positive
+  prompt: I suspect some of our autonomous pipeline's validation checks always pass
+    no matter what. Audit each gate script in parallel and prove with a concrete input
+    which ones can be bypassed.
+  target: egregore:gate-audit
+  competitor: null
+  cluster: egregore:gate-audit
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: egregore:gate-audit; judge: None'
+  proposals:
+    router: egregore:gate-audit
+    judge: null
+- id: egregore.gate-audit.p2
+  type: positive
+  prompt: Go through handoff_gate.py, scope.py, verdict.py and night_run.py and find
+    checks that swallow exceptions into a pass or compare things after normalizing
+    the difference away. Have a second agent try to break each finding.
+  target: egregore:gate-audit
+  competitor: null
+  cluster: egregore:gate-audit
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: egregore:gate-audit; judge: None'
+  proposals:
+    router: egregore:gate-audit
+    judge: null
+- id: egregore.gate-audit.p3
+  type: near_miss
+  prompt: We've had a few checks in the autonomous pipeline that seem to pass no matter
+    what. Go through handoff_gate, scope, verdict and night_run, and for each check
+    show me a concrete input that slips past it, and try to confirm each one actually
+    fails to reject.
+  target: egregore:gate-audit
+  competitor: hookify:rule-sweep
+  cluster: egregore:gate-audit
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'aimed at parseltongue:run-profiler; router: egregore:gate-audit; judge:
+    None/None'
+  proposals:
+    aimed_at: parseltongue:run-profiler
+    router: egregore:gate-audit
+    judge: null
+    judge_runner_up: null
+- id: egregore.install-watchdog.p1
+  type: positive
+  prompt: Set up a background daemon with launchd on my Mac that relaunches the autonomous
+    agent if it crashes or hits a rate limit, checking every 5 minutes.
+  target: egregore:install-watchdog
+  competitor: null
+  cluster: egregore:install-watchdog
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:plugin-health; judge: egregore:install-watchdog/None'
+  proposals:
+    router: leyline:plugin-health
+    judge: egregore:install-watchdog
+    judge_runner_up: null
+- id: egregore.install-watchdog.p2
+  type: positive
+  prompt: I want the egregore to survive context overflows overnight. How do I install
+    the systemd service that restarts it, and what do I need on my PATH first?
+  target: egregore:install-watchdog
+  competitor: null
+  cluster: egregore:install-watchdog
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: None'
+  proposals:
+    router: parseltongue:python-async
+    judge: null
+- id: egregore.install-watchdog.p3
+  type: near_miss
+  prompt: I want the autonomous session to come back on its own after crashes or rate
+    limits overnight. Set up the background daemon on my Mac with a 5h window and
+    check every 5 minutes.
+  target: egregore:install-watchdog
+  competitor: phantom:surface-check
+  cluster: egregore:install-watchdog
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: phantom:surface-check; judge: None/None'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: phantom:surface-check
+    judge: null
+    judge_runner_up: null
+- id: egregore.quality-gate.p1
+  type: positive
+  prompt: The autonomous work item branch is ready. Run the self-review checks on
+    the changed files against main, auto-fix blocking findings, and record the verdict
+    before it goes to PR.
+  target: egregore:quality-gate
+  competitor: null
+  cluster: egregore:quality-gate
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: None'
+  proposals:
+    router: hookify:rule-sweep
+    judge: null
+- id: egregore.quality-gate.p2
+  type: positive
+  prompt: How do I make the pipeline refuse to advance an item to ship when review
+    finds blocking issues, and hold the merge for a human even if auto_merge is on?
+  target: egregore:quality-gate
+  competitor: null
+  cluster: egregore:quality-gate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:paradigm-panel; judge: egregore:quality-gate/None'
+  proposals:
+    router: archetypes:paradigm-panel
+    judge: egregore:quality-gate
+    judge_runner_up: null
+- id: egregore.quality-gate.p3
+  type: near_miss
+  prompt: The egregore finished work item 17 on branch feat/jwt-auth. Run the code-review
+    step in self-review mode against the changed files and give me the verdict, with
+    auto-fix on blocking findings.
+  target: egregore:quality-gate
+  competitor: pensive:unified-review
+  cluster: egregore:quality-gate
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at abstract:make-dogfood; router: pensive:unified-review; judge: None/None'
+  proposals:
+    aimed_at: abstract:make-dogfood
+    router: pensive:unified-review
+    judge: null
+    judge_runner_up: null
+- id: egregore.status.p1
+  type: positive
+  prompt: 'Show me where the autonomous run is at: which work items are done, what
+    step the active one is on, how many tokens are left, and the last few decisions
+    it made.'
+  target: egregore:status
+  competitor: null
+  cluster: egregore:status
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:spec-review; judge: egregore:status/None'
+  proposals:
+    router: spec-kit:spec-review
+    judge: egregore:status
+    judge_runner_up: null
+- id: egregore.status.p2
+  type: positive
+  prompt: Has the overnight agent been relaunched by the watchdog? I want session
+    counts, whether a cooldown is active, and the recent decision log.
+  target: egregore:status
+  competitor: null
+  cluster: egregore:status
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:install-watchdog; judge: egregore:status/egregore:install-watchdog'
+  proposals:
+    router: egregore:install-watchdog
+    judge: egregore:status
+    judge_runner_up: egregore:install-watchdog
+- id: egregore.status.p3
+  type: near_miss
+  prompt: What's the autonomous agent doing right now? Show me which work items are
+    done, which step the active one is on, how many tokens are left, and the last
+    few choices it made on its own.
+  target: egregore:status
+  competitor: egregore:summon
+  cluster: egregore:status
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: conjure:provider-setup; judge: egregore:status/egregore:summon'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: conjure:provider-setup
+    judge: egregore:status
+    judge_runner_up: egregore:summon
+- id: egregore.summon.p1
+  type: positive
+  prompt: Kick off the autonomous agent on GitHub issues 42, 43 and 44 and let it
+    run over the weekend, stopping after two days.
+  target: egregore:summon
+  competitor: null
+  cluster: egregore:summon
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:agent-expenditure; judge: egregore:summon/None'
+  proposals:
+    router: conserve:agent-expenditure
+    judge: egregore:summon
+    judge_runner_up: null
+- id: egregore.summon.p2
+  type: positive
+  prompt: I want an agent to autonomously refactor the auth module to use JWT, plan
+    it, implement, test, and open a PR while I'm away. How do I launch that?
+  target: egregore:summon
+  competitor: null
+  cluster: egregore:summon
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: egregore:summon/sanctum:do-issue'
+  proposals:
+    router: parseltongue:python-async
+    judge: egregore:summon
+    judge_runner_up: sanctum:do-issue
+- id: egregore.summon.p3
+  type: near_miss
+  prompt: Kick off the autonomous agent on GitHub issues 42, 43 and 44 and let it
+    plan, implement, test and open PRs over the weekend. Stop on its own after 2 days.
+  target: egregore:summon
+  competitor: sanctum:do-issue
+  cluster: egregore:summon
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:paradigm-panel; router: sanctum:do-issue; judge: egregore:summon/sanctum:do-issue'
+  proposals:
+    aimed_at: archetypes:paradigm-panel
+    router: sanctum:do-issue
+    judge: egregore:summon
+    judge_runner_up: sanctum:do-issue
+- id: egregore.uninstall-watchdog.p1
+  type: positive
+  prompt: I don't want the background watchdog process running on my machine anymore.
+    Rip it out and delete all the files it left behind.
+  target: egregore:uninstall-watchdog
+  competitor: null
+  cluster: egregore:uninstall-watchdog
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: egregore:uninstall-watchdog
+    judge: egregore:uninstall-watchdog
+- id: egregore.uninstall-watchdog.p2
+  type: positive
+  prompt: Need to fully remove the egregore daemon and its leftover config/launch
+    files before I reimage this laptop. What's the cleanup procedure?
+  target: egregore:uninstall-watchdog
+  competitor: null
+  cluster: egregore:uninstall-watchdog
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: egregore:uninstall-watchdog
+    judge: egregore:uninstall-watchdog
+- id: egregore.uninstall-watchdog.p3
+  type: near_miss
+  prompt: I don't want the background relaunch daemon on my machine anymore. Remove
+    it and clean up its files, but I'm not trying to stop the current autonomous session
+    itself, just the auto-restart piece.
+  target: egregore:uninstall-watchdog
+  competitor: egregore:install-watchdog
+  cluster: egregore:uninstall-watchdog
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'aimed at egregore:install-watchdog; router: egregore:uninstall-watchdog;
+    judge: None/None'
+  proposals:
+    aimed_at: egregore:install-watchdog
+    router: egregore:uninstall-watchdog
+    judge: null
+    judge_runner_up: null

@@ -1,0 +1,393 @@
+schema_version: 1
+cases:
+- id: parseltongue.analyze-tests.p1
+  type: positive
+  prompt: Can you go through my tests/unit folder and tell me where the suite is weak?
+    I want to know which modules have low coverage, which tests have bad names or
+    multiple assertions, and what's missing.
+  target: parseltongue:analyze-tests
+  competitor: null
+  cluster: parseltongue:analyze-tests
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:architecture-paradigm-functional-core; judge: parseltongue:analyze-tests'
+  proposals:
+    router: archetypes:architecture-paradigm-functional-core
+    judge: parseltongue:analyze-tests
+- id: parseltongue.analyze-tests.p2
+  type: positive
+  prompt: Our pytest suite has grown messy over time. Audit it for fixture sprawl,
+    tests that depend on each other, and places where parametrize would cut duplication,
+    then give me a prioritized list of fixes.
+  target: parseltongue:analyze-tests
+  competitor: null
+  cluster: parseltongue:analyze-tests
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:skill-audit; judge: parseltongue:analyze-tests/parseltongue:python-testing'
+  proposals:
+    router: abstract:skill-audit
+    judge: parseltongue:analyze-tests
+    judge_runner_up: parseltongue:python-testing
+- id: parseltongue.analyze-tests.p3
+  type: near_miss
+  prompt: 'Take a look at the tests/unit/ folder in my Python project and tell me
+    how good the suite is: coverage numbers, whether fixtures and naming are sensible,
+    which tests are slow, and what code paths have no tests at all.'
+  target: parseltongue:analyze-tests
+  competitor: parseltongue:python-testing
+  cluster: parseltongue:analyze-tests
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:update-tests; router: parseltongue:python-testing; judge:
+    parseltongue:analyze-tests/parseltongue:python-testing'
+  proposals:
+    aimed_at: sanctum:update-tests
+    router: parseltongue:python-testing
+    judge: parseltongue:analyze-tests
+    judge_runner_up: parseltongue:python-testing
+- id: parseltongue.check-async.p1
+  type: positive
+  prompt: 'Look over src/api/handlers.py and flag anything wrong with the async code:
+    forgotten awaits, time.sleep or requests calls inside coroutines, tasks that never
+    get cleaned up on cancellation.'
+  target: parseltongue:check-async
+  competitor: null
+  cluster: parseltongue:check-async
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: parseltongue:check-async'
+  proposals:
+    router: parseltongue:python-async
+    judge: parseltongue:check-async
+- id: parseltongue.check-async.p2
+  type: positive
+  prompt: Our aiohttp service randomly stalls under load. Scan the codebase for blocking
+    calls in async functions and places where we're missing timeouts or connection
+    pooling.
+  target: parseltongue:check-async
+  competitor: null
+  cluster: parseltongue:check-async
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: parseltongue:check-async'
+  proposals:
+    router: parseltongue:python-async
+    judge: parseltongue:check-async
+- id: parseltongue.check-async.p3
+  type: near_miss
+  prompt: Go through src/api/handlers.py and tell me whether I'm missing any awaits
+    or calling time.sleep and sync requests inside my coroutines. I want issues listed
+    by severity.
+  target: parseltongue:check-async
+  competitor: parseltongue:python-async
+  cluster: parseltongue:check-async
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-async; router: parseltongue:python-async; judge:
+    parseltongue:check-async/parseltongue:python-async'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: parseltongue:python-async
+    judge: parseltongue:check-async
+    judge_runner_up: parseltongue:python-async
+- id: parseltongue.python-async.p1
+  type: positive
+  prompt: I need to fetch about 500 URLs concurrently in Python without hammering
+    the server. How do I use asyncio with a semaphore to cap it at 20 in flight and
+    handle timeouts per request?
+  target: parseltongue:python-async
+  competitor: null
+  cluster: parseltongue:python-async
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: parseltongue:python-async
+    judge: parseltongue:python-async
+- id: parseltongue.python-async.p2
+  type: positive
+  prompt: 'I keep getting ''RuntimeError: no current event loop'' when I call my async
+    function from a script, and I also need to run a blocking file read without freezing
+    the loop. What''s the right way to structure this?'
+  target: parseltongue:python-async
+  competitor: null
+  cluster: parseltongue:python-async
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: parseltongue:python-async
+    judge: parseltongue:python-async
+- id: parseltongue.python-async.p3
+  type: near_miss
+  prompt: I need to hit about 300 URLs concurrently with aiohttp, cap it at 10 in
+    flight, and handle timeouts and cancellation cleanly. I'd also like the parsing
+    kept separate from the network calls. How should I structure it?
+  target: parseltongue:python-async
+  competitor: archetypes:architecture-paradigm-functional-core
+  cluster: parseltongue:python-async
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: parseltongue:python-async;
+    judge: parseltongue:python-async/archetypes:architecture-paradigm-functional-core'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: parseltongue:python-async
+    judge: parseltongue:python-async
+    judge_runner_up: archetypes:architecture-paradigm-functional-core
+- id: parseltongue.python-packaging.p1
+  type: positive
+  prompt: I've got a utility library and a CLI wrapper in a flat folder with a setup.py.
+    Help me move it to pyproject.toml with a src layout and get it ready to publish
+    to PyPI using uv.
+  target: parseltongue:python-packaging
+  competitor: null
+  cluster: parseltongue:python-packaging
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: parseltongue:python-packaging
+    judge: parseltongue:python-packaging
+- id: parseltongue.python-packaging.p2
+  type: positive
+  prompt: How do I expose a console command from my Python package so users can run
+    `mytool` after pip install, and set up GitHub Actions to publish tagged releases
+    automatically?
+  target: parseltongue:python-packaging
+  competitor: null
+  cluster: parseltongue:python-packaging
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: parseltongue:python-packaging
+    judge: parseltongue:python-packaging
+- id: parseltongue.python-packaging.p3
+  type: near_miss
+  prompt: I've got a small Python library and want to get it onto PyPI. Walk me through
+    the pyproject.toml setup, src layout, and building and publishing it with uv.
+  target: parseltongue:python-packaging
+  competitor: parseltongue:python-sweep
+  cluster: parseltongue:python-packaging
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:stack-push; router: parseltongue:python-packaging; judge:
+    parseltongue:python-packaging/None'
+  proposals:
+    aimed_at: sanctum:stack-push
+    router: parseltongue:python-packaging
+    judge: parseltongue:python-packaging
+    judge_runner_up: null
+- id: parseltongue.python-performance.p1
+  type: positive
+  prompt: My data-processing function takes forever on large inputs and memory keeps
+    climbing. Walk me through finding the bottleneck and then speeding it up, maybe
+    with caching or generators, and proving it's faster with benchmarks.
+  target: parseltongue:python-performance
+  competitor: null
+  cluster: parseltongue:python-performance
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: cartograph:call-chain; judge: parseltongue:python-performance/conserve:mcp-code-execution'
+  proposals:
+    router: cartograph:call-chain
+    judge: parseltongue:python-performance
+    judge_runner_up: conserve:mcp-code-execution
+- id: parseltongue.python-performance.p2
+  type: positive
+  prompt: Our Python service leaks memory slowly in production. How can I track down
+    what's growing using tracemalloc or py-spy without restarting it?
+  target: parseltongue:python-performance
+  competitor: null
+  cluster: parseltongue:python-performance
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: parseltongue:run-profiler; judge: parseltongue:run-profiler'
+  proposals:
+    router: parseltongue:run-profiler
+    judge: parseltongue:run-profiler
+- id: parseltongue.python-performance.p3
+  type: near_miss
+  prompt: My data-processing function takes 40 seconds on a big input. Help me work
+    out where the time and memory go, and give me a number for how much each optimization
+    speeds it up.
+  target: parseltongue:python-performance
+  competitor: cartograph:data-flow
+  cluster: parseltongue:python-performance
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at oracle:quality-bench; router: cartograph:call-chain; judge: parseltongue:python-performance/cartograph:data-flow'
+  proposals:
+    aimed_at: oracle:quality-bench
+    router: cartograph:call-chain
+    judge: parseltongue:python-performance
+    judge_runner_up: cartograph:data-flow
+- id: parseltongue.python-sweep.p1
+  type: positive
+  prompt: Do a full review of src/ and scripts/ for me, covering lint problems, typing
+    holes, slow loops, and tests that wouldn't catch regressions, with each handled
+    separately instead of one blended pass.
+  target: parseltongue:python-sweep
+  competitor: null
+  cluster: parseltongue:python-sweep
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:full-review; judge: parseltongue:python-sweep/pensive:unified-review'
+  proposals:
+    router: pensive:full-review
+    judge: parseltongue:python-sweep
+    judge_runner_up: pensive:unified-review
+- id: parseltongue.python-sweep.p2
+  type: positive
+  prompt: Before I cut a release, run several independent reviewers over the Python
+    in app/ and merge their findings, especially where two of them point at the same
+    underlying cause.
+  target: parseltongue:python-sweep
+  competitor: null
+  cluster: parseltongue:python-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: parseltongue:python-sweep
+    judge: parseltongue:python-sweep
+- id: parseltongue.python-sweep.p3
+  type: near_miss
+  prompt: 'Do a full review of everything under src/ from several angles at once:
+    lint, type hints, performance, and test coverage. Then merge any findings that
+    come from the same underlying cause.'
+  target: parseltongue:python-sweep
+  competitor: pensive:full-review
+  cluster: parseltongue:python-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:metacognitive-self-mod; router: parseltongue:python-sweep;
+    judge: parseltongue:python-sweep/pensive:full-review'
+  proposals:
+    aimed_at: abstract:metacognitive-self-mod
+    router: parseltongue:python-sweep
+    judge: parseltongue:python-sweep
+    judge_runner_up: pensive:full-review
+- id: parseltongue.python-testing.p1
+  type: positive
+  prompt: Set up pytest for my new Python project with coverage reporting and an 80%
+    threshold, plus a conftest.py with fixtures that don't leak state between tests.
+  target: parseltongue:python-testing
+  competitor: null
+  cluster: parseltongue:python-testing
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: parseltongue:python-testing; judge: leyline:pytest-config'
+  proposals:
+    router: parseltongue:python-testing
+    judge: leyline:pytest-config
+- id: parseltongue.python-testing.p2
+  type: positive
+  prompt: How do I write unit tests for a function that calls an external payments
+    API? I want to mock only the HTTP boundary using pytest-mock and use parametrization
+    for the edge cases.
+  target: parseltongue:python-testing
+  competitor: null
+  cluster: parseltongue:python-testing
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:architecture-paradigm-functional-core; judge: parseltongue:python-testing/sanctum:update-tests'
+  proposals:
+    router: archetypes:architecture-paradigm-functional-core
+    judge: parseltongue:python-testing
+    judge_runner_up: sanctum:update-tests
+- id: parseltongue.python-testing.p3
+  type: near_miss
+  prompt: Set up pytest for my project with fixtures and mocks for the database and
+    the HTTP client. The goal is fast, deterministic unit tests for the business logic,
+    with coverage thresholds in pyproject.toml.
+  target: parseltongue:python-testing
+  competitor: leyline:pytest-config
+  cluster: parseltongue:python-testing
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: archetypes:architecture-paradigm-functional-core;
+    judge: parseltongue:python-testing/leyline:pytest-config'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: archetypes:architecture-paradigm-functional-core
+    judge: parseltongue:python-testing
+    judge_runner_up: leyline:pytest-config
+- id: parseltongue.run-profiler.p1
+  type: positive
+  prompt: Profile main.py and show me the top 20 slowest functions by cumulative time,
+    and generate a flamegraph SVG so I can see the call stacks.
+  target: parseltongue:run-profiler
+  competitor: null
+  cluster: parseltongue:run-profiler
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: parseltongue:run-profiler
+    judge: parseltongue:run-profiler
+- id: parseltongue.run-profiler.p2
+  type: positive
+  prompt: My worker process with PID 12345 is eating RAM in production. Attach to
+    it and profile memory usage, flagging anything over 100MB.
+  target: parseltongue:run-profiler
+  competitor: null
+  cluster: parseltongue:run-profiler
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: minister:release-health-gates; judge: parseltongue:run-profiler'
+  proposals:
+    router: minister:release-health-gates
+    judge: parseltongue:run-profiler
+- id: parseltongue.run-profiler.p3
+  type: near_miss
+  prompt: Run the profiler on main.py and show me the top 20 functions by cumulative
+    time. Also generate a flamegraph svg so I can see the call stacks.
+  target: parseltongue:run-profiler
+  competitor: spec-kit:speckit-checklist
+  cluster: parseltongue:run-profiler
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at leyline:usage-logging; router: parseltongue:run-profiler; judge:
+    parseltongue:run-profiler/None'
+  proposals:
+    aimed_at: leyline:usage-logging
+    router: parseltongue:run-profiler
+    judge: parseltongue:run-profiler
+    judge_runner_up: null

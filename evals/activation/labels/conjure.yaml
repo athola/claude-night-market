@@ -1,0 +1,585 @@
+schema_version: 1
+cases:
+- id: conjure.agent-teams.p1
+  type: positive
+  prompt: I have a big refactor spanning the api, db, and frontend modules. Set up
+    a team of separate claude processes in tmux panes, one per subsystem, with tasks
+    that block each other.
+  target: conjure:agent-teams
+  competitor: null
+  cluster: conjure:agent-teams
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:plugin-health; judge: conjure:agent-teams/None'
+  proposals:
+    router: leyline:plugin-health
+    judge: conjure:agent-teams
+    judge_runner_up: null
+- id: conjure.agent-teams.p2
+  type: positive
+  prompt: How do I spawn teammates with --agent-name and --team-name flags and have
+    them share a task list through the files in ~/.claude/teams? I want one reviewing
+    while another fixes.
+  target: conjure:agent-teams
+  competitor: null
+  cluster: conjure:agent-teams
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:agent-teams
+    judge: conjure:agent-teams
+- id: conjure.agent-teams.p3
+  type: near_miss
+  prompt: I want several claude processes in tmux panes working on a big refactor
+    at once, each owning a different subsystem and passing messages through the shared
+    team inbox and task files under ~/.claude. How do I set up the team and have them
+    coordinate without stepping on each other?
+  target: conjure:agent-teams
+  competitor: phantom:control-desktop
+  cluster: conjure:agent-teams
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:rules-eval; router: phantom:control-desktop; judge: conjure:agent-teams/None'
+  proposals:
+    aimed_at: abstract:rules-eval
+    router: phantom:control-desktop
+    judge: conjure:agent-teams
+    judge_runner_up: null
+- id: conjure.codex-delegation.p1
+  type: positive
+  prompt: Run `codex exec` on this repo to get a second opinion on our retry logic
+    from an OpenAI model. Check it's logged in first.
+  target: conjure:codex-delegation
+  competitor: null
+  cluster: conjure:codex-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:codex-delegation
+    judge: conjure:codex-delegation
+- id: conjure.codex-delegation.p2
+  type: positive
+  prompt: codex login keeps failing on my headless SSH box so my unattended script
+    can't run. How do I get codex exec working there with an API key?
+  target: conjure:codex-delegation
+  competitor: null
+  cluster: conjure:codex-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:codex-delegation
+    judge: conjure:codex-delegation
+- id: conjure.codex-delegation.p3
+  type: near_miss
+  prompt: Hand this module explanation off to codex exec for a second opinion. I'm
+    on a headless CI box and only have an API key, so how should I authenticate and
+    confirm it's logged in before running the job?
+  target: conjure:codex-delegation
+  competitor: conjure:provider-sweep
+  cluster: conjure:codex-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at egregore:gate-audit; router: conjure:codex-delegation; judge: conjure:codex-delegation/conjure:provider-sweep'
+  proposals:
+    aimed_at: egregore:gate-audit
+    router: conjure:codex-delegation
+    judge: conjure:codex-delegation
+    judge_runner_up: conjure:provider-sweep
+- id: conjure.delegation-core.p1
+  type: positive
+  prompt: Which of these tasks should I hand off to an external LLM and which should
+    I keep local? I've got a bulk docstring summarization job and an architecture
+    trade-off decision.
+  target: conjure:delegation-core
+  competitor: null
+  cluster: conjure:delegation-core
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: conjure:delegation-core/conjure:provider-setup'
+  proposals:
+    router: parseltongue:python-async
+    judge: conjure:delegation-core
+    judge_runner_up: conjure:provider-setup
+- id: conjure.delegation-core.p2
+  type: positive
+  prompt: Delegation seems to be silently doing nothing and I got a providers_exhausted
+    result. How do I turn delegation off for one run, and what should happen when
+    no provider answers?
+  target: conjure:delegation-core
+  competitor: null
+  cluster: conjure:delegation-core
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: conjure:delegation-core'
+  proposals:
+    router: conjure:provider-sweep
+    judge: conjure:delegation-core
+- id: conjure.delegation-core.p3
+  type: near_miss
+  prompt: I've got a pile of mechanical boilerplate generation and file renames. Should
+    this go to an external model or stay with you? Also, how do I turn delegation
+    off for this repo entirely so it stops happening by default?
+  target: conjure:delegation-core
+  competitor: conjure:provider-sweep
+  cluster: conjure:delegation-core
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:opencode-delegation; router: parseltongue:python-async;
+    judge: conjure:delegation-core/conjure:provider-sweep'
+  proposals:
+    aimed_at: conjure:opencode-delegation
+    router: parseltongue:python-async
+    judge: conjure:delegation-core
+    judge_runner_up: conjure:provider-sweep
+- id: conjure.gemini-delegation.p1
+  type: positive
+  prompt: Use gemini CLI to summarize all the Python files under src/ in one go since
+    it has the big context window, and save the output to a timestamped file.
+  target: conjure:gemini-delegation
+  competitor: null
+  cluster: conjure:gemini-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:gemini-delegation
+    judge: conjure:gemini-delegation
+- id: conjure.gemini-delegation.p2
+  type: positive
+  prompt: gemini auth status says fine but my delegated prompt fails with a ProjectIdRequiredError.
+    How should I verify gemini is actually authenticated before sending work to it?
+  target: conjure:gemini-delegation
+  competitor: null
+  cluster: conjure:gemini-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:gemini-delegation
+    judge: conjure:gemini-delegation
+- id: conjure.gemini-delegation.p3
+  type: near_miss
+  prompt: Have gemini summarize every Python file under src/ using its huge context
+    window, with JSON output, and save the result to a timestamped file under delegations/.
+    The gemini CLI is already installed and logged in.
+  target: conjure:gemini-delegation
+  competitor: conjure:provider-setup
+  cluster: conjure:gemini-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at hookify:rule-sweep; router: conjure:gemini-delegation; judge: conjure:gemini-delegation/conjure:provider-setup'
+  proposals:
+    aimed_at: hookify:rule-sweep
+    router: conjure:gemini-delegation
+    judge: conjure:gemini-delegation
+    judge_runner_up: conjure:provider-setup
+- id: conjure.glimmer-delegation.p1
+  type: positive
+  prompt: I want to run a code summary entirely on my own machine so nothing gets
+    sent to any API. How do I hand the src/ folder off to the local 30B model through
+    ollama using our delegation script?
+  target: conjure:glimmer-delegation
+  competitor: null
+  cluster: conjure:glimmer-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:glimmer-delegation
+    judge: conjure:glimmer-delegation
+- id: conjure.glimmer-delegation.p2
+  type: positive
+  prompt: ollama --version works on my laptop but the delegation to the local Meta
+    model keeps failing on the first call. What am I probably missing?
+  target: conjure:glimmer-delegation
+  competitor: null
+  cluster: conjure:glimmer-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:glimmer-delegation
+    judge: conjure:glimmer-delegation
+- id: conjure.glimmer-delegation.p3
+  type: near_miss
+  prompt: These prompts contain customer data that can't leave my laptop, so run the
+    summarization through the local ollama model. `ollama --version` works, but I'm
+    not sure the muse-glimmer model was ever pulled. How do I set it up and send the
+    job?
+  target: conjure:glimmer-delegation
+  competitor: conjure:delegation-core
+  cluster: conjure:glimmer-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:provider-sweep; router: conjure:glimmer-delegation; judge:
+    conjure:glimmer-delegation/conjure:delegation-core'
+  proposals:
+    aimed_at: conjure:provider-sweep
+    router: conjure:glimmer-delegation
+    judge: conjure:glimmer-delegation
+    judge_runner_up: conjure:delegation-core
+- id: conjure.glm-delegation.p1
+  type: positive
+  prompt: I have a Z.ai coding plan key. How do I send a design review to GLM through
+    the claude binary, and which env var does the key go in? I keep getting a 401.
+  target: conjure:glm-delegation
+  competitor: null
+  cluster: conjure:glm-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:glm-delegation
+    judge: conjure:glm-delegation
+- id: conjure.glm-delegation.p2
+  type: positive
+  prompt: I need the 1M token window on GLM for a huge repo analysis. What model name
+    and settings do I use when calling it via the delegation executor or directly?
+  target: conjure:glm-delegation
+  competitor: null
+  cluster: conjure:glm-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:glm-delegation
+    judge: conjure:glm-delegation
+- id: conjure.glm-delegation.p3
+  type: near_miss
+  prompt: I'm pointing the stock claude binary at Z.ai's endpoint so a subagent can
+    use my Coding Plan, but every call comes back 401. My key is exported as ZAI_API_KEY.
+    What env vars does the child process need so it authenticates?
+  target: conjure:glm-delegation
+  competitor: conjure:provider-sweep
+  cluster: conjure:glm-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-async; router: conjure:glm-delegation; judge:
+    conjure:glm-delegation/conjure:provider-sweep'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: conjure:glm-delegation
+    judge: conjure:glm-delegation
+    judge_runner_up: conjure:provider-sweep
+- id: conjure.minimax-delegation.p1
+  type: positive
+  prompt: Need to install the MiniMax CLI and make sure it's logged in before delegating
+    a multi-file summarization. What package do I install and how do I check auth
+    status?
+  target: conjure:minimax-delegation
+  competitor: null
+  cluster: conjure:minimax-delegation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:dependency-verification; judge: conjure:minimax-delegation'
+  proposals:
+    router: imbue:dependency-verification
+    judge: conjure:minimax-delegation
+- id: conjure.minimax-delegation.p2
+  type: positive
+  prompt: My MiniMax API key was issued for the mainland China region and delegation
+    isn't working. How do I set the region, and how does the executor pass file contents
+    to mmx?
+  target: conjure:minimax-delegation
+  competitor: null
+  cluster: conjure:minimax-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:minimax-delegation
+    judge: conjure:minimax-delegation
+- id: conjure.minimax-delegation.p3
+  type: near_miss
+  prompt: I npm-installed the MiniMax CLI on a CI box and want to hand it a big multi-file
+    summarization job. How do I log in non-interactively and confirm it's ready before
+    I send the work?
+  target: conjure:minimax-delegation
+  competitor: conserve:filter-log
+  cluster: conjure:minimax-delegation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at egregore:install-watchdog; router: conserve:filter-log; judge:
+    conjure:minimax-delegation/None'
+  proposals:
+    aimed_at: egregore:install-watchdog
+    router: conserve:filter-log
+    judge: conjure:minimax-delegation
+    judge_runner_up: null
+- id: conjure.muse-delegation.p1
+  type: positive
+  prompt: I want to run Meta's terminal coding agent headless in CI to read a big
+    repo and report test failures. What command and which env var do I need for unattended
+    auth?
+  target: conjure:muse-delegation
+  competitor: null
+  cluster: conjure:muse-delegation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: conjure:muse-delegation/None'
+  proposals:
+    router: parseltongue:python-async
+    judge: conjure:muse-delegation
+    judge_runner_up: null
+- id: conjure.muse-delegation.p2
+  type: positive
+  prompt: Delegating to muse with the executor, how is the prompt passed and which
+    model does it pin by default? Also does it support JSON output?
+  target: conjure:muse-delegation
+  competitor: null
+  cluster: conjure:muse-delegation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: phantom:surface-check; judge: conjure:muse-delegation/conjure:glimmer-delegation'
+  proposals:
+    router: phantom:surface-check
+    judge: conjure:muse-delegation
+    judge_runner_up: conjure:glimmer-delegation
+- id: conjure.muse-delegation.p3
+  type: near_miss
+  prompt: I want to run Meta's terminal coding agent headless in CI to run our test
+    suite and summarize failures. How do I install it and authenticate without a browser
+    sign-in?
+  target: conjure:muse-delegation
+  competitor: conserve:agent-expenditure
+  cluster: conjure:muse-delegation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at oracle:quality-bench; router: scry:capture-set; judge: conjure:muse-delegation/conserve:agent-expenditure'
+  proposals:
+    aimed_at: oracle:quality-bench
+    router: scry:capture-set
+    judge: conjure:muse-delegation
+    judge_runner_up: conserve:agent-expenditure
+- id: conjure.opencode-delegation.p1
+  type: positive
+  prompt: I'd like to delegate a bug hunt to OpenCode since it's already configured
+    with my self-hosted model. How do I invoke it non-interactively with the src folder
+    as context?
+  target: conjure:opencode-delegation
+  competitor: null
+  cluster: conjure:opencode-delegation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:codex-delegation; judge: conjure:opencode-delegation'
+  proposals:
+    router: conjure:codex-delegation
+    judge: conjure:opencode-delegation
+- id: conjure.opencode-delegation.p2
+  type: positive
+  prompt: How does the delegation setup check whether OpenCode has credentials, and
+    can I force a specific model from the delegation call?
+  target: conjure:opencode-delegation
+  competitor: null
+  cluster: conjure:opencode-delegation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: conjure:opencode-delegation'
+  proposals:
+    router: conjure:provider-sweep
+    judge: conjure:opencode-delegation
+- id: conjure.opencode-delegation.p3
+  type: near_miss
+  prompt: I want to hand a refactor of our pure business-logic module to the opencode
+    CLI and have it use the self-hosted model I already configured. How do I make
+    the call, and can I pin the model from my side?
+  target: conjure:opencode-delegation
+  competitor: conjure:provider-sweep
+  cluster: conjure:opencode-delegation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: archetypes:architecture-paradigm-functional-core;
+    judge: conjure:opencode-delegation/conjure:provider-sweep'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: archetypes:architecture-paradigm-functional-core
+    judge: conjure:opencode-delegation
+    judge_runner_up: conjure:provider-sweep
+- id: conjure.provider-setup.p1
+  type: positive
+  prompt: I'm on a fresh machine. Which delegation providers are actually ready to
+    take work right now, and how do I install the missing ones?
+  target: conjure:provider-setup
+  competitor: null
+  cluster: conjure:provider-setup
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:provider-setup
+    judge: conjure:provider-setup
+- id: conjure.provider-setup.p2
+  type: positive
+  prompt: A delegation errored and I can't tell if the binary, the credential or the
+    model is the problem. Is there a doctor command, and does it cache results between
+    runs?
+  target: conjure:provider-setup
+  competitor: null
+  cluster: conjure:provider-setup
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: conjure:provider-setup/conjure:provider-sweep'
+  proposals:
+    router: conjure:provider-sweep
+    judge: conjure:provider-setup
+    judge_runner_up: conjure:provider-sweep
+- id: conjure.provider-setup.p3
+  type: near_miss
+  prompt: New laptop. Which of our external LLM CLIs are actually installed and logged
+    in here? Install whatever's missing and keep the answer so I don't re-probe every
+    time.
+  target: conjure:provider-setup
+  competitor: hookify:install
+  cluster: conjure:provider-setup
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'aimed at cartograph:atlas; router: conjure:provider-setup; judge: None/None'
+  proposals:
+    aimed_at: cartograph:atlas
+    router: conjure:provider-setup
+    judge: null
+    judge_runner_up: null
+- id: conjure.provider-sweep.p1
+  type: positive
+  prompt: Run a check across all the delegation providers in parallel and tell me
+    for each one why it's not callable, without installing or changing anything.
+  target: conjure:provider-sweep
+  competitor: null
+  cluster: conjure:provider-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:provider-sweep
+    judge: conjure:provider-sweep
+- id: conjure.provider-sweep.p2
+  type: positive
+  prompt: I only want to probe gemini and glm to see if they're usable right now.
+    How do I limit the parallel readiness sweep to just those?
+  target: conjure:provider-sweep
+  competitor: null
+  cluster: conjure:provider-sweep
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:delegation-core; judge: conjure:provider-sweep/None'
+  proposals:
+    router: conjure:delegation-core
+    judge: conjure:provider-sweep
+    judge_runner_up: null
+- id: conjure.provider-sweep.p3
+  type: near_miss
+  prompt: Check every delegation backend at once and tell me, for each one, whether
+    the problem is a missing binary, a bad credential, or a model that isn't pulled.
+    I want the whole picture before I fix anything.
+  target: conjure:provider-sweep
+  competitor: egregore:gate-audit
+  cluster: conjure:provider-sweep
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: conjure:provider-sweep;
+    judge: None/None'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: conjure:provider-sweep
+    judge: null
+    judge_runner_up: null
+- id: conjure.qwen-delegation.p1
+  type: positive
+  prompt: Qwen delegation keeps skipping qwen even though I ran it once. Where are
+    its credentials stored and how does the delegator know they've expired?
+  target: conjure:qwen-delegation
+  competitor: null
+  cluster: conjure:qwen-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:qwen-delegation
+    judge: conjure:qwen-delegation
+- id: conjure.qwen-delegation.p2
+  type: positive
+  prompt: How do I authenticate the Qwen CLI and send it a batch of Python files to
+    analyze through the shared executor with JSON output?
+  target: conjure:qwen-delegation
+  competitor: null
+  cluster: conjure:qwen-delegation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conjure:qwen-delegation
+    judge: conjure:qwen-delegation
+- id: conjure.qwen-delegation.p3
+  type: near_miss
+  prompt: We already decided to send this to Qwen. I ran `qwen auth status` to check
+    my login and got a strange API error back. How do I check that I'm logged in,
+    and what command do I use to summarize a large directory with it?
+  target: conjure:qwen-delegation
+  competitor: parseltongue:python-async
+  cluster: conjure:qwen-delegation
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at conjure:delegation-core; router: parseltongue:python-async; judge:
+    None/None'
+  proposals:
+    aimed_at: conjure:delegation-core
+    router: parseltongue:python-async
+    judge: null
+    judge_runner_up: null

@@ -1,0 +1,1121 @@
+schema_version: 1
+cases:
+- id: attune.arch-init.p1
+  type: positive
+  prompt: Spin up a new Python project called ledger-api and walk me through choosing
+    an architecture first, researching current best practices, then scaffolding the
+    layout for whichever one we pick and writing an ADR.
+  target: attune:arch-init
+  competitor: null
+  cluster: attune:arch-init
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:upgrade-project; judge: attune:arch-init/archetypes:architecture-paradigms'
+  proposals:
+    router: attune:upgrade-project
+    judge: attune:arch-init
+    judge_runner_up: archetypes:architecture-paradigms
+- id: attune.arch-init.p2
+  type: positive
+  prompt: I want to bootstrap a project with hexagonal architecture in Python, using
+    the recommended template and automatically accepting the suggested paradigm without
+    prompts. What command do I run?
+  target: attune:arch-init
+  competitor: null
+  cluster: attune:arch-init
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: attune:arch-init'
+  proposals:
+    router: parseltongue:python-async
+    judge: attune:arch-init
+- id: attune.arch-init.p3
+  type: near_miss
+  prompt: /attune:arch-init --name orders-api --lang python  -- start a new repo and
+    recommend an architecture for me, then scaffold the templates for whatever it
+    picks
+  target: attune:arch-init
+  competitor: attune:skill-library
+  cluster: attune:arch-init
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'aimed at archetypes:paradigm-panel; router: attune:arch-init; judge: None/None'
+  proposals:
+    aimed_at: archetypes:paradigm-panel
+    router: attune:arch-init
+    judge: null
+    judge_runner_up: null
+- id: attune.architecture-aware-init.p1
+  type: positive
+  prompt: Starting a greenfield service and I'm unsure what architecture suits it.
+    I want online research on current standards, a justified paradigm choice from
+    a team-size and complexity matrix, customized directory scaffolding, and a decision
+    record.
+  target: attune:architecture-aware-init
+  competitor: null
+  cluster: attune:architecture-aware-init
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:architecture-aware-init
+    judge: attune:architecture-aware-init
+- id: attune.architecture-aware-init.p2
+  type: positive
+  prompt: Before I write the project spec, help me settle the architecture foundation
+    for a new data-heavy app. Gather context, pick a paradigm with justification,
+    and generate the project structure that matches it.
+  target: attune:architecture-aware-init
+  competitor: null
+  cluster: attune:architecture-aware-init
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:architecture-aware-init
+    judge: attune:architecture-aware-init
+- id: attune.architecture-aware-init.p3
+  type: near_miss
+  prompt: starting a greenfield project and I don't know which architecture suits
+    it. research current best practice, pick a paradigm with justification, customize
+    the project templates to match, and record the decision as an ADR.
+  target: attune:architecture-aware-init
+  competitor: attune:upgrade-project
+  cluster: attune:architecture-aware-init
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigms; router: attune:upgrade-project;
+    judge: None/None'
+  proposals:
+    aimed_at: archetypes:architecture-paradigms
+    router: attune:upgrade-project
+    judge: null
+    judge_runner_up: null
+- id: attune.blueprint.p1
+  type: positive
+  prompt: I have a finished specification in docs/specification.md. Turn it into an
+    implementation plan with component design, interfaces, data flow, and dependency-ordered
+    tasks with estimates.
+  target: attune:blueprint
+  competitor: null
+  cluster: attune:blueprint
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:blueprint
+    judge: attune:blueprint
+- id: attune.blueprint.p2
+  type: positive
+  prompt: 'Take our requirements doc and produce a roadmap for just the authentication
+    component: architecture, task breakdown, and testing and deployment tasks, saved
+    to the implementation plan file.'
+  target: attune:blueprint
+  competitor: null
+  cluster: attune:blueprint
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:blueprint
+    judge: attune:blueprint
+- id: attune.blueprint.p3
+  type: near_miss
+  prompt: 'I''ve got docs/specification.md finished. Turn it into an implementation
+    plan: component design, interfaces, data flow, and a dependency-ordered task list
+    with estimates for the authentication piece.'
+  target: attune:blueprint
+  competitor: attune:project-planning
+  cluster: attune:blueprint
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'aimed at attune:project-planning; router: attune:blueprint; judge: None/None'
+  proposals:
+    aimed_at: attune:project-planning
+    router: attune:blueprint
+    judge: null
+    judge_runner_up: null
+- id: attune.brainstorm.p1
+  type: positive
+  prompt: I have a vague idea for an app that helps freelancers track invoices but
+    no clear requirements yet. Help me explore the problem, compare a few technical
+    approaches, and end up with a project brief.
+  target: attune:brainstorm
+  competitor: null
+  cluster: attune:brainstorm
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:project-brainstorming; judge: attune:brainstorm/attune:project-brainstorming'
+  proposals:
+    router: attune:project-brainstorming
+    judge: attune:brainstorm
+    judge_runner_up: attune:project-brainstorming
+- id: attune.brainstorm.p2
+  type: positive
+  prompt: Before we commit any resources, I want to validate whether this internal
+    tooling idea is feasible. Walk me through problem definition, constraints, and
+    candidate approaches, and document the rationale for stakeholders.
+  target: attune:brainstorm
+  competitor: null
+  cluster: attune:brainstorm
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:brainstorm
+    judge: attune:brainstorm
+- id: attune.brainstorm.p3
+  type: near_miss
+  prompt: I have a fuzzy idea for a internal tool to track vendor contracts but no
+    real requirements yet. Help me explore the problem, compare a few technical approaches,
+    and end up with a project brief I can hand to stakeholders.
+  target: attune:brainstorm
+  competitor: attune:project-brainstorming
+  cluster: attune:brainstorm
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at attune:precommit-setup; router: attune:project-brainstorming; judge:
+    None/None'
+  proposals:
+    aimed_at: attune:precommit-setup
+    router: attune:project-brainstorming
+    judge: null
+    judge_runner_up: null
+- id: attune.dorodango.p1
+  type: positive
+  prompt: my new parser module works and all tests pass, but it's rough. can you run
+    it through a few cleanup rounds (readability, naming consistency, docs and error
+    messages) before I open the PR? track progress so I can pick it up tomorrow if
+    we don't finish
+  target: attune:dorodango
+  competitor: null
+  cluster: attune:dorodango
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:gate-audit; judge: attune:dorodango/None'
+  proposals:
+    router: egregore:gate-audit
+    judge: attune:dorodango
+    judge_runner_up: null
+- id: attune.dorodango.p2
+  type: positive
+  prompt: We were polishing plugins/foo yesterday in multiple passes and stopped partway.
+    Pick up where we left off, skip whatever already looked clean, and keep going
+    until nothing is left to fix.
+  target: attune:dorodango
+  competitor: null
+  cluster: attune:dorodango
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:uninstall-watchdog; judge: attune:dorodango'
+  proposals:
+    router: egregore:uninstall-watchdog
+    judge: attune:dorodango
+- id: attune.dorodango.p3
+  type: near_miss
+  prompt: 'feature is done and tests pass, but before I open the PR I want to polish
+    it in successive passes: correctness first, then readability, naming/style consistency,
+    then docs and error messages, and only stop when each pass actually converges.'
+  target: attune:dorodango
+  competitor: pensive:code-refinement
+  cluster: attune:dorodango
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: attune:dorodango; judge: None/None'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: attune:dorodango
+    judge: null
+    judge_runner_up: null
+- id: attune.execute.p1
+  type: positive
+  prompt: I've got docs/implementation-plan.md ready. Start working through the tasks
+    in dependency order, check each against its acceptance criteria, and tell me what's
+    blocking at the end.
+  target: attune:execute
+  competitor: null
+  cluster: attune:execute
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-implement; judge: attune:execute/spec-kit:speckit-implement'
+  proposals:
+    router: spec-kit:speckit-implement
+    judge: attune:execute
+    judge_runner_up: spec-kit:speckit-implement
+- id: attune.execute.p2
+  type: positive
+  prompt: Our implementation run got interrupted halfway through Phase 1. Resume from
+    the last checkpoint and just do task T003 next, then report how many tasks are
+    done versus total.
+  target: attune:execute
+  competitor: null
+  cluster: attune:execute
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: spec-kit:task-planning; judge: spec-kit:speckit-implement'
+  proposals:
+    router: spec-kit:task-planning
+    judge: spec-kit:speckit-implement
+- id: attune.execute.p3
+  type: near_miss
+  prompt: I have the task plan with T001 through T014 written up. Got interrupted
+    at T006, so pick up from the last checkpoint and run only task T007 next, then
+    tell me what's blocking the rest.
+  target: attune:execute
+  competitor: spec-kit:speckit-orchestrator
+  cluster: attune:execute
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:project-execution; router: phantom:control-desktop; judge:
+    attune:execute/spec-kit:speckit-orchestrator'
+  proposals:
+    aimed_at: attune:project-execution
+    router: phantom:control-desktop
+    judge: attune:execute
+    judge_runner_up: spec-kit:speckit-orchestrator
+- id: attune.makefile-generation.p1
+  type: positive
+  prompt: This Rust repo has no Makefile. Can you create one with the usual fmt, clippy,
+    test, and release build targets plus a help target?
+  target: attune:makefile-generation
+  competitor: null
+  cluster: attune:makefile-generation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:makefile-generation
+    judge: attune:makefile-generation
+- id: attune.makefile-generation.p2
+  type: positive
+  prompt: Set up a Makefile for my Python project that uses uv, with targets for lint,
+    format, mypy, pytest with coverage, clean, and publishing to PyPI.
+  target: attune:makefile-generation
+  competitor: null
+  cluster: attune:makefile-generation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-packaging; judge: attune:makefile-generation'
+  proposals:
+    router: parseltongue:python-packaging
+    judge: attune:makefile-generation
+- id: attune.makefile-generation.p3
+  type: near_miss
+  prompt: Our uv-based Python service has no Makefile. Generate one with install,
+    lint, typecheck, test-coverage, clean and publish targets so everyone on the team
+    runs the same commands.
+  target: attune:makefile-generation
+  competitor: parseltongue:python-sweep
+  cluster: attune:makefile-generation
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-packaging; router: parseltongue:python-sweep;
+    judge: None/None'
+  proposals:
+    aimed_at: parseltongue:python-packaging
+    router: parseltongue:python-sweep
+    judge: null
+    judge_runner_up: null
+- id: attune.mission-orchestrator.p1
+  type: positive
+  prompt: I already have docs/specification.md written. Chain planning and implementation
+    together automatically from there, and detect what stage the project is at without
+    me telling you.
+  target: attune:mission-orchestrator
+  competitor: null
+  cluster: attune:mission-orchestrator
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:project-planning; judge: attune:mission-orchestrator/None'
+  proposals:
+    router: attune:project-planning
+    judge: attune:mission-orchestrator
+    judge_runner_up: null
+- id: attune.mission-orchestrator.p2
+  type: positive
+  prompt: Project brief is done. Run the rest of the lifecycle end to end, create
+    backlog issues for out-of-scope stuff that comes up in the spec phase, and recover
+    cleanly if a phase errors out.
+  target: attune:mission-orchestrator
+  competitor: null
+  cluster: attune:mission-orchestrator
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:mission-orchestrator
+    judge: attune:mission-orchestrator
+- id: attune.mission-orchestrator.p3
+  type: near_miss
+  prompt: I stopped partway through a project last week. There's a project brief and
+    a spec in the repo but no plan yet. Figure out where I am and carry me through
+    the remaining phases, pausing for my sign-off between each.
+  target: attune:mission-orchestrator
+  competitor: attune:skill-library
+  cluster: attune:mission-orchestrator
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: attune:skill-library; judge: attune:mission-orchestrator/None'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: attune:skill-library
+    judge: attune:mission-orchestrator
+    judge_runner_up: null
+- id: attune.mission.p1
+  type: positive
+  prompt: I'm starting a brand new project from nothing. Take me through the whole
+    thing from brainstorming to specs to a plan to implementation, and let me resume
+    if I get interrupted.
+  target: attune:mission
+  competitor: null
+  cluster: attune:mission
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-plan; judge: attune:mission/attune:mission-orchestrator'
+  proposals:
+    router: spec-kit:speckit-plan
+    judge: attune:mission
+    judge_runner_up: attune:mission-orchestrator
+- id: attune.mission.p2
+  type: positive
+  prompt: Audit our existing billing service and write up a findings and recommendations
+    report. I don't want any code changes, just a dated report in reports/.
+  target: attune:mission
+  competitor: null
+  cluster: attune:mission
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:harden; judge: attune:mission/pensive:harden'
+  proposals:
+    router: pensive:harden
+    judge: attune:mission
+    judge_runner_up: pensive:harden
+- id: attune.mission.p3
+  type: near_miss
+  prompt: Run an audit of our existing billing service as a structured review that
+    ends in a findings report. If my laptop dies halfway I want to resume the same
+    run later without losing state.
+  target: attune:mission
+  competitor: egregore:gate-audit
+  cluster: attune:mission
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at abstract:create-skill; router: egregore:gate-audit; judge: None/None'
+  proposals:
+    aimed_at: abstract:create-skill
+    router: egregore:gate-audit
+    judge: null
+    judge_runner_up: null
+- id: attune.precommit-setup.p1
+  type: positive
+  prompt: Add pre-commit hooks to my monorepo so only the components touched by staged
+    files get linted, type-checked and tested, and have CI run the same checks.
+  target: attune:precommit-setup
+  competitor: null
+  cluster: attune:precommit-setup
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:update-ci; judge: attune:precommit-setup'
+  proposals:
+    router: sanctum:update-ci
+    judge: attune:precommit-setup
+- id: attune.precommit-setup.p2
+  type: positive
+  prompt: 'Our commit hooks are slow and I want a layered setup: fast global lint
+    on every commit, then per-package checks, plus custom checks for our project conventions.
+    Python with strict mypy.'
+  target: attune:precommit-setup
+  competitor: null
+  cluster: attune:precommit-setup
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:project-init; judge: attune:precommit-setup'
+  proposals:
+    router: attune:project-init
+    judge: attune:precommit-setup
+- id: attune.precommit-setup.p3
+  type: near_miss
+  prompt: Our monorepo already has CI and a Makefile. I want commit-time hooks that
+    lint, typecheck and test only the packages touched by staged files, with fast
+    generic checks first. Also bump the stale hook versions.
+  target: attune:precommit-setup
+  competitor: sanctum:update-ci
+  cluster: attune:precommit-setup
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:project-init; router: abstract:create-hook; judge: attune:precommit-setup/sanctum:update-ci'
+  proposals:
+    aimed_at: attune:project-init
+    router: abstract:create-hook
+    judge: attune:precommit-setup
+    judge_runner_up: sanctum:update-ci
+- id: attune.project-brainstorming.p1
+  type: positive
+  prompt: I have a vague idea for an internal tool but no clear requirements. Help
+    me figure out the actual problem, constraints, and compare a few approaches before
+    we write any spec.
+  target: attune:project-brainstorming
+  competitor: null
+  cluster: attune:project-brainstorming
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:spec-writing; judge: attune:project-brainstorming/None'
+  proposals:
+    router: spec-kit:spec-writing
+    judge: attune:project-brainstorming
+    judge_runner_up: null
+- id: attune.project-brainstorming.p2
+  type: positive
+  prompt: Before we commit to building this, I want to validate feasibility and scope,
+    work out who the readers of the docs are, and record why we picked one approach
+    over the others for stakeholders.
+  target: attune:project-brainstorming
+  competitor: null
+  cluster: attune:project-brainstorming
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: cartograph:atlas; judge: attune:project-brainstorming/archetypes:paradigm-panel'
+  proposals:
+    router: cartograph:atlas
+    judge: attune:project-brainstorming
+    judge_runner_up: archetypes:paradigm-panel
+- id: attune.project-brainstorming.p3
+  type: near_miss
+  prompt: I have a vague idea for an internal tool to cut down on support ticket triage
+    but no requirements yet. Help me pin down the real problem, compare a few possible
+    approaches, and judge whether it's feasible before anyone writes a spec.
+  target: attune:project-brainstorming
+  competitor: egregore:gate-audit
+  cluster: attune:project-brainstorming
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:paradigm-panel; router: egregore:gate-audit; judge:
+    attune:project-brainstorming/None'
+  proposals:
+    aimed_at: archetypes:paradigm-panel
+    router: egregore:gate-audit
+    judge: attune:project-brainstorming
+    judge_runner_up: null
+- id: attune.project-execution.p1
+  type: positive
+  prompt: Planning is finished. Implement the task list in order with TDD, mark each
+    task done right after finishing it, and don't ramp up to harder tasks until I
+    understand the last increment.
+  target: attune:project-execution
+  competitor: null
+  cluster: attune:project-execution
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: spec-kit:task-planning; judge: imbue:graduated-implementation'
+  proposals:
+    router: spec-kit:task-planning
+    judge: imbue:graduated-implementation
+- id: attune.project-execution.p2
+  type: positive
+  prompt: Walk through my implementation plan's tasks with dependencies, checkpoint
+    after each one, and keep a running view of progress and velocity while you build.
+  target: attune:project-execution
+  competitor: null
+  cluster: attune:project-execution
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: attune:execute; judge: attune:execute'
+  proposals:
+    router: attune:execute
+    judge: attune:execute
+- id: attune.project-execution.p3
+  type: near_miss
+  prompt: Planning is finished and the task list with dependencies is ready. Start
+    implementing in dependency order, verify each task against its acceptance criteria
+    before moving on, and keep a running view of velocity and blockers.
+  target: attune:project-execution
+  competitor: spec-kit:task-planning
+  cluster: attune:project-execution
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:execute; router: spec-kit:task-planning; judge: attune:project-execution/None'
+  proposals:
+    aimed_at: attune:execute
+    router: spec-kit:task-planning
+    judge: attune:project-execution
+    judge_runner_up: null
+- id: attune.project-init.p1
+  type: positive
+  prompt: I've got an empty directory and want to start a new Python service. Can
+    you set up git, a Makefile, pre-commit hooks, GitHub Actions for tests and lint,
+    and a src/tests layout?
+  target: attune:project-init
+  competitor: null
+  cluster: attune:project-init
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:precommit-setup; judge: attune:project-init'
+  proposals:
+    router: attune:precommit-setup
+    judge: attune:project-init
+- id: attune.project-init.p2
+  type: positive
+  prompt: 'Bootstrap a fresh Rust repo for me with the standard dev tooling: gitignore,
+    Cargo.toml, CI workflows, and a README. Author is Jane Doe, project name is fastq-tools.'
+  target: attune:project-init
+  competitor: null
+  cluster: attune:project-init
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:project-init
+    judge: attune:project-init
+- id: attune.project-init.p3
+  type: near_miss
+  prompt: Brand new empty repo for a Rust CLI. Set up git, gitignore, a Makefile,
+    GitHub workflows for test and lint, a pre-commit config, and the starting directory
+    layout.
+  target: attune:project-init
+  competitor: attune:precommit-setup
+  cluster: attune:project-init
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:precommit-setup; router: attune:project-init; judge: attune:project-init/attune:precommit-setup'
+  proposals:
+    aimed_at: attune:precommit-setup
+    router: attune:project-init
+    judge: attune:project-init
+    judge_runner_up: attune:precommit-setup
+- id: attune.project-planning.p1
+  type: positive
+  prompt: I've finished the spec for our billing rewrite in docs/specification.md.
+    Turn it into an implementation plan with a task breakdown, dependencies, effort
+    estimates, and sprint allocation.
+  target: attune:project-planning
+  competitor: null
+  cluster: attune:project-planning
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: attune:blueprint; judge: attune:blueprint'
+  proposals:
+    router: attune:blueprint
+    judge: attune:blueprint
+- id: attune.project-planning.p2
+  type: positive
+  prompt: Design the component architecture for this project from the requirements
+    we agreed on, then break it into tasks with acceptance criteria and identify the
+    critical path and risks.
+  target: attune:project-planning
+  competitor: null
+  cluster: attune:project-planning
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:specify; judge: attune:project-planning/spec-kit:speckit-tasks'
+  proposals:
+    router: attune:specify
+    judge: attune:project-planning
+    judge_runner_up: spec-kit:speckit-tasks
+- id: attune.project-planning.p3
+  type: near_miss
+  prompt: The spec for our billing export feature is signed off. Break it into dependency-ordered
+    tasks with effort estimates, mark the critical path, and make sure every functional
+    requirement maps to at least one task.
+  target: attune:project-planning
+  competitor: spec-kit:speckit-tasks
+  cluster: attune:project-planning
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at attune:blueprint; router: spec-kit:task-planning; judge: spec-kit:task-planning/spec-kit:speckit-tasks'
+  proposals:
+    aimed_at: attune:blueprint
+    router: spec-kit:task-planning
+    judge: spec-kit:task-planning
+    judge_runner_up: spec-kit:speckit-tasks
+- id: attune.project-specification.p1
+  type: positive
+  prompt: We have the project brief from brainstorming. Write up detailed functional
+    and non-functional requirements with testable acceptance criteria and clear out-of-scope
+    items.
+  target: attune:project-specification
+  competitor: null
+  cluster: attune:project-specification
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: attune:specify; judge: attune:specify'
+  proposals:
+    router: attune:specify
+    judge: attune:specify
+- id: attune.project-specification.p2
+  type: positive
+  prompt: Take our brief and produce docs/specification.md, and make sure whoever
+    the docs are for is captured as a requirement. Also log the data model choice
+    we settled on as a tradeoff.
+  target: attune:project-specification
+  competitor: null
+  cluster: attune:project-specification
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:project-brainstorming; judge: attune:project-specification/spec-kit:spec-review'
+  proposals:
+    router: attune:project-brainstorming
+    judge: attune:project-specification
+    judge_runner_up: spec-kit:spec-review
+- id: attune.project-specification.p3
+  type: near_miss
+  prompt: I have the project brief from last week's brainstorm. Turn it into testable
+    acceptance criteria, list what's explicitly out of scope, and ask me who the docs
+    audience is rather than assuming.
+  target: attune:project-specification
+  competitor: attune:specify
+  cluster: attune:project-specification
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: attune:specify; judge: attune:project-specification/attune:specify'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: attune:specify
+    judge: attune:project-specification
+    judge_runner_up: attune:specify
+- id: attune.skill-library-mission.p1
+  type: positive
+  prompt: Our lead engineer is leaving and the repo is full of tribal knowledge. I
+    want to capture it all as a .claude/skills library so newer people and cheaper
+    model sessions can keep going. Where do I start?
+  target: attune:skill-library-mission
+  competitor: null
+  cluster: attune:skill-library-mission
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:skill-library-mission
+    judge: attune:skill-library-mission
+- id: attune.skill-library-mission.p2
+  type: positive
+  prompt: Our existing .claude/skills folder has drifted from how the project actually
+    works. Run a full re-discovery, rewrite, and review pass, with resumable state
+    so it survives interruption.
+  target: attune:skill-library-mission
+  competitor: null
+  cluster: attune:skill-library-mission
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:skill-library-mission
+    judge: attune:skill-library-mission
+- id: attune.skill-library-mission.p3
+  type: near_miss
+  prompt: The one engineer who knows this repo is leaving. Package everything the
+    project knows into a .claude/skills library so cheaper sessions and new hires
+    can keep going. Run it as discover, author, review phases that I can resume if
+    interrupted.
+  target: attune:skill-library-mission
+  competitor: attune:skill-library
+  cluster: attune:skill-library-mission
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:mission; router: attune:skill-library; judge: attune:skill-library-mission/attune:skill-library'
+  proposals:
+    aimed_at: attune:mission
+    router: attune:skill-library
+    judge: attune:skill-library-mission
+    judge_runner_up: attune:skill-library
+- id: attune.skill-library.p1
+  type: positive
+  prompt: Run the parallel workflow that writes one new skill per topic under .claude/skills/
+    from the discovery topics we agreed on, then has each skill reviewed by independent
+    readers without applying fixes.
+  target: attune:skill-library
+  competitor: null
+  cluster: attune:skill-library
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:skill-library
+    judge: attune:skill-library
+- id: attune.skill-library.p2
+  type: positive
+  prompt: I have a list of topics from discovery. Kick off authoring agents for each,
+    with a read-only review pass per skill checking facts, consistency with project
+    rules, and usability.
+  target: attune:skill-library
+  competitor: null
+  cluster: attune:skill-library
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:skill-library
+    judge: attune:skill-library
+- id: attune.skill-library.p3
+  type: near_miss
+  prompt: I've got the discovery brief with the list of topics already. Kick off parallel
+    agents to write one new skill directory per topic under .claude/skills, then have
+    reviewers read each one without touching files.
+  target: attune:skill-library
+  competitor: attune:skill-library-mission
+  cluster: attune:skill-library
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:skill-library-mission; router: attune:skill-library; judge:
+    attune:skill-library/attune:skill-library-mission'
+  proposals:
+    aimed_at: attune:skill-library-mission
+    router: attune:skill-library
+    judge: attune:skill-library
+    judge_runner_up: attune:skill-library-mission
+- id: attune.specify.p1
+  type: positive
+  prompt: /attune:specify --input docs/project-brief.md. Generate the requirements
+    doc for the user authentication feature.
+  target: attune:specify
+  competitor: null
+  cluster: attune:specify
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-checklist; judge: None'
+  proposals:
+    router: spec-kit:speckit-checklist
+    judge: null
+- id: attune.specify.p2
+  type: positive
+  prompt: Brainstorming is done. Convert the brief into a structured spec with acceptance
+    criteria and scope boundaries before we move on to planning.
+  target: attune:specify
+  competitor: null
+  cluster: attune:specify
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: attune:project-specification; judge: None'
+  proposals:
+    router: attune:project-specification
+    judge: null
+- id: attune.specify.p3
+  type: near_miss
+  prompt: Brainstorming is done and I have the project brief in docs/project-brief.md.
+    Write up functional and non-functional requirements with acceptance criteria for
+    the user authentication feature so we can plan next.
+  target: attune:specify
+  competitor: attune:project-specification
+  cluster: attune:specify
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:project-brainstorming; router: attune:project-specification;
+    judge: attune:specify/attune:project-specification'
+  proposals:
+    aimed_at: attune:project-brainstorming
+    router: attune:project-specification
+    judge: attune:specify
+    judge_runner_up: attune:project-specification
+- id: attune.upgrade-project.p1
+  type: positive
+  prompt: Our old Python repo is missing a pre-commit config and a typecheck workflow,
+    and the Makefile is from years ago. Add what's missing but keep our custom make
+    targets.
+  target: attune:upgrade-project
+  competitor: null
+  cluster: attune:upgrade-project
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: attune:upgrade-project/attune:makefile-generation'
+  proposals:
+    router: conjure:provider-sweep
+    judge: attune:upgrade-project
+    judge_runner_up: attune:makefile-generation
+- id: attune.upgrade-project.p2
+  type: positive
+  prompt: Update just the GitHub Actions workflows in this existing project to current
+    standards. Show me a diff first and back up anything you overwrite.
+  target: attune:upgrade-project
+  competitor: null
+  cluster: attune:upgrade-project
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: attune:upgrade-project; judge: None'
+  proposals:
+    router: attune:upgrade-project
+    judge: null
+- id: attune.upgrade-project.p3
+  type: near_miss
+  prompt: My older Python repo has a stale Makefile and no pre-commit config. Bring
+    those up to current standards, but keep my custom make targets intact and don't
+    reinitialize the whole project.
+  target: attune:upgrade-project
+  competitor: attune:precommit-setup
+  cluster: attune:upgrade-project
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: attune:precommit-setup; judge:
+    attune:upgrade-project/attune:precommit-setup'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: attune:precommit-setup
+    judge: attune:upgrade-project
+    judge_runner_up: attune:precommit-setup
+- id: attune.validate.p1
+  type: positive
+  prompt: 'Audit this repo''s setup against best practices: git config, Makefile targets,
+    pre-commit, CI workflows, src/tests layout, license. Give me a score and recommendations.'
+  target: attune:validate
+  competitor: null
+  cluster: attune:validate
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: attune:project-init; judge: None'
+  proposals:
+    router: attune:project-init
+    judge: null
+- id: attune.validate.p2
+  type: positive
+  prompt: Before we deploy, check whether this project is missing any required config
+    files or workflows. I only want a report of the issues, not fixes.
+  target: attune:validate
+  competitor: null
+  cluster: attune:validate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: attune:validate/pensive:harden'
+  proposals:
+    router: conjure:provider-sweep
+    judge: attune:validate
+    judge_runner_up: pensive:harden
+- id: attune.validate.p3
+  type: near_miss
+  prompt: 'Audit this existing repo against best practices and just report: missing
+    files, Makefile targets, pre-commit hooks, secrets or large files tracked in git.
+    Don''t set anything up or fix anything yet.'
+  target: attune:validate
+  competitor: pensive:makefile-review
+  cluster: attune:validate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:project-init; router: pensive:makefile-review; judge: attune:validate/pensive:makefile-review'
+  proposals:
+    aimed_at: attune:project-init
+    router: pensive:makefile-review
+    judge: attune:validate
+    judge_runner_up: pensive:makefile-review
+- id: attune.war-room-checkpoint.p1
+  type: positive
+  prompt: I'm writing a custom command that processes a batch of issues, and when
+    it finds 4 issues touching overlapping files with dependency conflicts I want
+    it to automatically decide whether to stop and escalate for a deeper review or
+    just continue. How do I wire in that inline reversibility check?
+  target: attune:war-room-checkpoint
+  competitor: null
+  cluster: attune:war-room-checkpoint
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: attune:war-room-checkpoint/None'
+  proposals:
+    router: hookify:rule-sweep
+    judge: attune:war-room-checkpoint
+    judge_runner_up: null
+- id: attune.war-room-checkpoint.p2
+  type: positive
+  prompt: In our PR review flow, when there are more than 3 blocking issues or an
+    ADR violation shows up, the command should score how costly the decision is to
+    undo and either give a fast recommendation or hand off to a full panel. Set up
+    that decision gate with the cautious profile.
+  target: attune:war-room-checkpoint
+  competitor: null
+  cluster: attune:war-room-checkpoint
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:paradigm-panel; judge: attune:war-room-checkpoint/leyline:decision-journal'
+  proposals:
+    router: archetypes:paradigm-panel
+    judge: attune:war-room-checkpoint
+    judge_runner_up: leyline:decision-journal
+- id: attune.war-room-checkpoint.p3
+  type: near_miss
+  prompt: I'm adding a step to our /do-issue command. When it sees four issues touching
+    overlapping files, I want it to score how reversible the choice is and decide
+    inline whether to escalate to full deliberation or just return a quick recommendation.
+    Help me wire that in, and check the scoring still behaves after my change.
+  target: attune:war-room-checkpoint
+  competitor: abstract:escalation-governance
+  cluster: attune:war-room-checkpoint
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: hookify:rule-sweep; judge: attune:war-room-checkpoint/abstract:escalation-governance'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: hookify:rule-sweep
+    judge: attune:war-room-checkpoint
+    judge_runner_up: abstract:escalation-governance
+- id: attune.war-room.p1
+  type: positive
+  prompt: We're deciding whether to move our payments service off the monolith Postgres
+    onto a separate event-sourced store. It'd take months to undo if it goes wrong.
+    Can you get a structured multi-perspective debate going on this, including someone
+    trying to poke holes in the plan?
+  target: attune:war-room
+  competitor: null
+  cluster: attune:war-room
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: attune:war-room/pensive:unified-review'
+  proposals:
+    router: conjure:provider-sweep
+    judge: attune:war-room
+    judge_runner_up: pensive:unified-review
+- id: attune.war-room.p2
+  type: positive
+  prompt: Before we commit to switching our public API versioning scheme, I want a
+    quick read on how hard it would be to walk back, without running a full debate.
+    Score how irreversible it is and tell me what level of review it deserves.
+  target: attune:war-room
+  competitor: null
+  cluster: attune:war-room
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: spec-kit:spec-review; judge: None/attune:war-room'
+  proposals:
+    router: spec-kit:spec-review
+    judge: null
+    judge_runner_up: attune:war-room
+- id: attune.war-room.p3
+  type: near_miss
+  prompt: We're deciding whether to move our core data store from Postgres to a sharded
+    setup. It's costly to undo. Get several expert perspectives, pressure-test our
+    assumptions, and assess how reversible this is before we commit.
+  target: attune:war-room
+  competitor: abstract:escalation-governance
+  cluster: attune:war-room
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: attune:war-room; judge: attune:war-room/abstract:escalation-governance'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: attune:war-room
+    judge: attune:war-room
+    judge_runner_up: abstract:escalation-governance
+- id: attune.workflow-setup.p1
+  type: positive
+  prompt: My new Python repo on GitHub has no CI at all. Can you add workflows that
+    run pytest, ruff, and mypy on every push and PR, and publish to PyPI when I cut
+    a release?
+  target: attune:workflow-setup
+  competitor: null
+  cluster: attune:workflow-setup
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:update-ci; judge: attune:workflow-setup'
+  proposals:
+    router: sanctum:update-ci
+    judge: attune:workflow-setup
+- id: attune.workflow-setup.p2
+  type: positive
+  prompt: Our .github/workflows still use actions/checkout@v2 and setup-python@latest.
+    Bring them up to current pinned major versions and add a Python version matrix
+    across ubuntu, macOS and Windows.
+  target: attune:workflow-setup
+  competitor: null
+  cluster: attune:workflow-setup
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: attune:workflow-setup
+    judge: attune:workflow-setup
+- id: attune.workflow-setup.p3
+  type: near_miss
+  prompt: My Python project is on GitHub and has no CI at all. I want pytest, ruff
+    and mypy to run on every push and PR, and a PyPI publish when I cut a release.
+    Can you set up the workflow files?
+  target: attune:workflow-setup
+  competitor: sanctum:update-ci
+  cluster: attune:workflow-setup
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at leyline:pytest-config; router: attune:workflow-setup; judge: attune:workflow-setup/sanctum:update-ci'
+  proposals:
+    aimed_at: leyline:pytest-config
+    router: attune:workflow-setup
+    judge: attune:workflow-setup
+    judge_runner_up: sanctum:update-ci

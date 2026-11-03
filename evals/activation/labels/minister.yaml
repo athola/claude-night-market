@@ -1,0 +1,270 @@
+schema_version: 1
+cases:
+- id: minister.create-issue.p1
+  type: positive
+  prompt: open a github issue titled "Login times out after 30s on slow networks"
+    and assign it to jdoe with the bug label
+  target: minister:create-issue
+  competitor: null
+  cluster: minister:create-issue
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: minister:create-issue; judge: None'
+  proposals:
+    router: minister:create-issue
+    judge: null
+- id: minister.create-issue.p1x
+  type: positive
+  prompt: File a GitHub issue titled "Login page times out on slow connections" in
+    acme/web-app, label it bug and needs-triage, assign it to jdoe, and link it to
+    issue 123 and PR 456 as related.
+  target: minister:create-issue
+  competitor: null
+  cluster: minister:create-issue
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: minister:github-initiative-pulse; judge: minister:create-issue/sanctum:do-issue'
+  proposals:
+    router: minister:github-initiative-pulse
+    judge: minister:create-issue
+    judge_runner_up: sanctum:do-issue
+- id: minister.create-issue.p2
+  type: positive
+  prompt: file a ticket in acme/payments-api for the retry bug, put it in the v2.3
+    milestone and link the original feature request and the PR that introduced it
+  target: minister:create-issue
+  competitor: null
+  cluster: minister:create-issue
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: minister:initiative-pulse; judge: minister:create-issue/None'
+  proposals:
+    router: minister:initiative-pulse
+    judge: minister:create-issue
+    judge_runner_up: null
+- id: minister.create-issue.p2x
+  type: positive
+  prompt: I need to open a new issue for the repo I'm in. Walk me through it with
+    guided questions (bug vs feature, expected vs actual, repro steps) and then add
+    it to the Q4 milestone.
+  target: minister:create-issue
+  competitor: null
+  cluster: minister:create-issue
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: minister:initiative-pulse; judge: minister:create-issue/minister:initiative-pulse'
+  proposals:
+    router: minister:initiative-pulse
+    judge: minister:create-issue
+    judge_runner_up: minister:initiative-pulse
+- id: minister.create-issue.p3
+  type: near_miss
+  prompt: We found that the security rule about hardcoded tokens no longer matches
+    how our repo handles secrets. Open a GitHub issue in acme/platform titled 'Security
+    rule on secrets is stale', label it security and rules-maintenance, assign it
+    to maria-k, and link the PR where we changed the secrets loader.
+  target: minister:create-issue
+  competitor: hookify:rule-sweep
+  cluster: minister:create-issue
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at hookify:rule-sweep; router: hookify:rule-sweep; judge: minister:create-issue/hookify:rule-sweep'
+  proposals:
+    aimed_at: hookify:rule-sweep
+    router: hookify:rule-sweep
+    judge: minister:create-issue
+    judge_runner_up: hookify:rule-sweep
+- id: minister.dora-metrics.p1
+  type: positive
+  prompt: how's our team doing on deployment frequency and lead time over the last
+    30 days? I want to know which of the four delivery metrics is our weakest
+  target: minister:dora-metrics
+  competitor: null
+  cluster: minister:dora-metrics
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: minister:dora-metrics; judge: None'
+  proposals:
+    router: minister:dora-metrics
+    judge: null
+- id: minister.dora-metrics.p2
+  type: positive
+  prompt: compare change failure rate for AI-authored PRs versus everything else on
+    main this quarter, and tell me what tier we land in
+  target: minister:dora-metrics
+  competitor: null
+  cluster: minister:dora-metrics
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: minister:dora-metrics; judge: None'
+  proposals:
+    router: minister:dora-metrics
+    judge: null
+- id: minister.dora-metrics.p3
+  type: near_miss
+  prompt: We're doing our quarterly review and I need to know how the team is shipping.
+    Can you pull the last 30 days off main and tell me how often we deploy, how long
+    PRs take to reach production, what fraction of releases cause incidents, and where
+    we land as Elite/High/Medium/Low?
+  target: minister:dora-metrics
+  competitor: sanctum:git-workspace-review
+  cluster: minister:dora-metrics
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at pensive:unified-review; router: cartograph:architecture-diagram;
+    judge: minister:dora-metrics/sanctum:git-workspace-review'
+  proposals:
+    aimed_at: pensive:unified-review
+    router: cartograph:architecture-diagram
+    judge: minister:dora-metrics
+    judge_runner_up: sanctum:git-workspace-review
+- id: minister.github-initiative-pulse.p1
+  type: positive
+  prompt: write up a weekly status digest for our initiatives that I can paste into
+    a GitHub discussion, with completion percentages and a blocker table
+  target: minister:github-initiative-pulse
+  competitor: null
+  cluster: minister:github-initiative-pulse
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:ticket-writing; judge: minister:github-initiative-pulse/minister:initiative-pulse'
+  proposals:
+    router: leyline:ticket-writing
+    judge: minister:github-initiative-pulse
+    judge_runner_up: minister:initiative-pulse
+- id: minister.github-initiative-pulse.p2
+  type: positive
+  prompt: which tasks in the tracker are high priority or overdue? I need a risk hotlist
+    for the stakeholder update
+  target: minister:github-initiative-pulse
+  competitor: null
+  cluster: minister:github-initiative-pulse
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-setup; judge: minister:github-initiative-pulse/leyline:risk-classification'
+  proposals:
+    router: conjure:provider-setup
+    judge: minister:github-initiative-pulse
+    judge_runner_up: leyline:risk-classification
+- id: minister.github-initiative-pulse.p3
+  type: near_miss
+  prompt: Write me a weekly status digest for our three active initiatives that I
+    can paste into the coordination issue on GitHub, with completion percentages,
+    burn rate, and a table of blocked or overdue tasks pulled from the tracker.
+  target: minister:github-initiative-pulse
+  competitor: leyline:ticket-writing
+  cluster: minister:github-initiative-pulse
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:workflow-setup; router: leyline:ticket-writing; judge: minister:github-initiative-pulse/leyline:ticket-writing'
+  proposals:
+    aimed_at: attune:workflow-setup
+    router: leyline:ticket-writing
+    judge: minister:github-initiative-pulse
+    judge_runner_up: leyline:ticket-writing
+- id: minister.initiative-pulse.p1
+  type: positive
+  prompt: check the health of milestones v1.4, v1.5 and v2.0 in parallel and tell
+    me which one is most likely to miss its date
+  target: minister:initiative-pulse
+  competitor: null
+  cluster: minister:initiative-pulse
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: minister:initiative-pulse; judge: None'
+  proposals:
+    router: minister:initiative-pulse
+    judge: null
+- id: minister.initiative-pulse.p2
+  type: positive
+  prompt: I run a program with six milestones in this repo. Give me one roll-up saying
+    which is in trouble and whether any are blocked on the same thing
+  target: minister:initiative-pulse
+  competitor: null
+  cluster: minister:initiative-pulse
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: minister:initiative-pulse; judge: None'
+  proposals:
+    router: minister:initiative-pulse
+    judge: null
+- id: minister.initiative-pulse.p3
+  type: near_miss
+  prompt: I have six milestones open on this repo (v2.1 through v2.6). Check open
+    vs closed issues and stale items for each of them at the same time, and then give
+    me one sentence saying which initiative is in the most trouble.
+  target: minister:initiative-pulse
+  competitor: hookify:rule-sweep
+  cluster: minister:initiative-pulse
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at scry:capture-set; router: minister:initiative-pulse; judge: minister:initiative-pulse/None'
+  proposals:
+    aimed_at: scry:capture-set
+    router: minister:initiative-pulse
+    judge: minister:initiative-pulse
+    judge_runner_up: null
+- id: minister.release-health-gates.p1
+  type: positive
+  prompt: we're about to deploy tomorrow. put together a go/no-go checklist for the
+    deployment PR covering open blockers, required checks, release notes and rollback
+    plan
+  target: minister:release-health-gates
+  competitor: null
+  cluster: minister:release-health-gates
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-checklist; judge: minister:release-health-gates'
+  proposals:
+    router: spec-kit:speckit-checklist
+    judge: minister:release-health-gates
+- id: minister.release-health-gates.p2
+  type: positive
+  prompt: I need sign-off gates for this release with waiver approvals recorded, and
+    a scorecard I can use in the retro afterwards
+  target: minister:release-health-gates
+  competitor: null
+  cluster: minister:release-health-gates
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: minister:release-health-gates
+    judge: minister:release-health-gates
+- id: minister.release-health-gates.p3
+  type: near_miss
+  prompt: We're about to deploy the 3.4 release. Build me a go/no-go checklist for
+    the deployment PR covering open blockers, required checks and soak time, release
+    notes and docs, and oncall sign-off with a rollback plan, and track any waivers.
+  target: minister:release-health-gates
+  competitor: sanctum:validate-pr
+  cluster: minister:release-health-gates
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:prepare-pr; router: minister:release-health-gates; judge:
+    minister:release-health-gates/sanctum:validate-pr'
+  proposals:
+    aimed_at: sanctum:prepare-pr
+    router: minister:release-health-gates
+    judge: minister:release-health-gates
+    judge_runner_up: sanctum:validate-pr

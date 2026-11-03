@@ -101,6 +101,9 @@ by a person. `config.yaml` lists the writer and judge candidates.
 # one probe per model, then drafts capped at label_max_cost_usd
 uv run python -m scripts.activation.labeling resolve
 uv run python -m scripts.activation.labeling draft
+# fill empty items and re-judge, or rebuild the queue for free
+uv run python -m scripts.activation.labeling repair
+uv run python -m scripts.activation.labeling requeue
 # prompts left to adjudicate, then the coverage gate
 uv run python -m scripts.activation.labeling queue
 uv run python -m scripts.activation.labels coverage
@@ -108,8 +111,14 @@ uv run python -m scripts.activation.labels coverage
 uv run python -m scripts.activation.run anchor-select
 ```
 
-Adjudicate by editing the label YAML and setting `adjudicated: true`.
-The anchor and full tiers refuse to run while coverage fails.
+A label is queued for a person when the judge names a different
+target, when the judge routes a negative prompt to an item, or when the
+seed-0 random audit picks it (10% of the rest). The router's answer is
+recorded on every label under `proposals` and does not queue it: its
+rank-1 missed about half of the judge-confirmed positives in the first
+draft. Adjudicate by editing the label YAML and setting
+`adjudicated: true`. The anchor and full tiers refuse to run while
+coverage fails.
 
 ## Shared ids
 
