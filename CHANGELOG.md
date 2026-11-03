@@ -100,6 +100,16 @@ A full-codebase API review found 98 grounded defects. 86 are fixed,
 
 ### Added
 
+- **Activation quality: how often the library routes a prompt to the
+  right item.** `scripts/activation/` runs labeled prompts through
+  `claude plugin eval` with every plugin loaded and reports sensitivity
+  and two false-activation rates from kept traces. A delta is claimed
+  only for paired, fingerprinted runs with the change declared first,
+  by exact McNemar with Holm. A free BM25 router gates description
+  edits in pre-commit. The first live prompt routed to the deprecated
+  `pensive:shell-review` stub, and the inventory found 35 shared ids
+  hiding 36 descriptions (#1055). See `docs/activation-quality.md`.
+
 - **`leyline:ticket-writing`: tickets readable at a glance.** From a
   merge request, the first screen of a ticket says what was decided and
   why, or links to the document that does. `minister:create-issue`
