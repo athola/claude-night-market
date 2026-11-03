@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import os
 import re
-from datetime import datetime
+import time
 from pathlib import Path
 from typing import Any
 
@@ -75,9 +75,10 @@ class KnowledgeQueueChecker:
                 if status.lower() not in _PENDING:
                     continue
 
-                # Calculate age
-                mtime = datetime.fromtimestamp(stat.st_mtime)
-                age_days = (datetime.now() - mtime).days
+                # Elapsed seconds, not local wall-clock datetimes: across a
+                # DST change the naive difference is an hour short, and a
+                # file exactly 3 days old read as 2 (2026-11-03).
+                age_days = int((time.time() - stat.st_mtime) // 86400)
 
                 queue_items.append(
                     {
