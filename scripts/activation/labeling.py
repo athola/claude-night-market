@@ -110,6 +110,17 @@ def resolve(config: dict, call=claude_call) -> dict:
     return resolved
 
 
+def write_resolved(config_path: Path, resolved: dict) -> None:
+    """Replace only the ``resolved:`` block, keeping the file's comments."""
+    lines = config_path.read_text().splitlines()
+    start = next(n for n, line in enumerate(lines) if line.startswith("resolved:"))
+    end = start + 1
+    while end < len(lines) and lines[end].startswith((" ", "\t")):
+        end += 1
+    block = ["resolved:"] + [f"  {key}: {value}" for key, value in resolved.items()]
+    config_path.write_text("\n".join(lines[:start] + block + lines[end:]) + "\n")
+
+
 def pick_roles(config: dict) -> dict[str, str]:
     resolved = config.get("resolved") or {}
     arm_ids = set()
@@ -465,7 +476,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if command == "resolve":
             config["resolved"] = resolve(config)
-            config_path.write_text(yaml.safe_dump(config, sort_keys=False))
+            write_resolved(config_path, config["resolved"])
             sys.stdout.write(json.dumps(config["resolved"], indent=1) + "\n")
         elif command == "draft":
             queue = draft(root, config)

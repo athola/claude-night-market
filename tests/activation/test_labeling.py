@@ -23,6 +23,7 @@ from scripts.activation.labeling import (
     pick_roles,
     resolve,
     resolved_model,
+    write_resolved,
 )
 from scripts.activation.labels import load_cases, validate
 
@@ -223,3 +224,20 @@ def test_a_failed_call_is_counted_and_skipped_not_fatal():
     assert budget("m", "bad") == ""
     assert budget("m", "good") == "[1]"
     assert budget.failures == ["overloaded"]
+
+
+def test_write_resolved_keeps_the_config_comments(tmp_path):
+    path = tmp_path / "config.yaml"
+    path.write_text("# keep me\nwriter_models: [sonnet]\n# and me\nresolved: {}\n")
+    write_resolved(
+        path, {"arm:default": "claude-opus-5-5", "sonnet": "claude-sonnet-5-5"}
+    )
+    text = path.read_text()
+    assert "# keep me" in text and "# and me" in text
+    assert "writer_models: [sonnet]" in text
+    assert yaml.safe_load(text)["resolved"] == {
+        "arm:default": "claude-opus-5-5",
+        "sonnet": "claude-sonnet-5-5",
+    }
+    write_resolved(path, {"sonnet": "x"})
+    assert yaml.safe_load(path.read_text())["resolved"] == {"sonnet": "x"}
