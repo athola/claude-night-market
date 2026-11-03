@@ -22,6 +22,7 @@ import random
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import yaml
@@ -33,6 +34,7 @@ from .router import Router, evaluate
 BODY_CHARS = 3000
 SHORTLIST = 8
 BATCH = 8
+JUDGE_BATCH = 10
 AUDIT_SHARE = 0.10
 NEGATIVE_SOURCES = (
     "refactoring a Python function",
@@ -59,11 +61,30 @@ class LabelingRefused(RuntimeError):
     """Configuration would let a measured model shape its own labels."""
 
 
-def claude_call(model: str | None, prompt: str) -> tuple[str, float]:
-    cmd = ["claude", "-p", "--output-format", "json"]
+def claude_call(model: str | None, prompt: str) -> tuple[dict, float]:
+    """One headless call with no tools, skills or saved session.
+
+    It runs from an empty temporary directory so the repository's
+    CLAUDE.md and project settings stay out of the prompt. Labeling
+    needs text in and text out, and every loaded token is paid for on
+    each of several hundred calls.
+    """
+    cmd = [
+        "claude",
+        "-p",
+        "--output-format",
+        "json",
+        "--tools",
+        "",
+        "--disable-slash-commands",
+        "--no-session-persistence",
+    ]
     if model:
         cmd += ["--model", model]
-    proc = subprocess.run([*cmd, prompt], capture_output=True, text=True, check=True)
+    with tempfile.TemporaryDirectory(prefix="activation-label-") as cwd:
+        proc = subprocess.run(
+            [*cmd, prompt], capture_output=True, text=True, check=True, cwd=cwd
+        )
     out = json.loads(proc.stdout)
     return out, float(out.get("total_cost_usd") or 0.0)
 
@@ -117,13 +138,30 @@ def pick_roles(config: dict) -> dict[str, str]:
 
 
 class Budget:
+    """Caps spend and records failed calls.
+
+    A failed ``claude -p`` call (non-zero exit or unparseable output)
+    loses one batch, which the coverage gate then reports as missing
+    prompts. Stopping the whole session on it would discard every batch
+    already paid for.
+    """
+
     def __init__(self, call, ceiling: float):
         self.call, self.ceiling, self.spent = call, ceiling, 0.0
+        self.failures: list[str] = []
 
     def __call__(self, model: str | None, prompt: str) -> str:
         if self.spent >= self.ceiling:
             raise BudgetExceeded(f"spent ${self.spent:.2f} of ${self.ceiling:.2f}")
-        result, cost = self.call(model, prompt)
+        try:
+            result, cost = self.call(model, prompt)
+        except (subprocess.CalledProcessError, json.JSONDecodeError) as err:
+            detail = getattr(err, "stderr", None) or str(err)
+            self.failures.append(str(detail).strip()[:200])
+            sys.stderr.write(
+                f"labeling: call failed, batch skipped: {self.failures[-1]}\n"
+            )
+            return ""
         self.spent += cost
         return result.get("result", "") if isinstance(result, dict) else str(result)
 
@@ -229,27 +267,61 @@ def draft_negatives(writer, model) -> list[tuple[str, str]]:
     ]
 
 
-def judge_pick(
-    root: Path, router: Router, by_id: dict, ask, prompt: str
-) -> tuple[str | None, str | None]:
-    """Judge picks among the router's shortlist, shown bodies only."""
-    shortlist = [i for i, _ in router.rank(prompt)[:SHORTLIST]]
-    blocks = [f"### {cid}\n{item_body(root, by_id[cid])[:800]}" for cid in shortlist]
-    text = ask(
-        (
-            "A developer typed the PROMPT below to a coding assistant that can invoke the tools "
-            "listed. Pick the tool that should handle it, and a runner-up, or none when the "
-            "assistant should answer directly. Return only JSON: "
-            '[{"pick": "<id or none>", "runner_up": "<id or none>"}].\n\n'
-            f"PROMPT: {prompt}\n\n" + "\n\n".join(blocks)
-        ),
+def judge_batch(
+    root: Path, router: Router, by_id: dict, ask, prompts: list[str]
+) -> list:
+    """Judge picks for several prompts in one call, from body excerpts of
+    each prompt's router shortlist. Returns (pick, runner_up) per prompt,
+    None where the judge named nothing valid.
+    """
+    shortlists = [[i for i, _ in router.rank(p)[:SHORTLIST]] for p in prompts]
+    shown = sorted({cid for short in shortlists for cid in short})
+    tools = "\n\n".join(
+        f"### {cid}\n{item_body(root, by_id[cid])[:800]}" for cid in shown
     )
-    rows = parse_json_list(text)
-    if not rows or not isinstance(rows[0], dict):
-        return None, None
-    pick, runner = rows[0].get("pick"), rows[0].get("runner_up")
-    valid = set(shortlist)
-    return (pick if pick in valid else None), (runner if runner in valid else None)
+    asks = "\n".join(
+        f"PROMPT {n}: {p}\nCANDIDATES {n}: {', '.join(short)}"
+        for n, (p, short) in enumerate(zip(prompts, shortlists))
+    )
+    text = ask(
+        "Each PROMPT below was typed by a developer to a coding assistant that can "
+        "invoke the tools described at the end. For each, pick the tool from its "
+        "CANDIDATES that should handle it and a runner-up, or none when the assistant "
+        "should answer directly. Return only JSON: "
+        '[{"n": <number>, "pick": "<id or none>", "runner_up": "<id or none>"}].\n\n'
+        f"{asks}\n\n{tools}"
+    )
+    out: list = [(None, None)] * len(prompts)
+    for row in parse_json_list(text):
+        if not isinstance(row, dict) or not isinstance(row.get("n"), int):
+            continue
+        n = row["n"]
+        if 0 <= n < len(prompts):
+            valid = set(shortlists[n])
+            pick, runner = row.get("pick"), row.get("runner_up")
+            out[n] = (
+                pick if pick in valid else None,
+                runner if runner in valid else None,
+            )
+    return out
+
+
+def judge_all(root, router, by_id, ask, prompts: list[str]) -> tuple[list, str | None]:
+    """Judge in batches; on budget exhaustion keep what was judged.
+
+    Unjudged prompts come back as "unjudged" and land in the
+    adjudication queue, so a budget stop costs review time, not labels.
+    """
+    picks: list = []
+    for start in range(0, len(prompts), JUDGE_BATCH):
+        try:
+            picks += judge_batch(
+                root, router, by_id, ask, prompts[start : start + JUDGE_BATCH]
+            )
+        except BudgetExceeded as err:
+            picks += [("unjudged", None)] * (len(prompts) - len(picks))
+            return picks, str(err)
+    return picks, None
 
 
 def _slug(item_id: str) -> str:
@@ -264,7 +336,7 @@ def draft(root: Path, config: dict, call=claude_call) -> dict:
     writer, judge = roles["writer"], roles["judge"]
     by_id = {i.id: i for i in items}
 
-    def ask_judge(prompt: str) -> str:
+    def ask_judge(prompt: str) -> str:  # one batch of prompts per call
         return budget(judge, prompt)
 
     plain = draft_plain(root, items, budget, writer)
@@ -276,10 +348,19 @@ def draft(root: Path, config: dict, call=claude_call) -> dict:
     neighbors = evaluate(router, plain_cases)["neighbors"]
     near = draft_near_misses(root, items, neighbors, budget, writer)
     negatives = draft_negatives(budget, writer)
+    near_rows = sorted(near.items())
+    prompts = (
+        [c.prompt for c in plain_cases]
+        + [prompt for _, (prompt, _) in near_rows]
+        + [prompt for _, prompt in negatives]
+    )
+    picks, stopped = judge_all(root, router, by_id, ask_judge, prompts)
+    plain_picks = picks[: len(plain_cases)]
+    near_picks = picks[len(plain_cases) : len(plain_cases) + len(near_rows)]
+    negative_picks = picks[len(plain_cases) + len(near_rows) :]
     rows, disagreements = [], []
-    for case in plain_cases:
+    for case, (pick, _) in zip(plain_cases, plain_picks):
         top = router.rank(case.prompt)[0][0]
-        pick, _ = judge_pick(root, router, by_id, ask_judge, case.prompt)
         proposers = [
             n for n, who in (("router", top), ("judge", pick)) if who == case.target
         ]
@@ -288,9 +369,8 @@ def draft(root: Path, config: dict, call=claude_call) -> dict:
             row["notes"] = f"router: {top}; judge: {pick}"
             disagreements.append(row["id"])
         rows.append(row)
-    for target, (prompt, neighbor) in sorted(near.items()):
+    for (target, (prompt, neighbor)), (pick, runner) in zip(near_rows, near_picks):
         ranking = [i for i, _ in router.rank(prompt)]
-        pick, runner = judge_pick(root, router, by_id, ask_judge, prompt)
         competitor = (
             runner
             if runner and runner != target
@@ -304,7 +384,6 @@ def draft(root: Path, config: dict, call=claude_call) -> dict:
             target=target,
             competitor=competitor,
             cluster=target,
-            proposers=("writer",),
         ).to_dict()
         row["proposers"] = [
             n for n, who in (("router", ranking[0]), ("judge", pick)) if who == target
@@ -315,12 +394,12 @@ def draft(root: Path, config: dict, call=claude_call) -> dict:
         if ranking[0] != target or pick != target or competitor != neighbor:
             disagreements.append(cid)
         rows.append(row)
-    for n, (source, prompt) in enumerate(negatives):
+    for n, ((source, prompt), (pick, _)) in enumerate(zip(negatives, negative_picks)):
         top = router.rank(prompt)[0]
-        pick, _ = judge_pick(root, router, by_id, ask_judge, prompt)
+        cid = f"neg.{n + 1:03d}"
         rows.append(
             Case(
-                id=f"neg.{n + 1:03d}",
+                id=cid,
                 type="negative",
                 prompt=prompt,
                 target=None,
@@ -330,7 +409,7 @@ def draft(root: Path, config: dict, call=claude_call) -> dict:
             ).to_dict()
         )
         if pick is not None:
-            disagreements.append(f"neg.{n + 1:03d}")
+            disagreements.append(cid)
     agreed = sorted({r["id"] for r in rows} - set(disagreements))
     audit = (
         sorted(random.Random(0).sample(agreed, round(AUDIT_SHARE * len(agreed))))
@@ -357,6 +436,8 @@ def draft(root: Path, config: dict, call=claude_call) -> dict:
         "writer": writer,
         "judge": judge,
         "spent_usd": round(budget.spent, 4),
+        "stopped": stopped,
+        "failed_calls": budget.failures,
     }
     (root / "evals/activation/adjudicate.yaml").write_text(
         yaml.safe_dump(queue, sort_keys=False)
