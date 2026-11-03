@@ -82,10 +82,10 @@ because 7 one-way cases are the minimum that passes the strictest Holm
 step. Between 7 and 11 it runs and reports the shortfall. A failing
 self-check marks later comparisons on that anchor set untrusted.
 
-Host plugin files are hard links into the repository. A mutant replaces
-a file instead of editing it, or the repository would change through
-the link. A test asserts the repository file is unchanged after a
-self-check.
+Host plugin files are copies. The eval runner refuses a plugin file
+with more than one name, and hard links failed every case (smoke run,
+2026-11-03, Claude Code 2.1.317). Dot-directories other than
+`.claude-plugin` are skipped, which keeps the copy near 48 MB.
 
 ## Labels and echo risk
 
@@ -109,14 +109,17 @@ the arm's latest committed baseline and falls back to $0.20 for the
 default arm. The Haiku arm is reported as unmeasured until its first
 run.
 
-## Assumptions the first live run must confirm
+## What the first live run confirmed
 
-These were read from documentation or a single probe and are checked
-when the first paid run lands:
+The 2026-11-03 smoke run (one prompt, $0.20) confirmed that
+`result.json` lists cases under `cases[]` with `name`, and runs under
+`arms.with[]` with `tracePath` and `error`. A run stopped at
+`max_turns` reports `error: "exit 1: Reached maximum number of turns"`
+and keeps a full trace. The runner keeps that trace. All 323 routing ids
+appeared in the eval child's listing. The prompt from probe L6 again
+routed to the deprecated `pensive:shell-review` stub.
 
-- `result.json` lists cases under `cases[]` with `name`, and runs under
-  `arms.with[]` with `tracePath` and, on failure, `error`.
-- `claude -p --output-format json` reports the answering model under
-  `modelUsage`.
-- The eval child's listing follows the same shared-id precedence as the
-  interactive session.
+Still read from documentation only: `claude -p --output-format json`
+reports the answering model under `modelUsage`, and the eval child's
+listing follows the shared-id precedence seen in the interactive
+session.

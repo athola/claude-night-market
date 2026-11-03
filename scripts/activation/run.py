@@ -237,7 +237,9 @@ def _runs_of(case_result: dict) -> list[dict]:
 
 def collect_traces(host: Path) -> int:
     """Copy each run's kept trace into the host before temp cleanup can
-    remove it. A run with an error or no trace gets an ``.error`` marker,
+    remove it. A run stopped at max_turns keeps its trace: the cap is
+    deliberate and the routing decision is already recorded. A run with
+    any other error, or no trace, gets an ``.error`` marker,
     which analyze.py counts as errored. Returns the traces copied.
     """
     result = json.loads((host / "result.json").read_text())
@@ -248,7 +250,9 @@ def collect_traces(host: Path) -> int:
             dest = host / "traces" / cid / f"{n}.jsonl"
             dest.parent.mkdir(parents=True, exist_ok=True)
             trace = Path(run["tracePath"]) if run.get("tracePath") else None
-            if run.get("error") or trace is None or not trace.exists():
+            error = str(run.get("error") or "")
+            capped = error.startswith("exit 1: Reached maximum number of turns")
+            if (error and not capped) or trace is None or not trace.exists():
                 dest.with_suffix(".error").write_text(
                     str(run.get("error") or "no trace")
                 )

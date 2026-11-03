@@ -111,15 +111,20 @@ def test_host_holds_plugins_cases_and_metadata(plugin_tree):
     assert json.loads((host / "inventory.json").read_text())["library_hash"]
 
 
-def test_host_files_are_hard_links(plugin_tree):
+def test_host_files_are_copies_because_the_eval_refuses_hard_links(plugin_tree):
+    # claude plugin eval 2.1.317 errors on "a file in the plugin has more
+    # than one name (a hard link)" (smoke run 2026-11-03).
+    write(plugin_tree / "plugins/alpha/.uv-cache/blob", "x" * 10)
+    write(plugin_tree / "plugins/alpha/.claude-plugin/plugin.json", "{}")
     host = build_host(
         plugin_tree, [POS], build_inventory(plugin_tree), {"run_id": "r1", "runs": 3}
     )
-    linked = host / "plugins/alpha/commands/ship.md"
-    assert (
-        linked.stat().st_ino
-        == (plugin_tree / "plugins/alpha/commands/ship.md").stat().st_ino
-    )
+    copied = host / "plugins/alpha/commands/ship.md"
+    original = plugin_tree / "plugins/alpha/commands/ship.md"
+    assert copied.stat().st_ino != original.stat().st_ino
+    assert copied.stat().st_nlink == 1
+    assert not (host / "plugins/alpha/.uv-cache").exists()
+    assert (host / "plugins/alpha/.claude-plugin/plugin.json").exists()
 
 
 def test_full_repo_host_builds_fast_and_cheap(tmp_path):

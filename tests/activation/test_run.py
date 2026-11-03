@@ -11,7 +11,7 @@ from scripts.activation import run as run_mod
 from scripts.activation.inventory import build_inventory
 from scripts.activation.labels import Case
 
-from .conftest import _fake_eval, _labels, write
+from .conftest import _fake_eval, _labels, trace_lines, write
 
 
 def _main(root, *argv, runner=None, monkeypatch=None):
@@ -181,3 +181,22 @@ def test_declare_refuses_without_an_anchor_file(suite, monkeypatch, capsys):
     monkeypatch.chdir(suite)
     assert run_mod.main(["declare", str(change)]) == 2
     assert "anchor-select" in capsys.readouterr().err
+
+
+def test_max_turns_stop_keeps_its_trace(tmp_path):
+    # Shape from the 2026-11-03 smoke run: a capped run reports an error
+    # string, but its routing decision is already in the trace.
+    trace = write(tmp_path / "t.jsonl", trace_lines(["alpha:ship"]))
+    host = tmp_path / "h"
+    host.mkdir()
+    run = {
+        "error": "exit 1: Reached maximum number of turns (2)",
+        "tracePath": str(trace),
+    }
+    other = {"error": "exit 1: something else", "tracePath": str(trace)}
+    (host / "result.json").write_text(
+        json.dumps({"cases": [{"name": "c.p1", "arms": {"with": [run, other]}}]})
+    )
+    assert run_mod.collect_traces(host) == 1
+    assert (host / "traces/c.p1/0.jsonl").exists()
+    assert (host / "traces/c.p1/1.error").read_text() == "exit 1: something else"
