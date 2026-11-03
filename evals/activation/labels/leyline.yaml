@@ -123,8 +123,9 @@ cases:
   cluster: leyline:content-sanitization
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: leyline:content-sanitization; judge: None'
+  adjudicated: true
+  notes: 'router: leyline:content-sanitization; judge: None; accepted by maintainer
+    2026-11-03'
   proposals:
     router: leyline:content-sanitization
     judge: null
@@ -218,8 +219,8 @@ cases:
   cluster: leyline:decision-journal
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: leyline:decision-journal; judge: None'
+  adjudicated: true
+  notes: 'router: leyline:decision-journal; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: leyline:decision-journal
     judge: null
@@ -252,8 +253,8 @@ cases:
   cluster: leyline:deferred-capture
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: leyline:deferred-capture; judge: None'
+  adjudicated: true
+  notes: 'router: leyline:deferred-capture; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: leyline:deferred-capture
     judge: null
@@ -266,8 +267,8 @@ cases:
   cluster: leyline:deferred-capture
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: leyline:deferred-capture; judge: None'
+  adjudicated: true
+  notes: 'router: leyline:deferred-capture; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: leyline:deferred-capture
     judge: null
@@ -300,8 +301,8 @@ cases:
   cluster: leyline:document-conversion
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: None'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: parseltongue:python-async
     judge: null
@@ -314,8 +315,9 @@ cases:
   cluster: leyline:document-conversion
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: leyline:document-conversion; judge: None'
+  adjudicated: true
+  notes: 'router: leyline:document-conversion; judge: None; accepted by maintainer
+    2026-11-03'
   proposals:
     router: leyline:document-conversion
     judge: null
@@ -347,8 +349,9 @@ cases:
   cluster: leyline:error-patterns
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: leyline:authentication-patterns; judge: leyline:error-patterns'
+  adjudicated: true
+  notes: 'router: leyline:authentication-patterns; judge: leyline:error-patterns;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: leyline:authentication-patterns
     judge: leyline:error-patterns
@@ -577,9 +580,9 @@ cases:
   cluster: leyline:markdown-formatting
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigms; router: hookify:rule-sweep;
-    judge: leyline:markdown-formatting/None'
+    judge: leyline:markdown-formatting/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: archetypes:architecture-paradigms
     router: hookify:rule-sweep
@@ -729,8 +732,9 @@ cases:
   cluster: leyline:pytest-config
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at attune:workflow-setup; router: leyline:plugin-health; judge: leyline:pytest-config/leyline:plugin-health'
+  adjudicated: true
+  notes: 'aimed at attune:workflow-setup; router: leyline:plugin-health; judge: leyline:pytest-config/leyline:plugin-health;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: attune:workflow-setup
     router: leyline:plugin-health
@@ -808,8 +812,9 @@ cases:
   cluster: leyline:risk-classification
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: egregore:dismiss; judge: leyline:risk-classification/egregore:gate-audit'
+  adjudicated: true
+  notes: 'router: egregore:dismiss; judge: leyline:risk-classification/egregore:gate-audit;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: egregore:dismiss
     judge: leyline:risk-classification
@@ -843,8 +848,8 @@ cases:
   cluster: leyline:sem-integration
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: leyline:sem-integration; judge: None'
+  adjudicated: true
+  notes: 'router: leyline:sem-integration; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: leyline:sem-integration
     judge: null
@@ -892,8 +897,8 @@ cases:
   cluster: leyline:service-registry
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: leyline:service-registry; judge: None'
+  adjudicated: true
+  notes: 'router: leyline:service-registry; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: leyline:service-registry
     judge: null
@@ -907,8 +912,8 @@ cases:
   cluster: leyline:service-registry
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: scribe:doc-sweep; judge: None'
+  adjudicated: true
+  notes: 'router: scribe:doc-sweep; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: scribe:doc-sweep
     judge: null
@@ -993,8 +998,8 @@ cases:
   cluster: leyline:storage-templates
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: attune:mission; judge: None'
+  adjudicated: true
+  notes: 'router: attune:mission; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: attune:mission
     judge: null
@@ -1008,8 +1013,8 @@ cases:
   cluster: leyline:storage-templates
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: tome:web-search; judge: None'
+  adjudicated: true
+  notes: 'router: tome:web-search; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: tome:web-search
     judge: null
@@ -1056,8 +1061,9 @@ cases:
   cluster: leyline:supply-chain-advisory
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: parseltongue:python-packaging; judge: None'
+  adjudicated: true
+  notes: 'router: parseltongue:python-packaging; judge: None; accepted by maintainer
+    2026-11-03'
   proposals:
     router: parseltongue:python-packaging
     judge: null
@@ -1320,8 +1326,9 @@ cases:
   cluster: leyline:verify-plugin
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at abstract:hooks-eval; router: conjure:provider-sweep; judge: leyline:verify-plugin/leyline:plugin-health'
+  adjudicated: true
+  notes: 'aimed at abstract:hooks-eval; router: conjure:provider-sweep; judge: leyline:verify-plugin/leyline:plugin-health;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:hooks-eval
     router: conjure:provider-sweep

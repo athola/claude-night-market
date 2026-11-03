@@ -9,8 +9,8 @@ cases:
   cluster: minister:create-issue
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: minister:create-issue; judge: None'
+  adjudicated: true
+  notes: 'router: minister:create-issue; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: minister:create-issue
     judge: null
@@ -88,8 +88,8 @@ cases:
   cluster: minister:dora-metrics
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: minister:dora-metrics; judge: None'
+  adjudicated: true
+  notes: 'router: minister:dora-metrics; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: minister:dora-metrics
     judge: null
@@ -102,8 +102,8 @@ cases:
   cluster: minister:dora-metrics
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: minister:dora-metrics; judge: None'
+  adjudicated: true
+  notes: 'router: minister:dora-metrics; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: minister:dora-metrics
     judge: null
@@ -118,9 +118,10 @@ cases:
   cluster: minister:dora-metrics
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at pensive:unified-review; router: cartograph:architecture-diagram;
-    judge: minister:dora-metrics/sanctum:git-workspace-review'
+    judge: minister:dora-metrics/sanctum:git-workspace-review; accepted by maintainer
+    2026-11-03'
   proposals:
     aimed_at: pensive:unified-review
     router: cartograph:architecture-diagram
@@ -182,8 +183,8 @@ cases:
   cluster: minister:initiative-pulse
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: minister:initiative-pulse; judge: None'
+  adjudicated: true
+  notes: 'router: minister:initiative-pulse; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: minister:initiative-pulse
     judge: null
@@ -196,8 +197,8 @@ cases:
   cluster: minister:initiative-pulse
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: minister:initiative-pulse; judge: None'
+  adjudicated: true
+  notes: 'router: minister:initiative-pulse; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: minister:initiative-pulse
     judge: null

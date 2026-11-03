@@ -26,8 +26,9 @@ cases:
   cluster: hookify:configure
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: spec-kit:spec-review; judge: hookify:configure/hookify:rule-sweep'
+  adjudicated: true
+  notes: 'router: spec-kit:spec-review; judge: hookify:configure/hookify:rule-sweep;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: spec-kit:spec-review
     judge: hookify:configure
@@ -57,8 +58,8 @@ cases:
   cluster: hookify:from-hook
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: hookify:from-hook; judge: None'
+  adjudicated: true
+  notes: 'router: hookify:from-hook; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: hookify:from-hook
     judge: null
@@ -71,8 +72,8 @@ cases:
   cluster: hookify:from-hook
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: hookify:from-hook; judge: None'
+  adjudicated: true
+  notes: 'router: hookify:from-hook; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: hookify:from-hook
     judge: null
@@ -102,8 +103,9 @@ cases:
   cluster: hookify:help
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: hookify:help/hookify:rule-catalog'
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: hookify:help/hookify:rule-catalog; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: hookify:rule-sweep
     judge: hookify:help
@@ -195,8 +197,8 @@ cases:
   cluster: hookify:install
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: hookify:install; judge: None'
+  adjudicated: true
+  notes: 'router: hookify:install; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: hookify:install
     judge: null
@@ -302,8 +304,8 @@ cases:
   cluster: hookify:rule-catalog
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: hookify:rule-catalog; judge: None'
+  adjudicated: true
+  notes: 'router: hookify:rule-catalog; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: hookify:rule-catalog
     judge: null
@@ -333,8 +335,8 @@ cases:
   cluster: hookify:rule-sweep
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: None'
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: hookify:rule-sweep
     judge: null
@@ -347,8 +349,8 @@ cases:
   cluster: hookify:rule-sweep
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: None'
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: hookify:rule-sweep
     judge: null

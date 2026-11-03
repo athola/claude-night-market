@@ -41,8 +41,9 @@ cases:
   cluster: attune:arch-init
   proposers:
   - router
-  adjudicated: false
-  notes: 'aimed at archetypes:paradigm-panel; router: attune:arch-init; judge: None/None'
+  adjudicated: true
+  notes: 'aimed at archetypes:paradigm-panel; router: attune:arch-init; judge: None/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: archetypes:paradigm-panel
     router: attune:arch-init
@@ -91,9 +92,9 @@ cases:
   cluster: attune:architecture-aware-init
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigms; router: attune:upgrade-project;
-    judge: None/None'
+    judge: None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: archetypes:architecture-paradigms
     router: attune:upgrade-project
@@ -141,8 +142,9 @@ cases:
   cluster: attune:blueprint
   proposers:
   - router
-  adjudicated: false
-  notes: 'aimed at attune:project-planning; router: attune:blueprint; judge: None/None'
+  adjudicated: true
+  notes: 'aimed at attune:project-planning; router: attune:blueprint; judge: None/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: attune:project-planning
     router: attune:blueprint
@@ -190,9 +192,9 @@ cases:
   cluster: attune:brainstorm
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at attune:precommit-setup; router: attune:project-brainstorming; judge:
-    None/None'
+    None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: attune:precommit-setup
     router: attune:project-brainstorming
@@ -240,8 +242,9 @@ cases:
   cluster: attune:dorodango
   proposers:
   - router
-  adjudicated: false
-  notes: 'aimed at abstract:skill-audit; router: attune:dorodango; judge: None/None'
+  adjudicated: true
+  notes: 'aimed at abstract:skill-audit; router: attune:dorodango; judge: None/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:skill-audit
     router: attune:dorodango
@@ -273,8 +276,9 @@ cases:
   cluster: attune:execute
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: spec-kit:task-planning; judge: spec-kit:speckit-implement'
+  adjudicated: true
+  notes: 'router: spec-kit:task-planning; judge: spec-kit:speckit-implement; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: spec-kit:task-planning
     judge: spec-kit:speckit-implement
@@ -335,9 +339,9 @@ cases:
   cluster: attune:makefile-generation
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at parseltongue:python-packaging; router: parseltongue:python-sweep;
-    judge: None/None'
+    judge: None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: parseltongue:python-packaging
     router: parseltongue:python-sweep
@@ -385,8 +389,9 @@ cases:
   cluster: attune:mission-orchestrator
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at abstract:aggregate-logs; router: attune:skill-library; judge: attune:mission-orchestrator/None'
+  adjudicated: true
+  notes: 'aimed at abstract:aggregate-logs; router: attune:skill-library; judge: attune:mission-orchestrator/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: attune:skill-library
@@ -402,8 +407,9 @@ cases:
   cluster: attune:mission
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: spec-kit:speckit-plan; judge: attune:mission/attune:mission-orchestrator'
+  adjudicated: true
+  notes: 'router: spec-kit:speckit-plan; judge: attune:mission/attune:mission-orchestrator;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: spec-kit:speckit-plan
     judge: attune:mission
@@ -433,8 +439,9 @@ cases:
   cluster: attune:mission
   proposers:
   - writer
-  adjudicated: false
-  notes: 'aimed at abstract:create-skill; router: egregore:gate-audit; judge: None/None'
+  adjudicated: true
+  notes: 'aimed at abstract:create-skill; router: egregore:gate-audit; judge: None/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:create-skill
     router: egregore:gate-audit
@@ -449,8 +456,9 @@ cases:
   cluster: attune:precommit-setup
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: sanctum:update-ci; judge: attune:precommit-setup'
+  adjudicated: true
+  notes: 'router: sanctum:update-ci; judge: attune:precommit-setup; accepted by maintainer
+    2026-11-03'
   proposals:
     router: sanctum:update-ci
     judge: attune:precommit-setup
@@ -528,9 +536,9 @@ cases:
   cluster: attune:project-brainstorming
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:paradigm-panel; router: egregore:gate-audit; judge:
-    attune:project-brainstorming/None'
+    attune:project-brainstorming/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: archetypes:paradigm-panel
     router: egregore:gate-audit
@@ -546,8 +554,9 @@ cases:
   cluster: attune:project-execution
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: spec-kit:task-planning; judge: imbue:graduated-implementation'
+  adjudicated: true
+  notes: 'router: spec-kit:task-planning; judge: imbue:graduated-implementation; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: spec-kit:task-planning
     judge: imbue:graduated-implementation
@@ -560,8 +569,8 @@ cases:
   cluster: attune:project-execution
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: attune:execute; judge: attune:execute'
+  adjudicated: true
+  notes: 'router: attune:execute; judge: attune:execute; accepted by maintainer 2026-11-03'
   proposals:
     router: attune:execute
     judge: attune:execute
@@ -640,8 +649,9 @@ cases:
   cluster: attune:project-planning
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: attune:blueprint; judge: attune:blueprint'
+  adjudicated: true
+  notes: 'router: attune:blueprint; judge: attune:blueprint; accepted by maintainer
+    2026-11-03'
   proposals:
     router: attune:blueprint
     judge: attune:blueprint
@@ -671,8 +681,9 @@ cases:
   cluster: attune:project-planning
   proposers:
   - writer
-  adjudicated: false
-  notes: 'aimed at attune:blueprint; router: spec-kit:task-planning; judge: spec-kit:task-planning/spec-kit:speckit-tasks'
+  adjudicated: true
+  notes: 'aimed at attune:blueprint; router: spec-kit:task-planning; judge: spec-kit:task-planning/spec-kit:speckit-tasks;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: attune:blueprint
     router: spec-kit:task-planning
@@ -688,8 +699,8 @@ cases:
   cluster: attune:project-specification
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: attune:specify; judge: attune:specify'
+  adjudicated: true
+  notes: 'router: attune:specify; judge: attune:specify; accepted by maintainer 2026-11-03'
   proposals:
     router: attune:specify
     judge: attune:specify
@@ -836,8 +847,9 @@ cases:
   cluster: attune:specify
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: spec-kit:speckit-checklist; judge: None'
+  adjudicated: true
+  notes: 'router: spec-kit:speckit-checklist; judge: None; accepted by maintainer
+    2026-11-03'
   proposals:
     router: spec-kit:speckit-checklist
     judge: null
@@ -850,8 +862,9 @@ cases:
   cluster: attune:specify
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: attune:project-specification; judge: None'
+  adjudicated: true
+  notes: 'router: attune:project-specification; judge: None; accepted by maintainer
+    2026-11-03'
   proposals:
     router: attune:project-specification
     judge: null
@@ -898,8 +911,8 @@ cases:
   cluster: attune:upgrade-project
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: attune:upgrade-project; judge: None'
+  adjudicated: true
+  notes: 'router: attune:upgrade-project; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: attune:upgrade-project
     judge: null
@@ -930,8 +943,8 @@ cases:
   cluster: attune:validate
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: attune:project-init; judge: None'
+  adjudicated: true
+  notes: 'router: attune:project-init; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: attune:project-init
     judge: null
@@ -1046,8 +1059,9 @@ cases:
   cluster: attune:war-room
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: spec-kit:spec-review; judge: None/attune:war-room'
+  adjudicated: true
+  notes: 'router: spec-kit:spec-review; judge: None/attune:war-room; accepted by maintainer
+    2026-11-03'
   proposals:
     router: spec-kit:spec-review
     judge: null

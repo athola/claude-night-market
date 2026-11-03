@@ -24,8 +24,9 @@ cases:
   cluster: phantom:computer-control
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: leyline:utility; judge: phantom:computer-control'
+  adjudicated: true
+  notes: 'router: leyline:utility; judge: phantom:computer-control; accepted by maintainer
+    2026-11-03'
   proposals:
     router: leyline:utility
     judge: phantom:computer-control

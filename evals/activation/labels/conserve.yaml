@@ -125,8 +125,9 @@ cases:
   cluster: conserve:bloat-detector
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: abstract:hooks-eval; judge: leyline:plugin-health/sanctum:update-plugins'
+  adjudicated: true
+  notes: 'router: abstract:hooks-eval; judge: leyline:plugin-health/sanctum:update-plugins;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: abstract:hooks-eval
     judge: leyline:plugin-health
@@ -142,8 +143,9 @@ cases:
   cluster: conserve:bloat-detector
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at abstract:skill-audit; router: conserve:unbloat; judge: conserve:bloat-detector/conserve:unbloat'
+  adjudicated: true
+  notes: 'aimed at abstract:skill-audit; router: conserve:unbloat; judge: conserve:bloat-detector/conserve:unbloat;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:skill-audit
     router: conserve:unbloat
@@ -225,8 +227,9 @@ cases:
   cluster: conserve:bloat-sweep
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: gauntlet:knowledge-extract; judge: conserve:bloat-sweep'
+  adjudicated: true
+  notes: 'router: gauntlet:knowledge-extract; judge: conserve:bloat-sweep; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: gauntlet:knowledge-extract
     judge: conserve:bloat-sweep
@@ -240,8 +243,9 @@ cases:
   cluster: conserve:bloat-sweep
   proposers:
   - writer
-  adjudicated: false
-  notes: 'aimed at abstract:skill-audit; router: conserve:bloat-scan; judge: None/None'
+  adjudicated: true
+  notes: 'aimed at abstract:skill-audit; router: conserve:bloat-scan; judge: None/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:skill-audit
     router: conserve:bloat-scan
@@ -357,8 +361,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: conserve:context-optimization
     judge: conserve:context-optimization
@@ -504,8 +508,9 @@ cases:
   cluster: conserve:elegant-code-review
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:python-packaging; judge: conserve:elegant-code-review/imbue:dependency-verification'
+  adjudicated: true
+  notes: 'router: parseltongue:python-packaging; judge: conserve:elegant-code-review/imbue:dependency-verification;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: parseltongue:python-packaging
     judge: conserve:elegant-code-review
@@ -519,8 +524,9 @@ cases:
   cluster: conserve:elegant-code-review
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: imbue:scope-guard; judge: conserve:elegant-code-review/imbue:scope-guard'
+  adjudicated: true
+  notes: 'router: imbue:scope-guard; judge: conserve:elegant-code-review/imbue:scope-guard;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: imbue:scope-guard
     judge: conserve:elegant-code-review
@@ -554,8 +560,9 @@ cases:
   cluster: conserve:elegant-code
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: None/conserve:elegant-code'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: None/conserve:elegant-code; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: parseltongue:python-async
     judge: null
@@ -718,8 +725,9 @@ cases:
   cluster: conserve:optimize-context
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: egregore:dismiss; judge: None/conserve:optimize-context'
+  adjudicated: true
+  notes: 'router: egregore:dismiss; judge: None/conserve:optimize-context; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: egregore:dismiss
     judge: null
@@ -782,9 +790,9 @@ cases:
   cluster: conserve:response-compression
   proposers:
   - router
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at hookify:rule-sweep; router: conserve:response-compression; judge:
-    None/None'
+    None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: hookify:rule-sweep
     router: conserve:response-compression
@@ -882,8 +890,9 @@ cases:
   cluster: conserve:unbloat
   proposers:
   - writer
-  adjudicated: false
-  notes: 'aimed at abstract:aggregate-logs; router: conserve:bloat-sweep; judge: None/None'
+  adjudicated: true
+  notes: 'aimed at abstract:aggregate-logs; router: conserve:bloat-sweep; judge: None/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: conserve:bloat-sweep

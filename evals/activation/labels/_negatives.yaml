@@ -70,8 +70,9 @@ cases:
   cluster: refactoring a Python function
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: conjure:provider-sweep (9.83); judge: None'
+  adjudicated: true
+  notes: 'router top: conjure:provider-sweep (9.83); judge: None; accepted by maintainer
+    2026-11-03'
   proposals:
     router: conjure:provider-sweep
     router_score: 9.83
@@ -100,8 +101,9 @@ cases:
   cluster: fixing a failing unit test
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: pensive:code-refinement (14.91); judge: parseltongue:python-testing'
+  adjudicated: true
+  notes: 'router top: pensive:code-refinement (14.91); judge: parseltongue:python-testing;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: pensive:code-refinement
     router_score: 14.91
@@ -145,8 +147,9 @@ cases:
   cluster: fixing a failing unit test
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: sanctum:update-tests (18.05); judge: sanctum:update-tests'
+  adjudicated: true
+  notes: 'router top: sanctum:update-tests (18.05); judge: sanctum:update-tests; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: sanctum:update-tests
     router_score: 18.05
@@ -265,8 +268,9 @@ cases:
   cluster: writing a SQL query
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: sanctum:do-issue (8.34); judge: None'
+  adjudicated: true
+  notes: 'router top: sanctum:do-issue (8.34); judge: None; accepted by maintainer
+    2026-11-03'
   proposals:
     router: sanctum:do-issue
     router_score: 8.34
@@ -340,8 +344,9 @@ cases:
   cluster: renaming variables across a file
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: abstract:metacognitive-self-mod (11.95); judge: None'
+  adjudicated: true
+  notes: 'router top: abstract:metacognitive-self-mod (11.95); judge: None; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: abstract:metacognitive-self-mod
     router_score: 11.95
@@ -385,8 +390,9 @@ cases:
   cluster: general programming concept questions
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: scribe:session-to-post (12.49); judge: None'
+  adjudicated: true
+  notes: 'router top: scribe:session-to-post (12.49); judge: None; accepted by maintainer
+    2026-11-03'
   proposals:
     router: scribe:session-to-post
     router_score: 12.49
@@ -400,8 +406,9 @@ cases:
   cluster: general programming concept questions
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: leyline:ticket-writing (11.58); judge: None'
+  adjudicated: true
+  notes: 'router top: leyline:ticket-writing (11.58); judge: None; accepted by maintainer
+    2026-11-03'
   proposals:
     router: leyline:ticket-writing
     router_score: 11.58
@@ -516,8 +523,9 @@ cases:
   cluster: editing a YAML config value
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: sanctum:create-tag (8.38); judge: None'
+  adjudicated: true
+  notes: 'router top: sanctum:create-tag (8.38); judge: None; accepted by maintainer
+    2026-11-03'
   proposals:
     router: sanctum:create-tag
     router_score: 8.38
@@ -636,8 +644,9 @@ cases:
   cluster: reading a stack trace
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: gauntlet:challenge (11.20); judge: None'
+  adjudicated: true
+  notes: 'router top: gauntlet:challenge (11.20); judge: None; accepted by maintainer
+    2026-11-03'
   proposals:
     router: gauntlet:challenge
     router_score: 11.2
@@ -769,8 +778,9 @@ cases:
   cluster: shell one-liners
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: cartograph:call-chain (11.30); judge: conserve:filter-log'
+  adjudicated: true
+  notes: 'router top: cartograph:call-chain (11.30); judge: conserve:filter-log; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: cartograph:call-chain
     router_score: 11.3
@@ -856,8 +866,9 @@ cases:
   cluster: data structure choice
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: abstract:skill-audit (13.84); judge: parseltongue:python-performance'
+  adjudicated: true
+  notes: 'router top: abstract:skill-audit (13.84); judge: parseltongue:python-performance;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: abstract:skill-audit
     router_score: 13.84

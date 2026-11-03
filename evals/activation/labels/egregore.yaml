@@ -41,9 +41,9 @@ cases:
   cluster: egregore:dismiss
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at conjure:provider-sweep; router: conjure:provider-sweep; judge:
-    None/None'
+    None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: conjure:provider-sweep
     router: conjure:provider-sweep
@@ -59,8 +59,8 @@ cases:
   cluster: egregore:gate-audit
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: egregore:gate-audit; judge: None'
+  adjudicated: true
+  notes: 'router: egregore:gate-audit; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: egregore:gate-audit
     judge: null
@@ -74,8 +74,8 @@ cases:
   cluster: egregore:gate-audit
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: egregore:gate-audit; judge: None'
+  adjudicated: true
+  notes: 'router: egregore:gate-audit; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: egregore:gate-audit
     judge: null
@@ -90,9 +90,9 @@ cases:
   cluster: egregore:gate-audit
   proposers:
   - router
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at parseltongue:run-profiler; router: egregore:gate-audit; judge:
-    None/None'
+    None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: parseltongue:run-profiler
     router: egregore:gate-audit
@@ -122,8 +122,8 @@ cases:
   cluster: egregore:install-watchdog
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: None'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: parseltongue:python-async
     judge: null
@@ -137,8 +137,9 @@ cases:
   cluster: egregore:install-watchdog
   proposers:
   - writer
-  adjudicated: false
-  notes: 'aimed at abstract:skill-audit; router: phantom:surface-check; judge: None/None'
+  adjudicated: true
+  notes: 'aimed at abstract:skill-audit; router: phantom:surface-check; judge: None/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:skill-audit
     router: phantom:surface-check
@@ -154,8 +155,8 @@ cases:
   cluster: egregore:quality-gate
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: None'
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: hookify:rule-sweep
     judge: null
@@ -168,8 +169,9 @@ cases:
   cluster: egregore:quality-gate
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: archetypes:paradigm-panel; judge: egregore:quality-gate/None'
+  adjudicated: true
+  notes: 'router: archetypes:paradigm-panel; judge: egregore:quality-gate/None; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: archetypes:paradigm-panel
     judge: egregore:quality-gate
@@ -184,8 +186,9 @@ cases:
   cluster: egregore:quality-gate
   proposers:
   - writer
-  adjudicated: false
-  notes: 'aimed at abstract:make-dogfood; router: pensive:unified-review; judge: None/None'
+  adjudicated: true
+  notes: 'aimed at abstract:make-dogfood; router: pensive:unified-review; judge: None/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:make-dogfood
     router: pensive:unified-review
@@ -325,9 +328,9 @@ cases:
   cluster: egregore:uninstall-watchdog
   proposers:
   - router
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at egregore:install-watchdog; router: egregore:uninstall-watchdog;
-    judge: None/None'
+    judge: None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: egregore:install-watchdog
     router: egregore:uninstall-watchdog

@@ -160,8 +160,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: spec-kit:speckit-checklist
     judge: spec-kit:speckit-checklist
@@ -223,8 +223,9 @@ cases:
   cluster: spec-kit:speckit-clarify
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: spec-kit:spec-review; judge: spec-kit:speckit-clarify/spec-kit:spec-review'
+  adjudicated: true
+  notes: 'router: spec-kit:spec-review; judge: spec-kit:speckit-clarify/spec-kit:spec-review;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: spec-kit:spec-review
     judge: spec-kit:speckit-clarify
@@ -323,8 +324,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: spec-kit:speckit-converge
     judge: spec-kit:speckit-converge
@@ -473,9 +474,10 @@ cases:
   cluster: spec-kit:speckit-orchestrator
   proposers:
   - router
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:create-command; router: spec-kit:speckit-orchestrator;
-    judge: spec-kit:speckit-startup/spec-kit:speckit-orchestrator'
+    judge: spec-kit:speckit-startup/spec-kit:speckit-orchestrator; accepted by maintainer
+    2026-11-03'
   proposals:
     aimed_at: abstract:create-command
     router: spec-kit:speckit-orchestrator
@@ -743,8 +745,9 @@ cases:
   cluster: spec-kit:task-planning
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: conjure:agent-teams; judge: spec-kit:task-planning/spec-kit:spec-writing'
+  adjudicated: true
+  notes: 'router: conjure:agent-teams; judge: spec-kit:task-planning/spec-kit:spec-writing;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: conjure:agent-teams
     judge: spec-kit:task-planning

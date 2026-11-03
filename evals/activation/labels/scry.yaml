@@ -218,8 +218,9 @@ cases:
   cluster: scry:record-browser
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: sanctum:tutorial-updates; judge: scry:record-browser'
+  adjudicated: true
+  notes: 'router: sanctum:tutorial-updates; judge: scry:record-browser; accepted by
+    maintainer 2026-11-03'
   proposals:
     router: sanctum:tutorial-updates
     judge: scry:record-browser
@@ -264,8 +265,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: scry:record-terminal
     judge: scry:record-terminal
@@ -279,9 +280,9 @@ cases:
   cluster: scry:record-terminal
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at sanctum:tutorial-updates; router: sanctum:tutorial-updates; judge:
-    scry:vhs-recording/scry:record-terminal'
+    scry:vhs-recording/scry:record-terminal; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: sanctum:tutorial-updates
     router: sanctum:tutorial-updates
@@ -311,8 +312,9 @@ cases:
   cluster: scry:vhs-recording
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: scry:record-terminal; judge: scry:vhs-recording'
+  adjudicated: true
+  notes: 'router: scry:record-terminal; judge: scry:vhs-recording; accepted by maintainer
+    2026-11-03'
   proposals:
     router: scry:record-terminal
     judge: scry:vhs-recording

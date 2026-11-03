@@ -56,8 +56,9 @@ cases:
   cluster: scribe:doc-generator
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: scribe:tech-tutorial; judge: scribe:tech-tutorial/scribe:doc-generator'
+  adjudicated: true
+  notes: 'router: scribe:tech-tutorial; judge: scribe:tech-tutorial/scribe:doc-generator;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: scribe:tech-tutorial
     judge: scribe:tech-tutorial
@@ -267,8 +268,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: scribe:session-to-post
     judge: scribe:session-to-post
@@ -282,9 +283,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at parseltongue:python-async; router: scribe:session-to-post; judge:
-    scribe:session-to-post/imbue:evidence-sweep'
+    scribe:session-to-post/imbue:evidence-sweep; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: parseltongue:python-async
     router: scribe:session-to-post
@@ -523,9 +524,9 @@ cases:
   cluster: scribe:tech-tutorial
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:hook-scope-guide; router: abstract:hook-scope-guide; judge:
-    scribe:tech-tutorial/abstract:hook-authoring'
+    scribe:tech-tutorial/abstract:hook-authoring; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:hook-scope-guide
     router: abstract:hook-scope-guide
@@ -588,8 +589,9 @@ cases:
   cluster: scribe:voice-generate
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: scribe:session-to-post; judge: scribe:voice-generate/scribe:voice-review'
+  adjudicated: true
+  notes: 'router: scribe:session-to-post; judge: scribe:voice-generate/scribe:voice-review;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: scribe:session-to-post
     judge: scribe:voice-generate
@@ -620,9 +622,9 @@ cases:
   cluster: scribe:voice-generate
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:aggregate-logs; router: scribe:session-to-post; judge:
-    scribe:voice-generate/scribe:session-to-post'
+    scribe:voice-generate/scribe:session-to-post; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: scribe:session-to-post
@@ -700,8 +702,9 @@ cases:
   cluster: scribe:voice-review
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: sanctum:update-readme; judge: scribe:voice-review/None'
+  adjudicated: true
+  notes: 'router: sanctum:update-readme; judge: scribe:voice-review/None; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: sanctum:update-readme
     judge: scribe:voice-review

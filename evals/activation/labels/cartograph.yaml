@@ -305,8 +305,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: cartograph:dependency-graph
     judge: cartograph:dependency-graph

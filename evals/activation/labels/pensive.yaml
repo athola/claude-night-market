@@ -91,9 +91,10 @@ cases:
   cluster: pensive:architecture-review
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:create-skill; router: cartograph:code-communities; judge:
-    pensive:architecture-review/cartograph:code-communities'
+    pensive:architecture-review/cartograph:code-communities; accepted by maintainer
+    2026-11-03'
   proposals:
     aimed_at: abstract:create-skill
     router: cartograph:code-communities
@@ -204,8 +205,9 @@ cases:
   cluster: pensive:code-refinement
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: pensive:code-refinement; judge: conserve:ai-hygiene-audit'
+  adjudicated: true
+  notes: 'router: pensive:code-refinement; judge: conserve:ai-hygiene-audit; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: pensive:code-refinement
     judge: conserve:ai-hygiene-audit
@@ -219,8 +221,9 @@ cases:
   cluster: pensive:code-refinement
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: egregore:uninstall-watchdog; judge: pensive:code-refinement'
+  adjudicated: true
+  notes: 'router: egregore:uninstall-watchdog; judge: pensive:code-refinement; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: egregore:uninstall-watchdog
     judge: pensive:code-refinement
@@ -251,8 +254,9 @@ cases:
   cluster: pensive:full-review
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: phantom:control-desktop; judge: pensive:unified-review/pensive:full-review'
+  adjudicated: true
+  notes: 'router: phantom:control-desktop; judge: pensive:unified-review/pensive:full-review;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: phantom:control-desktop
     judge: pensive:unified-review
@@ -478,9 +482,9 @@ cases:
   cluster: pensive:performance-review
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:skill-audit; router: parseltongue:python-sweep; judge:
-    pensive:performance-review/parseltongue:python-sweep'
+    pensive:performance-review/parseltongue:python-sweep; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:skill-audit
     router: parseltongue:python-sweep

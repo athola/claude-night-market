@@ -61,8 +61,9 @@ cases:
   cluster: archetypes:architecture-paradigm-cqrs-es
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: sanctum:stack-mode; judge: archetypes:architecture-paradigm-cqrs-es'
+  adjudicated: true
+  notes: 'router: sanctum:stack-mode; judge: archetypes:architecture-paradigm-cqrs-es;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: sanctum:stack-mode
     judge: archetypes:architecture-paradigm-cqrs-es
@@ -241,9 +242,10 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at parseltongue:python-async; router: archetypes:architecture-paradigm-functional-core;
-    judge: archetypes:architecture-paradigm-functional-core/archetypes:architecture-paradigm-domain-driven'
+    judge: archetypes:architecture-paradigm-functional-core/archetypes:architecture-paradigm-domain-driven;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: parseltongue:python-async
     router: archetypes:architecture-paradigm-functional-core
@@ -275,8 +277,9 @@ cases:
   cluster: archetypes:architecture-paradigm-hexagonal
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: pensive:unified-review; judge: archetypes:architecture-paradigm-hexagonal/archetypes:architecture-paradigm-domain-driven'
+  adjudicated: true
+  notes: 'router: pensive:unified-review; judge: archetypes:architecture-paradigm-hexagonal/archetypes:architecture-paradigm-domain-driven;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: pensive:unified-review
     judge: archetypes:architecture-paradigm-hexagonal
@@ -310,8 +313,9 @@ cases:
   cluster: archetypes:architecture-paradigm-layered
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: archetypes:architecture-paradigm-modular-monolith; judge: archetypes:architecture-paradigm-layered'
+  adjudicated: true
+  notes: 'router: archetypes:architecture-paradigm-modular-monolith; judge: archetypes:architecture-paradigm-layered;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: archetypes:architecture-paradigm-modular-monolith
     judge: archetypes:architecture-paradigm-layered
@@ -376,8 +380,9 @@ cases:
   cluster: archetypes:architecture-paradigm-microkernel
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: leyline:plugin-health; judge: archetypes:architecture-paradigm-microkernel/archetypes:paradigm-panel'
+  adjudicated: true
+  notes: 'router: leyline:plugin-health; judge: archetypes:architecture-paradigm-microkernel/archetypes:paradigm-panel;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: leyline:plugin-health
     judge: archetypes:architecture-paradigm-microkernel
@@ -412,8 +417,9 @@ cases:
   cluster: archetypes:architecture-paradigm-microservices
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: archetypes:architecture-paradigm-domain-driven; judge: archetypes:architecture-paradigm-microservices'
+  adjudicated: true
+  notes: 'router: archetypes:architecture-paradigm-domain-driven; judge: archetypes:architecture-paradigm-microservices;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: archetypes:architecture-paradigm-domain-driven
     judge: archetypes:architecture-paradigm-microservices
@@ -545,9 +551,10 @@ cases:
   cluster: archetypes:architecture-paradigm-pipeline
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: memory-palace:session-handoff;
-    judge: archetypes:architecture-paradigm-pipeline/None'
+    judge: archetypes:architecture-paradigm-pipeline/None; accepted by maintainer
+    2026-11-03'
   proposals:
     aimed_at: archetypes:architecture-paradigm-functional-core
     router: memory-palace:session-handoff
@@ -802,9 +809,9 @@ cases:
   cluster: archetypes:paradigm-panel
   proposers:
   - router
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at parseltongue:python-async; router: archetypes:paradigm-panel; judge:
-    None/None'
+    None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: parseltongue:python-async
     router: archetypes:paradigm-panel

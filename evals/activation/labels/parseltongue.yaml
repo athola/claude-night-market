@@ -175,8 +175,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: parseltongue:python-packaging
     judge: parseltongue:python-packaging
@@ -223,8 +223,9 @@ cases:
   cluster: parseltongue:python-performance
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: parseltongue:run-profiler; judge: parseltongue:run-profiler'
+  adjudicated: true
+  notes: 'router: parseltongue:run-profiler; judge: parseltongue:run-profiler; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: parseltongue:run-profiler
     judge: parseltongue:run-profiler
@@ -305,8 +306,9 @@ cases:
   cluster: parseltongue:python-testing
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: parseltongue:python-testing; judge: leyline:pytest-config'
+  adjudicated: true
+  notes: 'router: parseltongue:python-testing; judge: leyline:pytest-config; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: parseltongue:python-testing
     judge: leyline:pytest-config
@@ -354,8 +356,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: parseltongue:run-profiler
     judge: parseltongue:run-profiler
@@ -368,8 +370,9 @@ cases:
   cluster: parseltongue:run-profiler
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: minister:release-health-gates; judge: parseltongue:run-profiler'
+  adjudicated: true
+  notes: 'router: minister:release-health-gates; judge: parseltongue:run-profiler;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: minister:release-health-gates
     judge: parseltongue:run-profiler

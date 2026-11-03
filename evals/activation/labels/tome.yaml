@@ -228,8 +228,9 @@ cases:
   cluster: tome:export
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at memory-palace:palace; router: tome:cite; judge: tome:export/tome:cite'
+  adjudicated: true
+  notes: 'aimed at memory-palace:palace; router: tome:cite; judge: tome:export/tome:cite;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: memory-palace:palace
     router: tome:cite
@@ -260,8 +261,9 @@ cases:
   cluster: tome:ideate
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: attune:brainstorm; judge: tome:ideate/attune:brainstorm'
+  adjudicated: true
+  notes: 'router: attune:brainstorm; judge: tome:ideate/attune:brainstorm; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: attune:brainstorm
     judge: tome:ideate
@@ -310,8 +312,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: tome:papers
     judge: tome:papers
@@ -343,8 +345,9 @@ cases:
   cluster: tome:research
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: memory-palace:palace-sweep; judge: tome:research'
+  adjudicated: true
+  notes: 'router: memory-palace:palace-sweep; judge: tome:research; accepted by maintainer
+    2026-11-03'
   proposals:
     router: memory-palace:palace-sweep
     judge: tome:research

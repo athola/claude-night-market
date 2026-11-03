@@ -91,8 +91,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at egregore:gate-audit; router: conjure:codex-delegation; judge: conjure:codex-delegation/conjure:provider-sweep'
+  adjudicated: true
+  notes: 'aimed at egregore:gate-audit; router: conjure:codex-delegation; judge: conjure:codex-delegation/conjure:provider-sweep;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: egregore:gate-audit
     router: conjure:codex-delegation
@@ -321,8 +322,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: conjure:minimax-delegation
     judge: conjure:minimax-delegation
@@ -385,8 +386,9 @@ cases:
   cluster: conjure:muse-delegation
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at oracle:quality-bench; router: scry:capture-set; judge: conjure:muse-delegation/conserve:agent-expenditure'
+  adjudicated: true
+  notes: 'aimed at oracle:quality-bench; router: scry:capture-set; judge: conjure:muse-delegation/conserve:agent-expenditure;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: oracle:quality-bench
     router: scry:capture-set
@@ -480,8 +482,9 @@ cases:
   cluster: conjure:provider-setup
   proposers:
   - router
-  adjudicated: false
-  notes: 'aimed at cartograph:atlas; router: conjure:provider-setup; judge: None/None'
+  adjudicated: true
+  notes: 'aimed at cartograph:atlas; router: conjure:provider-setup; judge: None/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: cartograph:atlas
     router: conjure:provider-setup
@@ -527,9 +530,9 @@ cases:
   cluster: conjure:provider-sweep
   proposers:
   - router
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: conjure:provider-sweep;
-    judge: None/None'
+    judge: None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: archetypes:architecture-paradigm-functional-core
     router: conjure:provider-sweep
@@ -575,9 +578,9 @@ cases:
   cluster: conjure:qwen-delegation
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at conjure:delegation-core; router: parseltongue:python-async; judge:
-    None/None'
+    None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: conjure:delegation-core
     router: parseltongue:python-async

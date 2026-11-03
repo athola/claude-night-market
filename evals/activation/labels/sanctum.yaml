@@ -58,8 +58,9 @@ cases:
   cluster: sanctum:commit-messages
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:commit-msg; judge: sanctum:commit-msg'
+  adjudicated: true
+  notes: 'router: sanctum:commit-msg; judge: sanctum:commit-msg; accepted by maintainer
+    2026-11-03'
   proposals:
     router: sanctum:commit-msg
     judge: sanctum:commit-msg
@@ -73,8 +74,9 @@ cases:
   cluster: sanctum:commit-messages
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:commit-msg; judge: sanctum:commit-msg'
+  adjudicated: true
+  notes: 'router: sanctum:commit-msg; judge: sanctum:commit-msg; accepted by maintainer
+    2026-11-03'
   proposals:
     router: sanctum:commit-msg
     judge: sanctum:commit-msg
@@ -106,8 +108,9 @@ cases:
   cluster: sanctum:commit-msg
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:commit-messages; judge: sanctum:commit-messages'
+  adjudicated: true
+  notes: 'router: sanctum:commit-messages; judge: sanctum:commit-messages; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: sanctum:commit-messages
     judge: sanctum:commit-messages
@@ -186,8 +189,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at conserve:bloat-sweep; router: sanctum:create-tag; judge: sanctum:create-tag/None'
+  adjudicated: true
+  notes: 'aimed at conserve:bloat-sweep; router: sanctum:create-tag; judge: sanctum:create-tag/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: conserve:bloat-sweep
     router: sanctum:create-tag
@@ -268,8 +272,9 @@ cases:
   cluster: sanctum:doc-consolidation
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:merge-docs; judge: sanctum:merge-docs'
+  adjudicated: true
+  notes: 'router: sanctum:merge-docs; judge: sanctum:merge-docs; accepted by maintainer
+    2026-11-03'
   proposals:
     router: sanctum:merge-docs
     judge: sanctum:merge-docs
@@ -301,8 +306,9 @@ cases:
   cluster: sanctum:doc-updates
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:update-version; judge: sanctum:update-docs/sanctum:doc-updates'
+  adjudicated: true
+  notes: 'router: sanctum:update-version; judge: sanctum:update-docs/sanctum:doc-updates;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: sanctum:update-version
     judge: sanctum:update-docs
@@ -364,8 +370,9 @@ cases:
   cluster: sanctum:fix-pr
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:stack-mode; judge: sanctum:stack-mode'
+  adjudicated: true
+  notes: 'router: sanctum:stack-mode; judge: sanctum:stack-mode; accepted by maintainer
+    2026-11-03'
   proposals:
     router: sanctum:stack-mode
     judge: sanctum:stack-mode
@@ -462,8 +469,9 @@ cases:
   cluster: sanctum:fix-workflow
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:fix-workflow-analysis; judge: sanctum:fix-workflow-analysis'
+  adjudicated: true
+  notes: 'router: sanctum:fix-workflow-analysis; judge: sanctum:fix-workflow-analysis;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: sanctum:fix-workflow-analysis
     judge: sanctum:fix-workflow-analysis
@@ -574,8 +582,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at conserve:filter-log; router: sanctum:git-catchup; judge: sanctum:git-catchup/pensive:blast-radius'
+  adjudicated: true
+  notes: 'aimed at conserve:filter-log; router: sanctum:git-catchup; judge: sanctum:git-catchup/pensive:blast-radius;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: conserve:filter-log
     router: sanctum:git-catchup
@@ -605,8 +614,9 @@ cases:
   cluster: sanctum:git-workspace-review
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: sanctum:git-workspace-review/sanctum:validate-pr'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: sanctum:git-workspace-review/sanctum:validate-pr;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: parseltongue:python-async
     judge: sanctum:git-workspace-review
@@ -638,8 +648,9 @@ cases:
   cluster: sanctum:merge-docs
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:doc-consolidation; judge: sanctum:doc-consolidation'
+  adjudicated: true
+  notes: 'router: sanctum:doc-consolidation; judge: sanctum:doc-consolidation; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: sanctum:doc-consolidation
     judge: sanctum:doc-consolidation
@@ -700,8 +711,9 @@ cases:
   cluster: sanctum:pr-prep
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: egregore:quality-gate; judge: sanctum:pr-prep'
+  adjudicated: true
+  notes: 'router: egregore:quality-gate; judge: sanctum:pr-prep; accepted by maintainer
+    2026-11-03'
   proposals:
     router: egregore:quality-gate
     judge: sanctum:pr-prep
@@ -841,8 +853,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: sanctum:resolve-threads
     judge: sanctum:resolve-threads
@@ -1015,8 +1027,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: sanctum:stack-push
     judge: sanctum:stack-push
@@ -1152,8 +1164,9 @@ cases:
   cluster: sanctum:test-updates
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:update-tests; judge: sanctum:update-tests'
+  adjudicated: true
+  notes: 'router: sanctum:update-tests; judge: sanctum:update-tests; accepted by maintainer
+    2026-11-03'
   proposals:
     router: sanctum:update-tests
     judge: sanctum:update-tests
@@ -1167,8 +1180,9 @@ cases:
   cluster: sanctum:test-updates
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:update-tests; judge: sanctum:update-tests/sanctum:test-updates'
+  adjudicated: true
+  notes: 'router: sanctum:update-tests; judge: sanctum:update-tests/sanctum:test-updates;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: sanctum:update-tests
     judge: sanctum:update-tests
@@ -1183,9 +1197,9 @@ cases:
   cluster: sanctum:test-updates
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at parseltongue:python-testing; router: sanctum:update-tests; judge:
-    sanctum:update-tests/sanctum:test-updates'
+    sanctum:update-tests/sanctum:test-updates; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: parseltongue:python-testing
     router: sanctum:update-tests
@@ -1215,8 +1229,9 @@ cases:
   cluster: sanctum:tutorial-updates
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:update-tutorial; judge: sanctum:update-tutorial'
+  adjudicated: true
+  notes: 'router: sanctum:update-tutorial; judge: sanctum:update-tutorial; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: sanctum:update-tutorial
     judge: sanctum:update-tutorial
@@ -1263,8 +1278,9 @@ cases:
   cluster: sanctum:update-ci
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: egregore:gate-audit'
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: egregore:gate-audit; accepted by maintainer
+    2026-11-03'
   proposals:
     router: hookify:rule-sweep
     judge: egregore:gate-audit
@@ -1510,8 +1526,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: sanctum:update-tests
     judge: sanctum:update-tests
@@ -1559,8 +1575,9 @@ cases:
   cluster: sanctum:update-tutorial
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: egregore:dismiss; judge: sanctum:update-tutorial/None'
+  adjudicated: true
+  notes: 'router: egregore:dismiss; judge: sanctum:update-tutorial/None; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: egregore:dismiss
     judge: sanctum:update-tutorial
@@ -1690,8 +1707,9 @@ cases:
   cluster: sanctum:version-updates
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:create-tag; judge: sanctum:update-version'
+  adjudicated: true
+  notes: 'router: sanctum:create-tag; judge: sanctum:update-version; accepted by maintainer
+    2026-11-03'
   proposals:
     router: sanctum:create-tag
     judge: sanctum:update-version
@@ -1705,8 +1723,9 @@ cases:
   cluster: sanctum:version-updates
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: sanctum:version-updates; judge: sanctum:update-version'
+  adjudicated: true
+  notes: 'router: sanctum:version-updates; judge: sanctum:update-version; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: sanctum:version-updates
     judge: sanctum:update-version
@@ -1720,8 +1739,9 @@ cases:
   cluster: sanctum:version-updates
   proposers:
   - writer
-  adjudicated: false
-  notes: 'aimed at sanctum:create-tag; router: sanctum:update-version; judge: sanctum:update-version/sanctum:version-updates'
+  adjudicated: true
+  notes: 'aimed at sanctum:create-tag; router: sanctum:update-version; judge: sanctum:update-version/sanctum:version-updates;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: sanctum:create-tag
     router: sanctum:update-version

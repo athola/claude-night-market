@@ -42,9 +42,10 @@ cases:
   cluster: memory-palace:digital-garden-cultivator
   proposers:
   - router
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at parseltongue:python-async; router: memory-palace:digital-garden-cultivator;
-    judge: memory-palace:garden/memory-palace:digital-garden-cultivator'
+    judge: memory-palace:garden/memory-palace:digital-garden-cultivator; accepted
+    by maintainer 2026-11-03'
   proposals:
     aimed_at: parseltongue:python-async
     router: memory-palace:digital-garden-cultivator
@@ -91,9 +92,10 @@ cases:
   cluster: memory-palace:garden
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigms; router: memory-palace:digital-garden-cultivator;
-    judge: memory-palace:digital-garden-cultivator/memory-palace:garden'
+    judge: memory-palace:digital-garden-cultivator/memory-palace:garden; accepted
+    by maintainer 2026-11-03'
   proposals:
     aimed_at: archetypes:architecture-paradigms
     router: memory-palace:digital-garden-cultivator
@@ -109,8 +111,9 @@ cases:
   cluster: memory-palace:knowledge-intake
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: scribe:session-to-post; judge: memory-palace:knowledge-intake/memory-palace:digital-garden-cultivator'
+  adjudicated: true
+  notes: 'router: scribe:session-to-post; judge: memory-palace:knowledge-intake/memory-palace:digital-garden-cultivator;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: scribe:session-to-post
     judge: memory-palace:knowledge-intake
@@ -258,8 +261,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: memory-palace:memory-palace-architect
     judge: memory-palace:memory-palace-architect
@@ -320,8 +323,9 @@ cases:
   cluster: memory-palace:navigate
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: memory-palace:palace-sweep; judge: memory-palace:navigate/memory-palace:palace'
+  adjudicated: true
+  notes: 'router: memory-palace:palace-sweep; judge: memory-palace:navigate/memory-palace:palace;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: memory-palace:palace-sweep
     judge: memory-palace:navigate
@@ -383,9 +387,10 @@ cases:
   cluster: memory-palace:palace-diagram
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: archetypes:architecture-paradigm-functional-core;
-    judge: memory-palace:palace-diagram/memory-palace:palace-sweep'
+    judge: memory-palace:palace-diagram/memory-palace:palace-sweep; accepted by maintainer
+    2026-11-03'
   proposals:
     aimed_at: archetypes:architecture-paradigm-functional-core
     router: archetypes:architecture-paradigm-functional-core
@@ -568,8 +573,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: memory-palace:review-chamber
     judge: memory-palace:review-chamber
@@ -631,9 +636,10 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at leyline:error-patterns; router: memory-palace:review-room; judge:
-    memory-palace:review-room/memory-palace:review-chamber'
+    memory-palace:review-room/memory-palace:review-chamber; accepted by maintainer
+    2026-11-03'
   proposals:
     aimed_at: leyline:error-patterns
     router: memory-palace:review-room
@@ -681,9 +687,10 @@ cases:
   cluster: memory-palace:session-handoff
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:metacognitive-self-mod; router: scribe:session-to-post;
-    judge: memory-palace:session-handoff/scribe:session-replay'
+    judge: memory-palace:session-handoff/scribe:session-replay; accepted by maintainer
+    2026-11-03'
   proposals:
     aimed_at: abstract:metacognitive-self-mod
     router: scribe:session-to-post
@@ -762,8 +769,8 @@ cases:
   cluster: memory-palace:skill-logs
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: memory-palace:skill-logs; judge: None'
+  adjudicated: true
+  notes: 'router: memory-palace:skill-logs; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: memory-palace:skill-logs
     judge: null

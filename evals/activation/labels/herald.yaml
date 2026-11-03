@@ -9,8 +9,8 @@ cases:
   cluster: herald:judge-panel
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: None'
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: hookify:rule-sweep
     judge: null
@@ -23,8 +23,8 @@ cases:
   cluster: herald:judge-panel
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: herald:judge-panel; judge: None'
+  adjudicated: true
+  notes: 'router: herald:judge-panel; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: herald:judge-panel
     judge: null

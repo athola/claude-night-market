@@ -104,8 +104,9 @@ cases:
   cluster: gauntlet:extract
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: gauntlet:gauntlet-extract; judge: gauntlet:gauntlet-extract'
+  adjudicated: true
+  notes: 'router: gauntlet:gauntlet-extract; judge: gauntlet:gauntlet-extract; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: gauntlet:gauntlet-extract
     judge: gauntlet:gauntlet-extract
@@ -197,8 +198,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: gauntlet:gauntlet-extract
     judge: gauntlet:gauntlet-extract
@@ -225,8 +226,9 @@ cases:
   cluster: gauntlet:gauntlet-extract
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at gauntlet:extract; router: tome:research; judge: gauntlet:gauntlet-extract/gauntlet:extract'
+  adjudicated: true
+  notes: 'aimed at gauntlet:extract; router: tome:research; judge: gauntlet:gauntlet-extract/gauntlet:extract;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: gauntlet:extract
     router: tome:research
@@ -332,8 +334,8 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
   proposals:
     router: gauntlet:gauntlet-progress
     judge: gauntlet:gauntlet-progress
@@ -421,8 +423,9 @@ cases:
   cluster: gauntlet:graph-build
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: sanctum:git-catchup; judge: gauntlet:graph-build'
+  adjudicated: true
+  notes: 'router: sanctum:git-catchup; judge: gauntlet:graph-build; accepted by maintainer
+    2026-11-03'
   proposals:
     router: sanctum:git-catchup
     judge: gauntlet:graph-build
@@ -479,8 +482,9 @@ cases:
   cluster: gauntlet:graph-search
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: gauntlet:graph-build; judge: gauntlet:graph-search'
+  adjudicated: true
+  notes: 'router: gauntlet:graph-build; judge: gauntlet:graph-search; accepted by
+    maintainer 2026-11-03'
   proposals:
     router: gauntlet:graph-build
     judge: gauntlet:graph-search
@@ -574,8 +578,9 @@ cases:
   cluster: gauntlet:onboard
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: gauntlet:onboard/None'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: gauntlet:onboard/None; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: parseltongue:python-async
     judge: gauntlet:onboard
@@ -606,8 +611,8 @@ cases:
   cluster: gauntlet:problem-bank
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: gauntlet:problem-bank; judge: None'
+  adjudicated: true
+  notes: 'router: gauntlet:problem-bank; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: gauntlet:problem-bank
     judge: null
@@ -620,8 +625,8 @@ cases:
   cluster: gauntlet:problem-bank
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: gauntlet:problem-bank; judge: None'
+  adjudicated: true
+  notes: 'router: gauntlet:problem-bank; judge: None; accepted by maintainer 2026-11-03'
   proposals:
     router: gauntlet:problem-bank
     judge: null

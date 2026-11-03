@@ -24,8 +24,9 @@ cases:
   cluster: abstract:aggregate-logs
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: attune:skill-library; judge: abstract:aggregate-logs/pensive:skill-history'
+  adjudicated: true
+  notes: 'router: attune:skill-library; judge: abstract:aggregate-logs/pensive:skill-history;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: attune:skill-library
     judge: abstract:aggregate-logs
@@ -180,8 +181,9 @@ cases:
   cluster: abstract:create-command
   proposers:
   - writer
-  adjudicated: false
-  notes: 'aimed at gauntlet:problem-bank; router: leyline:plugin-health; judge: None/None'
+  adjudicated: true
+  notes: 'aimed at gauntlet:problem-bank; router: leyline:plugin-health; judge: None/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: gauntlet:problem-bank
     router: leyline:plugin-health
@@ -226,9 +228,9 @@ cases:
   cluster: abstract:create-hook
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:hook-authoring; router: abstract:hook-scope-guide; judge:
-    None/None'
+    None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:hook-authoring
     router: abstract:hook-scope-guide
@@ -258,8 +260,9 @@ cases:
   cluster: abstract:create-skill
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: abstract:create-skill/parseltongue:python-async'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: abstract:create-skill/parseltongue:python-async;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: parseltongue:python-async
     judge: abstract:create-skill
@@ -467,9 +470,9 @@ cases:
   cluster: abstract:hook-authoring
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:hook-scope-guide; router: phantom:control-desktop; judge:
-    None/None'
+    None/None; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:hook-scope-guide
     router: phantom:control-desktop
@@ -705,8 +708,9 @@ cases:
   cluster: abstract:metacognitive-self-mod
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at abstract:skill-audit; router: sanctum:git-catchup; judge: abstract:metacognitive-self-mod/pensive:skill-review'
+  adjudicated: true
+  notes: 'aimed at abstract:skill-audit; router: sanctum:git-catchup; judge: abstract:metacognitive-self-mod/pensive:skill-review;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:skill-audit
     router: sanctum:git-catchup
@@ -787,8 +791,9 @@ cases:
   cluster: abstract:modular-skills
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: oracle:quality-bench; judge: abstract:skill-graph-audit'
+  adjudicated: true
+  notes: 'router: oracle:quality-bench; judge: abstract:skill-graph-audit; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: oracle:quality-bench
     judge: abstract:skill-graph-audit
@@ -1074,8 +1079,9 @@ cases:
   cluster: abstract:skill-graph-audit
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: conjure:provider-setup; judge: abstract:skill-graph-audit/conserve:bloat-sweep'
+  adjudicated: true
+  notes: 'router: conjure:provider-setup; judge: abstract:skill-graph-audit/conserve:bloat-sweep;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: conjure:provider-setup
     judge: abstract:skill-graph-audit
@@ -1090,8 +1096,9 @@ cases:
   cluster: abstract:skill-graph-audit
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at conserve:bloat-sweep; router: conserve:bloat-sweep; judge: abstract:skill-graph-audit/leyline:plugin-health'
+  adjudicated: true
+  notes: 'aimed at conserve:bloat-sweep; router: conserve:bloat-sweep; judge: abstract:skill-graph-audit/leyline:plugin-health;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: conserve:bloat-sweep
     router: conserve:bloat-sweep
@@ -1268,8 +1275,9 @@ cases:
   cluster: abstract:validate-hook
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: abstract:validate-hook; judge: abstract:hooks-eval'
+  adjudicated: true
+  notes: 'router: abstract:validate-hook; judge: abstract:hooks-eval; accepted by
+    maintainer 2026-11-03'
   proposals:
     router: abstract:validate-hook
     judge: abstract:hooks-eval
@@ -1282,8 +1290,9 @@ cases:
   cluster: abstract:validate-hook
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at abstract:create-command; router: egregore:gate-audit; judge: abstract:validate-hook/None'
+  adjudicated: true
+  notes: 'aimed at abstract:create-command; router: egregore:gate-audit; judge: abstract:validate-hook/None;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: abstract:create-command
     router: egregore:gate-audit

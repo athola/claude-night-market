@@ -59,8 +59,9 @@ cases:
   cluster: imbue:catchup
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup'
+  adjudicated: true
+  notes: 'router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup; accepted
+    by maintainer 2026-11-03'
   proposals:
     router: sanctum:git-catchup
     judge: sanctum:git-catchup
@@ -89,9 +90,9 @@ cases:
   cluster: imbue:catchup
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at minister:initiative-pulse; router: sanctum:git-catchup; judge:
-    sanctum:git-catchup/imbue:catchup'
+    sanctum:git-catchup/imbue:catchup; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: minister:initiative-pulse
     router: sanctum:git-catchup
@@ -107,8 +108,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'router: imbue:dependency-verification; judge: imbue:dependency-verification/parseltongue:python-packaging'
+  adjudicated: true
+  notes: 'router: imbue:dependency-verification; judge: imbue:dependency-verification/parseltongue:python-packaging;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: imbue:dependency-verification
     judge: imbue:dependency-verification
@@ -173,8 +175,9 @@ cases:
   cluster: imbue:diff-analysis
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: pensive:blast-radius; judge: imbue:diff-analysis/pensive:blast-radius'
+  adjudicated: true
+  notes: 'router: pensive:blast-radius; judge: imbue:diff-analysis/pensive:blast-radius;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: pensive:blast-radius
     judge: imbue:diff-analysis
@@ -632,8 +635,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at egregore:gate-audit; router: imbue:review-core; judge: imbue:review-core/pensive:full-review'
+  adjudicated: true
+  notes: 'aimed at egregore:gate-audit; router: imbue:review-core; judge: imbue:review-core/pensive:full-review;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: egregore:gate-audit
     router: imbue:review-core
@@ -855,8 +859,9 @@ cases:
   cluster: imbue:structured-review
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: imbue:feature-review; judge: imbue:feature-review/imbue:structured-review'
+  adjudicated: true
+  notes: 'router: imbue:feature-review; judge: imbue:feature-review/imbue:structured-review;
+    accepted by maintainer 2026-11-03'
   proposals:
     router: imbue:feature-review
     judge: imbue:feature-review
@@ -871,8 +876,9 @@ cases:
   cluster: imbue:structured-review
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at imbue:review-core; router: imbue:scope-guard; judge: imbue:structured-review/imbue:review-core'
+  adjudicated: true
+  notes: 'aimed at imbue:review-core; router: imbue:scope-guard; judge: imbue:structured-review/imbue:review-core;
+    accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: imbue:review-core
     router: imbue:scope-guard
@@ -967,9 +973,9 @@ cases:
   cluster: imbue:workflow-monitor
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at leyline:plugin-health; router: spec-kit:speckit-startup; judge:
-    imbue:workflow-monitor/sanctum:fix-workflow-analysis'
+    imbue:workflow-monitor/sanctum:fix-workflow-analysis; accepted by maintainer 2026-11-03'
   proposals:
     aimed_at: leyline:plugin-health
     router: spec-kit:speckit-startup
