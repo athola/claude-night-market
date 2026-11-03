@@ -100,6 +100,12 @@ A full-codebase API review found 98 grounded defects. 86 are fixed,
 
 ### Added
 
+- **`leyline:ticket-writing`: tickets readable at a glance.** From a
+  merge request, the first screen of a ticket says what was decided and
+  why, or links to the document that does. `minister:create-issue`
+  templates drop to three headings. No study measures ticket length, so
+  the shape is judgment. See ADR-0028.
+
 - **One model per concern, from the decoherence research.** Kristen
   Maevyn's essay "The Decoherence Trap" defines decoherence as locally
   valid models of one concern piling up until each change costs mostly

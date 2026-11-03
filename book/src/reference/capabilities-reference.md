@@ -228,6 +228,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `test-review` | [pensive](../plugins/pensive.md) | Test quality review |
 | `test-updates` | [sanctum](../plugins/sanctum.md) | Test maintenance |
 | `testing-quality-standards` | [leyline](../plugins/leyline.md) | Test quality guidelines |
+| `ticket-writing` | [leyline](../plugins/leyline.md) | Glanceable tickets with the why inline or one link away |
 | `tiered-audit` | [pensive](../plugins/pensive.md) | Three-tier escalation audit (git history, targeted, full) |
 | `token-conservation` | [conserve](../plugins/conserve.md) | Token usage strategies |
 | `triz` | [tome](../plugins/tome.md) | TRIZ cross-domain analogical reasoning |

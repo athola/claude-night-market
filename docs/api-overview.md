@@ -11,7 +11,7 @@ details follow in the next section.
 
 ## API Inventory
 
-The ecosystem includes 134 CLI commands, 206 modular
+The ecosystem includes 134 CLI commands, 207 modular
 skills, 57 specialized agents, and 13 Python packages
 with public APIs. We also maintain 58 executable hooks.
 
@@ -28,7 +28,7 @@ with public APIs. We also maintain 58 executable hooks.
 | herald | 1.10.0 | 0 | 0 | 0 | No | - |
 | hookify | 1.10.0 | 6 | 2 | 0 | No | - |
 | imbue | 1.10.0 | 5 | 16 | 1 | No | - |
-| leyline | 1.10.0 | 3 | 24 | 0 | Yes | - |
+| leyline | 1.10.0 | 3 | 25 | 0 | Yes | - |
 | memory-palace | 1.10.0 | 5 | 10 | 4 | Yes | - |
 | minister | 1.10.0 | 3 | 3 | 0 | Yes | - |
 | oracle | 1.10.0 | 1 | 1 | 0 | Yes | - |
