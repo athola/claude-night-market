@@ -170,3 +170,14 @@ def test_anchor_selection_starts_with_confusable_near_misses(suite):
     assert len([c for c in chosen if c.startswith("neg.")]) == 10
     assert len(chosen) == len(set(chosen))
     assert chosen == run_mod.select_anchor(cases, items, metrics)
+
+
+def test_declare_refuses_without_an_anchor_file(suite, monkeypatch, capsys):
+    (suite / "evals/activation/anchor.txt").unlink()
+    change = write(
+        suite / "evals/activation/changes/x.yaml",
+        yaml.safe_dump({"schema_version": 1, "id": "x", "items": ["alpha:ship"]}),
+    )
+    monkeypatch.chdir(suite)
+    assert run_mod.main(["declare", str(change)]) == 2
+    assert "anchor-select" in capsys.readouterr().err

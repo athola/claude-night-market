@@ -172,6 +172,13 @@ def declare(root: Path, change_path: Path) -> dict:
         if c.target in changed or c.competitor in changed or c.target in near
     }
     negatives = {c.id for c in cases if c.type == "negative"}
+    anchor_negatives = [cid for cid in read_anchor(root) if cid in negatives]
+    if not anchor_negatives:
+        raise RunRefused(
+            "anchor.txt lists no negative cases, so the change tier would have no "
+            "false-activation denominator; run "
+            "`uv run python -m scripts.activation.run anchor-select` first"
+        )
     wanted.update(
         [cid for cid in read_anchor(root) if cid in negatives][:ANCHOR_NEGATIVES]
     )
