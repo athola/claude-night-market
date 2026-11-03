@@ -6,9 +6,12 @@ description edit, a comparison cannot see which items changed.
 
 from __future__ import annotations
 
+import json
+
 from scripts.activation.inventory import (
     build_inventory,
     library_hash,
+    main,
     missing_from_listing,
 )
 
@@ -89,3 +92,25 @@ def test_disabled_file_does_not_shadow(plugin_tree):
     )
     (item,) = [i for i in build_inventory(plugin_tree) if i.id == "alpha:hidden"]
     assert item.kind == "skill" and item.shadowed == ()
+
+
+def test_a_workflow_without_when_to_use_routes_its_description_alone(tmp_path):
+    write(
+        tmp_path / "plugins/p/workflows/w.js",
+        "export const meta = {\n  name: 'w',\n  description: 'Sweep areas',\n}\n",
+    )
+    (item,) = build_inventory(tmp_path)
+    assert item.description == "Sweep areas"
+
+
+def test_cli_prints_counts_and_the_library_hash(plugin_tree, capsys):
+    assert main(["--root", str(plugin_tree)]) == 0
+    out = capsys.readouterr().out
+    assert "routing targets:" in out and "files shadowed" in out
+    assert out.splitlines()[1].startswith("library_hash ")
+
+
+def test_cli_json_lists_every_item_with_its_path(plugin_tree, capsys):
+    assert main(["--root", str(plugin_tree), "--json"]) == 0
+    listed = json.loads(capsys.readouterr().out)
+    assert [r["id"] for r in listed] == [i.id for i in build_inventory(plugin_tree)]

@@ -15,6 +15,7 @@ from scripts.activation.labels import (
     case_set_hash,
     coverage_gaps,
     load_cases,
+    main,
     validate,
 )
 
@@ -59,6 +60,12 @@ def test_valid_positive_passes(plugin_tree):
         ),
         ([_case(id="Bad ID")], "id"),
         ([_case(type="near_miss", competitor="alpha:ship")], "competitor"),
+        ([_case(type="guess")], "type must be one of"),
+        ([_case(type="negative", target=None, cluster="")], "needs a cluster"),
+        (
+            [_case(type="near_miss", competitor="alpha:gone")],
+            "unknown competitor",
+        ),
     ],
 )
 def test_validate_rejects(plugin_tree, rows, message):
@@ -125,3 +132,45 @@ def test_case_set_hash_is_byte_stable():
         ).encode()
     ).hexdigest()
     assert case_set_hash([neg]) == expected
+
+
+def test_a_disabled_skill_cannot_be_a_target(plugin_tree):
+    write(
+        plugin_tree / "plugins/alpha/skills/quiet/SKILL.md",
+        "---\nname: quiet\ndescription: Quiet.\ndisable-model-invocation: true\n---\n",
+    )
+    with pytest.raises(LabelError, match="disable-model-invocation"):
+        _check(plugin_tree, _case(target="alpha:quiet", cluster="alpha:quiet"))
+
+
+def test_load_refuses_an_unknown_schema_version(tmp_path):
+    write(tmp_path / "a.yaml", "schema_version: 2\ncases: []\n")
+    with pytest.raises(LabelError, match="schema_version must be 1"):
+        load_cases(tmp_path)
+
+
+def _write_labels(plugin_tree, *rows):
+    labels = plugin_tree / "evals/activation/labels"
+    write(labels / "all.yaml", json.dumps({"schema_version": 1, "cases": list(rows)}))
+    return labels
+
+
+def test_cli_validate_prints_the_case_set_hash(plugin_tree, capsys):
+    _write_labels(plugin_tree, _case())
+    assert main(["validate", "--root", str(plugin_tree)]) == 0
+    out = capsys.readouterr().out
+    assert out.startswith("1 cases valid, case_set_hash ")
+
+
+def test_cli_exits_one_and_names_the_bad_label(plugin_tree, capsys):
+    _write_labels(plugin_tree, _case(target="alpha:nope", cluster="alpha:nope"))
+    assert main(["coverage", "--root", str(plugin_tree)]) == 1
+    assert "unknown target" in capsys.readouterr().err
+
+
+def test_cli_coverage_lists_each_short_item_and_fails(plugin_tree, capsys):
+    _write_labels(plugin_tree, _case())
+    assert main(["coverage", "--root", str(plugin_tree)]) == 1
+    out = capsys.readouterr().out
+    assert "negatives: 0/50, sources: 0/10" in out
+    assert "  alpha:ship: 1\n" in out

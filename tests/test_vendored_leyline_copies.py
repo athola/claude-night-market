@@ -62,6 +62,34 @@ def test_write_brings_a_stale_copy_back_in_line(tmp_path: Path) -> None:
         )
 
 
+def _copy_sources(sync: ModuleType, root: Path) -> None:
+    for source in sync.VENDORED:
+        (root / source).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(REPO_ROOT / source, root / source)
+
+
+def test_check_flag_names_each_stale_copy_and_exits_one(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+    sync = _load_sync()
+    _copy_sources(sync, tmp_path)
+    monkeypatch.setattr(sync, "REPO_ROOT", tmp_path)
+    assert sync.main(["--check"]) == 1
+    err = capsys.readouterr().err
+    every_target = [t for targets in sync.VENDORED.values() for t in targets]
+    assert err.count("stale vendored copy: ") == len(every_target)
+
+
+def test_main_writes_the_copies_then_check_passes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sync = _load_sync()
+    _copy_sources(sync, tmp_path)
+    monkeypatch.setattr(sync, "REPO_ROOT", tmp_path)
+    assert sync.main([]) == 0
+    assert sync.main(["--check"]) == 0
+
+
 @pytest.mark.parametrize(
     ("consumer", "vendored_module"),
     [

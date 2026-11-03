@@ -6,12 +6,19 @@ refusal below is a way a past comparison could have fooled us.
 from __future__ import annotations
 
 import copy
+import json
+import os
+import subprocess
 
 import pytest
+import yaml
 from scripts.activation.compare import (
+    RATES,
     CompareRefused,
     compare,
+    git_is_ancestor,
     holm,
+    main,
     mcnemar_p,
 )
 
@@ -202,3 +209,51 @@ def test_self_check_mode_waives_the_declaration_order():
         base, copy.deepcopy(base), is_ancestor=lambda o, n: False, self_check=True
     )
     assert out["self_check"] is True
+
+
+def _cli_files(tmp_path, base, new):
+    paths = []
+    for name, metrics in (("base.json", base), ("new.json", new)):
+        path = tmp_path / name
+        path.write_text(json.dumps(metrics))
+        paths.append(str(path))
+    change = tmp_path / "change.yaml"
+    change.write_text(yaml.safe_dump(_change(base["cases"])))
+    return [*paths, "--change", str(change)]
+
+
+def test_cli_prints_one_table_row_per_rate(tmp_path, capsys):
+    base = _metrics([3, 0])
+    argv = _cli_files(tmp_path, base, copy.deepcopy(base))
+    assert main([*argv, "--self-check"]) == 0
+    out = capsys.readouterr().out
+    assert out.startswith("# Comparison: x\n")
+    for rate in RATES:
+        assert f"| {rate} |" in out
+
+
+def test_cli_exits_two_and_states_the_refusal(tmp_path, capsys):
+    argv = _cli_files(tmp_path, _metrics([3, 0]), _metrics([3, 0], runs=5))
+    assert main(argv) == 2
+    assert capsys.readouterr().err.startswith("compare refused:")
+
+
+def test_git_is_ancestor_follows_commit_order(tmp_path, monkeypatch):
+    # A hook's GIT_DIR would point these commands at the real repository.
+    for name in [k for k in os.environ if k.startswith("GIT_")]:
+        monkeypatch.delenv(name)
+    monkeypatch.chdir(tmp_path)
+    git = ["git", "-c", "user.email=t@t", "-c", "user.name=t"]
+    subprocess.run([*git, "init", "-q"], check=True)
+    shas = []
+    for n in range(2):
+        subprocess.run(
+            [*git, "commit", "-q", "--allow-empty", "-m", str(n)], check=True
+        )
+        shas.append(
+            subprocess.run(
+                ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
+            ).stdout.strip()
+        )
+    assert git_is_ancestor(shas[0], shas[1])
+    assert not git_is_ancestor(shas[1], shas[0])

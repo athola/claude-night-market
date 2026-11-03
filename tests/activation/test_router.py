@@ -9,7 +9,7 @@ import json
 
 from scripts.activation.inventory import Item
 from scripts.activation.labels import Case
-from scripts.activation.router import Router, check, evaluate, snapshot
+from scripts.activation.router import Router, check, evaluate, main, snapshot
 
 
 def _item(name: str, description: str) -> Item:
@@ -98,3 +98,43 @@ def test_neighbors_count_items_ranked_above_target():
     metrics = evaluate(Router(items), cases)
     assert metrics["neighbors"]["p:shell-check"][0] == "p:lint"
     assert len(metrics["neighbors"]["p:shell-check"]) == 2
+
+
+def test_cli_check_refuses_without_a_baseline(suite, capsys):
+    assert main(["check", "--root", str(suite)]) == 1
+    assert "no baseline" in capsys.readouterr().err
+
+
+def test_cli_baseline_then_check_passes_on_an_unchanged_tree(suite, capsys):
+    assert main(["baseline", "--root", str(suite)]) == 0
+    assert (suite / "evals/activation/router-baseline.json").exists()
+    assert main(["check", "--root", str(suite)]) == 0
+    assert "If the change is intended" not in capsys.readouterr().out
+
+
+def test_cli_check_fails_and_says_how_to_accept_a_new_collision(suite, capsys):
+    main(["baseline", "--root", str(suite)])
+    # shell-check absorbs every term the alpha:ship prompts use.
+    (suite / "plugins/alpha/skills/shell-check/SKILL.md").write_text(
+        "---\nname: shell-check\ndescription: alpha ship task alpha ship task\n---\n"
+    )
+    capsys.readouterr()
+    assert main(["check", "--root", str(suite)]) == 1
+    out = capsys.readouterr().out
+    assert "FAIL" in out and "router baseline" in out
+
+
+def test_cli_report_prints_rates_then_collision_pairs(suite, capsys):
+    assert main(["report", "--root", str(suite)]) == 0
+    first = capsys.readouterr().out.splitlines()[0]
+    assert first.startswith("positives ") and " MRR " in first
+
+
+def test_a_case_added_after_the_baseline_is_not_judged_against_it():
+    items = [_item("a", "alpha words"), _item("b", "beta words")]
+    old = [Case("c1", "positive", "alpha words", "p:a", None, "p:a")]
+    base = snapshot(items, old)
+    new = old + [Case("c2", "positive", "beta words", "p:b", None, "p:b")]
+    ok, messages = check(base, snapshot(items, new))
+    assert ok, messages
+    assert not any("c2" in m for m in messages)
