@@ -215,3 +215,9 @@ docs/knowledge-corpus/queue/
 
 # Scan history written by scribe:slop-detector (modules/reporting.md).
 .slop-history/
+
+# Activation-quality live runs: hard-linked plugin copies, traces and
+# per-run metrics. Baselines worth keeping are copied to
+# evals/activation/reports/ (docs/activation-quality.md).
+evals/activation/.runs/
+evals/results/

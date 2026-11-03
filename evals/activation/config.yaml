@@ -1,0 +1,12 @@
+# Activation-quality suite settings. See docs/activation-quality.md.
+# Writer and judge: the first candidate whose resolved model id differs
+# from every arm's is used, so a measured model never labels its own key.
+writer_models: [sonnet, opus]
+judge_models: [sonnet, opus]
+arms:
+  default: null
+  haiku: haiku
+runs: 3
+label_max_cost_usd: 30
+# Written by `labeling.py resolve`; labeling refuses to run without it.
+resolved: {}
