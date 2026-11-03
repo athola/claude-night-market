@@ -232,6 +232,22 @@ repos:
         stages: [pre-commit]
 
       # =================================================================
+      # Activation Confusability Gate (docs/activation-quality.md)
+      # Offline BM25 router over names and descriptions. Fails when a
+      # description edit drops labeled-prompt MRR by more than 0.01 or
+      # gives a labeled prompt a new rank-1 collision. Free, no model.
+      # An intended change commits a regenerated router-baseline.json.
+      # =================================================================
+
+      - id: check-activation-router
+        name: Block New Activation Collisions
+        entry: uv run python -m scripts.activation.router check
+        language: system
+        files: (SKILL\.md|plugins/[^/]+/commands/[^/]+\.md|plugins/[^/]+/workflows/[^/]+\.js|evals/activation/labels/.*\.yaml|evals/activation/router-baseline\.json)$
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # =================================================================
       # Skill Exit-Criteria Coverage Ratchet
       # Fails only when SKILL.md files lacking an "## Exit Criteria"
       # section exceed the committed baseline (issue #454).
