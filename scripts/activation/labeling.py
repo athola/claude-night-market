@@ -12,6 +12,7 @@ echo risk rather than claim it is gone.
 Usage (uv run python -m scripts.activation.<command>):
   labeling resolve           probe each configured model once (spends ~$0.05 each)
   labeling draft             write labels/<plugin>.yaml and adjudicate.yaml
+  labeling repair            fill short items, re-judge rows the judge never saw
   labeling queue             list prompts still awaiting adjudication
 """
 
@@ -24,11 +25,12 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from types import SimpleNamespace
 
 import yaml
 
 from .inventory import _FRONTMATTER, Item, build_inventory
-from .labels import Case
+from .labels import Case, coverage_gaps
 from .router import Router, evaluate
 
 BODY_CHARS = 3000
@@ -230,7 +232,7 @@ def draft_plain(root, items, writer, model) -> dict[str, list[str]]:
 def draft_near_misses(
     root, items, neighbors, writer, model
 ) -> dict[str, tuple[str, str]]:
-    by_id = {i.id: i for i in items}
+    by_id = {i.id: i for i in build_inventory(root)}  # neighbors may lie outside items
     out = {}
     pending = [i for i in items if neighbors.get(i.id)]
     for start in range(0, len(pending), BATCH):
@@ -278,21 +280,28 @@ def draft_negatives(writer, model) -> list[tuple[str, str]]:
     ]
 
 
-def judge_batch(
-    root: Path, router: Router, by_id: dict, ask, prompts: list[str]
-) -> list:
-    """Judge picks for several prompts in one call, from body excerpts of
-    each prompt's router shortlist. Returns (pick, runner_up) per prompt,
+def judge_batch(root: Path, router: Router, by_id: dict, ask, prompts: list) -> list:
+    """Judge picks for several (prompt, target) pairs in one call.
+
+    Candidates are the router's top 8 plus the writer's target, sorted by
+    id. Without the target the judge could only disagree whenever the
+    router ranked it low: the first full draft (2026-11-03) lost 328 of
+    628 positive labels that way. Returns (pick, runner_up) per prompt,
     None where the judge named nothing valid.
     """
-    shortlists = [[i for i, _ in router.rank(p)[:SHORTLIST]] for p in prompts]
+    shortlists = []
+    for prompt, target in prompts:
+        short = {i for i, _ in router.rank(prompt)[:SHORTLIST]}
+        if target:
+            short.add(target)
+        shortlists.append(sorted(short))
     shown = sorted({cid for short in shortlists for cid in short})
     tools = "\n\n".join(
         f"### {cid}\n{item_body(root, by_id[cid])[:800]}" for cid in shown
     )
     asks = "\n".join(
         f"PROMPT {n}: {p}\nCANDIDATES {n}: {', '.join(short)}"
-        for n, (p, short) in enumerate(zip(prompts, shortlists))
+        for n, ((p, _), short) in enumerate(zip(prompts, shortlists))
     )
     text = ask(
         "Each PROMPT below was typed by a developer to a coding assistant that can "
@@ -317,7 +326,7 @@ def judge_batch(
     return out
 
 
-def judge_all(root, router, by_id, ask, prompts: list[str]) -> tuple[list, str | None]:
+def judge_all(root, router, by_id, ask, prompts: list) -> tuple[list, str | None]:
     """Judge in batches; on budget exhaustion keep what was judged.
 
     Unjudged prompts come back as "unjudged" and land in the
@@ -339,88 +348,95 @@ def _slug(item_id: str) -> str:
     return item_id.replace(":", ".").lower()
 
 
-def draft(root: Path, config: dict, call=claude_call) -> dict:
-    roles = pick_roles(config)
-    budget = Budget(call, float(config["label_max_cost_usd"]))
-    items = build_inventory(root)
-    router = Router(items)
-    writer, judge = roles["writer"], roles["judge"]
-    by_id = {i.id: i for i in items}
+def apply_judgment(row: dict, pick, runner, router: Router) -> dict:
+    """Record each proposer's answer on a row and derive its proposers.
 
-    def ask_judge(prompt: str) -> str:  # one batch of prompts per call
-        return budget(judge, prompt)
-
-    plain = draft_plain(root, items, budget, writer)
-    plain_cases = [
-        Case(id=f"{_slug(t)}.p{n + 1}", type="positive", prompt=p, target=t, cluster=t)
-        for t, prompts in plain.items()
-        for n, p in enumerate(prompts)
-    ]
-    neighbors = evaluate(router, plain_cases)["neighbors"]
-    near = draft_near_misses(root, items, neighbors, budget, writer)
-    negatives = draft_negatives(budget, writer)
-    near_rows = sorted(near.items())
-    prompts = (
-        [c.prompt for c in plain_cases]
-        + [prompt for _, (prompt, _) in near_rows]
-        + [prompt for _, prompt in negatives]
-    )
-    picks, stopped = judge_all(root, router, by_id, ask_judge, prompts)
-    plain_picks = picks[: len(plain_cases)]
-    near_picks = picks[len(plain_cases) : len(plain_cases) + len(near_rows)]
-    negative_picks = picks[len(plain_cases) + len(near_rows) :]
-    rows, disagreements = [], []
-    for case, (pick, _) in zip(plain_cases, plain_picks):
-        top = router.rank(case.prompt)[0][0]
-        proposers = [
-            n for n, who in (("router", top), ("judge", pick)) if who == case.target
-        ]
-        row = case.to_dict() | {"proposers": proposers or ["writer"]}
-        if top != case.target or pick != case.target:
-            row["notes"] = f"router: {top}; judge: {pick}"
-            disagreements.append(row["id"])
-        rows.append(row)
-    for (target, (prompt, neighbor)), (pick, runner) in zip(near_rows, near_picks):
-        ranking = [i for i, _ in router.rank(prompt)]
-        competitor = (
+    ``proposals`` keeps what the router and the judge named, so the
+    queue can be recomputed later without parsing prose notes.
+    """
+    proposals = dict(row.get("proposals") or {})
+    if row["type"] == "negative":
+        top, score = router.rank(row["prompt"])[0]
+        proposals.update(router=top, router_score=round(score, 2), judge=pick)
+        row["proposals"] = proposals
+        row["notes"] = f"router top: {top} ({score:.2f}); judge: {pick}"
+        return row
+    ranking = [i for i, _ in router.rank(row["prompt"])]
+    target = row["target"]
+    proposals.update(router=ranking[0], judge=pick, judge_runner_up=runner)
+    if row["type"] == "near_miss":
+        row["competitor"] = (
             runner
             if runner and runner != target
             else next(i for i in ranking if i != target)
         )
-        cid = f"{_slug(target)}.p3"
-        row = Case(
-            id=cid,
-            type="near_miss",
-            prompt=prompt,
-            target=target,
-            competitor=competitor,
-            cluster=target,
-        ).to_dict()
-        row["proposers"] = [
-            n for n, who in (("router", ranking[0]), ("judge", pick)) if who == target
-        ] or ["writer"]
-        row["notes"] = (
-            f"aimed at {neighbor}; router: {ranking[0]}; judge: {pick}/{runner}"
-        )
-        if ranking[0] != target or pick != target or competitor != neighbor:
-            disagreements.append(cid)
-        rows.append(row)
-    for n, ((source, prompt), (pick, _)) in enumerate(zip(negatives, negative_picks)):
-        top = router.rank(prompt)[0]
-        cid = f"neg.{n + 1:03d}"
-        rows.append(
-            Case(
-                id=cid,
-                type="negative",
-                prompt=prompt,
-                target=None,
-                cluster=source,
-                proposers=("writer",),
-                notes=f"router top: {top[0]} ({top[1]:.2f}); judge: {pick}",
-            ).to_dict()
-        )
-        if pick is not None:
-            disagreements.append(cid)
+    row["proposals"] = proposals
+    row["proposers"] = [
+        name for name in ("router", "judge") if proposals[name] == target
+    ] or ["writer"]
+    aimed = f"aimed at {proposals['aimed_at']}; " if proposals.get("aimed_at") else ""
+    row["notes"] = f"{aimed}router: {ranking[0]}; judge: {pick}/{runner}"
+    return row
+
+
+def _none(value: str | None) -> str | None:
+    return None if value in (None, "None", "none") else value
+
+
+def backfill_proposals(row: dict) -> dict:
+    """Recover ``proposals`` for rows written before the field existed.
+
+    The first draft wrote notes only where a proposer disagreed, so an
+    empty note on a positive means router and judge both named the
+    target.
+    """
+    if "proposals" in row:
+        return row
+    notes = row.get("notes") or ""
+    proposals: dict = {}
+    if row["type"] == "negative":
+        found = re.match(r"router top: (\S+) \(([\d.]+)\); judge: (\S+)", notes)
+        if found:
+            proposals = {
+                "router": found.group(1),
+                "router_score": float(found.group(2)),
+                "judge": _none(found.group(3)),
+            }
+    elif row["type"] == "near_miss":
+        found = re.match(r"aimed at (\S+); router: (\S+); judge: ([^/]+)/(\S+)", notes)
+        if found:
+            proposals = {
+                "aimed_at": found.group(1),
+                "router": found.group(2),
+                "judge": _none(found.group(3)),
+                "judge_runner_up": _none(found.group(4)),
+            }
+    elif not notes:
+        proposals = {"router": row["target"], "judge": row["target"]}
+    else:
+        found = re.match(r"router: (\S+); judge: (\S+)", notes)
+        if found:
+            proposals = {"router": found.group(1), "judge": _none(found.group(2))}
+    row["proposals"] = proposals
+    return row
+
+
+def disagrees(row: dict) -> bool:
+    proposals = row.get("proposals") or {}
+    if row["type"] == "negative":
+        return proposals.get("judge") is not None
+    if (
+        proposals.get("router") != row["target"]
+        or proposals.get("judge") != row["target"]
+    ):
+        return True
+    return row["type"] == "near_miss" and row.get("competitor") != proposals.get(
+        "aimed_at"
+    )
+
+
+def _write_labels(root: Path, rows: list[dict], meta: dict) -> dict:
+    disagreements = sorted(r["id"] for r in rows if disagrees(r))
     agreed = sorted({r["id"] for r in rows} - set(disagreements))
     audit = (
         sorted(random.Random(0).sample(agreed, round(AUDIT_SHARE * len(agreed))))
@@ -433,27 +449,161 @@ def draft(root: Path, config: dict, call=claude_call) -> dict:
     for row in rows:
         name = row["target"].split(":")[0] if row["target"] else "_negatives"
         by_file.setdefault(name, []).append(row)
-    for name, file_rows in by_file.items():
+    for name, file_rows in sorted(by_file.items()):
         (labels_dir / f"{name}.yaml").write_text(
             yaml.safe_dump(
-                {"schema_version": 1, "cases": file_rows},
+                {
+                    "schema_version": 1,
+                    "cases": sorted(file_rows, key=lambda r: r["id"]),
+                },
                 sort_keys=False,
                 allow_unicode=True,
             )
         )
-    queue = {
-        "disagreements": sorted(set(disagreements)),
-        "audit_sample": audit,
-        "writer": writer,
-        "judge": judge,
-        "spent_usd": round(budget.spent, 4),
-        "stopped": stopped,
-        "failed_calls": budget.failures,
-    }
+    queue = {"disagreements": disagreements, "audit_sample": audit, **meta}
     (root / "evals/activation/adjudicate.yaml").write_text(
         yaml.safe_dump(queue, sort_keys=False)
     )
     return queue
+
+
+def _new_rows(root, session, items, all_cases) -> list[dict]:
+    """Draft 2 plain prompts and 1 near-miss for each of ``items``."""
+    budget, writer, router = session.budget, session.roles["writer"], session.router
+    taken = {c.id for c in all_cases}
+    plain = draft_plain(root, items, budget, writer)
+    rows, plain_cases = [], []
+    for target, prompts in sorted(plain.items()):
+        for n, prompt in enumerate(prompts):
+            cid = f"{_slug(target)}.p{n + 1}"
+            while cid in taken:
+                cid += "x"
+            taken.add(cid)
+            case = Case(
+                id=cid, type="positive", prompt=prompt, target=target, cluster=target
+            )
+            plain_cases.append(case)
+            rows.append(case.to_dict() | {"proposers": ["writer"]})
+    neighbors = evaluate(router, [*all_cases, *plain_cases])["neighbors"]
+    near = draft_near_misses(root, items, neighbors, budget, writer)
+    for target, (prompt, neighbor) in sorted(near.items()):
+        cid = f"{_slug(target)}.p3"
+        while cid in taken:
+            cid += "x"
+        taken.add(cid)
+        row = Case(
+            id=cid,
+            type="near_miss",
+            prompt=prompt,
+            target=target,
+            competitor=neighbor,
+            cluster=target,
+            proposers=("writer",),
+        ).to_dict()
+        row["proposals"] = {"aimed_at": neighbor}
+        rows.append(row)
+    return rows
+
+
+def _judge_rows(root, rows, router, by_id, ask) -> str | None:
+    picks, stopped = judge_all(
+        root, router, by_id, ask, [(r["prompt"], r["target"]) for r in rows]
+    )
+    for row, (pick, runner) in zip(rows, picks):
+        apply_judgment(row, pick, runner, router)
+    return stopped
+
+
+def _session(root: Path, config: dict, call) -> SimpleNamespace:
+    roles = pick_roles(config)
+    budget = Budget(call, float(config["label_max_cost_usd"]))
+    items = build_inventory(root)
+
+    def ask_judge(prompt: str) -> str:  # one batch of prompts per call
+        return budget(roles["judge"], prompt)
+
+    return SimpleNamespace(
+        roles=roles,
+        budget=budget,
+        items=items,
+        by_id={i.id: i for i in items},
+        router=Router(items),
+        ask_judge=ask_judge,
+    )
+
+
+def draft(root: Path, config: dict, call=claude_call) -> dict:
+    ses = _session(root, config, call)
+    roles, budget = ses.roles, ses.budget
+    rows = _new_rows(root, ses, ses.items, [])
+    for n, (source, prompt) in enumerate(draft_negatives(budget, roles["writer"])):
+        rows.append(
+            Case(
+                id=f"neg.{n + 1:03d}",
+                type="negative",
+                prompt=prompt,
+                target=None,
+                cluster=source,
+                proposers=("writer",),
+            ).to_dict()
+        )
+    stopped = _judge_rows(root, rows, ses.router, ses.by_id, ses.ask_judge)
+    return _write_labels(
+        root,
+        rows,
+        {
+            "writer": roles["writer"],
+            "judge": roles["judge"],
+            "spent_usd": round(budget.spent, 4),
+            "stopped": stopped,
+            "failed_calls": budget.failures,
+        },
+    )
+
+
+def _load_rows(root: Path) -> list[dict]:
+    rows = []
+    for path in sorted((root / "evals/activation/labels").glob("*.yaml")):
+        rows.extend((yaml.safe_load(path.read_text()) or {}).get("cases") or [])
+    return rows
+
+
+def repair(root: Path, config: dict, call=claude_call) -> dict:
+    """Fill items short of coverage and re-judge rows whose target the
+    judge never saw (outside the router's top 8). Adjudicated rows are
+    left alone.
+    """
+    ses = _session(root, config, call)
+    roles, budget, by_id, router = ses.roles, ses.budget, ses.by_id, ses.router
+    rows = _load_rows(root)
+    for row in rows:
+        backfill_proposals(row)
+    cases = [Case.from_dict(r) for r in rows]
+    short = coverage_gaps(cases, ses.items, min_negatives=0, min_sources=0)["items"]
+    fresh = _new_rows(root, ses, [by_id[i] for i in sorted(short)], cases)
+    stale = [
+        r
+        for r in rows
+        if r["type"] != "negative"
+        and not r.get("adjudicated")
+        and r["target"] not in [i for i, _ in router.rank(r["prompt"])[:SHORTLIST]]
+    ]
+    stopped = _judge_rows(root, fresh + stale, router, by_id, ses.ask_judge)
+    previous = (
+        yaml.safe_load((root / "evals/activation/adjudicate.yaml").read_text()) or {}
+    )
+    return _write_labels(
+        root,
+        rows + fresh,
+        {
+            "writer": roles["writer"],
+            "judge": roles["judge"],
+            "spent_usd": round(float(previous.get("spent_usd") or 0) + budget.spent, 4),
+            "stopped": stopped,
+            "failed_calls": budget.failures,
+            "repaired": {"filled_items": sorted(short), "rejudged": len(stale)},
+        },
+    )
 
 
 def pending(root: Path) -> list[str]:
@@ -484,6 +634,13 @@ def main(argv: list[str] | None = None) -> int:
                 f"drafted labels; {len(queue['disagreements'])} disagreements and "
                 f"{len(queue['audit_sample'])} audit cases to adjudicate; "
                 f"spent ${queue['spent_usd']:.2f}\n"
+            )
+        elif command == "repair":
+            queue = repair(root, config)
+            sys.stdout.write(
+                f"repaired: filled {len(queue['repaired']['filled_items'])} items, re-judged "
+                f"{queue['repaired']['rejudged']}; {len(queue['disagreements'])} disagreements "
+                f"and {len(queue['audit_sample'])} audit cases; total spent ${queue['spent_usd']:.2f}\n"
             )
         elif command == "queue":
             remaining = pending(root)

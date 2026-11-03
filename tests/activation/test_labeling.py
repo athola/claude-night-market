@@ -241,3 +241,106 @@ def test_write_resolved_keeps_the_config_comments(tmp_path):
     }
     write_resolved(path, {"sonnet": "x"})
     assert yaml.safe_load(path.read_text())["resolved"] == {"sonnet": "x"}
+
+
+def test_judge_always_sees_the_writer_target(plugin_tree, monkeypatch):
+    # The first full draft lost 328 of 628 positive labels because the
+    # judge chose only among the router's top 8.
+    monkeypatch.setattr(labeling, "SHORTLIST", 1)
+    items = build_inventory(plugin_tree)
+    router = labeling.Router(items)
+    seen = []
+
+    def ask(prompt):
+        seen.append(prompt)
+        return json.dumps([{"n": 0, "pick": "beta:sweep", "runner_up": "none"}])
+
+    by_id = {i.id: i for i in items}
+    out = labeling.judge_batch(
+        plugin_tree,
+        router,
+        by_id,
+        ask,
+        [("audit shell scripts for quoting bugs", "beta:sweep")],
+    )
+    candidates = re.search(r"CANDIDATES 0: (.*)", seen[0]).group(1).split(", ")
+    assert "beta:sweep" in candidates and "alpha:shell-check" in candidates
+    assert out == [("beta:sweep", None)]
+
+
+def test_repair_fills_short_items_and_rejudges_unseen_targets(plugin_tree, monkeypatch):
+    (plugin_tree / "evals/activation").mkdir(parents=True)
+    config = {**CONFIG, "resolved": resolve(CONFIG, call=_probe)}
+    draft(plugin_tree, config, call=_fake_model)
+    labels = plugin_tree / "evals/activation/labels"
+    (labels / "beta.yaml").unlink()
+    alpha = yaml.safe_load((labels / "alpha.yaml").read_text())
+    alpha["cases"][0]["adjudicated"] = True
+    alpha["cases"][0]["notes"] = "checked by hand"
+    for row in alpha["cases"][1:]:
+        row["proposers"], row["proposals"] = (
+            ["writer"],
+            {"aimed_at": row.get("competitor")},
+        )
+    (labels / "alpha.yaml").write_text(yaml.safe_dump(alpha, sort_keys=False))
+    monkeypatch.setattr(labeling, "SHORTLIST", 0)
+
+    queue = labeling.repair(plugin_tree, config, call=_fake_model)
+
+    cases = {c.id: c for c in load_cases(labels)}
+    validate(list(cases.values()), build_inventory(plugin_tree), plugin_tree)
+    assert queue["repaired"]["filled_items"] == ["beta:sweep"]
+    assert sum(c.target == "beta:sweep" for c in cases.values()) == 3
+    assert queue["repaired"]["rejudged"] == len(alpha["cases"]) - 1
+    first = alpha["cases"][0]["id"]
+    assert cases[first].notes == "checked by hand"
+    rejudged = [
+        c
+        for c in cases.values()
+        if c.target and c.target.startswith("alpha") and c.id != first
+    ]
+    assert all("judge" in c.proposers for c in rejudged)
+    first_spend = yaml.safe_load((labels.parent / "adjudicate.yaml").read_text())[
+        "spent_usd"
+    ]
+    assert first_spend == queue["spent_usd"] > 0
+
+
+@pytest.mark.parametrize(
+    ("row", "expected"),
+    [
+        (
+            {"type": "positive", "target": "a:x", "notes": ""},
+            {"router": "a:x", "judge": "a:x"},
+        ),
+        (
+            {"type": "positive", "target": "a:x", "notes": "router: a:y; judge: None"},
+            {"router": "a:y", "judge": None},
+        ),
+        (
+            {
+                "type": "near_miss",
+                "target": "a:x",
+                "competitor": "a:y",
+                "notes": "aimed at a:y; router: a:x; judge: a:x/a:y",
+            },
+            {
+                "aimed_at": "a:y",
+                "router": "a:x",
+                "judge": "a:x",
+                "judge_runner_up": "a:y",
+            },
+        ),
+        (
+            {
+                "type": "negative",
+                "target": None,
+                "notes": "router top: a:z (1.50); judge: None",
+            },
+            {"router": "a:z", "judge": None},
+        ),
+    ],
+)
+def test_first_draft_rows_backfill_their_proposals_from_notes(row, expected):
+    labeling.backfill_proposals(row)
+    assert {k: row["proposals"][k] for k in expected} == expected
