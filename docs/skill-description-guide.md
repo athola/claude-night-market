@@ -112,6 +112,12 @@ python3 plugins/abstract/scripts/validate_budget.py
 
 Pass condition: all descriptions ≤ 160 chars and total overhead under 60k.
 
+The budget check says nothing about routing. The `check-activation-router`
+pre-commit hook fails an edit that makes a labeled prompt rank another item
+first. `uv run python -m scripts.activation.router report` lists the top
+collision pairs. To claim an edit improved activation, follow
+[activation-quality.md](activation-quality.md).
+
 ## Related
 
 - ADR-0004: `docs/adr/0004-skill-description-budget-optimization.md`
