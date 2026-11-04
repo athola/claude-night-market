@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Activation quality: how often the library routes a prompt to the
+  right item.** `scripts/activation/` runs labeled prompts through
+  `claude plugin eval` with every plugin loaded and reports sensitivity
+  and two false-activation rates from kept traces. A delta is claimed
+  only for paired, fingerprinted runs with the change declared first,
+  by exact McNemar with Holm. A free BM25 router gates description
+  edits in pre-commit. The first live prompt routed to the deprecated
+  `pensive:shell-review` stub, and the inventory found 35 shared ids
+  hiding 36 descriptions (#1055). See `docs/activation-quality.md`.
+
+- **`leyline:ticket-writing`: tickets readable at a glance.** From a
+  merge request, the first screen of a ticket says what was decided and
+  why, or links to the document that does. `minister:create-issue`
+  templates drop to three headings. No study measures ticket length, so
+  the shape is judgment. See ADR-0028.
+
 ### Changed
 
 - **`/pr-review` posts one formal review on GitHub and GitLab.**
@@ -88,6 +106,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   stored under the old lowercase key.
 - **imbue's package guard** scales its typo distance with name length
   and reads extras, scoped npm names, and archive paths correctly.
+- **sanctum's knowledge-queue age counts elapsed seconds.** It subtracted
+  local wall-clock times. After the 2026-11-01 fall-back a file three
+  days old was reported, and sorted, as two.
 
 ## [1.10.0] - 2026-10-14
 
@@ -99,22 +120,6 @@ A full-codebase API review found 98 grounded defects. 86 are fixed,
 5 partly, and 7 wait on a design decision.
 
 ### Added
-
-- **Activation quality: how often the library routes a prompt to the
-  right item.** `scripts/activation/` runs labeled prompts through
-  `claude plugin eval` with every plugin loaded and reports sensitivity
-  and two false-activation rates from kept traces. A delta is claimed
-  only for paired, fingerprinted runs with the change declared first,
-  by exact McNemar with Holm. A free BM25 router gates description
-  edits in pre-commit. The first live prompt routed to the deprecated
-  `pensive:shell-review` stub, and the inventory found 35 shared ids
-  hiding 36 descriptions (#1055). See `docs/activation-quality.md`.
-
-- **`leyline:ticket-writing`: tickets readable at a glance.** From a
-  merge request, the first screen of a ticket says what was decided and
-  why, or links to the document that does. `minister:create-issue`
-  templates drop to three headings. No study measures ticket length, so
-  the shape is judgment. See ADR-0028.
 
 - **One model per concern, from the decoherence research.** Kristen
   Maevyn's essay "The Decoherence Trap" defines decoherence as locally
