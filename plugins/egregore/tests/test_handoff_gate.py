@@ -1085,6 +1085,19 @@ class TestInlineCodeIsRefused:
             "perl -Mstrict -e 1",
             "perl -le 1",
             "ruby -w -e 1",
+            "php -r 1",
+            "lua -e 1",
+            "bun -e 1",
+            "bun --eval 1",
+            "bun -p 1",
+            "bun --print=1",
+            "deno eval 1",
+            "deno --quiet eval 1",
+            "deno -q eval 1",
+            "deno --log-level debug eval 1",
+            "pypy3 -c print(1)",
+            "pypy -c print(1)",
+            "python3 --check-hash-based-pycs always -c print(1)",
         ],
     )
     def test_inline_code_is_refused(self, tmp_path: Path, command: str) -> None:
@@ -1105,6 +1118,9 @@ class TestInlineCodeIsRefused:
             "bash scripts/check.sh -c",
             "python3 scripts/run.py -c config.toml",
             "node scripts/build.js -e production",
+            "python3 --check-hash-based-pycs always -m pytest -c pytest.ini",
+            "deno run scripts/build.ts -e production",
+            "php scripts/build.php -r",
         ],
     )
     def test_options_after_the_program_are_admitted(

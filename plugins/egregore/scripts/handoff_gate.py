@@ -172,16 +172,23 @@ _CODE_OPTIONS = {
     "node": ("ep", ("--eval", "--print")),
     "perl": ("eE", ()),
     "ruby": ("e", ()),
+    "php": ("r", ()),
+    "lua": ("e", ()),
+    "bun": ("ep", ("--eval", "--print")),
 }
+
+#: Interpreters that take code through a subcommand, not an option.
+_CODE_SUBCOMMANDS = {"deno": "eval"}
 
 #: Options that take the next word as their value, per interpreter. The
 #: value is skipped, not read as the program: ``bash -o pipefail -c``.
 _VALUE_OPTIONS = {
     "shell": frozenset({"-o", "+o", "-O", "+O", "--rcfile", "--init-file"}),
-    "python": frozenset({"-W", "-X"}),
+    "python": frozenset({"-W", "-X", "--check-hash-based-pycs"}),
     "node": frozenset({"-r", "--require", "--import", "--loader"}),
     "perl": frozenset({"-I", "-M", "-m"}),
     "ruby": frozenset({"-r", "-I", "-C"}),
+    "deno": frozenset({"-L", "--log-level"}),
     "env": frozenset({"-u", "--unset", "-C", "--chdir"}),
 }
 
@@ -478,7 +485,7 @@ def _inline_code(argv: Sequence[str]) -> str | None:
             "shell"
             if tool in _SHELLS
             else "python"
-            if tool.startswith("python")
+            if tool.startswith(("python", "pypy"))
             else tool
         )
         options = _interpreter_options(argv[index + 1 :], family)
@@ -486,6 +493,13 @@ def _inline_code(argv: Sequence[str]) -> str | None:
             o == "-S" or o.startswith("--split-string") for o in options
         ):
             return word
+        if tool in _CODE_SUBCOMMANDS:
+            takes_value = _VALUE_OPTIONS.get(family, frozenset())
+            consumed = sum(1 + (o in takes_value) for o in options)
+            if argv[index + 1 + consumed : index + 2 + consumed] == [
+                _CODE_SUBCOMMANDS[tool]
+            ]:
+                return word
         letters, longs = _CODE_OPTIONS.get(tool, ("", ()))
         if family in ("shell", "python"):
             letters = "c"
