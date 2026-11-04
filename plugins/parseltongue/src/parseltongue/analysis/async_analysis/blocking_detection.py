@@ -167,9 +167,19 @@ async def detect_missing_await(
         node.name for node in ast.walk(tree) if isinstance(node, ast.AsyncFunctionDef)
     }
 
+    # ``self.f()`` can only reach a method of the class it is written in.
+    enclosing_class: dict[int, set[str]] = {}
+    for cls in (n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)):
+        names = {
+            stmt.name for stmt in cls.body if isinstance(stmt, ast.AsyncFunctionDef)
+        }
+        for inner in ast.walk(cls):
+            enclosing_class[id(inner)] = names
+
     for node in ast.walk(tree):
         if not isinstance(node, ast.AsyncFunctionDef):
             continue
+        own_methods = enclosing_class.get(id(node), set())
         # A name awaited or handed to a call (gather, create_task, ...) later
         # is not a dropped coroutine. Returning it unawaited still is.
         consumed = {
@@ -182,7 +192,7 @@ async def detect_missing_await(
         lines = [
             call.lineno
             for call in _unawaited_calls(node.body, consumed)
-            if _callee_name(call) in coroutine_names
+            if _targets_coroutine(call, coroutine_names, own_methods)
         ]
         if lines:
             missing_awaits[node.name] = {
@@ -194,18 +204,23 @@ async def detect_missing_await(
     return {"missing_awaits": missing_awaits}
 
 
-def _callee_name(call: ast.Call) -> str | None:
-    """Name a call targets: ``f()`` and ``self.f()`` / ``cls.f()`` give ``f``."""
+def _targets_coroutine(
+    call: ast.Call, coroutine_names: set[str], own_methods: set[str]
+) -> bool:
+    """Say whether a call targets a coroutine function.
+
+    ``f()`` matches any ``async def f``; ``self.f()`` / ``cls.f()`` match
+    only an async method of the enclosing class.
+    """
     func = call.func
     if isinstance(func, ast.Name):
-        return func.id
-    if (
+        return func.id in coroutine_names
+    return (
         isinstance(func, ast.Attribute)
         and isinstance(func.value, ast.Name)
         and func.value.id in ("self", "cls")
-    ):
-        return func.attr
-    return None
+        and func.attr in own_methods
+    )
 
 
 def _unawaited_calls(body: list[ast.stmt], consumed: set[str]) -> list[ast.Call]:

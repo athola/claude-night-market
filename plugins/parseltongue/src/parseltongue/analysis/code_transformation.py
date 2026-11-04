@@ -228,9 +228,8 @@ def _apply_edits(code: str, edits: list[_Edit]) -> tuple[str, list[_Edit]]:
     Returns the rewritten code and the edits that were applied, in source order.
     """
     raw = code.encode("utf-8")
-    offsets = [0]
-    for line in raw.split(b"\n"):
-        offsets.append(offsets[-1] + len(line) + 1)
+    # ast numbers lines after \n, \r\n and a lone \r, not \n alone.
+    offsets = [0] + [m.end() for m in re.finditer(rb"\r\n|\r|\n", raw)]
 
     def absolute(position: tuple[int, int]) -> int:
         return offsets[position[0] - 1] + position[1]
