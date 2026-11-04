@@ -98,6 +98,29 @@ Plugins that depend on shared runtime skills (attune, conjure, imbue,
 memory-palace, parseltongue,
 sanctum) automatically pull `packages/core` as a dependency.
 
+## Alternative: One Shell Command
+
+On Claude Code 2.1.275 or later, one command adds the marketplace and
+installs a plugin:
+
+```bash
+claude plugin install sanctum --marketplace athola/claude-night-market
+```
+
+## Alternative: Skill Files Only
+
+[`npx skills`](https://github.com/vercel-labs/skills) copies the skill
+files alone into `.claude/skills/`. Commands, agents, and hooks are not
+installed. Without hooks, the TDD gates and safety guards do not run.
+
+## Updates
+
+Auto-update is off for third-party marketplaces until you turn it on.
+Open `/plugin`, go to **Marketplaces**, select `claude-night-market`,
+and choose **Enable auto-update**. Without it, run
+`claude plugin update <plugin>@claude-night-market` to pick up a
+release.
+
 ## Recommended Plugin Sets
 
 ### Minimal Setup

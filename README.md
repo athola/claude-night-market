@@ -37,24 +37,11 @@ hooks, which is what macOS ships.
 /plugin install spec-kit@claude-night-market   # Spec-driven dev
 ```
 
-On Claude Code 2.1.275 or later one shell command adds the marketplace
-and installs a plugin: `claude plugin install sanctum --marketplace
-athola/claude-night-market`.
-
-Updates are not automatic. Auto-update is off for third-party
-marketplaces until you turn it on: open `/plugin`, go to
-**Marketplaces**, select `claude-night-market`, and choose **Enable
-auto-update**. Without it, run `claude plugin update
-<plugin>@claude-night-market` to pick up a release.
-
 Run `claude --init-only` once after installing. It runs the plugins'
-Setup hooks, then exits. Two other paths
-exist: [`npx skills`][skills-cli] pulls the skill files alone
-into `.claude/skills/`, without commands, agents, or hooks, and
-`opkg i gh@athola/claude-night-market --plugins sanctum,pensive`
-installs whole plugins from the `openpackage.yml` each one ships.
-Full options are in the
-[Installation Guide](book/src/getting-started/installation.md).
+Setup hooks, then exits. Updates are not automatic for third-party
+marketplaces. The [Installation Guide][install] shows how to enable
+auto-update, and covers the one-command, `opkg`, and skill-files-only
+install paths.
 
 > If the `Skill` tool is unavailable, read skill files directly
 > at `plugins/{plugin}/skills/{skill-name}/SKILL.md`.
@@ -237,4 +224,4 @@ human-directed, AI-generated, and meaningfully edited.
 [superpowers-upstream]: https://github.com/obra/superpowers
 [superpowers-doc]: book/src/reference/superpowers-integration.md
 [quillx]: https://github.com/QAInsights/Quillx
-[skills-cli]: https://github.com/vercel-labs/skills
+[install]: book/src/getting-started/installation.md
