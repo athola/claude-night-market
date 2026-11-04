@@ -1,6 +1,9 @@
 """Tests for experience library storage and retrieval."""
 
+import os
 from pathlib import Path
+
+import pytest
 
 from abstract.experience_library import ExperienceLibrary, format_context
 
@@ -171,3 +174,34 @@ class TestExperienceLibraryEdgeCases:
         # Should have the valid entry but skip the corrupt one
         assert len(entries) == 1
         assert entries[0]["task_description"] == "Valid entry"
+
+
+class TestAtomicWrite:
+    """An interrupted write must not damage the entry already on disk."""
+
+    def test_failed_rename_leaves_existing_entry_and_no_temp_file(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        lib = ExperienceLibrary(tmp_path / "experience-library")
+        kwargs = {
+            "project": PROJECT,
+            "skill_ref": "abstract:test-skill",
+            "task_description": "Same task",
+            "approach_taken": "first",
+            "outcome": "success",
+            "duration_ms": 1,
+        }
+        lib.store(**kwargs)
+        skill_dir = tmp_path / "experience-library" / "abstract_test-skill"
+        (entry_file,) = skill_dir.glob("*.json")
+        before = entry_file.read_text()
+
+        def refuse(*_args: object, **_kwargs: object) -> None:
+            raise OSError("disk full")
+
+        monkeypatch.setattr(os, "replace", refuse)
+        stored = lib.store(**{**kwargs, "approach_taken": "second"})
+
+        assert stored is False
+        assert entry_file.read_text() == before
+        assert list(skill_dir.glob("*.tmp")) == []

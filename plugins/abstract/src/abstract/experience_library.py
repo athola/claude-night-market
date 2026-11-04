@@ -19,6 +19,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from . import _vendored_leyline_atomic_file as _atomic_file
+
 logger = logging.getLogger(__name__)
 
 MAX_ENTRIES_PER_SKILL = 20
@@ -104,7 +106,7 @@ class ExperienceLibrary:
         task_hash = self._task_hash(trajectory.project, trajectory.task_description)
         entry_file = skill_dir / f"{task_hash}.json"
         try:
-            entry_file.write_text(json.dumps(entry, indent=2))
+            _atomic_file.write_atomic(entry_file, json.dumps(entry, indent=2))
         except OSError as e:
             sys.stderr.write(
                 f"experience_library: failed to write entry {entry_file}: {e}\n"
