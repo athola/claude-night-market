@@ -73,10 +73,22 @@ mutation {
 
 ### Step 4: Verify Resolution
 
+Rerun the Step 2 query and count what is still open. gh rejects `--slurp`
+together with `--jq`. Pipe the slurped pages to `jq` instead.
+
 ```bash
-# Should return 0
-gh api graphql -f query='...' \
-  --jq '[.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length'
+# Should print 0
+gh api graphql --paginate --slurp -f query='
+query($endCursor: String) {
+  repository(owner: "OWNER", name: "REPO") {
+    pullRequest(number: PR_NUMBER) {
+      reviewThreads(first: 100, after: $endCursor) {
+        pageInfo { hasNextPage endCursor }
+        nodes { id isResolved }
+      }
+    }
+  }
+}' | jq '[.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length'
 ```
 
 ## Output

@@ -247,7 +247,10 @@ class TestGitHub:
 
 
 def _gitlab(
-    *, author: str = "bob", drafts: list[dict[str, Any]] | None = None
+    *,
+    author: str = "bob",
+    drafts: list[dict[str, Any]] | None = None,
+    diff_pages: list[list[dict[str, Any]]] | None = None,
 ) -> FakeCLI:
     mr = {"author": {"username": author}, "web_url": "https://gl/mr/7"}
     versions = [
@@ -267,10 +270,14 @@ def _gitlab(
     ]
 
     def respond(argv: list[str], payload: dict[str, Any] | None) -> Any:
-        path = next(
+        target = next(
             (a for a in argv[2:] if a.startswith("projects/") or a == "user"), ""
         )
+        path, _, query = target.partition("?")
         method = argv[argv.index("-X") + 1] if "-X" in argv else "GET"
+        if diff_pages is not None and path.endswith("/diffs"):
+            page = int(dict(p.split("=") for p in query.split("&"))["page"])
+            return diff_pages[page - 1] if page <= len(diff_pages) else []
         for want_method, suffix, answer in table:
             if method == want_method and path.endswith(suffix):
                 return answer
@@ -361,6 +368,95 @@ class TestGitLab:
         assert any(
             "projects/grp%2Fproj/merge_requests/7" in " ".join(a) for a, _ in cli.calls
         )
+
+
+class TestGitLabDiffPaging:
+    def test_a_finding_in_a_file_on_the_second_diffs_page_is_posted_inline(
+        self,
+    ) -> None:
+        """GitLab pages /diffs; a file past page 1 must still get a draft note."""
+        first = [
+            {"new_path": f"src/f{n}.py", "old_path": f"src/f{n}.py", "diff": PATCH}
+            for n in range(100)
+        ]
+        second = [{"new_path": "src/late.py", "old_path": "src/late.py", "diff": PATCH}]
+        cli = _gitlab(diff_pages=[first, second])
+        pfr.post_gitlab(
+            cli,
+            project="grp/proj",
+            mr=7,
+            request=pfr.ReviewRequest(
+                findings=_findings(("I1", "important", "src/late.py", 2)),
+                summary="Summary",
+                pending="abort",
+            ),
+        )
+        drafts = _posted(cli, "/draft_notes")
+        assert [d["position"]["new_path"] for d in drafts] == ["src/late.py"]
+        assert (
+            "outside the changed files" not in _posted(cli, "/bulk_publish")[0]["note"]
+        )
+
+
+class TestLoadFindings:
+    def test_an_unknown_severity_is_rejected_with_a_nonzero_exit(
+        self,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture[str],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A label such as 'high' must not fall through to an APPROVE verdict."""
+
+        def no_platform_call(argv: list[str], stdin: str | None = None) -> str:
+            raise AssertionError(f"reached the platform: {argv}")
+
+        monkeypatch.setattr(pfr, "run_cli", no_platform_call)
+        findings = tmp_path / "f.json"
+        findings.write_text(
+            json.dumps(
+                [
+                    {
+                        "id": "X",
+                        "severity": "high",
+                        "path": "a.py",
+                        "line": 1,
+                        "body": "b",
+                    }
+                ]
+            )
+        )
+        with pytest.raises(SystemExit) as exit_info:
+            pfr.main(
+                [
+                    "--platform",
+                    "github",
+                    "--repo",
+                    "o/r",
+                    "--pr",
+                    "7",
+                    "--findings",
+                    str(findings),
+                ]
+            )
+        assert exit_info.value.code != 0
+        assert "high" in capsys.readouterr().err
+
+    def test_a_known_severity_in_any_case_is_accepted(self, tmp_path: Path) -> None:
+        findings = tmp_path / "f.json"
+        findings.write_text(
+            json.dumps(
+                [
+                    {
+                        "id": "X",
+                        "severity": "Critical",
+                        "path": "a.py",
+                        "line": 1,
+                        "body": "b",
+                    }
+                ]
+            )
+        )
+        assert pfr._load_findings(str(findings))[0].severity == "critical"
 
 
 class TestCommandLine:

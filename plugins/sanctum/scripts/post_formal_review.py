@@ -41,6 +41,8 @@ Runner = Callable[..., str]
 Spans = dict[str, list[tuple[int, int]]]
 
 _REQUEST_CHANGES = {"blocking", "critical"}
+_SEVERITIES = {"blocking", "critical", "important", "suggestion"}
+_GITLAB_PAGE = 100
 _HUNK = re.compile(r"^@@ -\S+ \+(\d+)(?:,(\d+))? @@", re.M)
 
 
@@ -243,6 +245,18 @@ def _glab(
     return json.loads(out) if out.strip() else None
 
 
+def _glab_pages(run: Runner, path: str) -> list[Any]:
+    """GET every page of a GitLab list; a short page is the last one."""
+    rows: list[Any] = []
+    page = 1
+    while True:
+        batch = _glab(run, "GET", f"{path}?per_page={_GITLAB_PAGE}&page={page}")
+        rows += batch or []
+        if len(batch or []) < _GITLAB_PAGE:
+            return rows
+        page += 1
+
+
 def post_gitlab(
     run: Runner,
     *,
@@ -260,7 +274,7 @@ def post_gitlab(
         return {"status": "pending-draft", "draft_comments": len(drafts)}
 
     version = _glab(run, "GET", f"{base}/versions")[0]
-    diffs = _glab(run, "GET", f"{base}/diffs") or []
+    diffs = _glab_pages(run, f"{base}/diffs")
     spans: Spans = {d["new_path"]: hunk_spans(d.get("diff", "")) for d in diffs}
     old_paths = {d["new_path"]: d.get("old_path", d["new_path"]) for d in diffs}
 
@@ -301,6 +315,18 @@ def post_gitlab(
 def _load_findings(path: str) -> list[Finding]:
     with open(path, encoding="utf-8") as handle:
         items = json.load(handle)
+    unknown = sorted(
+        {
+            str(item["severity"])
+            for item in items
+            if str(item["severity"]).lower() not in _SEVERITIES
+        }
+    )
+    if unknown:
+        raise ValueError(
+            f"unknown severity {', '.join(unknown)}: use one of "
+            "blocking, critical, important, suggestion"
+        )
     return [
         Finding(
             id=str(item["id"]),
@@ -330,7 +356,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    findings = _load_findings(args.findings)
+    try:
+        findings = _load_findings(args.findings)
+    except ValueError as err:
+        parser.error(str(err))
     summary = ""
     if args.summary:
         with open(args.summary, encoding="utf-8") as handle:
