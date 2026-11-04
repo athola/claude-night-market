@@ -103,3 +103,24 @@ class TestSessionStartHook:
             mod.main()
 
         assert capsys.readouterr().out == ""
+
+
+HOOKS_JSON = Path(__file__).resolve().parents[2] / "hooks" / "hooks.json"
+
+
+class TestCompactionContext:
+    """The session topic must survive compaction through an event that injects.
+
+    Claude Code reads ``additionalContext`` from SessionStart, whose ``compact``
+    source fires after a compaction. PreCompact accepts only a block decision
+    and discards ``systemMessage``, so context emitted there never reaches Claude.
+    """
+
+    @pytest.mark.unit
+    def test_session_start_runs_after_compaction(self) -> None:
+        entries = json.loads(HOOKS_JSON.read_text())["hooks"]["SessionStart"]
+        assert any("compact" in e.get("matcher", "compact") for e in entries)
+
+    @pytest.mark.unit
+    def test_no_hook_emits_context_on_pre_compact(self) -> None:
+        assert "PreCompact" not in json.loads(HOOKS_JSON.read_text())["hooks"]

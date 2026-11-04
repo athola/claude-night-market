@@ -479,7 +479,6 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `post_implementation_policy.py` | sanctum | SessionStart | Requires docs/tests updates |
 | `post_learnings_stop.py` | abstract | Stop | Post learnings to GitHub Discussions on session stop |
 | `pr_blast_radius.py` | pensive | PreToolUse | Surface blast radius context on PR creation |
-| `pre_compact.py` | tome | PreCompact | Checkpoint active research session |
 | `pre_compact_preserve.py` | conserve | PreCompact | Preserve critical context before compression |
 | `pre_skill_execution.py` | abstract | PreToolUse | Skill execution tracking |
 | `precommit_gate.py` | gauntlet | PreToolUse | Pre-commit quality gate for gauntlet |

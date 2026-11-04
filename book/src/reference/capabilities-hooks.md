@@ -732,17 +732,12 @@ autonomous processing.
 
 ## Tome Hooks
 
-### `pre_compact.py`
-**Type**: PreCompact
-
-Checkpoints the active research session before
-context compression to prevent data loss.
-
 ### `session_start.py`
 **Type**: SessionStart
 
 Checks for active research sessions and restores
-context from prior research checkpoints.
+context from prior research checkpoints. It has no
+matcher, so it also runs after compaction.
 
 ---
 

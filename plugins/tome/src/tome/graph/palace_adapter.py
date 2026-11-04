@@ -1,9 +1,10 @@
 """Citation-graph seam over memory-palace's KnowledgeGraph.
 
-tome does not hard-depend on memory-palace: the two are isolated
-plugins. This module imports the graph backend lazily and fails
-explicitly when it is absent, rather than degrading to a silent no-op
-that would ship dead graph features. The backend contract is expressed
+memory-palace is a declared runtime dependency of tome's graph feature
+(``dependencies`` in plugin.json). The rest of tome runs without it, so
+this module imports the graph backend lazily and fails explicitly when
+it is absent, rather than degrading to a silent no-op that would ship
+dead graph features. The backend contract is expressed
 as the :class:`GraphWriter` protocol, which memory-palace's
 ``KnowledgeGraph`` satisfies structurally, so no translation layer is
 needed. A tome-native backend could implement the same protocol later.
@@ -15,7 +16,7 @@ from typing import Any, Protocol, runtime_checkable
 
 from tome.models import CitationEdge
 
-# memory-palace is an optional, co-installed backend. The alias is declared
+# memory-palace may be absent from this interpreter. The alias is declared
 # ``Any`` so this module type-checks identically whether or not the backend
 # is installed; binding the imported class directly would make the absent
 # branch an invalid assignment once the real types resolve.
