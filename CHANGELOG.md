@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.10.1] - 2026-11-04
 
+Two entries below are marked Breaking, and this release ships them under
+a patch number on purpose. Neither removes a capability: the renamed skill
+had no caller in this repository, and `--project-root` is replaced by the
+project the command runs in. A plugin that scripts either one needs the
+one-line change its entry describes.
+
 ### Added
 
 - **Activation quality: how often the library routes a prompt to the
@@ -29,6 +35,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CI fails on Bandit findings that are high in both severity and
+  confidence.** The security workflow ran Bandit with
+  `continue-on-error`, so no finding could fail it. The reports, SARIF
+  upload and PR comment still run before the gate. Safety and Semgrep
+  stay advisory.
+- **Mutation testing pins `mutmut<3` and fails a run with no mutants.**
+  mutmut 3 dropped `--paths-to-mutate`, and its exit 2 on the unknown
+  option read as "survivors found". Exit status is now read as mutmut
+  2's bit mask, where only the fatal bit fails the job.
+- **Per-plugin coverage thresholds are enforced in CI.** Each plugin's
+  `[tool.nightmarket] coverage_threshold` is passed as
+  `--cov-fail-under`. No plugin set `fail_under`, so the thresholds were
+  never checked. archetypes, cartograph and scry declare none.
+- **`scripts/awesome-submit.sh` follows each list's own rules.**
+  SamurAIGPT/awesome-openclaw is dropped, because the list was transferred
+  and renamed. vincentkoc/awesome-openclaw takes PRs only for an approved
+  issue, so the script requires `--issue owner/repo#N` for it.
+- **tome declares memory-palace as a dependency.** Its graph adapter
+  imports memory-palace at runtime, and the manifest now says so.
 - **`/pr-review` posts one formal review on GitHub and GitLab.**
   `plugins/sanctum/scripts/post_formal_review.py` puts every finding in a
   single review with a verdict, file-level threads for lines outside the
@@ -83,6 +108,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- tome's PreCompact hook. Claude Code discards PreCompact context, so
+  its output never reached the model. tome's SessionStart hook has no
+  matcher, so it already restores the research topic after compaction.
 - `abstract` `correct_fabricated_durations.py`, a one-shot migration that
   already ran. `memory-palace` `update_autonomy_state.py` and the
   `telemetry/autonomy_history.json` it read, which nothing wrote. The
@@ -91,6 +119,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **egregore's handoff gate refuses inline code for more interpreters.**
+  `php -r`, `lua -e`, `bun -e`, `deno eval` (also after global options)
+  and `pypy -c` passed it, and so did `-c` after a python option that
+  takes a value, such as `--check-hash-based-pycs always`.
+- **Recalled experience cannot close its data fence early.** The hook
+  stripped `</recalled-data>` in one pass, so a nested marker re-formed
+  it. Markers inside recalled text are now escaped. Entries are also
+  written atomically.
+- **The activation router gate reports a stale label.** `check`,
+  `baseline` and `report` validate labels first, and name the case whose
+  target no longer exists instead of raising `ValueError`. Labeling skips
+  model rows without a usable prompt or pick, `labeling draft` refuses to
+  overwrite adjudicated labels without `--force`, and `--change` outside
+  the repository is refused cleanly. Workflow mutants edit only the
+  `export const meta` block, and the pre-commit hook fires only for
+  `plugins/*/skills/*/SKILL.md`.
+- **`post_formal_review.py` pages through GitLab MR diffs** and rejects
+  an unknown severity with exit 2. Findings in files past the first page
+  of diffs had gone to the review body, and a typo in a severity could
+  reach APPROVE.
+- **`/resolve-threads` Step 4 runs as written.** It combined `--slurp`
+  with `--jq`, which `gh` rejects, and dropped the paging cursor.
+- **`scripts/awesome-submit.sh` checks the approving issue.** `--issue`
+  takes a digits-only number, and the script refuses to open a PR unless
+  `gh issue view` reports the issue open.
+- memory-palace moves an index entry stored under the legacy lowercase
+  URL key to the new key when it updates it, instead of leaving a
+  duplicate. parseltongue's `transform_code` edits the right line in
+  files with lone-CR line endings, and the missing-await check matches
+  `self.f()` only against the enclosing class.
 - **`/hookify:from-hook` runs the converter.** The command described
   `scripts/hook_to_hookify.py` without calling it. The converter also
   read `context["command"]` as a file-content check, which made every
