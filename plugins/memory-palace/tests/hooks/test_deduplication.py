@@ -1046,6 +1046,22 @@ class TestLegacyUrlKeys:
         assert is_known(url="https://youtu.be/AbCdEf")
         assert get_entry(url="https://youtu.be/AbCdEf") == {"title": "old"}
 
+    def test_updating_a_legacy_entry_moves_it_under_the_new_key(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """A rewrite leaves one entry for the URL, not a stale twin."""
+        self._write_legacy_index(monkeypatch, tmp_path)
+        update_index(
+            content_hash="sha256:new",
+            stored_at="a.md",
+            importance_score=1,
+            url="https://youtu.be/AbCdEf",
+        )
+        entries = real_yaml.safe_load((tmp_path / "legacy-index.yaml").read_text())[
+            "entries"
+        ]
+        assert list(entries) == ["https://youtu.be/AbCdEf"]
+
     def test_a_different_url_is_not_matched_by_the_legacy_key(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:

@@ -386,6 +386,12 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
 
     if key is not None:
         superseded = index["entries"].get(key, {}).get("content_hash")
+        if url:
+            # An entry kept under the legacy lowercase key moves to the new
+            # key, so the write leaves no orphan twin behind.
+            legacy = index["entries"].pop(_legacy_url_key(url), None)
+            if legacy is not None and key != _legacy_url_key(url):
+                superseded = superseded or legacy.get("content_hash")
         index["entries"][key] = entry
         _drop_unreferenced_hash(index, superseded, content_hash)
 
