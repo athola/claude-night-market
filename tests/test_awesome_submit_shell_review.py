@@ -40,6 +40,7 @@ case "$1 $2" in
   "api user") echo alice ;;
   "api repos/"*) echo "{full_name}" ;;
   "pr list") exit 0 ;;
+  "issue view") [ -n "{issue_state}" ] || exit 1; echo "{issue_state}" ;;
   "pr create") printf '%s\\n' "$*" > "{pr_args}" ;;
   "repo view") echo name ;;
   "repo sync") [ -n "{sync_fails}" ] && {{ echo "sync conflict" >&2; exit 1; }} ;;
@@ -69,6 +70,7 @@ def _sandbox(
     sync_fails: bool = False,
     readme: str = README,
     full_name: str = TARGET,
+    issue_state: str = "OPEN",
 ) -> tuple[Path, Path, dict[str, str]]:
     repo = tmp_path / "repo"
     (repo / "scripts").mkdir(parents=True)
@@ -94,6 +96,7 @@ def _sandbox(
             remotes=remotes,
             sync_fails="yes" if sync_fails else "",
             full_name=full_name,
+            issue_state=issue_state,
             pr_args=tmp_path / "pr-args.log",
         )
     )
@@ -233,3 +236,49 @@ def test_a_failed_fork_sync_skips_the_target(tmp_path: Path) -> None:
     assert "repo clone" not in calls
     assert "pr create" not in calls
     assert "fork sync failed" in result.stdout + result.stderr
+
+
+def test_an_issue_number_with_trailing_letters_is_rejected(tmp_path: Path) -> None:
+    repo, _remotes, env = _sandbox(tmp_path)
+    result = _run(repo, env, "--issue", f"{TARGET}#12abc")
+    assert result.returncode != 0
+    assert not (tmp_path / "gh-calls.log").exists()
+    assert "owner/repo#N" in result.stdout + result.stderr
+
+
+def test_the_pr_is_opened_only_after_the_issue_is_confirmed_open(
+    tmp_path: Path,
+) -> None:
+    repo, _remotes, env = _sandbox(tmp_path)
+    result = _run(repo, env, "--issue", f"{TARGET}#42")
+    assert result.returncode == 0, result.stdout + result.stderr
+    calls = _calls(tmp_path)
+    assert f"issue view 42 --repo {TARGET} --json state" in calls
+    assert calls.index("issue view") < calls.index("pr create")
+
+
+def test_a_closed_issue_refuses_the_pr(tmp_path: Path) -> None:
+    """The PR body claims approval; a closed issue does not carry one."""
+    repo, _remotes, env = _sandbox(tmp_path, issue_state="CLOSED")
+    result = _run(repo, env, "--issue", f"{TARGET}#42")
+    calls = _calls(tmp_path)
+    assert "repo fork" not in calls
+    assert "pr create" not in calls
+    assert "CLOSED" in result.stdout + result.stderr
+
+
+def test_an_issue_gh_cannot_find_refuses_the_pr(tmp_path: Path) -> None:
+    repo, _remotes, env = _sandbox(tmp_path, issue_state="")
+    result = _run(repo, env, "--issue", f"{TARGET}#42")
+    calls = _calls(tmp_path)
+    assert "repo fork" not in calls
+    assert "pr create" not in calls
+    assert f"{TARGET}#42" in result.stdout + result.stderr
+
+
+def test_a_dry_run_names_the_issue_check_without_making_it(tmp_path: Path) -> None:
+    repo, _remotes, env = _sandbox(tmp_path)
+    result = _run(repo, env, "--dry-run", "--issue", f"{TARGET}#42")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "issue view" not in _calls(tmp_path)
+    assert f"would check {TARGET}#42 is open" in result.stdout + result.stderr

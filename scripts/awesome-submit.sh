@@ -80,14 +80,17 @@ parse_args() {
       -x | -t) XTRACE=1 ;;
       --dry-run) DRY_RUN=true ;;
       --issue)
+        # The number after # must be digits only.
         case "${1:-}" in
-          */*#[0-9]*) APPROVED_ISSUES="${APPROVED_ISSUES:+"${APPROVED_ISSUES} "}${1}" ;;
-          *)
-            log 4 "--issue needs owner/repo#N, got: ${1:-nothing}"
-            exit 1
+          */*#*[!0-9]* | */*#) ;;
+          */*#[0-9]*)
+            APPROVED_ISSUES="${APPROVED_ISSUES:+"${APPROVED_ISSUES} "}${1}"
+            shift
+            continue
             ;;
         esac
-        shift
+        log 4 "--issue needs owner/repo#N, got: ${1:-nothing}"
+        exit 1
         ;;
       v*) VERSION="${arg}" ;;
       [0-9]*) VERSION="v${arg}" ;;
@@ -107,6 +110,23 @@ approved_issue() {
       "${target}#"*) printf '%s\n' "${issue}" ;;
     esac
   done
+}
+
+# A PR body that says "Approved in" must point at an issue that is open.
+check_issue_open() {
+  local issue="${1:?check_issue_open needs owner/repo#N}" state
+  case "${DRY_RUN}" in
+    true)
+      log "Dry run -- would check ${issue} is open"
+      return 0
+      ;;
+  esac
+  state=$(gh issue view "${issue##*#}" --repo "${issue%#*}" --json state --jq .state 2>/dev/null || true)
+  case "${state}" in
+    OPEN) return 0 ;;
+  esac
+  log 4 "${issue} is ${state:-not found}; refusing to open a PR that cites it."
+  return 1
 }
 
 # `env` sets the variables the Python programs read, because the shell
@@ -170,6 +190,10 @@ submit_target() {
       log "Once a maintainer approves it, rerun with: --issue ${target}#<number>"
       return 0
       ;;
+  esac
+  case "${issue}" in
+    "") ;;
+    *) check_issue_open "${issue}" || return 1 ;;
   esac
 
   base_owner="${target%%/*}"
