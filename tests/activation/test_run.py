@@ -200,3 +200,25 @@ def test_max_turns_stop_keeps_its_trace(tmp_path):
     assert run_mod.collect_traces(host) == 1
     assert (host / "traces/c.p1/0.jsonl").exists()
     assert (host / "traces/c.p1/1.error").read_text() == "exit 1: something else"
+
+
+def test_change_tier_refuses_a_change_file_outside_the_repo(
+    suite, tmp_path, monkeypatch, capsys
+):
+    outside = write(
+        tmp_path / "elsewhere.yaml",
+        yaml.safe_dump(
+            {
+                "schema_version": 1,
+                "id": "x",
+                "items": ["alpha:ship"],
+                "cases": ["alpha.ship.p0"],
+                "declared_at": "abc",
+            }
+        ),
+    )
+    code = _main(
+        suite, "--tier", "change", "--change", str(outside), monkeypatch=monkeypatch
+    )
+    assert code == 2
+    assert "outside" in capsys.readouterr().err

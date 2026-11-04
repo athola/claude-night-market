@@ -11,7 +11,8 @@ echo risk rather than claim it is gone.
 
 Usage (uv run python -m scripts.activation.<command>):
   labeling resolve           probe each configured model once (spends ~$0.05 each)
-  labeling draft             write labels/<plugin>.yaml and adjudicate.yaml
+  labeling draft [--force]   write labels/<plugin>.yaml and adjudicate.yaml;
+                             --force overwrites adjudicated rows
   labeling repair            fill short items, re-judge rows the judge never saw
   labeling requeue           rebuild adjudicate.yaml from the labels, no spend
   labeling queue             list prompts still awaiting adjudication
@@ -211,6 +212,10 @@ def _writer_prompt(blocks: list[str], ask: str) -> str:
     )
 
 
+def _has_prompt(row: dict) -> bool:
+    return isinstance(row.get("prompt"), str) and bool(row["prompt"].strip())
+
+
 def draft_plain(root, items, writer, model) -> dict[str, list[str]]:
     drafted: dict[str, list[str]] = {}
     for start in range(0, len(items), BATCH):
@@ -225,8 +230,12 @@ def draft_plain(root, items, writer, model) -> dict[str, list[str]]:
             ),
         )
         for row in parse_json_list(text):
-            if isinstance(row, dict) and row.get("item") in {i.id for i in batch}:
-                drafted.setdefault(row["item"], []).append(str(row["prompt"]))
+            if (
+                isinstance(row, dict)
+                and row.get("item") in {i.id for i in batch}
+                and _has_prompt(row)
+            ):
+                drafted.setdefault(row["item"], []).append(row["prompt"])
     return {k: v[:2] for k, v in drafted.items()}
 
 
@@ -257,8 +266,9 @@ def draft_near_misses(
                 isinstance(row, dict)
                 and row.get("item") in neighbors
                 and row["item"] not in out
+                and _has_prompt(row)
             ):
-                out[row["item"]] = (str(row["prompt"]), neighbors[row["item"]][0])
+                out[row["item"]] = (row["prompt"], neighbors[row["item"]][0])
     return out
 
 
@@ -275,9 +285,11 @@ def draft_negatives(writer, model) -> list[tuple[str, str]]:
     )
     rows = parse_json_list(text)
     return [
-        (str(r["source"]), str(r["prompt"]))
+        (r["source"], r["prompt"])
         for r in rows
-        if isinstance(r, dict) and r.get("source") in NEGATIVE_SOURCES
+        if isinstance(r, dict)
+        and r.get("source") in NEGATIVE_SOURCES
+        and _has_prompt(r)
     ]
 
 
@@ -321,8 +333,8 @@ def judge_batch(root: Path, router: Router, by_id: dict, ask, prompts: list) -> 
             valid = set(shortlists[n])
             pick, runner = row.get("pick"), row.get("runner_up")
             out[n] = (
-                pick if pick in valid else None,
-                runner if runner in valid else None,
+                pick if isinstance(pick, str) and pick in valid else None,
+                runner if isinstance(runner, str) and runner in valid else None,
             )
     return out
 
@@ -534,7 +546,13 @@ def _session(root: Path, config: dict, call) -> SimpleNamespace:
     )
 
 
-def draft(root: Path, config: dict, call=claude_call) -> dict:
+def draft(root: Path, config: dict, call=claude_call, force: bool = False) -> dict:
+    kept = sorted(r["id"] for r in _load_rows(root) if r.get("adjudicated"))
+    if kept and not force:
+        raise LabelingRefused(
+            f"{len(kept)} adjudicated rows (e.g. {kept[0]}) would be overwritten; "
+            "pass --force to discard them"
+        )
     ses = _session(root, config, call)
     roles, budget = ses.roles, ses.budget
     rows = _new_rows(root, ses, ses.items, [])
@@ -658,7 +676,7 @@ def main(argv: list[str] | None = None) -> int:
             write_resolved(config_path, config["resolved"])
             sys.stdout.write(json.dumps(config["resolved"], indent=1) + "\n")
         elif command == "draft":
-            queue = draft(root, config)
+            queue = draft(root, config, force="--force" in argv)
             sys.stdout.write(
                 f"drafted labels; {len(queue['disagreements'])} disagreements and "
                 f"{len(queue['audit_sample'])} audit cases to adjudicate; "

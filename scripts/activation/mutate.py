@@ -104,16 +104,18 @@ def set_description(path: Path, kind: str, description: str) -> None:
     source = path.read_text(encoding="utf-8")
     if kind == "workflow":
         string = r"""(?:'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")"""
-        source = re.sub(
+        start = source.index("export const meta")  # inventory reads from here on
+        head, meta = source[:start], source[start:]
+        meta = re.sub(
             rf"(\bdescription:\s*){string}",
             lambda m: m.group(1) + _js_literal(description),
-            source,
+            meta,
             count=1,
         )
-        source = re.sub(
-            rf"(\bwhenToUse:\s*){string}", lambda m: m.group(1) + "''", source, count=1
+        meta = re.sub(
+            rf"(\bwhenToUse:\s*){string}", lambda m: m.group(1) + "''", meta, count=1
         )
-        _replace(path, source)
+        _replace(path, head + meta)
         return
     match = _FRONTMATTER.match(source)
     meta = yaml.safe_load(match.group(1)) or {}

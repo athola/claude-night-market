@@ -311,7 +311,12 @@ def execute(
 
 
 def _require_committed(root: Path, path: Path) -> None:
-    rel = str(path.resolve().relative_to(root.resolve()))
+    try:
+        rel = str(path.resolve().relative_to(root.resolve()))
+    except ValueError:
+        raise RunRefused(
+            f"change file {path} is outside the repo root {root}"
+        ) from None
     tracked = (
         subprocess.run(
             ["git", "ls-files", "--error-unmatch", rel],

@@ -19,7 +19,7 @@ from collections import Counter
 from pathlib import Path
 
 from .inventory import Item, build_inventory, item_hashes
-from .labels import Case, load_cases
+from .labels import Case, LabelError, load_cases, validate
 
 K1 = 1.5
 B = 0.75
@@ -157,7 +157,14 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     suite = args.root / "evals/activation"
     baseline_path = suite / "router-baseline.json"
-    current = snapshot(build_inventory(args.root), load_cases(suite / "labels"))
+    items = build_inventory(args.root)
+    cases = load_cases(suite / "labels")
+    try:
+        validate(cases, items, args.root)
+    except LabelError as err:
+        sys.stderr.write(f"router: invalid labels: {err}\n")
+        return 1
+    current = snapshot(items, cases)
     if args.command == "baseline":
         baseline_path.write_text(json.dumps(current, indent=1, sort_keys=True) + "\n")
         sys.stdout.write(f"wrote {baseline_path} (MRR {current['mrr']:.4f})\n")

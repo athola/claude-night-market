@@ -448,3 +448,62 @@ def test_draft_records_items_still_short_after_the_retry(plugin_tree):
 
     queue = draft(plugin_tree, config, call=never_writes_beta)
     assert queue["unfilled_items"] == ["beta:sweep"]
+
+
+def test_draft_skips_model_rows_without_a_prompt(plugin_tree):
+    items = build_inventory(plugin_tree)[:1]
+    item = items[0].id
+    reply = json.dumps(
+        [{"item": item}, {"item": item, "prompt": ""}, {"item": item, "prompt": "ok"}]
+    )
+    got = labeling.draft_plain(plugin_tree, items, lambda m, p: reply, "m")
+    assert got == {item: ["ok"]}
+    near = labeling.draft_near_misses(
+        plugin_tree, items, {item: ["alpha:ship"]}, lambda m, p: reply, "m"
+    )
+    assert near == {item: ("ok", "alpha:ship")}
+    negatives = json.dumps(
+        [
+            {"source": labeling.NEGATIVE_SOURCES[0]},
+            {"source": labeling.NEGATIVE_SOURCES[0], "prompt": "fix it"},
+        ]
+    )
+    assert labeling.draft_negatives(lambda m, p: negatives, "m") == [
+        (labeling.NEGATIVE_SOURCES[0], "fix it")
+    ]
+
+
+@pytest.mark.parametrize("pick", [["alpha:ship"], {"id": "alpha:ship"}])
+def test_judge_batch_treats_an_unhashable_pick_as_no_pick(plugin_tree, pick):
+    items = build_inventory(plugin_tree)
+    reply = json.dumps([{"n": 0, "pick": pick, "runner_up": pick}])
+    out = labeling.judge_batch(
+        plugin_tree,
+        labeling.Router(items),
+        {i.id: i for i in items},
+        lambda prompt: reply,
+        [("ship the branch", "alpha:ship")],
+    )
+    assert out == [(None, None)]
+
+
+def test_draft_refuses_to_overwrite_adjudicated_labels_without_force(plugin_tree):
+    (plugin_tree / "evals/activation").mkdir(parents=True)
+    config = {**CONFIG, "resolved": resolve(CONFIG, call=_probe)}
+    draft(plugin_tree, config, call=_fake_model)
+    path = next((plugin_tree / "evals/activation/labels").glob("*.yaml"))
+    doc = yaml.safe_load(path.read_text())
+    doc["cases"][0]["adjudicated"] = True
+    path.write_text(yaml.safe_dump(doc))
+    calls = []
+
+    def counting(model, prompt):
+        calls.append(prompt)
+        return _fake_model(model, prompt)
+
+    with pytest.raises(labeling.LabelingRefused, match="adjudicated"):
+        draft(plugin_tree, config, call=counting)
+    assert calls == []
+    assert yaml.safe_load(path.read_text()) == doc
+    draft(plugin_tree, config, call=counting, force=True)
+    assert calls

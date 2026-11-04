@@ -17,6 +17,7 @@ from scripts.activation.mutate import (
     select_blank,
     select_swap,
     self_check_passed,
+    set_description,
 )
 from scripts.activation.mutate import (
     main as mutate_main,
@@ -134,3 +135,15 @@ def test_dry_run_prices_three_anchor_runs_and_spends_nothing(suite, capsys):
     out = capsys.readouterr().out
     assert "3 anchor runs, 18 case-runs, estimate $3.60, ceiling $225" in out
     assert not (suite / "evals/activation/.runs").exists()
+
+
+def test_workflow_description_edit_stays_inside_the_meta_block(tmp_path):
+    path = tmp_path / "wf.js"
+    path.write_text(
+        "const decoy = { description: 'not routed' }\n"
+        "export const meta = {\n  description: 'routed text',\n  whenToUse: 'x',\n}\n"
+    )
+    set_description(path, "workflow", "new")
+    text = path.read_text()
+    assert "description: 'not routed'" in text
+    assert "description: 'new'" in text

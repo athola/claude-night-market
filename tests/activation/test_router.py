@@ -138,3 +138,16 @@ def test_a_case_added_after_the_baseline_is_not_judged_against_it():
     ok, messages = check(base, snapshot(items, new))
     assert ok, messages
     assert not any("c2" in m for m in messages)
+
+
+def test_cli_check_names_the_case_whose_target_no_longer_exists(suite, capsys):
+    (suite / "plugins/alpha/commands/ship.md").unlink()
+    assert main(["check", "--root", str(suite)]) == 1
+    err = capsys.readouterr().err
+    assert "alpha.ship.p0" in err and "alpha:ship" in err
+
+
+def test_cli_baseline_refuses_labels_naming_a_missing_target(suite, capsys):
+    (suite / "plugins/alpha/commands/ship.md").unlink()
+    assert main(["baseline", "--root", str(suite)]) == 1
+    assert not (suite / "evals/activation/router-baseline.json").exists()
