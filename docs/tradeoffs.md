@@ -272,7 +272,8 @@ is only a proxy.
 - Date: 2026-11-03
 - Phase: execute
 - Deciders: maintainer, claude
-- Links: scripts/activation/host.py, docs/deep-dive/activation-quality.md,
+- Links: scripts/activation/host.py,
+  docs/adr/0004-skill-description-budget-optimization.md,
   commit 8521a4ed3
 <!-- key: f2a90b7c1b68 -->
 

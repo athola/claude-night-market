@@ -25,7 +25,7 @@ one-line change its entry describes.
   by exact McNemar with Holm. A free BM25 router gates description
   edits in pre-commit. The first live prompt routed to the deprecated
   `pensive:shell-review` stub, and the inventory found 35 shared ids
-  hiding 36 descriptions (#1055). See `docs/activation-quality.md`.
+  hiding 36 descriptions (#1055). See ADR-0004.
 
 - **`leyline:ticket-writing`: tickets readable at a glance.** From a
   merge request, the first screen of a ticket says what was decided and

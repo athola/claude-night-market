@@ -1,4 +1,4 @@
-# Activation-quality suite settings. See docs/activation-quality.md.
+# Activation-quality suite settings. See docs/adr/0004-skill-description-budget-optimization.md.
 # Writer and judge: the first candidate whose resolved model id differs
 # from every arm's is used, so a measured model never labels its own key.
 writer_models: [sonnet, opus]

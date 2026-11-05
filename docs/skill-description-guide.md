@@ -116,7 +116,7 @@ The budget check says nothing about routing. The `check-activation-router`
 pre-commit hook fails an edit that makes a labeled prompt rank another item
 first. `uv run python -m scripts.activation.router report` lists the top
 collision pairs. To claim an edit improved activation, follow
-[activation-quality.md](activation-quality.md).
+[ADR-0004](adr/0004-skill-description-budget-optimization.md#measuring-activation-2026-11).
 
 ## Related
 

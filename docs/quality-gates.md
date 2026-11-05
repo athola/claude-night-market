@@ -198,7 +198,7 @@ and type checking (`mypy`).
 `check-activation-router` runs on description and label edits. A free
 BM25 router fails the commit when labeled-prompt MRR drops by more than
 0.01 or a labeled prompt gains a new rank-1 collision. See
-[activation-quality.md](activation-quality.md).
+[ADR-0004](adr/0004-skill-description-budget-optimization.md#measuring-activation-2026-11).
 
 ### Ruff Config: The Union Rule
 
