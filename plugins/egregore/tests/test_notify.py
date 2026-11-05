@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import socket
 import subprocess
 from unittest.mock import MagicMock, patch
 
@@ -164,8 +165,36 @@ class TestCreateGithubAlert:
         assert "bug" in cmd[label_idx + 1]
 
 
+# A public address from the GitHub range: validate_webhook_url accepts it
+# and pins curl to it, with no lookup leaving the machine.
+_PUBLIC_ADDRINFO = [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("140.82.112.3", 0))]
+
+
 class TestSendWebhook:
-    """Tests for send_webhook."""
+    """Tests for send_webhook.
+
+    The validator resolves the hostname before curl runs. Without the
+    resolver stubbed, a slow or failed lookup made these tests return
+    before reaching the mocked subprocess (#1021).
+    """
+
+    @pytest.fixture(autouse=True)
+    def _stub_resolver(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(socket, "getaddrinfo", lambda *_a, **_k: _PUBLIC_ADDRINFO)
+
+    @patch("subprocess.run")
+    def test_unresolvable_host_returns_false_without_curl(
+        self, mock_run: MagicMock, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given the hostname does not resolve, then no request is made."""
+
+        def _fail(*_a: object, **_k: object) -> None:
+            raise socket.gaierror(8, "nodename nor servname provided")
+
+        monkeypatch.setattr(socket, "getaddrinfo", _fail)
+        result = send_webhook(url="https://hooks.slack.com/x", event=AlertEvent.CRASH)
+        assert result is False
+        mock_run.assert_not_called()
 
     @patch("subprocess.run")
     def test_generic_format(self, mock_run: MagicMock) -> None:
@@ -222,12 +251,14 @@ class TestSendWebhook:
         mock_run.return_value = MagicMock(returncode=1, stderr="connection refused")
         result = send_webhook(url="https://bad.url", event=AlertEvent.CRASH)
         assert result is False
+        mock_run.assert_called_once()
 
     @patch("subprocess.run", side_effect=FileNotFoundError)
     def test_returns_false_when_curl_not_found(self, mock_run: MagicMock) -> None:
         """Given curl is missing, when sending webhook, then returns False."""
         result = send_webhook(url="https://example.com", event=AlertEvent.CRASH)
         assert result is False
+        mock_run.assert_called_once()
 
     @patch(
         "subprocess.run",
@@ -237,6 +268,7 @@ class TestSendWebhook:
         """Given curl times out, when sending webhook, then returns False."""
         result = send_webhook(url="https://example.com", event=AlertEvent.CRASH)
         assert result is False
+        mock_run.assert_called_once()
 
     @patch("subprocess.run")
     def test_webhook_without_detail(self, mock_run: MagicMock) -> None:

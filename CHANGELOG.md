@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **egregore's webhook tests no longer need DNS.** `send_webhook`
+  resolves the hostname before curl runs, and the tests stubbed only
+  curl, so a slow lookup failed two of them and let three failure-path
+  tests pass before reaching curl (#1021). The resolver is stubbed, and
+  one test pins the unresolvable-host path.
+
 ## [1.10.1] - 2026-11-04
 
 Two entries below are marked Breaking, and this release ships them under
