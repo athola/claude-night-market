@@ -133,7 +133,7 @@
         ]
       },
       {
-        "matcher": "Write|Edit|MultiEdit",
+        "matcher": "Write|Edit|MultiEdit|StrReplace",
         "hooks": [
           {
             "type": "command",

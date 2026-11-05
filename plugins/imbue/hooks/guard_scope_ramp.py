@@ -48,7 +48,7 @@ from shared.vow_utils import (  # noqa: E402 - same path-injection pattern as si
     vow_output,
 )
 
-_CODE_TOOLS = frozenset({"Write", "Edit", "MultiEdit"})
+_CODE_TOOLS = frozenset({"Write", "Edit", "MultiEdit", "StrReplace"})
 _RAMP_OK_FILE = ".imbue/ramp-ok"
 _LEDGER_FILE = ".imbue/ramp-ledger.jsonl"
 
@@ -157,8 +157,15 @@ def _append_ledger(entry: dict) -> None:
         print(f"[guard-scope-ramp] WARN: ledger write failed: {exc}", file=sys.stderr)
 
 
+def _cursor_response(data: object) -> None:
+    """Emit an allow response when Cursor has no additional hook output."""
+    if isinstance(data, dict) and "cursor_version" in data:
+        print(json.dumps({"permission": "allow"}))
+
+
 def main() -> None:
     """Entry point for the PreToolUse hook."""
+    data: object = None
     try:
         data = json.loads(sys.stdin.read())
     except (json.JSONDecodeError, OSError):
@@ -167,15 +174,19 @@ def main() -> None:
     try:
         tool_name = data.get("tool_name", "")
         if tool_name not in _CODE_TOOLS:
+            _cursor_response(data)
             sys.exit(0)
         tool_input = data.get("tool_input", {}) or {}
-        file_path = tool_input.get("file_path", "")
+        file_path = tool_input.get("file_path", tool_input.get("path", ""))
 
         added = added_lines(tool_name, tool_input)
         if added <= 0:
+            _cursor_response(data)
             sys.exit(0)
 
-        state_path = _state_path(data.get("session_id", ""))
+        state_path = _state_path(
+            data.get("session_id") or data.get("conversation_id", "")
+        )
         state = _load_state(state_path)
 
         rung_before = int(state.get("rung", RUNG_START))
@@ -199,6 +210,7 @@ def main() -> None:
                 )
 
         if finding is None:
+            _cursor_response(data)
             sys.exit(0)
 
         shadow = shadow_mode_active()
@@ -211,6 +223,8 @@ def main() -> None:
             )
 
         output = vow_output(enforce=decision == "block", reason=reason)
+        if "cursor_version" in data:
+            output["permission"] = "deny" if decision == "block" else "allow"
         print(json.dumps(output))
         print(
             f"[guard-scope-ramp] {decision.upper()}: {added} lines "
@@ -221,6 +235,7 @@ def main() -> None:
 
     except Exception as exc:  # hook must never crash the agent
         print(f"[guard-scope-ramp] internal error: {exc}", file=sys.stderr)
+        _cursor_response(data)
         sys.exit(0)
 
 

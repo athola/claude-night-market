@@ -56,16 +56,22 @@ def run_hook(
     tool_input: dict,
     session_id: str,
     env_overrides: dict | None = None,
+    extra_fields: dict | None = None,
 ) -> tuple[int, dict | None]:
     env = os.environ.copy()
     env.pop("IMBUE_RAMP_OK", None)
     if env_overrides:
         env.update(env_overrides)
-    payload = json.dumps(
-        {"tool_name": tool_name, "tool_input": tool_input, "session_id": session_id}
-    )
+    payload_data = {
+        "tool_name": tool_name,
+        "tool_input": tool_input,
+        "session_id": session_id,
+    }
+    if extra_fields:
+        payload_data.update(extra_fields)
+    payload = json.dumps(payload_data)
     result = subprocess.run(
-        [str(HOOK_PATH)],
+        [sys.executable, str(HOOK_PATH)],
         input=payload,
         capture_output=True,
         text=True,
@@ -124,6 +130,64 @@ class TestGuardScopeRampHook:
         assert code == 0
         assert out is not None
         assert out["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+    @pytest.mark.unit
+    def test_cursor_shadow_response_is_valid_and_allows_the_write(self):
+        code, out = run_hook(
+            "Write",
+            {"path": "src/util.py", "contents": _big_content(80)},
+            "cursor-shadow",
+            {"VOW_SHADOW_MODE": "1"},
+            {"cursor_version": "1.7.2", "conversation_id": "cursor-shadow"},
+        )
+        assert code == 0
+        assert out is not None
+        assert out["permission"] == "allow"
+        assert "permissionDecision" not in out["hookSpecificOutput"]
+        assert "rung" in out["hookSpecificOutput"]["additionalContext"]
+
+    @pytest.mark.unit
+    def test_cursor_within_rung_returns_an_allow_response(self):
+        code, out = run_hook(
+            "Write",
+            {"path": "src/util.py", "contents": _big_content(10)},
+            "cursor-allowed",
+            extra_fields={
+                "cursor_version": "1.7.2",
+                "conversation_id": "cursor-allowed",
+            },
+        )
+        assert code == 0
+        assert out == {"permission": "allow"}
+
+    @pytest.mark.unit
+    def test_cursor_enforce_returns_both_deny_formats(self):
+        code, out = run_hook(
+            "Write",
+            {"path": "src/util.py", "contents": _big_content(80)},
+            "cursor-enforce",
+            {"VOW_SHADOW_MODE": "0"},
+            {"cursor_version": "1.7.2", "conversation_id": "cursor-enforce"},
+        )
+        assert code == 0
+        assert out is not None
+        assert out["permission"] == "deny"
+        assert out["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+    @pytest.mark.unit
+    def test_cursor_strreplace_uses_path_and_new_string(self):
+        code, out = run_hook(
+            "StrReplace",
+            {"path": "src/util.py", "new_string": _big_content(120)},
+            "cursor-strreplace",
+            {"VOW_SHADOW_MODE": "0"},
+            {"cursor_version": "1.7.2", "conversation_id": "cursor-strreplace"},
+        )
+        assert code == 0
+        assert out is not None
+        assert out["permission"] == "deny"
+        assert out["hookSpecificOutput"]["permissionDecision"] == "deny"
+        assert "120 lines" in out["hookSpecificOutput"]["permissionDecisionReason"]
 
     @pytest.mark.unit
     def test_high_stakes_reason_demands_explanation(self):
@@ -198,7 +262,7 @@ class TestGuardScopeRampHook:
             }
         )
         result = subprocess.run(
-            [str(HOOK_PATH)],
+            [sys.executable, str(HOOK_PATH)],
             input=payload,
             capture_output=True,
             text=True,
@@ -219,7 +283,7 @@ class TestGuardScopeRampHook:
     @pytest.mark.unit
     def test_malformed_stdin_does_not_crash(self):
         result = subprocess.run(
-            [str(HOOK_PATH)],
+            [sys.executable, str(HOOK_PATH)],
             input="not json",
             capture_output=True,
             text=True,
@@ -232,7 +296,7 @@ class TestGuardScopeRampHook:
     @pytest.mark.unit
     def test_non_object_payload_is_an_internal_error_that_allows_the_edit(self):
         result = subprocess.run(
-            [str(HOOK_PATH)],
+            [sys.executable, str(HOOK_PATH)],
             input="[1, 2]",
             capture_output=True,
             text=True,

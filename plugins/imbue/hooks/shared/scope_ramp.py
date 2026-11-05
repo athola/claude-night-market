@@ -83,8 +83,8 @@ def added_lines(tool_name: str, tool_input: dict) -> int:
     addition.
     """
     if tool_name == "Write":
-        return _count_lines(tool_input.get("content", ""))
-    if tool_name == "Edit":
+        return _count_lines(tool_input.get("content", tool_input.get("contents", "")))
+    if tool_name in {"Edit", "StrReplace"}:
         return _count_lines(tool_input.get("new_string", ""))
     if tool_name == "MultiEdit":
         return sum(
