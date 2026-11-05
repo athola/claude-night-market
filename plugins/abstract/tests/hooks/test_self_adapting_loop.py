@@ -87,7 +87,7 @@ class TestLoggerStoresExperience:
         # The hook knows nothing about approach or tools; it must not
         # invent them.
         assert entries[0]["approach_taken"] == ""
-        assert entries[0]["tools_used"] == []
+        assert "tools_used" not in entries[0]
 
     @pytest.mark.unit
     def test_lone_surrogate_in_args_does_not_lose_the_hook_output(

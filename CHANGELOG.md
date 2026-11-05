@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **abstract's experience records carry only what is written.**
+  `ExecutionTrajectory` declared `tools_used` and `key_decisions`, which
+  `store_experience` never set, so every stored entry held two empty
+  defaults (#1019). Both fields are gone, along with the `Tools:` line
+  `format_context` printed from one of them. Passing either to `store`
+  raises `TypeError`.
+
 - **egregore's webhook tests no longer need DNS.** `send_webhook`
   resolves the hostname before curl runs, and the tests stubbed only
   curl, so a slow lookup failed two of them and let three failure-path
