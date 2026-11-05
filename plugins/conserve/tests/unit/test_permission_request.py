@@ -916,6 +916,10 @@ class TestDestructiveCommandsAreNeverAutoApproved:
             "git show --ext-diff HEAD",
             "file -C -m magic",
             "file --compile -m magic",
+            'ag --pager "touch /tmp/x" foo .',
+            "ag --pager=less foo .",
+            "rg --hostname-bin id --hyperlink-format=default foo",
+            "rg --hostname-bin=id foo",
         ],
     )
     def test_command_is_not_auto_approved(self, command: str) -> None:

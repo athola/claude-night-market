@@ -40,12 +40,21 @@ class DDDPatternMixin:
         )
         if not has_id:
             return False
-        is_frozen = any(
-            "frozen" in str(ast.dump(dec)) and "True" in str(ast.dump(dec))
+        return not self._is_frozen(node) and bool(
+            methods - {"__init__", "__post_init__"}
+        )
+
+    @staticmethod
+    def _is_frozen(node: ast.ClassDef) -> bool:
+        """Return True when a decorator call passes ``frozen=True``."""
+        return any(
+            kw.arg == "frozen"
+            and isinstance(kw.value, ast.Constant)
+            and kw.value.value is True
             for dec in node.decorator_list
             if isinstance(dec, ast.Call)
+            for kw in dec.keywords
         )
-        return not is_frozen and bool(methods - {"__init__", "__post_init__"})
 
     def _check_value_object(
         self,
@@ -53,18 +62,7 @@ class DDDPatternMixin:
         decorators: list[str],
     ) -> bool:
         """Check if a class is a DDD Value Object."""
-        if "dataclass" not in decorators:
-            return False
-        for dec in node.decorator_list:
-            if isinstance(dec, ast.Call):
-                for kw in dec.keywords:
-                    if (
-                        kw.arg == "frozen"
-                        and isinstance(kw.value, ast.Constant)
-                        and kw.value.value is True
-                    ):
-                        return True
-        return False
+        return "dataclass" in decorators and self._is_frozen(node)
 
     def _check_repository(
         self,

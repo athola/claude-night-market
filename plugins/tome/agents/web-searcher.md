@@ -60,7 +60,9 @@ product comparisons, release notes, and news.
    When the You.com MCP server is configured, call its
    `you-search` tool and parse with `parse_you_mcp_result`;
    otherwise run the query through WebSearch and parse each
-   hit with `parse_websearch_result`. Never fall back
+   hit with `parse_websearch_result`. It returns `None` for
+   a hit with no URL. Skip that hit, record no finding, and
+   count it in that query's `skipped`. Never fall back
    silently: if `you-search` fails, record the failure in
    `errors`, then run WebSearch and mark the query's
    `source` as `websearch`.

@@ -4,7 +4,6 @@ name: remediation-planning
 description: Test improvement strategies and phased remediation
 category: testing
 tags: [remediation, test-improvement, refactoring]
-load_priority: 4
 estimated_tokens: 300
 ---
 

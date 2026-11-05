@@ -1,24 +1,11 @@
 # config/make/markdown-only.mk - Markdown-only plugin defaults
 # Use for plugins without Python/uv dependencies.
 
-# Default shell with error handling
-SHELL := /bin/bash
-.SHELLFLAGS := -euo pipefail -c
+# Every plugin Makefile defines `help:`. Pinned because the
+# debug-variables rule below would otherwise be the first rule read.
+.DEFAULT_GOAL := help
 
-# .SHELLFLAGS arrived in GNU make 3.82. Stock macOS ships 3.81 from the
-# Xcode command line tools, which parses the assignment above and ignores
-# it. 3.81 does honor flags written into SHELL itself, so for the releases
-# that ignore .SHELLFLAGS the flags go there, and every make runs recipes
-# under -euo pipefail. The filter names the releases that ignore the
-# assignment, so a make newer than 4.x keeps the plain form.
-ifneq ($(filter 3.7% 3.80 3.81,$(firstword $(MAKE_VERSION))),)
-SHELL := /bin/bash -euo pipefail
-endif
-
-# No .ONESHELL. 3.81 ignores it, so every recipe here was written to run
-# one line per shell, and on 3.82+ it changed that: a mid-recipe exit
-# ended the recipe and a cd leaked into later lines. One semantics on
-# every make.
+include $(dir $(lastword $(MAKEFILE_LIST)))base.mk
 
 # Common directories (override via environment or Makefile.local)
 SKILLS_DIR ?= skills
@@ -39,3 +26,16 @@ endef
 define require_path
 @test -n "$(TARGET)" || { echo "Usage: make $(1) TARGET=<path>"; exit 1; }
 endef
+
+.PHONY: debug-variables
+debug-variables: ## Show Makefile variable values (for debugging)
+	@echo "=== Makefile Variables ==="
+	@echo "SHELL: $(SHELL)"
+	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
+	@echo "SKILLS_DIR: $(SKILLS_DIR)"
+	@echo "COMMANDS_DIR: $(COMMANDS_DIR)"
+	@echo "AGENTS_DIR: $(AGENTS_DIR)"
+	@echo "DOCS_DIR: $(DOCS_DIR)"
+	@echo "SCRIPTS_DIR: $(SCRIPTS_DIR)"
+	@echo "SRC_DIRS: $(SRC_DIRS)"
+	@echo "MAKEFLAGS: $(MAKEFLAGS)"

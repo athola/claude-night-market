@@ -215,8 +215,12 @@ _CHAIN_CHARS = re.compile(r"[;|&`(\n\r>]|\$\(")
 
 # Options that make a read-only command write a file or run a program:
 # `git diff --output=FILE` writes, `rg --pre CMD` executes CMD per file,
-# and `git diff --ext-diff` runs the external diff the repo configures.
-_WRITE_OR_EXEC_OPTIONS = re.compile(r"(^|\s)--(output|pre|ext-diff)(=|\s|$)")
+# `git diff --ext-diff` runs the external diff the repo configures,
+# `ag --pager CMD` pipes results through CMD, and `rg --hostname-bin CMD`
+# runs CMD to fill in hyperlinks.
+_WRITE_OR_EXEC_OPTIONS = re.compile(
+    r"(^|\s)--(output|pre|ext-diff|pager|hostname-bin)(=|\s|$)"
+)
 
 
 def check_safe(command: str) -> Decision | None:

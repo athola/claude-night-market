@@ -1,6 +1,5 @@
 ---
 parent_skill: pensive:math-review
-load_priority: medium
 estimated_tokens: 300
 ---
 

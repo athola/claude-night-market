@@ -65,7 +65,10 @@ const checked = await parallel(
 // A plugin whose checker returned nothing is unchecked, not healthy,
 // and it must not shrink the denominator behind "no plugin satisfies".
 const missing = plugins.filter((plugin, index) => !checked[index])
-const reports = checked.filter(Boolean)
+// The plugin comes from the roster, not from the agent's own report.
+const reports = checked
+  .map((report, index) => report && { ...report, plugin: plugins[index] })
+  .filter(Boolean)
 const violations = reports.flatMap((report) =>
   (report.violations || []).map((entry) => ({ ...entry, plugin: report.plugin })),
 )
@@ -105,7 +108,10 @@ const staleContracts = await agent(
   `These per-plugin checks ran independently. Report any contract that no plugin satisfies.\n\n${coverage}\n\nA contract every plugin violates is more likely a contract that moved than 24 independent mistakes. Report it as a question about the contract rather than as 24 findings. Say which of these is which.`,
   { label: 'contracts', phase: 'Contracts', schema: STALE },
 )
+// A dead contracts agent returns the same null as the skip path above.
+const failed = staleContracts ? null : 'contracts'
+if (failed) log('no result from the contracts stage. Stale contracts are unchecked, not absent')
 
 log(`${violations.length} violations across ${reports.length} plugins`)
 
-return { plugins, violations, staleContracts, coverage: runCoverage }
+return { plugins, violations, staleContracts, coverage: runCoverage, failed }

@@ -173,3 +173,21 @@ def test_an_unwritable_budget_is_reported_and_the_hook_still_exits_zero(
     )
     assert budget_path.is_dir()
     assert "could not record rate limit" in capsys.readouterr().err
+
+
+def test_an_unreadable_recorded_cooldown_still_records_the_new_one(
+    tmp_path, monkeypatch
+):
+    egregore_dir = tmp_path / ".egregore"
+    egregore_dir.mkdir()
+    (egregore_dir / "budget.json").write_text(json.dumps({"cooldown_until": "soon"}))
+
+    budget_path = _run(
+        tmp_path,
+        monkeypatch,
+        {"hook_event_name": "StopFailure", "error": "rate_limit"},
+        [{"id": "wrk_001", "status": "active"}],
+    )
+
+    recorded = load_budget(budget_path).cooldown_until
+    assert recorded is not None and recorded != "soon"

@@ -4,7 +4,6 @@ name: scenario-quality
 description: Test scenario quality assessment with BDD patterns
 category: testing
 tags: [bdd, scenario-quality, assertions, anti-patterns]
-load_priority: 3
 estimated_tokens: 350
 ---
 

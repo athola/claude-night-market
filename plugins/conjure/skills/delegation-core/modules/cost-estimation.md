@@ -118,7 +118,7 @@ reasoning depth that cheaper models may lack.
 
 ```python
 from leyline.quota_tracker import QuotaTracker
-from leyline.usage_logger import UsageLogger
+from leyline.usage_logger import UsageEvent, UsageLogger
 
 # Initialize for your service
 tracker = QuotaTracker(service="gemini")
@@ -131,5 +131,5 @@ if level == "critical":
     pass
 
 # Log after operation
-logger.log_usage("analyze_files", tokens=5000, success=True, duration=2.5)
+logger.log_usage(UsageEvent("analyze_files", tokens=5000, duration=2.5))
 ```

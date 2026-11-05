@@ -65,8 +65,7 @@ The `effort` field in skill and command frontmatter
 overrides the session effort level when that skill is
 active. Options: `low`, `medium`, `high`, `max` (Opus
 4.6 only). Reverts to session level on completion. This
-provides skill-level effort routing alongside the
-existing `model_hint` pattern.
+provides skill-level effort routing.
 
 **Agent frontmatter: `effort`, `maxTurns`,
 `disallowedTools` (2.1.78+)**: Plugin-shipped agents

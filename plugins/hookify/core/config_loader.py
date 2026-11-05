@@ -118,19 +118,43 @@ _YAML_BOOLS = {
 _UNSUPPORTED_VALUE_STARTS = ("|", ">", "[", "{", "&", "*", "!")
 
 
+def _single_quoted_end(raw: str) -> int:
+    """Index of the quote closing ``raw``'s single-quoted scalar.
+
+    A doubled quote (``''``) is an escaped quote inside the scalar.
+    """
+    i = 1
+    while i < len(raw):
+        if raw[i] == "'":
+            if raw[i + 1 : i + 2] != "'":
+                return i
+            i += 1
+        i += 1
+    raise ValueError(f"Unterminated quote in frontmatter value: {raw}")
+
+
+def _require_comment_tail(raw: str, end: int) -> None:
+    """After a closed quote PyYAML allows only a comment; so does this."""
+    tail = raw[end:].strip()
+    if tail and not tail.startswith("#"):
+        raise ValueError(f"Text after a quoted frontmatter value: {raw}")
+
+
 def _parse_scalar(raw: str) -> Any:
     raw = raw.strip()
     if raw.startswith("'"):
-        if len(raw) < 2 or not raw.endswith("'"):  # noqa: PLR2004 - two quotes
-            raise ValueError(f"Unterminated quote in frontmatter value: {raw}")
-        return raw[1:-1].replace("''", "'")
+        end = _single_quoted_end(raw)
+        _require_comment_tail(raw, end + 1)
+        return raw[1:end].replace("''", "'")
     if raw.startswith('"'):
         # A JSON string is a YAML double-quoted scalar for every escape a
         # rule pattern uses.
         try:
-            return json.loads(raw)
+            value, end = json.JSONDecoder().raw_decode(raw)
         except json.JSONDecodeError as exc:
             raise ValueError(f"Invalid double-quoted frontmatter value: {raw}") from exc
+        _require_comment_tail(raw, end)
+        return value
     if raw.startswith(_UNSUPPORTED_VALUE_STARTS):
         raise ValueError(
             f"Unsupported frontmatter value without PyYAML: {raw}. "

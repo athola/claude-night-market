@@ -657,6 +657,9 @@ class TestResolveCallTargets:
     @pytest.mark.unit
     def test_self_method_call_resolves_in_same_file(self, store: GraphStore) -> None:
         """`self.run` resolves to the run defined in the calling file."""
+        store.upsert_node(
+            _make_node("a.py::Job", kind=NodeKind.CLASS, file_path="a.py")
+        )
         store.upsert_node(_make_node("a.py::Job.start", file_path="a.py"))
         store.upsert_node(_make_node("a.py::Job.run", file_path="a.py"))
         store.upsert_edge(
@@ -721,3 +724,77 @@ class TestResolveCallTargetsReceivers:
         assert store.resolve_call_targets() == 1
         targets = [e.target_qn for e in store.get_edges_by_source("a.py::main")]
         assert targets == ["pkg/__init__.py::helper"]
+
+
+class TestResolveCallTargetsScope:
+    """
+    Feature: a call only resolves to a definition its syntax can reach
+
+    A false CALLS edge inflates blast radius and pensive's Tier 3
+    severity upgrade, so an unreachable candidate must stay unresolved.
+    """
+
+    @pytest.mark.unit
+    def test_bare_call_never_resolves_to_a_method_in_another_file(
+        self, store: GraphStore
+    ) -> None:
+        """A bare `open()` cannot reach `Store.open`."""
+        store.upsert_node(_make_node("app.py::main", file_path="app.py"))
+        store.upsert_node(
+            _make_node("db.py::Store", kind=NodeKind.CLASS, file_path="db.py")
+        )
+        store.upsert_node(_make_node("db.py::Store.open", file_path="db.py"))
+        store.upsert_edge(
+            _make_edge(source="app.py::main", target="open", file_path="app.py")
+        )
+        assert store.resolve_call_targets() == 0
+
+    @pytest.mark.unit
+    def test_bare_call_resolves_to_the_free_function_beside_a_same_named_method(
+        self, store: GraphStore
+    ) -> None:
+        """`run()` reaches b.py::run; `Job.run` is not a second candidate."""
+        store.upsert_node(_make_node("app.py::main", file_path="app.py"))
+        store.upsert_node(_make_node("b.py::run", file_path="b.py"))
+        store.upsert_node(
+            _make_node("db.py::Job", kind=NodeKind.CLASS, file_path="db.py")
+        )
+        store.upsert_node(_make_node("db.py::Job.run", file_path="db.py"))
+        store.upsert_edge(
+            _make_edge(source="app.py::main", target="run", file_path="app.py")
+        )
+        assert store.resolve_call_targets() == 1
+        targets = [e.target_qn for e in store.get_edges_by_source("app.py::main")]
+        assert targets == ["b.py::run"]
+
+    @pytest.mark.unit
+    def test_bare_call_never_resolves_to_a_method_in_the_same_file(
+        self, store: GraphStore
+    ) -> None:
+        """A bare `run()` inside app.py cannot reach `Job.run` in app.py."""
+        store.upsert_node(_make_node("app.py::main", file_path="app.py"))
+        store.upsert_node(
+            _make_node("app.py::Job", kind=NodeKind.CLASS, file_path="app.py")
+        )
+        store.upsert_node(_make_node("app.py::Job.run", file_path="app.py"))
+        store.upsert_edge(
+            _make_edge(source="app.py::main", target="run", file_path="app.py")
+        )
+        assert store.resolve_call_targets() == 0
+
+    @pytest.mark.unit
+    def test_self_call_never_resolves_to_a_module_level_function(
+        self, store: GraphStore
+    ) -> None:
+        """`self.helper()` cannot reach a module-level `helper` in the file."""
+        store.upsert_node(
+            _make_node("app.py::Job", kind=NodeKind.CLASS, file_path="app.py")
+        )
+        store.upsert_node(_make_node("app.py::Job.start", file_path="app.py"))
+        store.upsert_node(_make_node("app.py::helper", file_path="app.py"))
+        store.upsert_edge(
+            _make_edge(
+                source="app.py::Job.start", target="self.helper", file_path="app.py"
+            )
+        )
+        assert store.resolve_call_targets() == 0

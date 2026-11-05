@@ -25,7 +25,6 @@ usage_patterns:
 - documentation-systems
 - configuration-management
 complexity: beginner
-model_hint: fast
 estimated_tokens: 600
 progressive_loading: true
 modules:

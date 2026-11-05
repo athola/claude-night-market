@@ -826,7 +826,7 @@ class TestCacheWriteFailureIsVisible:
         def refuse(*args, **kwargs):
             raise OSError("read-only file system")
 
-        monkeypatch.setattr("builtins.open", refuse)
+        monkeypatch.setattr(os, "replace", refuse)
         with caplog.at_level(logging.WARNING):
             cache.set("key", {"value": 1})
 
@@ -841,7 +841,7 @@ class TestCacheWriteFailureIsVisible:
         def refuse(*args, **kwargs):
             raise OSError("read-only file system")
 
-        monkeypatch.setattr("builtins.open", refuse)
+        monkeypatch.setattr(os, "replace", refuse)
         cache.set("key", {"value": 1})
 
         assert cache.get("key") == {"value": 1}

@@ -16,18 +16,19 @@ jobs:
       contents: read
       security-events: write
       actions: read
+      pull-requests: write
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v7
 
     - name: Set up Python
-      uses: actions/setup-python@v7.0.0
+      uses: actions/setup-python@v7.1.0
       with:
         python-version: '3.12'
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v10.3.0
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
 
     - name: Install dependencies
       run: |
@@ -36,12 +37,12 @@ jobs:
         uv pip install -e .[dev]
         uv pip install bandit safety semgrep
 
+    # The full report feeds SARIF and the PR comment. The gate is the last
+    # step, so the uploads and the comment still run when it fails.
     - name: Run Bandit security linter
       run: |
         source .venv/bin/activate
         bandit -c pyproject.toml -r . -f json -o bandit-report.json || true
-        bandit -c pyproject.toml -r . -f txt
-      continue-on-error: true
 
     - name: Convert Bandit JSON to SARIF
       if: always()
@@ -148,7 +149,6 @@ jobs:
           bandit-report.json
           safety-report.json
           semgrep-report.json
-          osv-report.json
         retention-days: 30
 
     - name: Comment PR with security results
@@ -178,12 +178,19 @@ jobs:
               }
             }
 
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: comment
             });
           } catch (error) {
-            console.log('Could not read security reports:', error.message);
+            console.log('Could not post the security summary:', error.message);
           }
+
+    # Only a finding high in both severity and confidence fails the job.
+    # Safety and Semgrep stay advisory (continue-on-error above).
+    - name: Gate on high-severity Bandit findings
+      run: |
+        source .venv/bin/activate
+        bandit -c pyproject.toml -r . -lll -iii -f txt

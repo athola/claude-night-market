@@ -6,6 +6,7 @@ import json
 import logging
 import re
 import subprocess
+import time
 from pathlib import Path
 from typing import Any
 
@@ -62,7 +63,8 @@ _HUNK_PATTERN = re.compile(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 _FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+)$")
 
 
-#: Default budget for the one git call this module makes.
+#: Default budget for the module's git calls (diff, then rev-parse), shared
+#: by both through one deadline in analyze_changes.
 #:
 #: Callers running inside a hook must pass their own budget instead. A hook
 #: that is killed by the harness returns no decision at all, which for
@@ -123,6 +125,30 @@ def parse_git_diff_ranges(
             ranges[current_file].append((start, end))
 
     return ranges
+
+
+def _git_toplevel(timeout: float) -> Path:
+    """Return the repository root that git diff paths are relative to.
+
+    Raises:
+        GitDiffError: git did not run, timed out, or exited nonzero.
+
+    """
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError) as exc:
+        msg = f"git rev-parse --show-toplevel could not run: {exc!r}"
+        raise GitDiffError(msg) from exc
+    if result.returncode != 0:
+        msg = f"git rev-parse --show-toplevel exited with {result.returncode}"
+        raise GitDiffError(msg)
+    return Path(result.stdout.strip())
 
 
 def map_changes_to_nodes(
@@ -219,12 +245,19 @@ def analyze_changes(
     ``weights`` is what ``load_weights`` returns for the graph's
     ``.gauntlet`` directory; None scores with the defaults.
     """
+    # Both git calls share one budget. pensive's pr_blast_radius hook passes
+    # what is left of its kill deadline, and the pair must fit inside it.
+    deadline = time.monotonic() + timeout
     try:
-        ranges = parse_git_diff_ranges(base_ref, timeout)
+        repo_relative = parse_git_diff_ranges(base_ref, timeout)
+        if not repo_relative:
+            return _empty_report("none")
+        toplevel = _git_toplevel(max(deadline - time.monotonic(), 0.0))
     except GitDiffError as exc:
         return {**_empty_report("unknown"), "error": str(exc)}
-    if not ranges:
-        return _empty_report("none")
+    # git diff names files relative to the repository top level; the graph
+    # stores the absolute paths graph_build resolved, so join before lookup.
+    ranges = {str(toplevel / path): spans for path, spans in repo_relative.items()}
 
     # Map to nodes
     direct = map_changes_to_nodes(graph, ranges)

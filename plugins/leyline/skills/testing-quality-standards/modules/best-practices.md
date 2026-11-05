@@ -4,7 +4,6 @@ description: Testing best practices and principles
 parent_skill: leyline:testing-quality-standards
 category: infrastructure
 estimated_tokens: 200
-reusable_by: [pensive:test-review, parseltongue:python-testing]
 ---
 
 # Testing Best Practices

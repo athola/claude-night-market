@@ -126,7 +126,9 @@ class TestGitQuotedPaths:
         assert night_run._untracked(runner, tmp_path) == ["a\tb\x0789.txt"]
 
     def test_changed_files_unquotes_tracked_names(self, tmp_path):
-        runner = self._Scripted({"diff --name-only": '"na\\303\\257ve \\"q\\".txt"\n'})
+        runner = self._Scripted(
+            {"diff HEAD --name-only": '"na\\303\\257ve \\"q\\".txt"\n'}
+        )
 
         assert night_run._changed_files(runner, tmp_path) == ['naïve "q".txt']
 

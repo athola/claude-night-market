@@ -202,7 +202,7 @@ format used by both `/pr-review --stack` and
 4. **PR Hygiene** - Atomicity, self-review signals, agent curation (MANDATORY)
 5. **Code Analysis** - Deep technical review
 6. **Code Quality** - Duplication, redundancy, test quality analysis
-7. **GitHub Review** - Post review comments to PR (MANDATORY; or write to local file with `--local`)
+7. **Formal Review** - Post one review with a verdict via `plugins/sanctum/scripts/post_formal_review.py` on GitHub or GitLab (MANDATORY; or write to local file with `--local`)
 8. **Test Plan** - Post verification checklist to PR (MANDATORY; or include in local file with `--local`)
 9. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY; skipped with `--local`)
 10. **Discussion Insights** - Post review findings as Insights to GitHub Discussions (DEFAULT; opt-out with `--no-insights`)
@@ -223,6 +223,9 @@ same path used by `--local`) and run:
 python3 plugins/abstract/scripts/post_review_insights.py \
   reviews/pr-<NNN>-review.md --pr <NNN>
 ```
+
+If `plugins/abstract/scripts/post_review_insights.py` is absent (a marketplace
+install, not a checkout), skip this step and say so.
 
 Each blocker becomes a high-severity `[PR Finding]` discussion, each
 non-blocking row a medium-severity one. The InsightRegistry deduplicates
@@ -273,7 +276,8 @@ After completing `/pr-review`, verify all mandatory outputs:
 PR_NUM=123  # Replace with actual PR number
 
 # 1. Verify review comment exists
-gh pr view $PR_NUM --json comments --jq '[.comments[].body | contains("PR Review")] | any'
+# The summary is the formal review's body, or a comment when posted as one
+gh pr view $PR_NUM --json comments,reviews --jq '[(.comments[].body, .reviews[].body) | contains("PR Review")] | any'
 # Expected: true
 
 # 2. Verify test plan exists

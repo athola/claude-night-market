@@ -1,7 +1,6 @@
 # config/make/common.mk - Common variables and tool detection
 # Include this at the top of your Makefile: include config/make/common.mk
 
-# Default shell with error handling
 # A bare `make` must not mutate the tree. python.mk's first rule is
 # `format:`, which runs `ruff format` and `ruff check --fix`, and every
 # plugin includes it above its own `help:`. Without this assignment
@@ -13,23 +12,7 @@
 # position. Every plugin Makefile defines `help:`.
 .DEFAULT_GOAL := help
 
-SHELL := /bin/bash
-.SHELLFLAGS := -euo pipefail -c
-
-# .SHELLFLAGS arrived in GNU make 3.82. Stock macOS ships 3.81 from the
-# Xcode command line tools, which parses the assignment above and ignores
-# it. 3.81 does honor flags written into SHELL itself, so for the releases
-# that ignore .SHELLFLAGS the flags go there, and every make runs recipes
-# under -euo pipefail. The filter names the releases that ignore the
-# assignment, so a make newer than 4.x keeps the plain form.
-ifneq ($(filter 3.7% 3.80 3.81,$(firstword $(MAKE_VERSION))),)
-SHELL := /bin/bash -euo pipefail
-endif
-
-# No .ONESHELL. 3.81 ignores it, so every recipe here was written to run
-# one line per shell, and on 3.82+ it changed that: a mid-recipe exit
-# ended the recipe and a cd leaked into later lines. One semantics on
-# every make.
+include $(dir $(lastword $(MAKEFILE_LIST)))base.mk
 
 # Tool detection with helpful error messages
 PYTHON ?= python3
@@ -62,6 +45,9 @@ PYTEST := $(UV_RUN) pytest
 MYPY := $(UV_RUN) mypy
 RUFF := $(UV_RUN) ruff
 BANDIT := $(UV_RUN) bandit
+# mutmut 3 dropped --paths-to-mutate and --tests-dir, which every
+# mutation-test target passes. Pinned here so the targets share one pin.
+MUTMUT := $(UV_RUN) --with 'mutmut<3' mutmut
 
 # Directories (configurable for portability)
 BUILD_DIR ?= build
@@ -92,3 +78,20 @@ endef
 define require_path
 @test -n "$(TARGET)" || { echo "Usage: make $(1) TARGET=<path>"; exit 1; }
 endef
+
+.PHONY: debug-variables
+debug-variables: ## Show Makefile variable values (for debugging)
+	@echo "=== Makefile Variables ==="
+	@echo "PYTHON: $(PYTHON)"
+	@echo "UV: $(UV)"
+	@echo "UV_RUN: $(UV_RUN)"
+	@echo "SHELL: $(SHELL)"
+	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
+	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SRC_DIRS: $(SRC_DIRS)"
+	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
+	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
+	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
+	@echo "COV_DIRS: $(COV_DIRS)"
+	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
+	@echo "MAKEFLAGS: $(MAKEFLAGS)"

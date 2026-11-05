@@ -60,7 +60,7 @@ progressive_loading: true
 
 ## Use Cases
 
-- Multi-domain skills (imbue:catchup, sanctum:workspace-tools)
+- Multi-domain skills (imbue:catchup, sanctum:git-workspace-review)
 - Context-heavy analysis workflows
 - Shared plugin infrastructure
 

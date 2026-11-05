@@ -1,0 +1,900 @@
+schema_version: 1
+cases:
+- id: conserve.agent-expenditure.p1
+  type: positive
+  prompt: I just had 7 subagents review different parts of the repo in parallel and
+    it burned a ton of tokens. Can you go over the run and tell me if that many agents
+    was worth it or if I should use fewer next time?
+  target: conserve:agent-expenditure
+  competitor: null
+  cluster: conserve:agent-expenditure
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-sweep; judge: conserve:agent-expenditure/None'
+  proposals:
+    router: parseltongue:python-sweep
+    judge: conserve:agent-expenditure
+    judge_runner_up: null
+- id: conserve.agent-expenditure.p2
+  type: positive
+  prompt: 'Retro on our fan-out review: a couple of the agents kept editing the same
+    files and I suspect some duplicated each other''s findings. Figure out how much
+    was wasted and what agent count I should use going forward.'
+  target: conserve:agent-expenditure
+  competitor: null
+  cluster: conserve:agent-expenditure
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: tome:research; judge: conserve:agent-expenditure/pensive:unified-review'
+  proposals:
+    router: tome:research
+    judge: conserve:agent-expenditure
+    judge_runner_up: pensive:unified-review
+- id: conserve.agent-expenditure.p3
+  type: near_miss
+  prompt: I just ran 7 parallel agents across the repo. Were they worth the tokens,
+    or did they duplicate each other and fight over the same files? Should I use fewer
+    next time?
+  target: conserve:agent-expenditure
+  competitor: cartograph:atlas
+  cluster: conserve:agent-expenditure
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: cartograph:atlas; judge: conserve:agent-expenditure/None'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: cartograph:atlas
+    judge: conserve:agent-expenditure
+    judge_runner_up: null
+- id: conserve.ai-hygiene-audit.p1
+  type: positive
+  prompt: We've been vibe coding hard for two weeks with Copilot and I'm worried about
+    the debt. Can you audit the repo for AI-generated junk like copy-pasted blocks,
+    tests that only check the happy path, and fluffy docs, and fail if the score is
+    under 70?
+  target: conserve:ai-hygiene-audit
+  competitor: null
+  cluster: conserve:ai-hygiene-audit
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conserve:ai-hygiene-audit
+    judge: conserve:ai-hygiene-audit
+- id: conserve.ai-hygiene-audit.p2
+  type: positive
+  prompt: 'Before the release, scan the git history and codebase for signs of AI-written
+    code: giant single commits, functions duplicated as _v2/_new variants, and low
+    test-to-code ratio. Give me JSON output I can plug into CI.'
+  target: conserve:ai-hygiene-audit
+  competitor: null
+  cluster: conserve:ai-hygiene-audit
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:bloat-scan; judge: conserve:ai-hygiene-audit'
+  proposals:
+    router: conserve:bloat-scan
+    judge: conserve:ai-hygiene-audit
+- id: conserve.ai-hygiene-audit.p3
+  type: near_miss
+  prompt: We spent two weeks pairing with Copilot on the billing service and I'm nervous
+    about what it left behind. Check whether the tests only cover success cases, whether
+    the READMEs are hollow filler, and whether the same logic got pasted in several
+    places. Give me a pass/fail score before Friday's release.
+  target: conserve:ai-hygiene-audit
+  competitor: oracle:quality-bench
+  cluster: conserve:ai-hygiene-audit
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conserve:bloat-scan; router: oracle:quality-bench; judge: conserve:ai-hygiene-audit/oracle:quality-bench'
+  proposals:
+    aimed_at: conserve:bloat-scan
+    router: oracle:quality-bench
+    judge: conserve:ai-hygiene-audit
+    judge_runner_up: oracle:quality-bench
+- id: conserve.bloat-detector.p1
+  type: positive
+  prompt: 'Our repo has gotten bloated: dead code, stale docs, unused dependencies,
+    a couple of god classes. Walk me through a tiered cleanup analysis, starting cheap
+    and going deeper only where it''s warranted, and rank what''s safe to delete.'
+  target: conserve:bloat-detector
+  competitor: null
+  cluster: conserve:bloat-detector
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:bloat-scan; judge: conserve:bloat-detector/conserve:bloat-scan'
+  proposals:
+    router: conserve:bloat-scan
+    judge: conserve:bloat-detector
+    judge_runner_up: conserve:bloat-scan
+- id: conserve.bloat-detector.p2
+  type: positive
+  prompt: Check my plugin manifests for always-on skills that inject tokens into every
+    session, and for hooks listed in hooks.json that aren't registered in plugin.json.
+    I want to know the baseline token cost.
+  target: conserve:bloat-detector
+  competitor: null
+  cluster: conserve:bloat-detector
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: abstract:hooks-eval; judge: leyline:plugin-health/sanctum:update-plugins;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: abstract:hooks-eval
+    judge: leyline:plugin-health
+    judge_runner_up: sanctum:update-plugins
+- id: conserve.bloat-detector.p3
+  type: near_miss
+  prompt: 'I want a staged cleanup audit of this repo''s dead weight: unused imports,
+    phantom packages, stale docs, giant files. Start with cheap heuristics and only
+    bring in heavier tools like vulture or knip if the first pass justifies it. Walk
+    me through the approach and how confident to be in each finding.'
+  target: conserve:bloat-detector
+  competitor: conserve:unbloat
+  cluster: conserve:bloat-detector
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'aimed at abstract:skill-audit; router: conserve:unbloat; judge: conserve:bloat-detector/conserve:unbloat;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: conserve:unbloat
+    judge: conserve:bloat-detector
+    judge_runner_up: conserve:unbloat
+- id: conserve.bloat-scan.p1
+  type: positive
+  prompt: 'Run a quick bloat scan on this project, just heuristics: files over 500
+    lines, stale files untouched for 6+ months, commented-out code, old TODOs. Dry
+    run only, don''t change anything.'
+  target: conserve:bloat-scan
+  competitor: null
+  cluster: conserve:bloat-scan
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conserve:bloat-scan
+    judge: conserve:bloat-scan
+- id: conserve.bloat-scan.p2
+  type: positive
+  prompt: Do a deeper pass on the docs and dependencies for bloat, level 2, and save
+    the report to audit-report.md so I can review the high priority findings before
+    approving deletions.
+  target: conserve:bloat-scan
+  competitor: null
+  cluster: conserve:bloat-scan
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:bloat-sweep; judge: conserve:bloat-scan/conserve:bloat-sweep'
+  proposals:
+    router: conserve:bloat-sweep
+    judge: conserve:bloat-scan
+    judge_runner_up: conserve:bloat-sweep
+- id: conserve.bloat-scan.p3
+  type: near_miss
+  prompt: Do a quick dry-run pass over the repo for files over 500 lines, TODOs older
+    than three months, and big commented-out blocks. Don't change anything, just list
+    what you find.
+  target: conserve:bloat-scan
+  competitor: parseltongue:python-sweep
+  cluster: conserve:bloat-scan
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:context-report; router: parseltongue:python-sweep; judge:
+    conserve:bloat-scan/None'
+  proposals:
+    aimed_at: abstract:context-report
+    router: parseltongue:python-sweep
+    judge: conserve:bloat-scan
+    judge_runner_up: null
+- id: conserve.bloat-sweep.p1
+  type: positive
+  prompt: The quick scan flagged src/api, src/billing and docs/ as bloated. Kick off
+    a deep read of each of those areas in parallel, then look for duplicated code
+    that spans between them. Don't delete anything.
+  target: conserve:bloat-sweep
+  competitor: null
+  cluster: conserve:bloat-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conserve:bloat-sweep
+    judge: conserve:bloat-sweep
+- id: conserve.bloat-sweep.p2
+  type: positive
+  prompt: I have a list of flagged directories from the first-pass cleanup audit.
+    Fan out one agent per directory to find dead code, duplication, and unused deps,
+    and then consolidate cross-directory duplicates into one ranked list.
+  target: conserve:bloat-sweep
+  competitor: null
+  cluster: conserve:bloat-sweep
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: gauntlet:knowledge-extract; judge: conserve:bloat-sweep; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: gauntlet:knowledge-extract
+    judge: conserve:bloat-sweep
+- id: conserve.bloat-sweep.p3
+  type: near_miss
+  prompt: The first-pass scan flagged the payments, auth, and reporting packages.
+    Dig into each of those in parallel for dead code and duplication, then tell me
+    whether any block is copied across two of them.
+  target: conserve:bloat-sweep
+  competitor: conserve:bloat-scan
+  cluster: conserve:bloat-sweep
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'aimed at abstract:skill-audit; router: conserve:bloat-scan; judge: None/None;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: conserve:bloat-scan
+    judge: null
+    judge_runner_up: null
+- id: conserve.clear-context.p1
+  type: positive
+  prompt: I'm at about 85% context and still have a big multi-step refactor to finish.
+    Save where we are and hand the rest off to a fresh agent so I don't have to restart
+    manually.
+  target: conserve:clear-context
+  competitor: null
+  cluster: conserve:clear-context
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conserve:clear-context
+    judge: conserve:clear-context
+- id: conserve.clear-context.p2
+  type: positive
+  prompt: Context is nearly full. Checkpoint the current task state, decisions, and
+    open tasks to a file, and have a new subagent pick up from there without creating
+    duplicate tasks.
+  target: conserve:clear-context
+  competitor: null
+  cluster: conserve:clear-context
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:task-planning; judge: conserve:clear-context'
+  proposals:
+    router: spec-kit:task-planning
+    judge: conserve:clear-context
+- id: conserve.clear-context.p3
+  type: near_miss
+  prompt: I'm about 85% through my context window in the middle of a long database
+    migration. Save where I am and hand the rest off to a fresh agent so I don't have
+    to restart and re-explain everything.
+  target: conserve:clear-context
+  competitor: conserve:context-optimization
+  cluster: conserve:clear-context
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at spec-kit:task-planning; router: parseltongue:python-async; judge:
+    conserve:clear-context/conserve:context-optimization'
+  proposals:
+    aimed_at: spec-kit:task-planning
+    router: parseltongue:python-async
+    judge: conserve:clear-context
+    judge_runner_up: conserve:context-optimization
+- id: conserve.code-quality-principles.p1
+  type: positive
+  prompt: This service class has grown a pile of abstract base classes for a single
+    use case and clever one-liners nobody can read. Help me simplify it following
+    KISS, YAGNI and SOLID.
+  target: conserve:code-quality-principles
+  competitor: null
+  cluster: conserve:code-quality-principles
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conserve:code-quality-principles
+    judge: conserve:code-quality-principles
+- id: conserve.code-quality-principles.p2
+  type: positive
+  prompt: I'm refactoring a module in Rust and TypeScript and want to know where I'm
+    over-engineering. Show me examples of what to simplify versus what's fine, applying
+    single responsibility and not building for hypothetical futures.
+  target: conserve:code-quality-principles
+  competitor: null
+  cluster: conserve:code-quality-principles
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:git-catchup; judge: conserve:code-quality-principles'
+  proposals:
+    router: sanctum:git-catchup
+    judge: conserve:code-quality-principles
+- id: conserve.code-quality-principles.p3
+  type: near_miss
+  prompt: Reviewing a teammate's branch. One function has five layers of abstraction
+    for a single caller, plus a clever one-liner nobody can read. Help me explain
+    what to simplify and which SOLID, KISS, or YAGNI principle each part breaks.
+  target: conserve:code-quality-principles
+  competitor: sanctum:stack-create
+  cluster: conserve:code-quality-principles
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:git-catchup; router: conserve:code-quality-principles;
+    judge: conserve:code-quality-principles/None'
+  proposals:
+    aimed_at: sanctum:git-catchup
+    router: conserve:code-quality-principles
+    judge: conserve:code-quality-principles
+    judge_runner_up: null
+- id: conserve.context-optimization.p1
+  type: positive
+  prompt: I'm about 50% through my context window on a multi-file analysis with long
+    tool chains. Assess how bad it is and tell me which strategy to use to keep from
+    degrading, like delegating to subagents.
+  target: conserve:context-optimization
+  competitor: null
+  cluster: conserve:context-optimization
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: conserve:context-optimization
+    judge: conserve:context-optimization
+- id: conserve.context-optimization.p2
+  type: positive
+  prompt: Big test and build logs keep landing in the session. How should I read them
+    selectively and order my context so the cache hits, without blowing up the window?
+  target: conserve:context-optimization
+  competitor: null
+  cluster: conserve:context-optimization
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: minister:initiative-pulse; judge: conserve:context-optimization/conserve:token-conservation'
+  proposals:
+    router: minister:initiative-pulse
+    judge: conserve:context-optimization
+    judge_runner_up: conserve:token-conservation
+- id: conserve.context-optimization.p3
+  type: near_miss
+  prompt: My session is bloated with tool output and I'm past half the window. Figure
+    out how to cut token usage for the rest of this multi-file analysis, maybe by
+    farming subtasks out to subagents.
+  target: conserve:context-optimization
+  competitor: conserve:token-conservation
+  cluster: conserve:context-optimization
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: conserve:token-conservation; judge:
+    conserve:context-optimization/conserve:token-conservation'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: conserve:token-conservation
+    judge: conserve:context-optimization
+    judge_runner_up: conserve:token-conservation
+- id: conserve.cpu-gpu-performance.p1
+  type: positive
+  prompt: I'm about to kick off a multi-hour fine-tuning run on a shared GPU box.
+    Before I launch, how should I check what's already running and keep from hogging
+    the node for everyone else?
+  target: conserve:cpu-gpu-performance
+  competitor: null
+  cluster: conserve:cpu-gpu-performance
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: conserve:cpu-gpu-performance'
+  proposals:
+    router: parseltongue:python-async
+    judge: conserve:cpu-gpu-performance
+- id: conserve.cpu-gpu-performance.p2
+  type: positive
+  prompt: My full Bazel test suite pegged all cores for 20 minutes after I fixed one
+    small bug in a single module. How do I re-validate just that fix without burning
+    that much CPU again?
+  target: conserve:cpu-gpu-performance
+  competitor: null
+  cluster: conserve:cpu-gpu-performance
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conserve:cpu-gpu-performance
+    judge: conserve:cpu-gpu-performance
+- id: conserve.cpu-gpu-performance.p3
+  type: near_miss
+  prompt: I'm about to run the full training sweep and the entire test suite on our
+    shared GPU box after a one-line fix. How should I scope and throttle this so I
+    don't pin every core and GPU for an hour?
+  target: conserve:cpu-gpu-performance
+  competitor: parseltongue:python-async
+  cluster: conserve:cpu-gpu-performance
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: parseltongue:python-async;
+    judge: conserve:cpu-gpu-performance/None'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: parseltongue:python-async
+    judge: conserve:cpu-gpu-performance
+    judge_runner_up: null
+- id: conserve.decisive-action.p1
+  type: positive
+  prompt: You keep stopping to ask me which approach I want on tiny things. When should
+    you just go ahead and make the change versus check with me first? Give me a rule
+    of thumb.
+  target: conserve:decisive-action
+  competitor: null
+  cluster: conserve:decisive-action
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:graduated-implementation; judge: conserve:decisive-action'
+  proposals:
+    router: imbue:graduated-implementation
+    judge: conserve:decisive-action
+- id: conserve.decisive-action.p2
+  type: positive
+  prompt: I asked you to clean up the old migration files in this repo. Should you
+    just delete the ones that look unused, or confirm with me first? How do you decide
+    when it's risky?
+  target: conserve:decisive-action
+  competitor: null
+  cluster: conserve:decisive-action
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:graduated-implementation; judge: conserve:decisive-action/conserve:unbloat'
+  proposals:
+    router: imbue:graduated-implementation
+    judge: conserve:decisive-action
+    judge_runner_up: conserve:unbloat
+- id: conserve.decisive-action.p3
+  type: near_miss
+  prompt: I told you to rename the `fetchUser` helper to `getUser` across the repo
+    and you keep stopping to ask me which files and whether I want tests updated.
+    Intent is obvious. Just do it and only check with me if something is actually
+    risky.
+  target: conserve:decisive-action
+  competitor: imbue:graduated-implementation
+  cluster: conserve:decisive-action
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at hookify:rule-sweep; router: imbue:graduated-implementation; judge:
+    conserve:decisive-action/imbue:graduated-implementation'
+  proposals:
+    aimed_at: hookify:rule-sweep
+    router: imbue:graduated-implementation
+    judge: conserve:decisive-action
+    judge_runner_up: imbue:graduated-implementation
+- id: conserve.elegant-code-review.p1
+  type: positive
+  prompt: Look over my uncommitted changes before I commit. The diff feels bigger
+    than the bug it fixes, and a new package showed up in package.json. Tell me what
+    can be cut.
+  target: conserve:elegant-code-review
+  competitor: null
+  cluster: conserve:elegant-code-review
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: parseltongue:python-packaging; judge: conserve:elegant-code-review/imbue:dependency-verification;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: parseltongue:python-packaging
+    judge: conserve:elegant-code-review
+    judge_runner_up: imbue:dependency-verification
+- id: conserve.elegant-code-review.p2
+  type: positive
+  prompt: Review everything on my branch against main and tell me for each added chunk
+    whether there was a simpler way, and whether I skipped edge cases like empty input.
+  target: conserve:elegant-code-review
+  competitor: null
+  cluster: conserve:elegant-code-review
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: imbue:scope-guard; judge: conserve:elegant-code-review/imbue:scope-guard;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: imbue:scope-guard
+    judge: conserve:elegant-code-review
+    judge_runner_up: imbue:scope-guard
+- id: conserve.elegant-code-review.p3
+  type: near_miss
+  prompt: I just finished the pagination change and the diff came out a lot bigger
+    than I expected, plus a new package showed up in package.json. Go through my staged
+    changes, tell me which added hunks can be deleted or replaced with something already
+    in the repo, and flag anything that duplicates existing logic.
+  target: conserve:elegant-code-review
+  competitor: imbue:dependency-verification
+  cluster: conserve:elegant-code-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at egregore:gate-audit; router: minister:initiative-pulse; judge:
+    conserve:elegant-code-review/imbue:dependency-verification'
+  proposals:
+    aimed_at: egregore:gate-audit
+    router: minister:initiative-pulse
+    judge: conserve:elegant-code-review
+    judge_runner_up: imbue:dependency-verification
+- id: conserve.elegant-code.p1
+  type: positive
+  prompt: I'm about to write a new retry helper with exponential backoff for our API
+    client. Before I do, what should I check so I'm not reinventing something the
+    repo, stdlib, or an already-installed package gives me?
+  target: conserve:elegant-code
+  competitor: null
+  cluster: conserve:elegant-code
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: None/conserve:elegant-code; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: parseltongue:python-async
+    judge: null
+    judge_runner_up: conserve:elegant-code
+- id: conserve.elegant-code.p2
+  type: positive
+  prompt: I noticed I'm about to add a second token-counting function when the codebase
+    already has one with slightly different behavior. How should I decide whether
+    to reuse it, replace it, or keep both?
+  target: conserve:elegant-code
+  competitor: null
+  cluster: conserve:elegant-code
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: conserve:elegant-code/archetypes:architecture-paradigm-functional-core'
+  proposals:
+    router: parseltongue:python-async
+    judge: conserve:elegant-code
+    judge_runner_up: archetypes:architecture-paradigm-functional-core
+- id: conserve.elegant-code.p3
+  type: near_miss
+  prompt: I'm about to add a small `retry_with_backoff` helper plus a new dependency
+    for this API client. Before I write it, walk me through whether the repo or stdlib
+    already covers it and what the shortest correct version looks like, including
+    timeouts and the failure path.
+  target: conserve:elegant-code
+  competitor: spec-kit:spec-review
+  cluster: conserve:elegant-code
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: spec-kit:spec-review; judge: conserve:elegant-code/None'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: spec-kit:spec-review
+    judge: conserve:elegant-code
+    judge_runner_up: null
+- id: conserve.filter-log.p1
+  type: positive
+  prompt: I have a 400MB app.log from a crash overnight. What's the cheapest way to
+    pull out just the part that explains the panic without dumping the whole thing
+    into the conversation?
+  target: conserve:filter-log
+  competitor: null
+  cluster: conserve:filter-log
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:dismiss; judge: conserve:filter-log'
+  proposals:
+    router: egregore:dismiss
+    judge: conserve:filter-log
+- id: conserve.filter-log.p2
+  type: positive
+  prompt: Got a big events.jsonl file and I only care about the error-level entries
+    from the last few minutes. Give me a command that trims it down before I paste
+    anything.
+  target: conserve:filter-log
+  competitor: null
+  cluster: conserve:filter-log
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conserve:filter-log
+    judge: conserve:filter-log
+- id: conserve.filter-log.p3
+  type: near_miss
+  prompt: I have a 400MB `build_output.log` and I only need to figure out why the
+    last step failed. Give me the command that pulls out just the relevant slice,
+    and show me how much smaller it gets, before I paste anything into the chat.
+  target: conserve:filter-log
+  competitor: parseltongue:python-async
+  cluster: conserve:filter-log
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at egregore:dismiss; router: conserve:filter-log; judge: conserve:filter-log/None'
+  proposals:
+    aimed_at: egregore:dismiss
+    router: conserve:filter-log
+    judge: conserve:filter-log
+    judge_runner_up: null
+- id: conserve.mcp-code-execution.p1
+  type: positive
+  prompt: I need to chain five MCP tool calls to process a 200k-row export and the
+    intermediate results are flooding my context. How should I structure this so the
+    data handling happens outside the conversation?
+  target: conserve:mcp-code-execution
+  competitor: null
+  cluster: conserve:mcp-code-execution
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: conserve:mcp-code-execution'
+  proposals:
+    router: parseltongue:python-async
+    judge: conserve:mcp-code-execution
+- id: conserve.mcp-code-execution.p2
+  type: positive
+  prompt: My MCP tool descriptions are eating a big chunk of the context window and
+    subagents seem to need tool access. How do I set up tool search and delegate the
+    heavy pipeline work?
+  target: conserve:mcp-code-execution
+  competitor: null
+  cluster: conserve:mcp-code-execution
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conserve:mcp-code-execution
+    judge: conserve:mcp-code-execution
+- id: conserve.mcp-code-execution.p3
+  type: near_miss
+  prompt: My workflow chains about six MCP tool calls in a row to pull rows from a
+    50k-row CSV, transform them, and write a summary. Intermediate results are eating
+    my context. How should I restructure it so the heavy processing happens in code
+    or a subagent instead of flowing through the conversation?
+  target: conserve:mcp-code-execution
+  competitor: scribe:session-replay
+  cluster: conserve:mcp-code-execution
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-async; router: conserve:mcp-code-execution;
+    judge: conserve:mcp-code-execution/None'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: conserve:mcp-code-execution
+    judge: conserve:mcp-code-execution
+    judge_runner_up: null
+- id: conserve.optimize-context.p1
+  type: positive
+  prompt: Check how full my context window is right now and break down where the tokens
+    are going. Tell me if I should be trimming anything.
+  target: conserve:optimize-context
+  competitor: null
+  cluster: conserve:optimize-context
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conserve:optimize-context
+    judge: conserve:optimize-context
+- id: conserve.optimize-context.p2
+  type: positive
+  prompt: I want to get the context usage breakdown as JSON from a headless claude
+    -p run in my CI script. What's the reliable way to do that?
+  target: conserve:optimize-context
+  competitor: null
+  cluster: conserve:optimize-context
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: egregore:dismiss; judge: None/conserve:optimize-context; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: egregore:dismiss
+    judge: null
+    judge_runner_up: conserve:optimize-context
+- id: conserve.optimize-context.p3
+  type: near_miss
+  prompt: Session's getting sluggish and I suspect I'm deep into the context window.
+    Check how much I'm using right now, tell me whether I'm in the warning range,
+    and give me a breakdown of which skills or components are eating the most tokens.
+  target: conserve:optimize-context
+  competitor: conserve:token-conservation
+  cluster: conserve:optimize-context
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:paradigm-panel; router: parseltongue:python-async; judge:
+    conserve:optimize-context/conserve:token-conservation'
+  proposals:
+    aimed_at: archetypes:paradigm-panel
+    router: parseltongue:python-async
+    judge: conserve:optimize-context
+    judge_runner_up: conserve:token-conservation
+- id: conserve.response-compression.p1
+  type: positive
+  prompt: Your answers are full of filler, hedging and 'let me know if you need anything'
+    closers. Tighten them up so each reply is short and goes straight to the content.
+  target: conserve:response-compression
+  competitor: null
+  cluster: conserve:response-compression
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scribe:doc-polish; judge: conserve:response-compression'
+  proposals:
+    router: scribe:doc-polish
+    judge: conserve:response-compression
+- id: conserve.response-compression.p2
+  type: positive
+  prompt: I'm burning through tokens on chatty replies. Rewrite how you respond so
+    there's no preamble, no recap of next steps, and no hype words, just the result.
+  target: conserve:response-compression
+  competitor: null
+  cluster: conserve:response-compression
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: phantom:surface-check; judge: conserve:response-compression/None'
+  proposals:
+    router: phantom:surface-check
+    judge: conserve:response-compression
+    judge_runner_up: null
+- id: conserve.response-compression.p3
+  type: near_miss
+  prompt: Your answers are padded with 'Great question', 'Additionally', and 'feel
+    free to ask'. Rewrite how you reply so each answer drops the filler, hedging,
+    and hype words and just states the facts, since I'm trying to save tokens per
+    response.
+  target: conserve:response-compression
+  competitor: memory-palace:palace-sweep
+  cluster: conserve:response-compression
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'aimed at hookify:rule-sweep; router: conserve:response-compression; judge:
+    None/None; accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: hookify:rule-sweep
+    router: conserve:response-compression
+    judge: null
+    judge_runner_up: null
+- id: conserve.token-conservation.p1
+  type: positive
+  prompt: I'm about to load a huge diff and a bunch of PDFs into this session for
+    a long analysis. How should I budget file reads and keep my token usage under
+    control before I start?
+  target: conserve:token-conservation
+  competitor: null
+  cluster: conserve:token-conservation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: conserve:token-conservation'
+  proposals:
+    router: parseltongue:python-async
+    judge: conserve:token-conservation
+- id: conserve.token-conservation.p2
+  type: positive
+  prompt: My prompts keep getting bigger and I'm burning through my 5-hour usage cap
+    fast. Help me set a read limit for this bug fix and figure out what to hand off
+    to cheaper tooling.
+  target: conserve:token-conservation
+  competitor: null
+  cluster: conserve:token-conservation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:clear-context; judge: conserve:token-conservation/conserve:clear-context'
+  proposals:
+    router: conserve:clear-context
+    judge: conserve:token-conservation
+    judge_runner_up: conserve:clear-context
+- id: conserve.token-conservation.p3
+  type: near_miss
+  prompt: I'm about to kick off a big analysis across a wide diff and I'm worried
+    about my 5-hour usage cap. Before starting, set a read budget, check what quota
+    I have left, and decide what to delegate so I don't burn through my limit.
+  target: conserve:token-conservation
+  competitor: parseltongue:python-async
+  cluster: conserve:token-conservation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-async; router: parseltongue:python-async; judge:
+    conserve:token-conservation/None'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: parseltongue:python-async
+    judge: conserve:token-conservation
+    judge_runner_up: null
+- id: conserve.unbloat.p1
+  type: positive
+  prompt: We're cutting a release next week. Walk me through removing dead code and
+    stale files from the repo one at a time with a backup branch, and let me approve
+    each deletion.
+  target: conserve:unbloat
+  competitor: null
+  cluster: conserve:unbloat
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: conserve:unbloat
+    judge: conserve:unbloat
+- id: conserve.unbloat.p2
+  type: positive
+  prompt: I already have a bloat-report.md from the scan. Do a dry run of cleaning
+    up just the docs, auto-approving only the low-risk stuff, and run tests after
+    each change.
+  target: conserve:unbloat
+  competitor: null
+  cluster: conserve:unbloat
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:bloat-sweep; judge: conserve:unbloat/conserve:bloat-sweep'
+  proposals:
+    router: conserve:bloat-sweep
+    judge: conserve:unbloat
+    judge_runner_up: conserve:bloat-sweep
+- id: conserve.unbloat.p3
+  type: near_miss
+  prompt: I've got the bloat-report.md from yesterday's scan sitting in the repo.
+    Walk me through removing the dead code and unused deps it flagged, one change
+    at a time so I can approve each, and make a backup branch first in case I need
+    to roll back before the release.
+  target: conserve:unbloat
+  competitor: conserve:bloat-sweep
+  cluster: conserve:unbloat
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'aimed at abstract:aggregate-logs; router: conserve:bloat-sweep; judge: None/None;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: conserve:bloat-sweep
+    judge: null
+    judge_runner_up: null

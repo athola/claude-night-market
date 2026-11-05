@@ -8,7 +8,6 @@ tools: [Read, Write, Bash]
 category: infrastructure
 tags: [github-actions, ci-cd, workflows, automation, testing]
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 1500
 ---
 

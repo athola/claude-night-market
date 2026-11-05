@@ -35,7 +35,7 @@ Avoid this command if:
 - Single skill analysis - use /analyze-skill
 - Single hook analysis - use /analyze-hook
 - Creating new skills - use /create-skill
-- Token estimation only - use /estimate-tokens
+- Token estimation only - use /context-report
 
 ## Usage
 

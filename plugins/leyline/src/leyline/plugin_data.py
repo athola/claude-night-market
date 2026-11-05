@@ -40,12 +40,6 @@ Precedence:
 4. The plugin root unchanged, which is what keeps a source checkout and
    its tests reading their own fixtures instead of the operator's data.
 
-Note on ADR-0009: its text shows ``${CLAUDE_PLUGIN_DATA}/<plugin-name>/``,
-which does not match the observed layout -- the variable is already
-per-plugin, as oracle's provisioner has assumed since 2.1.78. This
-module implements the observed behavior. The ADR text needs a
-correction, which is a documentation change rather than a code one.
-
 Nothing here moves data. Recovering an already-stranded tree merges
 someone's queue into their live one, which is a decision for the
 operator; memory-palace's ``scripts/migrate_data_root.py`` makes that an

@@ -4,7 +4,6 @@ description: Shared code quality analysis patterns for review skills
 parent_skill: pensive:code-refinement
 category: review-infrastructure
 tags: [code-quality, deduplication, redundancy, analysis, DRY]
-reusable_by: [pensive:code-refinement, pensive:unified-review, sanctum:pr-review, pensive:bug-review]
 estimated_tokens: 450
 ---
 
@@ -30,6 +29,9 @@ find . -name "*.py" -not -path "*/.venv/*" | while read f; do
   awk 'NR%5==1{hash=""; start=NR} {hash=hash $0} NR%5==0{print hash, FILENAME, start}' "$f"
 done | sort | uniq -d -w 100 | head -10
 ```
+
+If `plugins/conserve/scripts/detect_duplicates.py` is absent (a marketplace
+install, not a checkout), skip the duplicate scan and say so.
 
 ### Redundancy Patterns
 

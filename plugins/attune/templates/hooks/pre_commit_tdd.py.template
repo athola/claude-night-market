@@ -1,41 +1,70 @@
 #!/usr/bin/env python3
-"""Pre-commit hook enforcing TDD patterns.
+"""Advisory pre-commit hook for TDD.
 
-Verifies that commits include test files alongside implementation changes.
-Part of Iron Law TDD enforcement (Level 4: Pre-Commit Hooks).
+Checks that commits include test files alongside implementation changes
+and tells the model when they do not. It never blocks the commit.
 """
 
+import json
+import shutil
 import subprocess
 import sys
 
 
 def get_staged_files():
     """Get list of staged Python files."""
+    git = shutil.which("git")
+    if git is None:
+        return []
     result = subprocess.run(
-        ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+        [git, "diff", "--cached", "--name-only", "--diff-filter=ACM"],
         capture_output=True,
         text=True,
+        check=False,
     )
     return [f for f in result.stdout.strip().split("\n") if f.endswith(".py")]
 
 
 def check_tdd_compliance(staged_files):
-    """Check that implementation files have corresponding test files."""
+    """Return advice when implementation files are staged without tests.
+
+    Advisory only: the commit proceeds either way. Returns None when the
+    staged set is compliant.
+    """
     impl_files = [
         f for f in staged_files if not f.startswith("tests/") and "test_" not in f
     ]
     test_files = [f for f in staged_files if f.startswith("tests/") or "test_" in f]
 
     if impl_files and not test_files:
-        print("[TDD] Implementation files staged without tests:")
-        for f in impl_files:
-            print(f"  - {f}")
-        print("\nConsider adding tests before committing.")
-        return 1
+        listed = "\n".join(f"  - {f}" for f in impl_files)
+        return (
+            "[TDD] Implementation files staged without tests:\n"
+            f"{listed}\n\nConsider adding tests before committing."
+        )
+    return None
+
+
+def main():
+    """Print TDD advice as hook JSON and exit 0."""
+    files = get_staged_files()
+    advice = check_tdd_compliance(files) if files else None
+    if advice:
+        # Plain stdout from an exit-0 PreToolUse hook is not shown to the
+        # model. additionalContext is shown, and carries no permission
+        # decision.
+        print(
+            json.dumps(
+                {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "additionalContext": advice,
+                    }
+                }
+            )
+        )
     return 0
 
 
 if __name__ == "__main__":
-    files = get_staged_files()
-    if files:
-        sys.exit(check_tdd_compliance(files))
+    sys.exit(main())

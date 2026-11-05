@@ -17,7 +17,6 @@ usage_patterns:
 - codex-cli-integration
 - headless-ci-execution
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 550
 references:
 - delegation-core/shared-shell-execution.md

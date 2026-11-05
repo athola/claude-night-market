@@ -82,11 +82,7 @@ install: ## Install for production
 
 
 mutation-test: ## Run mutation testing
-	@if command -v mutmut >/dev/null 2>&1; then \
-		mutmut run --paths-to-mutate src/; \
-	else \
-		echo "mutmut not installed (pip install mutmut)"; \
-	fi
+	$(MUTMUT) run --paths-to-mutate src/
 
 test-structure: ## Verify test structure
 	@echo "Checking test structure..."
@@ -118,22 +114,6 @@ status: ## Show project overview
 	@echo "Skills: $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
 	@echo "Tests:  $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 	@echo "Source: $$(find src/ -name '*.py' 2>/dev/null | wc -l) Python files"
-
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "PYTHON: $(PYTHON)"
-	@echo "UV: $(UV)"
-	@echo "UV_RUN: $(UV_RUN)"
-	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "PYTHONPATH: $(PYTHONPATH)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
-	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
-	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
-	@echo "COV_DIRS: $(COV_DIRS)"
-	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
-	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
 # ---------- Demo/Dogfood Targets ----------
 demo-makefile-review: ## Demo Makefile review on this plugin's Makefile
@@ -421,10 +401,3 @@ demo-performance-review: ## Demo: scan pensive's own source for complexity hotsp
 
 test-performance-review: ## Test the performance-review skill
 	$(PYTEST) tests/skills/test_performance_review.py -v --no-cov
-
-
-# Guard against accidental file creation (catch-all for unknown targets)
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

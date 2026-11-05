@@ -41,9 +41,31 @@ const LENSES = [
   { key: 'communities', skill: 'cartograph:code-communities', asks: 'which modules cluster, and where the coupling boundaries fall' },
 ]
 
-const lenses = input.lenses
-  ? LENSES.filter((lens) => input.lenses.includes(lens.key))
+const KNOWN = LENSES.map((entry) => entry.key).join(', ')
+const selection = input.lenses ?? null
+// A string would pass `.includes` as a substring match, so only a list
+// is a selection.
+if (selection !== null && !Array.isArray(selection)) {
+  return {
+    started: false,
+    reason: 'lenses-not-a-list',
+    next: 'Pass args.lenses as a list of lens names. Omit it to run every lens.',
+  }
+}
+const lenses = selection
+  ? LENSES.filter((entry) => selection.includes(entry.key))
   : LENSES
+// A misspelled lens must not read as a clean result.
+const unknown = (selection || []).filter((name) => !LENSES.some((entry) => entry.key === name))
+if (unknown.length) log(`unknown lens ${unknown.join(', ')}. Known lenses: ${KNOWN}`)
+if (!lenses.length) {
+  return {
+    started: false,
+    reason: 'no-lenses-selected',
+    next: `Name one or more known lenses in args.lenses: ${KNOWN}. Omit it to run every lens.`,
+    unknown,
+  }
+}
 
 const drawn = await parallel(
   lenses.map((lens) => () =>
@@ -100,7 +122,10 @@ const disagreements = await agent(
   `These lenses mapped the same codebase and included different things. Report where they disagree and what each disagreement means.\n\n${inventory}\n\nA module one lens treats as central and another omits is the finding worth reporting. A module absent from every lens is probably dead. Do not smooth the differences into a summary. Name them.`,
   { label: 'reconcile', phase: 'Reconcile', schema: DISAGREEMENTS },
 )
+// A dead reconcile agent returns the same null as the skip path above.
+const failed = disagreements ? null : 'reconcile'
+if (failed) log('no result from the reconcile stage. The disagreements are unreported, not absent')
 
 log(`${produced.length} lenses drawn over ${root}`)
 
-return { root, diagrams: produced, disagreements, missing }
+return { root, diagrams: produced, disagreements, missing, failed }

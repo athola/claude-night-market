@@ -16,6 +16,8 @@ we deliberately gave up. Records the *why*, not just the *what*.
 | TR-001 | accepted | Test-quality vagueness is about the expectation, not the variable name | 2026-08-23 |
 | TR-002 | accepted | Retiring the coercion apparatus in favour of a strength budget | 2026-08-25 |
 | TR-003 | accepted | Pinning mypy below 2 for as long as a plugin targets Python 3.9 | 2026-09-09 |
+| TR-004 | accepted | Measure skill activation with the native eval runner and an offline confusability guard | 2026-10-30 |
+| TR-005 | accepted | Measure activation from kept traces in a copied run host | 2026-11-03 |
 
 ## Decisions
 
@@ -209,6 +211,113 @@ accepting that this repository stays on mypy 1.x until the 3.9 target goes.
   and this repository needs the 3.9 target gone before then. Revisit
   when the hooks stop running on the system interpreter, or when mypy
   1.x stops receiving fixes, whichever comes first.
+
+## TR-004: Measure skill activation with the native eval runner and an offline confusability guard
+
+- Status: accepted
+- Date: 2026-10-30
+- Phase: brainstorm
+- Deciders: maintainer, claude
+- Links: docs/plans/2026-10-30-war-room-activation-quality.md,
+  .attune/activation-quality-brief.md
+<!-- key: f5379a35b49e -->
+
+### Context & problem
+
+No way to say 'this library activates the right skill X% of the time, and change
+Y moved that number'. The removed forced-eval harness (7566cb323) measured 100%
+on a small set with no negatives, on the ceiling. Probes on 2026-10-30 showed
+`claude plugin eval` can load every plugin in one case from the repo root and
+that kept traces name the skill called, at about $0.20 per full-library run.
+
+### Decision drivers
+
+Defensible before/after claims; library-wide competition between skills; token
+cost; harness fidelity; no prompt logging.
+
+### Options considered
+
+| Option | Pros | Cons / what it sacrifices |
+|--------|------|---------------------------|
+| A1 native claude plugin eval suite at repo root (chosen) | Real activation, harness-owned runner, repeated runs and cost ceilings built in | $0.20 per run; per-run tool calls only via kept traces |
+| A2 custom claude -p stream-json runner | Full control | Re-implements the native runner and drifts from the harness users run |
+| A3 offline BM25 confusability router (chosen) | Free, per-commit, picks near-miss prompts | A proxy; cannot claim activation |
+| A4 production telemetry hook | Real usage, free | Logs user prompts in every session; unlabeled |
+
+### Decision
+
+Build A1 as the measurement of record and A3 as the free per-commit guard. Defer
+A4 to its own opt-in decision. Reject A2.
+
+### Y-statement
+
+In the context of routing night-market's skills, commands and workflows by
+description, facing no defensible activation number, we decided for a
+native-eval suite with an offline confusability router and against a custom
+runner and session telemetry, to achieve paired, fingerprinted before/after
+claims at a tiered cost, accepting that live numbers cost money and the router
+is only a proxy.
+
+### Consequences
+
+- Positive: A number with intervals and an exact paired test; a free per-commit
+  confusability gate; near-miss prompts chosen from data.
+- Negative / debt accepted: Live runs cost $5-60 per tier; labels written by
+  maintainers can echo description wording; production misroutes stay unmeasured
+  until A4.
+
+## TR-005: Measure activation from kept traces in a copied run host
+
+- Status: accepted
+- Date: 2026-11-03
+- Phase: execute
+- Deciders: maintainer, claude
+- Links: scripts/activation/host.py,
+  docs/adr/0004-skill-description-budget-optimization.md,
+  commit 8521a4ed3
+<!-- key: f2a90b7c1b68 -->
+
+### Context & problem
+
+`claude plugin eval` loads case `plugins:` only from under its containment root,
+and its graders report pass or fail without saying which skill fired. The metric
+needs every plugin loaded, mutated descriptions for the self-check, and the
+exact skill called.
+
+### Decision drivers
+
+Containment (L5); an exact confusion matrix; mutation without touching the repo;
+disk and time per run.
+
+### Options considered
+
+| Option | Pros | Cons / what it sacrifices |
+|--------|------|---------------------------|
+| Copied run host per run, skipping tests, data and dot-directories other than .claude-plugin, metrics from kept traces (chosen) | Containment holds; mutations stay out of the repo; the trace names the skill fired; about 48 MB and 6 s per host | Depends on --keep-temp keeping traces; a host build step per run |
+| Hard-linked run host | Near-zero disk | The runner refuses a plugin file with more than one name: every case errored in the 2026-11-03 smoke run on 2.1.317 |
+| Run at the repo root, metrics from grader verdicts | No host step; graders are documented | Mutation would edit the working tree; graders cannot say which wrong skill fired |
+
+### Decision
+
+Copy plugins into a host under evals/activation/.runs/<run-id>/ for every run,
+and compute every metric from the kept traces. Grader verdicts are a convenience
+view only.
+
+### Y-statement
+
+In the context of measuring activation with `claude plugin eval`, facing its
+containment rule, its refusal of hard links and graders that only report pass or
+fail, we decided for a copied run host per run and trace-derived metrics, and
+against hard links or running at the repo root, to achieve whole-library runs,
+safe mutation and an exact confusion matrix, accepting about 48 MB of disk per
+kept host and a dependency on --keep-temp.
+
+### Consequences
+
+- Positive: Mutation never touches the repo; confusion is exact.
+- Negative / debt accepted: If --keep-temp stops keeping traces, the analyzer
+  has no input. A plugin that grows a large tracked directory grows every host;
+  revisit if a host passes 100 MB.
 
 ## Archive
 

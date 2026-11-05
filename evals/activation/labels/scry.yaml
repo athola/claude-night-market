@@ -1,0 +1,338 @@
+schema_version: 1
+cases:
+- id: scry.browser-recording.p1
+  type: positive
+  prompt: Run my dashboard-demo Playwright spec with video turned on, grab the resulting
+    webm, and get me a GIF I can drop into the README.
+  target: scry:browser-recording
+  competitor: null
+  cluster: scry:browser-recording
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scry:gif-generation; judge: scry:browser-recording'
+  proposals:
+    router: scry:gif-generation
+    judge: scry:browser-recording
+- id: scry.browser-recording.p2
+  type: positive
+  prompt: I need a screen capture of the checkout flow in the web app for the docs.
+    Make sure Playwright and chromium are installed, run the spec in specs/, and confirm
+    the video file was written.
+  target: scry:browser-recording
+  competitor: null
+  cluster: scry:browser-recording
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: cartograph:atlas; judge: scry:browser-recording/scry:capture-set'
+  proposals:
+    router: cartograph:atlas
+    judge: scry:browser-recording
+    judge_runner_up: scry:capture-set
+- id: scry.browser-recording.p3
+  type: near_miss
+  prompt: Record a Playwright run through our order-management admin UI as a webm
+    for the wiki, then get it into GIF form. The spec is already written, so I just
+    need it executed with video on.
+  target: scry:browser-recording
+  competitor: scry:gif-generation
+  cluster: scry:browser-recording
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-domain-driven; router: spec-kit:spec-review;
+    judge: scry:browser-recording/scry:gif-generation'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-domain-driven
+    router: spec-kit:spec-review
+    judge: scry:browser-recording
+    judge_runner_up: scry:gif-generation
+- id: scry.capture-set.p1
+  type: positive
+  prompt: I have six demo flows for the docs, two terminal and four browser. Capture
+    them all at once, and if one fails tell me which ones broke instead of stopping
+    at the first error.
+  target: scry:capture-set
+  competitor: null
+  cluster: scry:capture-set
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scry:capture-set
+    judge: scry:capture-set
+- id: scry.capture-set.p2
+  type: positive
+  prompt: Kick off recordings for all my tutorial scripts in parallel, one worker
+    per flow. Check that each output file actually exists and isn't empty, since a
+    recorder can exit 0 and write nothing.
+  target: scry:capture-set
+  competitor: null
+  cluster: scry:capture-set
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:plugin-health; judge: scry:capture-set'
+  proposals:
+    router: leyline:plugin-health
+    judge: scry:capture-set
+- id: scry.capture-set.p3
+  type: near_miss
+  prompt: I need six flows captured for the docs, three in the terminal and three
+    in the browser. Run them all at the same time instead of one after another, and
+    if one breaks, still give me the rest and tell me which failed.
+  target: scry:capture-set
+  competitor: cartograph:atlas
+  cluster: scry:capture-set
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:skill-library; router: scry:capture-set; judge: scry:capture-set/None'
+  proposals:
+    aimed_at: attune:skill-library
+    router: scry:capture-set
+    judge: scry:capture-set
+    judge_runner_up: null
+- id: scry.gif-generation.p1
+  type: positive
+  prompt: I have demo.webm from a test run and the GIF I made is 15 MB. Convert it
+    with ffmpeg using a generated palette, around 10 fps and 800px wide, so it's much
+    smaller.
+  target: scry:gif-generation
+  competitor: null
+  cluster: scry:gif-generation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: scry:gif-generation'
+  proposals:
+    router: conjure:provider-sweep
+    judge: scry:gif-generation
+- id: scry.gif-generation.p2
+  type: positive
+  prompt: Turn this mp4 screen capture into a good-looking animated GIF with lanczos
+    scaling and bayer dithering. What fps and width should I pick to balance size
+    and quality?
+  target: scry:gif-generation
+  competitor: null
+  cluster: scry:gif-generation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scry:gif-generation
+    judge: scry:gif-generation
+- id: scry.gif-generation.p3
+  type: near_miss
+  prompt: I already have demo.webm from an earlier Playwright run. Turn it into a
+    small, optimized GIF under 2MB for the README. Don't re-record anything.
+  target: scry:gif-generation
+  competitor: scry:record-browser
+  cluster: scry:gif-generation
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:provider-sweep; router: scry:gif-generation; judge: scry:gif-generation/scry:record-browser'
+  proposals:
+    aimed_at: conjure:provider-sweep
+    router: scry:gif-generation
+    judge: scry:gif-generation
+    judge_runner_up: scry:record-browser
+- id: scry.media-composition.p1
+  type: positive
+  prompt: I already have a terminal GIF and a browser GIF for the MCP tutorial. Stack
+    them vertically into one GIF with padding and a dark background, driven by a YAML
+    manifest.
+  target: scry:media-composition
+  competitor: null
+  cluster: scry:media-composition
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:tutorial-updates; judge: scry:media-composition/scry:gif-generation'
+  proposals:
+    router: sanctum:tutorial-updates
+    judge: scry:media-composition
+    judge_runner_up: scry:gif-generation
+- id: scry.media-composition.p2
+  type: positive
+  prompt: Write a manifest listing the tape output and the Playwright output, check
+    both files exist, then run ffmpeg to produce the combined demo and report its
+    file size and dimensions.
+  target: scry:media-composition
+  competitor: null
+  cluster: scry:media-composition
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:full-review; judge: scry:media-composition'
+  proposals:
+    router: pensive:full-review
+    judge: scry:media-composition
+- id: scry.media-composition.p3
+  type: near_miss
+  prompt: Combine the terminal GIF and the browser GIF side by side into one output,
+    following the components listed in tutorials/mcp.manifest.yaml. Check that both
+    inputs exist first.
+  target: scry:media-composition
+  competitor: sanctum:tutorial-updates
+  cluster: scry:media-composition
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:knowledge-extract; router: scry:browser-recording; judge:
+    scry:media-composition/sanctum:tutorial-updates'
+  proposals:
+    aimed_at: gauntlet:knowledge-extract
+    router: scry:browser-recording
+    judge: scry:media-composition
+    judge_runner_up: sanctum:tutorial-updates
+- id: scry.record-browser.p1
+  type: positive
+  prompt: Scaffold a new Playwright spec for a login-flow demo recording so I have
+    a template to fill in.
+  target: scry:record-browser
+  competitor: null
+  cluster: scry:record-browser
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:spec-writing; judge: scry:record-browser/scry:browser-recording'
+  proposals:
+    router: spec-kit:spec-writing
+    judge: scry:record-browser
+    judge_runner_up: scry:browser-recording
+- id: scry.record-browser.p2
+  type: positive
+  prompt: Show me which Playwright config is in use for recording, and then record
+    from specs/dashboard-demo.spec.ts.
+  target: scry:record-browser
+  competitor: null
+  cluster: scry:record-browser
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: sanctum:tutorial-updates; judge: scry:record-browser; accepted by
+    maintainer 2026-11-03'
+  proposals:
+    router: sanctum:tutorial-updates
+    judge: scry:record-browser
+- id: scry.record-browser.p3
+  type: near_miss
+  prompt: Just record specs/login.spec.ts to video and convert it to a GIF. It's one
+    spec, so don't touch the rest of the tutorials or rebuild anything else.
+  target: scry:record-browser
+  competitor: scry:browser-recording
+  cluster: scry:record-browser
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:tutorial-updates; router: spec-kit:spec-review; judge:
+    scry:record-browser/scry:browser-recording'
+  proposals:
+    aimed_at: sanctum:tutorial-updates
+    router: spec-kit:spec-review
+    judge: scry:record-browser
+    judge_runner_up: scry:browser-recording
+- id: scry.record-terminal.p1
+  type: positive
+  prompt: Check the syntax of assets/tapes/demo.tape before I record, then run it
+    to produce the GIF.
+  target: scry:record-terminal
+  competitor: null
+  cluster: scry:record-terminal
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scry:vhs-recording; judge: scry:record-terminal'
+  proposals:
+    router: scry:vhs-recording
+    judge: scry:record-terminal
+- id: scry.record-terminal.p2
+  type: positive
+  prompt: Create a starter VHS tape file for a quickstart demo of my CLI, and then
+    record it.
+  target: scry:record-terminal
+  competitor: null
+  cluster: scry:record-terminal
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: scry:record-terminal
+    judge: scry:record-terminal
+- id: scry.record-terminal.p3
+  type: near_miss
+  prompt: Validate assets/tapes/demo.tape and then record it. Only this one tape.
+    I'm not regenerating the whole tutorial set, just checking the syntax and getting
+    a GIF.
+  target: scry:record-terminal
+  competitor: sanctum:tutorial-updates
+  cluster: scry:record-terminal
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'aimed at sanctum:tutorial-updates; router: sanctum:tutorial-updates; judge:
+    scry:vhs-recording/scry:record-terminal; accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: sanctum:tutorial-updates
+    router: sanctum:tutorial-updates
+    judge: scry:vhs-recording
+    judge_runner_up: scry:record-terminal
+- id: scry.vhs-recording.p1
+  type: positive
+  prompt: I have a demo.tape file for my CLI tool. Can you run it and generate the
+    GIF for the README?
+  target: scry:vhs-recording
+  competitor: null
+  cluster: scry:vhs-recording
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scry:vhs-recording
+    judge: scry:vhs-recording
+- id: scry.vhs-recording.p2
+  type: positive
+  prompt: vhs says command not found when I try to render my tape file. Can you get
+    it set up and record the terminal demo?
+  target: scry:vhs-recording
+  competitor: null
+  cluster: scry:vhs-recording
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: scry:record-terminal; judge: scry:vhs-recording; accepted by maintainer
+    2026-11-03'
+  proposals:
+    router: scry:record-terminal
+    judge: scry:vhs-recording
+- id: scry.vhs-recording.p3
+  type: near_miss
+  prompt: 'Write me a VHS tape for my CLI demo: pick a theme and font size, type three
+    commands with pauses between them, output to a GIF, then run vhs on it and confirm
+    the GIF got created.'
+  target: scry:vhs-recording
+  competitor: scry:record-terminal
+  cluster: scry:vhs-recording
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at scry:record-terminal; router: scry:vhs-recording; judge: scry:vhs-recording/scry:record-terminal'
+  proposals:
+    aimed_at: scry:record-terminal
+    router: scry:vhs-recording
+    judge: scry:vhs-recording
+    judge_runner_up: scry:record-terminal

@@ -17,7 +17,6 @@ usage_patterns:
 - opencode-cli-integration
 - provider-agnostic-routing
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 550
 references:
 - delegation-core/shared-shell-execution.md

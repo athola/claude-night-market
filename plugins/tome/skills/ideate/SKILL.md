@@ -9,7 +9,6 @@ tags:
   - mode-collapse
   - problem-solving
 estimated_tokens: 500
-model_hint: standard
 ---
 
 # Ideation: Diverse Methods With Rotation
@@ -34,7 +33,7 @@ Structure the reasoning, not the output.
 "The Price of Format" (arXiv 2505.18949) found that rigid output
 templates collapse output diversity, while reasoning scaffolds raise
 it. So each method hands you a reasoning prompt. Do not force the
-ideas into a fixed schema while generating; impose structure only when
+ideas into a fixed schema while generating. Impose structure only when
 reporting the final set.
 
 ## Catalog

@@ -151,3 +151,47 @@ def _parse_entry(text: str) -> dict:
     parsed = parse_entry_frontmatter(text)
     assert parsed is not None, text[:400]
     return parsed
+
+
+def test_an_astral_character_round_trips_as_utf8() -> None:
+    """The default JSON dump escapes an emoji as a pair YAML reads apart."""
+    import yaml
+
+    from shared.frontmatter import render_frontmatter
+
+    block = render_frontmatter({"topic": "Launch \U0001f680 notes"})
+    topic = yaml.safe_load(block.strip("-\n"))["topic"]
+
+    assert topic == "Launch \U0001f680 notes"
+    topic.encode("utf-8")
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "launch \U0001f680 now",
+        "it\x92s",
+        "NEL\x85here",
+        "del\x7fchar",
+        "sep line para",
+        "nonchar￾￿",
+        "lone\ud800surrogate",
+    ],
+    ids=[
+        "emoji",
+        "c1_cp1252",
+        "nel",
+        "del",
+        "line_separators",
+        "nonchars",
+        "surrogate",
+    ],
+)
+def test_text_yaml_cannot_hold_raw_round_trips_through_safe_load(text: str) -> None:
+    """Characters PyYAML rejects or folds are escaped, emoji stay literal."""
+    import yaml
+
+    block = render_frontmatter({"topic": text})
+    assert yaml.safe_load(block.split("---")[1])["topic"] == text
+    if "\U0001f680" in text:
+        assert "\U0001f680" in block

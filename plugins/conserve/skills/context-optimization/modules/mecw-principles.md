@@ -344,9 +344,9 @@ instead of the session's actual window (1M). Sessions
 with >200K tokens loaded would falsely trigger the
 check. Now uses the session's actual context window size.
 
-This is particularly relevant for plugin skills using
-`model_hint` routing, where skills may temporarily
-switch to a different model for execution.
+This is particularly relevant for plugin skills that set
+`model:` in frontmatter, which switches the session model
+for the rest of the turn.
 
 ### Token Estimation Fix (2.1.75+)
 

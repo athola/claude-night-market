@@ -12,7 +12,6 @@ tags:
 - iteration
 tools: []
 complexity: medium
-model_hint: standard
 estimated_tokens: 1100
 dependencies:
 - sanctum:stack-create

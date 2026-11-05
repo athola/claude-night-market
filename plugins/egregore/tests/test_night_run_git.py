@@ -65,16 +65,16 @@ def _passing_sitter(**_: object) -> tuple[str, str, str]:
 #: Git reads made while a task is judged. The evidence passes, so the
 #: walk reaches every one of them unless the failing one stops it.
 WALK_READS = [
-    ("git", "diff", "--name-only"),
+    ("git", "diff", "HEAD", "--name-only"),
     ("git", "status", "--porcelain", "-uall"),
-    ("git", "diff", "--numstat"),
-    ("git", "diff", "--unified=0"),
+    ("git", "diff", "HEAD", "--numstat"),
+    ("git", "diff", "HEAD", "--unified=0"),
 ]
 
 #: Git commands made when a parked item discards what the task left.
 DISCARD_COMMANDS = [
-    ("git", "diff"),
-    ("git", "checkout", "--", "."),
+    ("git", "diff", "HEAD"),
+    ("git", "restore", "--source=HEAD", "--staged", "--worktree", "--", "."),
 ]
 
 
@@ -104,7 +104,7 @@ class TestAGitFailureStopsTheWalk:
             failing,
             {
                 EVIDENCE: (1, "1 failed"),
-                ("git", "diff", "--name-only"): (0, "a/T1.py\n"),
+                ("git", "diff", "HEAD", "--name-only"): (0, "a/T1.py\n"),
             },
         )
 
@@ -125,7 +125,7 @@ class TestMainReportsABrokenWalk:
         self, tmp_path: Path
     ) -> None:
         item = write_item(tmp_path)
-        runner = FailOneGitCommand(("git", "diff", "--name-only"))
+        runner = FailOneGitCommand(("git", "diff", "HEAD", "--name-only"))
 
         code = night_run.main(
             ["--item-dir", str(item), "--root", str(tmp_path)],
@@ -136,4 +136,82 @@ class TestMainReportsABrokenWalk:
         assert code == night_run.WALK_BROKEN_EXIT
         proof = (item / "proof.md").read_text()
         assert "**Status**: git_failed" in proof
-        assert "git diff --name-only" in proof
+        assert "git diff HEAD --name-only" in proof
+
+
+class TestStagedChangesAreFenced:
+    """Feature: a path the implementer staged is judged like any other.
+
+    The fence and the line cap read the unstaged view, so ``git add``
+    hid a change from both, and the task commit, which took the whole
+    index, then committed it.
+    """
+
+    @staticmethod
+    def _repo(tmp_path: Path) -> Path:
+        runner = night_run.SubprocessRunner()
+        for argv in (
+            ("git", "init", "-q"),
+            ("git", "config", "user.email", "t@example.com"),
+            ("git", "config", "user.name", "t"),
+        ):
+            runner.run(list(argv), cwd=tmp_path)
+        (tmp_path / "a.txt").write_text("one\n")
+        runner.run(["git", "add", "a.txt"], cwd=tmp_path)
+        runner.run(["git", "commit", "-q", "-m", "init"], cwd=tmp_path)
+        return tmp_path
+
+    def test_a_staged_new_file_reaches_the_fence(self, tmp_path: Path) -> None:
+        repo = self._repo(tmp_path)
+        runner = night_run.SubprocessRunner()
+        (repo / ".github").mkdir()
+        (repo / ".github" / "x.yml").write_text("on: push\n")
+        runner.run(["git", "add", ".github/x.yml"], cwd=repo)
+
+        assert ".github/x.yml" in night_run._touched_files(runner, repo)
+
+    def test_staged_lines_count_toward_the_cap(self, tmp_path: Path) -> None:
+        repo = self._repo(tmp_path)
+        runner = night_run.SubprocessRunner()
+        (repo / "a.txt").write_text("one\ntwo\nthree\n")
+        runner.run(["git", "add", "a.txt"], cwd=repo)
+
+        assert night_run._diff_line_count(runner, repo) == 2
+
+    def test_the_task_commit_leaves_a_staged_stray_out(self, tmp_path: Path) -> None:
+        repo = self._repo(tmp_path)
+        runner = night_run.SubprocessRunner()
+        (repo / "a.txt").write_text("one\ntwo\n")
+        (repo / "stray.txt").write_text("x\n")
+        runner.run(["git", "add", "stray.txt"], cwd=repo)
+
+        reason = night_run._commit_task(
+            runner, repo, {"id": "T1", "title": "t", "files": ["a.txt"]}
+        )
+
+        assert reason is None
+        shown = runner.run(["git", "show", "--name-only", "--format="], cwd=repo)
+        assert shown.output.split() == ["a.txt"]
+
+    def test_discard_reverts_staged_edits_too(self, tmp_path: Path) -> None:
+        repo = self._repo(tmp_path)
+        runner = night_run.SubprocessRunner()
+        (repo / "a.txt").write_text("changed\n")
+        runner.run(["git", "add", "a.txt"], cwd=repo)
+
+        discarded = night_run._discard_uncommitted(runner, repo)
+
+        assert discarded is not None
+        assert discarded.files == ["a.txt"]
+        assert (repo / "a.txt").read_text() == "one\n"
+        status = runner.run(["git", "status", "--porcelain"], cwd=repo)
+        assert status.output == ""
+
+    def test_a_staged_new_offender_is_removed(self, tmp_path: Path) -> None:
+        repo = self._repo(tmp_path)
+        runner = night_run.SubprocessRunner()
+        (repo / "new.txt").write_text("x\n")
+        runner.run(["git", "add", "new.txt"], cwd=repo)
+
+        assert night_run._revert_offenders(runner, repo, ["new.txt"]) == []
+        assert not (repo / "new.txt").exists()

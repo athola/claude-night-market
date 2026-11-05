@@ -17,7 +17,6 @@ usage_patterns:
 - mode-selection
 - assistance-fading
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 2200
 modules:
 - modules/modes-and-fading.md

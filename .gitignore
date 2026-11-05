@@ -212,3 +212,14 @@ docs/migrations/
 # knowledge-intake. They are unreviewed until intake promotes them into
 # docs/knowledge-corpus/ or prunes them.
 docs/knowledge-corpus/queue/
+
+# Scan history written by scribe:slop-detector (modules/reporting.md).
+.slop-history/
+
+# Activation-quality live runs: copied plugin trees, traces and
+# per-run metrics. Baselines worth keeping are copied to
+# evals/activation/reports/ (docs/activation-quality.md).
+evals/activation/.runs/
+!evals/activation/anchor.txt
+!evals/activation/reports/
+evals/results/

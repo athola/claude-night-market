@@ -5,7 +5,6 @@ alwaysApply: false
 category: conservation
 token_budget: 200
 progressive_loading: true
-model_hint: standard
 role: library
 ---
 

@@ -12,9 +12,16 @@ is enough to leave an entry that no downstream reader can parse.
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Mapping
 from datetime import datetime
 from typing import Union
+
+# What a YAML reader rejects or folds even inside double quotes: DEL, C1
+# controls (U+0085 folds to a space), line/paragraph separators, the
+# U+FFFE/U+FFFF noncharacters, and lone surrogates. json.dumps escapes
+# only code points below U+0020, so these reach the file raw otherwise.
+_NEEDS_ESCAPE = re.compile("[\x7f-\x9f\u2028\u2029\ud800-\udfff\ufffe\uffff]")
 
 Scalar = Union[str, int, bool, datetime]
 
@@ -30,7 +37,14 @@ def _render_scalar(key: str, value: Scalar) -> str:
     if isinstance(value, datetime):
         return value.isoformat()
     if isinstance(value, str):
-        return json.dumps(value)
+        # ensure_ascii would write an emoji as a \ud83d\ude80 surrogate
+        # pair, which YAML reads back as two lone surrogates that cannot
+        # be encoded. Quotes and C0 controls are still escaped by json,
+        # and _NEEDS_ESCAPE covers the rest.
+        return _NEEDS_ESCAPE.sub(
+            lambda match: f"\\u{ord(match.group()):04x}",
+            json.dumps(value, ensure_ascii=False),
+        )
     raise TypeError(f"frontmatter field {key!r} has unsupported type {type(value)}")
 
 

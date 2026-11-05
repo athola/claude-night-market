@@ -1,0 +1,930 @@
+schema_version: 1
+cases:
+- id: pensive.api-review.p1
+  type: positive
+  prompt: I'm about to publish v2 of our SDK. Can you look over the public function
+    signatures and exported types and tell me if anything is inconsistent or likely
+    to confuse consumers?
+  target: pensive:api-review
+  competitor: null
+  cluster: pensive:api-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: memory-palace:palace-sweep; judge: pensive:api-review/cartograph:class-diagram'
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: pensive:api-review
+    judge_runner_up: cartograph:class-diagram
+- id: pensive.api-review.p2
+  type: positive
+  prompt: Check the public surface of this library against the best-in-class ones
+    we model it on. I want to know about naming problems, leaky types, and breaking-change
+    risks before we cut the release.
+  target: pensive:api-review
+  competitor: null
+  cluster: pensive:api-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: phantom:surface-check; judge: pensive:api-review/pensive:unified-review'
+  proposals:
+    router: phantom:surface-check
+    judge: pensive:api-review
+    judge_runner_up: pensive:unified-review
+- id: pensive.api-review.p3
+  type: near_miss
+  prompt: Review the public API of my package before release. Check naming consistency,
+    which classes and methods are exported, and anything that would be a breaking
+    change for callers.
+  target: pensive:api-review
+  competitor: cartograph:class-diagram
+  cluster: pensive:api-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at cartograph:class-diagram; router: pensive:api-review; judge: pensive:api-review/cartograph:class-diagram'
+  proposals:
+    aimed_at: cartograph:class-diagram
+    router: pensive:api-review
+    judge: pensive:api-review
+    judge_runner_up: cartograph:class-diagram
+- id: pensive.architecture-review.p1
+  type: positive
+  prompt: We have ADRs in docs/adr and this PR adds a direct dependency from the auth
+    module into payments. Does it break any of our recorded decisions or module boundaries?
+  target: pensive:architecture-review
+  competitor: null
+  cluster: pensive:architecture-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: cartograph:code-communities; judge: pensive:architecture-review/cartograph:code-communities'
+  proposals:
+    router: cartograph:code-communities
+    judge: pensive:architecture-review
+    judge_runner_up: cartograph:code-communities
+- id: pensive.architecture-review.p2
+  type: positive
+  prompt: Give me a principal-engineer-level assessment of how this service is structured.
+    I'm worried about coupling between modules and whether we've drifted from our
+    documented design.
+  target: pensive:architecture-review
+  competitor: null
+  cluster: pensive:architecture-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:architecture-review
+    judge: pensive:architecture-review
+- id: pensive.architecture-review.p3
+  type: near_miss
+  prompt: We added a new payments module and I'm worried it's tangled up with auth.
+    Before I merge, check the module boundaries and coupling against our ADRs and
+    tell me whether to block or propose remediation.
+  target: pensive:architecture-review
+  competitor: cartograph:code-communities
+  cluster: pensive:architecture-review
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'aimed at abstract:create-skill; router: cartograph:code-communities; judge:
+    pensive:architecture-review/cartograph:code-communities; accepted by maintainer
+    2026-11-03'
+  proposals:
+    aimed_at: abstract:create-skill
+    router: cartograph:code-communities
+    judge: pensive:architecture-review
+    judge_runner_up: cartograph:code-communities
+- id: pensive.blast-radius.p1
+  type: positive
+  prompt: I changed the token verification and DB query helpers. What else in the
+    codebase could break because of this diff, and which affected functions have no
+    tests?
+  target: pensive:blast-radius
+  competitor: null
+  cluster: pensive:blast-radius
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:full-review; judge: pensive:blast-radius/gauntlet:gauntlet-graph'
+  proposals:
+    router: pensive:full-review
+    judge: pensive:blast-radius
+    judge_runner_up: gauntlet:gauntlet-graph
+- id: pensive.blast-radius.p2
+  type: positive
+  prompt: Before I merge, trace who calls the functions I modified, two levels deep,
+    and rank them by risk so I know where to focus manual testing.
+  target: pensive:blast-radius
+  competitor: null
+  cluster: pensive:blast-radius
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: pensive:blast-radius'
+  proposals:
+    router: parseltongue:python-async
+    judge: pensive:blast-radius
+- id: pensive.blast-radius.p3
+  type: near_miss
+  prompt: I changed the signature of parse_config in my working tree and haven't committed.
+    Show me which callers and downstream modules could be affected, two levels out,
+    so I know what to retest.
+  target: pensive:blast-radius
+  competitor: sanctum:git-catchup
+  cluster: pensive:blast-radius
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:challenge; router: sanctum:git-catchup; judge: pensive:blast-radius/None'
+  proposals:
+    aimed_at: gauntlet:challenge
+    router: sanctum:git-catchup
+    judge: pensive:blast-radius
+    judge_runner_up: null
+- id: pensive.bug-review.p1
+  type: positive
+  prompt: 'Go through the changes in this branch and hunt for bugs: off-by-one errors,
+    unhandled error paths, race conditions, anything language-specific that might
+    bite us.'
+  target: pensive:bug-review
+  competitor: null
+  cluster: pensive:bug-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:bug-review
+    judge: pensive:bug-review
+- id: pensive.bug-review.p2
+  type: positive
+  prompt: Something feels off in the retry logic I wrote yesterday. Can you systematically
+    scan it for defects before I open the PR?
+  target: pensive:bug-review
+  competitor: null
+  cluster: pensive:bug-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:architecture-paradigm-functional-core; judge: pensive:bug-review/parseltongue:python-sweep'
+  proposals:
+    router: archetypes:architecture-paradigm-functional-core
+    judge: pensive:bug-review
+    judge_runner_up: parseltongue:python-sweep
+- id: pensive.bug-review.p3
+  type: near_miss
+  prompt: 'Go through my latest changes to the Go service and hunt for actual bugs:
+    nil derefs, goroutine leaks, off-by-one errors in the pagination code. Language-specific
+    gotchas count.'
+  target: pensive:bug-review
+  competitor: scribe:slop-detector
+  cluster: pensive:bug-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: scribe:slop-detector; judge: pensive:bug-review/None'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: scribe:slop-detector
+    judge: pensive:bug-review
+    judge_runner_up: null
+- id: pensive.code-refinement.p1
+  type: positive
+  prompt: We pushed a lot of AI-generated code this sprint and it works but smells.
+    Find the copy-paste duplication, nested loops that should be linear, and over-engineered
+    abstractions in the services folder.
+  target: pensive:code-refinement
+  competitor: null
+  cluster: pensive:code-refinement
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: pensive:code-refinement; judge: conserve:ai-hygiene-audit; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: pensive:code-refinement
+    judge: conserve:ai-hygiene-audit
+- id: pensive.code-refinement.p2
+  type: positive
+  prompt: 'Before the release, clean up the quality of our existing modules: long
+    methods, magic numbers, swallowed exceptions, and coupling that doesn''t fit.
+    Write the findings to a plan file I can work through.'
+  target: pensive:code-refinement
+  competitor: null
+  cluster: pensive:code-refinement
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: egregore:uninstall-watchdog; judge: pensive:code-refinement; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: egregore:uninstall-watchdog
+    judge: pensive:code-refinement
+- id: pensive.code-refinement.p3
+  type: near_miss
+  prompt: 'After a week of fast AI-assisted coding this module works but smells: near-duplicate
+    helpers, nested loops that could be linear, bare excepts. Clean up the live code,
+    I''m not asking to delete unused stuff.'
+  target: pensive:code-refinement
+  competitor: conserve:ai-hygiene-audit
+  cluster: pensive:code-refinement
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conserve:bloat-sweep; router: conserve:unbloat; judge: pensive:code-refinement/conserve:ai-hygiene-audit'
+  proposals:
+    aimed_at: conserve:bloat-sweep
+    router: conserve:unbloat
+    judge: pensive:code-refinement
+    judge_runner_up: conserve:ai-hygiene-audit
+- id: pensive.full-review.p1
+  type: positive
+  prompt: Do a complete review of this repo. Figure out what's relevant yourself,
+    like the API, tests, and build files, and give me one consolidated list of prioritized
+    action items.
+  target: pensive:full-review
+  competitor: null
+  cluster: pensive:full-review
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: phantom:control-desktop; judge: pensive:unified-review/pensive:full-review;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: phantom:control-desktop
+    judge: pensive:unified-review
+    judge_runner_up: pensive:full-review
+- id: pensive.full-review.p2
+  type: positive
+  prompt: 'Run every applicable review on my current changes: Rust code, the Makefile,
+    and the tests. Combine it all into a single report.'
+  target: pensive:full-review
+  competitor: null
+  cluster: pensive:full-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:elegant-code-review; judge: pensive:full-review/None'
+  proposals:
+    router: conserve:elegant-code-review
+    judge: pensive:full-review
+    judge_runner_up: null
+- id: pensive.full-review.p3
+  type: near_miss
+  prompt: This branch touches Rust files, a Makefile and the OpenAPI spec. Run a complete
+    review and pick whichever checks fit the changes, no need for me to say which.
+  target: pensive:full-review
+  competitor: pensive:unified-review
+  cluster: pensive:full-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at pensive:unified-review; router: spec-kit:spec-review; judge: pensive:full-review/pensive:unified-review'
+  proposals:
+    aimed_at: pensive:unified-review
+    router: spec-kit:spec-review
+    judge: pensive:full-review
+    judge_runner_up: pensive:unified-review
+- id: pensive.harden.p1
+  type: positive
+  prompt: Audit the whole repo for security weaknesses, covering dependencies, secrets,
+    CI workflows and Python or Rust code patterns. For each finding give me severity,
+    a CWE reference and a concrete fix I can approve.
+  target: pensive:harden
+  competitor: null
+  cluster: pensive:harden
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:workflow-setup; judge: pensive:harden'
+  proposals:
+    router: attune:workflow-setup
+    judge: pensive:harden
+- id: pensive.harden.p2
+  type: positive
+  prompt: Harden this codebase. I want a report in reviews/ plus proposed diffs, and
+    I'd like to be able to open GitHub issues for the high-severity ones instead of
+    applying them.
+  target: pensive:harden
+  competitor: null
+  cluster: pensive:harden
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:harden
+    judge: pensive:harden
+- id: pensive.harden.p3
+  type: near_miss
+  prompt: 'Audit the whole repo for security weaknesses, not just my pending diff:
+    secrets in config, dependency posture, CI workflow permissions, git hooks. Give
+    me a report plus concrete fixes I can apply.'
+  target: pensive:harden
+  competitor: abstract:hooks-eval
+  cluster: pensive:harden
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:workflow-setup; router: pensive:harden; judge: pensive:harden/abstract:hooks-eval'
+  proposals:
+    aimed_at: attune:workflow-setup
+    router: pensive:harden
+    judge: pensive:harden
+    judge_runner_up: abstract:hooks-eval
+- id: pensive.makefile-review.p1
+  type: positive
+  prompt: Can you audit our Makefile for portability problems and bad practices? It
+    needs to work on both macOS and Linux.
+  target: pensive:makefile-review
+  competitor: null
+  cluster: pensive:makefile-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:makefile-review
+    judge: pensive:makefile-review
+- id: pensive.makefile-review.p2
+  type: positive
+  prompt: Our build Makefile has grown messy over time, with missing .PHONY targets
+    and shell-specific bits. Review it and tell me what to fix.
+  target: pensive:makefile-review
+  competitor: null
+  cluster: pensive:makefile-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:makefile-generation; judge: pensive:makefile-review'
+  proposals:
+    router: attune:makefile-generation
+    judge: pensive:makefile-review
+- id: pensive.makefile-review.p3
+  type: near_miss
+  prompt: Our existing Makefile has bash-isms, missing .PHONY declarations and hardcoded
+    paths. Audit it for portability problems and best practices, and tell me what's
+    wrong.
+  target: pensive:makefile-review
+  competitor: pensive:shell-review
+  cluster: pensive:makefile-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:makefile-generation; router: pensive:makefile-review; judge:
+    pensive:makefile-review/pensive:shell-review'
+  proposals:
+    aimed_at: attune:makefile-generation
+    router: pensive:makefile-review
+    judge: pensive:makefile-review
+    judge_runner_up: pensive:shell-review
+- id: pensive.math-review.p1
+  type: positive
+  prompt: Can you go through my Kalman filter implementation and check whether the
+    covariance update could lose positive-definiteness from floating point error?
+    I'm seeing NaNs after a few thousand iterations.
+  target: pensive:math-review
+  competitor: null
+  cluster: pensive:math-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:graduated-implementation; judge: pensive:math-review/None'
+  proposals:
+    router: imbue:graduated-implementation
+    judge: pensive:math-review
+    judge_runner_up: null
+- id: pensive.math-review.p2
+  type: positive
+  prompt: Review this softmax and log-likelihood code for numerical stability. I think
+    I'm getting overflow and catastrophic cancellation with large logits, and want
+    the math checked for correctness.
+  target: pensive:math-review
+  competitor: null
+  cluster: pensive:math-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:math-review
+    judge: pensive:math-review
+- id: pensive.math-review.p3
+  type: near_miss
+  prompt: 'Check my softmax and running-variance implementation for numerical stability:
+    overflow on large logits, catastrophic cancellation, and whether the algorithm
+    is actually correct.'
+  target: pensive:math-review
+  competitor: imbue:evidence-sweep
+  cluster: pensive:math-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: pensive:math-review; judge: pensive:math-review/imbue:evidence-sweep'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: pensive:math-review
+    judge: pensive:math-review
+    judge_runner_up: imbue:evidence-sweep
+- id: pensive.performance-review.p1
+  type: positive
+  prompt: Scan the files I changed on this branch for time and space complexity hotspots.
+    I suspect nested loops over the same list and `in` checks against lists inside
+    loops.
+  target: pensive:performance-review
+  competitor: null
+  cluster: pensive:performance-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:performance-review
+    judge: pensive:performance-review
+- id: pensive.performance-review.p2
+  type: positive
+  prompt: Do a static pass on src/ingest/parser.py for slow patterns like re.compile
+    inside a loop, string += accumulation, and list copies in loops. No profiling,
+    just read the code and give me file:line findings with fixes.
+  target: pensive:performance-review
+  competitor: null
+  cluster: pensive:performance-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-performance; judge: pensive:performance-review/parseltongue:python-performance'
+  proposals:
+    router: parseltongue:python-performance
+    judge: pensive:performance-review
+    judge_runner_up: parseltongue:python-performance
+- id: pensive.performance-review.p3
+  type: near_miss
+  prompt: 'Read through the Python files I changed on this branch and flag anything
+    that looks quadratic: nested loops over the same list, membership checks against
+    lists inside loops, regex compiled per iteration. Static read only, don''t profile
+    or run anything.'
+  target: pensive:performance-review
+  competitor: parseltongue:python-sweep
+  cluster: pensive:performance-review
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'aimed at abstract:skill-audit; router: parseltongue:python-sweep; judge:
+    pensive:performance-review/parseltongue:python-sweep; accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: parseltongue:python-sweep
+    judge: pensive:performance-review
+    judge_runner_up: parseltongue:python-sweep
+- id: pensive.refine-code.p1
+  type: positive
+  prompt: We used AI a lot on this module and it works, but I want a prioritized refactoring
+    plan for src/. Look for duplicated blocks, O(n^2) logic, bare excepts, magic numbers,
+    and hollow wrapper classes.
+  target: pensive:refine-code
+  competitor: null
+  cluster: pensive:refine-code
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: pensive:refine-code/conserve:bloat-scan'
+  proposals:
+    router: parseltongue:python-async
+    judge: pensive:refine-code
+    judge_runner_up: conserve:bloat-scan
+- id: pensive.refine-code.p2
+  type: positive
+  prompt: Before the release I want a quality gate on the living code. Do a deep pass,
+    write the report to quality-report.md, and let me approve the suggested refactors
+    one by one with before/after previews.
+  target: pensive:refine-code
+  competitor: null
+  cluster: pensive:refine-code
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:quality-gate; judge: pensive:refine-code/pensive:code-refinement'
+  proposals:
+    router: egregore:quality-gate
+    judge: pensive:refine-code
+    judge_runner_up: pensive:code-refinement
+- id: pensive.refine-code.p3
+  type: near_miss
+  prompt: A lot of src/ was written with AI help and it works, but I suspect copy-pasted
+    logic and wasteful algorithms. Find the worst spots and give me a prioritized
+    refactor plan with before/after sketches. Don't delete anything, the code is all
+    live.
+  target: pensive:refine-code
+  competitor: pensive:code-refinement
+  cluster: pensive:refine-code
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:context-report; router: hookify:rule-sweep; judge: pensive:refine-code/pensive:code-refinement'
+  proposals:
+    aimed_at: abstract:context-report
+    router: hookify:rule-sweep
+    judge: pensive:refine-code
+    judge_runner_up: pensive:code-refinement
+- id: pensive.rust-review.p1
+  type: positive
+  prompt: 'Audit my Rust crate for safety: check lifetimes and borrowing, unsafe blocks
+    and FFI boundaries, Result/Option handling, and whether Cargo dependencies have
+    any known issues.'
+  target: pensive:rust-review
+  competitor: null
+  cluster: pensive:rust-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:rust-review
+    judge: pensive:rust-review
+- id: pensive.rust-review.p2
+  type: positive
+  prompt: My tokio service tears down tasks with several JoinHandle::abort() calls
+    while an mpsc sink is shared, and it also collects unbounded entries from a network
+    source. Can you review the concurrency and memory handling and suggest fixes?
+  target: pensive:rust-review
+  competitor: null
+  cluster: pensive:rust-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: pensive:rust-review/None'
+  proposals:
+    router: conjure:provider-sweep
+    judge: pensive:rust-review
+    judge_runner_up: null
+- id: pensive.rust-review.p3
+  type: near_miss
+  prompt: Audit my Rust crate before release. I want unsafe blocks and FFI boundaries
+    checked, plus lifetime and ownership problems. I also want a look at how my tokio
+    tasks get shut down, since I abort a few handles one after another.
+  target: pensive:rust-review
+  competitor: pensive:tiered-audit
+  cluster: pensive:rust-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:improve-skills; router: parseltongue:python-async; judge:
+    pensive:rust-review/pensive:tiered-audit'
+  proposals:
+    aimed_at: abstract:improve-skills
+    router: parseltongue:python-async
+    judge: pensive:rust-review
+    judge_runner_up: pensive:tiered-audit
+- id: pensive.safety-critical-patterns.p1
+  type: positive
+  prompt: 'I''m writing payment settlement code where a bug costs real money. Help
+    me apply NASA Power of 10 style rules: bounded loops, assertions on invariants,
+    checked return values, short functions, limited recursion.'
+  target: pensive:safety-critical-patterns
+  competitor: null
+  cluster: pensive:safety-critical-patterns
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:safety-critical-patterns
+    judge: pensive:safety-critical-patterns
+- id: pensive.safety-critical-patterns.p2
+  type: positive
+  prompt: How strict should I be about defensive coding in a data-integrity layer
+    versus a throwaway script? Walk me through fixed loop bounds, minimal variable
+    scope, and pre-allocating memory for the critical path.
+  target: pensive:safety-critical-patterns
+  competitor: null
+  cluster: pensive:safety-critical-patterns
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: cartograph:call-chain; judge: pensive:safety-critical-patterns/None'
+  proposals:
+    router: cartograph:call-chain
+    judge: pensive:safety-critical-patterns
+    judge_runner_up: null
+- id: pensive.safety-critical-patterns.p3
+  type: near_miss
+  prompt: I'm writing the ledger posting code for a payments service. What strict
+    rules should I follow so it can't misbehave, like bounds on loops, limits on function
+    size, and what to do about recursion and allocation in hot paths?
+  target: pensive:safety-critical-patterns
+  competitor: parseltongue:python-async
+  cluster: pensive:safety-critical-patterns
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:hook-scope-guide; router: parseltongue:python-async; judge:
+    pensive:safety-critical-patterns/None'
+  proposals:
+    aimed_at: abstract:hook-scope-guide
+    router: parseltongue:python-async
+    judge: pensive:safety-critical-patterns
+    judge_runner_up: null
+- id: pensive.shell-review.p1
+  type: positive
+  prompt: Review the bash scripts in scripts/ and my git hooks for quoting bugs, unsafe
+    rm usage, missing set -e handling, and anything that would break on macOS's older
+    shell.
+  target: pensive:shell-review
+  competitor: null
+  cluster: pensive:shell-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:shell-review
+    judge: pensive:shell-review
+- id: pensive.shell-review.p2
+  type: positive
+  prompt: Audit deploy.sh for correctness and portability before I merge it. I want
+    anti-pattern checks like unquoted variables, parsing ls output, and non-POSIX
+    bashisms.
+  target: pensive:shell-review
+  competitor: null
+  cluster: pensive:shell-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:shell-review
+    judge: pensive:shell-review
+- id: pensive.shell-review.p3
+  type: near_miss
+  prompt: My backup.sh starts several rsync jobs in the background with & and then
+    calls wait. Check it for race conditions, unquoted variables, and whether it would
+    break on macOS vs Linux.
+  target: pensive:shell-review
+  competitor: egregore:gate-audit
+  cluster: pensive:shell-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-async; router: egregore:gate-audit; judge:
+    pensive:shell-review/None'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: egregore:gate-audit
+    judge: pensive:shell-review
+    judge_runner_up: null
+- id: pensive.skill-history.p1
+  type: positive
+  prompt: Show me which Claude skills failed in the last 24 hours, with the error
+    messages and tool input for each one.
+  target: pensive:skill-history
+  competitor: null
+  cluster: pensive:skill-history
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scry:capture-set; judge: pensive:skill-history/leyline:error-patterns'
+  proposals:
+    router: scry:capture-set
+    judge: pensive:skill-history
+    judge_runner_up: leyline:error-patterns
+- id: pensive.skill-history.p2
+  type: positive
+  prompt: I need a JSON dump of recent skill runs from the past hour for one plugin
+    so I can pipe it into jq and filter by outcome.
+  target: pensive:skill-history
+  competitor: null
+  cluster: pensive:skill-history
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: pensive:skill-history/abstract:evaluate-skill'
+  proposals:
+    router: parseltongue:python-async
+    judge: pensive:skill-history
+    judge_runner_up: abstract:evaluate-skill
+- id: pensive.skill-history.p3
+  type: near_miss
+  prompt: Show me every skill run that failed in the last 24 hours, with the error
+    message, how long it ran, and the session it came from.
+  target: pensive:skill-history
+  competitor: memory-palace:palace-sweep
+  cluster: pensive:skill-history
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:skill-library; router: memory-palace:palace-sweep; judge:
+    pensive:skill-history/None'
+  proposals:
+    aimed_at: attune:skill-library
+    router: memory-palace:palace-sweep
+    judge: pensive:skill-history
+    judge_runner_up: null
+- id: pensive.skill-review.p1
+  type: positive
+  prompt: Which of my skills are flaky? Compute the stability gap from the worst 5-run
+    window and list only the ones above 0.3.
+  target: pensive:skill-review
+  competitor: null
+  cluster: pensive:skill-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-setup; judge: pensive:skill-review/abstract:skill-audit'
+  proposals:
+    router: conjure:provider-setup
+    judge: pensive:skill-review
+    judge_runner_up: abstract:skill-audit
+- id: pensive.skill-review.p2
+  type: positive
+  prompt: Give me the top 10 most-executed skills with success rate and average duration,
+    and recommendations for improving the underperforming ones.
+  target: pensive:skill-review
+  competitor: null
+  cluster: pensive:skill-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:skill-review
+    judge: pensive:skill-review
+- id: pensive.skill-review.p3
+  type: near_miss
+  prompt: Which of my skills are flaky? Rank them by how bad their worst stretch of
+    consecutive runs was, and tell me which ones to fix first.
+  target: pensive:skill-review
+  competitor: abstract:skill-audit
+  cluster: pensive:skill-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: conjure:provider-setup; judge:
+    pensive:skill-review/abstract:skill-audit'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: conjure:provider-setup
+    judge: pensive:skill-review
+    judge_runner_up: abstract:skill-audit
+- id: pensive.test-review.p1
+  type: positive
+  prompt: can you go through my test suite and tell me if the tests actually follow
+    TDD, and whether the BDD-style specs describe behavior or just implementation?
+  target: pensive:test-review
+  competitor: null
+  cluster: pensive:test-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:update-tests; judge: pensive:test-review'
+  proposals:
+    router: sanctum:update-tests
+    judge: pensive:test-review
+- id: pensive.test-review.p2
+  type: positive
+  prompt: 'Our tests all pass but I don''t trust them. Audit the quality of the test
+    suite and suggest upgrades: weak assertions, missing failure cases, vague test
+    names.'
+  target: pensive:test-review
+  competitor: null
+  cluster: pensive:test-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:testing-quality-standards; judge: pensive:test-review'
+  proposals:
+    router: leyline:testing-quality-standards
+    judge: pensive:test-review
+- id: pensive.test-review.p3
+  type: near_miss
+  prompt: Look over our whole test suite and tell me how well it follows TDD and BDD
+    practices. Just evaluate it and tell me what to upgrade. Don't write or change
+    any tests yet.
+  target: pensive:test-review
+  competitor: sanctum:test-updates
+  cluster: pensive:test-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:test-updates; router: pensive:test-review; judge: pensive:test-review/sanctum:test-updates'
+  proposals:
+    aimed_at: sanctum:test-updates
+    router: pensive:test-review
+    judge: pensive:test-review
+    judge_runner_up: sanctum:test-updates
+- id: pensive.tiered-audit.p1
+  type: positive
+  prompt: Before I open this PR, do a quality pass on everything my branch changed
+    against main. Start from git history to spot churn and fix-on-fix commits, and
+    only dig into source where it looks shaky.
+  target: pensive:tiered-audit
+  competitor: null
+  cluster: pensive:tiered-audit
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:git-catchup; judge: pensive:tiered-audit/sanctum:git-workspace-review'
+  proposals:
+    router: sanctum:git-catchup
+    judge: pensive:tiered-audit
+    judge_runner_up: sanctum:git-workspace-review
+- id: pensive.tiered-audit.p2
+  type: positive
+  prompt: Which parts of this repo have been unstable lately? Look at commit churn,
+    big commits, and clusters of new files, and tell me where to look closer.
+  target: pensive:tiered-audit
+  competitor: null
+  cluster: pensive:tiered-audit
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: memory-palace:palace-sweep; judge: pensive:tiered-audit/imbue:review-core'
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: pensive:tiered-audit
+    judge_runner_up: imbue:review-core
+- id: pensive.tiered-audit.p3
+  type: near_miss
+  prompt: Before I open the PR, look at my branch against main and tell me where the
+    instability is. I want to know which modules keep getting touched, whether there
+    are fix-on-fix commits, and whether any single commit is huge. Judge it from the
+    git history before reading any source.
+  target: pensive:tiered-audit
+  competitor: imbue:scope-guard
+  cluster: pensive:tiered-audit
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:plugin-review; router: imbue:scope-guard; judge: pensive:tiered-audit/None'
+  proposals:
+    aimed_at: abstract:plugin-review
+    router: imbue:scope-guard
+    judge: pensive:tiered-audit
+    judge_runner_up: null
+- id: pensive.unified-review.p1
+  type: positive
+  prompt: 'Run a full multi-angle review of my branch: bugs, architecture against
+    our ADRs, test coverage, and security. Have each angle checked independently and
+    then verify the findings before reporting.'
+  target: pensive:unified-review
+  competitor: null
+  cluster: pensive:unified-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:skill-audit; judge: pensive:unified-review'
+  proposals:
+    router: abstract:skill-audit
+    judge: pensive:unified-review
+- id: pensive.unified-review.p2
+  type: positive
+  prompt: I want a parallel review of this change across several dimensions, with
+    duplicate findings from different reviewers merged and each finding challenged
+    adversarially before I see it.
+  target: pensive:unified-review
+  competitor: null
+  cluster: pensive:unified-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: pensive:unified-review
+    judge: pensive:unified-review
+- id: pensive.unified-review.p3
+  type: near_miss
+  prompt: 'Review my branch from several angles at once: security, test coverage,
+    architecture, and plain bugs. Run them in parallel, merge the duplicate findings
+    across angles, and have each finding challenged before you show me the list.'
+  target: pensive:unified-review
+  competitor: conserve:bloat-sweep
+  cluster: pensive:unified-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: conserve:bloat-sweep; judge: pensive:unified-review/None'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: conserve:bloat-sweep
+    judge: pensive:unified-review
+    judge_runner_up: null

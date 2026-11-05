@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parseltongue"
-version = "1.10.0"
+version = "1.10.1"
 authors = [
     {name = "Claude", email = "claude@anthropic.com"},
 ]

@@ -247,10 +247,11 @@ class PatternMatchingCoreMixin:
             _language: Programming language (reserved for future use)
 
         Returns:
-            Dictionary with patterns and confidence
+            Dictionary with patterns and confidence; confidence is None when
+            no pattern matched, because there is nothing to be confident about.
         """
         patterns: list[str] = []
-        confidence = 0.5
+        confidence: float | None = None
 
         if not code:
             return {"patterns": [], "confidence": 0.0}
@@ -263,6 +264,6 @@ class PatternMatchingCoreMixin:
         # Detect list comprehensions
         if re.search(r"\[.*for\s+\w+\s+in\s+.*\]", code):
             patterns.append("list_comprehension")
-            confidence = max(confidence, 0.7)
+            confidence = max(confidence or 0.0, 0.7)
 
         return {"patterns": patterns, "confidence": confidence}

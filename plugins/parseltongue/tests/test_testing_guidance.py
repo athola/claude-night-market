@@ -125,7 +125,7 @@ def test_get_user():
 
         # Should identify uncovered branches
         assert "uncovered_branches" in coverage
-        assert "index_error_branch" in coverage["uncovered_branches"]
+        assert "IndexError" in coverage["uncovered_branches"]
 
         # Should calculate coverage percentage
         assert coverage["estimated_coverage"] < 100

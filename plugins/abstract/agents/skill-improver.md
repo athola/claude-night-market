@@ -244,7 +244,7 @@ For each opportunity (sorted by priority descending):
 
 **Implementation Plan**:
 - Files to modify: {list of files}
-- Frontmatter version: {current} → {new}
+- Adaptation version: bumped by step C
 - Est. effort: {easy|medium|hard}
 
 **Expected Impact**:
@@ -325,7 +325,6 @@ Fix: Add "acceptance_criteria": [...] to your PROOF.md
 ```markdown
 ---
 name: your-skill
-version: 2.1.0  # Incremented from 2.0.0
 ---
 
 # Your Skill
@@ -356,20 +355,34 @@ Skill(your-plugin:your-skill, quiet=true)        # Minimal output
 - Use Glob instead of multiple Read calls
 ```
 
-#### C. Update Frontmatter Version
+#### C. Record the Improvement
 
-```yaml
----
-name: proof-of-work
-version: 2.1.0  # Was: 2.0.0
-description: Validate proof-of-work with improved error handling
----
+Run this once the edit is final. Do not write a frontmatter
+`version:` key by hand.
+
+```bash
+uv run --directory plugins/abstract python \
+  scripts/record_skill_improvement.py "$PWD/$skill_file" \
+  --summary "${improvement_summary}"
 ```
 
-**Version increment rules**:
-- **Major (X.0.0)**: Breaking changes, workflow restructure
-- **Minor (x.Y.0)**: New features, significant improvements
-- **Patch (x.y.Z)**: Bug fixes, documentation updates
+The script imports PyYAML, which the plugin environment
+carries and the system `python3` may not. It does two things:
+
+- Bumps the minor version in the frontmatter `adaptation`
+  block and records the current stability gap as the
+  baseline. Other frontmatter lines stay byte-identical.
+- Marks the skill `evaluating` in
+  `~/.claude/skills/improvement-queue.json`. The
+  homeostatic monitor hook then counts the next 10
+  executions and reports `promote` or
+  `pending_rollback_review`.
+
+It prints the new version. A skill with no execution history,
+or not in the queue, gets the version bump and no evaluation
+window. The script says so. The command runs from a repository
+checkout of this plugin; a marketplace install has no
+`plugins/abstract` directory to point `--directory` at.
 
 #### D. Validate Changes
 
@@ -409,27 +422,17 @@ Data source: ~/.claude/skills/LEARNINGS.md"
 
 ### 6. Track Improvements (Hyperagents pattern)
 
-**Record improvement outcome in ImprovementMemory** so
-future improvement cycles can learn from what worked:
+**Record insights in ImprovementMemory** so future improvement
+cycles can learn from what worked. Do not record the outcome by
+hand: the homeostatic monitor writes it when the evaluation window
+closes, with the success rate before the window as `before_score`
+and the rate inside it as `after_score`.
 
 ```python
-from abstract.improvement_memory import ImprovementMemory, ImprovementOutcome
+from abstract.improvement_memory import ImprovementMemory
 from pathlib import Path
 
 memory = ImprovementMemory(Path.home() / ".claude/skills/improvement_memory.json")
-
-# Record the improvement outcome
-memory.record_improvement_outcome(
-    skill_ref="imbue:proof-of-work",
-    outcome=ImprovementOutcome(
-        version="2.1.0",
-        change_summary="Added error handling + examples",
-        before_score=0.423,  # Previous success rate
-        after_score=0.423,  # Will be updated after eval window
-        hypothesis="Error handling reduces failure rate by "
-        "catching missing prerequisites",
-    ),
-)
 
 # Record causal hypothesis for future reference
 memory.record_insight(
@@ -462,7 +465,7 @@ compatibility:
     "Improved validation error messages",
     "Added examples to documentation"
   ],
-  "version": "2.0.0 → 2.1.0",
+  "version": "1.0.0 → 1.1.0",
   "priority_score": 8.5,
   "expected_impact": "Reduce failure rate to <10%"
 }
@@ -630,7 +633,7 @@ Implement all 3? (y/n): y
 ✓ Read SKILL.md
 ✓ Added error handling section
 ✓ Added validation examples
-✓ Updated version: 2.0.0 → 2.1.0
+✓ Recorded adaptation version 1.1.0, evaluating
 ✓ Validated (frontmatter, tokens, structure)
 ✓ Committed: a1b2c3d
 
@@ -638,7 +641,7 @@ Implement all 3? (y/n): y
 ✓ Read SKILL.md
 ✓ Added quiet parameter to frontmatter
 ✓ Updated usage examples
-✓ Updated version: 2.0.0 → 2.1.0
+✓ Recorded adaptation version 1.1.0, evaluating
 ✓ Validated
 ✓ Committed: d4e5f6g
 
@@ -646,7 +649,7 @@ Implement all 3? (y/n): y
 ✓ Read SKILL.md
 ✓ Refactored git operations (batched)
 ✓ Added performance notes
-✓ Updated version: 1.5.0 → 1.6.0
+✓ Recorded adaptation version 1.1.0, evaluating
 ✓ Validated
 ✓ Committed: h7i8j9k
 

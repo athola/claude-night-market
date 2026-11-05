@@ -18,7 +18,6 @@ usage_patterns:
 - legacy-decomposition
 - adr-support
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 1400
 ---
 

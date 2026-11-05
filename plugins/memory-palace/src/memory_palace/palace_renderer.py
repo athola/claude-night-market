@@ -12,15 +12,8 @@ import json
 import re
 from typing import Any
 
+from memory_palace.graph_analyzer import AnalysisError, PalaceGraphAnalyzer
 from memory_palace.knowledge_graph import KnowledgeGraph
-
-try:
-    from memory_palace.graph_analyzer import PalaceGraphAnalyzer as _PalaceGraphAnalyzer
-
-    _ANALYZER_AVAILABLE = True
-except ImportError:  # pragma: no cover - optional dependency
-    _ANALYZER_AVAILABLE = False
-    _PalaceGraphAnalyzer = None  # type: ignore[assignment,misc]  # None sentinel replaces class when graph_analyzer unavailable
 
 
 def _sanitize_label(text: str) -> str:
@@ -378,22 +371,21 @@ class PalaceRenderer:
 
         Uses PageRank for node shapes, community detection for subgraphs,
         articulation points for CSS keystone class, and bridge edges for
-        thick rendering. Falls back gracefully if analyzer unavailable.
+        thick rendering. A graph networkx cannot analyze (pagerank that
+        does not converge, say) falls back to the plain graph. Any other
+        error is a bug and propagates.
         """
         palace = self._graph.get_entity(palace_id)
         if palace is None:
             return ""
 
         try:
-            if not _ANALYZER_AVAILABLE or _PalaceGraphAnalyzer is None:
-                return self._plain_er_graph(palace_id)
-            analyzer = _PalaceGraphAnalyzer(self._graph)
+            analyzer = PalaceGraphAnalyzer(self._graph)
             pagerank_scores = analyzer.pagerank()
             communities = analyzer.detect_communities()
             keystones: set[str] = set(analyzer.find_keystones())
             bridges: set[tuple[str, str]] = set(analyzer.find_bridges())
-        except Exception:
-            # Degrade to plain entity_graph-style output
+        except AnalysisError:
             return self._plain_er_graph(palace_id)
 
         residents = self._graph.get_residents_in_palace(palace_id)

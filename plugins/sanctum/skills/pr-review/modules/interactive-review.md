@@ -107,6 +107,9 @@ python3 plugins/gauntlet/scripts/progress_tracker.py .gauntlet \
   --developer "$(git config user.email)" --format json
 ```
 
+If `plugins/gauntlet/scripts/progress_tracker.py` is absent (a marketplace
+install, not a checkout), skip this step and say so.
+
 ## Recording Answers
 
 Write every graded exchange to the shared store as it happens,
@@ -125,6 +128,9 @@ python3 plugins/gauntlet/scripts/progress_tracker.py .gauntlet \
     "result": "partial"
   }'
 ```
+
+If `plugins/gauntlet/scripts/progress_tracker.py` is absent (a marketplace
+install, not a checkout), skip this step and say so.
 
 Field notes:
 

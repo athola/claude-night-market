@@ -1,6 +1,5 @@
 ---
 description: Start or resume a guided onboarding path
-model_hint: standard
 ---
 
 # Onboarding

@@ -6,6 +6,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 # Import will work when module is installed
 try:
     from scripts.hook_to_hookify import (
@@ -186,6 +188,49 @@ class TestGenerateHookifyRule:
         assert frontmatter["name"] == "test-hook"
         assert frontmatter["event"] == "bash"
         assert frontmatter["enabled"] is True
+
+    @pytest.mark.parametrize("pyyaml", [True, False], ids=["pyyaml", "stdlib"])
+    def test_a_regex_with_a_quote_loads_as_written(self, tmp_path, monkeypatch, pyyaml):
+        """A ' inside the pattern must not close the YAML scalar early.
+
+        The rule_guard hook runs on system Python, often without PyYAML, so
+        the stdlib parser is the path most installs load a rule through.
+        """
+        if not pyyaml:
+            monkeypatch.setattr("core.config_loader.yaml", None)
+        analysis = HookAnalysis(
+            file_path=Path("quote_hook.py"),
+            hook_type="PreToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="regex", pattern="don't push", field="command"
+                )
+            ],
+            convertible=True,
+        )
+        rule_file = tmp_path / "quote-hook.md"
+        rule_file.write_text(generate_hookify_rule(analysis))
+
+        assert ConfigLoader().load_rule(rule_file).pattern == "don't push"
+
+    def test_condition_patterns_with_quotes_load_as_written(self):
+        """Every condition pattern is escaped, not only the single-regex form."""
+        analysis = HookAnalysis(
+            file_path=Path("multi_quote.py"),
+            hook_type="PreToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="contains", pattern="it's", field="command"
+                ),
+                ExtractedPattern(pattern_type="regex", pattern="'rm'", field="command"),
+            ],
+            convertible=True,
+        )
+
+        frontmatter, _ = _parse_generated_rule(generate_hookify_rule(analysis))
+
+        patterns = [cond["pattern"] for cond in frontmatter["conditions"]]
+        assert patterns == ["it's", "'rm'"]
 
     def test_generates_conditions_for_multiple_patterns(self):
         """Given analysis with multiple patterns, generates conditions."""

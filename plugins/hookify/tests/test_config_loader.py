@@ -284,6 +284,12 @@ class TestFrontmatterWithoutPyYAML:
             "- field: file_path\n  operator: ends_with\n  pattern: '.py'\n",
             'name: x\npattern: "git\\\\s+push\\\\s+--force"\n',
             'name: x\npattern: "say \\"hi\\" # not a comment"\n',
+            # A comment after a closed quote, which PyYAML strips.
+            'name: x\npattern: "a" # c\n',
+            'name: x\npattern: "a"#c\n',
+            "name: x\npattern: 'it''s' # c\n",
+            "name: x\nevent: file\nconditions:\n"
+            "- field: file_path\n  pattern: 'a'  # trailing\n",
         ],
     )
     def test_stdlib_parser_matches_pyyaml_on_scalar_edge_cases(self, text: str) -> None:
@@ -292,7 +298,17 @@ class TestFrontmatterWithoutPyYAML:
 
     @pytest.mark.parametrize(
         "value",
-        ['"unterminated', "|", ">", "[a, b]", "{a: b}", "'unterminated", "TODO: x"],
+        [
+            '"unterminated',
+            "|",
+            ">",
+            "[a, b]",
+            "{a: b}",
+            "'unterminated",
+            "TODO: x",
+            "'a' b",
+            '"a" b',
+        ],
     )
     def test_stdlib_parser_refuses_shapes_outside_the_rule_subset(
         self, value: str

@@ -97,13 +97,23 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
         start = time.monotonic()
         graph = GraphStore(str(db_path))
-        report = incremental_update(str(Path(os.getcwd())), graph, base_ref="HEAD~1")
-        graph.close()
+        try:
+            report = incremental_update(
+                str(Path(os.getcwd())), graph, base_ref="HEAD~1"
+            )
+        finally:
+            graph.close()
         duration = round(time.monotonic() - start, 2)
 
-        files = report.get("files_parsed", 0)
-        nodes = report.get("nodes_created", 0)
-        msg = f"Graph updated: {files} files, {nodes} nodes in {duration}s"
+        # An error or skipped report did no work; its counters are zeros
+        # that would otherwise read as a successful update.
+        reason = report.get("error") or report.get("skipped")
+        if reason:
+            msg = f"Graph not updated: {reason}"
+        else:
+            files = report.get("files_parsed", 0)
+            nodes = report.get("nodes_created", 0)
+            msg = f"Graph updated: {files} files, {nodes} nodes in {duration}s"
         return {
             "hookSpecificOutput": {
                 "hookEventName": "PostToolUse",

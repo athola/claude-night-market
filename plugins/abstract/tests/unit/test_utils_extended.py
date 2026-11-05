@@ -6,10 +6,12 @@ Targets uncovered paths in utils.py to raise coverage toward 85%.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
+from abstract import utils as utils_module
 from abstract.config import AbstractConfig, SkillValidationConfig
 from abstract.utils import (
     check_meta_skill_indicators,
@@ -575,6 +577,16 @@ class TestSafeJsonLoad:
     """safe_json_load loads JSON from a path with a fallback default."""
 
     @pytest.mark.unit
+    def test_non_utf8_file_returns_the_default(self, tmp_path: Path) -> None:
+        p = tmp_path / "latin1.json"
+        p.write_bytes(b'{"name": "caf\xe9"}')
+
+        assert safe_json_load(p, default={"k": 1}) == {"k": 1}
+
+    def test_emit_warn_is_not_re_exported_from_utils(self) -> None:
+        """Every caller imports it from stdlib_helpers; one entry point."""
+        assert not hasattr(utils_module, "emit_warn")
+
     def test_loads_valid_json_file(self, tmp_path):
         """Given a valid JSON file, returns parsed data."""
         p = tmp_path / "data.json"

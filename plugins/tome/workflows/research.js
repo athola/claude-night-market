@@ -102,15 +102,18 @@ const returned = await parallel(
 // A named option no channel touched gets its own search. A 2026-10-05 run
 // ruled Beartooth out with no search behind it, because no channel happened
 // to cover it and nothing checked. Coverage is a case-insensitive mention in
-// a finding or in what a channel says it searched.
+// a finding or in what a channel says it searched, as a whole word: "Go"
+// inside groups.google.com is not a search for Go.
 const entities = Array.isArray(input.entities)
   ? input.entities.filter((e) => typeof e === 'string' && e.trim())
   : []
+const REGEX_SPECIAL = /[.*+?^${}()|[\]\\]/g
 const mentions = (results, name) => {
-  const needle = String(name).toLowerCase()
+  const escaped = String(name).replace(REGEX_SPECIAL, '\\$&')
+  const word = new RegExp('(?<![\\p{L}\\p{N}_])' + escaped + '(?![\\p{L}\\p{N}_])', 'iu')
   return results.some(({ result }) =>
-    String(result.searched || '').toLowerCase().includes(needle) ||
-    result.findings.some((f) => `${f.title} ${f.url} ${f.why}`.toLowerCase().includes(needle)),
+    word.test(String(result.searched || '')) ||
+    result.findings.some((f) => word.test(`${f.title} ${f.url} ${f.why}`)),
   )
 }
 const answered = returned.filter((r) => r && r.result)

@@ -71,17 +71,6 @@ status: ## Show project overview
 	@echo "Commands: $$(find commands/ -maxdepth 1 -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Agents:   $$(find agents/ -name '*.md' 2>/dev/null | wc -l)"
 
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "SKILLS_DIR: $(SKILLS_DIR)"
-	@echo "COMMANDS_DIR: $(COMMANDS_DIR)"
-	@echo "AGENTS_DIR: $(AGENTS_DIR)"
-	@echo "DOCS_DIR: $(DOCS_DIR)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "MAKEFLAGS: $(MAKEFLAGS)"
-
 # ---------- Demo ----------
 demo: ## Run demonstration
 	@echo "Scribe Plugin Demo"
@@ -202,9 +191,3 @@ plugin-check: validate demo status ## Run all checks
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
 -include Makefile.local
-
-# Guard against accidental file creation (catch-all for unknown targets)
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

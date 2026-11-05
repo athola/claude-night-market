@@ -536,3 +536,50 @@ class TestMainIntegration:
         ]
         assert "SUPPLY CHAIN ALERT: litellm==1.82.8 (CRITICAL)" in context
         assert "Scan for: litellm_init.pth" in context
+
+
+class TestRequirementLineForms:
+    """Every pip-accepted spelling of a pin is read as that pin."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "body",
+        [
+            "litellm==1.82.7 \\\n    --hash=sha256:abc\n",
+            "litellm[proxy]==1.82.7\n",
+            "LiteLLM == 1.82.7\n",
+            "litellm==1.82.7  # pinned for the proxy\n",
+        ],
+    )
+    def test_a_compromised_pin_is_found_in_every_form(
+        self, tmp_path: Path, body: str
+    ) -> None:
+        reqfile = tmp_path / "requirements.txt"
+        reqfile.write_text(body)
+        findings = _scan_requirements(reqfile, SAMPLE_BLOCKLIST)
+        assert [f["version"] for f in findings] == ["1.82.7"]
+
+    @pytest.mark.unit
+    def test_names_compare_under_pep_503(self, tmp_path: Path) -> None:
+        blocklist = {
+            "foo-bar": [dict(SAMPLE_BLOCKLIST["litellm"][0], versions=["1.0"])]
+        }
+        reqfile = tmp_path / "requirements.txt"
+        reqfile.write_text("Foo_Bar==1.0\n")
+        assert len(_scan_requirements(reqfile, blocklist)) == 1
+
+
+class TestLockfileWalk:
+    """The SessionStart walk skips trees that are not the project's own."""
+
+    @pytest.mark.unit
+    def test_vendored_trees_are_not_walked(self, tmp_path: Path) -> None:
+        for skipped in (".venv", "node_modules", ".git"):
+            (tmp_path / skipped / "pkg").mkdir(parents=True)
+            (tmp_path / skipped / "pkg" / "uv.lock").write_text("")
+        (tmp_path / "app").mkdir()
+        (tmp_path / "app" / "uv.lock").write_text("")
+
+        found = list(_mod._project_lockfiles(tmp_path))
+
+        assert found == [tmp_path / "app" / "uv.lock"]

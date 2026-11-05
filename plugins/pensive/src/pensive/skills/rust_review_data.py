@@ -32,18 +32,15 @@ class Finding(TypedDict):
 # Unsafe code detection
 UNSAFE_BLOCK_PATTERN = r"unsafe\s*\{"
 UNSAFE_FN_PATTERN = r"unsafe\s+fn\s+(\w+)"
-SAFETY_DOC_PATTERN = r"(?://+|///)\s*#?\s*Safety"
 
 # Ownership and borrowing
 RC_REFCELL_PATTERN = r"Rc<RefCell<"
 RC_NEW_REFCELL_PATTERN = r"Rc::new\(RefCell"
 MIXED_BORROWS_MUT_PATTERN = r"&mut\s+\w+"
-MIXED_BORROWS_REF_PATTERN = r"&\s+\w+"
 
 # Concurrency
 ARC_MUTEX_PATTERN = r"Arc<Mutex<"
 MUTEX_NEW_PATTERN = r"Mutex::new"
-ATOMIC_TYPES = ("AtomicI32", "AtomicU32", "AtomicBool")
 
 # Memory safety
 POINTER_OFFSET_PATTERN = r"\*\w+\.offset\("
@@ -76,7 +73,6 @@ CONST_GENERIC_STRUCT_PATTERN = r"struct\s+(\w+)<.*const\s+(\w+):\s*usize"
 CONST_MAX_PATTERN = r"const\s+MAX:\s*usize"
 
 # Build / Cargo
-CARGO_DEP_PATTERN = r'(\w+)\s*=\s*"([^"]+)"'
 TARGET_SECTION_PATTERN = r"\[target\.([^\]]+)\]"
 
 # ── Severity classification map ──────────────────────────────
@@ -92,7 +88,6 @@ SEVERITY_MAP: dict[str, str] = {
     "missing_docs": "medium",
 }
 
-DEFAULT_SEVERITY = "low"
 
 # ── Recommendation templates ─────────────────────────────────
 #
@@ -100,40 +95,6 @@ DEFAULT_SEVERITY = "low"
 # The value is the recommendation dict returned by
 # generate_rust_recommendations.
 
-RECOMMENDATION_TEMPLATES: dict[str, dict[str, str]] = {
-    "uses_unsafe": {
-        "category": "unsafe",
-        "practice": "Document all unsafe code blocks",
-        "benefit": "Improves code review and maintenance",
-        "implementation": "Add safety documentation to all unsafe blocks",
-    },
-    "async_code": {
-        "category": "async",
-        "practice": "Use tokio::time instead of std::thread::sleep",
-        "benefit": "Prevents blocking the async runtime",
-        "implementation": "Replace blocking ops with async equivalents",
-    },
-    "macro_heavy": {
-        "category": "macros",
-        "practice": "Document complex macros",
-        "benefit": "Makes code easier to understand",
-        "implementation": "Add doc comments to all custom macros",
-    },
-}
-
-TESTING_RECOMMENDATION: dict[str, str] = {
-    "category": "testing",
-    "practice": "Increase test coverage",
-    "benefit": "Catches bugs earlier in development",
-    "implementation": "Add unit tests for uncovered code paths",
-}
-
-DEPENDENCY_RECOMMENDATION: dict[str, str] = {
-    "category": "dependencies",
-    "practice": "Audit and minimize dependencies",
-    "benefit": "Reduces attack surface and build times",
-    "implementation": "Review dependencies and remove unused ones",
-}
 
 # ── Security report template ─────────────────────────────────
 
@@ -577,34 +538,6 @@ REPR_PACKED_EXCLUSION_PATTERNS: list[str] = [
 
 # ── Security report template ─────────────────────────────────
 
-SECURITY_REPORT_TEMPLATE = """\
-## Rust Security Assessment
-
-Security Score: {security_score}/10
-
-## Unsafe Code Analysis
-
-Total unsafe blocks: {unsafe_blocks}
-Documented unsafe blocks: {unsafe_documented}
-Undocumented unsafe blocks: {undocumented_unsafe}
-
-## Memory Safety
-
-Memory safety issues detected: {memory_safety_issues}
-Ownership violations: {ownership_violations}
-
-## Concurrency Safety
-
-Potential data races: {data_races}
-
-## Dependency Security
-
-Dependency vulnerabilities: {dependency_vulnerabilities}
-
-## Error Handling
-
-Panic points detected: {panic_points}
-"""
 
 # ── Pre-compiled regex (A-01) ────────────────────────────────
 #
@@ -615,11 +548,9 @@ Panic points detected: {panic_points}
 
 UNSAFE_BLOCK_RE = re.compile(UNSAFE_BLOCK_PATTERN)
 UNSAFE_FN_RE = re.compile(UNSAFE_FN_PATTERN)
-SAFETY_DOC_RE = re.compile(SAFETY_DOC_PATTERN)
 RC_REFCELL_RE = re.compile(RC_REFCELL_PATTERN)
 RC_NEW_REFCELL_RE = re.compile(RC_NEW_REFCELL_PATTERN)
 MIXED_BORROWS_MUT_RE = re.compile(MIXED_BORROWS_MUT_PATTERN)
-MIXED_BORROWS_REF_RE = re.compile(MIXED_BORROWS_REF_PATTERN)
 ARC_MUTEX_RE = re.compile(ARC_MUTEX_PATTERN)
 MUTEX_NEW_RE = re.compile(MUTEX_NEW_PATTERN)
 POINTER_OFFSET_RE = re.compile(POINTER_OFFSET_PATTERN)
@@ -640,7 +571,6 @@ STATIC_METHOD_RE = re.compile(STATIC_METHOD_PATTERN)
 IMPL_FOR_RE = re.compile(IMPL_FOR_PATTERN)
 CONST_GENERIC_STRUCT_RE = re.compile(CONST_GENERIC_STRUCT_PATTERN)
 CONST_MAX_RE = re.compile(CONST_MAX_PATTERN)
-CARGO_DEP_RE = re.compile(CARGO_DEP_PATTERN)
 TARGET_SECTION_RE = re.compile(TARGET_SECTION_PATTERN)
 
 # Builtin preference compiled forms

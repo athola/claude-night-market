@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import socket
 import subprocess
 from unittest.mock import MagicMock, patch
 
@@ -15,138 +14,22 @@ from config import (  # type: ignore[import-not-found]  # pytest pythonpath
 from notify import (  # type: ignore[import-not-found]  # pytest pythonpath
     AlertContext,
     AlertEvent,
-    WebhookURLError,
     _is_event_enabled,
     alert,
     build_issue_body,
     config_alert,
     create_github_alert,
     send_webhook,
-    validate_webhook_url,
 )
 
 
-class TestValidateWebhookUrl:
-    """Tests for validate_webhook_url."""
+class TestInvalidWebhookUrlThroughTheWrappers:
+    """Egregore's send_webhook and alert refuse an invalid webhook URL.
 
-    def test_accepts_valid_https_url(self) -> None:
-        """GIVEN an https URL whose hostname resolves to a public address.
-
-        WHEN validating the URL through egregore's re-exported binding
-        THEN the resolved address is returned
-
-        The resolver is stubbed because it is a network boundary: the
-        old form called the real DNS for hooks.slack.com and asserted
-        nothing, so it passed on an unplugged machine only by raising.
-        """
-        with patch(
-            "socket.getaddrinfo",
-            return_value=[
-                (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("8.8.8.8", 443))
-            ],
-        ):
-            assert (
-                validate_webhook_url("https://hooks.slack.com/services/T00/B00/xxx")
-                == "8.8.8.8"
-            )
-
-    def test_accepts_a_literal_public_ip_without_resolving_it(self) -> None:
-        """GIVEN an https URL whose host is a literal public IP.
-
-        WHEN validating the URL
-        THEN that address is returned and the resolver is never called
-        """
-        with patch("socket.getaddrinfo", side_effect=AssertionError("resolved")):
-            assert validate_webhook_url("https://1.1.1.1/hook") == "1.1.1.1"
-
-    def test_accepts_https_with_port(self) -> None:
-        """GIVEN an https URL with a non-standard port.
-
-        WHEN validating the URL
-        THEN the resolved address is returned without the port, which
-            travels separately into curl's --resolve pin
-        """
-        with patch(
-            "socket.getaddrinfo",
-            return_value=[
-                (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("9.9.9.9", 8443))
-            ],
-        ):
-            assert validate_webhook_url("https://example.com:8443/webhook") == "9.9.9.9"
-
-    def test_rejects_http_scheme(self) -> None:
-        """Given an http:// URL, when validating, then raises WebhookURLError."""
-        with pytest.raises(WebhookURLError, match="https://"):
-            validate_webhook_url("http://example.com/hook")
-
-    def test_rejects_file_scheme(self) -> None:
-        """Given a file:// URL, when validating, then raises WebhookURLError."""
-        with pytest.raises(WebhookURLError, match="https://"):
-            validate_webhook_url("file:///etc/passwd")
-
-    def test_rejects_ftp_scheme(self) -> None:
-        """Given an ftp:// URL, when validating, then raises WebhookURLError."""
-        with pytest.raises(WebhookURLError, match="https://"):
-            validate_webhook_url("ftp://evil.com/payload")
-
-    def test_rejects_empty_scheme(self) -> None:
-        """Given a URL with no scheme, when validating, then raises WebhookURLError."""
-        with pytest.raises(WebhookURLError, match="https://"):
-            validate_webhook_url("example.com/hook")
-
-    def test_rejects_localhost(self) -> None:
-        """Given https://localhost, when validating, then raises WebhookURLError."""
-        with pytest.raises(WebhookURLError, match="localhost"):
-            validate_webhook_url("https://localhost/admin")
-
-    def test_rejects_localhost_localdomain(self) -> None:
-        """Given localhost.localdomain, when validating, then raises WebhookURLError."""
-        with pytest.raises(WebhookURLError, match="localhost"):
-            validate_webhook_url("https://localhost.localdomain/admin")
-
-    def test_rejects_127_0_0_1(self) -> None:
-        """Given 127.0.0.1, when validating, then raises WebhookURLError."""
-        with pytest.raises(WebhookURLError, match="private/reserved"):
-            validate_webhook_url("https://127.0.0.1/admin")
-
-    def test_rejects_0_0_0_0(self) -> None:
-        """Given 0.0.0.0, when validating, then raises WebhookURLError."""
-        with pytest.raises(WebhookURLError, match="private/reserved"):
-            validate_webhook_url("https://0.0.0.0/admin")
-
-    @pytest.mark.parametrize(
-        "ip",
-        [
-            "10.0.0.1",
-            "10.255.255.255",
-            "172.16.0.1",
-            "172.31.255.255",
-            "192.168.0.1",
-            "192.168.1.100",
-        ],
-        ids=[
-            "10.0.0.1",
-            "10.255.255.255",
-            "172.16.0.1",
-            "172.31.255.255",
-            "192.168.0.1",
-            "192.168.1.100",
-        ],
-    )
-    def test_rejects_private_ip_ranges(self, ip: str) -> None:
-        """Given a private IP address, when validating, then raises WebhookURLError."""
-        with pytest.raises(WebhookURLError, match="private/reserved"):
-            validate_webhook_url(f"https://{ip}/hook")
-
-    def test_rejects_ipv6_loopback(self) -> None:
-        """Given IPv6 loopback ::1, when validating, then raises WebhookURLError."""
-        with pytest.raises(WebhookURLError, match="private/reserved"):
-            validate_webhook_url("https://[::1]/hook")
-
-    def test_rejects_empty_hostname(self) -> None:
-        """Given https URL with no hostname, then raises."""
-        with pytest.raises(WebhookURLError, match="no hostname"):
-            validate_webhook_url("https:///path")
+    The validator itself is herald's function re-exported unchanged; its
+    cases live in herald's tests and the pairing is pinned by
+    test_herald_notify_drift.py.
+    """
 
     def test_send_webhook_rejects_invalid_url(self) -> None:
         """Given http URL, send_webhook returns False."""
@@ -279,37 +162,6 @@ class TestCreateGithubAlert:
         assert cmd[body_idx + 1] == "Something broke"
         label_idx = cmd.index("--label")
         assert "bug" in cmd[label_idx + 1]
-
-    @patch("subprocess.run")
-    def test_without_labels(self, mock_run: MagicMock) -> None:
-        """Given no labels, when creating alert, then omits --label flag."""
-        mock_run.return_value = MagicMock(returncode=0)
-        result = create_github_alert(title="Test", body="Body")
-        assert result is True
-        cmd = mock_run.call_args[0][0]
-        assert "--label" not in cmd
-
-    @patch("subprocess.run")
-    def test_returns_false_on_nonzero_exit(self, mock_run: MagicMock) -> None:
-        """Given gh CLI returns error, when creating alert, then returns False."""
-        mock_run.return_value = MagicMock(returncode=1, stderr="auth required")
-        result = create_github_alert(title="Fail", body="Body")
-        assert result is False
-
-    @patch("subprocess.run", side_effect=FileNotFoundError)
-    def test_returns_false_when_gh_not_found(self, mock_run: MagicMock) -> None:
-        """Given gh CLI is missing, when creating alert, then returns False."""
-        result = create_github_alert(title="Fail", body="Body")
-        assert result is False
-
-    @patch(
-        "subprocess.run",
-        side_effect=subprocess.TimeoutExpired(cmd="gh", timeout=30),
-    )
-    def test_returns_false_on_timeout(self, mock_run: MagicMock) -> None:
-        """Given gh CLI times out, when creating alert, then returns False."""
-        result = create_github_alert(title="Fail", body="Body")
-        assert result is False
 
 
 class TestSendWebhook:

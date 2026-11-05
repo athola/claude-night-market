@@ -112,6 +112,10 @@ findings to `.review/findings.json` and run
 `UNVERIFIED` any finding the verifier fails. See the
 `imbue:review-core` and `imbue:structured-output` skills.
 
+If `plugins/imbue/scripts/citation_verifier.py` is absent (a marketplace
+install, not a checkout), check each anchor by hand with `rg -n` and say the
+verifier did not run.
+
 ## Usage
 
 When dispatched, accept these inputs in the prompt:

@@ -120,6 +120,10 @@ findings to `.review/findings.json` and run
 `UNVERIFIED` any finding the verifier fails. See the
 `imbue:review-core` and `imbue:structured-output` skills.
 
+If `plugins/imbue/scripts/citation_verifier.py` is absent (a marketplace
+install, not a checkout), check each anchor by hand with `rg -n` and say the
+verifier did not run.
+
 ### Phase 5: Report
 
 Use the output-format templates from `pensive:unified-review`.

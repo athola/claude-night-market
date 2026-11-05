@@ -41,7 +41,7 @@ except (ImportError, ModuleNotFoundError):
 therefore catches exactly what `ImportError` alone would: a missing
 package, and also a transitive ImportError raised inside gauntlet.
 Any other exception type propagates.
-`plugins/leyline/src/leyline/tokens.py:35-43` shows the wider form,
+`plugins/leyline/src/leyline/tokens.py:34-42` shows the wider form,
 which adds a second clause for the `ValueError` and `OSError` an
 optional import can raise.
 
@@ -129,6 +129,9 @@ Build the graph once per tree:
 ```bash
 python3 plugins/gauntlet/scripts/graph_build.py <root>
 ```
+
+If `plugins/gauntlet/scripts/graph_build.py` is absent (a marketplace install,
+not a checkout), skip this step and say so.
 
 ## Failure modes and fallbacks
 

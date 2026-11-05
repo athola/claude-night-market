@@ -17,7 +17,6 @@ usage_patterns:
 - quality-improvement
 - gap-remediation
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 200
 progressive_loading: true
 dependencies:

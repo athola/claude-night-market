@@ -219,19 +219,23 @@ def test_parseltongue_demo_coverage_passes_on_long_output(tmp_path: Path) -> Non
 
 
 def test_parseltongue_mutation_test_targets_src(tmp_path: Path) -> None:
-    """Mutmut was pointed at ./parseltongue, not src/parseltongue."""
+    """Mutmut was pointed at ./parseltongue, not src/parseltongue.
+
+    The target runs mutmut through `$(MUTMUT)`, the pinned command in
+    common.mk, so the shim replaces that variable rather than PATH.
+    """
     log = tmp_path / "mutmut.args"
     mutmut = _shim(tmp_path, "mutmut", f'echo "$@" > "{log}"')
-    result = _make(
-        PLUGINS / "parseltongue", "mutation-test", path_prefix=str(mutmut.parent)
-    )
+    result = _make(PLUGINS / "parseltongue", "mutation-test", f"MUTMUT={mutmut}")
     assert result.returncode == 0, result.stdout + result.stderr
     assert "--paths-to-mutate src/parseltongue" in log.read_text()
 
 
 def test_parseltongue_mutation_test_fails_without_mutmut() -> None:
     """A missing mutmut printed a hint and exited 0."""
-    result = _make(PLUGINS / "parseltongue", "mutation-test", path="/usr/bin:/bin")
+    result = _make(
+        PLUGINS / "parseltongue", "mutation-test", "MUTMUT=/nonexistent/mutmut"
+    )
     assert result.returncode != 0, result.stdout
 
 

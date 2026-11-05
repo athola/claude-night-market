@@ -6,7 +6,6 @@ alwaysApply: false
 category: workflow
 tags: [specification, requirements, acceptance-criteria, spec-driven-development]
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 800
 role: library
 ---

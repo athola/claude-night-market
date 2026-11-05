@@ -1,0 +1,792 @@
+schema_version: 1
+cases:
+- id: memory-palace.digital-garden-cultivator.p1
+  type: positive
+  prompt: I've got a pile of half-baked notes in a JSON file that link to each other.
+    I want to track which ones are rough drafts versus stable, and set up a routine
+    for pruning dead links and archiving stuff nobody has touched in a month. How
+    should I structure that?
+  target: memory-palace:digital-garden-cultivator
+  competitor: null
+  cluster: memory-palace:digital-garden-cultivator
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: memory-palace:digital-garden-cultivator'
+  proposals:
+    router: parseltongue:python-async
+    judge: memory-palace:digital-garden-cultivator
+- id: memory-palace.digital-garden-cultivator.p2
+  type: positive
+  prompt: How can I tell if my interlinked notes collection is healthy? I want to
+    know what percent of links go both ways and how much of the content is actually
+    mature, ideally exported so Prometheus can scrape it.
+  target: memory-palace:digital-garden-cultivator
+  competitor: null
+  cluster: memory-palace:digital-garden-cultivator
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: memory-palace:palace-sweep; judge: memory-palace:digital-garden-cultivator/None'
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: memory-palace:digital-garden-cultivator
+    judge_runner_up: null
+- id: memory-palace.digital-garden-cultivator.p3
+  type: near_miss
+  prompt: I have a garden.json of interlinked notes. Run the metrics on it and give
+    me prometheus output showing how many are seedling versus evergreen, and which
+    ones need tending.
+  target: memory-palace:digital-garden-cultivator
+  competitor: conjure:provider-setup
+  cluster: memory-palace:digital-garden-cultivator
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'aimed at parseltongue:python-async; router: memory-palace:digital-garden-cultivator;
+    judge: memory-palace:garden/memory-palace:digital-garden-cultivator; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: memory-palace:digital-garden-cultivator
+    judge: memory-palace:garden
+    judge_runner_up: memory-palace:digital-garden-cultivator
+- id: memory-palace.garden.p1
+  type: positive
+  prompt: Run the health check on ~/my-garden.json and tell me what needs tending.
+    Then print the one-line metrics summary.
+  target: memory-palace:garden
+  competitor: null
+  cluster: memory-palace:garden
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: memory-palace:garden
+    judge: memory-palace:garden
+- id: memory-palace.garden.p2
+  type: positive
+  prompt: Add a new note called "OAuth Overview" to my garden file under the auth
+    section, linked to Authentication and Security. After that, prune the stale entries.
+  target: memory-palace:garden
+  competitor: null
+  cluster: memory-palace:garden
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:authentication-patterns; judge: memory-palace:garden/memory-palace:digital-garden-cultivator'
+  proposals:
+    router: leyline:authentication-patterns
+    judge: memory-palace:garden
+    judge_runner_up: memory-palace:digital-garden-cultivator
+- id: memory-palace.garden.p3
+  type: near_miss
+  prompt: 'I keep my notes in a JSON-backed digital garden and I want to know how
+    it''s structured health-wise: average links per note and how stale things have
+    gotten since I last touched them. Can you give me the numbers in a one-line summary
+    I can drop in a status check?'
+  target: memory-palace:garden
+  competitor: memory-palace:digital-garden-cultivator
+  cluster: memory-palace:garden
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'aimed at archetypes:architecture-paradigms; router: memory-palace:digital-garden-cultivator;
+    judge: memory-palace:digital-garden-cultivator/memory-palace:garden; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    aimed_at: archetypes:architecture-paradigms
+    router: memory-palace:digital-garden-cultivator
+    judge: memory-palace:digital-garden-cultivator
+    judge_runner_up: memory-palace:garden
+- id: memory-palace.knowledge-intake.p1
+  type: positive
+  prompt: 'Here''s a blog post on prompt caching strategies: https://example.com/blog/prompt-caching.
+    Read it, decide if it''s worth keeping, store the useful parts in our knowledge
+    base, and flag any older notes it makes obsolete.'
+  target: memory-palace:knowledge-intake
+  competitor: null
+  cluster: memory-palace:knowledge-intake
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: scribe:session-to-post; judge: memory-palace:knowledge-intake/memory-palace:digital-garden-cultivator;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: scribe:session-to-post
+    judge: memory-palace:knowledge-intake
+    judge_runner_up: memory-palace:digital-garden-cultivator
+- id: memory-palace.knowledge-intake.p2
+  type: positive
+  prompt: I just downloaded this arxiv PDF on retrieval-augmented generation. Pull
+    out the key insights, figure out where they apply to our codebase, and file them
+    with our existing stored knowledge.
+  target: memory-palace:knowledge-intake
+  competitor: null
+  cluster: memory-palace:knowledge-intake
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:harden; judge: memory-palace:knowledge-intake'
+  proposals:
+    router: pensive:harden
+    judge: memory-palace:knowledge-intake
+- id: memory-palace.knowledge-intake.p3
+  type: near_miss
+  prompt: I just found this blog post on idempotency keys in payment APIs and want
+    the useful parts extracted into my long-term notes. Decide if it's worth keeping,
+    file it where it belongs, and tell me if it makes any older notes obsolete.
+  target: memory-palace:knowledge-intake
+  competitor: memory-palace:digital-garden-cultivator
+  cluster: memory-palace:knowledge-intake
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:gauntlet-extract; router: scribe:session-to-post; judge:
+    memory-palace:knowledge-intake/memory-palace:digital-garden-cultivator'
+  proposals:
+    aimed_at: gauntlet:gauntlet-extract
+    router: scribe:session-to-post
+    judge: memory-palace:knowledge-intake
+    judge_runner_up: memory-palace:digital-garden-cultivator
+- id: memory-palace.knowledge-locator.p1
+  type: positive
+  prompt: I know I stored something about token refresh flows in one of my palaces
+    but can't remember which. Search across all of them for authentication-related
+    stuff and show me where it lives.
+  target: memory-palace:knowledge-locator
+  competitor: null
+  cluster: memory-palace:knowledge-locator
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: memory-palace:navigate; judge: memory-palace:knowledge-locator'
+  proposals:
+    router: memory-palace:navigate
+    judge: memory-palace:knowledge-locator
+- id: memory-palace.knowledge-locator.p2
+  type: positive
+  prompt: Can you map out which of my palaces cross-reference each other and check
+    how fast lookups are? I also want to see which entries I access the most so I
+    can tune the index.
+  target: memory-palace:knowledge-locator
+  competitor: null
+  cluster: memory-palace:knowledge-locator
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: memory-palace:knowledge-locator/None'
+  proposals:
+    router: parseltongue:python-async
+    judge: memory-palace:knowledge-locator
+    judge_runner_up: null
+- id: memory-palace.knowledge-locator.p3
+  type: near_miss
+  prompt: I know I wrote something down months ago about keeping pure functions separate
+    from side effects, but I can't remember which of my memory palaces or rooms it's
+    in. Can you track down where that concept is stored, searching by meaning since
+    I don't remember the exact wording?
+  target: memory-palace:knowledge-locator
+  competitor: memory-palace:palace-sweep
+  cluster: memory-palace:knowledge-locator
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: archetypes:architecture-paradigm-functional-core;
+    judge: memory-palace:knowledge-locator/memory-palace:palace-sweep'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: archetypes:architecture-paradigm-functional-core
+    judge: memory-palace:knowledge-locator
+    judge_runner_up: memory-palace:palace-sweep
+- id: memory-palace.memory-clarity-probe.p1
+  type: positive
+  prompt: Before I hand this session summary off to a fresh agent, check whether it
+    actually says where the task stands and what's still missing, or if it's vague
+    and hedgy.
+  target: memory-palace:memory-clarity-probe
+  competitor: null
+  cluster: memory-palace:memory-clarity-probe
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: memory-palace:memory-clarity-probe'
+  proposals:
+    router: conjure:provider-sweep
+    judge: memory-palace:memory-clarity-probe
+- id: memory-palace.memory-clarity-probe.p2
+  type: positive
+  prompt: I have three candidate summaries of our long debugging session. Which one
+    gives a continuation agent the clearest picture of current progress and remaining
+    unknowns?
+  target: memory-palace:memory-clarity-probe
+  competitor: null
+  cluster: memory-palace:memory-clarity-probe
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-startup; judge: memory-palace:memory-clarity-probe/None'
+  proposals:
+    router: spec-kit:speckit-startup
+    judge: memory-palace:memory-clarity-probe
+    judge_runner_up: null
+- id: memory-palace.memory-clarity-probe.p3
+  type: near_miss
+  prompt: Before I hand off this session, check my summary notes. We spent the day
+    reviewing a bunch of skills, and I want to know if the summary clearly says how
+    far we got and what's still missing, or if it's too vague for someone to pick
+    up from.
+  target: memory-palace:memory-clarity-probe
+  competitor: imbue:evidence-sweep
+  cluster: memory-palace:memory-clarity-probe
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: oracle:quality-bench; judge: memory-palace:memory-clarity-probe/imbue:evidence-sweep'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: oracle:quality-bench
+    judge: memory-palace:memory-clarity-probe
+    judge_runner_up: imbue:evidence-sweep
+- id: memory-palace.memory-palace-architect.p1
+  type: positive
+  prompt: I need to organize all our security and production hardening docs into a
+    spatial memory structure. Help me design a layout, pick a fitting metaphor, and
+    create the palace.
+  target: memory-palace:memory-palace-architect
+  competitor: null
+  cluster: memory-palace:memory-palace-architect
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: memory-palace:memory-palace-architect
+    judge: memory-palace:memory-palace-architect
+- id: memory-palace.memory-palace-architect.p2
+  type: positive
+  prompt: Design a learning pathway for picking up Rust, using a mnemonic spatial
+    structure with rooms for concepts and vivid sensory cues so I'll actually remember
+    it.
+  target: memory-palace:memory-palace-architect
+  competitor: null
+  cluster: memory-palace:memory-palace-architect
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:workflow-setup; judge: memory-palace:memory-palace-architect'
+  proposals:
+    router: attune:workflow-setup
+    judge: memory-palace:memory-palace-architect
+- id: memory-palace.memory-palace-architect.p3
+  type: near_miss
+  prompt: I'm learning about Claude Code hooks, covering lifecycle events, matchers,
+    exit codes and security pitfalls. I want to build a spatial memory structure for
+    all this, with rooms and vivid associations so I can recall it. Can you design
+    the layout for me?
+  target: memory-palace:memory-palace-architect
+  competitor: abstract:hook-authoring
+  cluster: memory-palace:memory-palace-architect
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:hook-authoring; router: parseltongue:python-async; judge:
+    memory-palace:memory-palace-architect/abstract:hook-authoring'
+  proposals:
+    aimed_at: abstract:hook-authoring
+    router: parseltongue:python-async
+    judge: memory-palace:memory-palace-architect
+    judge_runner_up: abstract:hook-authoring
+- id: memory-palace.navigate.p1
+  type: positive
+  prompt: Find the exact location of the OAuth 2.0 concept in my palaces, then show
+    me the route from OAuth to JWT.
+  target: memory-palace:navigate
+  competitor: null
+  cluster: memory-palace:navigate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: memory-palace:palace-sweep; judge: memory-palace:navigate'
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: memory-palace:navigate
+- id: memory-palace.navigate.p2
+  type: positive
+  prompt: Explore palace abc123 two levels deep and list what concepts are reachable
+    from the starting point. Use fuzzy matching if you have to search.
+  target: memory-palace:navigate
+  competitor: null
+  cluster: memory-palace:navigate
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: memory-palace:palace-sweep; judge: memory-palace:navigate/memory-palace:palace;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: memory-palace:navigate
+    judge_runner_up: memory-palace:palace
+- id: memory-palace.navigate.p3
+  type: near_miss
+  prompt: In my palaces, show me the route that connects the concept of OAuth to JWT,
+    step by step. Also list everything reachable within two levels of my networking
+    palace so I can see what's nearby.
+  target: memory-palace:navigate
+  competitor: memory-palace:palace
+  cluster: memory-palace:navigate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at memory-palace:palace-sweep; router: memory-palace:palace-sweep;
+    judge: memory-palace:navigate/memory-palace:palace'
+  proposals:
+    aimed_at: memory-palace:palace-sweep
+    router: memory-palace:palace-sweep
+    judge: memory-palace:navigate
+    judge_runner_up: memory-palace:palace
+- id: memory-palace.palace-diagram.p1
+  type: positive
+  prompt: can you draw me a map of my project's knowledge palace showing the rooms
+    and which entities connect to each other? I'd like it as a mermaid flowchart
+  target: memory-palace:palace-diagram
+  competitor: null
+  cluster: memory-palace:palace-diagram
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: memory-palace:palace-diagram
+    judge: memory-palace:palace-diagram
+- id: memory-palace.palace-diagram.p2
+  type: positive
+  prompt: I want to see which synapses in my palace are strong vs weak, thick vs dotted
+    edges. also give me a quick ascii overview I can paste inline
+  target: memory-palace:palace-diagram
+  competitor: null
+  cluster: memory-palace:palace-diagram
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: memory-palace:palace-diagram'
+  proposals:
+    router: parseltongue:python-async
+    judge: memory-palace:palace-diagram
+- id: memory-palace.palace-diagram.p3
+  type: near_miss
+  prompt: I have a palace on functional programming that's already built. Can you
+    render a heatmap of it showing which connections between entities are strong and
+    which are weak, so I can see the topology?
+  target: memory-palace:palace-diagram
+  competitor: memory-palace:palace-sweep
+  cluster: memory-palace:palace-diagram
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: archetypes:architecture-paradigm-functional-core;
+    judge: memory-palace:palace-diagram/memory-palace:palace-sweep; accepted by maintainer
+    2026-11-03'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: archetypes:architecture-paradigm-functional-core
+    judge: memory-palace:palace-diagram
+    judge_runner_up: memory-palace:palace-sweep
+- id: memory-palace.palace-index-curator.p1
+  type: positive
+  prompt: my commit got blocked because the capture index still has pending entries.
+    how do I drain them? I'd like to see the dry-run first before anything gets written
+  target: memory-palace:palace-index-curator
+  competitor: null
+  cluster: memory-palace:palace-index-curator
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: memory-palace:palace-index-curator
+    judge: memory-palace:palace-index-curator
+- id: memory-palace.palace-index-curator.p2
+  type: positive
+  prompt: most of the web research we auto-captured is still sitting as pending seedlings
+    and never used. give me a health report on the backlog with orphans and topic
+    clusters, then promote or archive the stale ones
+  target: memory-palace:palace-index-curator
+  competitor: null
+  cluster: memory-palace:palace-index-curator
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: memory-palace:palace-index-curator
+    judge: memory-palace:palace-index-curator
+- id: memory-palace.palace-index-curator.p3
+  type: near_miss
+  prompt: my commit got blocked because there are still a bunch of pending entries
+    in the web capture index. most of what WebFetch saved is never getting looked
+    at. can you triage that backlog and promote the worthwhile ones, dry run first?
+  target: memory-palace:palace-index-curator
+  competitor: memory-palace:palace-sweep
+  cluster: memory-palace:palace-index-curator
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at tome:research; router: memory-palace:palace-index-curator; judge:
+    memory-palace:palace-index-curator/memory-palace:palace-sweep'
+  proposals:
+    aimed_at: tome:research
+    router: memory-palace:palace-index-curator
+    judge: memory-palace:palace-index-curator
+    judge_runner_up: memory-palace:palace-sweep
+- id: memory-palace.palace-sweep.p1
+  type: positive
+  prompt: I can't remember which palace I filed the notes about our rate limiting
+    decision under. search all of my palaces at once for it and merge the answers
+    into one ranked result
+  target: memory-palace:palace-sweep
+  competitor: null
+  cluster: memory-palace:palace-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: memory-palace:palace-sweep
+- id: memory-palace.palace-sweep.p2
+  type: positive
+  prompt: 'run the same question across every knowledge palace in parallel instead
+    of checking one at a time: ''what did we learn about flaky integration tests?'''
+  target: memory-palace:palace-sweep
+  competitor: null
+  cluster: memory-palace:palace-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: memory-palace:palace-sweep
+- id: memory-palace.palace-sweep.p3
+  type: near_miss
+  prompt: I've got four palaces set up (infra, frontend, payments, onboarding) and
+    I can't remember which one I filed my notes on retry backoff under. Ask all of
+    them the same question and give me one merged ranked answer instead of stopping
+    at the first match.
+  target: memory-palace:palace-sweep
+  competitor: tome:research
+  cluster: memory-palace:palace-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at tome:research; router: memory-palace:palace-sweep; judge: memory-palace:palace-sweep/tome:research'
+  proposals:
+    aimed_at: tome:research
+    router: memory-palace:palace-sweep
+    judge: memory-palace:palace-sweep
+    judge_runner_up: tome:research
+- id: memory-palace.palace.p1
+  type: positive
+  prompt: Process the queued research items into my palaces, but do a dry run first
+    so I can see what would change. Create new palaces for any domains that don't
+    match.
+  target: memory-palace:palace
+  competitor: null
+  cluster: memory-palace:palace
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: memory-palace:palace
+    judge: memory-palace:palace
+- id: memory-palace.palace.p2
+  type: positive
+  prompt: List my palaces, then render one of them as a mermaid diagram. Also check
+    for stale or duplicate entries older than 60 days, and show recommendations before
+    deleting anything.
+  target: memory-palace:palace
+  competitor: null
+  cluster: memory-palace:palace
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:skill-audit; judge: memory-palace:palace/memory-palace:palace-diagram'
+  proposals:
+    router: abstract:skill-audit
+    judge: memory-palace:palace
+    judge_runner_up: memory-palace:palace-diagram
+- id: memory-palace.palace.p3
+  type: near_miss
+  prompt: Show me all my memory palaces with entry counts and last-modified dates.
+    A few of them feel bloated and overgrown, so I'd like to clean out the stale entries
+    and then pull in whatever is waiting in the intake queue.
+  target: memory-palace:palace
+  competitor: memory-palace:palace-sweep
+  cluster: memory-palace:palace
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:analyze-skill; router: memory-palace:palace-sweep; judge:
+    memory-palace:palace/memory-palace:palace-sweep'
+  proposals:
+    aimed_at: abstract:analyze-skill
+    router: memory-palace:palace-sweep
+    judge: memory-palace:palace
+    judge_runner_up: memory-palace:palace-sweep
+- id: memory-palace.review-chamber.p1
+  type: positive
+  prompt: We just finished reviewing PR 42 and the JWT vs sessions discussion was
+    valuable. How do I save the decision and reasoning from that review so people
+    can find it later?
+  target: memory-palace:review-chamber
+  competitor: null
+  cluster: memory-palace:review-chamber
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:assisted-mastery; judge: memory-palace:review-chamber/memory-palace:palace'
+  proposals:
+    router: imbue:assisted-mastery
+    judge: memory-palace:review-chamber
+    judge_runner_up: memory-palace:palace
+- id: memory-palace.review-chamber.p2
+  type: positive
+  prompt: I want to build up a library of recurring issues and coding standards examples
+    pulled from our past pull request reviews, sorted into decisions, patterns and
+    lessons
+  target: memory-palace:review-chamber
+  competitor: null
+  cluster: memory-palace:review-chamber
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: memory-palace:review-chamber
+    judge: memory-palace:review-chamber
+- id: memory-palace.review-chamber.p3
+  type: near_miss
+  prompt: We just finished reviewing a big PR with a lot of back-and-forth about why
+    we chose event sourcing for the orders module. I want that reasoning saved in
+    the project's palace so people can find the decisions and recurring issues later,
+    sorted into the right rooms.
+  target: memory-palace:review-chamber
+  competitor: gauntlet:knowledge-extract
+  cluster: memory-palace:review-chamber
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:paradigm-panel; router: memory-palace:palace-sweep;
+    judge: memory-palace:review-chamber/gauntlet:knowledge-extract'
+  proposals:
+    aimed_at: archetypes:paradigm-panel
+    router: memory-palace:palace-sweep
+    judge: memory-palace:review-chamber
+    judge_runner_up: gauntlet:knowledge-extract
+- id: memory-palace.review-room.p1
+  type: positive
+  prompt: /review-room capture 57 --room patterns --interactive, let me choose which
+    findings from that PR to keep
+  target: memory-palace:review-room
+  competitor: null
+  cluster: memory-palace:review-room
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: memory-palace:review-room
+    judge: memory-palace:review-room
+- id: memory-palace.review-room.p2
+  type: positive
+  prompt: search the stored PR review knowledge for 'error handling' since 2025-01-01
+    and then export everything to a markdown file in docs
+  target: memory-palace:review-room
+  competitor: null
+  cluster: memory-palace:review-room
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:error-patterns; judge: memory-palace:review-room'
+  proposals:
+    router: leyline:error-patterns
+    judge: memory-palace:review-room
+- id: memory-palace.review-room.p3
+  type: near_miss
+  prompt: /review-room capture 42 --room patterns --interactive, and then show me
+    stats on what's in the review chamber so far
+  target: memory-palace:review-room
+  competitor: memory-palace:review-chamber
+  cluster: memory-palace:review-room
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: 'aimed at leyline:error-patterns; router: memory-palace:review-room; judge:
+    memory-palace:review-room/memory-palace:review-chamber; accepted by maintainer
+    2026-11-03'
+  proposals:
+    aimed_at: leyline:error-patterns
+    router: memory-palace:review-room
+    judge: memory-palace:review-room
+    judge_runner_up: memory-palace:review-chamber
+- id: memory-palace.session-handoff.p1
+  type: positive
+  prompt: we're wrapping up for the day. write down the decisions we made, the open
+    questions, and what we found so tomorrow's session doesn't have to re-derive it
+    all
+  target: memory-palace:session-handoff
+  competitor: null
+  cluster: memory-palace:session-handoff
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scribe:session-to-post; judge: memory-palace:session-handoff/gauntlet:knowledge-extract'
+  proposals:
+    router: scribe:session-to-post
+    judge: memory-palace:session-handoff
+    judge_runner_up: gauntlet:knowledge-extract
+- id: memory-palace.session-handoff.p2
+  type: positive
+  prompt: I need to stage this conversation's takeaways so the next session can pick
+    up. split durable facts about the tools from temporary status updates so the stale
+    ones expire sooner
+  target: memory-palace:session-handoff
+  competitor: null
+  cluster: memory-palace:session-handoff
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:unified-review; judge: memory-palace:session-handoff/scribe:session-replay'
+  proposals:
+    router: pensive:unified-review
+    judge: memory-palace:session-handoff
+    judge_runner_up: scribe:session-replay
+- id: memory-palace.session-handoff.p3
+  type: near_miss
+  prompt: I'm about to end this session. Break down what we figured out today into
+    findings, decisions and open questions with dates and the reasoning, so tomorrow's
+    session doesn't have to re-derive any of it.
+  target: memory-palace:session-handoff
+  competitor: scribe:session-replay
+  cluster: memory-palace:session-handoff
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'aimed at abstract:metacognitive-self-mod; router: scribe:session-to-post;
+    judge: memory-palace:session-handoff/scribe:session-replay; accepted by maintainer
+    2026-11-03'
+  proposals:
+    aimed_at: abstract:metacognitive-self-mod
+    router: scribe:session-to-post
+    judge: memory-palace:session-handoff
+    judge_runner_up: scribe:session-replay
+- id: memory-palace.session-palace-builder.p1
+  type: positive
+  prompt: this debugging session is going to run for hours with lots of findings.
+    set up a temporary workspace to track decisions, blockers and next steps so I
+    can recover context if I get interrupted
+  target: memory-palace:session-palace-builder
+  competitor: null
+  cluster: memory-palace:session-palace-builder
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: memory-palace:session-palace-builder/memory-palace:palace-sweep'
+  proposals:
+    router: parseltongue:python-async
+    judge: memory-palace:session-palace-builder
+    judge_runner_up: memory-palace:palace-sweep
+- id: memory-palace.session-palace-builder.p2
+  type: positive
+  prompt: build me a throwaway memory structure for this multi-step project, like
+    a workshop or council chamber layout, that I can checkpoint and archive when we're
+    done
+  target: memory-palace:session-palace-builder
+  competitor: null
+  cluster: memory-palace:session-palace-builder
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: memory-palace:session-palace-builder
+    judge: memory-palace:session-palace-builder
+- id: memory-palace.session-palace-builder.p3
+  type: near_miss
+  prompt: This debugging session is going to run for hours with tons of findings across
+    several services. Set up a temporary palace for it so I can recover context if
+    I get interrupted and keep track of what we decided and why.
+  target: memory-palace:session-palace-builder
+  competitor: memory-palace:palace-sweep
+  cluster: memory-palace:session-palace-builder
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: memory-palace:palace-sweep; judge:
+    memory-palace:session-palace-builder/memory-palace:palace-sweep'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: memory-palace:palace-sweep
+    judge: memory-palace:session-palace-builder
+    judge_runner_up: memory-palace:palace-sweep
+- id: memory-palace.skill-logs.p1
+  type: positive
+  prompt: show me which skills failed in the last 24 hours
+  target: memory-palace:skill-logs
+  competitor: null
+  cluster: memory-palace:skill-logs
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scry:capture-set; judge: memory-palace:skill-logs/abstract:test-skill'
+  proposals:
+    router: scry:capture-set
+    judge: memory-palace:skill-logs
+    judge_runner_up: abstract:test-skill
+- id: memory-palace.skill-logs.p2
+  type: positive
+  prompt: clear out skill execution logs older than 90 days, but preview what would
+    be deleted first, and export the recent ones as json
+  target: memory-palace:skill-logs
+  competitor: null
+  cluster: memory-palace:skill-logs
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: memory-palace:skill-logs; judge: None; accepted by maintainer 2026-11-03'
+  proposals:
+    router: memory-palace:skill-logs
+    judge: null
+- id: memory-palace.skill-logs.p3
+  type: near_miss
+  prompt: show me which skills failed in the last 24h and clean up execution logs
+    older than 90 days
+  target: memory-palace:skill-logs
+  competitor: abstract:aggregate-logs
+  cluster: memory-palace:skill-logs
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: scry:capture-set; judge: memory-palace:skill-logs/abstract:aggregate-logs'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: scry:capture-set
+    judge: memory-palace:skill-logs
+    judge_runner_up: abstract:aggregate-logs

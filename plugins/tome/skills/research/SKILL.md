@@ -18,7 +18,6 @@ orchestrates:
   - tome:synthesize
 modules:
   - modules/stop-verifier.md
-model_hint: standard
 ---
 # Research Session Orchestrator
 

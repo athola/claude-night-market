@@ -7,7 +7,6 @@ dependencies:
   hub:
   - token-conservation
   modules: []
-model_hint: standard
 ---
 
 # CPU/GPU Performance Discipline

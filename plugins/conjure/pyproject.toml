@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conjure-dev"
-version = "1.10.0"
+version = "1.10.1"
 description = "Development tools for the conjure Claude Code plugin - intelligent delegation framework for external LLM services"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -134,6 +134,12 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["leyline", "leyline.*"]
+ignore_missing_imports = true
+
+# quota_tracker imports its vendored copy by bare name after putting
+# scripts/ on sys.path, which mypy cannot follow from the package root.
+[[tool.mypy.overrides]]
+module = ["_vendored_leyline_fs"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

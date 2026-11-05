@@ -4,27 +4,38 @@ from __future__ import annotations
 
 import ast
 import re
-from typing import Any, ClassVar
+from typing import Any
 
 
 def _version_key(version: str) -> tuple[int, ...]:
     """Order versions numerically so "3.10" sorts above "3.8"."""
-    return tuple(int(part) for part in version.split("."))
+    try:
+        return tuple(int(part) for part in version.split("."))
+    except ValueError:
+        raise ValueError(
+            f"invalid Python version {version!r}; expected a dotted number such as 3.9"
+        ) from None
+
+
+def _has_union_annotation(node: ast.AST) -> bool:
+    """Return True when node annotates a name, argument or return with ``A | B``."""
+    if isinstance(node, ast.AnnAssign):
+        annotations = [node.annotation]
+    elif isinstance(node, ast.arg):
+        annotations = [node.annotation] if node.annotation else []
+    elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.returns:
+        annotations = [node.returns]
+    else:
+        return False
+    return any(
+        isinstance(part, ast.BinOp) and isinstance(part.op, ast.BitOr)
+        for annotation in annotations
+        for part in ast.walk(annotation)
+    )
 
 
 class CompatibilityChecker:
     """Check code compatibility across Python versions using AST analysis."""
-
-    FEATURE_VERSIONS: ClassVar[dict[str, str]] = {
-        "match_statement": "3.10",
-        "union_type_syntax": "3.10",
-        "dataclass_slots": "3.10",
-        "walrus_operator": "3.8",
-        "fstrings": "3.6",
-        "async_await": "3.5",
-        "type_hints": "3.5",
-        "from __future__ import annotations": "3.7",
-    }
 
     def check_compatibility(
         self,
@@ -44,16 +55,30 @@ class CompatibilityChecker:
         try:
             tree = ast.parse(code)
         except SyntaxError:
+            # Only the regex features are known. Without any, the code is
+            # broken on every interpreter we can check, so claim none.
+            if features_found:
+                min_version = max(
+                    (f["min_version"] for f in features_found), key=_version_key
+                )
             return {
                 "minimum_version": min_version,
                 "features": features_found,
                 "issues": issues,
                 "recommendations": recommendations,
-                "compatible_versions": target_versions,
+                "compatible_versions": (
+                    [
+                        v
+                        for v in target_versions
+                        if _version_key(v) >= _version_key(min_version)
+                    ]
+                    if features_found
+                    else []
+                ),
                 "error": "Could not fully parse code",
             }
 
-        self._check_ast_features(tree, features_found)
+        self._check_ast_features(tree, features_found, issues)
 
         unique_features = self._deduplicate_features(features_found)
 
@@ -115,20 +140,6 @@ class CompatibilityChecker:
                 }
             )
 
-        if re.search(r":\s*\w+\s*\|\s*\w+", code) or re.search(
-            r"->\s*\w+\s*\|\s*\w+", code
-        ):
-            features_found.append(
-                {"feature": "union_type_syntax", "min_version": "3.10"}
-            )
-            issues.append(
-                {
-                    "feature": "union_type_syntax",
-                    "status": "requires_3.10+",
-                    "min_version": "3.10",
-                }
-            )
-
         if re.search(r"@dataclass\(.*slots\s*=\s*True", code):
             features_found.append({"feature": "dataclass_slots", "min_version": "3.10"})
             issues.append(
@@ -143,9 +154,24 @@ class CompatibilityChecker:
         self,
         tree: ast.Module,
         features_found: list[dict[str, str]],
+        issues: list[dict[str, str]],
     ) -> None:
         """Check for version-specific features by walking the AST."""
+        union_reported = False
         for node in ast.walk(tree):
+            if _has_union_annotation(node):
+                features_found.append(
+                    {"feature": "union_type_syntax", "min_version": "3.10"}
+                )
+                if not union_reported:
+                    union_reported = True
+                    issues.append(
+                        {
+                            "feature": "union_type_syntax",
+                            "status": "requires_3.10+",
+                            "min_version": "3.10",
+                        }
+                    )
             if isinstance(node, ast.NamedExpr):
                 features_found.append(
                     {"feature": "walrus_operator", "min_version": "3.8"}

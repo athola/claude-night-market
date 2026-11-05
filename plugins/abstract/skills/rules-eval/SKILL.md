@@ -28,7 +28,6 @@ evaluation_criteria:
   content_quality: 25
   organization: 15
   token_efficiency: 15
-model_hint: standard
 role: entrypoint
 ---
 # Rules Evaluation Framework

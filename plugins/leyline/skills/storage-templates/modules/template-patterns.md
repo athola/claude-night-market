@@ -343,15 +343,10 @@ mv 2025-12-05-async-pattern.md async-pattern.md
 
 ## Integration
 
-Import templates in your domain:
+Define template classes in your domain. leyline ships these as
+markdown templates only, with no Python module:
 
 ```python
-from leyline.storage_templates import (
-    EvergreenTemplate,
-    GrowingTemplate,
-    SeedlingTemplate,
-    ReferenceTemplate,
-)
 
 # Generate new document from template
 doc = SeedlingTemplate.create(

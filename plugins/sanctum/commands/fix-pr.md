@@ -286,6 +286,9 @@ python3 plugins/abstract/scripts/post_review_insights.py \
   reviews/pr-<NNN>-fix.md --pr <NNN>
 ```
 
+If `plugins/abstract/scripts/post_review_insights.py` is absent (a marketplace
+install, not a checkout), skip this step and say so.
+
 Each fix becomes a `[PR Finding]` Insight discussion with the
 "recently iterated" body. The InsightRegistry deduplicates against
 the original /pr-review post by content hash, so the discussion is
@@ -336,16 +339,17 @@ REPO=$(echo "$REPO_FULL" | cut -d'/' -f2)
 PR_NUM=$(gh pr view --json number -q .number)
 
 # Check for unresolved threads
-UNRESOLVED=$(gh api graphql -f query="
-query {
+UNRESOLVED=$(gh api graphql --paginate --slurp -f query="
+query(\$endCursor: String) {
   repository(owner: \"$OWNER\", name: \"$REPO\") {
     pullRequest(number: $PR_NUM) {
-      reviewThreads(first: 100) {
+      reviewThreads(first: 100, after: \$endCursor) {
+        pageInfo { hasNextPage endCursor }
         nodes { isResolved }
       }
     }
   }
-}" --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+}" | jq '[.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
 
 if [[ "$UNRESOLVED" -gt 0 ]]; then
   echo "❌ GATE 1 FAILED: $UNRESOLVED unresolved threads"

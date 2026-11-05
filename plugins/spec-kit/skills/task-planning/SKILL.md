@@ -23,7 +23,6 @@ usage_patterns:
 - dependency-ordering
 - implementation-planning
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 1200
 ---
 # Task Planning

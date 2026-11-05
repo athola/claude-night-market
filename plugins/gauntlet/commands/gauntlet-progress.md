@@ -1,6 +1,5 @@
 ---
 description: Show challenge accuracy stats, weak areas, and streak
-model_hint: fast
 ---
 
 # Gauntlet Progress

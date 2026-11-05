@@ -31,3 +31,4 @@ exclude_patterns:
   - tests/fixtures/slop/*                                       # the planted control the gate must flag; tests/test_gates_fail_closed.py scores it on purpose
   - plugins/memory-palace/data/*                                 # captured external pages, not prose authored here
   - plugins/conserve/skills/response-compression/SKILL.md        # quotes the filler it teaches a session to strip
+  - plugins/sanctum/commands/commit-msg.md                       # lists the words a commit message must not contain

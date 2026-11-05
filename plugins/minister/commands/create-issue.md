@@ -42,6 +42,8 @@ Creates a new GitHub issue in the current repository (or specified repo) with fo
 ### Phase 2: Build Issue Body
 
 Construct the issue body from the provided description and references.
+Follow `Skill(leyline:ticket-writing)`. If leyline is absent: the first screen
+says what was decided and why, or links to the document that does.
 
 #### Body Structure
 
@@ -85,14 +87,12 @@ Use the AskUserQuestion tool for each section:
    For Bug:
    - What is the expected behavior?
    - What is the actual behavior?
-   - Steps to reproduce?
-   - Environment details?
+   - Steps to reproduce, with environment if it matters?
 
    For Feature/Enhancement:
-   - What problem does this solve?
-   - Proposed solution?
-   - Acceptance criteria?
-   - Alternatives considered?
+   - What changes, or what was decided?
+   - Why, in one to three sentences, or a link to the document?
+   - Done when? (skip if the title says)
 
 3. **Labels** (suggest based on type):
    - bug → "bug", "needs-triage"
@@ -211,13 +211,13 @@ Create a web dashboard showing skill usage metrics and recommendations
 > Issue Type? [Bug/Feature/Enhancement/Documentation/Question]
 Feature
 
-> What problem does this solve?
-Users need visibility into skill usage patterns.
-
-> Proposed solution?
+> What changes, or what was decided?
 Build a dashboard using the MCP analytics API.
 
-> Acceptance criteria? (one per line, empty to finish)
+> Why, in one to three sentences, or a link to the document?
+Users cannot see skill usage patterns.
+
+> Done when? (one per line, empty to finish)
 - Display skill co-occurrence graph
 - Show recommendation quality metrics
 - Allow date range filtering
@@ -295,41 +295,31 @@ The command recognizes common issue types and formats accordingly:
 ### Bug Report Template
 
 ```markdown
-## Description
 ${user_description}
 
-## Expected Behavior
+## Expected vs Actual
 ${expected}
-
-## Actual Behavior
 ${actual}
 
 ## Steps to Reproduce
 ${steps}
 
-## Environment
-${environment}
-
-## Related Links
+## Links
 ${refs}
 ```
 
 ### Feature Request Template
 
 ```markdown
-## Problem Statement
-${problem}
+${decision}
 
-## Proposed Solution
-${solution}
+## Why
+${reason_or_link}
 
-## Acceptance Criteria
+## Done When
 ${criteria}
 
-## Alternatives Considered
-${alternatives}
-
-## Related Links
+## Links
 ${refs}
 ```
 
@@ -373,6 +363,7 @@ Leverages `gh` CLI capabilities:
 
 ### DO:
 - Use descriptive, action-oriented titles
+- State why, or link to the document that does
 - Include acceptance criteria for features
 - Link to related issues/PRs with `--refs`
 - Apply appropriate labels for triage
@@ -417,6 +408,7 @@ For creating multiple related issues from a list:
 ## See Also
 
 - `/close-issue` - Analyze and close completed issues
+- `leyline:ticket-writing` - Glanceable ticket bodies and tracker linking
 - `minister:github-initiative-pulse` - Initiative status tracking
 - `minister:release-health-gates` - Release readiness checks
 - GitHub CLI documentation: https://cli.github.com/manual/gh_issue_create

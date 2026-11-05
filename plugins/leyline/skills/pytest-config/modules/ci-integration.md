@@ -5,10 +5,6 @@ parent_skill: leyline:pytest-config
 category: infrastructure
 tags: [pytest, ci-cd, github-actions, automation]
 estimated_tokens: 120
-reusable_by:
-  - ".github/workflows/test.yml"
-  - "CI/CD pipeline setup"
-  - "automated testing workflows"
 ---
 
 # CI/CD Integration

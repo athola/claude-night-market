@@ -11,7 +11,6 @@ tags:
 - optimization
 tools: []
 complexity: low
-model_hint: fast
 estimated_tokens: 400
 progressive_loading: false
 ---

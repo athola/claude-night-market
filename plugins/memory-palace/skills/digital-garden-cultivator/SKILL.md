@@ -18,7 +18,6 @@ usage_patterns:
 - knowledge-curation
 - content-lifecycle
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 500
 ---
 

@@ -19,7 +19,6 @@ usage_patterns:
 - requirement-compliance
 - knowledge-capture
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 500
 progressive_loading: true
 modules:

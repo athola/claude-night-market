@@ -304,3 +304,14 @@ class TestPagerankWithoutScipy:
         monkeypatch.setattr(graph_analyzer, "_PAGERANK_MAX_ITER", 1)
         with pytest.raises(nx.PowerIterationFailedConvergence):
             analyzer.pagerank()
+
+
+def test_communities_with_only_zero_weight_synapses_are_singletons() -> None:
+    """Total edge weight 0 divides by zero in greedy modularity, like no edges."""
+    g = KnowledgeGraph(":memory:")
+    g.upsert_entity("a", "concept", "A")
+    g.upsert_entity("b", "concept", "B")
+    g.create_synapse("a", "b", strength=0.0)
+    communities = PalaceGraphAnalyzer(g).detect_communities()
+    assert sorted(sorted(group) for group in communities.values()) == [["a"], ["b"]]
+    g.close()

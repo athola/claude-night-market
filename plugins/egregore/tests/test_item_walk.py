@@ -286,7 +286,7 @@ class TestTokenCeiling:
         )
         runner = FakeRunner(
             {
-                "git diff --unified=0": (0, "x" * 40),
+                "git diff HEAD --unified=0": (0, "x" * 40),
                 "pytest -q -k T1": (1, "1 failed"),
                 "pytest": (0, "1 passed"),
             }
@@ -356,7 +356,7 @@ class TestCeilingIsHard:
         )
         runner = FakeRunner(
             {
-                "git diff --unified=0": (0, "x" * 400),
+                "git diff HEAD --unified=0": (0, "x" * 400),
                 "pytest -q -k T1": (1, "1 failed"),
                 "pytest": (0, "1 passed"),
             }
@@ -376,7 +376,7 @@ class TestCeilingIsHard:
     def test_a_run_that_fits_is_not_parked(self, tmp_path: Path) -> None:
         runner = FakeRunner(
             {
-                "git diff --unified=0": (0, "x" * 40),
+                "git diff HEAD --unified=0": (0, "x" * 40),
                 "pytest -q -k T1": (1, "1 failed"),
                 "pytest": (0, "1 passed"),
             }
@@ -399,7 +399,7 @@ class TestCeilingIsHard:
         )
         runner = FakeRunner(
             {
-                "git diff --unified=0": (0, "x" * 400),
+                "git diff HEAD --unified=0": (0, "x" * 400),
                 "pytest -q -k T1": (1, "1 failed"),
                 "pytest": (0, "1 passed"),
             }
@@ -535,11 +535,11 @@ class TestRateLimitParksTheRun:
 def dirty_script(exit_code: int = 1) -> dict:
     """Scripted git output for a tree with one edited and one new file."""
     return {
-        "git diff --name-only": (0, "a/T1.py\n"),
-        "git diff --numstat": (0, "3\t1\ta/T1.py\n"),
-        "git diff --unified=0": (0, "@@ -1 +1 @@\n-old\n+new\n"),
+        "git diff HEAD --name-only": (0, "a/T1.py\n"),
+        "git diff HEAD --numstat": (0, "3\t1\ta/T1.py\n"),
+        "git diff HEAD --unified=0": (0, "@@ -1 +1 @@\n-old\n+new\n"),
         "git status --porcelain": (0, " M a/T1.py\n?? a/scratch.tmp\n"),
-        "git diff": (0, "diff --git a/a/T1.py b/a/T1.py\n+new line\n"),
+        "git diff HEAD": (0, "diff --git a/a/T1.py b/a/T1.py\n+new line\n"),
         "pytest": (exit_code, "1 failed"),
     }
 
@@ -586,7 +586,11 @@ class TestParkLeavesACleanTree:
             babysitter=passing_sitter,
         )
         assert result.status == "parked_task"
-        reverts = [c for c in runner.calls if "checkout -- ." in c]
+        reverts = [
+            c
+            for c in runner.calls
+            if "restore --source=HEAD --staged --worktree -- ." in c
+        ]
         assert reverts, "the parked tree must be reverted to HEAD"
 
     def test_what_was_discarded_is_recorded_before_it_is_reverted(
@@ -617,7 +621,11 @@ class TestParkLeavesACleanTree:
             handoff, [mktask("T1", [])], tmp_path, runner, babysitter=passing_sitter
         )
         assert result.status == "parked_budget"
-        assert [c for c in runner.calls if "checkout -- ." in c]
+        assert [
+            c
+            for c in runner.calls
+            if "restore --source=HEAD --staged --worktree -- ." in c
+        ]
 
     def test_a_clean_tree_records_nothing(self, tmp_path: Path) -> None:
         """No discard section when the implementer left nothing behind."""
@@ -769,15 +777,15 @@ class TestScopeSeesFilesTheImplementerCreates:
     def test_a_failed_checkout_of_a_tracked_file_is_not_claimed_reverted(
         self, tmp_path: Path
     ) -> None:
-        """A tracked out-of-scope edit takes `git checkout --`, not `clean`.
+        """A tracked out-of-scope edit takes `git restore`, not `clean`.
 
         Its exit code is read on its own: a refused checkout leaves the
         edit in the tree, so the task cannot be reported as reverted.
         """
         runner = FakeRunner(
             {
-                "git diff --name-only": (0, "b/outside.py\n"),
-                "git checkout": (1, "error: unable to unlink b/outside.py"),
+                "git diff HEAD --name-only": (0, "b/outside.py\n"),
+                "git restore": (1, "error: unable to unlink b/outside.py"),
                 "pytest": (0, "1 passed"),
             }
         )
@@ -790,7 +798,10 @@ class TestScopeSeesFilesTheImplementerCreates:
             babysitter=passing_sitter,
         )
 
-        assert any("git checkout -- b/outside.py" in c for c in runner.calls)
+        assert any(
+            "git restore --source=HEAD --staged --worktree -- b/outside.py" in c
+            for c in runner.calls
+        )
         assert not any("git clean" in c and "b/outside.py" in c for c in runner.calls)
         assert result.tasks and result.tasks[-1].verdict == "BLOCKED"
         assert "could not be reverted" in result.tasks[-1].reason

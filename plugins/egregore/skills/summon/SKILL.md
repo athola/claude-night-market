@@ -27,7 +27,6 @@ modules:
   - modules/intake.md
   - modules/decisions.md
   - modules/model-routing.md
-model_hint: standard
 role: entrypoint
 ---
 

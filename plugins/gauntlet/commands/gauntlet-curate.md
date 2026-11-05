@@ -1,6 +1,5 @@
 ---
 description: Add or edit a knowledge annotation
-model_hint: standard
 ---
 
 # Curate Knowledge

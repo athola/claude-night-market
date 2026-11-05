@@ -21,7 +21,6 @@ usage_patterns:
 - code-refinement
 - unbloat
 complexity: foundational
-model_hint: standard
 estimated_tokens: 800
 role: library
 ---

@@ -12,7 +12,6 @@ tags:
 - writing
 tools: []
 complexity: high
-model_hint: opus
 estimated_tokens: 3200
 progressive_loading: true
 modules:
@@ -66,9 +65,22 @@ Read it before changing what the passes ask for.
    and force specificity. Good output reads like followable
    instructions, not a book report.
 
-5. **Use Opus for extraction**: More nuanced feature
+5. **Use Opus or larger for extraction**: More nuanced feature
    descriptions, especially for registers where subtle tonal
-   shifts matter.
+   shifts matter. When this session runs Sonnet or Haiku, run
+   Steps 2-4 as one dispatch:
+
+   ```
+   Agent(general-purpose):
+     - model: opus
+     - prompt: {Steps 2-4 of this skill, and $PROFILE_DIR/samples}
+   ```
+
+   The subagent writes the baselines too, because Text B must be
+   the extracting model's own default. It sees nothing from this
+   conversation and reads the samples from disk. Sample intake
+   and the user's confirmation stay in this session. On an Opus
+   or Fable session, run the steps inline.
 
 ## Required Progress Items
 

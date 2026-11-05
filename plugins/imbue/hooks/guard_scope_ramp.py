@@ -172,6 +172,8 @@ def main() -> None:
         sys.exit(0)
 
     try:
+        if not isinstance(data, dict):
+            raise TypeError("hook payload is not a JSON object")
         tool_name = data.get("tool_name", "")
         if tool_name not in _CODE_TOOLS:
             _cursor_response(data)

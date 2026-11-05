@@ -6,7 +6,6 @@ alwaysApply: false
 category: workflow
 tags: [planning, architecture, task-breakdown, dependencies, estimation]
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 900
 role: library
 ---

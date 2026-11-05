@@ -246,3 +246,66 @@ class TestMainHook:
         monkeypatch.chdir(tmp_path)
         expected = target if found else None
         assert graph_auto_update._get_gauntlet_dir() == expected
+
+
+class TestUpdateOutcomeReporting:
+    """
+    Feature: the injected context matches what the update did
+
+    incremental_update returns an ``error`` or ``skipped`` report when it
+    did no work. Reading only the counters turned both into a success line.
+    """
+
+    @staticmethod
+    def _enable(gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
+        GraphStore(str(gauntlet_dir / "graph.db")).close()
+        monkeypatch.chdir(gauntlet_dir.parent)
+
+    @pytest.mark.unit
+    def test_failed_update_is_reported_as_not_updated(
+        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """First commit of a repo: HEAD~1 is missing, the report has an error."""
+        self._enable(gauntlet_dir, monkeypatch)
+        report = {
+            "files_parsed": 0,
+            "nodes_created": 0,
+            "error": "HEAD~1 unknown; run a full build",
+        }
+        with patch("gauntlet.incremental.incremental_update", return_value=report):
+            result = main(_COMMIT_EVENT)
+        assert result is not None
+        context = result["hookSpecificOutput"]["additionalContext"]
+        assert "Graph updated" not in context
+        assert "HEAD~1 unknown; run a full build" in context
+
+    @pytest.mark.unit
+    def test_skipped_update_is_reported_as_not_updated(
+        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A skipped report names its reason instead of claiming an update."""
+        self._enable(gauntlet_dir, monkeypatch)
+        report = {"files_parsed": 0, "nodes_created": 0, "skipped": "no changes"}
+        with patch("gauntlet.incremental.incremental_update", return_value=report):
+            result = main(_COMMIT_EVENT)
+        assert result is not None
+        context = result["hookSpecificOutput"]["additionalContext"]
+        assert "Graph updated" not in context
+        assert "no changes" in context
+
+    @pytest.mark.unit
+    def test_graph_is_closed_when_the_update_raises(
+        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The sqlite handle is released on the failure path too."""
+        self._enable(gauntlet_dir, monkeypatch)
+        with (
+            patch(
+                "gauntlet.incremental.incremental_update",
+                side_effect=RuntimeError("boom"),
+            ),
+            patch.object(GraphStore, "close", autospec=True) as close,
+        ):
+            assert main(_COMMIT_EVENT) is None
+        close.assert_called_once()

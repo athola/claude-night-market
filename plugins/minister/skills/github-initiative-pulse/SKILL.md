@@ -23,7 +23,6 @@ usage_patterns:
 - issue-digests
 - release-briefings
 complexity: foundational
-model_hint: standard
 estimated_tokens: 650
 progressive_loading: true
 modules:

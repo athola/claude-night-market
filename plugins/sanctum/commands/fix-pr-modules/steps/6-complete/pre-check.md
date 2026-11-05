@@ -54,17 +54,19 @@ fi
 
 echo "No pending reviews - proceeding to thread check"
 
-CHECK_OUTPUT=$(gh api graphql -f query="
-query {
+CHECK_OUTPUT=$(gh api graphql --paginate --slurp -f query="
+query(\$endCursor: String) {
   repository(owner: \"$OWNER\", name: \"$REPO\") {
     pullRequest(number: $PR_NUM) {
-      reviewThreads(first: 100) {
+      reviewThreads(first: 100, after: \$endCursor) {
+        pageInfo { hasNextPage endCursor }
         totalCount
         nodes {
           id
           isResolved
           path
           line
+          subjectType
           comments(first: 1) {
             nodes {
               body
@@ -77,7 +79,7 @@ query {
   }
 }")
 
-UNRESOLVED_COUNT=$(echo "$CHECK_OUTPUT" | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+UNRESOLVED_COUNT=$(echo "$CHECK_OUTPUT" | jq '[.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
 
 echo ""
 echo "Unresolved review threads: $UNRESOLVED_COUNT"
@@ -87,7 +89,7 @@ if [[ "$UNRESOLVED_COUNT" -gt 0 ]]; then
   echo "WORKFLOW HALT: You have $UNRESOLVED_COUNT unresolved review threads"
   echo ""
   echo "You CANNOT proceed until these threads are resolved:"
-  echo "$CHECK_OUTPUT" | jq -r '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | "  Thread \(.id): \(.path):\(.line)\n    Comment: \(.comments.nodes[0].body[0:80])..."'
+  echo "$CHECK_OUTPUT" | jq -r '.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | "  Thread \(.id): \(.path):\(.line // "file")\n    Comment: \(.comments.nodes[0].body[0:80])..."'
   echo ""
   echo "REQUIRED ACTIONS (in order):"
   echo "  1. Extract thread IDs (format: PRRT_*) from the list above"

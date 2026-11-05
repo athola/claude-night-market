@@ -23,7 +23,6 @@ usage_patterns:
 - agentic-pipeline-audit
 - release-health-input
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 800
 progressive_loading: true
 modules:

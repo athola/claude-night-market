@@ -16,7 +16,7 @@ export const meta = {
   description:
     'Audit a set of skills across four independent quality dimensions, then verify each finding before reporting it',
   whenToUse:
-    'Run when auditing more than a handful of skills at once. args.skills is a list of plugin:name or paths. args.strict raises the reporting bar. Returns findings for a human to act on. It writes nothing.',
+    'Run when auditing more than a handful of skills at once. args.skills is a list of plugin:name or paths. Returns findings for a human to act on. It writes nothing.',
   phases: [
     { title: 'Dimensions', detail: 'four blind reviewers over the same set' },
     { title: 'Verify', detail: 'try to refute each finding' },

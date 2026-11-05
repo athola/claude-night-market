@@ -188,3 +188,26 @@ def test_a_gap_fill_is_reported_as_gap_fill_not_as_a_web_channel(
     )
     assert beartooth["channels"] == ["gap-fill"]
     assert run["logs"][-1] == "2 findings from 1 of 1 channels, plus a gap fill"
+
+
+def test_a_short_entity_inside_a_longer_word_is_not_covered(tmp_path: Path) -> None:
+    """ "Mesh" inside "meshtastic" is not a search for Mesh.
+
+    The coverage check was a substring test, so a short name ("Go" in
+    groups.google.com) counted as covered and never got its gap fill.
+    """
+    run = _run_workflow(
+        tmp_path,
+        {"topic": "mesh radios", "channels": ["discourse"], "entities": ["Mesh"]},
+    )
+    gap = [c for c in run["calls"] if c["label"] == "gap-fill"]
+    assert len(gap) == 1
+    assert "Mesh" in gap[0]["prompt"].split("named options:")[-1]
+
+
+def test_an_entity_with_regex_characters_is_matched_literally(tmp_path: Path) -> None:
+    run = _run_workflow(
+        tmp_path,
+        {"topic": "mesh radios", "channels": ["discourse"], "entities": ["C++"]},
+    )
+    assert [c for c in run["calls"] if c["label"] == "gap-fill"]

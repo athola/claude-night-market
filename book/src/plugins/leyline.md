@@ -36,6 +36,7 @@ authentication, storage, and testing patterns.
 | `deferred-capture` | Contract for unified deferred-item capture across plugins | Implementing or testing deferred-capture wrappers |
 | `decision-journal` | Contract for the project decision journal (tradeoffs and lessons-learned logs) | Recording a decision, tradeoff, or lesson, or building a consumer hook |
 | `git-platform` | Git platform detection and cross-platform commands | Abstracting GitHub/GitLab/Bitbucket differences |
+| `ticket-writing` | Glanceable tickets with the why inline or one link away | Creating or editing Jira, GitLab, or GitHub tickets |
 | `supply-chain-advisory` | Known-bad version detection, lockfile auditing, incident response | After supply chain advisories, dependency audits, or suspected compromise |
 | `sem-integration` | sem CLI detection, install-on-first-use, fallback patterns | Skills consuming git diff output that benefit from entity-level diffs |
 | `additive-bias-defense` | Scrutiny questions challenging unnecessary additions | Reviewing proposals that add new code, files, or abstractions |
@@ -140,39 +141,30 @@ Other plugins should import this instead of reimplementing frontmatter parsing.
 
 ```python
 # quota-management pattern
-from leyline import QuotaManager
+from leyline.quota_tracker import QuotaTracker
 
-manager = QuotaManager(
-    daily_limit=1000,
-    hourly_limit=100,
-    burst_limit=10
-)
-
-if manager.can_proceed():
-    # Make API call
-    manager.record_usage()
+tracker = QuotaTracker(service="my-service")
+level, warnings = tracker.get_quota_status()
+if level != "critical":
+    # Make the API call, then record it
+    tracker.record_request(tokens=500)
 ```
 
 ### Telemetry
 
 ```python
 # usage-logging pattern
-from leyline import UsageLogger
+from leyline.usage_logger import UsageEvent, UsageLogger
 
-logger = UsageLogger(output="telemetry.csv")
-logger.log_tool_use("WebFetch", tokens=500, latency_ms=1200)
+logger = UsageLogger(service="my-service")
+logger.log_usage(UsageEvent("WebFetch", tokens=500, duration=1.2))
 ```
 
 ### Storage Abstraction
 
-```python
-# storage-templates pattern
-from leyline import Storage
-
-storage = Storage.from_config()
-storage.save("key", data)
-data = storage.load("key")
-```
+The storage-templates skill is guidance with no Python API: it gives
+directory layouts and file templates for a plugin to copy, not a class
+to import.
 
 ## Discussion Operations (GitHub Only)
 

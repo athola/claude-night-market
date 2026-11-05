@@ -41,8 +41,6 @@ from abstract.hook_events import (
 
 KNOWN_EVENTS = set(HOOK_EVENTS)
 
-# Required fields for JSON hooks
-REQUIRED_JSON_FIELDS = {"hooks"}
 
 # AgentHooks callback signatures
 EXPECTED_CALLBACKS = {

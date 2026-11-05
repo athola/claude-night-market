@@ -1,633 +1,146 @@
-"""Tests for performance monitoring skill business logic.
+"""Contract tests for the cpu-gpu-performance skill document.
 
-This module tests CPU/GPU performance monitoring, resource tracking,
-and alert functionality following TDD/BDD principles.
+The performance discipline is executed by the model from
+`skills/cpu-gpu-performance/SKILL.md`. These tests read that file: the
+progress items, the step each names, the baseline commands, and the exit
+criteria.
 """
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import re
+from pathlib import Path
 
 import pytest
 
-# Constants for PLR2004 magic values
-ZERO_POINT_EIGHT = 0.8
-ZERO_POINT_EIGHT_FIVE = 0.85
-ZERO_POINT_ZERO_TWO = 0.02
-TWO = 2
-THREE = 3
-FOUR = 4
-FIVE = 5
-EIGHT = 8
-TEN = 10
-TWELVE = 12
-FOURTEEN = 14
-EIGHTEEN = 18
-TWENTY = 20
-THIRTY = 30
-THIRTY_TWO = 32
-FORTY = 40
-FIFTY = 50
-SEVENTY = 70
-EIGHTY = 80
-EIGHTY_FIVE = 85
-NINETY = 90
-HUNDRED = 100
-ONE_HUNDRED_TWENTY_EIGHT = 128
-EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO = 8192
-FOUR_THOUSAND_NINETY_SIX = 4096
+SKILL_PATH = (
+    Path(__file__).resolve().parents[3] / "skills" / "cpu-gpu-performance" / "SKILL.md"
+)
+EXPECTED_ITEMS = [
+    "cpu-gpu-performance:baseline",
+    "cpu-gpu-performance:scope",
+    "cpu-gpu-performance:instrument",
+    "cpu-gpu-performance:throttle",
+    "cpu-gpu-performance:log",
+]
 
 
-class TestPerformanceMonitoringSkill:
-    """Feature: Performance monitoring tracks resource usage and optimizes efficiency.
+@pytest.fixture(scope="module")
+def skill_text() -> str:
+    return SKILL_PATH.read_text(encoding="utf-8")
 
-    As a performance monitoring workflow
-    I want to track CPU/GPU usage and identify optimization opportunities
-    So that resources are used efficiently and bottlenecks are avoided
-    """
 
-    @pytest.fixture
-    def mock_performance_monitoring_skill_content(self) -> str:
-        """Mock performance monitoring skill content with required components."""
-        return """---
+def _section(skill_text: str, heading_prefix: str) -> str:
+    body = skill_text.split(heading_prefix, 1)[1]
+    return body.split("\n## ", 1)[0]
 
-name: cpu-gpu-performance
-description: |
-  Monitor CPU/GPU performance and resource usage to identify
-  bottlenecks and optimization opportunities.
-category: conservation
-token_budget: 200
-progressive_loading: true
-dependencies:
-  hub: []
-  modules: []
-tools:
-  - Read
-  - Glob
-  - Grep
-  - Bash
-  - TodoWrite
-tags:
-  - conservation
-  - performance
-  - monitoring
-  - resources
----
 
-# Performance Monitoring Hub
+@pytest.mark.unit
+class TestProgressItems:
+    """Document contract: progress items."""
 
-## TodoWrite Items
-
-- `cpu-gpu-performance:baseline`
-- `cpu-gpu-performance:scope`
-- `cpu-gpu-performance:instrument`
-- `cpu-gpu-performance:throttle`
-- `cpu-gpu-performance:log`
-
-## Monitoring Metrics
-
-### CPU Metrics
-- Usage percentage
-- Load averages
-- Process-specific consumption
-
-### GPU Metrics (if available)
-- Usage percentage
-- Memory utilization
-- Temperature monitoring
-
-### Memory Metrics
-- RAM usage
-- Swap utilization
-- Process memory allocation
-
-## Alert Thresholds
-
-- CPU Usage: > EIGHTY% (warning), > NINETY% (critical)
-- Memory Usage: > 85% (warning), > 95% (critical)
-- GPU Usage: > 85% (warning), > 95% (critical)
-"""
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_metrics_collection_gathers_comprehensive_data(
-        self,
-        mock_performance_monitor,
+    def test_required_progress_items_are_the_five_performance_steps(
+        self, skill_text: str
     ) -> None:
-        """Scenario: Metrics collection gathers detailed performance data.
+        """Scenario: required progress items are the five performance steps."""
+        listed = re.findall(
+            r"^\d\. `(cpu-gpu-performance:[\w-]+)`$",
+            _section(skill_text, "## Required Progress Items"),
+            re.M,
+        )
+        assert listed == EXPECTED_ITEMS
 
-        Given system resources in various states
-        When collecting metrics
-        Then it should gather CPU, memory, GPU, and token efficiency metrics
-        And validate data accuracy and completeness.
-        """
-        # Arrange
-        mock_performance_monitor.metrics_history = []
-
-        # Act - collect multiple metric samples
-        samples = []
-        for _i in range(5):
-            metrics = mock_performance_monitor.collect_metrics()
-            mock_performance_monitor.metrics_history.append(metrics)
-            samples.append(metrics)
-
-        # Assert
-        assert len(samples) == FIVE
-        for metrics in samples:
-            assert "cpu_usage" in metrics
-            assert "memory_usage" in metrics
-            assert "token_usage" in metrics
-            assert "context_efficiency" in metrics
-
-            # Validate metric ranges
-            assert 0 <= metrics["cpu_usage"] <= HUNDRED
-            assert metrics["memory_usage"] > 0
-            assert metrics["token_usage"] >= 0
-            assert 0 <= metrics["context_efficiency"] <= 1
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_threshold_analysis_identifies_performance_issues(
-        self,
-        mock_performance_monitor,
-    ) -> None:
-        """Scenario: Threshold analysis identifies performance issues.
-
-        Given collected performance metrics
-        When analyzing against thresholds
-        Then it should identify warning and critical conditions
-        And categorize alerts by severity.
-        """
-        # Arrange - create test scenarios with different metric levels
-        test_scenarios = [
-            {
-                "name": "normal_operation",
-                "metrics": {
-                    "cpu_usage": 25.5,
-                    "memory_usage": 1024,
-                    "token_usage": 5000,
-                    "context_efficiency": 0.85,
-                },
-                "expected_alerts": [],
-            },
-            {
-                "name": "warning_condition",
-                "metrics": {
-                    "cpu_usage": 85.2,
-                    "memory_usage": 6144,
-                    "token_usage": 8000,  # Below TOKEN_USAGE_THRESHOLD (10000)
-                    "context_efficiency": 0.65,
-                },
-                "expected_alerts": [
-                    "High CPU usage detected",  # Only CPU exceeds threshold
-                ],
-            },
-            {
-                "name": "critical_condition",
-                "metrics": {
-                    "cpu_usage": 95.8,
-                    "memory_usage": 14336,
-                    "token_usage": 12000,
-                    "context_efficiency": 0.45,
-                },
-                "expected_alerts": [
-                    "High CPU usage detected",
-                    "High token usage detected",
-                ],
-            },
-        ]
-
-        # Act & Assert
-        for scenario in test_scenarios:
-            alerts = mock_performance_monitor.check_thresholds(scenario["metrics"])
-
-            assert len(alerts) == len(scenario["expected_alerts"]), (
-                f"Scenario {scenario['name']}: expected "
-                f"{len(scenario['expected_alerts'])} alerts, got {len(alerts)}"
-            )
-            for expected_alert in scenario["expected_alerts"]:
-                assert expected_alert in alerts, (
-                    f"Scenario {scenario['name']}: missing alert "
-                    f"'{expected_alert}' in {alerts}"
-                )
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_alert_evaluation_prioritizes_critical_issues(
-        self,
-        mock_performance_monitor,
-    ) -> None:
-        """Scenario: Alert evaluation prioritizes critical performance issues.
-
-        Given multiple performance alerts
-        When evaluating alert priorities
-        Then it should prioritize critical over warning alerts
-        And provide actionable remediation steps.
-        """
-        # Arrange
-        alert_scenarios = [
-            {
-                "metrics": {
-                    "cpu_usage": 92.5,
-                    "memory_usage": EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO,
-                    "token_usage": 11000,
-                    "context_efficiency": 0.55,
-                },
-            },
-            {
-                "metrics": {
-                    "cpu_usage": 45.0,
-                    "memory_usage": 15360,
-                    "token_usage": 9000,
-                    "context_efficiency": 0.70,
-                },
-            },
-        ]
-
-        # Act - evaluate alerts and prioritize
-        all_alerts = []
-        for scenario in alert_scenarios:
-            alerts = mock_performance_monitor.check_thresholds(scenario["metrics"])
-            all_alerts.extend(alerts)
-
-        # Prioritize alerts
-        [alert for alert in all_alerts if "critical" in alert.lower() or "95%" in alert]
-        [alert for alert in all_alerts if "warning" in alert.lower() or "80%" in alert]
-
-        # Assert: first scenario produces 2 alerts (CPU+token),
-        # second produces 0 (CPU 45% is under threshold)
-        assert len(all_alerts) == TWO
-        assert all_alerts == [
-            "High CPU usage detected",
-            "High token usage detected",
-        ]
-
-        # All alerts should have substantive messages
-        for alert in all_alerts:
-            assert len(alert) > TEN
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_optimization_recommendations_suggest_improvements(
-        self,
-        sample_performance_metrics,
-    ) -> None:
-        """Scenario: Optimization recommendations suggest performance improvements.
-
-        Given performance metrics indicating inefficiencies
-        When generating recommendations
-        Then it should suggest specific optimization strategies
-        And estimate potential improvements.
-        """
-        # Arrange
-        performance_data = {
-            "cpu_avg": 75.5,
-            "memory_peak": 12288,
-            "token_efficiency": 0.65,
-            "context_waste": 0.35,
-            "response_time_avg": 2.8,
-        }
-
-        # Act - generate optimization recommendations
-        recommendations = []
-
-        # CPU optimization
-        if performance_data["cpu_avg"] > SEVENTY:
-            recommendations.append(
-                {
-                    "area": "CPU Optimization",
-                    "current_state": (
-                        f"Average CPU usage: {performance_data['cpu_avg']}%"
-                    ),
-                    "recommendation": (
-                        "Implement task batching and reduce concurrent operations"
-                    ),
-                    "estimated_improvement": "15-25% CPU reduction",
-                    "implementation_effort": "Medium",
-                },
-            )
-
-        # Memory optimization
-        if (
-            performance_data["memory_peak"] > EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO
-        ):  # > 8GB
-            recommendations.append(
-                {
-                    "area": "Memory Optimization",
-                    "current_state": (
-                        f"Peak memory usage: {performance_data['memory_peak']}MB"
-                    ),
-                    "recommendation": (
-                        "Implement memory pooling and reduce object retention"
-                    ),
-                    "estimated_improvement": "20-30% memory reduction",
-                    "implementation_effort": "High",
-                },
-            )
-
-        # Token efficiency optimization
-        if performance_data["token_efficiency"] < ZERO_POINT_EIGHT:
-            recommendations.append(
-                {
-                    "area": "Token Efficiency",
-                    "current_state": (
-                        f"Token efficiency: {performance_data['token_efficiency']:.2%}"
-                    ),
-                    "recommendation": (
-                        "Apply context compression and prompt optimization"
-                    ),
-                    "estimated_improvement": "25-40% token savings",
-                    "implementation_effort": "Low",
-                },
-            )
-
-        # Assert
-        assert len(recommendations) >= TWO  # At least CPU and token recommendations
-
-        # Verify recommendation structure
-        for rec in recommendations:
-            assert "area" in rec
-            assert "current_state" in rec
-            assert "recommendation" in rec
-            assert "estimated_improvement" in rec
-            assert "implementation_effort" in rec
-
-        # Check specific recommendations exist
-        areas = [rec["area"] for rec in recommendations]
-        assert "Token Efficiency" in areas
-        assert "CPU Optimization" in areas
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_trend_analysis_identifies_patterns_over_time(
-        self,
-        mock_performance_monitor,
-    ) -> None:
-        """Scenario: Trend analysis identifies performance patterns over time.
-
-        Given historical performance data
-        When analyzing trends
-        Then it should identify patterns, anomalies, and predictions
-        And provide trend-based recommendations.
-        """
-        # Arrange - create historical data with trends
-
-        historical_data = []
-        base_cpu = 30.0
-        base_memory = 2048
-
-        # Generate data with increasing trend
-        for i in range(24):  # 24 hours of data
-            hour_offset = i
-            # Simulate daily pattern with growth trend
-            cpu_usage = (
-                base_cpu
-                + (hour_offset * 0.5)
-                + (10 if FOURTEEN <= hour_offset <= EIGHTEEN else 0)
-            )  # Peak afternoon
-            memory_usage = (
-                base_memory
-                + (hour_offset * 50)
-                + (1024 if FOURTEEN <= hour_offset <= EIGHTEEN else 0)
-            )
-
-            historical_data.append(
-                {
-                    "timestamp": datetime.now(timezone.utc)
-                    .replace(hour=hour_offset)
-                    .isoformat(),
-                    "cpu_usage": min(cpu_usage, 95.0),  # Cap at 95%
-                    "memory_usage": min(memory_usage, 16384),  # Cap at 16GB
-                    "token_usage": 5000 + (i * 100),
-                },
-            )
-
-        # Act - analyze trends
-        cpu_trend = (
-            historical_data[-1]["cpu_usage"] - historical_data[0]["cpu_usage"]
-        ) / len(historical_data)
-        memory_trend = (
-            historical_data[-1]["memory_usage"] - historical_data[0]["memory_usage"]
-        ) / len(historical_data)
-
-        # Identify peak hours
-        hourly_avg = {}
-        for data_point in historical_data:
-            hour = datetime.fromisoformat(data_point["timestamp"]).hour
-            if hour not in hourly_avg:
-                hourly_avg[hour] = []
-            hourly_avg[hour].append(data_point["cpu_usage"])
-
-        peak_hours = {hour: sum(cpus) / len(cpus) for hour, cpus in hourly_avg.items()}
-        highest_usage_hour = max(peak_hours, key=peak_hours.get)
-
-        # Generate trend analysis
-        trend_analysis = {
-            "cpu_trend_per_hour": cpu_trend,
-            "memory_trend_per_hour": memory_trend,
-            "peak_usage_hour": highest_usage_hour,
-            "peak_usage_average": peak_hours[highest_usage_hour],
-            "growth_rate": cpu_trend / base_cpu if base_cpu > 0 else 0,
-            "recommendations": [],
-        }
-
-        # Add recommendations based on trends
-        if trend_analysis["growth_rate"] > ZERO_POINT_ZERO_TWO:  # 2% growth per hour
-            trend_analysis["recommendations"].append(
-                "Monitor resource growth - consider scaling strategies",
-            )
-
-        if (
-            trend_analysis["peak_usage_average"] > FORTY
-        ):  # Realistic threshold for test data
-            trend_analysis["recommendations"].append(
-                f"Optimize for peak hours around {highest_usage_hour}:00",
-            )
-
-        # Assert
-        assert trend_analysis["cpu_trend_per_hour"] > 0  # Increasing trend
-        assert trend_analysis["memory_trend_per_hour"] > 0  # Increasing trend
-        assert highest_usage_hour >= FOURTEEN
-        assert highest_usage_hour <= EIGHTEEN
-        assert len(trend_analysis["recommendations"]) >= 1
-
-    @pytest.mark.unit
-    def test_performance_monitoring_handles_missing_gpu_gracefully(
-        self,
-        mock_claude_tools,
-    ) -> None:
-        """Scenario: Performance monitoring handles missing GPU gracefully.
-
-        Given systems without GPU availability
-        When monitoring performance
-        Then it should adapt to available resources
-        And not fail on missing GPU metrics.
-        """
-        # Arrange - simulate missing GPU
-        mock_claude_tools["Bash"].side_effect = [
-            "0",  # No GPU detected
-            "N/A",  # GPU usage not available
-            "Command not found: nvidia-smi",  # GPU tools not installed
-        ]
-
-        # Act - monitor performance without GPU
-        performance_status = {}
-        error_count = 0
-
-        try:
-            gpu_available = bool(
-                int(mock_claude_tools["Bash"]("nvidia-smi --list-gpus | wc -l")),
-            )
-            performance_status["gpu_available"] = gpu_available
-        except (ValueError, Exception):
-            performance_status["gpu_available"] = False
-            error_count += 1
-
-        try:
-            gpu_usage = mock_claude_tools["Bash"](
-                "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits",
-            )
-            performance_status["gpu_usage"] = gpu_usage
-        except Exception:
-            performance_status["gpu_usage"] = "N/A"
-            error_count += 1
-
-        # Continue with other metrics
-        performance_status["cpu_monitoring"] = "active"
-        performance_status["memory_monitoring"] = "active"
-
-        # Assert
-        assert performance_status["gpu_available"] is False
-        assert performance_status["gpu_usage"] == "N/A"
-        assert performance_status["cpu_monitoring"] == "active"
-        assert performance_status["memory_monitoring"] == "active"
-        # Verify the Bash mock was called exactly twice
-        assert mock_claude_tools["Bash"].call_count == TWO
-        mock_claude_tools["Bash"].assert_any_call("nvidia-smi --list-gpus | wc -l")
-        mock_claude_tools["Bash"].assert_any_call(
-            "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits"
+    def test_there_is_one_step_heading_per_progress_item(self, skill_text: str) -> None:
+        """Scenario: there is one step heading per progress item."""
+        assert len(re.findall(r"^## Step \d: ", skill_text, re.M)) == len(
+            EXPECTED_ITEMS
         )
 
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_performance_monitoring_adapts_to_system_resources(self) -> None:
-        """Scenario: Performance monitoring adapts to different system configurations.
-
-        Given systems with varying resource capacities
-        When monitoring performance
-        Then it should adapt thresholds and recommendations
-        And provide appropriate guidance for system capabilities.
-        """
-        # Arrange - different system configurations
-        system_configs = [
-            {
-                "name": "low_end_system",
-                "total_memory_gb": 4,
-                "cpu_cores": 2,
-                "expected_cpu_threshold": 70,
-                "expected_memory_threshold": 80,
-            },
-            {
-                "name": "mid_range_system",
-                "total_memory_gb": 16,
-                "cpu_cores": 8,
-                "expected_cpu_threshold": 80,
-                "expected_memory_threshold": 85,
-            },
-            {
-                "name": "high_end_system",
-                "total_memory_gb": 64,
-                "cpu_cores": 16,
-                "expected_cpu_threshold": 85,
-                "expected_memory_threshold": 90,
-            },
+    def test_step_order_runs_baseline_scope_instrument_throttle_log(
+        self, skill_text: str
+    ) -> None:
+        """Scenario: step order runs baseline scope instrument throttle log."""
+        headings = re.findall(r"^## Step \d: (.+)$", skill_text, re.M)
+        assert headings == [
+            "Establish Current Baseline",
+            "Narrow the Scope",
+            "Instrument Before You Optimize",
+            "Throttle and Sequence Work",
+            "Log Decisions and Next Steps",
         ]
 
-        # Act - adapt monitoring thresholds
-        adapted_configurations = []
 
-        for config in system_configs:
-            # Adapt thresholds based on system capabilities
-            cpu_threshold = config["expected_cpu_threshold"]
-            memory_threshold = config["expected_memory_threshold"]
+@pytest.mark.unit
+class TestBaselineAndScope:
+    """Document contract: baseline and scope."""
 
-            # Adjust expectations based on resources
-            if config["total_memory_gb"] < EIGHT:
-                memory_threshold -= FIVE  # Stricter on low-memory systems
-            elif config["total_memory_gb"] > THIRTY_TWO:
-                memory_threshold += FIVE  # More lenient on high-memory systems
+    def test_baseline_captures_uptime_and_ps(self, skill_text: str) -> None:
+        """Scenario: baseline captures uptime and ps."""
+        step = _section(skill_text, "## Step 1")
+        assert "`uptime`" in step
+        assert "`ps -eo pcpu,cmd | head`" in step
 
-            if config["cpu_cores"] < FOUR:
-                cpu_threshold -= TEN  # Stricter on low-core systems
-            elif config["cpu_cores"] > TWELVE:
-                cpu_threshold += FIVE  # More lenient on high-core systems
+    def test_baseline_queries_gpu_utilization(self, skill_text: str) -> None:
+        """Scenario: baseline queries gpu utilization."""
+        step = _section(skill_text, "## Step 1")
+        assert "nvidia-smi --query-gpu=utilization.gpu,memory.used" in step
 
-            adapted_config = {
-                "system": config["name"],
-                "cpu_warning_threshold": cpu_threshold,
-                "memory_warning_threshold": memory_threshold,
-                "adaptations": {
-                    "memory_adjustment": memory_threshold
-                    - config["expected_memory_threshold"],
-                    "cpu_adjustment": cpu_threshold - config["expected_cpu_threshold"],
-                },
-            }
+    def test_baseline_sets_a_per_task_budget(self, skill_text: str) -> None:
+        """Scenario: baseline sets a per task budget."""
+        step = _section(skill_text, "## Step 1")
+        assert "Set a per-task CPU minute / GPU minute budget" in step
 
-            adapted_configurations.append(adapted_config)
-
-        # Assert
-        assert len(adapted_configurations) == THREE
-
-        # Check low-end system has stricter thresholds
-        low_end = next(
-            c for c in adapted_configurations if c["system"] == "low_end_system"
-        )
-        assert low_end["cpu_warning_threshold"] < SEVENTY
-        assert low_end["memory_warning_threshold"] < EIGHTY
-
-        # Check high-end system has more lenient thresholds
-        high_end = next(
-            c for c in adapted_configurations if c["system"] == "high_end_system"
-        )
-        assert high_end["cpu_warning_threshold"] >= EIGHTY_FIVE
-        assert high_end["memory_warning_threshold"] >= NINETY
-
-    @pytest.mark.unit
-    def test_performance_monitoring_generates_comprehensive_reports(
-        self,
-        mock_performance_monitor,
+    def test_scope_prefers_selective_testing_over_whole_world_jobs(
+        self, skill_text: str
     ) -> None:
-        """Scenario: Performance monitoring generates detailed reports.
+        """Scenario: scope prefers selective testing over whole world jobs."""
+        step = _section(skill_text, "## Step 2")
+        assert 'Avoid running "whole world" jobs' in step
+        assert "`pytest -k`" in step
+        assert "`cargo test <module>`" in step
 
-        Given collected performance data and analysis
-        When generating reports
-        Then it should include metrics, trends, alerts, and recommendations
-        And provide actionable insights for optimization.
-        """
-        # Arrange - populate mock with data
-        for i in range(10):
-            mock_performance_monitor.metrics_history.append(
-                {
-                    "cpu_usage": 50 + (i * 2),
-                    "memory_usage": 4096 + (i * 256),
-                    "token_usage": 5000 + (i * 100),
-                    "context_efficiency": 0.85 - (i * 0.01),
-                },
-            )
 
-        # Act - generate detailed report
-        report = mock_performance_monitor.generate_report()
+@pytest.mark.unit
+class TestInstrumentAndThrottle:
+    """Document contract: instrument and throttle."""
 
-        # Assert: mock returns static values
-        assert report == {
-            "average_cpu": 25.3,
-            "peak_memory": 2048,
-            "total_tokens": 50000,
-            "efficiency_score": 0.88,
-        }
+    def test_instrumentation_precedes_optimization_with_cpu_and_gpu_profilers(
+        self, skill_text: str
+    ) -> None:
+        """Scenario: instrumentation precedes optimization with cpu and gpu profilers."""
+        step = _section(skill_text, "## Step 3")
+        assert "`perf`" in step
+        assert "`nsys`" in step
 
-        # Verify report field types
-        assert isinstance(report["average_cpu"], float)
-        assert isinstance(report["peak_memory"], int)
-        assert isinstance(report["total_tokens"], int)
-        assert isinstance(report["efficiency_score"], float)
+    def test_throttling_uses_nice_and_escalates_from_the_failed_module(
+        self, skill_text: str
+    ) -> None:
+        """Scenario: throttling uses nice and escalates from the failed module."""
+        step = _section(skill_text, "## Step 4")
+        assert "`nice`, `ionice`" in step
+        assert "Rerun only the failed test/module" in step
+        assert "Reserve the full suite for the final gate" in step
+
+
+@pytest.mark.unit
+class TestExitCriteria:
+    """Document contract: exit criteria."""
+
+    def test_exit_criteria_are_four_unchecked_boxes(self, skill_text: str) -> None:
+        """Scenario: exit criteria are four unchecked boxes."""
+        criteria = _section(skill_text, "## Exit Criteria")
+        assert len(re.findall(r"^- \[ \] ", criteria, re.M)) == 4
+
+    def test_baseline_must_precede_any_build_or_test_run(self, skill_text: str) -> None:
+        """Scenario: baseline must precede any build or test run."""
+        criteria = " ".join(_section(skill_text, "## Exit Criteria").split())
+        assert (
+            "baseline captured and recorded before any build, training run" in criteria
+        )
+
+    def test_summary_reports_duration_and_resource_percentage(
+        self, skill_text: str
+    ) -> None:
+        """Scenario: summary reports duration and resource percentage."""
+        criteria = " ".join(_section(skill_text, "## Exit Criteria").split())
+        assert "duration, CPU% or GPU% consumed" in criteria

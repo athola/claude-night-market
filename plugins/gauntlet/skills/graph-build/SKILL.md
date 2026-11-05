@@ -1,7 +1,6 @@
 ---
 name: graph-build
 description: Builds or updates the code knowledge graph via tree-sitter AST and SQLite. Use when setting up the graph before search or blast-radius analysis.
-model_hint: standard
 ---
 
 # Build Code Knowledge Graph

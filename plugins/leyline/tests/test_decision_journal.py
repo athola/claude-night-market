@@ -17,7 +17,6 @@ from pathlib import Path
 import pytest
 
 from leyline.decision_journal import (
-    _atomic_write,
     append_entry,
     apply_append,
     new_file_content,
@@ -537,7 +536,7 @@ def test_journal_write_flushes_to_disk_before_the_rename(
     monkeypatch.setattr(os, "replace", _replace)
     target = tmp_path / "journal.md"
 
-    _atomic_write(target, "entry\n")
+    apply_append(target, "tradeoffs", {"title": "A", "context": "x"})
 
     assert events == ["fsync", "replace", "fsync"]
 
@@ -562,7 +561,7 @@ def test_directory_sync_is_skipped_on_windows(
     monkeypatch.setattr(sys, "platform", "win32")
     target = tmp_path / "journal.md"
 
-    _atomic_write(target, "entry\n")
+    apply_append(target, "tradeoffs", {"title": "A", "context": "x"})
 
     assert events == ["fsync"]
     assert target.exists()

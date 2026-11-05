@@ -120,7 +120,7 @@ class TestScopeEnforcement:
     def test_out_of_scope_file_is_reverted_before_judging(self, tmp_path: Path) -> None:
         runner = FakeRunner(
             {
-                "diff --name-only": (0, "a/b.py\nsecrets/keys.txt\n"),
+                "diff HEAD --name-only": (0, "a/b.py\nsecrets/keys.txt\n"),
                 "pytest -q": (0, "1 passed"),
             }
         )
@@ -134,7 +134,11 @@ class TestScopeEnforcement:
             task(), HANDOFF, tmp_path, runner, babysitter=babysitter
         )
         assert result.verdict in {"FAIL", "BLOCKED"}
-        assert any("checkout --" in c and "secrets/keys.txt" in c for c in runner.calls)
+        assert any(
+            "restore --source=HEAD --staged --worktree --" in c
+            and "secrets/keys.txt" in c
+            for c in runner.calls
+        )
         assert judged == [], "the babysitter must not see out-of-scope work"
 
 

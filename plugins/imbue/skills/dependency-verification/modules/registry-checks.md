@@ -44,8 +44,10 @@ air-gapped environments where the registry is unreachable.
 
 ## Typosquat Distance
 
-A name not in the known-popular set but within Levenshtein distance
-1 or 2 of a popular package is flagged as a typosquat suspect. The
+A name not in the known-popular set but within edit distance 1 or 2
+of a popular package is flagged as a typosquat suspect. The distance
+is Levenshtein with an adjacent swap counted as one edit
+(`typo_distance` in `hooks/shared/package_guard.py`). The
 distance threshold balances catching real typos (`reqeusts`,
 `numpi`) against false positives on legitimately short names. The
 known-popular set is the most-impersonated packages per ecosystem

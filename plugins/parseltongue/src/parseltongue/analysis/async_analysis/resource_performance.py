@@ -133,10 +133,8 @@ async def analyze_performance(
 
     issues: dict[str, Any] = {}
     concurrent_alternative: dict[str, Any] = {}
-    improvement_potential: dict[str, Any] = {}
 
     async_func_names: list[str] = []
-    sequential_funcs: list[str] = []
 
     for node in ast.walk(tree):
         if isinstance(node, ast.AsyncFunctionDef):
@@ -144,13 +142,12 @@ async def analyze_performance(
             async_func_names.append(function_name)
 
             for child in ast.walk(node):
-                if isinstance(child, ast.For):
+                if isinstance(child, (ast.For, ast.AsyncFor)):
                     has_await = any(
                         isinstance(item, ast.Await) for item in ast.walk(child)
                     )
 
                     if has_await:
-                        sequential_funcs.append(function_name)
                         if "sequential_processing" not in issues:
                             issues["sequential_processing"] = {}
                         issues["sequential_processing"][function_name] = {
@@ -167,15 +164,9 @@ async def analyze_performance(
                         "pattern": "asyncio.gather",
                     }
 
-    if sequential_funcs:
-        improvement_potential = {
-            "speedup": float(max(2.0, len(sequential_funcs) * 2.0)),
-        }
-
     return {
         "performance_analysis": {
             "issues": issues,
             "concurrent_alternative": concurrent_alternative,
-            "improvement_potential": improvement_potential,
         }
     }

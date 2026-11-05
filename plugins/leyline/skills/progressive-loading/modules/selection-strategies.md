@@ -318,7 +318,8 @@ if total_cost > safe_budget:
 
 ### With Module Loader
 ```python
-from leyline import progressive_load
+# Sketch: progressive_load is yours to write. leyline ships
+# MECWMonitor and estimate_tokens, not a module loader.
 
 modules = progressive_load(
     skill="my-skill",

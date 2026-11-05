@@ -209,16 +209,18 @@ gh pr view --json number -q .number
 **Fetch Review Threads (GraphQL):**
 ```bash
 # Replace OWNER, REPO, PR_NUMBER with actual values from steps above
-gh api graphql -f query='
-query {
+gh api graphql --paginate --slurp -f query='
+query($endCursor: String) {
   repository(owner: "OWNER", name: "REPO") {
     pullRequest(number: PR_NUMBER) {
-      reviewThreads(first: 100) {
+      reviewThreads(first: 100, after: $endCursor) {
+        pageInfo { hasNextPage endCursor }
         nodes {
           id
           isResolved
           path
           line
+          subjectType
           comments(first: 1) {
             nodes {
               body
@@ -231,6 +233,17 @@ query {
   }
 }'
 ```
+
+A formal review from `/pr-review`
+(`plugins/sanctum/scripts/post_formal_review.py`) puts each finding in a thread.
+A thread with `subjectType: FILE` is about the whole file and has `line: null`.
+The cited line, when there is one, is in the comment body as `(line N, outside
+the diff)`.
+
+Findings in files the PR does not touch have no thread. They sit in the
+review body under `### Findings outside the changed files`. Triage each one
+like a thread, and record its disposition in the Step 6 summary comment,
+since there is no thread to resolve.
 
 **Also check for general reviews (may contain actionable feedback without threads):**
 ```bash

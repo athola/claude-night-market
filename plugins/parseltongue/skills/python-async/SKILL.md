@@ -18,7 +18,6 @@ usage_patterns:
 - websocket-servers
 - background-tasks
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 400
 progressive_loading: true
 modules:

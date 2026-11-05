@@ -16,7 +16,6 @@ usage_patterns:
 - workflow-scaffolding
 - evidence-capture
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 1500
 ---
 # Core Review Workflow

@@ -152,15 +152,17 @@ class TestYamlScorer:
         assert scorer.blend_weights == (0.4, 0.6)
 
     @pytest.mark.unit
-    def test_score_returns_zero_when_unavailable(self):
+    def test_score_returns_none_when_unavailable(self):
         """
-        Scenario: Unavailable scorer returns 0.0
+        Scenario: Unavailable scorer has no score to give
         Given a scorer that failed to load
         When score is called
-        Then it returns 0.0
+        Then it returns None, as the Scorer protocol requires
+
+        0.0 is a real score and would be blended into the result.
         """
         scorer = YamlScorer("/nonexistent/model.yaml")
-        assert scorer.score({"feat_a": 1.0}) == 0.0
+        assert scorer.score({"feat_a": 1.0}) is None
 
     @pytest.mark.unit
     def test_not_available_when_yaml_is_not_a_dict(self, tmp_path: Path):
@@ -249,7 +251,7 @@ class TestYamlUnavailable:
                 # Reaching this line proves the import didn't raise.
                 scorer = scorer_mod.YamlScorer(str(tmp_path / "irrelevant.yaml"))
                 assert scorer.available() is False
-                assert scorer.score({"feat_a": 1.0}) == 0.0
+                assert scorer.score({"feat_a": 1.0}) is None
         finally:
             # yaml is importable again here (context exited); reload once
             # more so the module is left in its normal, working state.

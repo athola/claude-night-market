@@ -134,18 +134,24 @@ def _pick_call_target(
     """Choose the definition a call reaches, or None when it is ambiguous.
 
     A bare call prefers a unique definition in the calling file, then a
-    unique one anywhere. ``self.x`` and ``cls.x`` stay in the calling file.
+    unique one anywhere, and never reaches a class method: a method needs
+    a receiver. ``self.x`` and ``cls.x`` reach a class method in the
+    calling file, never a module-level function.
     ``mod.x`` reaches a module-level ``x`` in the file imported as ``mod``,
     so ``os.walk`` never matches a ``walk`` defined in the repository. Any
     other receiver is an object whose type is unknown: it can reach a class
     method with a unique name, never a module-level or nested function.
     """
-    local = [qn for qn, fp in candidates if fp == edge_file]
     if not receiver:
+        free = [(qn, fp) for qn, fp in candidates if _parent(qn) not in classes]
+        local = [qn for qn, fp in free if fp == edge_file]
         if len(local) == 1:
             return local[0]
-        return candidates[0][0] if len(candidates) == 1 else None
+        return free[0][0] if len(free) == 1 else None
     if receiver in ("self", "cls"):
+        local = [
+            qn for qn, fp in candidates if fp == edge_file and _parent(qn) in classes
+        ]
         return local[0] if len(local) == 1 else None
     stem = receiver.rsplit(".", 1)[-1]
     module_level = [

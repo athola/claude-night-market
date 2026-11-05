@@ -341,3 +341,40 @@ def test_phase_delegations(tmp_path, monkeypatch):
         "path": "/tmp"
     }
     assert auditor.check_knowledge_queue() == ["item"]
+
+
+def _quiet_auditor(upr, tmp_path, monkeypatch, queue_dir: Path):
+    plugins_root = tmp_path / "plugins"
+    plugins_root.mkdir()
+    _make_plugin(plugins_root, "demo")
+    auditor = upr.PluginAuditor(plugins_root, dry_run=True)
+    monkeypatch.setattr(auditor, "audit_plugin", lambda _name: False)
+    monkeypatch.setattr(auditor, "analyze_skill_performance", lambda _n: {})
+    monkeypatch.setattr(auditor, "check_meta_evaluation", lambda _p: {})
+    auditor.queue_checker.queue_dir = queue_dir
+    return auditor
+
+
+def test_audit_all_says_when_no_palace_staging_dir_exists(
+    tmp_path, capsys, monkeypatch
+):
+    upr = _load_script()
+    missing = tmp_path / "no-palace" / "data" / "staging"
+    auditor = _quiet_auditor(upr, tmp_path, monkeypatch, missing)
+
+    auditor.audit_all()
+
+    out = capsys.readouterr().out
+    assert "Knowledge queue not checked" in out
+    assert str(missing) in out
+
+
+def test_audit_all_is_silent_about_an_empty_staging_dir(tmp_path, capsys, monkeypatch):
+    upr = _load_script()
+    staging = tmp_path / "palace" / "data" / "staging"
+    staging.mkdir(parents=True)
+    auditor = _quiet_auditor(upr, tmp_path, monkeypatch, staging)
+
+    auditor.audit_all()
+
+    assert "Knowledge queue not checked" not in capsys.readouterr().out

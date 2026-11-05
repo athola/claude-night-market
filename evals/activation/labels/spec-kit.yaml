@@ -1,0 +1,772 @@
+schema_version: 1
+cases:
+- id: spec-kit.spec-review.p1
+  type: positive
+  prompt: Review specs/checkout/spec.md before we go to planning. I want to know what's
+    untestable, what contradicts itself, which edge cases are missing, and whether
+    it conflicts with our constitution.
+  target: spec-kit:spec-review
+  competitor: null
+  cluster: spec-kit:spec-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:spec-review
+    judge: spec-kit:spec-review
+- id: spec-kit.spec-review.p2
+  type: positive
+  prompt: Can you run a multi-angle audit of my feature spec and give me a list of
+    the open issues that need to be settled before we start the technical plan?
+  target: spec-kit:spec-review
+  competitor: null
+  cluster: spec-kit:spec-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:spec-review
+    judge: spec-kit:spec-review
+- id: spec-kit.spec-review.p3
+  type: near_miss
+  prompt: I've got a feature spec at specs/billing-retries/spec.md and I want it stress-tested
+    before we plan anything. Check whether each requirement is actually testable,
+    whether I've missed failure cases, and whether anything clashes with our constitution
+    rules. Give me a list of what has to be settled first.
+  target: spec-kit:spec-review
+  competitor: spec-kit:speckit-analyze
+  cluster: spec-kit:spec-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at egregore:gate-audit; router: spec-kit:spec-review; judge: spec-kit:spec-review/spec-kit:speckit-analyze'
+  proposals:
+    aimed_at: egregore:gate-audit
+    router: spec-kit:spec-review
+    judge: spec-kit:spec-review
+    judge_runner_up: spec-kit:speckit-analyze
+- id: spec-kit.spec-writing.p1
+  type: positive
+  prompt: 'Turn this feature idea into a proper spec: users can export their dashboard
+    as PDF. Include user scenarios, functional requirements, and measurable success
+    criteria without naming any tech.'
+  target: spec-kit:spec-writing
+  competitor: null
+  cluster: spec-kit:spec-writing
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:spec-writing
+    judge: spec-kit:spec-writing
+- id: spec-kit.spec-writing.p2
+  type: positive
+  prompt: My spec says 'Redis cache hit rate above 80%' and 'API latency under 200ms'.
+    Rewrite those as user-focused measurable criteria.
+  target: spec-kit:spec-writing
+  competitor: null
+  cluster: spec-kit:spec-writing
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:project-specification; judge: spec-kit:spec-writing'
+  proposals:
+    router: attune:project-specification
+    judge: spec-kit:spec-writing
+- id: spec-kit.spec-writing.p3
+  type: near_miss
+  prompt: Here's a rough description of a bulk CSV export feature for our admin users.
+    Turn it into a proper spec with user scenarios, functional requirements, and measurable
+    success criteria, and keep tech choices out of it.
+  target: spec-kit:spec-writing
+  competitor: spec-kit:speckit-specify
+  cluster: spec-kit:spec-writing
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:project-specification; router: spec-kit:spec-writing; judge:
+    spec-kit:spec-writing/spec-kit:speckit-specify'
+  proposals:
+    aimed_at: attune:project-specification
+    router: spec-kit:spec-writing
+    judge: spec-kit:spec-writing
+    judge_runner_up: spec-kit:speckit-specify
+- id: spec-kit.speckit-analyze.p1
+  type: positive
+  prompt: Tasks are generated. Before I start implementing, check spec.md, plan.md
+    and tasks.md for inconsistencies, duplicates, and requirements with no covering
+    task. Don't change any files.
+  target: spec-kit:speckit-analyze
+  competitor: null
+  cluster: spec-kit:speckit-analyze
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-analyze
+    judge: spec-kit:speckit-analyze
+- id: spec-kit.speckit-analyze.p2
+  type: positive
+  prompt: Do a read-only cross-artifact consistency check on my feature folder and
+    flag anything that violates the constitution.
+  target: spec-kit:speckit-analyze
+  competitor: null
+  cluster: spec-kit:speckit-analyze
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-analyze
+    judge: spec-kit:speckit-analyze
+- id: spec-kit.speckit-analyze.p3
+  type: near_miss
+  prompt: We've finished generating tasks.md for the notifications feature. Before
+    anyone starts coding, go through spec.md, plan.md and tasks.md and flag contradictions,
+    duplicate tasks, and anything that violates the constitution. Don't change any
+    files, just report.
+  target: spec-kit:speckit-analyze
+  competitor: spec-kit:spec-review
+  cluster: spec-kit:speckit-analyze
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at spec-kit:speckit-implement; router: spec-kit:speckit-analyze; judge:
+    spec-kit:speckit-analyze/spec-kit:spec-review'
+  proposals:
+    aimed_at: spec-kit:speckit-implement
+    router: spec-kit:speckit-analyze
+    judge: spec-kit:speckit-analyze
+    judge_runner_up: spec-kit:spec-review
+- id: spec-kit.speckit-checklist.p1
+  type: positive
+  prompt: Generate a requirements-quality checklist for the payment feature spec so
+    reviewers can check if the requirements are complete and clear.
+  target: spec-kit:speckit-checklist
+  competitor: null
+  cluster: spec-kit:speckit-checklist
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: spec-kit:speckit-checklist
+    judge: spec-kit:speckit-checklist
+- id: spec-kit.speckit-checklist.p2
+  type: positive
+  prompt: Make me a security-focused checklist for the auth feature that validates
+    the written requirements are measurable and unambiguous, not whether the code
+    works.
+  target: spec-kit:speckit-checklist
+  competitor: null
+  cluster: spec-kit:speckit-checklist
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-checklist
+    judge: spec-kit:speckit-checklist
+- id: spec-kit.speckit-checklist.p3
+  type: near_miss
+  prompt: Generate a requirements-quality checklist for the SSO login spec focusing
+    on security. I want items that check whether the requirements are complete, unambiguous
+    and measurable, not items that test whether the code works.
+  target: spec-kit:speckit-checklist
+  competitor: egregore:quality-gate
+  cluster: spec-kit:speckit-checklist
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at imbue:scope-guard; router: spec-kit:speckit-checklist; judge: spec-kit:speckit-checklist/None'
+  proposals:
+    aimed_at: imbue:scope-guard
+    router: spec-kit:speckit-checklist
+    judge: spec-kit:speckit-checklist
+    judge_runner_up: null
+- id: spec-kit.speckit-clarify.p1
+  type: positive
+  prompt: The spec for the notifications feature feels vague in places. Ask me targeted
+    questions to fill in the gaps and record my answers in the spec before I plan.
+  target: spec-kit:speckit-clarify
+  competitor: null
+  cluster: spec-kit:speckit-clarify
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-clarify
+    judge: spec-kit:speckit-clarify
+- id: spec-kit.speckit-clarify.p2
+  type: positive
+  prompt: Scan my feature spec for missing decisions around edge cases, data model,
+    and failure handling, and walk me through resolving them one at a time.
+  target: spec-kit:speckit-clarify
+  competitor: null
+  cluster: spec-kit:speckit-clarify
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: spec-kit:spec-review; judge: spec-kit:speckit-clarify/spec-kit:spec-review;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: spec-kit:spec-review
+    judge: spec-kit:speckit-clarify
+    judge_runner_up: spec-kit:spec-review
+- id: spec-kit.speckit-clarify.p3
+  type: near_miss
+  prompt: The spec for the report scheduling feature has a lot of vague spots, like
+    what happens on timezone changes and who can edit a schedule. Ask me targeted
+    questions and write my answers back into the spec before we move to planning.
+  target: spec-kit:speckit-clarify
+  competitor: spec-kit:spec-writing
+  cluster: spec-kit:speckit-clarify
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: spec-kit:speckit-clarify; judge:
+    spec-kit:speckit-clarify/spec-kit:spec-writing'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: spec-kit:speckit-clarify
+    judge: spec-kit:speckit-clarify
+    judge_runner_up: spec-kit:spec-writing
+- id: spec-kit.speckit-constitution.p1
+  type: positive
+  prompt: 'Fill in our project constitution template. We want five principles: test-first,
+    library-first, simple CLI interfaces, observability, and versioning. Bump the
+    version and update dependent templates.'
+  target: spec-kit:speckit-constitution
+  competitor: null
+  cluster: spec-kit:speckit-constitution
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-constitution
+    judge: spec-kit:speckit-constitution
+- id: spec-kit.speckit-constitution.p2
+  type: positive
+  prompt: We're adding a new non-negotiable rule about accessibility to .specify/memory/constitution.md.
+    Amend it and make sure the plan and tasks templates stay consistent.
+  target: spec-kit:speckit-constitution
+  competitor: null
+  cluster: spec-kit:speckit-constitution
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-implement; judge: spec-kit:speckit-constitution'
+  proposals:
+    router: spec-kit:speckit-implement
+    judge: spec-kit:speckit-constitution
+- id: spec-kit.speckit-constitution.p3
+  type: near_miss
+  prompt: Update our project constitution to add a principle requiring all public
+    APIs to be versioned, bump the version appropriately, and check that the plan
+    and tasks templates still line up with it.
+  target: spec-kit:speckit-constitution
+  competitor: sanctum:update-version
+  cluster: spec-kit:speckit-constitution
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at spec-kit:speckit-analyze; router: spec-kit:speckit-constitution;
+    judge: spec-kit:speckit-constitution/sanctum:update-version'
+  proposals:
+    aimed_at: spec-kit:speckit-analyze
+    router: spec-kit:speckit-constitution
+    judge: spec-kit:speckit-constitution
+    judge_runner_up: sanctum:update-version
+- id: spec-kit.speckit-converge.p1
+  type: positive
+  prompt: Implementation finished. Compare what the code does now against spec, plan
+    and tasks, and append tasks for anything still unmet or partially done.
+  target: spec-kit:speckit-converge
+  competitor: null
+  cluster: spec-kit:speckit-converge
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-converge
+    judge: spec-kit:speckit-converge
+- id: spec-kit.speckit-converge.p2
+  type: positive
+  prompt: Check whether the codebase fully satisfies the feature's acceptance criteria
+    and add follow-up tasks to tasks.md for the gaps, without touching the spec or
+    existing tasks.
+  target: spec-kit:speckit-converge
+  competitor: null
+  cluster: spec-kit:speckit-converge
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: spec-kit:speckit-converge
+    judge: spec-kit:speckit-converge
+- id: spec-kit.speckit-converge.p3
+  type: near_miss
+  prompt: We already ran implement on the inventory sync feature. Compare what the
+    code actually does against spec.md, plan.md and tasks.md and append new tasks
+    to tasks.md for whatever requirements are still unmet or only partly done.
+  target: spec-kit:speckit-converge
+  competitor: spec-kit:speckit-analyze
+  cluster: spec-kit:speckit-converge
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at spec-kit:speckit-implement; router: spec-kit:speckit-analyze; judge:
+    spec-kit:speckit-converge/spec-kit:speckit-analyze'
+  proposals:
+    aimed_at: spec-kit:speckit-implement
+    router: spec-kit:speckit-analyze
+    judge: spec-kit:speckit-converge
+    judge_runner_up: spec-kit:speckit-analyze
+- id: spec-kit.speckit-implement.p1
+  type: positive
+  prompt: tasks.md is all generated and plan.md is approved. Start working through
+    the task list and build the feature, but check first that my review checklists
+    are all ticked off before writing any code.
+  target: spec-kit:speckit-implement
+  competitor: null
+  cluster: spec-kit:speckit-implement
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-implement
+    judge: spec-kit:speckit-implement
+- id: spec-kit.speckit-implement.p1x
+  type: positive
+  prompt: tasks.md is done and the plan is approved. Start implementing the feature
+    from the task list, but check whether the checklists are all complete before you
+    begin.
+  target: spec-kit:speckit-implement
+  competitor: null
+  cluster: spec-kit:speckit-implement
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-implement; judge: spec-kit:speckit-implement/attune:project-execution'
+  proposals:
+    router: spec-kit:speckit-implement
+    judge: spec-kit:speckit-implement
+    judge_runner_up: attune:project-execution
+- id: spec-kit.speckit-implement.p2
+  type: positive
+  prompt: Execute the implementation tasks for the current feature branch. Make sure
+    .gitignore and .dockerignore are set up properly for the stack in the plan before
+    you begin coding.
+  target: spec-kit:speckit-implement
+  competitor: null
+  cluster: spec-kit:speckit-implement
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-implement
+    judge: spec-kit:speckit-implement
+- id: spec-kit.speckit-implement.p2x
+  type: positive
+  prompt: Run the implementation phase for the current spec. Load tasks.md and plan.md,
+    make sure the ignore files like .gitignore and .dockerignore are set up for this
+    project, then work through the tasks in order.
+  target: spec-kit:speckit-implement
+  competitor: null
+  cluster: spec-kit:speckit-implement
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-implement; judge: spec-kit:speckit-implement/spec-kit:speckit-orchestrator'
+  proposals:
+    router: spec-kit:speckit-implement
+    judge: spec-kit:speckit-implement
+    judge_runner_up: spec-kit:speckit-orchestrator
+- id: spec-kit.speckit-implement.p3
+  type: near_miss
+  prompt: 'Spec, plan and tasks are all written for the notifications feature. Start
+    building it now: work through tasks.md in order, tick each task off as it''s done,
+    and stop if any of the checklists still have open items.'
+  target: spec-kit:speckit-implement
+  competitor: spec-kit:speckit-orchestrator
+  cluster: spec-kit:speckit-implement
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at spec-kit:speckit-analyze; router: spec-kit:speckit-converge; judge:
+    spec-kit:speckit-implement/spec-kit:speckit-orchestrator'
+  proposals:
+    aimed_at: spec-kit:speckit-analyze
+    router: spec-kit:speckit-converge
+    judge: spec-kit:speckit-implement
+    judge_runner_up: spec-kit:speckit-orchestrator
+- id: spec-kit.speckit-orchestrator.p1
+  type: positive
+  prompt: I'm about to run through a full spec-driven cycle on this repo. How do I
+    get the right supporting skills loaded for each stage and keep track of progress
+    across the whole workflow, honoring the constitution?
+  target: spec-kit:speckit-orchestrator
+  competitor: null
+  cluster: spec-kit:speckit-orchestrator
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-orchestrator
+    judge: spec-kit:speckit-orchestrator
+- id: spec-kit.speckit-orchestrator.p2
+  type: positive
+  prompt: Which complementary skills should be paired with each speckit command, like
+    implement or analyze? I want a quick mapping and a way to track what's been verified
+    in this session.
+  target: spec-kit:speckit-orchestrator
+  competitor: null
+  cluster: spec-kit:speckit-orchestrator
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: oracle:quality-bench; judge: spec-kit:speckit-orchestrator/None'
+  proposals:
+    router: oracle:quality-bench
+    judge: spec-kit:speckit-orchestrator
+    judge_runner_up: null
+- id: spec-kit.speckit-orchestrator.p3
+  type: near_miss
+  prompt: I'm about to push this repo through the whole spec-driven flow, from specify
+    to implement. Before I start, make sure the constitution and whichever helper
+    skills each phase needs are loaded, and keep a running checklist of which phases
+    are done as we go.
+  target: spec-kit:speckit-orchestrator
+  competitor: spec-kit:speckit-startup
+  cluster: spec-kit:speckit-orchestrator
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'aimed at abstract:create-command; router: spec-kit:speckit-orchestrator;
+    judge: spec-kit:speckit-startup/spec-kit:speckit-orchestrator; accepted by maintainer
+    2026-11-03'
+  proposals:
+    aimed_at: abstract:create-command
+    router: spec-kit:speckit-orchestrator
+    judge: spec-kit:speckit-startup
+    judge_runner_up: spec-kit:speckit-orchestrator
+- id: spec-kit.speckit-plan.p1
+  type: positive
+  prompt: 'The feature spec is done. Generate the technical implementation plan: fill
+    in the tech context, check it against our constitution, and produce research notes,
+    a data model, API contracts and a quickstart.'
+  target: spec-kit:speckit-plan
+  competitor: null
+  cluster: spec-kit:speckit-plan
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:spec-review; judge: spec-kit:speckit-plan'
+  proposals:
+    router: spec-kit:spec-review
+    judge: spec-kit:speckit-plan
+- id: spec-kit.speckit-plan.p2
+  type: positive
+  prompt: Take the spec for this feature and turn it into a design plan. Resolve any
+    unknowns by researching them, then output the data-model and OpenAPI contracts
+    and update the agent context file.
+  target: spec-kit:speckit-plan
+  competitor: null
+  cluster: spec-kit:speckit-plan
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-converge; judge: spec-kit:speckit-plan/spec-kit:speckit-orchestrator'
+  proposals:
+    router: spec-kit:speckit-converge
+    judge: spec-kit:speckit-plan
+    judge_runner_up: spec-kit:speckit-orchestrator
+- id: spec-kit.speckit-plan.p3
+  type: near_miss
+  prompt: The spec for the notifications feature is signed off. Generate the implementation
+    plan from it. I want the research doc, data model, and contracts, with the plan
+    checked against our constitution before and after the design.
+  target: spec-kit:speckit-plan
+  competitor: spec-kit:speckit-orchestrator
+  cluster: spec-kit:speckit-plan
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at leyline:plugin-health; router: spec-kit:spec-review; judge: spec-kit:speckit-plan/spec-kit:speckit-orchestrator'
+  proposals:
+    aimed_at: leyline:plugin-health
+    router: spec-kit:spec-review
+    judge: spec-kit:speckit-plan
+    judge_runner_up: spec-kit:speckit-orchestrator
+- id: spec-kit.speckit-specify.p1
+  type: positive
+  prompt: /speckit-specify Add a team invitation flow where admins can invite users
+    by email and invitees accept via a link. Create the new feature branch and spec
+    file for it.
+  target: spec-kit:speckit-specify
+  competitor: null
+  cluster: spec-kit:speckit-specify
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-specify
+    judge: spec-kit:speckit-specify
+- id: spec-kit.speckit-specify.p2
+  type: positive
+  prompt: 'I want to start a new feature: a reporting dashboard for monthly usage.
+    Pick a short branch name, work out the next feature number across remote and local
+    branches, and write the initial spec.'
+  target: spec-kit:speckit-specify
+  competitor: null
+  cluster: spec-kit:speckit-specify
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:spec-writing; judge: spec-kit:speckit-specify'
+  proposals:
+    router: spec-kit:spec-writing
+    judge: spec-kit:speckit-specify
+- id: spec-kit.speckit-specify.p3
+  type: near_miss
+  prompt: 'New feature: let users export their reports as CSV. Create the feature
+    branch and write the spec for it. Keep it to what we actually need, no extras.'
+  target: spec-kit:speckit-specify
+  competitor: spec-kit:spec-writing
+  cluster: spec-kit:speckit-specify
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at imbue:scope-guard; router: spec-kit:speckit-specify; judge: spec-kit:speckit-specify/spec-kit:spec-writing'
+  proposals:
+    aimed_at: imbue:scope-guard
+    router: spec-kit:speckit-specify
+    judge: spec-kit:speckit-specify
+    judge_runner_up: spec-kit:spec-writing
+- id: spec-kit.speckit-startup.p1
+  type: positive
+  prompt: 'Starting a fresh session on this spec-driven project. Get me set up: check
+    the .specify directory and scripts, read the constitution, and see where the latest
+    spec, plan and tasks stand.'
+  target: spec-kit:speckit-startup
+  competitor: null
+  cluster: spec-kit:speckit-startup
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:spec-review; judge: spec-kit:speckit-startup'
+  proposals:
+    router: spec-kit:spec-review
+    judge: spec-kit:speckit-startup
+- id: spec-kit.speckit-startup.p2
+  type: positive
+  prompt: New Claude session, picking up our speckit work from yesterday. Re-initialize
+    the workflow context and set up progress todos before I run my next command.
+  target: spec-kit:speckit-startup
+  competitor: null
+  cluster: spec-kit:speckit-startup
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-startup
+    judge: spec-kit:speckit-startup
+- id: spec-kit.speckit-startup.p3
+  type: near_miss
+  prompt: Fresh session on this speckit project. Before I run anything, confirm the
+    .specify folder and scripts are intact, read the constitution, and tell me where
+    the latest spec, plan, and tasks stand.
+  target: spec-kit:speckit-startup
+  competitor: spec-kit:speckit-orchestrator
+  cluster: spec-kit:speckit-startup
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at spec-kit:spec-review; router: spec-kit:spec-review; judge: spec-kit:speckit-startup/spec-kit:speckit-orchestrator'
+  proposals:
+    aimed_at: spec-kit:spec-review
+    router: spec-kit:spec-review
+    judge: spec-kit:speckit-startup
+    judge_runner_up: spec-kit:speckit-orchestrator
+- id: spec-kit.speckit-tasks.p1
+  type: positive
+  prompt: Plan and spec are finished. Break them down into a dependency-ordered tasks.md
+    grouped by user story, with parallelizable tasks marked and test tasks included.
+  target: spec-kit:speckit-tasks
+  competitor: null
+  cluster: spec-kit:speckit-tasks
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: spec-kit:speckit-tasks
+    judge: spec-kit:speckit-tasks
+- id: spec-kit.speckit-tasks.p2
+  type: positive
+  prompt: Generate the actionable task checklist for this feature from plan.md and
+    spec.md, with setup, foundational and per-story phases, exact file paths, and
+    a summary of task counts at the end.
+  target: spec-kit:speckit-tasks
+  competitor: null
+  cluster: spec-kit:speckit-tasks
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-analyze; judge: spec-kit:speckit-tasks'
+  proposals:
+    router: spec-kit:speckit-analyze
+    judge: spec-kit:speckit-tasks
+- id: spec-kit.speckit-tasks.p3
+  type: near_miss
+  prompt: plan.md and spec.md are done for the billing feature. Turn them into a dependency-ordered
+    tasks.md with parallel markers and user story labels, so we can see the roadmap
+    for building it.
+  target: spec-kit:speckit-tasks
+  competitor: spec-kit:speckit-analyze
+  cluster: spec-kit:speckit-tasks
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:blueprint; router: spec-kit:speckit-analyze; judge: spec-kit:speckit-tasks/spec-kit:speckit-analyze'
+  proposals:
+    aimed_at: attune:blueprint
+    router: spec-kit:speckit-analyze
+    judge: spec-kit:speckit-tasks
+    judge_runner_up: spec-kit:speckit-analyze
+- id: spec-kit.speckit-taskstoissues.p1
+  type: positive
+  prompt: Our tasks.md is ready. Turn each task into a GitHub issue with labels for
+    story, phase and risk, and show me a preview table before anything gets created.
+  target: spec-kit:speckit-taskstoissues
+  competitor: null
+  cluster: spec-kit:speckit-taskstoissues
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: minister:create-issue; judge: spec-kit:speckit-taskstoissues'
+  proposals:
+    router: minister:create-issue
+    judge: spec-kit:speckit-taskstoissues
+- id: spec-kit.speckit-taskstoissues.p2
+  type: positive
+  prompt: I want the team to pick up the generated tasks on GitHub. Push them out
+    as issues with a spec-kit label and cross-references between dependent tasks.
+  target: spec-kit:speckit-taskstoissues
+  competitor: null
+  cluster: spec-kit:speckit-taskstoissues
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-converge; judge: spec-kit:speckit-taskstoissues'
+  proposals:
+    router: spec-kit:speckit-converge
+    judge: spec-kit:speckit-taskstoissues
+- id: spec-kit.speckit-taskstoissues.p3
+  type: near_miss
+  prompt: We already have the T001 through T030 entries in tasks.md. Open a GitHub
+    issue for each one on our origin repo, keeping the story labels and parallel markers
+    so the team can pick them up.
+  target: spec-kit:speckit-taskstoissues
+  competitor: minister:create-issue
+  cluster: spec-kit:speckit-taskstoissues
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at minister:create-issue; router: minister:initiative-pulse; judge:
+    spec-kit:speckit-taskstoissues/minister:create-issue'
+  proposals:
+    aimed_at: minister:create-issue
+    router: minister:initiative-pulse
+    judge: spec-kit:speckit-taskstoissues
+    judge_runner_up: minister:create-issue
+- id: spec-kit.task-planning.p1
+  type: positive
+  prompt: I have a finished spec and implementation plan for a notifications service.
+    How should I structure the work into phases from setup to polish, and decide which
+    pieces can safely run in parallel?
+  target: spec-kit:task-planning
+  competitor: null
+  cluster: spec-kit:task-planning
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-orchestrator; judge: spec-kit:task-planning/attune:project-planning'
+  proposals:
+    router: spec-kit:speckit-orchestrator
+    judge: spec-kit:task-planning
+    judge_runner_up: attune:project-planning
+- id: spec-kit.task-planning.p2
+  type: positive
+  prompt: What makes a good task entry when breaking down a feature? I need IDs, dependencies,
+    files affected, completion criteria, and rules for when tasks can be flagged as
+    parallel.
+  target: spec-kit:task-planning
+  competitor: null
+  cluster: spec-kit:task-planning
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: conjure:agent-teams; judge: spec-kit:task-planning/spec-kit:spec-writing;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: conjure:agent-teams
+    judge: spec-kit:task-planning
+    judge_runner_up: spec-kit:spec-writing
+- id: spec-kit.task-planning.p3
+  type: near_miss
+  prompt: I've got a spec and a plan for the import pipeline. How should I order the
+    work? Which pieces are setup, which are models and interfaces, and which can run
+    in parallel versus strictly in sequence?
+  target: spec-kit:task-planning
+  competitor: spec-kit:speckit-converge
+  cluster: spec-kit:task-planning
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:provider-sweep; router: conjure:provider-setup; judge:
+    spec-kit:task-planning/spec-kit:speckit-converge'
+  proposals:
+    aimed_at: conjure:provider-sweep
+    router: conjure:provider-setup
+    judge: spec-kit:task-planning
+    judge_runner_up: spec-kit:speckit-converge

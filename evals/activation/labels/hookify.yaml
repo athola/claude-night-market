@@ -1,0 +1,422 @@
+schema_version: 1
+cases:
+- id: hookify.configure.p1
+  type: positive
+  prompt: I have a rule that nags me every time I edit a file with a TODO in it, and
+    it's getting annoying during this refactor. Turn it off for now but don't throw
+    it away.
+  target: hookify:configure
+  competitor: null
+  cluster: hookify:configure
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: hookify:configure/hookify:rule-sweep'
+  proposals:
+    router: hookify:rule-sweep
+    judge: hookify:configure
+    judge_runner_up: hookify:rule-sweep
+- id: hookify.configure.p2
+  type: positive
+  prompt: One of the rules in my project's .claude folder is dead weight now. Walk
+    me through picking it and deleting it, and let me flip another one back on while
+    we're at it.
+  target: hookify:configure
+  competitor: null
+  cluster: hookify:configure
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: spec-kit:spec-review; judge: hookify:configure/hookify:rule-sweep;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: spec-kit:spec-review
+    judge: hookify:configure
+    judge_runner_up: hookify:rule-sweep
+- id: hookify.configure.p3
+  type: near_miss
+  prompt: I have a few hookify rules in my project and want to turn off the require-tests
+    one without deleting it, can you show me the list and let me pick
+  target: hookify:configure
+  competitor: hookify:list
+  cluster: hookify:configure
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:create-skill; router: hookify:hookify; judge: hookify:configure/hookify:list'
+  proposals:
+    aimed_at: abstract:create-skill
+    router: hookify:hookify
+    judge: hookify:configure
+    judge_runner_up: hookify:list
+- id: hookify.from-hook.p1
+  type: positive
+  prompt: I have an old Python hook that checks context["command"] with re.search
+    and returns a block action. Convert it into a declarative markdown rule.
+  target: hookify:from-hook
+  competitor: null
+  cluster: hookify:from-hook
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: hookify:from-hook; judge: None; accepted by maintainer 2026-11-03'
+  proposals:
+    router: hookify:from-hook
+    judge: null
+- id: hookify.from-hook.p2
+  type: positive
+  prompt: Scan my hooks/ directory full of Python hook files and convert what you
+    can. Tell me which ones couldn't be converted and why.
+  target: hookify:from-hook
+  competitor: null
+  cluster: hookify:from-hook
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: hookify:from-hook; judge: None; accepted by maintainer 2026-11-03'
+  proposals:
+    router: hookify:from-hook
+    judge: null
+- id: hookify.from-hook.p3
+  type: near_miss
+  prompt: I've got a bunch of old Python hook scripts in ./legacy_hooks that block
+    risky bash commands with regex checks. Can you turn them into the markdown rule
+    files so I can stop maintaining the Python?
+  target: hookify:from-hook
+  competitor: hookify:writing-rules
+  cluster: hookify:from-hook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at hookify:rule-sweep; router: parseltongue:python-async; judge: hookify:from-hook/hookify:writing-rules'
+  proposals:
+    aimed_at: hookify:rule-sweep
+    router: parseltongue:python-async
+    judge: hookify:from-hook
+    judge_runner_up: hookify:writing-rules
+- id: hookify.help.p1
+  type: positive
+  prompt: What's the difference between a rule that warns and one that blocks, and
+    what event types can a rule listen for?
+  target: hookify:help
+  competitor: null
+  cluster: hookify:help
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: hookify:help/hookify:rule-catalog; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: hookify:rule-sweep
+    judge: hookify:help
+    judge_runner_up: hookify:rule-catalog
+- id: hookify.help.p2
+  type: positive
+  prompt: Where do these behavioral rule files get saved, how are they named, and
+    what fields go in the frontmatter? Just explaining, I'm not making one yet.
+  target: hookify:help
+  competitor: null
+  cluster: hookify:help
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: cartograph:atlas; judge: hookify:help/hookify:rule-catalog'
+  proposals:
+    router: cartograph:atlas
+    judge: hookify:help
+    judge_runner_up: hookify:rule-catalog
+- id: hookify.help.p3
+  type: near_miss
+  prompt: I just installed hookify and I'm lost. What event types can a rule use,
+    where do the rule files live, and what's the difference between warn and block?
+  target: hookify:help
+  competitor: hookify:rule-catalog
+  cluster: hookify:help
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:create-skill; router: hookify:rule-catalog; judge: hookify:help/hookify:rule-catalog'
+  proposals:
+    aimed_at: abstract:create-skill
+    router: hookify:rule-catalog
+    judge: hookify:help
+    judge_runner_up: hookify:rule-catalog
+- id: hookify.hookify.p1
+  type: positive
+  prompt: Make it so Claude gets stopped whenever it tries to run git push --force
+    against main. Block it outright.
+  target: hookify:hookify
+  competitor: null
+  cluster: hookify:hookify
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: hookify:hookify/hookify:rule-sweep'
+  proposals:
+    router: hookify:rule-sweep
+    judge: hookify:hookify
+    judge_runner_up: hookify:rule-sweep
+- id: hookify.hookify.p2
+  type: positive
+  prompt: Claude kept leaving debugger statements in my code earlier in this session.
+    Look at what went wrong in our conversation and suggest rules so it doesn't happen
+    again.
+  target: hookify:hookify
+  competitor: null
+  cluster: hookify:hookify
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:rules-eval; judge: hookify:hookify/hookify:writing-rules'
+  proposals:
+    router: abstract:rules-eval
+    judge: hookify:hookify
+    judge_runner_up: hookify:writing-rules
+- id: hookify.hookify.p3
+  type: near_miss
+  prompt: Claude keeps adding console.log calls to my TypeScript files after I told
+    it not to. Set up a rule so that stops happening.
+  target: hookify:hookify
+  competitor: hookify:rule-sweep
+  cluster: hookify:hookify
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:create-skill; router: hookify:rule-sweep; judge: hookify:hookify/None'
+  proposals:
+    aimed_at: abstract:create-skill
+    router: hookify:rule-sweep
+    judge: hookify:hookify
+    judge_runner_up: null
+- id: hookify.install.p1
+  type: positive
+  prompt: Install every pre-built git rule into my project in one go using the installer
+    script.
+  target: hookify:install
+  competitor: null
+  cluster: hookify:install
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: hookify:install; judge: None; accepted by maintainer 2026-11-03'
+  proposals:
+    router: hookify:install
+    judge: null
+- id: hookify.install.p2
+  type: positive
+  prompt: I already installed block-force-push but want to overwrite it with the original
+    version, and put it in a different .claude directory at /work/shared/.claude.
+  target: hookify:install
+  competitor: null
+  cluster: hookify:install
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:rules-eval; judge: hookify:install/hookify:rule-sweep'
+  proposals:
+    router: abstract:rules-eval
+    judge: hookify:install
+    judge_runner_up: hookify:rule-sweep
+- id: hookify.install.p3
+  type: near_miss
+  prompt: Install the git:block-force-push rule into this project, and also pull in
+    all the python category rules while you're at it.
+  target: hookify:install
+  competitor: hookify:rule-catalog
+  cluster: hookify:install
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:create-skill; router: hookify:install; judge: hookify:install/hookify:rule-catalog'
+  proposals:
+    aimed_at: abstract:create-skill
+    router: hookify:install
+    judge: hookify:install
+    judge_runner_up: hookify:rule-catalog
+- id: hookify.list.p1
+  type: positive
+  prompt: What guardrail rules do I currently have set up in this project, and what
+    does each one match on?
+  target: hookify:list
+  competitor: null
+  cluster: hookify:list
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:evidence-sweep; judge: hookify:list/None'
+  proposals:
+    router: imbue:evidence-sweep
+    judge: hookify:list
+    judge_runner_up: null
+- id: hookify.list.p2
+  type: positive
+  prompt: Which of my rules are currently switched off? I only want to see the disabled
+    ones.
+  target: hookify:list
+  competitor: null
+  cluster: hookify:list
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-setup; judge: hookify:list/hookify:configure'
+  proposals:
+    router: conjure:provider-setup
+    judge: hookify:list
+    judge_runner_up: hookify:configure
+- id: hookify.list.p3
+  type: near_miss
+  prompt: Which of my project rules are currently turned off? Show only the disabled
+    ones with their file paths.
+  target: hookify:list
+  competitor: hookify:rule-sweep
+  cluster: hookify:list
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:rules-eval; router: conjure:provider-setup; judge: hookify:list/hookify:rule-sweep'
+  proposals:
+    aimed_at: abstract:rules-eval
+    router: conjure:provider-setup
+    judge: hookify:list
+    judge_runner_up: hookify:rule-sweep
+- id: hookify.rule-catalog.p1
+  type: positive
+  prompt: Before I write my own, is there a ready-made rule that stops reset --hard
+    and clean -fd from wiping my working tree?
+  target: hookify:rule-catalog
+  competitor: null
+  cluster: hookify:rule-catalog
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: hookify:rule-catalog/hookify:install'
+  proposals:
+    router: hookify:rule-sweep
+    judge: hookify:rule-catalog
+    judge_runner_up: hookify:install
+- id: hookify.rule-catalog.p2
+  type: positive
+  prompt: Show me what pre-built rules exist for guarding production paths and for
+    security gates so I can pick some to use.
+  target: hookify:rule-catalog
+  competitor: null
+  cluster: hookify:rule-catalog
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: hookify:rule-catalog; judge: None; accepted by maintainer 2026-11-03'
+  proposals:
+    router: hookify:rule-catalog
+    judge: null
+- id: hookify.rule-catalog.p3
+  type: near_miss
+  prompt: Before I write my own, what ready-made safety rules exist for git and security?
+    I'd like to browse them and pick a few to drop into this repo.
+  target: hookify:rule-catalog
+  competitor: hookify:writing-rules
+  cluster: hookify:rule-catalog
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-domain-driven; router: parseltongue:python-async;
+    judge: hookify:rule-catalog/hookify:writing-rules'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-domain-driven
+    router: parseltongue:python-async
+    judge: hookify:rule-catalog
+    judge_runner_up: hookify:writing-rules
+- id: hookify.rule-sweep.p1
+  type: positive
+  prompt: Audit our security and git rules against this repo and tell me which ones
+    are stale, meaning the paths or patterns they reference no longer exist.
+  target: hookify:rule-sweep
+  competitor: null
+  cluster: hookify:rule-sweep
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: None; accepted by maintainer 2026-11-03'
+  proposals:
+    router: hookify:rule-sweep
+    judge: null
+- id: hookify.rule-sweep.p2
+  type: positive
+  prompt: Run a staleness check across all the rule categories in parallel and give
+    me a per-category report, rating how urgent each stale rule is.
+  target: hookify:rule-sweep
+  competitor: null
+  cluster: hookify:rule-sweep
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: None; accepted by maintainer 2026-11-03'
+  proposals:
+    router: hookify:rule-sweep
+    judge: null
+- id: hookify.rule-sweep.p3
+  type: near_miss
+  prompt: Our installed rule set has been around for months. Go through every rule
+    and check, per category in parallel, whether what it says is still true of this
+    codebase, and tell me which security ones went stale.
+  target: hookify:rule-sweep
+  competitor: leyline:plugin-health
+  cluster: hookify:rule-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at leyline:plugin-health; router: hookify:rule-sweep; judge: hookify:rule-sweep/leyline:plugin-health'
+  proposals:
+    aimed_at: leyline:plugin-health
+    router: hookify:rule-sweep
+    judge: hookify:rule-sweep
+    judge_runner_up: leyline:plugin-health
+- id: hookify.writing-rules.p1
+  type: positive
+  prompt: I want a guardrail so Claude gets blocked whenever it tries to run chmod
+    777 or rm -rf in bash. How do I set that up as a persistent rule file in .claude?
+  target: hookify:writing-rules
+  competitor: null
+  cluster: hookify:writing-rules
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:rules-eval; judge: hookify:writing-rules/abstract:rules-eval'
+  proposals:
+    router: abstract:rules-eval
+    judge: hookify:writing-rules
+    judge_runner_up: abstract:rules-eval
+- id: hookify.writing-rules.p2
+  type: positive
+  prompt: Write a rule that warns me when an edit to a .env file adds something containing
+    API_KEY, and also nags if there are leftover console.log calls in files being
+    written.
+  target: hookify:writing-rules
+  competitor: null
+  cluster: hookify:writing-rules
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:filter-log; judge: hookify:writing-rules/hookify:install'
+  proposals:
+    router: conserve:filter-log
+    judge: hookify:writing-rules
+    judge_runner_up: hookify:install
+- id: hookify.writing-rules.p3
+  type: near_miss
+  prompt: I want to stop Claude from running git push --force in my sessions. Write
+    me a markdown rule file under .claude that blocks that bash command and shows
+    a warning message.
+  target: hookify:writing-rules
+  competitor: abstract:rules-eval
+  cluster: hookify:writing-rules
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:hooks-eval; router: hookify:rule-sweep; judge: hookify:writing-rules/abstract:rules-eval'
+  proposals:
+    aimed_at: abstract:hooks-eval
+    router: hookify:rule-sweep
+    judge: hookify:writing-rules
+    judge_runner_up: abstract:rules-eval

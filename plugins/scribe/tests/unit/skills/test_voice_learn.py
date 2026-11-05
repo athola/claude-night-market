@@ -6,6 +6,7 @@ I want the system to learn from my manual edits
 So that the voice profile improves over time
 """
 
+import re
 from pathlib import Path
 
 import pytest
@@ -50,17 +51,6 @@ class TestVoiceLearnSkillStructure:
         ]
         for module_file in required_modules:
             assert (modules_dir / module_file).exists(), f"Module {module_file} missing"
-
-    @pytest.mark.unit
-    def test_skill_uses_opus(self):
-        """
-        Scenario: Learning analysis uses Opus for nuance
-        Given that pattern comparison needs nuanced understanding
-        When I check the model hint
-        Then it specifies opus
-        """
-        content = (SKILL_DIR / "SKILL.md").read_text()
-        assert "model_hint: opus" in content
 
 
 class TestSnapshotManagement:
@@ -186,3 +176,27 @@ class TestLearningRules:
         """
         content = (SKILL_DIR / "SKILL.md").read_text()
         assert "contradiction" in content.lower() or "Contradiction" in content
+
+
+class TestOpusRouting:
+    """
+    Feature: The diff analysis run on Opus when the session is smaller
+
+    As a writer on a Sonnet or Haiku session
+    I want the diff analysis sent to an Opus subagent
+    So that the voice is not flattened by the smaller model
+    """
+
+    @pytest.mark.unit
+    def test_small_session_dispatches_to_opus_subagent(self):
+        """
+        Scenario: The skill names a live Opus dispatch for Steps 2-4
+        Given the SKILL.md
+        When I read its model routing
+        Then it dispatches an Agent with model: opus
+        And it does so only from a Sonnet or Haiku session,
+            so an Opus or Fable session is never downgraded
+        """
+        content = (SKILL_DIR / "SKILL.md").read_text()
+        assert re.search(r"Agent\(general-purpose\):\n\s+- model: opus", content)
+        assert "Sonnet or Haiku" in content

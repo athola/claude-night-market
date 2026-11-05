@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-import contextlib
 import hashlib
 import json
 import os
 import sys
-import tempfile
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from memory_palace._vendored_leyline_atomic_file import write_atomic
 
 # ---------------------------------------------------------------------------
 # Computational encoding helpers (Issue #394)
@@ -68,41 +68,9 @@ def _atomic_write_json(path: str, payload: Any) -> None:
     leaves a valid path holding invalid JSON, and a concurrent reader can
     see the file mid-write. Palace files, the master index and the budget
     are all read back by later sessions, which is when the damage shows up.
-
-    ``corpus/index_promoter.py`` already writes this way; these paths did
-    not, which is the gap this closes.
     """
-    directory = os.path.dirname(path) or "."
-    os.makedirs(directory, exist_ok=True)
-    fd, tmp_name = tempfile.mkstemp(
-        suffix=".tmp", prefix=os.path.basename(path) + ".", dir=directory
-    )
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            json.dump(payload, handle, indent=2)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(tmp_name, path)
-    except BaseException:  # re-raised; an interrupt must not leave the temp file
-        with contextlib.suppress(OSError):
-            os.unlink(tmp_name)
-        raise
-    _fsync_directory(directory)
-
-
-def _fsync_directory(directory: str | os.PathLike[str]) -> None:
-    """Sync ``directory`` so a rename inside it survives a crash.
-
-    Windows cannot open a directory for fsync, and NTFS journals
-    metadata changes such as a rename. The sync is skipped there.
-    """
-    if sys.platform == "win32":
-        return
-    fd = os.open(directory, os.O_RDONLY)
-    try:
-        os.fsync(fd)
-    finally:
-        os.close(fd)
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    write_atomic(path, json.dumps(payload, indent=2))
 
 
 class PalaceRepository:

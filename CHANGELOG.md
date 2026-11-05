@@ -7,6 +7,169 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.1] - 2026-11-04
+
+Two entries below are marked Breaking, and this release ships them under
+a patch number on purpose. Neither removes a capability: the renamed skill
+had no caller in this repository, and `--project-root` is replaced by the
+project the command runs in. A plugin that scripts either one needs the
+one-line change its entry describes.
+
+### Added
+
+- **Activation quality: how often the library routes a prompt to the
+  right item.** `scripts/activation/` runs labeled prompts through
+  `claude plugin eval` with every plugin loaded and reports sensitivity
+  and two false-activation rates from kept traces. A delta is claimed
+  only for paired, fingerprinted runs with the change declared first,
+  by exact McNemar with Holm. A free BM25 router gates description
+  edits in pre-commit. The first live prompt routed to the deprecated
+  `pensive:shell-review` stub, and the inventory found 35 shared ids
+  hiding 36 descriptions (#1055). See ADR-0004.
+
+- **`leyline:ticket-writing`: tickets readable at a glance.** From a
+  merge request, the first screen of a ticket says what was decided and
+  why, or links to the document that does. `minister:create-issue`
+  templates drop to three headings. No study measures ticket length, so
+  the shape is judgment. See ADR-0028.
+
+### Changed
+
+- **CI fails on Bandit findings that are high in both severity and
+  confidence.** The security workflow ran Bandit with
+  `continue-on-error`, so no finding could fail it. The reports, SARIF
+  upload and PR comment still run before the gate. Safety and Semgrep
+  stay advisory.
+- **Mutation testing pins `mutmut<3` and fails a run with no mutants.**
+  mutmut 3 dropped `--paths-to-mutate`, and its exit 2 on the unknown
+  option read as "survivors found". Exit status is now read as mutmut
+  2's bit mask, where only the fatal bit fails the job.
+- **Per-plugin coverage thresholds are enforced in CI.** Each plugin's
+  `[tool.nightmarket] coverage_threshold` is passed as
+  `--cov-fail-under`. No plugin set `fail_under`, so the thresholds were
+  never checked. archetypes, cartograph and scry declare none.
+- **`scripts/awesome-submit.sh` follows each list's own rules.**
+  SamurAIGPT/awesome-openclaw is dropped, because the list was transferred
+  and renamed. vincentkoc/awesome-openclaw takes PRs only for an approved
+  issue, so the script requires `--issue owner/repo#N` for it.
+- **tome declares memory-palace as a dependency.** Its graph adapter
+  imports memory-palace at runtime, and the manifest now says so.
+- **`/pr-review` posts one formal review on GitHub and GitLab.**
+  `plugins/sanctum/scripts/post_formal_review.py` puts every finding in a
+  single review with a verdict, file-level threads for lines outside the
+  diff, and GitLab draft notes published with a reviewer state. A pending
+  draft review of yours stops it (exit 3) instead of falling back to
+  separate comments, and `--pending join` adds the findings to the draft.
+  `/fix-pr` and `/resolve-threads` page through every review thread, and
+  read findings that have no thread from the review body.
+- **Breaking: `gauntlet:gauntlet-curate` is now `gauntlet:problem-bank`.**
+  The `/gauntlet-curate` command shares the old name and invokes
+  `gauntlet:curate`, so the problem-bank auditor could not be reached
+  by name (#618). The command keeps its name and behavior. No caller in
+  this repository used the old skill name.
+- **The `model_hint` frontmatter key is gone from every skill, command
+  and agent.** Nothing read it, and Claude Code ignores it, so skills
+  marked `model_hint: opus` always ran on the session model. Use
+  `effort`, or a skill's `model:`, to route.
+- **Breaking: `abstract`'s CLI no longer accepts `--project-root`.** The
+  flag was parsed and never read.
+- **gauntlet's `SidecarScorer.score` and `YamlScorer.score` return `None`**
+  when no score is available, in place of a 0.0 that callers read as a
+  real score.
+- **abstract judges skill stability on the last 20 runs**, so a skill
+  that failed once can recover. An improvement's evaluation window is
+  judged only on the runs recorded after it opened.
+- **abstract's experience library is scoped to the project.** Exemplars
+  from one project are no longer injected into another, and the
+  injected block is marked as recalled data. Entries stored before this
+  change have no project and are not recalled.
+- **egregore's handoff gate refuses three more inputs**: a shell or
+  interpreter handed code as a string (`bash -o pipefail -c`,
+  `python3 -Ic`, `node --eval`), a task with no `files` (its commit
+  would take the whole index), and an `allow_on_plan_fallback` that is
+  not a boolean.
+- **sanctum's knowledge-queue check reads memory-palace's staging
+  directory**, quoted or unquoted frontmatter alike. It had read a
+  directory nothing writes.
+- **attune's hooks template runs on `git commit` and reaches the
+  model.** The generated hook never ran, and its advice went to stdout,
+  which the harness drops.
+
+### Deprecated
+
+- **`pensive:shell-review` is a module of `pensive:unified-review`.**
+  It was the first of the two folds ADR-0014 planned (#615). The audit
+  workflow and its four rule modules moved to
+  `skills/unified-review/modules/shell-review.md` and `shell-*.md`.
+  `/shell-review` still works and routes to unified-review's shell
+  focus, the same as `/full-review shell`. `Skill(pensive:shell-review)`
+  is a redirect stub for one release and will be removed in the release
+  after.
+
+### Removed
+
+- tome's PreCompact hook. Claude Code discards PreCompact context, so
+  its output never reached the model. tome's SessionStart hook has no
+  matcher, so it already restores the research topic after compaction.
+- `abstract` `correct_fabricated_durations.py`, a one-shot migration that
+  already ran. `memory-palace` `update_autonomy_state.py` and the
+  `telemetry/autonomy_history.json` it read, which nothing wrote. The
+  `abstract` hook configs `post-evaluation.json` and `pre-skill-load.json`,
+  which no `hooks.json` registered.
+
+### Fixed
+
+- **egregore's handoff gate refuses inline code for more interpreters.**
+  `php -r`, `lua -e`, `bun -e`, `deno eval` (also after global options)
+  and `pypy -c` passed it, and so did `-c` after a python option that
+  takes a value, such as `--check-hash-based-pycs always`.
+- **Recalled experience cannot close its data fence early.** The hook
+  stripped `</recalled-data>` in one pass, so a nested marker re-formed
+  it. Markers inside recalled text are now escaped. Entries are also
+  written atomically.
+- **The activation router gate reports a stale label.** `check`,
+  `baseline` and `report` validate labels first, and name the case whose
+  target no longer exists instead of raising `ValueError`. Labeling skips
+  model rows without a usable prompt or pick, `labeling draft` refuses to
+  overwrite adjudicated labels without `--force`, and `--change` outside
+  the repository is refused cleanly. Workflow mutants edit only the
+  `export const meta` block, and the pre-commit hook fires only for
+  `plugins/*/skills/*/SKILL.md`.
+- **`post_formal_review.py` pages through GitLab MR diffs** and rejects
+  an unknown severity with exit 2. Findings in files past the first page
+  of diffs had gone to the review body, and a typo in a severity could
+  reach APPROVE.
+- **`/resolve-threads` Step 4 runs as written.** It combined `--slurp`
+  with `--jq`, which `gh` rejects, and dropped the paging cursor.
+- **`scripts/awesome-submit.sh` checks the approving issue.** `--issue`
+  takes a digits-only number, and the script refuses to open a PR unless
+  `gh issue view` reports the issue open.
+- memory-palace moves an index entry stored under the legacy lowercase
+  URL key to the new key when it updates it, instead of leaving a
+  duplicate. parseltongue's `transform_code` edits the right line in
+  files with lone-CR line endings, and the missing-await check matches
+  `self.f()` only against the enclosing class.
+- **`/hookify:from-hook` runs the converter.** The command described
+  `scripts/hook_to_hookify.py` without calling it. The converter also
+  read `context["command"]` as a file-content check, which made every
+  such hook an `event: file` rule. It now reads the subscript key first.
+- Three module frontmatters with an unquoted `: ` in `description` failed
+  to parse as YAML, and the attune agent template wrote `tools_allowed`
+  and `max_iterations`, names the harness never reads.
+- **leyline's content sanitizer checks hidden text on payloads over
+  100 KB**, including a comment that straddles a chunk boundary, and
+  scans comments in linear time. A 100 KB run of `<!--` took 35
+  seconds.
+- **memory-palace frontmatter keeps emoji readable and escapes control
+  characters.** A title holding U+0092 wrote a file YAML refuses to
+  load. URL deduplication keeps the path's case and still finds entries
+  stored under the old lowercase key.
+- **imbue's package guard** scales its typo distance with name length
+  and reads extras, scoped npm names, and archive paths correctly.
+- **sanctum's knowledge-queue age counts elapsed seconds.** It subtracted
+  local wall-clock times. After the 2026-11-01 fall-back a file three
+  days old was reported, and sorted, as two.
+
 ## [1.10.0] - 2026-10-14
 
 Sweep for Claude Code 2.1.220 to 2.1.289. Several fields this repo wrote

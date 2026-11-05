@@ -15,6 +15,16 @@ Convert Python SDK hooks to declarative hookify rules.
 /hookify:from-hook <hook.py> -o rules.md    # Output to file
 ```
 
+## Run
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/hook_to_hookify.py" $ARGUMENTS
+```
+
+The script prints each hook it did not convert, with the reason, to
+stderr as a `Not converted:` line. It exits 1 when no hook converted.
+Report the generated rules and every `Not converted:` line.
+
 ## What It Does
 
 1. Parses Python hook AST
@@ -24,8 +34,11 @@ Convert Python SDK hooks to declarative hookify rules.
 
 ## Example
 
-Input hook:
+Input hook. The converter reads the hook type from the filename
+(`pre_tool_*.py`) or from a `PreToolUse`-style comment, as here:
+
 ```python
+# PreToolUse
 import re
 def hook(context):
     if re.search(r"rm -rf /", context["command"]):
@@ -38,10 +51,12 @@ Output rule:
 name: block-rm-rf
 event: bash
 pattern: 'rm -rf /'
-action: block
+action: warn
 ---
-Dangerous command blocked.
 ```
+
+Every generated rule is `action: warn`. Review it, then change it to
+`block` by hand where the original hook blocked.
 
 ## Limitations
 

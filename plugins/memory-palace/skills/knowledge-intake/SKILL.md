@@ -22,7 +22,6 @@ usage_patterns:
 - knowledge-evaluation
 - application-routing
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 950
 ---
 
@@ -257,8 +256,9 @@ For each piece of knowledge, both must be yes:
 
 Before storing anything, run the marginal value filter: an entry that
 cannot teach something the corpus does not already teach is skipped.
-After storage, RL usage signals, quality decay, source lineage and the
-anchor-question clarity gate keep each entry's score current. The
+After storage, RL usage signals, quality decay and the anchor-question
+clarity gate keep each entry's score current. Source lineage records
+provenance and does not change a score. The
 three-step filter, its API, the autonomy levels and the scoring model
 are in `modules/quality-scoring.md`.
 
@@ -343,7 +343,7 @@ The `research-queue-integration` hook automatically queues:
 - Research-focused sessions with substantial findings
 - Manual additions via queue entry creation
 
-**Queue entry format**: See `docs/knowledge-corpus/queue/README.md`
+**Queue entry format**: written by `hooks/research_queue.py`, one YAML file per entry
 
 ### Queue Status Workflow
 

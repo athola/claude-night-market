@@ -1,0 +1,47 @@
+schema_version: 1
+cases:
+- id: herald.judge-panel.p1
+  type: positive
+  prompt: the agent says the migration is done but I don't trust it; get three independent
+    judges to check that claim against the evidence it gave
+  target: herald:judge-panel
+  competitor: null
+  cluster: herald:judge-panel
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: None; accepted by maintainer 2026-11-03'
+  proposals:
+    router: hookify:rule-sweep
+    judge: null
+- id: herald.judge-panel.p2
+  type: positive
+  prompt: run a multi-reviewer panel on 'all tests pass and the refactor is complete'
+    and tell me if it's a unanimous verdict or a split
+  target: herald:judge-panel
+  competitor: null
+  cluster: herald:judge-panel
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: herald:judge-panel; judge: None; accepted by maintainer 2026-11-03'
+  proposals:
+    router: herald:judge-panel
+    judge: null
+- id: herald.judge-panel.p3
+  type: near_miss
+  prompt: the agent says the migration work is finished and gave a summary plus test
+    output. get several independent reviewers to vote on whether it's really done,
+    and tell me if they split
+  target: herald:judge-panel
+  competitor: cartograph:atlas
+  cluster: herald:judge-panel
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at hookify:rule-sweep; router: cartograph:atlas; judge: herald:judge-panel/None'
+  proposals:
+    aimed_at: hookify:rule-sweep
+    router: cartograph:atlas
+    judge: herald:judge-panel
+    judge_runner_up: null

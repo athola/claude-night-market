@@ -19,7 +19,6 @@ usage_patterns:
 - large-context-analysis
 - coding-plan-routing
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 650
 references:
 - delegation-core/shared-shell-execution.md

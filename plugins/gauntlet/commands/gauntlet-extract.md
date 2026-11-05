@@ -1,6 +1,5 @@
 ---
 description: Rebuild the knowledge base from the current codebase
-model_hint: standard
 ---
 
 # Extract Knowledge

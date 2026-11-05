@@ -116,7 +116,11 @@ const swept = await parallel(
 // nothing. Dropping it silently turns a document that fails outright
 // into a clean pass when the critical layer is the one that died.
 const missing = LAYERS.filter((layer, index) => !swept[index]).map((layer) => layer.key)
-const reports = swept.filter(Boolean)
+// The layer comes from the roster, not from the agent's own report. The
+// critical count below matches on the key, and an agent never sees it.
+const reports = swept
+  .map((report, index) => report && { ...report, layer: LAYERS[index].key })
+  .filter(Boolean)
 const findings = reports.flatMap((report) =>
   (report.findings || []).map((finding) => ({ ...finding, layer: report.layer })),
 )
@@ -168,7 +172,10 @@ const ranked = await agent(
   `These findings came from five blind reviewers. Order them for someone about to fix them.\n\n${digest}\n\nCritical findings come first and are not negotiable against style. Then structural findings, because cutting a section deletes the sentence-level findings inside it, and fixing those first wastes the work. Say explicitly where a structural fix makes a local finding moot, and where an audience finding moves a section that other findings sit inside.`,
   { label: 'rank', phase: 'Rank', schema: RANKING },
 )
+// A dead rank agent returns the same null as the skip path above.
+const failed = ranked ? null : 'rank'
+if (failed) log('no result from the rank stage. The findings are unranked, not ranked clean')
 
 log(`${findings.length} findings across ${docs.length} documents, ${critical.length} critical`)
 
-return { docs, findings, critical, ranked, coverage: { reviewed: reports.map((r) => r.layer), empty, missing } }
+return { docs, findings, critical, ranked, coverage: { reviewed: reports.map((r) => r.layer), empty, missing }, failed }

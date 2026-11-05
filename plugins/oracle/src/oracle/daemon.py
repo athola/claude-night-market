@@ -220,7 +220,6 @@ class InferenceDaemon:
         port_file: Path | None = None,
     ) -> None:
         """Initialise and bind the server socket."""
-        self._host = host
         self._models_dir = models_dir or Path("models")
         self._port_file: Path | None = port_file
         self._registry = _ModelRegistry(self._models_dir)

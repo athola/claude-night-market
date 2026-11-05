@@ -24,7 +24,6 @@ usage_patterns:
 - diff-hygiene
 - task-reformulation
 complexity: foundational
-model_hint: standard
 estimated_tokens: 900
 modules:
 - modules/anti-patterns.md

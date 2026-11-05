@@ -2,7 +2,6 @@
 name: standard-hooks
 description: Layer 1 fast global pre-commit checks for Python, Rust, and TypeScript projects.
 parent: precommit-setup
-load_when: configuring base linters
 ---
 
 # Standard Hooks (Layer 1)

@@ -4,7 +4,6 @@ description: Removes the egregore watchdog daemon and its associated files. Use 
 alwaysApply: false
 category: setup
 tools: []
-model_hint: standard
 ---
 # Uninstall Watchdog
 

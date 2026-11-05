@@ -53,7 +53,9 @@ const results = captured.filter(Boolean)
 // failed: the agent came back and said the capture did not work.
 // dropped: the agent never came back. Both are absent from assets, and
 // only the first used to be reported.
-const failed = results.filter((result) => !result.captured)
+// A capture reported with no asset path has nothing to show, so it counts
+// as failed rather than adding an undefined asset.
+const failed = results.filter((result) => !result.captured || !result.asset)
 const dropped = flows
   .map((flow, index) => ({ flow, index }))
   .filter(({ index }) => !captured[index])
@@ -63,7 +65,7 @@ log(`${results.length - failed.length} of ${flows.length} flows captured`)
 if (dropped.length) log(`no result for ${dropped.join(', ')}. Those flows were not captured`)
 
 return {
-  assets: results.filter((result) => result.captured).map((result) => result.asset),
+  assets: results.filter((result) => result.captured && result.asset).map((result) => result.asset),
   failed,
   dropped,
 }

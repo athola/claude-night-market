@@ -10,7 +10,6 @@ usage_patterns:
 dependencies:
 - memory-palace:knowledge-intake
 - sanctum:pr-review
-model_hint: standard
 ---
 
 # PR Review Chamber Skill

@@ -1,0 +1,534 @@
+schema_version: 1
+cases:
+- id: tome.cite.p1
+  type: positive
+  prompt: I finished my research session on rate limiting algorithms. Can you turn
+    all the findings into a numbered list of references I can paste into my design
+    doc?
+  target: tome:cite
+  competitor: null
+  cluster: tome:cite
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scribe:session-replay; judge: tome:cite'
+  proposals:
+    router: scribe:session-replay
+    judge: tome:cite
+- id: tome.cite.p2
+  type: positive
+  prompt: Generate a bibliography from the research session abc123 so I can attach
+    sources to my write-up.
+  target: tome:cite
+  competitor: null
+  cluster: tome:cite
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:cite
+    judge: tome:cite
+- id: tome.cite.p3
+  type: near_miss
+  prompt: Give me a numbered bibliography of everything we found in the latest research
+    session, formatted as proper citations.
+  target: tome:cite
+  competitor: tome:research
+  cluster: tome:cite
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at scribe:session-replay; router: tome:cite; judge: tome:cite/tome:research'
+  proposals:
+    aimed_at: scribe:session-replay
+    router: tome:cite
+    judge: tome:cite
+    judge_runner_up: tome:research
+- id: tome.code-search.p1
+  type: positive
+  prompt: Find me some existing open source implementations of a CRDT library on GitHub,
+    ranked by relevance and stars.
+  target: tome:code-search
+  competitor: null
+  cluster: tome:code-search
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:code-search
+    judge: tome:code-search
+- id: tome.code-search.p2
+  type: positive
+  prompt: Before I write my own, search GitHub for libraries that already do incremental
+    parsing for tree-sitter-like grammars and tell me what each repo does.
+  target: tome:code-search
+  competitor: null
+  cluster: tome:code-search
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: gauntlet:graph-build; judge: tome:code-search'
+  proposals:
+    router: gauntlet:graph-build
+    judge: tome:code-search
+- id: tome.code-search.p3
+  type: near_miss
+  prompt: I'm about to write a rate limiter in Go and don't want to reinvent it. Can
+    you look on GitHub for popular open source token bucket implementations and rank
+    them by stars and relevance?
+  target: tome:code-search
+  competitor: tome:web-search
+  cluster: tome:code-search
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at gauntlet:graph-build; router: abstract:promote-discussions; judge:
+    tome:code-search/tome:web-search'
+  proposals:
+    aimed_at: gauntlet:graph-build
+    router: abstract:promote-discussions
+    judge: tome:code-search
+    judge_runner_up: tome:web-search
+- id: tome.dig.p1
+  type: positive
+  prompt: My research session is mostly done but I want to go deeper on the tokio
+    runtime scheduler internals. Only search code sources and add to the existing
+    report.
+  target: tome:dig
+  competitor: null
+  cluster: tome:dig
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: tome:code-search; judge: tome:dig'
+  proposals:
+    router: tome:code-search
+    judge: tome:dig
+- id: tome.dig.p2
+  type: positive
+  prompt: Refine the current research with more searching on formal verification of
+    consensus protocols, academic literature only, and merge the new results into
+    the session.
+  target: tome:dig
+  competitor: null
+  cluster: tome:dig
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:dig
+    judge: tome:dig
+- id: tome.dig.p3
+  type: near_miss
+  prompt: My research session on async runtimes already has a report saved. Go deeper
+    on just the work-stealing scheduler part and fold whatever new you find into that
+    same report, don't start over.
+  target: tome:dig
+  competitor: tome:synthesize
+  cluster: tome:dig
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at cartograph:atlas; router: tome:synthesize; judge: tome:dig/tome:synthesize'
+  proposals:
+    aimed_at: cartograph:atlas
+    router: tome:synthesize
+    judge: tome:dig
+    judge_runner_up: tome:synthesize
+- id: tome.discourse.p1
+  type: positive
+  prompt: What do people on Hacker News, Lobsters and Reddit actually say about running
+    SQLite in production? I want real experience reports, not docs.
+  target: tome:discourse
+  competitor: null
+  cluster: tome:discourse
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:discourse
+    judge: tome:discourse
+- id: tome.discourse.p2
+  type: positive
+  prompt: Scan community forums and tech blogs for opinions on migrating from microservices
+    back to a monolith. Keep the contrarian takes and note which site each came from.
+  target: tome:discourse
+  competitor: null
+  cluster: tome:discourse
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:discourse
+    judge: tome:discourse
+- id: tome.discourse.p3
+  type: near_miss
+  prompt: What do people on Hacker News and Reddit actually say about running SQLite
+    in production? I want real experience reports and gripes, not docs or papers.
+  target: tome:discourse
+  competitor: tome:web-search
+  cluster: tome:discourse
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at imbue:evidence-sweep; router: tome:discourse; judge: tome:discourse/tome:web-search'
+  proposals:
+    aimed_at: imbue:evidence-sweep
+    router: tome:discourse
+    judge: tome:discourse
+    judge_runner_up: tome:web-search
+- id: tome.export.p1
+  type: positive
+  prompt: Save my latest research session as a markdown file in docs/research so memory-palace
+    can ingest it without reformatting.
+  target: tome:export
+  competitor: null
+  cluster: tome:export
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:export
+    judge: tome:export
+- id: tome.export.p2
+  type: positive
+  prompt: Export research session abc123 for knowledge intake with frontmatter metadata.
+  target: tome:export
+  competitor: null
+  cluster: tome:export
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:export
+    judge: tome:export
+- id: tome.export.p3
+  type: near_miss
+  prompt: Research session's done. Write the findings out to a markdown file with
+    frontmatter under docs/research so I can feed it into the knowledge-intake flow
+    later. Use the latest session.
+  target: tome:export
+  competitor: tome:cite
+  cluster: tome:export
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'aimed at memory-palace:palace; router: tome:cite; judge: tome:export/tome:cite;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: memory-palace:palace
+    router: tome:cite
+    judge: tome:export
+    judge_runner_up: tome:cite
+- id: tome.ideate.p1
+  type: positive
+  prompt: I need 4 genuinely different approaches to cutting our CI build time. Use
+    varied brainstorming methods, not ten variations of the same idea, and score them.
+  target: tome:ideate
+  competitor: null
+  cluster: tome:ideate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: oracle:quality-bench; judge: tome:ideate/attune:brainstorm'
+  proposals:
+    router: oracle:quality-bench
+    judge: tome:ideate
+    judge_runner_up: attune:brainstorm
+- id: tome.ideate.p2
+  type: positive
+  prompt: Our first brainstorm round on a plugin architecture kept giving similar
+    ideas. Do a second pass that rotates to different ideation techniques than the
+    ones already used.
+  target: tome:ideate
+  competitor: null
+  cluster: tome:ideate
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: attune:brainstorm; judge: tome:ideate/attune:brainstorm; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: attune:brainstorm
+    judge: tome:ideate
+    judge_runner_up: attune:brainstorm
+- id: tome.ideate.p3
+  type: near_miss
+  prompt: I need fresh approaches for cutting cold-start latency in our serverless
+    functions. Give me a spread of really different ideas using varied brainstorming
+    methods, and rotate approaches on a second pass so they don't just repeat each
+    other.
+  target: tome:ideate
+  competitor: attune:brainstorm
+  cluster: tome:ideate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:paradigm-panel; router: attune:brainstorm; judge: tome:ideate/attune:brainstorm'
+  proposals:
+    aimed_at: archetypes:paradigm-panel
+    router: attune:brainstorm
+    judge: tome:ideate
+    judge_runner_up: attune:brainstorm
+- id: tome.papers.p1
+  type: positive
+  prompt: Find academic papers on conflict-free replicated data types, with authors,
+    year, venue and abstracts. Check arXiv and Semantic Scholar.
+  target: tome:papers
+  competitor: null
+  cluster: tome:papers
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:papers
+    judge: tome:papers
+- id: tome.papers.p2
+  type: positive
+  prompt: I have a paywalled PDF on Raft consensus verification. Find an open-access
+    version and convert it to markdown so you can pull out the methodology and results
+    tables.
+  target: tome:papers
+  competitor: null
+  cluster: tome:papers
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: tome:papers
+    judge: tome:papers
+- id: tome.papers.p3
+  type: near_miss
+  prompt: Find me recent arXiv and Semantic Scholar papers on consensus protocol verification,
+    pull the methodology and results from the PDFs, and map out who cites whom for
+    a literature review.
+  target: tome:papers
+  competitor: tome:cite
+  cluster: tome:papers
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at tome:triz; router: tome:papers; judge: tome:papers/tome:cite'
+  proposals:
+    aimed_at: tome:triz
+    router: tome:papers
+    judge: tome:papers
+    judge_runner_up: tome:cite
+- id: tome.research.p1
+  type: positive
+  prompt: 'Run a full research pass on event sourcing for our order system: search
+    GitHub and community discussion in parallel, merge and dedupe the findings, and
+    tell me which channels came back empty.'
+  target: tome:research
+  competitor: null
+  cluster: tome:research
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: memory-palace:palace-sweep; judge: tome:research; accepted by maintainer
+    2026-11-03'
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: tome:research
+- id: tome.research.p2
+  type: positive
+  prompt: Kick off a multi-channel investigation of vector database indexing options
+    covering code, academic papers, and the web, and save it as a session with channel
+    weights.
+  target: tome:research
+  competitor: null
+  cluster: tome:research
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:research
+    judge: tome:research
+- id: tome.research.p3
+  type: near_miss
+  prompt: 'Run a full multi-channel research pass on event sourcing patterns: classify
+    the domain, fan out across code, academic and community channels, and save it
+    as a session I can later export.'
+  target: tome:research
+  competitor: tome:dig
+  cluster: tome:research
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at memory-palace:palace-sweep; router: tome:research; judge: tome:research/tome:dig'
+  proposals:
+    aimed_at: memory-palace:palace-sweep
+    router: tome:research
+    judge: tome:research
+    judge_runner_up: tome:dig
+- id: tome.synthesize.p1
+  type: positive
+  prompt: The research agents all came back with their results from the different
+    channels. Can you merge everything into one ranked write-up, grouped by theme?
+  target: tome:synthesize
+  competitor: null
+  cluster: tome:synthesize
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:synthesize
+    judge: tome:synthesize
+- id: tome.synthesize.p2
+  type: positive
+  prompt: I've got findings sitting from my research session across several sources.
+    Give me a condensed one-to-two page version of the ranked results instead of the
+    full document.
+  target: tome:synthesize
+  competitor: null
+  cluster: tome:synthesize
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:synthesize
+    judge: tome:synthesize
+- id: tome.synthesize.p3
+  type: near_miss
+  prompt: The code, papers and discourse agents have all come back with findings for
+    my caching research. Merge and dedupe them, rank them, and give me a brief report
+    grouped by theme.
+  target: tome:synthesize
+  competitor: tome:research
+  cluster: tome:synthesize
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at tome:research; router: tome:research; judge: tome:synthesize/tome:research'
+  proposals:
+    aimed_at: tome:research
+    router: tome:research
+    judge: tome:synthesize
+    judge_runner_up: tome:research
+- id: tome.triz.p1
+  type: positive
+  prompt: 'I keep hitting a wall: making our cache bigger speeds up reads but blows
+    the memory budget. Can you look at how other fields have resolved this kind of
+    tradeoff, maybe with analogies from biology or logistics?'
+  target: tome:triz
+  competitor: null
+  cluster: tome:triz
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:ticket-writing; judge: tome:triz/leyline:decision-journal'
+  proposals:
+    router: leyline:ticket-writing
+    judge: tome:triz
+    judge_runner_up: leyline:decision-journal
+- id: tome.triz.p2
+  type: positive
+  prompt: Run a deep cross-domain analysis on our message queue throughput vs ordering
+    guarantees problem. I want the ideal final result and whether it's a contradiction
+    I can separate in time or space instead of compromising.
+  target: tome:triz
+  competitor: null
+  cluster: tome:triz
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: tome:triz'
+  proposals:
+    router: conjure:provider-sweep
+    judge: tome:triz
+- id: tome.triz.p3
+  type: near_miss
+  prompt: My API needs to be both stricter about validation and faster at ingest,
+    and every fix for one hurts the other. I'm out of ideas. Can you look at how a
+    few unrelated fields, like biology or logistics, resolve a speed-versus-accuracy
+    tradeoff, and map those ideas onto my problem?
+  target: tome:triz
+  competitor: tome:web-search
+  cluster: tome:triz
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:provider-sweep; router: leyline:ticket-writing; judge:
+    tome:triz/tome:web-search'
+  proposals:
+    aimed_at: conjure:provider-sweep
+    router: leyline:ticket-writing
+    judge: tome:triz
+    judge_runner_up: tome:web-search
+- id: tome.web-search.p1
+  type: positive
+  prompt: Find the official vendor docs and recent release notes for Kafka 4.0, and
+    any benchmark comparisons against Pulsar.
+  target: tome:web-search
+  competitor: null
+  cluster: tome:web-search
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:web-search
+    judge: tome:web-search
+- id: tome.web-search.p2
+  type: positive
+  prompt: Search the web for what the standards say about HTTP caching headers and
+    any official guides on it. Fall back to the built-in search if the You.com server
+    isn't set up.
+  target: tome:web-search
+  competitor: null
+  cluster: tome:web-search
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: tome:web-search
+    judge: tome:web-search
+- id: tome.web-search.p3
+  type: near_miss
+  prompt: Search everywhere you can for what's been published recently about Node
+    deprecating the built-in punycode module. I want the official release notes and
+    migration guidance, and I don't want to stop at the first hit.
+  target: tome:web-search
+  competitor: parseltongue:python-async
+  cluster: tome:web-search
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at memory-palace:palace-sweep; router: parseltongue:python-async;
+    judge: tome:web-search/None'
+  proposals:
+    aimed_at: memory-palace:palace-sweep
+    router: parseltongue:python-async
+    judge: tome:web-search
+    judge_runner_up: null

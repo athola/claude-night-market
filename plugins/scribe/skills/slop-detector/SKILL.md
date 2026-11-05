@@ -13,7 +13,6 @@ tags:
 - quality
 tools: []
 complexity: medium
-model_hint: fast
 estimated_tokens: 4500
 progressive_loading: true
 modules:

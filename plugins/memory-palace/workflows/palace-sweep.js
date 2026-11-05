@@ -81,7 +81,10 @@ const searched = await parallel(
 // A palace whose searcher returned nothing is unsearched, not empty.
 // An empty palace and a dead palace must not both vanish into hits: [].
 const missing = palaces.filter((palace, index) => !searched[index])
-const results = searched.filter(Boolean)
+// The palace comes from the roster, not from the agent's own report.
+const results = searched
+  .map((result, index) => result && { ...result, palace: palaces[index] })
+  .filter(Boolean)
 const hits = results.flatMap((result) =>
   (result.hits || []).map((hit) => ({ ...hit, palace: result.palace })),
 )
@@ -103,7 +106,10 @@ const answer = await agent(
   `These palaces were searched independently for one question. Merge what they found into a single answer.\n\nQuestion: ${question}\n\n${digest}\n\nWhere two palaces hold the same fact, say so once. Where they disagree, report the disagreement with both dates rather than picking the newer one. The older note may be the one that recorded why. Say plainly which parts of the question nothing here answers.`,
   { label: 'rank', phase: 'Rank' },
 )
+// A dead rank agent returns the same null as the skip path above.
+const failed = answer ? null : 'rank'
+if (failed) log('no result from the rank stage. The hits are unmerged and there is no answer')
 
 log(`${hits.length} hits across ${results.length} palaces`)
 
-return { question, hits, answer, coverage }
+return { question, hits, answer, coverage, failed }

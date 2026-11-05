@@ -36,6 +36,9 @@ The `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var overrides the default. The ecosyste
 python plugins/abstract/scripts/validate_budget.py
 ```
 
+If `plugins/abstract/scripts/validate_budget.py` is absent (a marketplace
+install, not a checkout), skip this step and say so.
+
 ### Step 2: Identify Reduction Targets
 - Move examples and edge cases to modules
 - Compress repetitive patterns into tables
@@ -53,6 +56,9 @@ python plugins/abstract/scripts/validate_budget.py
 python plugins/abstract/scripts/validate_budget.py
 # Target: 50%+ reduction from original
 ```
+
+If `plugins/abstract/scripts/validate_budget.py` is absent (a marketplace
+install, not a checkout), skip this step and say so.
 
 ## Quality Checks
 

@@ -153,7 +153,6 @@ def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult 
     if safety.get("detect_unicode_bombs", True):
         max_combining = safety.get("max_combining_chars", 10)
         combining_count = 0
-        base_count = 0
         for char in content[:5000]:  # Sample
             # Combining characters are in range 0x0300-0x036F and others
             if "\u0300" <= char <= "\u036f" or "\u1ab0" <= char <= "\u1aff":
@@ -164,7 +163,6 @@ def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult 
                         False, "Unicode combining character bomb detected"
                     )
                 combining_count = 0
-                base_count += 1
         # A run that reaches the end of the sample has no base character
         # after it to trigger the check above.
         if combining_count > max_combining:

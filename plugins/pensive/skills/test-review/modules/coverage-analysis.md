@@ -4,7 +4,6 @@ name: coverage-analysis
 description: Coverage measurement and gap identification
 category: testing
 tags: [coverage, testing, gap-analysis]
-load_priority: 2
 estimated_tokens: 350
 ---
 

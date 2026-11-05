@@ -18,7 +18,6 @@ usage_patterns:
 - team-scaling
 - api-gateway-planning
 complexity: high
-model_hint: deep
 estimated_tokens: 900
 ---
 

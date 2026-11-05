@@ -8,7 +8,6 @@ dependencies:
   modules: []
 modules:
 - modules/source-selection.md
-model_hint: standard
 ---
 # Token Conservation Workflow
 

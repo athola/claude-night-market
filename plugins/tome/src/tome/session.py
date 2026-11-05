@@ -14,68 +14,10 @@ try:
         validate_session_id,
     )
 except ImportError:  # pragma: no cover, standalone fallback
-    import re as _re
-
-    def validate_session_id(session_id: str) -> bool:
-        """Fallback ID validator used when leyline is not installed."""
-        pattern = _re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$")
-        return (
-            bool(pattern.match(session_id))
-            and len(session_id) <= 128
-            and ".." not in session_id
-        )
-
-    class SessionStore:
-        """Minimal fallback base when leyline is absent."""
-
-        def __init__(self, sessions_dir: Path) -> None:
-            self.sessions_dir = sessions_dir
-            self.sessions_dir.mkdir(parents=True, exist_ok=True)
-
-        def _session_path(self, session_id: str) -> Path:
-            return self.sessions_dir / f"{session_id}.json"
-
-        def save(self, session_id: str, record: Any) -> Path:
-            if not validate_session_id(session_id):
-                raise ValueError(f"Invalid session ID: {session_id!r}")
-            path = self._session_path(session_id)
-            path.write_text(
-                json.dumps(self._serialize(record), indent=2), encoding="utf-8"
-            )
-            return path
-
-        def load(self, session_id: str) -> Any | None:
-            path = self._session_path(session_id)
-            if not path.exists():
-                return None
-            try:
-                data = json.loads(path.read_text(encoding="utf-8"))
-                return self._deserialize(data)
-            except (json.JSONDecodeError, KeyError, TypeError) as e:
-                print(f"Warning: corrupt session {session_id}: {e}", file=sys.stderr)
-                return None
-
-        def list_sessions(self) -> list[str]:
-            if not self.sessions_dir.exists():
-                return []
-            return sorted(
-                p.stem
-                for p in self.sessions_dir.glob("*.json")
-                if validate_session_id(p.stem)
-            )
-
-        def delete(self, session_id: str) -> bool:
-            path = self._session_path(session_id)
-            if path.exists():
-                path.unlink()
-                return True
-            return False
-
-        def _serialize(self, record: Any) -> dict:
-            raise NotImplementedError
-
-        def _deserialize(self, data: dict) -> Any:
-            raise NotImplementedError
+    from tome._vendored_leyline_session_store import (
+        SessionStore,
+        validate_session_id,
+    )
 
 
 from tome.models import ResearchSession, SessionSummary

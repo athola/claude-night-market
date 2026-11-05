@@ -1,0 +1,17 @@
+# Activation-quality suite settings. See docs/adr/0004-skill-description-budget-optimization.md.
+# Writer and judge: the first candidate whose resolved model id differs
+# from every arm's is used, so a measured model never labels its own key.
+writer_models: [sonnet, opus]
+judge_models: [sonnet, opus]
+arms:
+  default: null
+  haiku: haiku
+runs: 3
+label_max_cost_usd: 30
+# Written by `python -m scripts.activation.labeling resolve`. Labeling
+# refuses to run without it.
+resolved:
+  arm:default: claude-opus-5-5
+  arm:haiku: claude-haiku-5-5
+  sonnet: claude-sonnet-5-5
+  opus: claude-opus-5-5

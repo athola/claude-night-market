@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -140,13 +141,10 @@ def test_interrupted_save_keeps_the_previous_state(
     store = AutonomyStateStore(state_path=temp_state_path)
     store.set_level(1, domain="security", lock=True, reason="audit")
 
-    def dump_then_crash(data: object, handle: object, **_kw: object) -> None:
-        handle.write("current_level: ")  # type: ignore[attr-defined]  # partial write
+    def crash_before_publish(src: object, dst: object) -> None:
         raise OSError("disk full")
 
-    monkeypatch.setattr(
-        "memory_palace.lifecycle.autonomy_state.yaml.safe_dump", dump_then_crash
-    )
+    monkeypatch.setattr(os, "replace", crash_before_publish)
     with pytest.raises(OSError, match="disk full"):
         store.set_level(3)
     monkeypatch.undo()
@@ -218,3 +216,19 @@ def test_cli_exits_with_one_line_message_on_unreadable_state(
     message = str(exited.value.code)
     assert "is unreadable" in message
     assert "\n" not in message
+
+
+def test_save_keeps_the_umask_mode_other_readers_rely_on(
+    temp_state_path: Path,
+) -> None:
+    """Readers under another uid keep access to the state file.
+
+    It was written through open() before, with the umask's mode. An
+    owner-only 0600 would lock those readers out without an error.
+    """
+    old_umask = os.umask(0o022)
+    try:
+        AutonomyStateStore(state_path=temp_state_path).load()
+    finally:
+        os.umask(old_umask)
+    assert temp_state_path.stat().st_mode & 0o777 == 0o644

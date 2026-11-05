@@ -20,12 +20,6 @@ from memory_palace.corpus.counter_reinforcement import (
     FeedbackType,
 )
 from memory_palace.corpus.decay_model import DecayModel
-from memory_palace.corpus.source_lineage import (
-    FullLineage,
-    SourceLineageManager,
-    SourceReference,
-    SourceType,
-)
 from memory_palace.garden_metrics import (
     compute_garden_metrics,
     summarize_tending_queue,
@@ -145,34 +139,6 @@ def test_summarize_tending_queue_has_no_error_when_queue_is_healthy(
     queue = tmp_path / "queue.json"
     queue.write_text(json.dumps({"stale": ["a"], "probation_overdue": []}))
     assert summarize_tending_queue(queue) == {"stale": 1, "probation_overdue": 0}
-
-
-def _full(entry_id: str, derived_from: list[str], confidence: float = 0.5):
-    return FullLineage(
-        entry_id=entry_id,
-        primary_source=SourceReference(
-            source_id=f"src-{entry_id}",
-            source_type=SourceType.WEB_ARTICLE,
-            confidence=confidence,
-        ),
-        derived_from=derived_from,
-    )
-
-
-def test_get_propagated_confidence_terminates_on_derivation_cycle() -> None:
-    manager = SourceLineageManager()
-    manager.register_lineage(_full("a", ["b"]))
-    manager.register_lineage(_full("b", ["a"]))
-    assert manager.get_propagated_confidence("a") == pytest.approx(0.25)
-
-
-def test_get_propagated_confidence_counts_shared_ancestor_in_each_branch() -> None:
-    manager = SourceLineageManager()
-    manager.register_lineage(_full("top", ["left", "right"], 1.0))
-    manager.register_lineage(_full("left", ["base"], 1.0))
-    manager.register_lineage(_full("right", ["base"], 1.0))
-    manager.register_lineage(_full("base", [], 0.5))
-    assert manager.get_propagated_confidence("top") == pytest.approx(0.25)
 
 
 def test_reinforce_rejects_unknown_feedback_before_mutating_counter() -> None:

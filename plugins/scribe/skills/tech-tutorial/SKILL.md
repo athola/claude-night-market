@@ -12,7 +12,6 @@ tags:
 - getting-started
 tools: []
 complexity: medium
-model_hint: standard
 estimated_tokens: 2800
 progressive_loading: true
 modules:

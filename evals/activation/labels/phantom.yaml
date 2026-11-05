@@ -1,0 +1,148 @@
+schema_version: 1
+cases:
+- id: phantom.computer-control.p1
+  type: positive
+  prompt: I need to automate a legacy desktop app that has no CLI or API. Set up something
+    that takes screenshots and drives the mouse and keyboard through Claude's computer
+    use to fill in its forms.
+  target: phantom:computer-control
+  competitor: null
+  cluster: phantom:computer-control
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: phantom:control-desktop; judge: phantom:computer-control'
+  proposals:
+    router: phantom:control-desktop
+    judge: phantom:computer-control
+- id: phantom.computer-control.p2
+  type: positive
+  prompt: How do I use the computer use API from Python with the right tool version
+    and beta flag for my model, running an agent loop against an Xvfb display?
+  target: phantom:computer-control
+  competitor: null
+  cluster: phantom:computer-control
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: leyline:utility; judge: phantom:computer-control; accepted by maintainer
+    2026-11-03'
+  proposals:
+    router: leyline:utility
+    judge: phantom:computer-control
+- id: phantom.computer-control.p3
+  type: near_miss
+  prompt: I'm designing an automation that has Claude take screenshots and click through
+    a desktop app that has no CLI or API, then check the result visually. How should
+    the screenshot-to-action loop be structured, and when would I be better off using
+    Playwright instead?
+  target: phantom:computer-control
+  competitor: phantom:control-desktop
+  cluster: phantom:computer-control
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at phantom:control-desktop; router: phantom:control-desktop; judge:
+    phantom:computer-control/phantom:control-desktop'
+  proposals:
+    aimed_at: phantom:control-desktop
+    router: phantom:control-desktop
+    judge: phantom:computer-control
+    judge_runner_up: phantom:control-desktop
+- id: phantom.control-desktop.p1
+  type: positive
+  prompt: Open the file manager on my Linux box and create a new folder called reports,
+    using Claude to drive the desktop.
+  target: phantom:control-desktop
+  competitor: null
+  cluster: phantom:control-desktop
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: phantom:control-desktop
+    judge: phantom:control-desktop
+- id: phantom.control-desktop.p2
+  type: positive
+  prompt: 'Run a computer use task: launch Firefox and search for Claude AI. I have
+    xdotool and scrot installed and my API key exported.'
+  target: phantom:control-desktop
+  competitor: null
+  cluster: phantom:control-desktop
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: phantom:control-desktop
+    judge: phantom:control-desktop
+- id: phantom.control-desktop.p3
+  type: near_miss
+  prompt: I have an Xvfb display up and ANTHROPIC_API_KEY set. Open the file manager
+    and make a new folder called reports. Run it now.
+  target: phantom:control-desktop
+  competitor: leyline:plugin-health
+  cluster: phantom:control-desktop
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at phantom:computer-control; router: leyline:plugin-health; judge:
+    phantom:control-desktop/None'
+  proposals:
+    aimed_at: phantom:computer-control
+    router: leyline:plugin-health
+    judge: phantom:control-desktop
+    judge_runner_up: null
+- id: phantom.surface-check.p1
+  type: positive
+  prompt: My desktop automation is flaky. Check whether screenshots, pointer movement,
+    keyboard input, and window listing each work on this Mac, and tell me everything
+    that's broken in one go.
+  target: phantom:surface-check
+  competitor: null
+  cluster: phantom:surface-check
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:gate-audit; judge: phantom:surface-check'
+  proposals:
+    router: egregore:gate-audit
+    judge: phantom:surface-check
+- id: phantom.surface-check.p2
+  type: positive
+  prompt: Screenshots come back blank and I suspect a screen-recording permission
+    issue. Verify only the screenshot and window enumeration paths and report what
+    you actually observed.
+  target: phantom:surface-check
+  competitor: null
+  cluster: phantom:surface-check
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:graduated-implementation; judge: phantom:surface-check/phantom:computer-control'
+  proposals:
+    router: imbue:graduated-implementation
+    judge: phantom:surface-check
+    judge_runner_up: phantom:computer-control
+- id: phantom.surface-check.p3
+  type: near_miss
+  prompt: My desktop automation on this Mac keeps failing without any error. Check
+    whether screenshots, pointer movement, keyboard input and window listing each
+    work. Report every one that's broken, not just the first failure.
+  target: phantom:surface-check
+  competitor: phantom:control-desktop
+  cluster: phantom:surface-check
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: phantom:surface-check; judge:
+    phantom:surface-check/phantom:control-desktop'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: phantom:surface-check
+    judge: phantom:surface-check
+    judge_runner_up: phantom:control-desktop

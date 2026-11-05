@@ -18,7 +18,6 @@ usage_patterns:
 - dependency-audit
 - concurrency-analysis
 complexity: advanced
-model_hint: deep
 estimated_tokens: 400
 progressive_loading: true
 dependencies:

@@ -1,7 +1,6 @@
 ---
 name: cfg-test-misuse
-description: Detection of #[cfg(test)] applied to individual functions or
-  impls outside a mod tests block, which is a common structural mistake
+description: "Detection of #[cfg(test)] applied to individual functions or impls outside a mod tests block, which is a common structural mistake"
 category: rust-review
 tags: [testing, cfg, attributes, structure]
 ---

@@ -4,7 +4,6 @@ description: Framework for evaluating change risk and impact, reusable across re
 parent_skill: imbue:diff-analysis
 category: risk-analysis
 tags: [risk, impact, assessment, testing, quality]
-reusable_by: [pensive:rust-review, pensive:api-review, pensive:architecture-review, pensive:bug-review]
 estimated_tokens: 400
 ---
 

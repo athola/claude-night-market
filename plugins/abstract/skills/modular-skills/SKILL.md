@@ -19,7 +19,6 @@ usage_patterns:
 - token-optimization
 - refactoring-workflows
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 1200
 modules:
 - modules/antipatterns-and-migration.md

@@ -405,9 +405,11 @@ code and memory layout, dependency hygiene, and idiomatic-Rust
 patterns.
 
 ### `pensive:shell-review`
-Shell script safety.
+Shell script safety. Deprecated alias: the workflow is now
+unified-review's `modules/shell-review.md` (ADR-0014).
 
-**Invocation**: `Skill(pensive:shell-review)`
+**Invocation**: `Skill(pensive:unified-review)` with the shell focus,
+or `/shell-review`
 
 Checks quoting issues, injection vulnerabilities, POSIX portability,
 and error handling.

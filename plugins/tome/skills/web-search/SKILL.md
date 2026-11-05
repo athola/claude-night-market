@@ -9,7 +9,6 @@ tags:
   - youcom
   - documentation
 estimated_tokens: 200
-model_hint: standard
 ---
 # Web Search
 

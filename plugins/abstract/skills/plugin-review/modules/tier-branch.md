@@ -36,8 +36,9 @@ else
 fi
 ```
 
-Report any missing or stale registrations. If skipped, note in the
-result table that registration audit is unavailable.
+Report any missing or stale registrations. If skipped (the script is
+absent in a marketplace install, not a checkout), note in the result
+table that registration audit is unavailable.
 
 ### 3. Test Gate
 

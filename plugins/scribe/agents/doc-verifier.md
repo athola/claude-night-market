@@ -74,13 +74,12 @@ ls -la .scribe/config.yaml 2>&1
 For code snippets claiming to work:
 
 ```bash
-# [E3] Test: Python example from docs
+# [E3] Test: Python example from docs, pasted verbatim
 python3 -c "
-from scribe import detect_slop
-result = detect_slop('This is comprehensive')
-print(result)
+import json
+print(json.dumps({'status': 'ok'}, sort_keys=True))
 "
-# Status: PASS/FAIL
+# Status: PASS if it runs and prints what the doc says it prints
 ```
 
 ### 4. Claim Verification

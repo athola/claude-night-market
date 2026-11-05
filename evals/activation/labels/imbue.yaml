@@ -1,0 +1,983 @@
+schema_version: 1
+cases:
+- id: imbue.assisted-mastery.p1
+  type: positive
+  prompt: I'm a junior dev and I don't want you to just hand me the finished diff.
+    Show your assumptions and the alternatives you rejected, and let me try the tricky
+    part of this refactor myself.
+  target: imbue:assisted-mastery
+  competitor: null
+  cluster: imbue:assisted-mastery
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:graduated-implementation; judge: imbue:assisted-mastery/imbue:graduated-implementation'
+  proposals:
+    router: imbue:graduated-implementation
+    judge: imbue:assisted-mastery
+    judge_runner_up: imbue:graduated-implementation
+- id: imbue.assisted-mastery.p2
+  type: positive
+  prompt: I'm worried I'm losing my own skills by letting the agent write everything.
+    Can we set up a way where you explain tradeoffs before picking a design and back
+    off the help as I get better at this area?
+  target: imbue:assisted-mastery
+  competitor: null
+  cluster: imbue:assisted-mastery
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: imbue:assisted-mastery/None'
+  proposals:
+    router: parseltongue:python-async
+    judge: imbue:assisted-mastery
+    judge_runner_up: null
+- id: imbue.assisted-mastery.p3
+  type: near_miss
+  prompt: I'm fairly new to asyncio and need to build a task queue with rate limiting.
+    Don't hand me the finished code. Lay out the design tradeoffs first, then let
+    me try writing the semaphore part myself so I actually understand it.
+  target: imbue:assisted-mastery
+  competitor: parseltongue:python-async
+  cluster: imbue:assisted-mastery
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-async; router: parseltongue:python-async; judge:
+    imbue:assisted-mastery/parseltongue:python-async'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: parseltongue:python-async
+    judge: imbue:assisted-mastery
+    judge_runner_up: parseltongue:python-async
+- id: imbue.catchup.p1
+  type: positive
+  prompt: I was out for a week. Give me a quick summary of what changed on this branch
+    since main so I can get back up to speed.
+  target: imbue:catchup
+  competitor: null
+  cluster: imbue:catchup
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: sanctum:git-catchup
+    judge: sanctum:git-catchup
+    judge_runner_up: imbue:catchup
+- id: imbue.catchup.p2
+  type: positive
+  prompt: What's happened in this repo over the last 2 days? Just the key changes
+    and anything I should follow up on.
+  target: imbue:catchup
+  competitor: null
+  cluster: imbue:catchup
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: minister:initiative-pulse; judge: imbue:catchup/None'
+  proposals:
+    router: minister:initiative-pulse
+    judge: imbue:catchup
+    judge_runner_up: null
+- id: imbue.catchup.p3
+  type: near_miss
+  prompt: I've been out for a week and this branch has moved a lot. Give me a quick
+    summary of what changed since main, and list anything I should follow up on.
+  target: imbue:catchup
+  competitor: sanctum:git-catchup
+  cluster: imbue:catchup
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'aimed at minister:initiative-pulse; router: sanctum:git-catchup; judge:
+    sanctum:git-catchup/imbue:catchup; accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: minister:initiative-pulse
+    router: sanctum:git-catchup
+    judge: sanctum:git-catchup
+    judge_runner_up: imbue:catchup
+- id: imbue.dependency-verification.p1
+  type: positive
+  prompt: Before you run pip install on that fastapi-utils-pro package you suggested,
+    make sure it actually exists on PyPI and isn't some typosquat.
+  target: imbue:dependency-verification
+  competitor: null
+  cluster: imbue:dependency-verification
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: 'router: imbue:dependency-verification; judge: imbue:dependency-verification/parseltongue:python-packaging;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: imbue:dependency-verification
+    judge: imbue:dependency-verification
+    judge_runner_up: parseltongue:python-packaging
+- id: imbue.dependency-verification.p2
+  type: positive
+  prompt: I'm about to add a few npm packages to package.json that you recommended.
+    How can I check none of them are hallucinated names someone could have registered
+    with malware?
+  target: imbue:dependency-verification
+  competitor: null
+  cluster: imbue:dependency-verification
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: imbue:dependency-verification/pensive:harden'
+  proposals:
+    router: hookify:rule-sweep
+    judge: imbue:dependency-verification
+    judge_runner_up: pensive:harden
+- id: imbue.dependency-verification.p3
+  type: near_miss
+  prompt: You suggested adding a package called fastjson-validator to requirements.txt
+    for this project. Before you add it, confirm it really exists on PyPI and isn't
+    a made-up name.
+  target: imbue:dependency-verification
+  competitor: parseltongue:python-packaging
+  cluster: imbue:dependency-verification
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:promote-discussions; router: imbue:dependency-verification;
+    judge: imbue:dependency-verification/parseltongue:python-packaging'
+  proposals:
+    aimed_at: abstract:promote-discussions
+    router: imbue:dependency-verification
+    judge: imbue:dependency-verification
+    judge_runner_up: parseltongue:python-packaging
+- id: imbue.diff-analysis.p1
+  type: positive
+  prompt: Go through this big changeset, group the changes by type, rate the risk
+    of each group, and give me a summary I can paste into the release notes.
+  target: imbue:diff-analysis
+  competitor: null
+  cluster: imbue:diff-analysis
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:diff-analysis; judge: imbue:diff-analysis/pensive:unified-review'
+  proposals:
+    router: imbue:diff-analysis
+    judge: imbue:diff-analysis
+    judge_runner_up: pensive:unified-review
+- id: imbue.diff-analysis.p2
+  type: positive
+  prompt: We're migrating our database schema and API. Compare the old and new states,
+    categorize what changed, and assess the blast radius before we sign off.
+  target: imbue:diff-analysis
+  competitor: null
+  cluster: imbue:diff-analysis
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: pensive:blast-radius; judge: imbue:diff-analysis/pensive:blast-radius;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: pensive:blast-radius
+    judge: imbue:diff-analysis
+    judge_runner_up: pensive:blast-radius
+- id: imbue.diff-analysis.p3
+  type: near_miss
+  prompt: Here's the diff between our v2 and v3 database schema. Sort the changes
+    into categories, rate the migration risk of each, and draft release notes from
+    that.
+  target: imbue:diff-analysis
+  competitor: pensive:full-review
+  cluster: imbue:diff-analysis
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:create-skill; router: pensive:full-review; judge: imbue:diff-analysis/pensive:full-review'
+  proposals:
+    aimed_at: abstract:create-skill
+    router: pensive:full-review
+    judge: imbue:diff-analysis
+    judge_runner_up: pensive:full-review
+- id: imbue.evidence-sweep.p1
+  type: positive
+  prompt: My PR description lists six things like 'all tests pass' and 'no regressions
+    in auth'. Have each one independently checked against actual command output and
+    tell me which are just asserted.
+  target: imbue:evidence-sweep
+  competitor: null
+  cluster: imbue:evidence-sweep
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:stack-mode; judge: imbue:evidence-sweep/sanctum:validate-pr'
+  proposals:
+    router: sanctum:stack-mode
+    judge: imbue:evidence-sweep
+    judge_runner_up: sanctum:validate-pr
+- id: imbue.evidence-sweep.p2
+  type: positive
+  prompt: Before I merge, I want a skeptical pass over every completion claim in this
+    change, with separate checkers that don't know how the claims were reasoned, and
+    the exact command that would settle any unsupported ones.
+  target: imbue:evidence-sweep
+  competitor: null
+  cluster: imbue:evidence-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:evidence-sweep; judge: imbue:evidence-sweep/herald:judge-panel'
+  proposals:
+    router: imbue:evidence-sweep
+    judge: imbue:evidence-sweep
+    judge_runner_up: herald:judge-panel
+- id: imbue.evidence-sweep.p3
+  type: near_miss
+  prompt: My PR description makes six claims, such as 'all tests pass', 'no breaking
+    API changes' and 'migration is reversible'. Check each one separately against
+    what's in the change and tell me which have no real evidence behind them.
+  target: imbue:evidence-sweep
+  competitor: herald:judge-panel
+  cluster: imbue:evidence-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:stack-mode; router: imbue:evidence-sweep; judge: imbue:evidence-sweep/herald:judge-panel'
+  proposals:
+    aimed_at: sanctum:stack-mode
+    router: imbue:evidence-sweep
+    judge: imbue:evidence-sweep
+    judge_runner_up: herald:judge-panel
+- id: imbue.feature-review.p1
+  type: positive
+  prompt: We're doing quarterly roadmap planning. Inventory what features we've shipped,
+    score and prioritize them, and suggest what's missing.
+  target: imbue:feature-review
+  competitor: null
+  cluster: imbue:feature-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: oracle:quality-bench; judge: imbue:feature-review/spec-kit:spec-review'
+  proposals:
+    router: oracle:quality-bench
+    judge: imbue:feature-review
+    judge_runner_up: spec-kit:spec-review
+- id: imbue.feature-review.p2
+  type: positive
+  prompt: Score our existing features with RICE and WSJF, classify them by how much
+    users want them, and open GitHub issues for the suggested new features we accept.
+  target: imbue:feature-review
+  competitor: null
+  cluster: imbue:feature-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:feature-review; judge: imbue:feature-review/minister:create-issue'
+  proposals:
+    router: imbue:feature-review
+    judge: imbue:feature-review
+    judge_runner_up: minister:create-issue
+- id: imbue.feature-review.p3
+  type: near_miss
+  prompt: We're doing quarterly roadmap planning. Go through the features we've already
+    shipped, score and prioritize them, suggest what we should build next, and open
+    GitHub issues for the ones I accept.
+  target: imbue:feature-review
+  competitor: minister:initiative-pulse
+  cluster: imbue:feature-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at oracle:quality-bench; router: imbue:feature-review; judge: imbue:feature-review/minister:initiative-pulse'
+  proposals:
+    aimed_at: oracle:quality-bench
+    router: imbue:feature-review
+    judge: imbue:feature-review
+    judge_runner_up: minister:initiative-pulse
+- id: imbue.graduated-implementation.p1
+  type: positive
+  prompt: I'm adding OAuth token refresh to our auth service and I want to go in small
+    steps so I actually understand each piece. Can we do just the smallest working
+    slice first, and only move on once I've shown I get it?
+  target: imbue:graduated-implementation
+  competitor: null
+  cluster: imbue:graduated-implementation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: imbue:graduated-implementation/leyline:authentication-patterns'
+  proposals:
+    router: parseltongue:python-async
+    judge: imbue:graduated-implementation
+    judge_runner_up: leyline:authentication-patterns
+- id: imbue.graduated-implementation.p2
+  type: positive
+  prompt: Last time the assistant dumped a 600-line diff for a payments migration
+    and I couldn't review it. How do I set this up so each chunk stays small enough
+    to read and explain, and gets bigger only after I've shown I understood the previous
+    one?
+  target: imbue:graduated-implementation
+  competitor: null
+  cluster: imbue:graduated-implementation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: imbue:graduated-implementation/sanctum:git-workspace-review'
+  proposals:
+    router: parseltongue:python-async
+    judge: imbue:graduated-implementation
+    judge_runner_up: sanctum:git-workspace-review
+- id: imbue.graduated-implementation.p3
+  type: near_miss
+  prompt: I need to untangle our invoice module, where the tax math is mixed in with
+    database writes and email sends. Please don't do it in one go. I want to review
+    and understand each small piece before you move to the next, so start with the
+    smallest slice and I'll tell you when I'm ready for more.
+  target: imbue:graduated-implementation
+  competitor: archetypes:architecture-paradigm-functional-core
+  cluster: imbue:graduated-implementation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: parseltongue:python-async;
+    judge: imbue:graduated-implementation/archetypes:architecture-paradigm-functional-core'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: parseltongue:python-async
+    judge: imbue:graduated-implementation
+    judge_runner_up: archetypes:architecture-paradigm-functional-core
+- id: imbue.justify.p1
+  type: positive
+  prompt: I just finished a big refactor of the auth module and I'm about to open
+    a PR. Can you audit my diff against main and tell me which changes were actually
+    necessary and which are just bloat?
+  target: imbue:justify
+  competitor: null
+  cluster: imbue:justify
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:graduated-implementation; judge: imbue:justify'
+  proposals:
+    router: imbue:graduated-implementation
+    judge: imbue:justify
+- id: imbue.justify.p2
+  type: positive
+  prompt: Only look at what I've staged right now and check whether I tweaked any
+    test assertions to make them pass instead of fixing the code.
+  target: imbue:justify
+  competitor: null
+  cluster: imbue:justify
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: imbue:justify/sanctum:git-workspace-review'
+  proposals:
+    router: parseltongue:python-async
+    judge: imbue:justify
+    judge_runner_up: sanctum:git-workspace-review
+- id: imbue.justify.p3
+  type: near_miss
+  prompt: 'I''m about to open a PR after a long session where you added a lot of code.
+    Audit my branch diff: did we add more than needed, and did any test assertions
+    get changed to make things pass?'
+  target: imbue:justify
+  competitor: pensive:unified-review
+  cluster: imbue:justify
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: abstract:skill-audit;
+    judge: imbue:justify/pensive:unified-review'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: abstract:skill-audit
+    judge: imbue:justify
+    judge_runner_up: pensive:unified-review
+- id: imbue.karpathy-check.p1
+  type: positive
+  prompt: Before you start on adding rate limiting to the signup endpoint, run through
+    a quick pre-flight on assumptions, simplicity, and how we'll prove it's done.
+  target: imbue:karpathy-check
+  competitor: null
+  cluster: imbue:karpathy-check
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: imbue:karpathy-check
+    judge: imbue:karpathy-check
+- id: imbue.karpathy-check.p2
+  type: positive
+  prompt: This request feels too easy and I suspect hidden assumptions. Give me a
+    PASS / needs clarification / rework verdict on the plan before we write any code.
+  target: imbue:karpathy-check
+  competitor: null
+  cluster: imbue:karpathy-check
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:dorodango; judge: imbue:karpathy-check/herald:judge-panel'
+  proposals:
+    router: attune:dorodango
+    judge: imbue:karpathy-check
+    judge_runner_up: herald:judge-panel
+- id: imbue.karpathy-check.p3
+  type: near_miss
+  prompt: I'm about to add rate limiting to the signup endpoint. Before I write anything,
+    run a quick gut check on my plan. Am I guessing at assumptions, overbuilding,
+    touching lines I shouldn't, and do I have a concrete way to prove it's done?
+  target: imbue:karpathy-check
+  competitor: parseltongue:python-async
+  cluster: imbue:karpathy-check
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:create-skill; router: parseltongue:python-async; judge:
+    imbue:karpathy-check/None'
+  proposals:
+    aimed_at: abstract:create-skill
+    router: parseltongue:python-async
+    judge: imbue:karpathy-check
+    judge_runner_up: null
+- id: imbue.karpathy-principles.p1
+  type: positive
+  prompt: The agent keeps silently picking an interpretation of my requests and overbuilding
+    abstractions. What's a compact set of principles I can hand a junior engineer
+    for reading agent diffs?
+  target: imbue:karpathy-principles
+  competitor: null
+  cluster: imbue:karpathy-principles
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: memory-palace:palace-sweep; judge: imbue:karpathy-principles/None'
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: imbue:karpathy-principles
+    judge_runner_up: null
+- id: imbue.karpathy-principles.p2
+  type: positive
+  prompt: 'Before starting this feature, remind me how to avoid LLM coding pitfalls:
+    stating assumptions, keeping code minimal, and making every changed line trace
+    back to the request.'
+  target: imbue:karpathy-principles
+  competitor: null
+  cluster: imbue:karpathy-principles
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:spec-writing; judge: imbue:karpathy-principles'
+  proposals:
+    router: spec-kit:spec-writing
+    judge: imbue:karpathy-principles
+- id: imbue.karpathy-principles.p3
+  type: near_miss
+  prompt: A junior on my team keeps letting the agent silently pick one reading of
+    the request and then sprawl edits across unrelated files. What short set of rules
+    of thumb can I use to name these failure modes when I review its diffs?
+  target: imbue:karpathy-principles
+  competitor: pensive:unified-review
+  cluster: imbue:karpathy-principles
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at memory-palace:palace-sweep; router: pensive:unified-review; judge:
+    imbue:karpathy-principles/None'
+  proposals:
+    aimed_at: memory-palace:palace-sweep
+    router: pensive:unified-review
+    judge: imbue:karpathy-principles
+    judge_runner_up: null
+- id: imbue.latent-space-engineering.p1
+  type: positive
+  prompt: I'm writing dispatch prompts for four parallel code-review subagents. How
+    should I phrase them so the agents are more thorough without sounding threatening
+    or panicky?
+  target: imbue:latent-space-engineering
+  competitor: null
+  cluster: imbue:latent-space-engineering
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: imbue:latent-space-engineering
+    judge: imbue:latent-space-engineering
+- id: imbue.latent-space-engineering.p2
+  type: positive
+  prompt: I want the generated module to match the style of our existing service classes.
+    Should I paste in an example file first, or just name a style standard in the
+    prompt? Help me frame it.
+  target: imbue:latent-space-engineering
+  competitor: null
+  cluster: imbue:latent-space-engineering
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:filter-log; judge: imbue:latent-space-engineering/scribe:style-learner'
+  proposals:
+    router: conserve:filter-log
+    judge: imbue:latent-space-engineering
+    judge_runner_up: scribe:style-learner
+- id: imbue.latent-space-engineering.p3
+  type: near_miss
+  prompt: I'm about to dispatch five parallel reviewer agents and my prompts all say
+    'you MUST NOT miss anything or this fails'. How should I word the instructions
+    so the agents work carefully instead of rushing and cutting corners?
+  target: imbue:latent-space-engineering
+  competitor: conjure:agent-teams
+  cluster: imbue:latent-space-engineering
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: imbue:latent-space-engineering; judge:
+    imbue:latent-space-engineering/conjure:agent-teams'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: imbue:latent-space-engineering
+    judge: imbue:latent-space-engineering
+    judge_runner_up: conjure:agent-teams
+- id: imbue.proof-of-work.p1
+  type: positive
+  prompt: Before you tell me the LSP config fix is done, actually run it and show
+    me the command output proving the server starts and responds.
+  target: imbue:proof-of-work
+  competitor: null
+  cluster: imbue:proof-of-work
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:spec-review; judge: imbue:proof-of-work/None'
+  proposals:
+    router: spec-kit:spec-review
+    judge: imbue:proof-of-work
+    judge_runner_up: null
+- id: imbue.proof-of-work.p2
+  type: positive
+  prompt: I keep getting 'should work now' claims from the agent. Enforce that nothing
+    is declared finished without a failing test first and captured evidence afterward.
+  target: imbue:proof-of-work
+  competitor: null
+  cluster: imbue:proof-of-work
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:fixit; judge: imbue:proof-of-work'
+  proposals:
+    router: sanctum:fixit
+    judge: imbue:proof-of-work
+- id: imbue.proof-of-work.p3
+  type: near_miss
+  prompt: I reconfigured the language server and restarted, and it looks right to
+    me. Before I tell the team it's fixed, help me get actual command output showing
+    the server starts and answers queries, so I'm not just claiming it.
+  target: imbue:proof-of-work
+  competitor: phantom:surface-check
+  cluster: imbue:proof-of-work
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:provider-sweep; router: spec-kit:spec-review; judge: imbue:proof-of-work/phantom:surface-check'
+  proposals:
+    aimed_at: conjure:provider-sweep
+    router: spec-kit:spec-review
+    judge: imbue:proof-of-work
+    judge_runner_up: phantom:surface-check
+- id: imbue.review-core.p1
+  type: positive
+  prompt: 'I need to do a detailed architecture review of our payments service. Set
+    up a consistent structure: capture repo and branch context, inventory the artifacts,
+    log evidence, and format the findings report.'
+  target: imbue:review-core
+  competitor: null
+  cluster: imbue:review-core
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: imbue:review-core
+    judge: imbue:review-core
+- id: imbue.review-core.p2
+  type: positive
+  prompt: Conduct an audit of the OpenAPI spec and related configs. I want findings
+    ordered by severity with file:line, remediation, and follow-up tasks so it's comparable
+    to our other reviews.
+  target: imbue:review-core
+  competitor: null
+  cluster: imbue:review-core
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:gate-audit; judge: imbue:review-core'
+  proposals:
+    router: egregore:gate-audit
+    judge: imbue:review-core
+- id: imbue.review-core.p3
+  type: near_miss
+  prompt: I need to do a detailed review of our new API design. Set it up so I capture
+    repo and branch context, inventory what's in scope, log evidence as I go, and
+    produce a report in the same shape as our past reviews so they're comparable.
+  target: imbue:review-core
+  competitor: pensive:full-review
+  cluster: imbue:review-core
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: 'aimed at egregore:gate-audit; router: imbue:review-core; judge: imbue:review-core/pensive:full-review;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: egregore:gate-audit
+    router: imbue:review-core
+    judge: imbue:review-core
+    judge_runner_up: pensive:full-review
+- id: imbue.rigorous-reasoning.p1
+  type: positive
+  prompt: My teammate and I disagree about whether we should adopt microservices.
+    I'm convinced I'm right, so don't just agree with me; evaluate both positions
+    on the evidence, even if the conclusion is uncomfortable.
+  target: imbue:rigorous-reasoning
+  competitor: null
+  cluster: imbue:rigorous-reasoning
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: imbue:rigorous-reasoning/imbue:evidence-sweep'
+  proposals:
+    router: parseltongue:python-async
+    judge: imbue:rigorous-reasoning
+    judge_runner_up: imbue:evidence-sweep
+- id: imbue.rigorous-reasoning.p2
+  type: positive
+  prompt: Someone argued our migration is justified because 'that's the standard approach.'
+    Assess whether that claim actually holds up, and don't soften it if it doesn't.
+  target: imbue:rigorous-reasoning
+  competitor: null
+  cluster: imbue:rigorous-reasoning
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:gate-audit; judge: imbue:rigorous-reasoning/None'
+  proposals:
+    router: egregore:gate-audit
+    judge: imbue:rigorous-reasoning
+    judge_runner_up: null
+- id: imbue.rigorous-reasoning.p3
+  type: near_miss
+  prompt: Two teammates disagree about whether our retry-and-backoff argument actually
+    holds up. Evaluate the reasoning honestly, even if the conclusion is awkward for
+    me, and don't just agree with me to be nice.
+  target: imbue:rigorous-reasoning
+  competitor: herald:judge-panel
+  cluster: imbue:rigorous-reasoning
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: abstract:escalation-governance;
+    judge: imbue:rigorous-reasoning/herald:judge-panel'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: abstract:escalation-governance
+    judge: imbue:rigorous-reasoning
+    judge_runner_up: herald:judge-panel
+- id: imbue.scope-guard.p1
+  type: positive
+  prompt: We're brainstorming adding a plugin system, a caching layer, and an admin
+    dashboard to this branch. Score each for whether it's worth building now versus
+    deferring to the backlog.
+  target: imbue:scope-guard
+  competitor: null
+  cluster: imbue:scope-guard
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: oracle:quality-bench; judge: imbue:scope-guard'
+  proposals:
+    router: oracle:quality-bench
+    judge: imbue:scope-guard
+- id: imbue.scope-guard.p2
+  type: positive
+  prompt: My feature branch is at 1,400 lines and 20 commits after 6 days. Should
+    I keep adding things or split it? Check it against the branch budget.
+  target: imbue:scope-guard
+  competitor: null
+  cluster: imbue:scope-guard
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: imbue:scope-guard
+    judge: imbue:scope-guard
+- id: imbue.scope-guard.p3
+  type: near_miss
+  prompt: We're planning a notification feature and someone wants to add a pluggable
+    channel architecture and an event bus up front. Is that worth building now, or
+    should we defer it? Weigh it against what's already in the backlog.
+  target: imbue:scope-guard
+  competitor: archetypes:paradigm-panel
+  cluster: imbue:scope-guard
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:paradigm-panel; router: hookify:rule-sweep; judge: imbue:scope-guard/archetypes:paradigm-panel'
+  proposals:
+    aimed_at: archetypes:paradigm-panel
+    router: hookify:rule-sweep
+    judge: imbue:scope-guard
+    judge_runner_up: archetypes:paradigm-panel
+- id: imbue.stewardship-health.p1
+  type: positive
+  prompt: Can I see how healthy each of our plugins is right now? I want to know which
+    ones have stale docs or haven't had any improvement activity lately.
+  target: imbue:stewardship-health
+  competitor: null
+  cluster: imbue:stewardship-health
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: imbue:stewardship-health/leyline:plugin-health'
+  proposals:
+    router: parseltongue:python-async
+    judge: imbue:stewardship-health
+    judge_runner_up: leyline:plugin-health
+- id: imbue.stewardship-health.p2
+  type: positive
+  prompt: 'Show me the health breakdown for just the sanctum plugin: docs freshness,
+    quality tooling, whether it''s contributor friendly, and which virtues have been
+    practiced.'
+  target: imbue:stewardship-health
+  competitor: null
+  cluster: imbue:stewardship-health
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:plugin-health; judge: imbue:stewardship-health/leyline:plugin-health'
+  proposals:
+    router: leyline:plugin-health
+    judge: imbue:stewardship-health
+    judge_runner_up: leyline:plugin-health
+- id: imbue.stewardship-health.p3
+  type: near_miss
+  prompt: 'Show me how healthy the sanctum plugin is right now: how fresh its docs
+    are, whether test coverage data exists, and how friendly it is to new contributors.
+    Descriptive labels are fine, no scores.'
+  target: imbue:stewardship-health
+  competitor: scribe:doc-sweep
+  cluster: imbue:stewardship-health
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:provider-setup; router: cartograph:data-flow; judge: imbue:stewardship-health/scribe:doc-sweep'
+  proposals:
+    aimed_at: conjure:provider-setup
+    router: cartograph:data-flow
+    judge: imbue:stewardship-health
+    judge_runner_up: scribe:doc-sweep
+- id: imbue.structured-output.p1
+  type: positive
+  prompt: I've finished analyzing the auth module and have a pile of notes. Format
+    them into a consistent report with severity levels, file locations, and action
+    items with owners so I can hand it to stakeholders.
+  target: imbue:structured-output
+  competitor: null
+  cluster: imbue:structured-output
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:harden; judge: imbue:structured-output/tome:export'
+  proposals:
+    router: pensive:harden
+    judge: imbue:structured-output
+    judge_runner_up: tome:export
+- id: imbue.structured-output.p2
+  type: positive
+  prompt: Turn these findings into a standardized deliverable. Each issue should have
+    a severity, a location with the exact source line quoted, a category, and a specific
+    recommendation, sorted from most to least severe.
+  target: imbue:structured-output
+  competitor: null
+  cluster: imbue:structured-output
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: tome:cite; judge: imbue:structured-output/tome:synthesize'
+  proposals:
+    router: tome:cite
+    judge: imbue:structured-output
+    judge_runner_up: tome:synthesize
+- id: imbue.structured-output.p3
+  type: near_miss
+  prompt: I've finished going through the auth module and have a pile of notes on
+    what's wrong. Can you turn them into a clean write-up I can hand to my manager,
+    with each issue followed by who should fix it and what to do next?
+  target: imbue:structured-output
+  competitor: imbue:evidence-sweep
+  cluster: imbue:structured-output
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: oracle:quality-bench; judge: imbue:structured-output/imbue:evidence-sweep'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: oracle:quality-bench
+    judge: imbue:structured-output
+    judge_runner_up: imbue:evidence-sweep
+- id: imbue.structured-review.p1
+  type: positive
+  prompt: Kick off a review of the current branch against main. Set up the scope inventory,
+    an evidence log, and a report outline before I start digging in.
+  target: imbue:structured-review
+  competitor: null
+  cluster: imbue:structured-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:scope-guard; judge: imbue:structured-review'
+  proposals:
+    router: imbue:scope-guard
+    judge: imbue:structured-review
+- id: imbue.structured-review.p2
+  type: positive
+  prompt: Start a review of src/api/ focused on performance, and also run the feature-oriented
+    mode that inventories existing features, scores them, and suggests new ones.
+  target: imbue:structured-review
+  competitor: null
+  cluster: imbue:structured-review
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: imbue:feature-review; judge: imbue:feature-review/imbue:structured-review;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: imbue:feature-review
+    judge: imbue:feature-review
+    judge_runner_up: imbue:structured-review
+- id: imbue.structured-review.p3
+  type: near_miss
+  prompt: Kick off a review of my current branch against main. I want it focused on
+    security in src/api/, and set up the evidence tracking and report skeleton before
+    I start digging in.
+  target: imbue:structured-review
+  competitor: imbue:review-core
+  cluster: imbue:structured-review
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'aimed at imbue:review-core; router: imbue:scope-guard; judge: imbue:structured-review/imbue:review-core;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: imbue:review-core
+    router: imbue:scope-guard
+    judge: imbue:structured-review
+    judge_runner_up: imbue:review-core
+- id: imbue.vow-enforcement.p1
+  type: positive
+  prompt: The agent keeps ignoring my CLAUDE.md rule against using --no-verify when
+    it's under pressure to finish. How do I make that rule actually unbreakable instead
+    of just a suggestion?
+  target: imbue:vow-enforcement
+  competitor: null
+  cluster: imbue:vow-enforcement
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: imbue:vow-enforcement/hookify:rule-catalog'
+  proposals:
+    router: hookify:rule-sweep
+    judge: imbue:vow-enforcement
+    judge_runner_up: hookify:rule-catalog
+- id: imbue.vow-enforcement.p2
+  type: positive
+  prompt: We have a bunch of soft rules in skill instructions that get violated more
+    than 20% of the time. Help me decide which should become hooks and which need
+    an external validator agent checking output afterward.
+  target: imbue:vow-enforcement
+  competitor: null
+  cluster: imbue:vow-enforcement
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scry:capture-set; judge: imbue:vow-enforcement/imbue:latent-space-engineering'
+  proposals:
+    router: scry:capture-set
+    judge: imbue:vow-enforcement
+    judge_runner_up: imbue:latent-space-engineering
+- id: imbue.vow-enforcement.p3
+  type: near_miss
+  prompt: Claude keeps running git commit --no-verify even though my CLAUDE.md says
+    never to. Writing the rule in more words clearly isn't working, so how do I make
+    it actually impossible for it to do that?
+  target: imbue:vow-enforcement
+  competitor: hookify:rule-catalog
+  cluster: imbue:vow-enforcement
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: hookify:rule-sweep; judge: imbue:vow-enforcement/hookify:rule-catalog'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: hookify:rule-sweep
+    judge: imbue:vow-enforcement
+    judge_runner_up: hookify:rule-catalog
+- id: imbue.workflow-monitor.p1
+  type: positive
+  prompt: That last automated workflow run kept retrying the same command and ran
+    out of context. Analyze the session and open an issue on our git platform proposing
+    a fix so it doesn't recur.
+  target: imbue:workflow-monitor
+  competitor: null
+  cluster: imbue:workflow-monitor
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:git-platform; judge: imbue:workflow-monitor/sanctum:fix-workflow-analysis'
+  proposals:
+    router: leyline:git-platform
+    judge: imbue:workflow-monitor
+    judge_runner_up: sanctum:fix-workflow-analysis
+- id: imbue.workflow-monitor.p2
+  type: positive
+  prompt: 'Give me an efficiency report on my recent workflow runs: redundant file
+    reads, verbose command output, and tasks that should have run in parallel.'
+  target: imbue:workflow-monitor
+  competitor: null
+  cluster: imbue:workflow-monitor
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:plugin-health; judge: imbue:workflow-monitor'
+  proposals:
+    router: leyline:plugin-health
+    judge: imbue:workflow-monitor
+- id: imbue.workflow-monitor.p3
+  type: near_miss
+  prompt: Our CI-driven deploy workflow has been hitting timeouts and retrying the
+    same step over and over this week. Look at the recent runs, work out where the
+    inefficiency is, and file issues on our repo for the improvements.
+  target: imbue:workflow-monitor
+  competitor: sanctum:fix-workflow-analysis
+  cluster: imbue:workflow-monitor
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'aimed at leyline:plugin-health; router: spec-kit:speckit-startup; judge:
+    imbue:workflow-monitor/sanctum:fix-workflow-analysis; accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: leyline:plugin-health
+    router: spec-kit:speckit-startup
+    judge: imbue:workflow-monitor
+    judge_runner_up: sanctum:fix-workflow-analysis

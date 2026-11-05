@@ -1,0 +1,1798 @@
+schema_version: 1
+cases:
+- id: sanctum.acp.p1
+  type: positive
+  prompt: Changes look good. Stage everything, write a conventional commit message,
+    commit, and push to my current branch.
+  target: sanctum:acp
+  competitor: null
+  cluster: sanctum:acp
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:acp
+    judge: sanctum:acp
+- id: sanctum.acp.p2
+  type: positive
+  prompt: 'ship it: add my modified files by name (not git add .), commit with a proper
+    message, push, and make sure the commit actually landed even if a pre-commit hook
+    reformats stuff.'
+  target: sanctum:acp
+  competitor: null
+  cluster: sanctum:acp
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:acp
+    judge: sanctum:acp
+- id: sanctum.acp.p3
+  type: near_miss
+  prompt: My changes are ready. Stage everything by file name, write a conventional
+    commit message, commit, and push to the current branch. Confirm the commit actually
+    landed.
+  target: sanctum:acp
+  competitor: sanctum:commit-messages
+  cluster: sanctum:acp
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:commit-msg; router: sanctum:acp; judge: sanctum:acp/sanctum:commit-messages'
+  proposals:
+    aimed_at: sanctum:commit-msg
+    router: sanctum:acp
+    judge: sanctum:acp
+    judge_runner_up: sanctum:commit-messages
+- id: sanctum.commit-messages.p1
+  type: positive
+  prompt: Write me a conventional commit message for what I have staged right now.
+    Subject under 50 chars, body explaining why.
+  target: sanctum:commit-messages
+  competitor: null
+  cluster: sanctum:commit-messages
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:commit-msg; judge: sanctum:commit-msg; accepted by maintainer
+    2026-11-03'
+  proposals:
+    router: sanctum:commit-msg
+    judge: sanctum:commit-msg
+- id: sanctum.commit-messages.p2
+  type: positive
+  prompt: I just fixed a finding from the discussions board. Draft the commit message
+    for my staged diff and make sure it's marked as resolving that discussion, with
+    no AI-sounding filler words.
+  target: sanctum:commit-messages
+  competitor: null
+  cluster: sanctum:commit-messages
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:commit-msg; judge: sanctum:commit-msg; accepted by maintainer
+    2026-11-03'
+  proposals:
+    router: sanctum:commit-msg
+    judge: sanctum:commit-msg
+- id: sanctum.commit-messages.p3
+  type: near_miss
+  prompt: 'I''ve staged the fix for discussion #654. Write the commit message for
+    it, with the right trailer so it gets marked resolved. Use the function and class
+    names from the staged diff rather than vague descriptions.'
+  target: sanctum:commit-messages
+  competitor: sanctum:commit-msg
+  cluster: sanctum:commit-messages
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:commit-msg; router: sanctum:commit-messages; judge: sanctum:commit-messages/sanctum:commit-msg'
+  proposals:
+    aimed_at: sanctum:commit-msg
+    router: sanctum:commit-messages
+    judge: sanctum:commit-messages
+    judge_runner_up: sanctum:commit-msg
+- id: sanctum.commit-msg.p1
+  type: positive
+  prompt: I've staged my changes to the payment module. Can you look at the diff and
+    write me a commit message following conventional commits? Save it to a file so
+    I can review it before committing.
+  target: sanctum:commit-msg
+  competitor: null
+  cluster: sanctum:commit-msg
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:commit-messages; judge: sanctum:commit-messages; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: sanctum:commit-messages
+    judge: sanctum:commit-messages
+- id: sanctum.commit-msg.p2
+  type: positive
+  prompt: draft a commit message for what I have staged right now, keep the subject
+    short and explain the why in the body. don't want it sounding like marketing copy
+    either
+  target: sanctum:commit-msg
+  competitor: null
+  cluster: sanctum:commit-msg
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:commit-msg
+    judge: sanctum:commit-msg
+- id: sanctum.commit-msg.p3
+  type: near_miss
+  prompt: Draft a commit message for what I have staged. Keep the subject under 50
+    characters, and strip filler words like 'leverage' and 'seamless', plus em dashes
+    and '+' used as 'and'.
+  target: sanctum:commit-msg
+  competitor: sanctum:commit-messages
+  cluster: sanctum:commit-msg
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:commit-messages; router: sanctum:commit-msg; judge: sanctum:commit-msg/sanctum:commit-messages'
+  proposals:
+    aimed_at: sanctum:commit-messages
+    router: sanctum:commit-msg
+    judge: sanctum:commit-msg
+    judge_runner_up: sanctum:commit-messages
+- id: sanctum.create-tag.p1
+  type: positive
+  prompt: 'PR #214 just got merged, tag it as 1.4.0 and push the tag so the release
+    workflow kicks off'
+  target: sanctum:create-tag
+  competitor: null
+  cluster: sanctum:create-tag
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:create-tag
+    judge: sanctum:create-tag
+- id: sanctum.create-tag.p2
+  type: positive
+  prompt: I need to cut annotated release tags for these two merged pull requests
+    on GitHub, figure out the versions from the PR contents and push them. Also check
+    the release run actually started.
+  target: sanctum:create-tag
+  competitor: null
+  cluster: sanctum:create-tag
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:create-tag
+    judge: sanctum:create-tag
+- id: sanctum.create-tag.p3
+  type: near_miss
+  prompt: We just merged the release PR for the billing service. Can you cut the v2.3.1
+    tag on that merge commit and push it so the release pipeline picks it up?
+  target: sanctum:create-tag
+  competitor: egregore:gate-audit
+  cluster: sanctum:create-tag
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: 'aimed at conserve:bloat-sweep; router: sanctum:create-tag; judge: sanctum:create-tag/None;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: conserve:bloat-sweep
+    router: sanctum:create-tag
+    judge: sanctum:create-tag
+    judge_runner_up: null
+- id: sanctum.do-issue.p1
+  type: positive
+  prompt: 'Implement GitHub issue #42 end to end: analyze it, plan the work, make
+    the changes and validate. It''s a pretty big multi-file change so don''t skip
+    steps.'
+  target: sanctum:do-issue
+  competitor: null
+  cluster: sanctum:do-issue
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:do-issue
+    judge: sanctum:do-issue
+- id: sanctum.do-issue.p2
+  type: positive
+  prompt: I've got issues 42, 43 and 44 to knock out and I think two of them touch
+    the same auth middleware. Work through them together and sort out the dependencies
+    and execution order first.
+  target: sanctum:do-issue
+  competitor: null
+  cluster: sanctum:do-issue
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:promote-discussions; judge: sanctum:do-issue/egregore:summon'
+  proposals:
+    router: abstract:promote-discussions
+    judge: sanctum:do-issue
+    judge_runner_up: egregore:summon
+- id: sanctum.do-issue.p3
+  type: near_miss
+  prompt: 'Issue #118 on our repo says the CSV export drops the last row when the
+    file has a trailing newline. Can you take that ticket through to a finished fix,
+    including tests and closing it out?'
+  target: sanctum:do-issue
+  competitor: leyline:ticket-writing
+  cluster: sanctum:do-issue
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:create-hook; router: sanctum:fix-workflow-analysis; judge:
+    sanctum:do-issue/leyline:ticket-writing'
+  proposals:
+    aimed_at: abstract:create-hook
+    router: sanctum:fix-workflow-analysis
+    judge: sanctum:do-issue
+    judge_runner_up: leyline:ticket-writing
+- id: sanctum.doc-consolidation.p1
+  type: positive
+  prompt: git status shows a bunch of untracked files like API_AUDIT_REPORT.md and
+    REFACTOR_ANALYSIS.md left over from earlier Claude sessions. Pull out anything
+    worth keeping into our real docs and get rid of the rest before I open my PR.
+  target: sanctum:doc-consolidation
+  competitor: null
+  cluster: sanctum:doc-consolidation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-analyze; judge: sanctum:doc-consolidation'
+  proposals:
+    router: spec-kit:speckit-analyze
+    judge: sanctum:doc-consolidation
+- id: sanctum.doc-consolidation.p2
+  type: positive
+  prompt: I have several ephemeral LLM-generated review reports sitting in the repo
+    root with useful decisions and findings in them. Merge the valuable bits into
+    the permanent documentation and delete the originals.
+  target: sanctum:doc-consolidation
+  competitor: null
+  cluster: sanctum:doc-consolidation
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:merge-docs; judge: sanctum:merge-docs; accepted by maintainer
+    2026-11-03'
+  proposals:
+    router: sanctum:merge-docs
+    judge: sanctum:merge-docs
+- id: sanctum.doc-consolidation.p3
+  type: near_miss
+  prompt: I've got a bunch of untracked files like API_AUDIT_REPORT.md and REFACTOR_ANALYSIS.md
+    that Claude generated over the past few sessions. Pull out whatever's worth keeping
+    into our real docs and clear out the rest before I open the PR.
+  target: sanctum:doc-consolidation
+  competitor: spec-kit:speckit-analyze
+  cluster: sanctum:doc-consolidation
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: spec-kit:speckit-analyze; judge:
+    sanctum:doc-consolidation/None'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: spec-kit:speckit-analyze
+    judge: sanctum:doc-consolidation
+    judge_runner_up: null
+- id: sanctum.doc-updates.p1
+  type: positive
+  prompt: I just changed how the plugin loader works and added two new skills. Update
+    the docs, README and docstrings to match, and check that version numbers and component
+    counts are still accurate.
+  target: sanctum:doc-updates
+  competitor: null
+  cluster: sanctum:doc-updates
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:update-version; judge: sanctum:update-docs/sanctum:doc-updates;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: sanctum:update-version
+    judge: sanctum:update-docs
+    judge_runner_up: sanctum:doc-updates
+- id: sanctum.doc-updates.p2
+  type: positive
+  prompt: Go through the CHANGELOG and make sure everything recent is reflected in
+    docs/ and the book/ pages, and that the capabilities reference matches what's
+    actually in plugin.json.
+  target: sanctum:doc-updates
+  competitor: null
+  cluster: sanctum:doc-updates
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:sync-capabilities; judge: sanctum:doc-updates/sanctum:sync-capabilities'
+  proposals:
+    router: sanctum:sync-capabilities
+    judge: sanctum:doc-updates
+    judge_runner_up: sanctum:sync-capabilities
+- id: sanctum.doc-updates.p3
+  type: near_miss
+  prompt: I renamed the config loader and changed the default timeout in this branch.
+    Update the README, the docstrings, and the docs folder so they match the new behavior
+    and version numbers.
+  target: sanctum:doc-updates
+  competitor: sanctum:version-updates
+  cluster: sanctum:doc-updates
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:analyze-skill; router: sanctum:update-readme; judge: sanctum:doc-updates/sanctum:version-updates'
+  proposals:
+    aimed_at: abstract:analyze-skill
+    router: sanctum:update-readme
+    judge: sanctum:doc-updates
+    judge_runner_up: sanctum:version-updates
+- id: sanctum.fix-pr.p1
+  type: positive
+  prompt: Reviewers left a bunch of comments on my pull request. Go through them,
+    triage by priority, make the fixes, run validation, then reply to and resolve
+    each thread.
+  target: sanctum:fix-pr
+  competitor: null
+  cluster: sanctum:fix-pr
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:evidence-sweep; judge: sanctum:fix-pr'
+  proposals:
+    router: imbue:evidence-sweep
+    judge: sanctum:fix-pr
+- id: sanctum.fix-pr.p2
+  type: positive
+  prompt: I have a stack of PRs on top of main and each got review feedback. Address
+    the feedback across the whole stack in one run.
+  target: sanctum:fix-pr
+  competitor: null
+  cluster: sanctum:fix-pr
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:stack-mode; judge: sanctum:stack-mode; accepted by maintainer
+    2026-11-03'
+  proposals:
+    router: sanctum:stack-mode
+    judge: sanctum:stack-mode
+- id: sanctum.fix-pr.p3
+  type: near_miss
+  prompt: Reviewers left about a dozen comments on my PR, some nitpicks and a couple
+    of real design concerns. Can you work through them, apply the fixes, and get it
+    ready for another look?
+  target: sanctum:fix-pr
+  competitor: sanctum:pr-prep
+  cluster: sanctum:fix-pr
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at imbue:evidence-sweep; router: sanctum:fix-pr; judge: sanctum:fix-pr/sanctum:pr-prep'
+  proposals:
+    aimed_at: imbue:evidence-sweep
+    router: sanctum:fix-pr
+    judge: sanctum:fix-pr
+    judge_runner_up: sanctum:pr-prep
+- id: sanctum.fix-workflow-analysis.p1
+  type: positive
+  prompt: Analyze the slice of the session we just finished and come up with candidate
+    improvements to our workflow tooling with trade-offs, then converge on one plan
+    with acceptance criteria. Read-only, don't implement anything.
+  target: sanctum:fix-workflow-analysis
+  competitor: null
+  cluster: sanctum:fix-workflow-analysis
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:fix-workflow-analysis
+    judge: sanctum:fix-workflow-analysis
+- id: sanctum.fix-workflow-analysis.p2
+  type: positive
+  prompt: Restate where the friction was in that last command run, weigh a few options
+    for fixing the underlying skills and hooks, and give me one chosen approach with
+    the edits listed, without applying any of them.
+  target: sanctum:fix-workflow-analysis
+  competitor: null
+  cluster: sanctum:fix-workflow-analysis
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:bloat-sweep; judge: sanctum:fix-workflow-analysis'
+  proposals:
+    router: conserve:bloat-sweep
+    judge: sanctum:fix-workflow-analysis
+- id: sanctum.fix-workflow-analysis.p3
+  type: near_miss
+  prompt: Look at what just happened in this session where the commit hook kept failing
+    and the agent looped. Don't change anything yet, just work out what went wrong
+    and give me a plan with acceptance criteria for improving the workflow.
+  target: sanctum:fix-workflow-analysis
+  competitor: imbue:evidence-sweep
+  cluster: sanctum:fix-workflow-analysis
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at cartograph:atlas; router: sanctum:fix-workflow-analysis; judge:
+    sanctum:fix-workflow-analysis/imbue:evidence-sweep'
+  proposals:
+    aimed_at: cartograph:atlas
+    router: sanctum:fix-workflow-analysis
+    judge: sanctum:fix-workflow-analysis
+    judge_runner_up: imbue:evidence-sweep
+- id: sanctum.fix-workflow.p1
+  type: positive
+  prompt: That last session was painfully inefficient, the agent kept re-reading the
+    same files and a hook misfired. Do a quick retrospective on what just happened
+    and fix the skills, agents or hooks involved.
+  target: sanctum:fix-workflow
+  competitor: null
+  cluster: sanctum:fix-workflow
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:fix-workflow-analysis; judge: sanctum:fix-workflow/sanctum:fix-workflow-analysis'
+  proposals:
+    router: sanctum:fix-workflow-analysis
+    judge: sanctum:fix-workflow
+    judge_runner_up: sanctum:fix-workflow-analysis
+- id: sanctum.fix-workflow.p2
+  type: positive
+  prompt: Do a dry run of improving our workflow components based on the last command
+    we ran. I only want a plan for the commands and hooks, no edits yet.
+  target: sanctum:fix-workflow
+  competitor: null
+  cluster: sanctum:fix-workflow
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:fix-workflow-analysis; judge: sanctum:fix-workflow-analysis;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: sanctum:fix-workflow-analysis
+    judge: sanctum:fix-workflow-analysis
+- id: sanctum.fix-workflow.p3
+  type: near_miss
+  prompt: That last session was painfully slow, with the agent re-reading the same
+    files and retrying the same hook three times. Look at what happened and go change
+    the skills and hooks involved so it doesn't happen again.
+  target: sanctum:fix-workflow
+  competitor: sanctum:fix-workflow-analysis
+  cluster: sanctum:fix-workflow
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:fix-workflow-analysis; router: parseltongue:python-sweep;
+    judge: sanctum:fix-workflow/sanctum:fix-workflow-analysis'
+  proposals:
+    aimed_at: sanctum:fix-workflow-analysis
+    router: parseltongue:python-sweep
+    judge: sanctum:fix-workflow
+    judge_runner_up: sanctum:fix-workflow-analysis
+- id: sanctum.fixit.p1
+  type: positive
+  prompt: 'I''ve got this traceback from CI: TypeError: ''NoneType'' object is not
+    subscriptable at parser.py:88. Don''t know the root cause yet. Can you reproduce
+    it, write a failing test, then fix it and show me it''s green?'
+  target: sanctum:fixit
+  competitor: null
+  cluster: sanctum:fixit
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-sweep; judge: sanctum:fixit/None'
+  proposals:
+    router: conjure:provider-sweep
+    judge: sanctum:fixit
+    judge_runner_up: null
+- id: sanctum.fixit.p2
+  type: positive
+  prompt: build keeps failing and I dumped the output to /tmp/build.log. Go through
+    it, figure out what's actually broken, and drive it to a verified fix with a regression
+    test.
+  target: sanctum:fixit
+  competitor: null
+  cluster: sanctum:fixit
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:fixit
+    judge: sanctum:fixit
+- id: sanctum.fixit.p3
+  type: near_miss
+  prompt: 'Here''s the failure from CI: `AssertionError: expected 3 items, got 2`
+    in test_cart_totals.py line 54, plus the full pytest log below. I don''t know
+    why it''s happening. Can you reproduce it, write a failing test, and fix it?'
+  target: sanctum:fixit
+  competitor: sanctum:fix-workflow-analysis
+  cluster: sanctum:fixit
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: leyline:pytest-config; judge: sanctum:fixit/sanctum:fix-workflow-analysis'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: leyline:pytest-config
+    judge: sanctum:fixit
+    judge_runner_up: sanctum:fix-workflow-analysis
+- id: sanctum.git-catchup.p1
+  type: positive
+  prompt: I've been out for a week. Can you catch me up on what changed on this branch
+    compared to main, file by file, and note any follow-ups?
+  target: sanctum:git-catchup
+  competitor: null
+  cluster: sanctum:git-catchup
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:filter-log; judge: sanctum:git-catchup'
+  proposals:
+    router: conserve:filter-log
+    judge: sanctum:git-catchup
+- id: sanctum.git-catchup.p2
+  type: positive
+  prompt: 'Just switched back to this repo after a few days. What''s the state of
+    things: current branch, upstream, and a summary of what''s different from main?'
+  target: sanctum:git-catchup
+  competitor: null
+  cluster: sanctum:git-catchup
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:git-catchup
+    judge: sanctum:git-catchup
+- id: sanctum.git-catchup.p3
+  type: near_miss
+  prompt: 'I''ve been off for a week and this branch has moved a lot. Walk me through
+    what changed compared to main: which files, why, and what I should follow up on
+    before I touch anything.'
+  target: sanctum:git-catchup
+  competitor: pensive:blast-radius
+  cluster: sanctum:git-catchup
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: 'aimed at conserve:filter-log; router: sanctum:git-catchup; judge: sanctum:git-catchup/pensive:blast-radius;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: conserve:filter-log
+    router: sanctum:git-catchup
+    judge: sanctum:git-catchup
+    judge_runner_up: pensive:blast-radius
+- id: sanctum.git-workspace-review.p1
+  type: positive
+  prompt: Before I write my commit message, check what's staged vs unstaged, run lint,
+    and give me the diff stat and the details so we know exactly what's going in.
+  target: sanctum:git-workspace-review
+  competitor: null
+  cluster: sanctum:git-workspace-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:evidence-sweep; judge: sanctum:git-workspace-review/sanctum:commit-messages'
+  proposals:
+    router: imbue:evidence-sweep
+    judge: sanctum:git-workspace-review
+    judge_runner_up: sanctum:commit-messages
+- id: sanctum.git-workspace-review.p2
+  type: positive
+  prompt: Can you confirm I'm on the right branch and that the files I've staged are
+    exactly the ones I intend to commit? Show me a summary of the diff.
+  target: sanctum:git-workspace-review
+  competitor: null
+  cluster: sanctum:git-workspace-review
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: sanctum:git-workspace-review/sanctum:validate-pr;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: parseltongue:python-async
+    judge: sanctum:git-workspace-review
+    judge_runner_up: sanctum:validate-pr
+- id: sanctum.git-workspace-review.p3
+  type: near_miss
+  prompt: Before I write my commit message, check where my working tree stands. Show
+    the branch, what's staged versus unstaged, and the diff stat so I know exactly
+    what I'm about to commit.
+  target: sanctum:git-workspace-review
+  competitor: sanctum:commit-messages
+  cluster: sanctum:git-workspace-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conserve:elegant-code-review; router: sanctum:acp; judge: sanctum:git-workspace-review/sanctum:commit-messages'
+  proposals:
+    aimed_at: conserve:elegant-code-review
+    router: sanctum:acp
+    judge: sanctum:git-workspace-review
+    judge_runner_up: sanctum:commit-messages
+- id: sanctum.merge-docs.p1
+  type: positive
+  prompt: I've got a pile of LLM-generated files in the repo root like API_REVIEW_REPORT.md
+    and REFACTORING_REPORT.md. Fold the useful bits into our docs folder and get rid
+    of the rest, but show me the plan before touching anything.
+  target: sanctum:merge-docs
+  competitor: null
+  cluster: sanctum:merge-docs
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:doc-consolidation; judge: sanctum:doc-consolidation; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: sanctum:doc-consolidation
+    judge: sanctum:doc-consolidation
+- id: sanctum.merge-docs.p2
+  type: positive
+  prompt: Scan the repo for stray analysis and report markdown files that aren't in
+    docs/ and tell me where each one's content should be merged, like plans, ADRs,
+    or existing guides. Dry run only.
+  target: sanctum:merge-docs
+  competitor: null
+  cluster: sanctum:merge-docs
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:doc-consolidation; judge: sanctum:merge-docs/sanctum:doc-consolidation'
+  proposals:
+    router: sanctum:doc-consolidation
+    judge: sanctum:merge-docs
+    judge_runner_up: sanctum:doc-consolidation
+- id: sanctum.merge-docs.p3
+  type: near_miss
+  prompt: Previous AI sessions left API_REVIEW_REPORT.md and REFACTORING_NOTES.md
+    in the repo root. Fold the useful parts into our docs/ folder and clear out the
+    leftovers. Show me the plan first.
+  target: sanctum:merge-docs
+  competitor: spec-kit:speckit-implement
+  cluster: sanctum:merge-docs
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at cartograph:atlas; router: spec-kit:speckit-implement; judge: sanctum:merge-docs/None'
+  proposals:
+    aimed_at: cartograph:atlas
+    router: spec-kit:speckit-implement
+    judge: sanctum:merge-docs
+    judge_runner_up: null
+- id: sanctum.pr-prep.p1
+  type: positive
+  prompt: I'm about to open a PR. Run the lint and tests, do a self-review pass of
+    my diff for leftover debug statements, and draft the PR description with a testing
+    section.
+  target: sanctum:pr-prep
+  competitor: null
+  cluster: sanctum:pr-prep
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:validate-pr; judge: sanctum:pr-prep'
+  proposals:
+    router: sanctum:validate-pr
+    judge: sanctum:pr-prep
+- id: sanctum.pr-prep.p2
+  type: positive
+  prompt: Stage my changes, check for stray TODOs and commented-out code, make sure
+    the quality gates pass, and write up a PR summary for this branch.
+  target: sanctum:pr-prep
+  competitor: null
+  cluster: sanctum:pr-prep
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: egregore:quality-gate; judge: sanctum:pr-prep; accepted by maintainer
+    2026-11-03'
+  proposals:
+    router: egregore:quality-gate
+    judge: sanctum:pr-prep
+- id: sanctum.pr-prep.p3
+  type: near_miss
+  prompt: I'm about to open a PR for my staged changes. Run lint and tests, self-review
+    the diff, and draft the PR description with a summary and testing notes.
+  target: sanctum:pr-prep
+  competitor: sanctum:prepare-pr
+  cluster: sanctum:pr-prep
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:validate-pr; router: sanctum:validate-pr; judge: sanctum:pr-prep/sanctum:prepare-pr'
+  proposals:
+    aimed_at: sanctum:validate-pr
+    router: sanctum:validate-pr
+    judge: sanctum:pr-prep
+    judge_runner_up: sanctum:prepare-pr
+- id: sanctum.pr-review.p1
+  type: positive
+  prompt: Review https://github.com/org/repo/pull/123 against the original spec. Flag
+    anything out of scope and log those as backlog issues instead of blocking the
+    merge.
+  target: sanctum:pr-review
+  competitor: null
+  cluster: sanctum:pr-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:pr-review
+    judge: sanctum:pr-review
+- id: sanctum.pr-review.p2
+  type: positive
+  prompt: Can you review this GitLab MR https://gitlab.com/org/repo/-/merge_requests/123
+    in strict scope mode? Write the findings to a local markdown file rather than
+    posting comments.
+  target: sanctum:pr-review
+  competitor: null
+  cluster: sanctum:pr-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:pr-review
+    judge: sanctum:pr-review
+- id: sanctum.pr-review.p3
+  type: near_miss
+  prompt: 'A teammate opened PR #214. Review it against the ticket requirements, flag
+    anything that''s scope creep, and give me feedback I can leave on it.'
+  target: sanctum:pr-review
+  competitor: spec-kit:speckit-checklist
+  cluster: sanctum:pr-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:fix-pr; router: hookify:rule-sweep; judge: sanctum:pr-review/spec-kit:speckit-checklist'
+  proposals:
+    aimed_at: sanctum:fix-pr
+    router: hookify:rule-sweep
+    judge: sanctum:pr-review
+    judge_runner_up: spec-kit:speckit-checklist
+- id: sanctum.prepare-pr.p1
+  type: positive
+  prompt: 'Feature''s done. Do the whole pre-PR routine in one go: update docs, README
+    and tests, refresh the Makefile demos, run quality gates, and generate the PR
+    description.'
+  target: sanctum:prepare-pr
+  competitor: null
+  cluster: sanctum:prepare-pr
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-specify; judge: sanctum:prepare-pr'
+  proposals:
+    router: spec-kit:speckit-specify
+    judge: sanctum:prepare-pr
+- id: sanctum.prepare-pr.p2
+  type: positive
+  prompt: 'Get everything ready to submit this PR: sync the documentation, review
+    test coverage, run an automated code review on staged changes, and check scope
+    against the branch requirements.'
+  target: sanctum:prepare-pr
+  competitor: null
+  cluster: sanctum:prepare-pr
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:elegant-code-review; judge: sanctum:prepare-pr'
+  proposals:
+    router: conserve:elegant-code-review
+    judge: sanctum:prepare-pr
+- id: sanctum.prepare-pr.p3
+  type: near_miss
+  prompt: 'Feature''s done. Do the whole pre-PR sweep in one go: update the docs and
+    README, review test coverage, run the quality checks, and generate the PR description.'
+  target: sanctum:prepare-pr
+  competitor: egregore:quality-gate
+  cluster: sanctum:prepare-pr
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at cartograph:atlas; router: egregore:quality-gate; judge: sanctum:prepare-pr/egregore:quality-gate'
+  proposals:
+    aimed_at: cartograph:atlas
+    router: egregore:quality-gate
+    judge: sanctum:prepare-pr
+    judge_runner_up: egregore:quality-gate
+- id: sanctum.resolve-threads.p1
+  type: positive
+  prompt: I've addressed all the review comments on my PR already. Mark every unresolved
+    review thread as resolved so the conversation is clean before merge.
+  target: sanctum:resolve-threads
+  competitor: null
+  cluster: sanctum:resolve-threads
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:resolve-threads
+    judge: sanctum:resolve-threads
+- id: sanctum.resolve-threads.p2
+  type: positive
+  prompt: Use the GraphQL API to find all unresolved review threads on the current
+    branch's PR, resolve them, and confirm the unresolved count is zero. No replies
+    needed.
+  target: sanctum:resolve-threads
+  competitor: null
+  cluster: sanctum:resolve-threads
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: sanctum:resolve-threads
+    judge: sanctum:resolve-threads
+- id: sanctum.resolve-threads.p3
+  type: near_miss
+  prompt: I already pushed fixes for every reviewer comment on my PR. Don't redo any
+    fixes, just mark all the open review threads as resolved.
+  target: sanctum:resolve-threads
+  competitor: sanctum:fix-pr
+  cluster: sanctum:resolve-threads
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:fix-pr; router: sanctum:fix-pr; judge: sanctum:resolve-threads/sanctum:fix-pr'
+  proposals:
+    aimed_at: sanctum:fix-pr
+    router: sanctum:fix-pr
+    judge: sanctum:resolve-threads
+    judge_runner_up: sanctum:fix-pr
+- id: sanctum.session-management.p1
+  type: positive
+  prompt: I'm halfway through a messy auth bug and need to stop for the day. How do
+    I label this conversation so I can pick it back up tomorrow from the terminal?
+  target: sanctum:session-management
+  competitor: null
+  cluster: sanctum:session-management
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: sanctum:session-management/None'
+  proposals:
+    router: parseltongue:python-async
+    judge: sanctum:session-management
+    judge_runner_up: null
+- id: sanctum.session-management.p2
+  type: positive
+  prompt: I opened a PR last week and ran a review on it in Claude Code. How do I
+    jump back into that exact conversation for PR 156 without starting over?
+  target: sanctum:session-management
+  competitor: null
+  cluster: sanctum:session-management
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scribe:session-replay; judge: sanctum:session-management/memory-palace:review-room'
+  proposals:
+    router: scribe:session-replay
+    judge: sanctum:session-management
+    judge_runner_up: memory-palace:review-room
+- id: sanctum.session-management.p3
+  type: near_miss
+  prompt: I'm pausing a long refactor and want to pick it up tomorrow with the context
+    intact. How do I name this session and resume it later?
+  target: sanctum:session-management
+  competitor: memory-palace:session-handoff
+  cluster: sanctum:session-management
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: sanctum:session-management; judge:
+    sanctum:session-management/memory-palace:session-handoff'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: sanctum:session-management
+    judge: sanctum:session-management
+    judge_runner_up: memory-palace:session-handoff
+- id: sanctum.stack-create.p1
+  type: positive
+  prompt: 'I have a written plan with three ordered parts: schema migration, then
+    API, then frontend. Set up the chain of branches so each one builds on the previous
+    one.'
+  target: sanctum:stack-create
+  competitor: null
+  cluster: sanctum:stack-create
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: phantom:surface-check; judge: sanctum:stack-create'
+  proposals:
+    router: phantom:surface-check
+    judge: sanctum:stack-create
+- id: sanctum.stack-create.p2
+  type: positive
+  prompt: Break my plan into dependent slices and create the git branches for them,
+    each based on the one before. Working tree is clean on main.
+  target: sanctum:stack-create
+  competitor: null
+  cluster: sanctum:stack-create
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-checklist; judge: sanctum:stack-create'
+  proposals:
+    router: spec-kit:speckit-checklist
+    judge: sanctum:stack-create
+- id: sanctum.stack-create.p3
+  type: near_miss
+  prompt: I've got a written plan with four ordered steps for the auth refactor, and
+    each step only makes sense on top of the previous one. Set up the branches so
+    each step gets its own branch based on the one before it.
+  target: sanctum:stack-create
+  competitor: phantom:surface-check
+  cluster: sanctum:stack-create
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at phantom:surface-check; router: phantom:surface-check; judge: sanctum:stack-create/None'
+  proposals:
+    aimed_at: phantom:surface-check
+    router: phantom:surface-check
+    judge: sanctum:stack-create
+    judge_runner_up: null
+- id: sanctum.stack-mode.p1
+  type: positive
+  prompt: My PR is part of a chain of dependent PRs. I want to run the review on every
+    PR in the chain, base to tip, and get one combined summary comment on the first
+    PR.
+  target: sanctum:stack-mode
+  competitor: null
+  cluster: sanctum:stack-mode
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:stack-mode
+    judge: sanctum:stack-mode
+- id: sanctum.stack-mode.p2
+  type: positive
+  prompt: How should a command figure out which PRs belong to the same stack of dependent
+    PRs, so it can loop its fix workflow across all of them?
+  target: sanctum:stack-mode
+  competitor: null
+  cluster: sanctum:stack-mode
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:stack-mode
+    judge: sanctum:stack-mode
+- id: sanctum.stack-mode.p3
+  type: near_miss
+  prompt: My PR is one of five chained together off master. Run the review on every
+    PR in the chain, base to tip, and leave one combined summary comment on the bottom
+    PR.
+  target: sanctum:stack-mode
+  competitor: pensive:unified-review
+  cluster: sanctum:stack-mode
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:stack-push; router: scribe:doc-sweep; judge: sanctum:stack-mode/pensive:unified-review'
+  proposals:
+    aimed_at: sanctum:stack-push
+    router: scribe:doc-sweep
+    judge: sanctum:stack-mode
+    judge_runner_up: pensive:unified-review
+- id: sanctum.stack-push.p1
+  type: positive
+  prompt: I've committed work on each of my stacked feature branches. Push them all
+    and open a PR for each one targeting its parent branch, plus a summary comment
+    on the first PR.
+  target: sanctum:stack-push
+  competitor: null
+  cluster: sanctum:stack-push
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: sanctum:stack-push
+    judge: sanctum:stack-push
+- id: sanctum.stack-push.p2
+  type: positive
+  prompt: I added more commits to the middle branch of my stack. Update the open PRs
+    so they reflect it.
+  target: sanctum:stack-push
+  competitor: null
+  cluster: sanctum:stack-push
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:stack-rebase; judge: sanctum:stack-push'
+  proposals:
+    router: sanctum:stack-rebase
+    judge: sanctum:stack-push
+- id: sanctum.stack-push.p3
+  type: near_miss
+  prompt: All my slice branches now have commits on them. Push them and open a PR
+    for each one, with each PR targeting the branch below it, then post a summary
+    of the chain.
+  target: sanctum:stack-push
+  competitor: sanctum:stack-rebase
+  cluster: sanctum:stack-push
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:stack-rebase; router: sanctum:stack-push; judge: sanctum:stack-push/sanctum:stack-rebase'
+  proposals:
+    aimed_at: sanctum:stack-rebase
+    router: sanctum:stack-push
+    judge: sanctum:stack-push
+    judge_runner_up: sanctum:stack-rebase
+- id: sanctum.stack-rebase.p1
+  type: positive
+  prompt: The first PR in my stack just merged into master. Now the remaining branches
+    need to move onto master and be force-pushed. How do I cascade that?
+  target: sanctum:stack-rebase
+  competitor: null
+  cluster: sanctum:stack-rebase
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:stack-push; judge: sanctum:stack-rebase'
+  proposals:
+    router: sanctum:stack-push
+    judge: sanctum:stack-rebase
+- id: sanctum.stack-rebase.p2
+  type: positive
+  prompt: I amended a commit in the middle of my branch chain and the later branches
+    are now out of date. Rebase everything downstream of it in one pass.
+  target: sanctum:stack-rebase
+  competitor: null
+  cluster: sanctum:stack-rebase
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: memory-palace:palace-sweep; judge: sanctum:stack-rebase/sanctum:stack-push'
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: sanctum:stack-rebase
+    judge_runner_up: sanctum:stack-push
+- id: sanctum.stack-rebase.p3
+  type: near_miss
+  prompt: The first PR in my chain just got merged into master. Get the remaining
+    branches caught up, retarget the next PR onto master, and update the open PRs.
+  target: sanctum:stack-rebase
+  competitor: sanctum:stack-push
+  cluster: sanctum:stack-rebase
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:stack-push; router: sanctum:stack-push; judge: sanctum:stack-rebase/sanctum:stack-push'
+  proposals:
+    aimed_at: sanctum:stack-push
+    router: sanctum:stack-push
+    judge: sanctum:stack-rebase
+    judge_runner_up: sanctum:stack-push
+- id: sanctum.sync-capabilities.p1
+  type: positive
+  prompt: I added three new skills and an agent to one of our plugins. Check whether
+    the capabilities reference doc is missing any of them and add the missing entries.
+  target: sanctum:sync-capabilities
+  competitor: null
+  cluster: sanctum:sync-capabilities
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:update-plugins; judge: sanctum:sync-capabilities'
+  proposals:
+    router: sanctum:update-plugins
+    judge: sanctum:sync-capabilities
+- id: sanctum.sync-capabilities.p2
+  type: positive
+  prompt: CI is failing on the docs sync check. Show me which plugin registrations
+    don't match the capabilities reference, just for the abstract plugin, without
+    changing anything.
+  target: sanctum:sync-capabilities
+  competitor: null
+  cluster: sanctum:sync-capabilities
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:sync-capabilities
+    judge: sanctum:sync-capabilities
+- id: sanctum.sync-capabilities.p3
+  type: near_miss
+  prompt: Check that every skill, command and agent registered in the plugin manifests
+    is listed in the capabilities reference doc, and add the entries that are missing.
+  target: sanctum:sync-capabilities
+  competitor: leyline:plugin-health
+  cluster: sanctum:sync-capabilities
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at cartograph:atlas; router: leyline:plugin-health; judge: sanctum:sync-capabilities/leyline:plugin-health'
+  proposals:
+    aimed_at: cartograph:atlas
+    router: leyline:plugin-health
+    judge: sanctum:sync-capabilities
+    judge_runner_up: leyline:plugin-health
+- id: sanctum.test-updates.p1
+  type: positive
+  prompt: Find which modules under src/ have no tests and generate pytest BDD-style
+    scaffolding for them.
+  target: sanctum:test-updates
+  competitor: null
+  cluster: sanctum:test-updates
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:update-tests; judge: sanctum:update-tests; accepted by maintainer
+    2026-11-03'
+  proposals:
+    router: sanctum:update-tests
+    judge: sanctum:update-tests
+- id: sanctum.test-updates.p2
+  type: positive
+  prompt: I'm adding a new feature file. Walk me through writing the failing tests
+    first, then update the existing tests for src/sanctum/agents to follow behavior-driven
+    patterns.
+  target: sanctum:test-updates
+  competitor: null
+  cluster: sanctum:test-updates
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:update-tests; judge: sanctum:update-tests/sanctum:test-updates;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: sanctum:update-tests
+    judge: sanctum:update-tests
+    judge_runner_up: sanctum:test-updates
+- id: sanctum.test-updates.p3
+  type: near_miss
+  prompt: I changed the billing module last week. Bring the existing tests in line
+    with the new behavior and add tests for anything uncovered, writing the failing
+    test first each time.
+  target: sanctum:test-updates
+  competitor: sanctum:update-tests
+  cluster: sanctum:test-updates
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'aimed at parseltongue:python-testing; router: sanctum:update-tests; judge:
+    sanctum:update-tests/sanctum:test-updates; accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: parseltongue:python-testing
+    router: sanctum:update-tests
+    judge: sanctum:update-tests
+    judge_runner_up: sanctum:test-updates
+- id: sanctum.tutorial-updates.p1
+  type: positive
+  prompt: Re-record all our terminal demo GIFs from the .tape files, making sure the
+    binary is rebuilt first so the demos match the latest code.
+  target: sanctum:tutorial-updates
+  competitor: null
+  cluster: sanctum:tutorial-updates
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scry:record-terminal; judge: sanctum:tutorial-updates/scry:vhs-recording'
+  proposals:
+    router: scry:record-terminal
+    judge: sanctum:tutorial-updates
+    judge_runner_up: scry:vhs-recording
+- id: sanctum.tutorial-updates.p2
+  type: positive
+  prompt: Generate the quickstart tutorial with both terminal and browser recordings
+    combined, and write the markdown for docs and the book.
+  target: sanctum:tutorial-updates
+  competitor: null
+  cluster: sanctum:tutorial-updates
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:update-tutorial; judge: sanctum:update-tutorial; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: sanctum:update-tutorial
+    judge: sanctum:update-tutorial
+- id: sanctum.tutorial-updates.p3
+  type: near_miss
+  prompt: The CLI output changed, so re-record the quickstart demo GIFs from the tape
+    files and regenerate the tutorial markdown for docs and the book.
+  target: sanctum:tutorial-updates
+  competitor: scry:vhs-recording
+  cluster: sanctum:tutorial-updates
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at scry:capture-set; router: scry:vhs-recording; judge: sanctum:tutorial-updates/scry:vhs-recording'
+  proposals:
+    aimed_at: scry:capture-set
+    router: scry:vhs-recording
+    judge: sanctum:tutorial-updates
+    judge_runner_up: scry:vhs-recording
+- id: sanctum.update-ci.p1
+  type: positive
+  prompt: We renamed a bunch of scripts from kebab-case to snake_case last month and
+    I think our pre-commit config and GitHub workflows still point at the old paths.
+    Can you go through what changed since the last release and fix the stale references?
+    Show me the diff before applying anything.
+  target: sanctum:update-ci
+  competitor: null
+  cluster: sanctum:update-ci
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:bloat-sweep; judge: sanctum:update-ci/sanctum:git-catchup'
+  proposals:
+    router: conserve:bloat-sweep
+    judge: sanctum:update-ci
+    judge_runner_up: sanctum:git-catchup
+- id: sanctum.update-ci.p2
+  type: positive
+  prompt: CI is failing because a workflow calls a make target that no longer exists.
+    Check all the workflows and hooks against the actual Makefile targets and flag
+    anything orphaned or newly added but not wired up.
+  target: sanctum:update-ci
+  competitor: null
+  cluster: sanctum:update-ci
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: egregore:gate-audit; accepted by maintainer
+    2026-11-03'
+  proposals:
+    router: hookify:rule-sweep
+    judge: egregore:gate-audit
+- id: sanctum.update-ci.p3
+  type: near_miss
+  prompt: Since the last release we added new scripts, test files and a dependency
+    bump. Update the pre-commit hooks and GitHub workflows so they cover those changes,
+    but show me the diff before applying.
+  target: sanctum:update-ci
+  competitor: attune:precommit-setup
+  cluster: sanctum:update-ci
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at hookify:rule-sweep; router: sanctum:update-ci; judge: sanctum:update-ci/attune:precommit-setup'
+  proposals:
+    aimed_at: hookify:rule-sweep
+    router: sanctum:update-ci
+    judge: sanctum:update-ci
+    judge_runner_up: attune:precommit-setup
+- id: sanctum.update-dependencies.p1
+  type: positive
+  prompt: Check the whole monorepo for outdated packages, including the nested pyproject.toml
+    files and the package.json. Give me a table of what's safe vs. a major bump before
+    you change anything.
+  target: sanctum:update-dependencies
+  competitor: null
+  cluster: sanctum:update-dependencies
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-packaging; judge: sanctum:update-dependencies/parseltongue:python-packaging'
+  proposals:
+    router: parseltongue:python-packaging
+    judge: sanctum:update-dependencies
+    judge_runner_up: parseltongue:python-packaging
+- id: sanctum.update-dependencies.p2
+  type: positive
+  prompt: Bump our Python deps only, regenerate the lock file, run the tests, and
+    fix any code that breaks from deprecated pydantic APIs. Dry run first so I can
+    see what's available.
+  target: sanctum:update-dependencies
+  competitor: null
+  cluster: sanctum:update-dependencies
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:full-review; judge: sanctum:update-dependencies/parseltongue:python-sweep'
+  proposals:
+    router: pensive:full-review
+    judge: sanctum:update-dependencies
+    judge_runner_up: parseltongue:python-sweep
+- id: sanctum.update-dependencies.p3
+  type: near_miss
+  prompt: Go through every pyproject.toml and Cargo.toml in this monorepo, including
+    the nested workspace members, and tell me what's outdated. Don't change anything
+    yet. Once I've seen the list I want the safe bumps applied.
+  target: sanctum:update-dependencies
+  competitor: parseltongue:python-packaging
+  cluster: sanctum:update-dependencies
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: parseltongue:python-packaging;
+    judge: sanctum:update-dependencies/parseltongue:python-packaging'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: parseltongue:python-packaging
+    judge: sanctum:update-dependencies
+    judge_runner_up: parseltongue:python-packaging
+- id: sanctum.update-docs.p1
+  type: positive
+  prompt: I just merged a pile of changes. Update the docs to match, and also check
+    the docs folder for bloated or redundant pages and anything that reads like AI-generated
+    filler.
+  target: sanctum:update-docs
+  competitor: null
+  cluster: sanctum:update-docs
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:update-docs
+    judge: sanctum:update-docs
+- id: sanctum.update-docs.p2
+  type: positive
+  prompt: 'Our reference docs have drifted: version numbers and plugin counts are
+    wrong and some public functions aren''t documented. Sync them against the code,
+    using strict style rules for docs/ but looser ones for the book.'
+  target: sanctum:update-docs
+  competitor: null
+  cluster: sanctum:update-docs
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:sync-capabilities; judge: sanctum:update-docs'
+  proposals:
+    router: sanctum:sync-capabilities
+    judge: sanctum:update-docs
+- id: sanctum.update-docs.p3
+  type: near_miss
+  prompt: We refactored the auth module last week and the docs under docs/ and book/
+    have drifted. Check them against the code and fix the stale version numbers and
+    counts. Also tell me which pages have gotten bloated or read like AI filler.
+  target: sanctum:update-docs
+  competitor: conserve:bloat-sweep
+  cluster: sanctum:update-docs
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at hookify:rule-sweep; router: hookify:rule-sweep; judge: sanctum:update-docs/conserve:bloat-sweep'
+  proposals:
+    aimed_at: hookify:rule-sweep
+    router: hookify:rule-sweep
+    judge: sanctum:update-docs
+    judge_runner_up: conserve:bloat-sweep
+- id: sanctum.update-plugins.p1
+  type: positive
+  prompt: Audit every plugin's plugin.json against what's actually on disk. I added
+    several commands and skills and I suspect some aren't registered, and there may
+    be stale entries too. Report only for now.
+  target: sanctum:update-plugins
+  competitor: null
+  cluster: sanctum:update-plugins
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:update-plugins
+    judge: sanctum:update-plugins
+- id: sanctum.update-plugins.p2
+  type: positive
+  prompt: Fix the registration gaps in the parseltongue plugin automatically, and
+    run the plugin structure validator and hook modernization check while you're at
+    it.
+  target: sanctum:update-plugins
+  competitor: null
+  cluster: sanctum:update-plugins
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:plugin-health; judge: sanctum:update-plugins/abstract:validate-plugin'
+  proposals:
+    router: leyline:plugin-health
+    judge: sanctum:update-plugins
+    judge_runner_up: abstract:validate-plugin
+- id: sanctum.update-plugins.p3
+  type: near_miss
+  prompt: I added three new hooks and a command to the memory-palace plugin, but I
+    don't think plugin.json lists them. Compare what's on disk with what's registered,
+    show me the gaps, and then fix the manifest.
+  target: sanctum:update-plugins
+  competitor: sanctum:sync-capabilities
+  cluster: sanctum:update-plugins
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:hook-scope-guide; router: sanctum:update-plugins; judge:
+    sanctum:update-plugins/sanctum:sync-capabilities'
+  proposals:
+    aimed_at: abstract:hook-scope-guide
+    router: sanctum:update-plugins
+    judge: sanctum:update-plugins
+    judge_runner_up: sanctum:sync-capabilities
+- id: sanctum.update-readme.p1
+  type: positive
+  prompt: Our root README has ballooned to 400+ lines of inlined internals. Restructure
+    it so a newcomer sees what the project is, how to install, and a table of the
+    packages, and move the deep material into docs pages linked from it.
+  target: sanctum:update-readme
+  competitor: null
+  cluster: sanctum:update-readme
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: sanctum:update-readme/scribe:doc-sweep'
+  proposals:
+    router: hookify:rule-sweep
+    judge: sanctum:update-readme
+    judge_runner_up: scribe:doc-sweep
+- id: sanctum.update-readme.p2
+  type: positive
+  prompt: Refresh the README for this repo. Look at which languages it uses and find
+    a few well-regarded READMEs in those ecosystems to model the section order on,
+    then rewrite and scan the result for AI-sounding phrasing.
+  target: sanctum:update-readme
+  competitor: null
+  cluster: sanctum:update-readme
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:bloat-sweep; judge: sanctum:update-readme'
+  proposals:
+    router: conserve:bloat-sweep
+    judge: sanctum:update-readme
+- id: sanctum.update-readme.p3
+  type: near_miss
+  prompt: Our README still describes the old Python-only setup, and we've since added
+    a Rust backend. Restructure it so both languages show up. Look at a few well-regarded
+    READMEs in similar projects first for section order and quickstart layout.
+  target: sanctum:update-readme
+  competitor: attune:workflow-setup
+  cluster: sanctum:update-readme
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at memory-palace:palace-sweep; router: attune:workflow-setup; judge:
+    sanctum:update-readme/None'
+  proposals:
+    aimed_at: memory-palace:palace-sweep
+    router: attune:workflow-setup
+    judge: sanctum:update-readme
+    judge_runner_up: null
+- id: sanctum.update-tests.p1
+  type: positive
+  prompt: I changed a bunch of modules this week and I think the test suite has gaps.
+    Find the untested code from recent changes, write failing tests first, and convert
+    the basic ones to Given/When/Then style.
+  target: sanctum:update-tests
+  competitor: null
+  cluster: sanctum:update-tests
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: sanctum:update-tests'
+  proposals:
+    router: parseltongue:python-async
+    judge: sanctum:update-tests
+- id: sanctum.update-tests.p2
+  type: positive
+  prompt: Update the tests under tests/test_commit_messages.py for the recent changes
+    only, add edge cases and error scenarios, and check coverage meets 85% line and
+    80% branch.
+  target: sanctum:update-tests
+  competitor: null
+  cluster: sanctum:update-tests
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: sanctum:update-tests
+    judge: sanctum:update-tests
+- id: sanctum.update-tests.p3
+  type: near_miss
+  prompt: I rewrote the async fetch functions in our Python service and the test suite
+    hasn't kept up. Find the coverage gaps from my recent changes, write failing tests
+    first, and convert the existing ones to BDD style with edge cases.
+  target: sanctum:update-tests
+  competitor: parseltongue:python-testing
+  cluster: sanctum:update-tests
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-async; router: parseltongue:python-testing;
+    judge: sanctum:update-tests/parseltongue:python-testing'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: parseltongue:python-testing
+    judge: sanctum:update-tests
+    judge_runner_up: parseltongue:python-testing
+- id: sanctum.update-tutorial.p1
+  type: positive
+  prompt: Regenerate the quickstart tutorial GIF from its VHS tape. Validate the tape
+    first without recording, and make sure the binary is rebuilt so the demo shows
+    the latest code.
+  target: sanctum:update-tutorial
+  competitor: null
+  cluster: sanctum:update-tutorial
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scry:vhs-recording; judge: sanctum:update-tutorial/sanctum:tutorial-updates'
+  proposals:
+    router: scry:vhs-recording
+    judge: sanctum:update-tutorial
+    judge_runner_up: sanctum:tutorial-updates
+- id: sanctum.update-tutorial.p2
+  type: positive
+  prompt: List the tutorials in our manifest, then re-record all of them. The binary
+    was just rebuilt by hand so skip the rebuild and the pre-flight checks, I only
+    want to tweak timing.
+  target: sanctum:update-tutorial
+  competitor: null
+  cluster: sanctum:update-tutorial
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: egregore:dismiss; judge: sanctum:update-tutorial/None; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: egregore:dismiss
+    judge: sanctum:update-tutorial
+    judge_runner_up: null
+- id: sanctum.update-tutorial.p3
+  type: near_miss
+  prompt: The quickstart tutorial GIF is out of date after the CLI flag renames. Check
+    that the tape file's commands are still valid, without recording anything yet,
+    and then regenerate the GIF.
+  target: sanctum:update-tutorial
+  competitor: scry:vhs-recording
+  cluster: sanctum:update-tutorial
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:glm-delegation; router: scry:vhs-recording; judge: sanctum:update-tutorial/scry:vhs-recording'
+  proposals:
+    aimed_at: conjure:glm-delegation
+    router: scry:vhs-recording
+    judge: sanctum:update-tutorial
+    judge_runner_up: scry:vhs-recording
+- id: sanctum.update-version.p1
+  type: positive
+  prompt: 'Cut a patch release: bump the version in every pyproject.toml, Cargo.toml,
+    package.json and plugin.json including nested ones, add a CHANGELOG entry, and
+    make sure no docs still mention the old version.'
+  target: sanctum:update-version
+  competitor: null
+  cluster: sanctum:update-version
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-packaging; judge: sanctum:update-version'
+  proposals:
+    router: parseltongue:python-packaging
+    judge: sanctum:update-version
+- id: sanctum.update-version.p2
+  type: positive
+  prompt: Bump the project to 2.4.0. Preview the version file changes first, apply
+    them, then grep the docs and plugin READMEs for stale references to the previous
+    version and show me the final diff.
+  target: sanctum:update-version
+  competitor: null
+  cluster: sanctum:update-version
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:version-updates; judge: sanctum:update-version'
+  proposals:
+    router: sanctum:version-updates
+    judge: sanctum:update-version
+- id: sanctum.update-version.p3
+  type: near_miss
+  prompt: Bump the project to 2.4.0. That means every pyproject.toml, Cargo.toml and
+    plugin.json, nested ones included. Then update CHANGELOG and the version references
+    in the docs that a script wouldn't catch.
+  target: sanctum:update-version
+  competitor: sanctum:version-updates
+  cluster: sanctum:update-version
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:version-updates; router: leyline:plugin-health; judge:
+    sanctum:update-version/sanctum:version-updates'
+  proposals:
+    aimed_at: sanctum:version-updates
+    router: leyline:plugin-health
+    judge: sanctum:update-version
+    judge_runner_up: sanctum:version-updates
+- id: sanctum.validate-pr.p1
+  type: positive
+  prompt: I just pushed a fix for PR 214 and tests are green, but I want proof the
+    fix actually does what the description says. Can you run through the changed areas,
+    execute checks, and give me a table of evidence?
+  target: sanctum:validate-pr
+  competitor: null
+  cluster: sanctum:validate-pr
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:validate-pr
+    judge: sanctum:validate-pr
+- id: sanctum.validate-pr.p2
+  type: positive
+  prompt: 'Run the manual test plan from the PR body for #87, mark anything you can''t
+    run here as needing a human, and post the results as a comment on the PR.'
+  target: sanctum:validate-pr
+  competitor: null
+  cluster: sanctum:validate-pr
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:validate-pr
+    judge: sanctum:validate-pr
+- id: sanctum.validate-pr.p3
+  type: near_miss
+  prompt: PR 482 says it fixes the race condition in the cache layer. Tests are green,
+    but I want proof. Build validation steps from the diff, run them and capture the
+    output as evidence, and confirm the new tests fail when the fix is reverted. Then
+    post the summary table on the PR.
+  target: sanctum:validate-pr
+  competitor: imbue:evidence-sweep
+  cluster: sanctum:validate-pr
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at imbue:evidence-sweep; router: sanctum:validate-pr; judge: sanctum:validate-pr/imbue:evidence-sweep'
+  proposals:
+    aimed_at: imbue:evidence-sweep
+    router: sanctum:validate-pr
+    judge: sanctum:validate-pr
+    judge_runner_up: imbue:evidence-sweep
+- id: sanctum.version-updates.p1
+  type: positive
+  prompt: We're cutting a release. Bump everything to 2.4.0, including the nested
+    plugin pyproject.toml files, then update the changelog and any docs that still
+    mention the old version.
+  target: sanctum:version-updates
+  competitor: null
+  cluster: sanctum:version-updates
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: sanctum:create-tag; judge: sanctum:update-version; accepted by maintainer
+    2026-11-03'
+  proposals:
+    router: sanctum:create-tag
+    judge: sanctum:update-version
+- id: sanctum.version-updates.p2
+  type: positive
+  prompt: Need a patch version bump across the repo. Preview what would change first,
+    skip the .venv and node_modules dirs, then fix the version table in the API overview
+    doc and add a dated changelog entry.
+  target: sanctum:version-updates
+  competitor: null
+  cluster: sanctum:version-updates
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: sanctum:version-updates; judge: sanctum:update-version; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: sanctum:version-updates
+    judge: sanctum:update-version
+- id: sanctum.version-updates.p3
+  type: near_miss
+  prompt: we're cutting 2.4.0 tomorrow. can you bump the version everywhere it lives,
+    including the nested plugin pyproject files, and update the changelog and README
+    mentions to match?
+  target: sanctum:version-updates
+  competitor: sanctum:update-version
+  cluster: sanctum:version-updates
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'aimed at sanctum:create-tag; router: sanctum:update-version; judge: sanctum:update-version/sanctum:version-updates;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: sanctum:create-tag
+    router: sanctum:update-version
+    judge: sanctum:update-version
+    judge_runner_up: sanctum:version-updates
+- id: sanctum.workflow-improvement.p1
+  type: positive
+  prompt: That last /fix-pr run was slow and kept repeating steps. Look at what the
+    skills and hooks did in that session, figure out what's fragile, and propose changes
+    to make the workflow better.
+  target: sanctum:workflow-improvement
+  competitor: null
+  cluster: sanctum:workflow-improvement
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: sanctum:workflow-improvement
+    judge: sanctum:workflow-improvement
+- id: sanctum.workflow-improvement.p2
+  type: positive
+  prompt: One of our commands failed halfway and was confusing to follow. Recreate
+    what happened, suggest improvements to the involved skills and agents, implement
+    them once I agree, and save a lesson learned.
+  target: sanctum:workflow-improvement
+  competitor: null
+  cluster: sanctum:workflow-improvement
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:fix-workflow-analysis; judge: sanctum:workflow-improvement'
+  proposals:
+    router: sanctum:fix-workflow-analysis
+    judge: sanctum:workflow-improvement
+- id: sanctum.workflow-improvement.p3
+  type: near_miss
+  prompt: that last command run was painfully slow and kept repeating the same steps.
+    go back over what happened, figure out what in our skills and hooks caused it,
+    and make the fixes so it stops happening.
+  target: sanctum:workflow-improvement
+  competitor: sanctum:fix-workflow-analysis
+  cluster: sanctum:workflow-improvement
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at sanctum:fix-workflow-analysis; router: parseltongue:python-sweep;
+    judge: sanctum:workflow-improvement/sanctum:fix-workflow-analysis'
+  proposals:
+    aimed_at: sanctum:fix-workflow-analysis
+    router: parseltongue:python-sweep
+    judge: sanctum:workflow-improvement
+    judge_runner_up: sanctum:fix-workflow-analysis

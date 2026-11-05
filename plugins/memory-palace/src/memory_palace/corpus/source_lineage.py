@@ -187,38 +187,6 @@ class SourceLineageManager:
         self._lineages[entry_id] = full_lineage
         return True
 
-    def get_propagated_confidence(self, entry_id: str) -> float:
-        """Calculate propagated confidence through derivation chain.
-
-        Args:
-            entry_id: ID of the knowledge entry
-
-        Returns:
-            Propagated confidence (product of confidence chain)
-
-        """
-        return self._propagate_confidence(entry_id, frozenset())
-
-    def _propagate_confidence(self, entry_id: str, path: frozenset[str]) -> float:
-        """Recurse along ``derived_from``, treating an id already on the path as 1.0."""
-        lineage = self._lineages.get(entry_id)
-        if lineage is None or entry_id in path:
-            return 1.0
-
-        if isinstance(lineage, SimpleLineage):
-            return 1.0
-        path = path | {entry_id}
-
-        # Start with primary source confidence
-        confidence = lineage.primary_source.confidence
-
-        # Multiply through derivation chain
-        for derived_id in lineage.derived_from:
-            derived_confidence = self._propagate_confidence(derived_id, path)
-            confidence *= derived_confidence
-
-        return confidence
-
     def export_lineage(self) -> dict[str, dict[str, Any]]:
         """Export all lineage as serializable data.
 

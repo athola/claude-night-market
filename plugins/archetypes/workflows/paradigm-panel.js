@@ -34,14 +34,52 @@ if (!requirements) {
   }
 }
 
-const DEFAULT_CANDIDATES = [
-  'architecture-paradigm-domain-driven',
-  'architecture-paradigm-event-driven',
-  'architecture-paradigm-layered',
-  'architecture-paradigm-client-server',
+// Short names of the paradigm skills on disk, each read as
+// Skill(archetypes:architecture-paradigm-<name>). A test compares the two.
+const PREFIX = 'architecture-paradigm-'
+const PARADIGMS = [
+  'client-server',
+  'cqrs-es',
+  'domain-driven',
+  'event-driven',
+  'functional-core',
+  'hexagonal',
+  'layered',
+  'microkernel',
+  'microservices',
+  'modular-monolith',
+  'pipeline',
+  'serverless',
+  'service-based',
+  'space-based',
 ]
+const DEFAULT_CANDIDATES = ['domain-driven', 'event-driven', 'layered', 'client-server']
 
-const candidates = input.candidates || DEFAULT_CANDIDATES
+const KNOWN = PARADIGMS.join(', ')
+const selection = input.candidates ?? null
+if (selection !== null && !Array.isArray(selection)) {
+  return {
+    started: false,
+    reason: 'candidates-not-a-list',
+    next: 'Pass args.candidates as a list of paradigm names. Omit it to score the default spread.',
+  }
+}
+// The skill name and the short name both select a paradigm.
+const named = (selection || DEFAULT_CANDIDATES).map((name) => {
+  const text = String(name)
+  return text.startsWith(PREFIX) ? text.slice(PREFIX.length) : text
+})
+const candidates = named.filter((name) => PARADIGMS.includes(name))
+const unknown = named.filter((name) => !PARADIGMS.includes(name))
+if (unknown.length) log(`unknown paradigm ${unknown.join(', ')}. Known paradigms: ${KNOWN}`)
+if (!candidates.length) {
+  return {
+    started: false,
+    reason: 'no-candidates-selected',
+    next: `Name one or more known paradigms in args.candidates: ${KNOWN}. Omit it to score the default spread.`,
+    unknown,
+  }
+}
 
 const SCORE = {
   type: 'object',
@@ -58,7 +96,7 @@ const SCORE = {
 const scored = await parallel(
   candidates.map((paradigm) => () =>
     agent(
-      `Read Skill(archetypes:${paradigm}) and score it against these requirements, on a 0-10 scale.\n\nRequirements:\n${requirements}\n\nScore the fit, not the paradigm's reputation. List what it fits and what it costs. If a requirement disqualifies it outright, say which one and score it 0. Do not compare it to other paradigms. You are scoring one.`,
+      `Read Skill(archetypes:${PREFIX}${paradigm}) and score it against these requirements, on a 0-10 scale.\n\nRequirements:\n${requirements}\n\nScore the fit, not the paradigm's reputation. List what it fits and what it costs. If a requirement disqualifies it outright, say which one and score it 0. Do not compare it to other paradigms. You are scoring one.`,
       { label: `score:${paradigm}`, phase: 'Score', schema: SCORE },
     ),
   ),
@@ -67,14 +105,16 @@ const scored = await parallel(
 // A paradigm whose scorer returned nothing was not scored; leaving it
 // out of the ranking silently would read as "it lost".
 const unscored = candidates.filter((paradigm, index) => !scored[index])
+// The paradigm comes from the roster, not from the agent's own report.
 const ranked = scored
+  .map((score, index) => score && { ...score, paradigm: candidates[index] })
   .filter(Boolean)
   .sort((left, right) => right.score - left.score)
 
 if (unscored.length) log(`no score for ${unscored.join(', ')}. They are unscored, not last`)
 
 if (!ranked.length) {
-  return { started: true, ranked: [], comparison: null, unscored }
+  return { started: true, ranked: [], comparison: null, unscored, failed: 'score' }
 }
 
 const summary = ranked
@@ -85,7 +125,10 @@ const comparison = await agent(
   `These paradigms were scored independently against one requirement set. Write the comparison a human needs to decide.\n\n${summary}\n\nRequirements:\n${requirements}\n\nName what the top-scoring paradigm gives up that the runner-up keeps. If the top two are within a point, say these requirements do not determine the choice. Name the requirement that would break the tie.`,
   { label: 'compare', phase: 'Compare' },
 )
+// A dead compare agent must not read as a run with nothing to compare.
+const failed = comparison ? null : 'compare'
+if (failed) log('no result from the compare stage. The ranking has no written comparison')
 
 log(`${ranked.length} paradigms scored, leader ${ranked[0].paradigm} at ${ranked[0].score}`)
 
-return { ranked, comparison, unscored }
+return { ranked, comparison, unscored, failed }

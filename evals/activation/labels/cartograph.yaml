@@ -1,0 +1,439 @@
+schema_version: 1
+cases:
+- id: cartograph.architecture-diagram.p1
+  type: positive
+  prompt: I just joined this team and need to understand how the plugins in this repo
+    fit together. Can you draw a high-level diagram of the components and how they
+    relate, grouped by package, that I can paste into a PR description?
+  target: cartograph:architecture-diagram
+  competitor: null
+  cluster: cartograph:architecture-diagram
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: cartograph:architecture-diagram
+    judge: cartograph:architecture-diagram
+- id: cartograph.architecture-diagram.p2
+  type: positive
+  prompt: Make me a Mermaid flowchart of the overall system structure of ./services
+    so I can show it in tomorrow's design review. Keep it to the main modules, nothing
+    too detailed.
+  target: cartograph:architecture-diagram
+  competitor: null
+  cluster: cartograph:architecture-diagram
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: memory-palace:palace-sweep; judge: cartograph:architecture-diagram/cartograph:visualize'
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: cartograph:architecture-diagram
+    judge_runner_up: cartograph:visualize
+- id: cartograph.architecture-diagram.p3
+  type: near_miss
+  prompt: I need a diagram for my PR description showing how the plugins in this repo
+    relate to each other at a high level, with the commands as entry points and the
+    groupings by package. Mermaid is fine.
+  target: cartograph:architecture-diagram
+  competitor: cartograph:workflow-diagram
+  cluster: cartograph:architecture-diagram
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: cartograph:architecture-diagram;
+    judge: cartograph:architecture-diagram/cartograph:workflow-diagram'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: cartograph:architecture-diagram
+    judge: cartograph:architecture-diagram
+    judge_runner_up: cartograph:workflow-diagram
+- id: cartograph.atlas.p1
+  type: positive
+  prompt: 'Give me the full set of diagrams for this repo in one go: the architecture
+    view, import dependencies, data flow, and clustering. And tell me where they contradict
+    each other, like a module that shows up in one and is missing from another.'
+  target: cartograph:atlas
+  competitor: null
+  cluster: cartograph:atlas
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: cartograph:atlas
+    judge: cartograph:atlas
+- id: cartograph.atlas.p2
+  type: positive
+  prompt: Run only the dependency and communities views over ./backend in parallel
+    and then point out any inconsistencies between what the two of them show.
+  target: cartograph:atlas
+  competitor: null
+  cluster: cartograph:atlas
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: cartograph:atlas
+    judge: cartograph:atlas
+- id: cartograph.atlas.p3
+  type: near_miss
+  prompt: 'Give me the whole set of diagrams for this repo in one go: architecture,
+    module dependencies, data flow and the clusters. Also tell me where they disagree,
+    like a module that''s central in one and missing from another.'
+  target: cartograph:atlas
+  competitor: cartograph:code-communities
+  cluster: cartograph:atlas
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at minister:initiative-pulse; router: cartograph:atlas; judge: cartograph:atlas/cartograph:code-communities'
+  proposals:
+    aimed_at: minister:initiative-pulse
+    router: cartograph:atlas
+    judge: cartograph:atlas
+    judge_runner_up: cartograph:code-communities
+- id: cartograph.call-chain.p1
+  type: positive
+  prompt: Trace everything that happens when handle_checkout() is called, from the
+    entry point down through each function it calls, and show it as an indented tree
+    plus a flowchart. Flag the parts touching auth and the untested nodes.
+  target: cartograph:call-chain
+  competitor: null
+  cluster: cartograph:call-chain
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: cartograph:call-chain'
+  proposals:
+    router: hookify:rule-sweep
+    judge: cartograph:call-chain
+- id: cartograph.call-chain.p2
+  type: positive
+  prompt: I don't have a graph database built for this project. Can you still follow
+    the execution path starting from main() using ripgrep and give me a diagram of
+    who calls what?
+  target: cartograph:call-chain
+  competitor: null
+  cluster: cartograph:call-chain
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: gauntlet:graph-search; judge: cartograph:call-chain'
+  proposals:
+    router: gauntlet:graph-search
+    judge: cartograph:call-chain
+- id: cartograph.call-chain.p3
+  type: near_miss
+  prompt: Starting from main(), trace everything it calls, down about 15 levels, and
+    show it as an indented tree. I want to see the execution path and which functions
+    are most critical.
+  target: cartograph:call-chain
+  competitor: scribe:doc-sweep
+  cluster: cartograph:call-chain
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:mission-orchestrator; router: scribe:doc-sweep; judge: cartograph:call-chain/None'
+  proposals:
+    aimed_at: attune:mission-orchestrator
+    router: scribe:doc-sweep
+    judge: cartograph:call-chain
+    judge_runner_up: null
+- id: cartograph.class-diagram.p1
+  type: positive
+  prompt: 'Draw me a UML-style diagram of the types in src/models: inheritance, composition,
+    dataclasses, protocols, with just the public methods. I want to document the public
+    interface of this module.'
+  target: cartograph:class-diagram
+  competitor: null
+  cluster: cartograph:class-diagram
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: cartograph:class-diagram
+    judge: cartograph:class-diagram
+- id: cartograph.class-diagram.p2
+  type: positive
+  prompt: What's the class hierarchy for our exception types and the session objects
+    that use them? Produce a diagram showing which ones inherit from which and what
+    composes what.
+  target: cartograph:class-diagram
+  competitor: null
+  cluster: cartograph:class-diagram
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: cartograph:class-diagram
+    judge: cartograph:class-diagram
+- id: cartograph.class-diagram.p3
+  type: near_miss
+  prompt: What types exist in the payments module and how do they relate? Draw me
+    a diagram of the classes, dataclasses and protocols with their inheritance and
+    composition, public methods only.
+  target: cartograph:class-diagram
+  competitor: cartograph:architecture-diagram
+  cluster: cartograph:class-diagram
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at memory-palace:palace-sweep; router: cartograph:class-diagram; judge:
+    cartograph:class-diagram/cartograph:architecture-diagram'
+  proposals:
+    aimed_at: memory-palace:palace-sweep
+    router: cartograph:class-diagram
+    judge: cartograph:class-diagram
+    judge_runner_up: cartograph:architecture-diagram
+- id: cartograph.code-communities.p1
+  type: positive
+  prompt: Figure out which parts of this codebase are tightly clustered together and
+    where the module boundaries really are. Warn me if two areas are too heavily coupled,
+    like auth and the API handlers.
+  target: cartograph:code-communities
+  competitor: null
+  cluster: cartograph:code-communities
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conjure:provider-setup; judge: cartograph:code-communities'
+  proposals:
+    router: conjure:provider-setup
+    judge: cartograph:code-communities
+- id: cartograph.code-communities.p2
+  type: positive
+  prompt: We're thinking of splitting this monolith. Can you detect natural groupings
+    in the code, report cohesion for each group, and suggest which modules look like
+    they should be broken up?
+  target: cartograph:code-communities
+  competitor: null
+  cluster: cartograph:code-communities
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scry:capture-set; judge: cartograph:code-communities'
+  proposals:
+    router: scry:capture-set
+    judge: cartograph:code-communities
+- id: cartograph.code-communities.p3
+  type: near_miss
+  prompt: I think this codebase has grown some hidden seams. Can you work out which
+    groups of modules naturally cluster together, so I can see where the real boundaries
+    are and which files sit in the wrong group?
+  target: cartograph:code-communities
+  competitor: cartograph:atlas
+  cluster: cartograph:code-communities
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at cartograph:atlas; router: conjure:provider-setup; judge: cartograph:code-communities/cartograph:atlas'
+  proposals:
+    aimed_at: cartograph:atlas
+    router: conjure:provider-setup
+    judge: cartograph:code-communities
+    judge_runner_up: cartograph:atlas
+- id: cartograph.data-flow.p1
+  type: positive
+  prompt: Can you draw a sequence diagram of what happens when a user hits POST /orders
+    in our API, from the router through the service layer to the database and back?
+  target: cartograph:data-flow
+  competitor: null
+  cluster: cartograph:data-flow
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: memory-palace:palace-sweep; judge: cartograph:data-flow/cartograph:call-chain'
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: cartograph:data-flow
+    judge_runner_up: cartograph:call-chain
+- id: cartograph.data-flow.p2
+  type: positive
+  prompt: I need to document how a payment webhook payload gets transformed as it
+    moves between our modules. Make me a diagram of the whole chain with the return
+    values.
+  target: cartograph:data-flow
+  competitor: null
+  cluster: cartograph:data-flow
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: cartograph:data-flow
+    judge: cartograph:data-flow
+- id: cartograph.data-flow.p3
+  type: near_miss
+  prompt: 'Show me what happens when a request hits /checkout: which components pass
+    data to which, in order, including the branch where payment fails. A sequence
+    diagram would work.'
+  target: cartograph:data-flow
+  competitor: cartograph:atlas
+  cluster: cartograph:data-flow
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:paradigm-panel; router: cartograph:data-flow; judge:
+    cartograph:data-flow/cartograph:atlas'
+  proposals:
+    aimed_at: archetypes:paradigm-panel
+    router: cartograph:data-flow
+    judge: cartograph:data-flow
+    judge_runner_up: cartograph:atlas
+- id: cartograph.dependency-graph.p1
+  type: positive
+  prompt: I want to refactor the auth package. Show me a graph of which modules import
+    it so I can see what breaks if I change it, and flag any circular imports.
+  target: cartograph:dependency-graph
+  competitor: null
+  cluster: cartograph:dependency-graph
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: cartograph:dependency-graph
+    judge: cartograph:dependency-graph
+- id: cartograph.dependency-graph.p2
+  type: positive
+  prompt: Map out the import relationships between our plugins, grouped by package,
+    and tell me which modules are the most depended on and which have the most dependencies.
+    Limit transitive depth to 2.
+  target: cartograph:dependency-graph
+  competitor: null
+  cluster: cartograph:dependency-graph
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: cartograph:dependency-graph
+    judge: cartograph:dependency-graph
+- id: cartograph.dependency-graph.p3
+  type: near_miss
+  prompt: I'm about to split up the sanctum package and need to know what breaks if
+    I move things around. Can you chart which modules import which others, with internal
+    vs external deps distinguished and any cycles flagged? One diagram, limited to
+    two levels of transitive imports.
+  target: cartograph:dependency-graph
+  competitor: cartograph:atlas
+  cluster: cartograph:dependency-graph
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at conjure:provider-setup; router: cartograph:dependency-graph; judge:
+    cartograph:dependency-graph/cartograph:atlas'
+  proposals:
+    aimed_at: conjure:provider-setup
+    router: cartograph:dependency-graph
+    judge: cartograph:dependency-graph
+    judge_runner_up: cartograph:atlas
+- id: cartograph.visualize.p1
+  type: positive
+  prompt: /visualize data-flow plugins/sanctum
+  target: cartograph:visualize
+  competitor: null
+  cluster: cartograph:visualize
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: cartograph:data-flow; judge: cartograph:visualize'
+  proposals:
+    router: cartograph:data-flow
+    judge: cartograph:visualize
+- id: cartograph.visualize.p2
+  type: positive
+  prompt: Generate a diagram of this codebase's structure. I'm not sure which kind,
+    just give me the options and let me pick one for the scripts directory.
+  target: cartograph:visualize
+  competitor: null
+  cluster: cartograph:visualize
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: cartograph:atlas; judge: cartograph:visualize'
+  proposals:
+    router: cartograph:atlas
+    judge: cartograph:visualize
+- id: cartograph.visualize.p3
+  type: near_miss
+  prompt: Run the diagram command with the data-flow type against plugins/sanctum
+    and render it through Mermaid. I only want that one diagram for that directory,
+    not a full set of everything.
+  target: cartograph:visualize
+  competitor: cartograph:data-flow
+  cluster: cartograph:visualize
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at cartograph:atlas; router: cartograph:atlas; judge: cartograph:visualize/cartograph:data-flow'
+  proposals:
+    aimed_at: cartograph:atlas
+    router: cartograph:atlas
+    judge: cartograph:visualize
+    judge_runner_up: cartograph:data-flow
+- id: cartograph.workflow-diagram.p1
+  type: positive
+  prompt: Turn our GitHub Actions deploy pipeline into a flowchart with the decision
+    points and the failure/rollback paths shown.
+  target: cartograph:workflow-diagram
+  competitor: null
+  cluster: cartograph:workflow-diagram
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: cartograph:call-chain; judge: cartograph:workflow-diagram/attune:workflow-setup'
+  proposals:
+    router: cartograph:call-chain
+    judge: cartograph:workflow-diagram
+    judge_runner_up: attune:workflow-setup
+- id: cartograph.workflow-diagram.p2
+  type: positive
+  prompt: 'Diagram the lifecycle of a job in our queue worker as a state machine:
+    pending, running, retrying, failed, done, and what triggers each transition.'
+  target: cartograph:workflow-diagram
+  competitor: null
+  cluster: cartograph:workflow-diagram
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:evidence-sweep; judge: cartograph:workflow-diagram'
+  proposals:
+    router: imbue:evidence-sweep
+    judge: cartograph:workflow-diagram
+- id: cartograph.workflow-diagram.p3
+  type: near_miss
+  prompt: Draw a flowchart of what happens in our .github/workflows release pipeline,
+    with the decision points, the parallel jobs, and the failure branches. I only
+    want the existing process documented as a diagram, I'm not starting any new project
+    lifecycle.
+  target: cartograph:workflow-diagram
+  competitor: attune:mission-orchestrator
+  cluster: cartograph:workflow-diagram
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:mission; router: attune:mission-orchestrator; judge: cartograph:workflow-diagram/None'
+  proposals:
+    aimed_at: attune:mission
+    router: attune:mission-orchestrator
+    judge: cartograph:workflow-diagram
+    judge_runner_up: null

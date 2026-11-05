@@ -1,306 +1,123 @@
-"""Tests for .slop-config.yaml config file support.
+"""Contract tests for the slop-detector config-file module (Issue #136).
 
-Issue #136: Config file support for scribe slop-detector
-
-Tests verify YAML config parsing, allowlist filtering, custom word detection,
-threshold validation, and exclude pattern matching.
+`.slop-config.yaml` handling the model performs is specified by
+`skills/slop-detector/modules/config-file.md`. The two fields the CI
+scorer reads (`allowlist`, `exclude_patterns`) are exercised against
+`scripts/slop_score.py` in `tests/unit/test_slop_score.py`. These tests
+pin the rest of the documented schema, defaults, and loading rules.
 """
 
-import fnmatch
+from __future__ import annotations
+
 import re
+from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 
-# ---------------------------------------------------------------------------
-# Helpers that simulate the config-file module behaviour
-# ---------------------------------------------------------------------------
-
-
-def parse_config(raw: dict[str, Any]) -> dict[str, Any]:
-    """Normalise a raw YAML dict into a validated config structure."""
-    custom_words = raw.get("custom_words", {})
-    thresholds = raw.get("thresholds", {})
-
-    warn = float(thresholds.get("warn", 2.0))
-    error = float(thresholds.get("error", 5.0))
-
-    return {
-        "custom_words": {
-            "tier1": [w.lower() for w in custom_words.get("tier1", [])],
-            "tier2": [w.lower() for w in custom_words.get("tier2", [])],
-        },
-        "allowlist": [w.lower() for w in raw.get("allowlist", [])],
-        "thresholds": {"warn": warn, "error": error},
-        "exclude_patterns": raw.get("exclude_patterns", []),
-        "extends": raw.get("extends"),
-    }
+CONFIG_MODULE = (
+    Path(__file__).resolve().parents[1]
+    / "skills"
+    / "slop-detector"
+    / "modules"
+    / "config-file.md"
+)
 
 
-def is_excluded(file_path: str, patterns: list[str]) -> bool:
-    """Return True if file_path matches any exclude glob pattern."""
-    for pattern in patterns:
-        if fnmatch.fnmatch(file_path, pattern):
-            return True
-    return False
+@pytest.fixture(scope="module")
+def config_text() -> str:
+    return CONFIG_MODULE.read_text(encoding="utf-8")
 
 
-def build_tier1_pattern(builtin: list[str], custom: list[str]) -> re.Pattern:
-    """Compile a combined tier-1 detection regex."""
-    words = builtin + custom
-    return re.compile(
-        r"\b(" + "|".join(re.escape(w) for w in words) + r")\b", re.IGNORECASE
+@pytest.fixture(scope="module")
+def schema(config_text: str) -> dict[str, Any]:
+    block = re.search(r"```yaml\n(.*?)\n```", config_text, re.DOTALL)
+    assert block, "config-file.md has no ```yaml schema example"
+    return yaml.safe_load(block.group(1))
+
+
+@pytest.fixture(scope="module")
+def defaults(config_text: str) -> dict[str, str]:
+    rows = re.findall(
+        r"^\| `([\w.]+)` \| [^|]+ \| (`[^`]*`|none) \|", config_text, re.MULTILINE
     )
+    return {field: default.strip("`") for field, default in rows}
 
 
-def find_matches(text: str, pattern: re.Pattern, allowlist: list[str]) -> list[str]:
-    """Return matches not present in the allowlist."""
-    return [m for m in pattern.findall(text) if m.lower() not in allowlist]
-
-
-# ---------------------------------------------------------------------------
-# Built-in defaults used across tests
-# ---------------------------------------------------------------------------
-
-BUILTIN_TIER1 = ["delve", "tapestry", "realm", "embark", "multifaceted"]
-
-
-# ---------------------------------------------------------------------------
-# Tests
-# ---------------------------------------------------------------------------
-
-
-class TestConfigParsing:
-    """Feature: Parse a valid .slop-config.yaml structure."""
-
-    @pytest.mark.unit
-    def test_parses_custom_tier1_words(self) -> None:
-        """Scenario: Custom tier-1 words are loaded from config.
-
-        Given a config dict with custom_words.tier1
-        When parsed
-        Then those words appear in the tier1 list.
-        """
-        raw: dict[str, Any] = {
-            "custom_words": {"tier1": ["synergize", "ideate"]},
+@pytest.mark.unit
+class TestSchemaExample:
+    def test_example_declares_every_documented_top_level_field(
+        self, schema: dict[str, Any]
+    ) -> None:
+        assert set(schema) == {
+            "custom_words",
+            "allowlist",
+            "spelling",
+            "thresholds",
+            "exclude_patterns",
+            "extends",
         }
-        config = parse_config(raw)
-        assert "synergize" in config["custom_words"]["tier1"]
-        assert "ideate" in config["custom_words"]["tier1"]
 
-    @pytest.mark.unit
-    def test_parses_custom_tier2_words(self) -> None:
-        """Scenario: Custom tier-2 words are loaded from config."""
-        raw: dict[str, Any] = {
-            "custom_words": {"tier2": ["impactful", "learnings"]},
-        }
-        config = parse_config(raw)
-        assert "impactful" in config["custom_words"]["tier2"]
-        assert "learnings" in config["custom_words"]["tier2"]
+    def test_example_custom_words_split_into_two_tiers(
+        self, schema: dict[str, Any]
+    ) -> None:
+        assert set(schema["custom_words"]) == {"tier1", "tier2"}
 
-    @pytest.mark.unit
-    def test_parses_allowlist(self) -> None:
-        """Scenario: Allowlist words are lower-cased and stored."""
-        raw: dict[str, Any] = {"allowlist": ["Robust", "LEVERAGE"]}
-        config = parse_config(raw)
-        assert "robust" in config["allowlist"]
-        assert "leverage" in config["allowlist"]
+    def test_example_thresholds_put_warn_below_error(
+        self, schema: dict[str, Any]
+    ) -> None:
+        assert schema["thresholds"]["warn"] < schema["thresholds"]["error"]
 
-    @pytest.mark.unit
-    def test_parses_thresholds(self) -> None:
-        """Scenario: Numeric thresholds are parsed as floats."""
-        raw: dict[str, Any] = {"thresholds": {"warn": 1.5, "error": 4.0}}
-        config = parse_config(raw)
-        assert config["thresholds"]["warn"] == 1.5
-        assert config["thresholds"]["error"] == 4.0
-
-    @pytest.mark.unit
-    def test_defaults_when_fields_absent(self) -> None:
-        """Scenario: Missing fields fall back to built-in defaults."""
-        config = parse_config({})
-        assert config["custom_words"]["tier1"] == []
-        assert config["allowlist"] == []
-        assert config["thresholds"]["warn"] == 2.0
-        assert config["thresholds"]["error"] == 5.0
-        assert config["exclude_patterns"] == []
-        assert config["extends"] is None
-
-    @pytest.mark.unit
-    def test_parses_exclude_patterns(self) -> None:
-        """Scenario: Glob exclude patterns are stored as-is."""
-        raw: dict[str, Any] = {"exclude_patterns": ["vendor/**", "CHANGELOG.md"]}
-        config = parse_config(raw)
-        assert "vendor/**" in config["exclude_patterns"]
-        assert "CHANGELOG.md" in config["exclude_patterns"]
-
-    @pytest.mark.unit
-    def test_parses_extends_path(self) -> None:
-        """Scenario: The extends field is stored as a string path."""
-        raw: dict[str, Any] = {"extends": "../../.slop-config.yaml"}
-        config = parse_config(raw)
-        assert config["extends"] == "../../.slop-config.yaml"
+    def test_example_spelling_mode_is_one_of_the_documented_modes(
+        self, schema: dict[str, Any], config_text: str
+    ) -> None:
+        modes = {"american", "british", "off"}
+        assert schema["spelling"] in modes
+        assert all(f"`{mode}`" in config_text for mode in modes)
 
 
-class TestAllowlistFiltering:
-    """Feature: Words in the allowlist are not flagged."""
+@pytest.mark.unit
+class TestFieldReferenceDefaults:
+    def test_every_schema_field_has_a_reference_row(
+        self, schema: dict[str, Any], defaults: dict[str, str]
+    ) -> None:
+        top_level = {name.split(".")[0] for name in defaults}
+        assert top_level == set(schema)
 
-    @pytest.mark.unit
-    def test_allowlisted_word_not_flagged(self) -> None:
-        """Scenario: 'robust' is in the allowlist and must not appear in results.
-
-        Given text containing 'robust' (a tier-1 word)
-        And 'robust' is in the project allowlist
-        When scanning for slop
-        Then 'robust' is not reported as a match.
-        """
-        builtin = BUILTIN_TIER1 + ["robust"]
-        pattern = build_tier1_pattern(builtin, [])
-        allowlist = ["robust"]
-
-        text = "The system is robust and delve-free."
-        matches = find_matches(text, pattern, allowlist)
-
-        assert "robust" not in [m.lower() for m in matches]
-        assert "delve" in [m.lower() for m in matches]
-
-    @pytest.mark.unit
-    def test_non_allowlisted_word_still_flagged(self) -> None:
-        """Scenario: Words absent from the allowlist are still detected."""
-        pattern = build_tier1_pattern(BUILTIN_TIER1, [])
-        allowlist = ["realm"]  # only realm is allowed
-
-        text = "We embark on a journey through the realm of ideas."
-        matches = find_matches(text, pattern, allowlist)
-
-        lowered = [m.lower() for m in matches]
-        assert "embark" in lowered
-        assert "realm" not in lowered
-
-    @pytest.mark.unit
-    def test_allowlist_is_case_insensitive(self) -> None:
-        """Scenario: Allowlist matching ignores capitalisation."""
-        pattern = build_tier1_pattern(BUILTIN_TIER1, [])
-        allowlist = ["delve"]  # stored lowercase
-
-        text = "DELVE into the data."
-        matches = find_matches(text, pattern, allowlist)
-        assert matches == []
-
-
-class TestCustomWordDetection:
-    """Feature: Custom words from config are detected like built-in words."""
-
-    @pytest.mark.unit
-    def test_custom_tier1_word_detected(self) -> None:
-        """Scenario: A project-specific tier-1 word is flagged.
-
-        Given 'synergize' added as a custom tier-1 word
-        When text contains 'synergize'
-        Then it is detected.
-        """
-        custom = ["synergize", "ideate"]
-        pattern = build_tier1_pattern(BUILTIN_TIER1, custom)
-
-        text = "We need to synergize our efforts."
-        matches = find_matches(text, pattern, allowlist=[])
-        assert "synergize" in [m.lower() for m in matches]
-
-    @pytest.mark.unit
-    def test_custom_word_not_detected_without_config(self) -> None:
-        """Scenario: Custom word is not detected when config is absent."""
-        pattern = build_tier1_pattern(BUILTIN_TIER1, [])  # no custom words
-
-        text = "We need to synergize our efforts."
-        matches = find_matches(text, pattern, allowlist=[])
-        assert matches == []
-
-    @pytest.mark.unit
-    def test_custom_word_combined_with_builtin(self) -> None:
-        """Scenario: Custom and built-in words are both detected in one pass."""
-        custom = ["ideate"]
-        pattern = build_tier1_pattern(BUILTIN_TIER1, custom)
-
-        text = "Let's ideate and delve into solutions."
-        matches = [m.lower() for m in find_matches(text, pattern, allowlist=[])]
-        assert "ideate" in matches
-        assert "delve" in matches
-
-
-class TestThresholdValidation:
-    """Feature: warn threshold must be less than error threshold."""
-
-    @pytest.mark.unit
-    def test_valid_thresholds_accepted(self) -> None:
-        """Scenario: warn < error is a valid configuration."""
-        raw: dict[str, Any] = {"thresholds": {"warn": 2.0, "error": 5.0}}
-        config = parse_config(raw)
-        assert config["thresholds"]["warn"] < config["thresholds"]["error"]
-
-    @pytest.mark.unit
-    def test_equal_thresholds_are_invalid(self) -> None:
-        """Scenario: warn == error violates the constraint."""
-        raw: dict[str, Any] = {"thresholds": {"warn": 3.0, "error": 3.0}}
-        config = parse_config(raw)
-        warn = config["thresholds"]["warn"]
-        error = config["thresholds"]["error"]
-        assert not (warn < error), "equal thresholds should fail the warn < error check"
-
-    @pytest.mark.unit
-    def test_inverted_thresholds_are_invalid(self) -> None:
-        """Scenario: warn > error violates the constraint."""
-        raw: dict[str, Any] = {"thresholds": {"warn": 6.0, "error": 3.0}}
-        config = parse_config(raw)
-        warn = config["thresholds"]["warn"]
-        error = config["thresholds"]["error"]
-        assert not (warn < error), (
-            "inverted thresholds should fail the warn < error check"
+    def test_threshold_defaults_are_warn_two_and_error_five(
+        self, defaults: dict[str, str]
+    ) -> None:
+        assert (defaults["thresholds.warn"], defaults["thresholds.error"]) == (
+            "2.0",
+            "5.0",
         )
 
-    @pytest.mark.unit
-    def test_threshold_boundary(self) -> None:
-        """Scenario: Threshold boundary values are preserved exactly."""
-        raw: dict[str, Any] = {"thresholds": {"warn": 0.1, "error": 0.2}}
-        config = parse_config(raw)
-        assert config["thresholds"]["warn"] == pytest.approx(0.1)
-        assert config["thresholds"]["error"] == pytest.approx(0.2)
+    def test_list_fields_default_to_empty(self, defaults: dict[str, str]) -> None:
+        empty = ["custom_words.tier1", "custom_words.tier2", "allowlist"]
+        empty.append("exclude_patterns")
+        assert [defaults[name] for name in empty] == ["[]"] * 4
+
+    def test_spelling_defaults_to_american(self, defaults: dict[str, str]) -> None:
+        assert defaults["spelling"] == "american"
 
 
-class TestExcludePatterns:
-    """Feature: Files matching exclude glob patterns are skipped."""
+@pytest.mark.unit
+class TestLoadingRules:
+    def test_discovery_stops_at_the_first_config_found(self, config_text: str) -> None:
+        assert "Stop at the first `.slop-config.yaml` found" in config_text
 
-    @pytest.mark.unit
-    def test_file_in_vendor_excluded(self) -> None:
-        """Scenario: A file under vendor/ matches the vendor/** pattern."""
-        patterns = ["vendor/**"]
-        assert is_excluded("vendor/third-party/README.md", patterns) is True
+    def test_allowlist_matching_is_case_insensitive_and_per_match(
+        self, config_text: str
+    ) -> None:
+        assert "case-insensitive and applied per-match" in config_text
 
-    @pytest.mark.unit
-    def test_generated_file_excluded(self) -> None:
-        """Scenario: A .generated.md file is excluded."""
-        patterns = ["**/*.generated.md"]
-        assert is_excluded("docs/api.generated.md", patterns) is True
+    def test_custom_words_extend_the_builtin_lists(self, config_text: str) -> None:
+        assert "Append `custom_words.tier1` to the built-in TIER1" in config_text
+        assert "Append `custom_words.tier2` to the built-in TIER2" in config_text
 
-    @pytest.mark.unit
-    def test_normal_file_not_excluded(self) -> None:
-        """Scenario: A normal docs file is not excluded."""
-        patterns = ["vendor/**", "**/*.generated.md", "CHANGELOG.md"]
-        assert is_excluded("docs/guide.md", patterns) is False
+    def test_exclude_patterns_use_fnmatch(self, config_text: str) -> None:
+        assert "using `fnmatch`" in config_text
 
-    @pytest.mark.unit
-    def test_exact_filename_excluded(self) -> None:
-        """Scenario: An exact filename match excludes that file."""
-        patterns = ["CHANGELOG.md"]
-        assert is_excluded("CHANGELOG.md", patterns) is True
-
-    @pytest.mark.unit
-    def test_empty_patterns_excludes_nothing(self) -> None:
-        """Scenario: An empty exclude list never excludes any file."""
-        assert is_excluded("anything/file.md", []) is False
-
-    @pytest.mark.unit
-    def test_multiple_patterns_first_match_wins(self) -> None:
-        """Scenario: A file matching any pattern in the list is excluded."""
-        patterns = ["docs/**", "vendor/**"]
-        assert is_excluded("docs/intro.md", patterns) is True
-        assert is_excluded("vendor/lib.md", patterns) is True
-        assert is_excluded("src/main.py", patterns) is False
+    def test_audit_mode_still_reads_excluded_files(self, config_text: str) -> None:
+        assert "`--audit` mode reads an excluded file anyway" in config_text

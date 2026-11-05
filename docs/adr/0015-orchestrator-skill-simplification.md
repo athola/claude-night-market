@@ -1,8 +1,8 @@
 # ADR-0015: Over-Built Orchestrator Skill Simplification
 
 **Date**: 2026-05-06
-**Status**: Proposed. Accepted 2026-05-06; every implementation item
-still unticked as of 2026-09-03.
+**Status**: Accepted 2026-05-06. Phase 1 is blocked on data: see its
+note. No implementation item is ticked as of 2026-10-28.
 **Deciders**: Claude Night Market maintainers
 **Source**: Issue #455, Discussion #449 Wave-3 backlog item 3
 
@@ -35,8 +35,13 @@ session logs) to capture for each of the four skills:
 - Mode/framework selection frequency (which Express/RICE/etc.?)
 - Caller distribution (which workflows invoke it most?)
 
-The ``abstract:skill-graph-audit`` skill produces the inputs;
-no new tooling required.
+Inputs, as of 2026-10-28. ``abstract:skill-graph-audit`` gives the
+static caller distribution (``Skill()`` references). Invocation
+counts come from ``abstract/hooks/skill_execution_logger.py``, which
+logs each skill run. Nothing records module loads or mode selection,
+so the first two bullets have no source. Phase 1 cannot finish as
+written until something logs them, or until the ADR picks the
+simplification from caller and invocation data alone.
 
 ### Phase 2: Per-skill simplification
 

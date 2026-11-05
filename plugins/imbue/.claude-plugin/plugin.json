@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "Intelligent workflow methodologies: analysis, evidence gathering, structured output, and research-enriched feature review with RICE/WSJF/Kano scoring",
   "skills": [
     "./skills/assisted-mastery",
@@ -61,6 +61,7 @@
   "homepage": "https://github.com/athola/claude-night-market/tree/master/plugins/imbue",
   "repository": "https://github.com/athola/claude-night-market",
   "dependencies": [
+    "abstract",
     "leyline"
   ],
   "metadata": {

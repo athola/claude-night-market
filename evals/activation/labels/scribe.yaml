@@ -1,0 +1,729 @@
+schema_version: 1
+cases:
+- id: scribe.doc-generate.p1
+  type: positive
+  prompt: Write a README for this project from the codebase, short length, save it
+    to docs/README.md. Keep it free of AI-sounding filler.
+  target: scribe:doc-generate
+  competitor: null
+  cluster: scribe:doc-generate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:update-readme; judge: scribe:doc-generate/sanctum:update-readme'
+  proposals:
+    router: sanctum:update-readme
+    judge: scribe:doc-generate
+    judge_runner_up: sanctum:update-readme
+- id: scribe.doc-generate.p2
+  type: positive
+  prompt: Generate an API reference doc for the endpoints in src/api, using src/main.py
+    as context, and output it to docs/api.md.
+  target: scribe:doc-generate
+  competitor: null
+  cluster: scribe:doc-generate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:api-review; judge: scribe:doc-generate/pensive:api-review'
+  proposals:
+    router: pensive:api-review
+    judge: scribe:doc-generate
+    judge_runner_up: pensive:api-review
+- id: scribe.doc-generate.p3
+  type: near_miss
+  prompt: write me a README for this repo from the codebase, short length, and save
+    it to docs/README.md
+  target: scribe:doc-generate
+  competitor: sanctum:update-readme
+  cluster: scribe:doc-generate
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:context-report; router: sanctum:update-readme; judge:
+    scribe:doc-generate/sanctum:update-readme'
+  proposals:
+    aimed_at: abstract:context-report
+    router: sanctum:update-readme
+    judge: scribe:doc-generate
+    judge_runner_up: sanctum:update-readme
+- id: scribe.doc-generator.p1
+  type: positive
+  prompt: Draft a getting-started guide for our CLI. Lead with the main point, make
+    every sentence earn its place, and avoid sycophantic openers and em dash overuse.
+  target: scribe:doc-generator
+  competitor: null
+  cluster: scribe:doc-generator
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: scribe:tech-tutorial; judge: scribe:tech-tutorial/scribe:doc-generator;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: scribe:tech-tutorial
+    judge: scribe:tech-tutorial
+    judge_runner_up: scribe:doc-generator
+- id: scribe.doc-generator.p2
+  type: positive
+  prompt: I need a design doc explaining why we picked Postgres over DynamoDB. Write
+    it in an authorial voice that explains the reasoning, with prose instead of long
+    bullet lists, and without buzzwords.
+  target: scribe:doc-generator
+  competitor: null
+  cluster: scribe:doc-generator
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:gate-audit; judge: scribe:doc-generator/attune:blueprint'
+  proposals:
+    router: egregore:gate-audit
+    judge: scribe:doc-generator
+    judge_runner_up: attune:blueprint
+- id: scribe.doc-generator.p3
+  type: near_miss
+  prompt: I need to write an architecture rationale doc explaining why we picked Postgres
+    over DynamoDB. Make it thesis-first, no filler, and cut anything that doesn't
+    carry the point.
+  target: scribe:doc-generator
+  competitor: scribe:simplified-technical-english
+  cluster: scribe:doc-generator
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:create-hook; router: egregore:gate-audit; judge: scribe:doc-generator/scribe:simplified-technical-english'
+  proposals:
+    aimed_at: abstract:create-hook
+    router: egregore:gate-audit
+    judge: scribe:doc-generator
+    judge_runner_up: scribe:simplified-technical-english
+- id: scribe.doc-polish.p1
+  type: positive
+  prompt: My README reads like ChatGPT wrote it. Clean it up section by section, show
+    me the before and after for each change, and let me approve them.
+  target: scribe:doc-polish
+  competitor: null
+  cluster: scribe:doc-polish
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: scribe:doc-polish'
+  proposals:
+    router: hookify:rule-sweep
+    judge: scribe:doc-polish
+- id: scribe.doc-polish.p2
+  type: positive
+  prompt: Tighten the Python docstrings under src/ so they stop saying things like
+    'leverages advanced algorithms', but preview the changes first without applying
+    them and don't touch the code logic.
+  target: scribe:doc-polish
+  competitor: null
+  cluster: scribe:doc-polish
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:dismiss; judge: scribe:doc-polish/pensive:refine-code'
+  proposals:
+    router: egregore:dismiss
+    judge: scribe:doc-polish
+    judge_runner_up: pensive:refine-code
+- id: scribe.doc-polish.p3
+  type: near_miss
+  prompt: my README has a lot of AI-sounding phrasing and em dashes in it. clean it
+    up, but show me what you'd change first without applying anything.
+  target: scribe:doc-polish
+  competitor: sanctum:update-readme
+  cluster: scribe:doc-polish
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at conserve:bloat-sweep; router: scribe:doc-polish; judge: scribe:doc-polish/sanctum:update-readme'
+  proposals:
+    aimed_at: conserve:bloat-sweep
+    router: scribe:doc-polish
+    judge: scribe:doc-polish
+    judge_runner_up: sanctum:update-readme
+- id: scribe.doc-sweep.p1
+  type: positive
+  prompt: Review docs/architecture.md and docs/setup.md with several independent reviewers,
+    one each for hallucinated paths, document structure, audience fit, sentence-level
+    style, and whether claims are backed by the repo. Rank the findings by severity.
+  target: scribe:doc-sweep
+  competitor: null
+  cluster: scribe:doc-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:doc-sweep
+    judge: scribe:doc-sweep
+- id: scribe.doc-sweep.p2
+  type: positive
+  prompt: Do a deep multi-pass review of our onboarding guide. I want to know if it
+    names files that don't exist, whether it's written for the right reader, and which
+    sections could be cut entirely.
+  target: scribe:doc-sweep
+  competitor: null
+  cluster: scribe:doc-sweep
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: scribe:doc-sweep/spec-kit:spec-review'
+  proposals:
+    router: hookify:rule-sweep
+    judge: scribe:doc-sweep
+    judge_runner_up: spec-kit:spec-review
+- id: scribe.doc-sweep.p3
+  type: near_miss
+  prompt: run a full multi-layer review on docs/architecture.md and docs/setup.md.
+    I want hallucinated paths, structure problems, audience fit, and sentence-level
+    issues each checked separately, then ranked.
+  target: scribe:doc-sweep
+  competitor: pensive:full-review
+  cluster: scribe:doc-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: scribe:doc-sweep; judge: scribe:doc-sweep/pensive:full-review'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: scribe:doc-sweep
+    judge: scribe:doc-sweep
+    judge_runner_up: pensive:full-review
+- id: scribe.session-replay.p1
+  type: positive
+  prompt: Turn my last Claude Code session into an animated GIF I can drop in the
+    README, showing just the first 5 turns with a Solarized Dark theme.
+  target: scribe:session-replay
+  competitor: null
+  cluster: scribe:session-replay
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:session-replay
+    judge: scribe:session-replay
+- id: scribe.session-replay.p2
+  type: positive
+  prompt: I have a Codex session JSONL file. Render it as an MP4 replay of the conversation,
+    capped at 30 seconds and sped up a bit.
+  target: scribe:session-replay
+  competitor: null
+  cluster: scribe:session-replay
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:session-replay
+    judge: scribe:session-replay
+- id: scribe.session-replay.p3
+  type: near_miss
+  prompt: turn my most recent Claude Code session transcript into an animated GIF
+    I can drop in a README, turns 1-5 only, with tool calls shown.
+  target: scribe:session-replay
+  competitor: sanctum:session-management
+  cluster: scribe:session-replay
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at spec-kit:speckit-startup; router: scribe:session-replay; judge:
+    scribe:session-replay/sanctum:session-management'
+  proposals:
+    aimed_at: spec-kit:speckit-startup
+    router: scribe:session-replay
+    judge: scribe:session-replay
+    judge_runner_up: sanctum:session-management
+- id: scribe.session-to-post.p1
+  type: positive
+  prompt: I just spent the afternoon porting our config parser from Python to Go.
+    Can you turn the work from this session into a blog post I can publish? Use the
+    last 30 commits.
+  target: scribe:session-to-post
+  competitor: null
+  cluster: scribe:session-to-post
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:session-to-post
+    judge: scribe:session-to-post
+- id: scribe.session-to-post.p2
+  type: positive
+  prompt: Write a Twitter/X thread about what we built today, starting from commit
+    abc1234. I'd like the claims in it checked against the actual repo and tests before
+    I post.
+  target: scribe:session-to-post
+  competitor: null
+  cluster: scribe:session-to-post
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: accepted by maintainer 2026-11-03
+  proposals:
+    router: scribe:session-to-post
+    judge: scribe:session-to-post
+- id: scribe.session-to-post.p3
+  type: near_miss
+  prompt: write a blog post about what we built in this session, pulling from the
+    last 20 commits, and verify the claims before I publish it.
+  target: scribe:session-to-post
+  competitor: imbue:evidence-sweep
+  cluster: scribe:session-to-post
+  proposers:
+  - router
+  - judge
+  adjudicated: true
+  notes: 'aimed at parseltongue:python-async; router: scribe:session-to-post; judge:
+    scribe:session-to-post/imbue:evidence-sweep; accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: scribe:session-to-post
+    judge: scribe:session-to-post
+    judge_runner_up: imbue:evidence-sweep
+- id: scribe.simplified-technical-english.p1
+  type: positive
+  prompt: Rewrite our deployment runbook so a non-native English reader can follow
+    it without misreading any step. Keep sentences short, one instruction each, no
+    contractions.
+  target: scribe:simplified-technical-english
+  competitor: null
+  cluster: scribe:simplified-technical-english
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:gate-audit; judge: scribe:simplified-technical-english/None'
+  proposals:
+    router: egregore:gate-audit
+    judge: scribe:simplified-technical-english
+    judge_runner_up: null
+- id: scribe.simplified-technical-english.p2
+  type: positive
+  prompt: I want the agent's replies to operators to use a controlled, ASD-STE100
+    style register. What sentence length limits should I enforce, and which of our
+    docs should be exempt, like ADRs and docstrings?
+  target: scribe:simplified-technical-english
+  competitor: null
+  cluster: scribe:simplified-technical-english
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:simplified-technical-english
+    judge: scribe:simplified-technical-english
+- id: scribe.simplified-technical-english.p3
+  type: near_miss
+  prompt: Our field technicians mostly read English as a second language. Rewrite
+    the pump maintenance procedures in docs/runbooks/ so each step is one short instruction,
+    and check the sentence lengths across the whole folder when you're done.
+  target: scribe:simplified-technical-english
+  competitor: scribe:doc-sweep
+  cluster: scribe:simplified-technical-english
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: imbue:evidence-sweep; judge: scribe:simplified-technical-english/scribe:doc-sweep'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: imbue:evidence-sweep
+    judge: scribe:simplified-technical-english
+    judge_runner_up: scribe:doc-sweep
+- id: scribe.slop-detector.p1
+  type: positive
+  prompt: Scan docs/ and the README for AI-sounding writing. I want line numbers for
+    the spots where words like 'delve' and 'tapestry' are clustered, not just a ban
+    list.
+  target: scribe:slop-detector
+  competitor: null
+  cluster: scribe:slop-detector
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:update-readme; judge: scribe:slop-detector'
+  proposals:
+    router: sanctum:update-readme
+    judge: scribe:slop-detector
+- id: scribe.slop-detector.p2
+  type: positive
+  prompt: This draft announcement reads like ChatGPT wrote it. Score it for generic
+    filler, empty openers, and overused transitions, and tell me which paragraphs
+    to rewrite.
+  target: scribe:slop-detector
+  competitor: null
+  cluster: scribe:slop-detector
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: oracle:quality-bench; judge: scribe:slop-detector/None'
+  proposals:
+    router: oracle:quality-bench
+    judge: scribe:slop-detector
+    judge_runner_up: null
+- id: scribe.slop-detector.p3
+  type: near_miss
+  prompt: Scan the SKILL.md files under plugins/acme/skills/ and flag the lines that
+    read like generated filler. I want file and line numbers, plus a note on where
+    the odd phrasing is clustered.
+  target: scribe:slop-detector
+  competitor: scribe:doc-sweep
+  cluster: scribe:slop-detector
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:analyze-skill; router: hookify:rule-sweep; judge: scribe:slop-detector/scribe:doc-sweep'
+  proposals:
+    aimed_at: abstract:analyze-skill
+    router: hookify:rule-sweep
+    judge: scribe:slop-detector
+    judge_runner_up: scribe:doc-sweep
+- id: scribe.style-learn.p1
+  type: positive
+  prompt: Analyze README.md and docs/guide.md and save a style profile from them called
+    project-docs, so future docs match our tone, sentence length, and word choice.
+  target: scribe:style-learn
+  competitor: null
+  cluster: scribe:style-learn
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-analyze; judge: scribe:style-learn'
+  proposals:
+    router: spec-kit:speckit-analyze
+    judge: scribe:style-learn
+- id: scribe.style-learn.p2
+  type: positive
+  prompt: Go through the posts in blog-posts/ with me interactively, let me pick the
+    passages that sound most like us, and merge them into our existing style profile.
+  target: scribe:style-learn
+  competitor: null
+  cluster: scribe:style-learn
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scribe:style-learner; judge: scribe:style-learn'
+  proposals:
+    router: scribe:style-learner
+    judge: scribe:style-learn
+- id: scribe.style-learn.p3
+  type: near_miss
+  prompt: Learn a style from docs/*.md, call it project-docs, merge it into the profile
+    I already have in .scribe/, and let me pick the exemplar passages myself.
+  target: scribe:style-learn
+  competitor: scribe:style-learner
+  cluster: scribe:style-learn
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at scribe:style-learner; router: scribe:style-learn; judge: scribe:style-learn/scribe:style-learner'
+  proposals:
+    aimed_at: scribe:style-learner
+    router: scribe:style-learn
+    judge: scribe:style-learn
+    judge_runner_up: scribe:style-learner
+- id: scribe.style-learner.p1
+  type: positive
+  prompt: I have about 3000 words of our team's best docs. Pull out measurable features
+    like average sentence length, contraction rate, and jargon density, plus a few
+    exemplar passages, and build a reusable writing style guide.
+  target: scribe:style-learner
+  competitor: null
+  cluster: scribe:style-learner
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:style-learner
+    judge: scribe:style-learner
+- id: scribe.style-learner.p2
+  type: positive
+  prompt: Build a style profile from our existing API guide and two blog posts, then
+    test it by generating a short new paragraph to see if it matches the original
+    voice.
+  target: scribe:style-learner
+  competitor: null
+  cluster: scribe:style-learner
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:style-learner
+    judge: scribe:style-learner
+- id: scribe.style-learner.p3
+  type: near_miss
+  prompt: I've collected about 15 posts from our engineering blog. Build a style guide
+    from them using sentence-length stats and a few representative passages. Then
+    test it on a fresh draft to see whether it holds up.
+  target: scribe:style-learner
+  competitor: scribe:style-learn
+  cluster: scribe:style-learner
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at scribe:style-learn; router: scribe:style-learner; judge: scribe:style-learner/scribe:style-learn'
+  proposals:
+    aimed_at: scribe:style-learn
+    router: scribe:style-learner
+    judge: scribe:style-learner
+    judge_runner_up: scribe:style-learn
+- id: scribe.tech-tutorial.p1
+  type: positive
+  prompt: Write a getting-started tutorial for our new CLI tool aimed at newcomers.
+    Outline first, make sure every code snippet actually runs, and keep it to one
+    path that works.
+  target: scribe:tech-tutorial
+  competitor: null
+  cluster: scribe:tech-tutorial
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:tech-tutorial
+    judge: scribe:tech-tutorial
+- id: scribe.tech-tutorial.p2
+  type: positive
+  prompt: I need a step-by-step how-to for using our REST client library that readers
+    can follow in a terminal. Help me scope the audience and prerequisites, then draft
+    it.
+  target: scribe:tech-tutorial
+  competitor: null
+  cluster: scribe:tech-tutorial
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:hook-scope-guide; judge: scribe:tech-tutorial'
+  proposals:
+    router: abstract:hook-scope-guide
+    judge: scribe:tech-tutorial
+- id: scribe.tech-tutorial.p3
+  type: near_miss
+  prompt: Write a getting-started walkthrough for newcomers on setting up their first
+    Claude Code hook. The reader should run every step in a terminal, hit the common
+    errors, and end up with a working hook at the right scope.
+  target: scribe:tech-tutorial
+  competitor: abstract:hook-authoring
+  cluster: scribe:tech-tutorial
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'aimed at abstract:hook-scope-guide; router: abstract:hook-scope-guide; judge:
+    scribe:tech-tutorial/abstract:hook-authoring; accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: abstract:hook-scope-guide
+    router: abstract:hook-scope-guide
+    judge: scribe:tech-tutorial
+    judge_runner_up: abstract:hook-authoring
+- id: scribe.voice-extract.p1
+  type: positive
+  prompt: I've got a folder of my old newsletter issues at ~/writing-samples/. Extract
+    a voice profile from them called myvoice so I can have text written like me later.
+  target: scribe:voice-extract
+  competitor: null
+  cluster: scribe:voice-extract
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:voice-extract
+    judge: scribe:voice-extract
+- id: scribe.voice-extract.p2
+  type: positive
+  prompt: Build a writing voice profile from samples I'll paste in one at a time.
+    I want it to capture what makes my writing different from default Claude output.
+  target: scribe:voice-extract
+  competitor: null
+  cluster: scribe:voice-extract
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:voice-extract
+    judge: scribe:voice-extract
+- id: scribe.voice-extract.p3
+  type: near_miss
+  prompt: My old newsletter posts are in ~/writing-samples/. Build a voice profile
+    called 'me' from them by comparing my writing against your default output, so
+    I can generate text that sounds like me later.
+  target: scribe:voice-extract
+  competitor: scribe:voice-learn
+  cluster: scribe:voice-extract
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at scribe:style-learn; router: scribe:voice-extract; judge: scribe:voice-extract/scribe:voice-learn'
+  proposals:
+    aimed_at: scribe:style-learn
+    router: scribe:voice-extract
+    judge: scribe:voice-extract
+    judge_runner_up: scribe:voice-learn
+- id: scribe.voice-generate.p1
+  type: positive
+  prompt: Using my myvoice profile in the casual register, write a post from these
+    rough notes about why we moved off Kubernetes. Skip the review step.
+  target: scribe:voice-generate
+  competitor: null
+  cluster: scribe:voice-generate
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: scribe:session-to-post; judge: scribe:voice-generate/scribe:voice-review;
+    accepted by maintainer 2026-11-03'
+  proposals:
+    router: scribe:session-to-post
+    judge: scribe:voice-generate
+    judge_runner_up: scribe:voice-review
+- id: scribe.voice-generate.p2
+  type: positive
+  prompt: Draft a LinkedIn update in my trained writing voice about shipping our v2
+    release. I'll give you bullet notes, and I want banned phrases and em dashes fixed
+    automatically.
+  target: scribe:voice-generate
+  competitor: null
+  cluster: scribe:voice-generate
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:voice-generate
+    judge: scribe:voice-generate
+- id: scribe.voice-generate.p3
+  type: near_miss
+  prompt: Take my rough notes on last month's skill run logs and turn them into a
+    blog post in my 'myvoice' profile. Use the casual register and run the review
+    agents on the draft afterward.
+  target: scribe:voice-generate
+  competitor: scribe:session-to-post
+  cluster: scribe:voice-generate
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'aimed at abstract:aggregate-logs; router: scribe:session-to-post; judge:
+    scribe:voice-generate/scribe:session-to-post; accepted by maintainer 2026-11-03'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: scribe:session-to-post
+    judge: scribe:voice-generate
+    judge_runner_up: scribe:session-to-post
+- id: scribe.voice-learn.p1
+  type: positive
+  prompt: I hand-edited the blog post it generated for me, final-draft.md. Compare
+    my changes to what the pipeline produced and update my myvoice profile so it stops
+    making the same mistakes.
+  target: scribe:voice-learn
+  competitor: null
+  cluster: scribe:voice-learn
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scribe:session-to-post; judge: scribe:voice-learn'
+  proposals:
+    router: scribe:session-to-post
+    judge: scribe:voice-learn
+- id: scribe.voice-learn.p2
+  type: positive
+  prompt: I keep rewriting the same kinds of sentences after the generator gives me
+    a draft. Look at my edits and propose profile rules, but only for patterns that
+    have shown up several times.
+  target: scribe:voice-learn
+  competitor: null
+  cluster: scribe:voice-learn
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:dismiss; judge: scribe:voice-learn/None'
+  proposals:
+    router: egregore:dismiss
+    judge: scribe:voice-learn
+    judge_runner_up: null
+- id: scribe.voice-learn.p3
+  type: near_miss
+  prompt: I hand-edited the draft the pipeline gave me and saved it as final-draft.md.
+    Compare my changes against the reviewed version, work out which edit patterns
+    keep recurring, and propose updates to my voice profile.
+  target: scribe:voice-learn
+  competitor: scribe:voice-review
+  cluster: scribe:voice-learn
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at egregore:gate-audit; router: sanctum:version-updates; judge: scribe:voice-learn/scribe:voice-review'
+  proposals:
+    aimed_at: egregore:gate-audit
+    router: sanctum:version-updates
+    judge: scribe:voice-learn
+    judge_runner_up: scribe:voice-review
+- id: scribe.voice-review.p1
+  type: positive
+  prompt: Check draft.md against my myvoice profile and tell me which passages sound
+    machine-written or off from how I normally write.
+  target: scribe:voice-review
+  competitor: null
+  cluster: scribe:voice-review
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: ''
+  proposals:
+    router: scribe:voice-review
+    judge: scribe:voice-review
+- id: scribe.voice-review.p2
+  type: positive
+  prompt: I wrote this README intro by hand. Review it in my casual register for naming,
+    structure, and anything that reads like AI filler, and auto-fix the obvious problems.
+  target: scribe:voice-review
+  competitor: null
+  cluster: scribe:voice-review
+  proposers:
+  - judge
+  adjudicated: true
+  notes: 'router: sanctum:update-readme; judge: scribe:voice-review/None; accepted
+    by maintainer 2026-11-03'
+  proposals:
+    router: sanctum:update-readme
+    judge: scribe:voice-review
+    judge_runner_up: null
+- id: scribe.voice-review.p3
+  type: near_miss
+  prompt: I hand-wrote the description and intro for a new skill, and a few lines
+    read like stock AI phrasing. Check the file against my 'myvoice' profile in casual
+    register and fix whatever drifts. I'm not generating anything new, the text already
+    exists.
+  target: scribe:voice-review
+  competitor: attune:skill-library
+  cluster: scribe:voice-review
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:create-skill; router: attune:skill-library; judge: scribe:voice-review/None'
+  proposals:
+    aimed_at: abstract:create-skill
+    router: attune:skill-library
+    judge: scribe:voice-review
+    judge_runner_up: null

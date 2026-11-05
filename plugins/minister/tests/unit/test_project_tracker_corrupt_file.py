@@ -11,7 +11,6 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import IO
 
 import pytest
 
@@ -67,11 +66,10 @@ def test_interrupted_save_keeps_the_previous_tracker(
     tracker = ProjectTracker(data_file=data_file)
     tracker.add_task(_task("a"))
 
-    def dump_then_fail(obj: object, fp: IO[str], **_kwargs: object) -> None:
-        fp.write('{"tasks": [')
+    def fail_before_publish(src: object, dst: object) -> None:
         raise OSError("disk full")
 
-    monkeypatch.setattr(json, "dump", dump_then_fail)
+    monkeypatch.setattr(os, "replace", fail_before_publish)
     with pytest.raises(OSError, match="disk full"):
         tracker.add_task(_task("b"))
     monkeypatch.undo()

@@ -20,7 +20,7 @@ Use this command when you need to:
 
 Avoid this command if:
 - Evaluating skill quality - use /skills-eval instead
-- Estimating token usage only - use /estimate-tokens instead
+- Estimating token usage only - use /context-report instead
 - Creating new skills - use /create-skill instead
 
 ## Usage
@@ -75,7 +75,7 @@ This command is the first step in the modular-skills workflow:
 
 1. **Analyze** → Use this command to assess complexity
 2. **Design** → Plan module structure based on recommendations
-3. **Estimate** → Use `/estimate-tokens` for token budgeting
+3. **Estimate** → Use `/context-report` for token budgeting
 4. **Validate** → Use `/skills-eval` for quality checks
 
 ## Implementation

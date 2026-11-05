@@ -12,7 +12,6 @@ tags:
 - registers
 tools: []
 complexity: high
-model_hint: opus
 estimated_tokens: 2400
 progressive_loading: true
 modules:
@@ -166,9 +165,21 @@ After generation:
 
 ## Model Routing
 
-- **Generation**: Use Opus. Tonal shifts, parenthetical
+- **Generation**: Use Opus or larger. Tonal shifts, parenthetical
   subversion, and subtle voice qualities require the larger
-  model. Sonnet flattens these.
+  model. Sonnet flattens these. When this session runs
+  Sonnet or Haiku, run the Step 4 prompt as a dispatch:
+
+  ```
+  Agent(general-purpose):
+    - model: opus
+    - prompt: {the Step 4 prompt, every placeholder filled}
+  ```
+
+  The subagent sees nothing from this conversation. The filled
+  prompt must carry the voice features, register and source
+  material in full. On an Opus or Fable session, generate inline.
+  A pinned dispatch from Fable would downgrade the pass.
 - **Banned phrase scan**: Can run locally (regex/grep)
 - **Review agents**: Sonnet is sufficient (the prompts are
   templated, so Opus tonal range is not needed)

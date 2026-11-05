@@ -16,7 +16,6 @@ usage_patterns:
 - supply-chain-defense
 - dependency-review
 complexity: basic
-model_hint: standard
 estimated_tokens: 1400
 modules:
 - modules/registry-checks.md

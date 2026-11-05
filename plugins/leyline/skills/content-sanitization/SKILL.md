@@ -19,7 +19,6 @@ usage_patterns:
 - skill-consuming-external-content
 - hook-processing-external-input
 complexity: basic
-model_hint: fast
 estimated_tokens: 400
 ---
 # Content Sanitization Guidelines

@@ -74,6 +74,24 @@ async def analyze_testing_patterns(
     }
 
 
+def _is_loop_close(call: ast.Call) -> bool:
+    """Match ``<loop>.close()`` where the receiver is named like a loop or is a
+    ``get_event_loop()``-style call; a file handle's close() does not count.
+    """
+    func = call.func
+    if not (isinstance(func, ast.Attribute) and func.attr == "close"):
+        return False
+    receiver = func.value
+    if isinstance(receiver, ast.Name):
+        return "loop" in receiver.id.lower()
+    if isinstance(receiver, ast.Attribute):
+        return "loop" in receiver.attr.lower()
+    return isinstance(receiver, ast.Call) and any(
+        is_call_to(receiver, name)
+        for name in ("get_event_loop", "new_event_loop", "get_running_loop")
+    )
+
+
 async def analyze_event_loop_usage(code: str) -> dict[str, Any]:
     """Analyze event loop usage patterns in async code.
 
@@ -106,8 +124,12 @@ async def analyze_event_loop_usage(code: str) -> dict[str, Any]:
         if pattern in code:
             callback_usage.append(pattern)
 
-    if "loop.close()" in code or ".close()" in code:
-        proper_loop_close = True
+    tree, _ = parse_code(code)
+    if tree is not None:
+        proper_loop_close = any(
+            isinstance(node, ast.Call) and _is_loop_close(node)
+            for node in ast.walk(tree)
+        )
 
     return {
         "event_loop_analysis": {

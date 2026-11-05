@@ -16,7 +16,6 @@ usage_patterns:
 - monolith-refactoring
 - deployment-independence
 complexity: medium
-model_hint: standard
 estimated_tokens: 700
 ---
 # The Service-Based Architecture Paradigm

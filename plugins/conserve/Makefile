@@ -79,21 +79,6 @@ status: ## Show project overview
 	@echo "Scripts: $$(find scripts/ -name '*.py' 2>/dev/null | wc -l)"
 	@echo "Tests:  $$(find tests/ -name '*.py' 2>/dev/null | wc -l)"
 
-debug-variables: ## Show Makefile variable values (for debugging)
-	@echo "=== Makefile Variables ==="
-	@echo "PYTHON: $(PYTHON)"
-	@echo "UV: $(UV)"
-	@echo "UV_RUN: $(UV_RUN)"
-	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
-	@echo "SRC_DIRS: $(SRC_DIRS)"
-	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
-	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
-	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
-	@echo "COV_DIRS: $(COV_DIRS)"
-	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
-	@echo "MAKEFLAGS: $(MAKEFLAGS)"
-
 # ---------- Resource Management ----------
 token-estimate: ## Estimate token usage for skills (ARGS=...)
 	@echo "Estimating token usage (via abstract plugin)..."
@@ -128,11 +113,7 @@ test-skills: ## Test skill functionality
 
 # ---------- Advanced Testing ----------
 mutation-test: ## Run mutation testing
-	@if command -v mutmut >/dev/null 2>&1; then \
-		mutmut run --paths-to-mutate scripts --tests-dir tests/; \
-	else \
-		echo "mutmut not installed (pip install mutmut)"; \
-	fi
+	$(MUTMUT) run --paths-to-mutate scripts --tests-dir tests/
 
 benchmark: ## Run performance benchmarks (bloat detection speed)
 	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
@@ -176,9 +157,7 @@ demo-tokens: ## Demo token estimation (LIVE)
 	@echo "=== Conservation Token Demo (LIVE) ==="
 	@echo ""
 	@echo "Running token estimator on conserve skills..."
-	cd ../abstract && $(UV_RUN) python scripts/token_estimator.py --directory ../conserve/skills/ 2>/dev/null || \
-		$(UV_RUN) python scripts/token_estimator.py --file skills/context-optimization/SKILL.md 2>/dev/null || \
-		echo "Token estimate: ~$$(find skills/ -name '*.md' -exec cat {} \; | wc -l | awk '{print $$1*4}') tokens"
+	cd ../abstract && $(UV_RUN) python scripts/token_estimator.py --directory ../conserve/skills/
 	@echo ""
 	@echo "Use 'make token-estimate ARGS=...' for detailed estimation."
 
@@ -303,9 +282,3 @@ test-ai-hygiene-audit: ## Test ai-hygiene-audit command (runs hygiene unit tests
 test-context: ## Test context optimization (runs context-related unit tests)
 	@echo "Running context optimization tests..."
 	$(PYTEST) tests/unit/skills/test_context_optimization.py tests/unit/test_context_warning.py -v
-
-# Guard against accidental file creation (catch-all for unknown targets)
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1

@@ -27,7 +27,6 @@ usage_patterns:
 - conflict-resolution
 - session-state-repair
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 450
 progressive_loading: true
 modules:

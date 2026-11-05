@@ -34,14 +34,17 @@ Two amendments came out of the war-room review and are binding:
    into its public `__all__`. Tome then consumes a supported API
    rather than internals. A tome CI contract test pins that surface.
 2. memory-palace is a **declared dependency** of tome's graph feature,
-   not a runtime silent no-op. Absence is an install-time invariant.
-   If it is ever genuinely absent, tome raises an explicit
+   not a runtime silent no-op. tome's plugin.json lists it. No
+   installer acts on that list, so absence is checked at runtime: if
+   memory-palace is missing, tome raises an explicit
    capability-unavailable signal. Base research is unaffected because
    the graph layer is additive.
 
-Coupling is contained to one module, `tome/graph/palace_adapter.py`,
-rather than scattered imports. That one module can be swapped or
-mocked as a unit.
+Coupling sits in three modules, each importing one memory-palace
+surface: `tome/graph/palace_adapter.py` (`KnowledgeGraph`),
+`tome/graph/threads.py` (`PalaceGraphAnalyzer`) and
+`tome/retrieval/semantic.py` (`EmbeddingIndex`). A change to any of
+those memory-palace APIs is checked against all three.
 
 ## Evidence
 

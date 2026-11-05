@@ -114,7 +114,15 @@ main() {
   # its own deadline through subprocess timeout, which is portable in a way
   # `timeout(1)` is not: stock macOS does not ship it.
 
-  python3 - "${owner}" "${repo}" "${summary_cache}" "${categories_cache}" <<'PY' || _emit_empty "discussion fetch failed"
+  # Discussion text is written by anyone who can open a discussion, so it
+  # goes through the same sanitizer PostToolUse applies to `gh` output.
+  local hook_dir
+  case "${BASH_SOURCE[0]}" in
+    */*) hook_dir="${BASH_SOURCE[0]%/*}" ;;
+    *) hook_dir="." ;;
+  esac
+
+  python3 - "${owner}" "${repo}" "${summary_cache}" "${categories_cache}" "${hook_dir}" <<'PY' || _emit_empty "discussion fetch failed"
 import json
 import os
 import re
@@ -122,7 +130,9 @@ import subprocess
 import sys
 import time
 
-OWNER, REPO, SUMMARY_CACHE, CATEGORIES_CACHE = sys.argv[1:5]
+OWNER, REPO, SUMMARY_CACHE, CATEGORIES_CACHE, HOOK_DIR = sys.argv[1:6]
+sys.path.insert(0, HOOK_DIR)
+from sanitize_external_content import sanitize_output  # noqa: E402
 
 # The harness cap is what actually bounds this process; these keep a
 # single stalled round trip from consuming the whole of it. 3.5s is the
@@ -342,7 +352,7 @@ def render(nodes, heading):
         return ""
     lines = [heading]
     for node in nodes:
-        body = node.get("body") or ""
+        body = sanitize_output(node.get("body") or "")
         snippet = body.replace("\n", " ").replace("\r", "")[:100].strip()
         if len(body) > 100:
             snippet += "..."
@@ -350,7 +360,7 @@ def render(nodes, heading):
             "  #%s %s (%s) -- %s"
             % (
                 node.get("number", "?"),
-                node.get("title", "Untitled"),
+                sanitize_output(node.get("title") or "Untitled"),
                 (node.get("createdAt") or "")[:10],
                 snippet,
             )

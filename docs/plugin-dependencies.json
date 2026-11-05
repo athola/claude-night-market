@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generated": "2026-09-21",
+  "generated": "2026-10-29",
   "dependencies": {
     "abstract": {
       "dependents": [
@@ -31,6 +31,7 @@
     },
     "gauntlet": {
       "dependents": [
+        "cartograph",
         "pensive"
       ],
       "type": "runtime",
@@ -53,8 +54,10 @@
         "gauntlet",
         "imbue",
         "memory-palace",
+        "minister",
         "pensive",
         "sanctum",
+        "spec-kit",
         "tome"
       ],
       "type": "runtime",
@@ -87,7 +90,8 @@
       "leyline"
     ],
     "cartograph": [
-      "abstract"
+      "abstract",
+      "gauntlet"
     ],
     "conjure": [
       "abstract",
@@ -125,7 +129,8 @@
       "leyline"
     ],
     "minister": [
-      "abstract"
+      "abstract",
+      "leyline"
     ],
     "oracle": [
       "abstract"
@@ -149,7 +154,8 @@
       "abstract"
     ],
     "spec-kit": [
-      "abstract"
+      "abstract",
+      "leyline"
     ],
     "tome": [
       "abstract",

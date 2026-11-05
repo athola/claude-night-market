@@ -12,7 +12,6 @@ tags:
 - quality
 tools: []
 complexity: medium
-model_hint: standard
 estimated_tokens: 1600
 progressive_loading: false
 dependencies:

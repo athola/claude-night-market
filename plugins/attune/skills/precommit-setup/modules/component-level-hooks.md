@@ -2,7 +2,6 @@
 name: component-level-hooks
 description: Layer 2 per-component pre-commit checks for monorepos and plugin architectures.
 parent: precommit-setup
-load_when: project has multiple components or plugins
 ---
 
 # Component-Specific Checks (Layer 2)

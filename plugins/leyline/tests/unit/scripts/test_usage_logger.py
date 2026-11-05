@@ -1,4 +1,4 @@
-"""Tests for scripts/usage_logger.py.
+"""Tests for leyline.usage_logger.
 
 Feature: Session-aware usage logging for audit trails and analytics.
 
@@ -15,8 +15,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
-import usage_logger as _ul_mod
-from usage_logger import UsageEvent, UsageLogger, main
+import leyline.usage_logger as _ul_mod
+from leyline.usage_logger import UsageEvent, UsageLogger, main
 
 
 class TestUsageEvent:

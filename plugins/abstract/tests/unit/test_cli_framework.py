@@ -279,14 +279,6 @@ class TestAbstractCLICreateParser:
         assert args.quiet is True
 
     @pytest.mark.unit
-    def test_project_root_argument_present(self):
-        """Given parser creation, --project-root accepts a path."""
-        cli = _ConcreteCLI()
-        parser = cli.create_parser()
-        args = parser.parse_args(["--project-root", "/tmp"])
-        assert args.project_root == Path("/tmp")
-
-    @pytest.mark.unit
     def test_config_argument_present(self):
         """Given parser creation, --config accepts a path."""
         cli = _ConcreteCLI()
@@ -529,3 +521,12 @@ class TestPathArgumentMixin:
         PathArgumentMixin.add_path_arguments(parser, require_one=True)
         with pytest.raises(SystemExit):
             parser.parse_args([])
+
+
+class TestEveryCommonFlagIsRead:
+    """A shared flag no subclass reads is a silent no-op for the caller."""
+
+    def test_project_root_is_not_offered(self) -> None:
+        parser = _ConcreteCLI().create_parser()
+        with pytest.raises(SystemExit):
+            parser.parse_args(["--project-root", "/elsewhere"])

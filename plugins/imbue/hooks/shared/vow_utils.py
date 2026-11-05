@@ -115,3 +115,37 @@ def vow_output(enforce: bool, reason: str) -> dict[str, Any]:
 def is_git_commit(command: str) -> bool:
     """Return True if the Bash command is a git commit invocation."""
     return bool(_GIT_COMMIT_RE.match(command.strip()))
+
+
+def read_counter_path(session_id: str) -> Path:
+    """Return the session-scoped read-budget counter file.
+
+    vow_bounded_reads increments it and vow_bounded_reads_reset zeroes it.
+    One definition, so the reset cannot drift to a different file. Lives
+    in a private per-user dir (mode 0o700) so another user cannot plant a
+    symlink at this predictable name.
+    """
+    safe_id = (
+        session_id.replace("/", "_").replace("\\", "_") if session_id else "default"
+    )
+    return (
+        secure_state_dir("imbue-vow-state") / f"vow_read_counter_{safe_id[:200]}.json"
+    )
+
+
+def session_id_from(data: dict) -> str:
+    """Extract the session id from hook stdin, the environment, or the pid.
+
+    Issue #580: the last-resort fallback must not be a fixed constant. A
+    shared ``default`` filename made every session without a session_id
+    write to the same counter, so a stale count over budget bled into
+    every later session. The parent pid (the Claude Code process) is
+    stable within a session and distinct across concurrent ones.
+    """
+    sid = data.get("session_id", "")
+    if sid:
+        return str(sid)
+    sid = os.environ.get("CLAUDE_SESSION_ID", "")
+    if sid:
+        return sid
+    return f"pid-{os.getppid()}"

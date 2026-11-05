@@ -18,7 +18,6 @@ usage_patterns:
 - pre-commit-audit
 - change-justification
 complexity: intermediate
-model_hint: standard
 estimated_tokens: 2800
 role: entrypoint
 ---

@@ -344,6 +344,30 @@ class TestThrottleWritesAreAtomic:
         assert calls[0][1] == str(path)
         assert dsl._read_throttle(path) == (1, 5.0)
 
+    @pytest.mark.unit
+    def test_a_failed_write_reports_the_path_on_stderr_and_returns_false(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        """
+        Scenario: the throttle count cannot be persisted
+        When the replace step raises
+        Then the writer returns False and names the path on stderr
+        """
+        path = tmp_path / "state.json"
+        monkeypatch.setattr(
+            dsl.os, "replace", lambda *a, **k: (_ for _ in ()).throw(OSError("boom"))
+        )
+
+        assert dsl._write_throttle(path, 1, 5.0) is False
+        err = capsys.readouterr().err
+        assert str(path) in err
+        assert "boom" in err
+
+    @pytest.mark.unit
+    def test_a_successful_write_returns_true(self, tmp_path):
+        """Given a writable temp dir, when the count is written, then True."""
+        assert dsl._write_throttle(tmp_path / "state.json", 1, 5.0) is True
+
 
 class TestDecide:
     """Feature: end-to-end Stop decision with recursion guard and throttling."""
@@ -397,6 +421,30 @@ class TestDecide:
             {"session_id": "s2", "transcript_path": str(transcript)}, now=1000.0
         )
         assert out["decision"] == "block"
+
+    @pytest.mark.unit
+    def test_continuing_turn_approves_when_the_count_cannot_be_persisted(
+        self, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: every throttle write fails (full or foreign-owned temp file)
+        Given a turn that would otherwise continue
+        When the throttle count cannot be written
+        Then the stop is approved, because an uncounted guard never trips
+        """
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        monkeypatch.setattr(
+            dsl.os, "replace", lambda *a, **k: (_ for _ in ()).throw(OSError("boom"))
+        )
+        transcript = tmp_path / "t.jsonl"
+        transcript.write_text(
+            _assistant_line("Tests pass. Now I'll update the docs."), encoding="utf-8"
+        )
+        out = dsl.decide(
+            {"session_id": "s2", "transcript_path": str(transcript)}, now=1000.0
+        )
+        assert out["decision"] == "approve"
 
     @pytest.mark.unit
     def test_llm_not_consulted_on_confident_verdict(self, tmp_path, monkeypatch):
