@@ -61,6 +61,11 @@ def test_missing_models_dir_fails_at_startup(tmp_path: Path):
 def test_client_keeps_base_url_after_http_error(
     live_daemon: InferenceDaemon, tmp_path: Path
 ):
-    client = OracleClient(tmp_path / "port")
+    # The daemon writes its own port file from the serving thread, which a
+    # slow runner may not have reached yet. The socket is bound in __init__,
+    # so a port file written here is valid at once and the race is gone.
+    port_file = tmp_path / "client-port"
+    port_file.write_text(str(live_daemon.port))
+    client = OracleClient(port_file)
     assert client.infer("unknown", {}) is None
     assert client._base_url is not None
