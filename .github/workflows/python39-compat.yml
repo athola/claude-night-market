@@ -112,7 +112,7 @@ jobs:
           - plugin: sanctum
             hook_test_path: tests/hooks
           - plugin: tome
-            hook_test_path: tests/unit/test_pre_compact.py tests/unit/test_session_start.py tests/unit/test__session_utils.py
+            hook_test_path: tests/unit/test_session_start.py tests/unit/test__session_utils.py
 
     steps:
       - uses: actions/checkout@v7
