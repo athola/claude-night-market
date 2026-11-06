@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`attune:mission-orchestrator` is a single-file router.** It was 12
+  modules and two references for "detect the phase, call that phase's
+  skill" (#989). SKILL.md now holds the phase table, the artifact check
+  per phase and the `.attune/mission-state.json` contract. The reflexion
+  buffer, trust tiers and adaptive constraints went with their modules,
+  and nothing outside the skill read them. `/attune:mission` invocations
+  are unchanged.
+
 - **abstract's improvement queue entries are typed.** Each skill's record
   is a `QueueEntry` dataclass with a `Literal` status, read by attribute
   across the queue, the homeostatic monitor and the recorder (#1020). An

@@ -157,8 +157,8 @@ registered in `plugin.json` under `commands` (not just
 `skills`), description follows the "Verb and domain. Use
 when..." trigger pattern, often a long SKILL.md with
 multiple modules. Examples:
-`attune:mission-orchestrator` (12 modules, user-invoked
-via `/attune:mission`), `sanctum:do-issue`,
+`attune:mission-orchestrator` (a single-file router,
+user-invoked via `/attune:mission`), `sanctum:do-issue`,
 `spec-kit:speckit-orchestrator`, `egregore:summon`.
 
 #### Library skills

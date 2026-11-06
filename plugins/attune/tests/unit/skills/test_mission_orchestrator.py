@@ -1,29 +1,43 @@
-"""BDD tests for attune mission-orchestrator skill structure.
+"""BDD tests for the attune mission-orchestrator router.
 
-Feature: Mission Orchestrator Skill Validation
+Feature: Mission Orchestrator Router Validation
   As a plugin developer
-  I want the mission-orchestrator skill to follow ecosystem conventions
-  So that the unified lifecycle orchestrator integrates correctly
-  with the attune plugin system
+  I want the mission-orchestrator to stay a router table
+  So that it detects the phase and calls the phase skill, and nothing else
+
+Issue #989: 31 logged runs read zero of the skill's 12 modules, so the
+SKILL.md body is the whole skill. These tests pin that body.
 """
 
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
 import yaml
 
-SKILL_DIR = (
-    Path(__file__).resolve().parent.parent.parent.parent
-    / "skills"
-    / "mission-orchestrator"
-)
+ATTUNE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+PLUGINS_DIR = ATTUNE_DIR.parent
+SKILL_DIR = ATTUNE_DIR / "skills" / "mission-orchestrator"
 SKILL_FILE = SKILL_DIR / "SKILL.md"
-MODULES_DIR = SKILL_DIR / "modules"
 
-EXPECTED_MODULES = [
+BUILD_PHASE_SKILLS = {
+    "brainstorm": "Skill(attune:project-brainstorming)",
+    "specify": "Skill(attune:project-specification)",
+    "plan": "Skill(attune:project-planning)",
+    "execute": "Skill(attune:project-execution)",
+}
+
+REVIEW_PHASE_SKILLS = {
+    "scope": "Skill(pensive:tiered-audit)",
+    "investigate": "Skill(imbue:feature-review)",
+    "verify": "Skill(imbue:proof-of-work)",
+    "report": "Skill(imbue:structured-output)",
+}
+
+DELETED_MODULES = [
     "mission-types.md",
     "state-detection.md",
     "phase-routing.md",
@@ -53,665 +67,323 @@ def _parse_frontmatter(content: str) -> dict:
     return yaml.safe_load(content[3:end])
 
 
+def _body() -> str:
+    content = SKILL_FILE.read_text()
+    return content[content.index("---", 3) + 3 :]
+
+
+def _row(text: str, first_cell: str) -> str:
+    """Return the table row whose first cell is ``first_cell``."""
+    for line in text.splitlines():
+        if line.startswith(f"| {first_cell} "):
+            return line
+    raise AssertionError(f"no table row starts with {first_cell!r}")
+
+
 class TestMissionOrchestratorSkillFile:
-    """
-    Feature: Skill file existence and readability
-
-    As a plugin validator
-    I want the mission-orchestrator SKILL.md to exist and be readable
-    So that the skill can be discovered and loaded by the plugin system
-    """
+    """Feature: Skill file existence."""
 
     @pytest.mark.bdd
-    def test_skill_file_exists(self) -> None:
-        """Scenario: Skill file present
-        Given the attune plugin
-        When checking for mission-orchestrator skill
-        Then SKILL.md should exist on disk
-        """
+    def test_skill_file_exists_and_is_not_empty(self) -> None:
+        """Given the attune plugin, the router SKILL.md exists with content."""
         assert SKILL_FILE.exists(), f"SKILL.md not found at {SKILL_FILE}"
-
-    @pytest.mark.bdd
-    def test_skill_file_is_readable(self) -> None:
-        """Scenario: Skill file readable
-        Given the mission-orchestrator SKILL.md exists
-        When reading the file
-        Then it should return non-empty content
-        """
-        assert SKILL_FILE.exists(), f"SKILL.md not found at {SKILL_FILE}"
-        content = SKILL_FILE.read_text()
-        assert len(content) > 0, "SKILL.md is empty"
+        assert SKILL_FILE.read_text().strip(), "SKILL.md is empty"
 
 
 class TestMissionOrchestratorFrontmatter:
-    """
-    Feature: YAML frontmatter validity
-
-    As a plugin validator
-    I want the mission-orchestrator frontmatter to contain required fields
-    So that the skill is correctly registered and discoverable
-    """
+    """Feature: Frontmatter matches a flat router."""
 
     @pytest.mark.bdd
     def test_frontmatter_has_name(self) -> None:
-        """Scenario: Name field present
-        Given the mission-orchestrator SKILL.md
-        When parsing frontmatter
-        Then the name field should equal 'mission-orchestrator'
-        """
-        content = SKILL_FILE.read_text()
-        fm = _parse_frontmatter(content)
-        assert fm.get("name") == "mission-orchestrator", (
-            f"Expected name='mission-orchestrator', got {fm.get('name')!r}"
-        )
+        """The harness resolves the skill by this name."""
+        fm = _parse_frontmatter(SKILL_FILE.read_text())
+        assert fm.get("name") == "mission-orchestrator"
 
     @pytest.mark.bdd
     def test_frontmatter_has_description(self) -> None:
-        """Scenario: Description field present and non-trivial
-        Given the mission-orchestrator SKILL.md
-        When parsing frontmatter
-        Then the description field should be present with meaningful content
-        """
-        content = SKILL_FILE.read_text()
-        fm = _parse_frontmatter(content)
-        assert "description" in fm, "Frontmatter missing 'description' field"
-        assert len(fm["description"]) > 20, "description is too short to be meaningful"
-
-    @pytest.mark.bdd
-    def test_frontmatter_declares_modules(self) -> None:
-        """Scenario: Module declarations match expected modules
-        Given the mission-orchestrator SKILL.md frontmatter
-        When checking the modules list
-        Then all four lifecycle modules should be declared
-        """
-        content = SKILL_FILE.read_text()
-        fm = _parse_frontmatter(content)
-        assert "modules" in fm, "Frontmatter missing 'modules' field"
-        declared = [Path(m).name for m in fm["modules"]]
-        for expected in EXPECTED_MODULES:
-            assert expected in declared, (
-                f"Module '{expected}' not declared in frontmatter modules list"
-            )
+        """An empty description gives the router nothing to match on."""
+        fm = _parse_frontmatter(SKILL_FILE.read_text())
+        assert len(fm.get("description", "")) > 20
 
     @pytest.mark.bdd
     def test_frontmatter_category_is_workflow(self) -> None:
-        """Scenario: Category reflects workflow orchestration purpose
-        Given the mission-orchestrator SKILL.md
-        When parsing the category field
-        Then it should indicate a workflow or orchestration category
-        """
-        content = SKILL_FILE.read_text()
-        fm = _parse_frontmatter(content)
-        assert "category" in fm, "Frontmatter missing 'category' field"
-        assert (
-            "workflow" in fm["category"].lower()
-            or "orchestrat" in fm["category"].lower()
-        ), f"Expected workflow/orchestration category, got {fm['category']!r}"
-
-
-class TestMissionOrchestratorSections:
-    """
-    Feature: Required documentation sections
-
-    As a skill consumer
-    I want the mission-orchestrator to contain standard required sections
-    So that I can understand when and how to invoke the skill
-    """
+        """The category groups the skill with the other orchestrators."""
+        fm = _parse_frontmatter(SKILL_FILE.read_text())
+        assert fm.get("category") == "workflow-orchestration"
 
     @pytest.mark.bdd
-    def test_has_overview_section(self) -> None:
-        """Scenario: Overview section present
-        Given the mission-orchestrator SKILL.md
-        When scanning for section headings
-        Then an Overview section should exist
-        """
-        content = SKILL_FILE.read_text()
-        assert "## Overview" in content, "Missing required '## Overview' section"
-
-    @pytest.mark.bdd
-    def test_has_when_to_use_section(self) -> None:
-        """Scenario: When To Use section present
-        Given the mission-orchestrator SKILL.md
-        When scanning for section headings
-        Then a 'When To Use' section should exist
-        """
-        content = SKILL_FILE.read_text()
-        assert "## When To Use" in content, "Missing required '## When To Use' section"
-
-    @pytest.mark.bdd
-    def test_has_exit_criteria_section(self) -> None:
-        """Scenario: Exit Criteria section present
-        Given the mission-orchestrator SKILL.md
-        When scanning for section headings
-        Then an Exit Criteria section should exist
-        """
-        content = SKILL_FILE.read_text()
-        assert "## Exit Criteria" in content, (
-            "Missing required '## Exit Criteria' section"
-        )
-
-
-class TestMissionOrchestratorModules:
-    """
-    Feature: Module files exist on disk
-
-    As a skill consumer
-    I want all modules declared in the skill to exist on disk
-    So that the progressive loading system can load them on demand
-    """
-
-    @pytest.mark.bdd
-    def test_all_modules_exist(self) -> None:
-        """Scenario: All declared modules are present
-        Given the mission-orchestrator skill directory
-        When checking each declared module file
-        Then every module should exist on disk
-        """
-        for module_name in EXPECTED_MODULES:
-            module_path = MODULES_DIR / module_name
-            assert module_path.exists(), (
-                f"Module '{module_name}' not found at {module_path}"
-            )
-
-    @pytest.mark.bdd
-    def test_modules_dir_exists(self) -> None:
-        """Scenario: Modules directory present
-        Given the mission-orchestrator skill
-        When checking for the modules subdirectory
-        Then the directory should exist
-        """
-        assert MODULES_DIR.exists(), f"modules/ directory not found at {MODULES_DIR}"
-
-    @pytest.mark.bdd
-    def test_mission_types_module_documents_mission_types(self) -> None:
-        """Scenario: mission-types module documents recognized mission types
-        Given the mission-types.md module
-        When reading content
-        Then the four auto-detectable mission types should be documented
-        """
-        module_path = MODULES_DIR / "mission-types.md"
-        assert module_path.exists(), f"Module not found at {module_path}"
-        content = module_path.read_text()
-        for mission_type in ["full", "standard", "tactical", "quickfix"]:
-            assert mission_type in content, (
-                f"Mission type '{mission_type}' not documented in mission-types.md"
-            )
-
-    @pytest.mark.bdd
-    def test_state_detection_module_references_artifacts(self) -> None:
-        """Scenario: state-detection module covers known artifact files
-        Given the state-detection.md module
-        When reading content
-        Then it should reference at least one known project artifact filename
-        """
-        module_path = MODULES_DIR / "state-detection.md"
-        assert module_path.exists(), f"Module not found at {module_path}"
-        content = module_path.read_text()
-        known_artifacts = [
-            "project-brief.md",
-            "specification.md",
-            "implementation-plan.md",
-        ]
-        found = any(artifact in content for artifact in known_artifacts)
-        assert found, (
-            "state-detection.md does not reference any known project artifact files"
+    def test_frontmatter_declares_no_modules_or_references(self) -> None:
+        """Given the flattened skill, frontmatter lists nothing to load."""
+        fm = _parse_frontmatter(SKILL_FILE.read_text())
+        assert "modules" not in fm, "router must not declare modules"
+        assert "references" not in fm, "router must not declare references"
+        assert not fm.get("progressive_loading"), (
+            "progressive_loading has nothing to load once modules are gone"
         )
 
     @pytest.mark.bdd
-    def test_phase_routing_module_references_phases(self) -> None:
-        """Scenario: phase-routing module covers the core lifecycle phases
-        Given the phase-routing.md module
-        When reading content
-        Then at least three of the four lifecycle phase names should appear
-        """
-        module_path = MODULES_DIR / "phase-routing.md"
-        assert module_path.exists(), f"Module not found at {module_path}"
-        content = module_path.read_text()
-        phases = ["brainstorm", "specify", "plan", "execute"]
-        found_count = sum(1 for phase in phases if phase in content.lower())
-        assert found_count >= 3, (
-            f"phase-routing.md only documents {found_count}/4 lifecycle phases"
-        )
+    def test_every_dependency_resolves_to_a_skill(self) -> None:
+        """Given the dependencies list, each names a SKILL.md on disk."""
+        fm = _parse_frontmatter(SKILL_FILE.read_text())
+        for dep in fm.get("dependencies", []):
+            plugin, name = dep.split(":", 1)
+            target = PLUGINS_DIR / plugin / "skills" / name / "SKILL.md"
+            assert target.exists(), f"dependency {dep} does not resolve"
 
     @pytest.mark.bdd
-    def test_mission_state_module_references_state_file(self) -> None:
-        """Scenario: mission-state module documents the state persistence file
-        Given the mission-state.md module
-        When reading content
-        Then it should reference the mission-state.json file
-        """
-        module_path = MODULES_DIR / "mission-state.md"
-        assert module_path.exists(), f"Module not found at {module_path}"
-        content = module_path.read_text()
-        assert "mission-state.json" in content or "mission_state" in content.lower(), (
-            "mission-state.md does not reference the state persistence file"
-        )
-
-
-class TestMissionOrchestratorPluginRegistration:
-    """
-    Feature: Plugin registry integration
-
-    As the plugin system
-    I want mission-orchestrator registered in plugin.json
-    So that it is discoverable by consumers
-    """
-
-    @pytest.mark.bdd
-    def test_skill_registered_in_plugin_json(self) -> None:
-        """Scenario: plugin.json includes mission-orchestrator
-        Given the attune plugin.json
-        When checking the skills array
-        Then mission-orchestrator should be registered
-        """
-        plugin_json = (
-            Path(__file__).resolve().parent.parent.parent.parent
-            / ".claude-plugin"
-            / "plugin.json"
-        )
-        assert plugin_json.exists(), f"plugin.json not found at {plugin_json}"
-        config = json.loads(plugin_json.read_text())
-        skill_paths = config.get("skills", [])
-        assert any("mission-orchestrator" in s for s in skill_paths), (
-            "mission-orchestrator not registered in plugin.json skills array"
-        )
-
-
-class TestInteractivePlanReview:
-    """
-    Feature: Interactive plan review modules
-
-    As a mission user
-    I want the plan-to-execute transition to include interactive review
-    So that plans are scrutinized before execution begins
-    """
-
-    @pytest.mark.bdd
-    def test_plan_review_module_references_war_room(self) -> None:
-        """Scenario: Plan review requires mandatory war-room gate
-        Given the plan-review.md module
-        When reading content
-        Then it should reference the war-room as a mandatory gate
-        """
-        content = (MODULES_DIR / "plan-review.md").read_text()
-        assert "war" in content.lower() and "room" in content.lower(), (
-            "plan-review.md must reference the war-room gate"
-        )
-        assert "mandatory" in content.lower(), (
-            "plan-review.md must describe the war-room gate as mandatory"
-        )
-
-    @pytest.mark.bdd
-    def test_plan_review_module_references_bias_defense(self) -> None:
-        """Scenario: Plan review integrates additive bias scanning
-        Given the plan-review.md module
-        When reading content
-        Then it should reference additive-bias-defense
-        """
-        content = (MODULES_DIR / "plan-review.md").read_text()
-        assert "additive-bias-defense" in content, (
-            "plan-review.md must reference leyline:additive-bias-defense"
-        )
-
-    @pytest.mark.bdd
-    def test_feedback_collector_defines_verdict_types(self) -> None:
-        """Scenario: Feedback collector defines all three verdict types
-        Given the feedback-collector.md module
-        When reading content
-        Then approve, revise, and reject verdicts should be documented
-        """
-        content = (MODULES_DIR / "feedback-collector.md").read_text()
-        for verdict in ["approve", "revise", "reject"]:
-            assert verdict in content.lower(), (
-                f"feedback-collector.md must document '{verdict}' verdict"
-            )
-
-    @pytest.mark.bdd
-    def test_iteration_governor_enforces_cap(self) -> None:
-        """Scenario: Iteration governor enforces 3-round cap
-        Given the iteration-governor.md module
-        When reading content
-        Then it should document a maximum of 3 rounds
-        """
-        content = (MODULES_DIR / "iteration-governor.md").read_text()
-        assert "3" in content, "iteration-governor.md must reference the 3-round cap"
-        assert "escalat" in content.lower(), (
-            "iteration-governor.md must document escalation behavior"
-        )
-
-    @pytest.mark.bdd
-    def test_context_injector_never_modifies_plan(self) -> None:
-        """Scenario: Context injector is read-only on plans
-        Given the context-injector.md module
-        When reading content
-        Then it should state it never modifies the plan directly
-        """
-        content = (MODULES_DIR / "context-injector.md").read_text()
-        assert "never" in content.lower() and "modif" in content.lower(), (
-            "context-injector.md must state it never modifies the plan"
-        )
-
-    @pytest.mark.bdd
-    def test_plan_versioner_uses_attune_directory(self) -> None:
-        """Scenario: Plan versioner stores versions in .attune/
-        Given the plan-versioner.md module
-        When reading content
-        Then it should reference the .attune/plan-history/ path
-        """
-        content = (MODULES_DIR / "plan-versioner.md").read_text()
-        assert ".attune/plan-history/" in content, (
-            "plan-versioner.md must reference .attune/plan-history/"
-        )
-
-    @pytest.mark.bdd
-    def test_phase_routing_references_review_loop(self) -> None:
-        """Scenario: Phase routing wires in the interactive review loop
-        Given the phase-routing.md module
-        When reading content
-        Then the plan-to-execute transition should reference the review loop
-        """
-        content = (MODULES_DIR / "phase-routing.md").read_text()
-        assert "interactive review loop" in content.lower(), (
-            "phase-routing.md must reference 'Interactive Review Loop'"
-        )
-
-    @pytest.mark.bdd
-    def test_mission_state_includes_plan_review_schema(self) -> None:
-        """Scenario: Mission state defines plan_review object
-        Given the mission-state.md module
-        When reading content
-        Then it should define the plan_review state schema
-        """
-        content = (MODULES_DIR / "mission-state.md").read_text()
-        assert "plan_review" in content, (
-            "mission-state.md must define the plan_review schema"
-        )
+    def test_every_dependency_is_named_in_the_body(self) -> None:
+        """A dependency the body never calls is graph fan-out with no use."""
+        fm = _parse_frontmatter(SKILL_FILE.read_text())
+        body = _body()
+        for dep in fm.get("dependencies", []):
+            assert dep in body, f"dependency {dep} is never named in the body"
 
     @pytest.mark.bdd
     def test_orchestrator_depends_on_bias_defense(self) -> None:
-        """Scenario: Orchestrator declares additive-bias-defense dependency
-        Given the mission-orchestrator SKILL.md
-        When parsing frontmatter dependencies
-        Then leyline:additive-bias-defense should be listed
-        """
-        content = SKILL_FILE.read_text()
-        fm = _parse_frontmatter(content)
-        deps = fm.get("dependencies", [])
-        assert "leyline:additive-bias-defense" in deps, (
-            "mission-orchestrator must depend on leyline:additive-bias-defense"
-        )
+        """leyline:additive-bias-defense lists this skill as a consumer."""
+        fm = _parse_frontmatter(SKILL_FILE.read_text())
+        assert "leyline:additive-bias-defense" in fm.get("dependencies", [])
+
+
+class TestMissionOrchestratorSections:
+    """Feature: Required sections."""
 
     @pytest.mark.bdd
-    def test_adaptive_constraints_documents_user_directive_override(
-        self,
+    @pytest.mark.parametrize("section", REQUIRED_SECTIONS)
+    def test_has_required_section(self, section: str) -> None:
+        """A router missing one of these cannot be audited (#454)."""
+        assert section in SKILL_FILE.read_text(), f"missing {section}"
+
+
+class TestFlattened:
+    """Feature: The skill is one file.
+
+    Issue #989 measured zero module reads in 31 runs. A module that
+    comes back is content nobody will load.
+    """
+
+    @pytest.mark.bdd
+    def test_modules_directory_is_gone(self) -> None:
+        """A restored modules/ directory would undo the flattening."""
+        assert not (SKILL_DIR / "modules").exists()
+
+    @pytest.mark.bdd
+    def test_references_directory_is_gone(self) -> None:
+        """The charter and report templates were folded into SKILL.md."""
+        assert not (SKILL_DIR / "references").exists()
+
+    @pytest.mark.bdd
+    def test_skill_directory_holds_only_skill_md(self) -> None:
+        """Any second file is content the router never loads."""
+        entries = sorted(p.name for p in SKILL_DIR.iterdir())
+        assert entries == ["SKILL.md"], f"unexpected files: {entries}"
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize("module", DELETED_MODULES)
+    def test_body_does_not_point_at_a_deleted_module(self, module: str) -> None:
+        """A pointer to a removed module sends the reader nowhere."""
+        assert module not in SKILL_FILE.read_text()
+
+    @pytest.mark.bdd
+    def test_no_attune_file_links_into_deleted_dirs(self) -> None:
+        """Repointed links: nothing in attune reaches into the old dirs."""
+        pattern = re.compile(r"mission-orchestrator/(modules|references)/")
+        offenders = [
+            str(p.relative_to(ATTUNE_DIR))
+            for p in ATTUNE_DIR.rglob("*.md")
+            if pattern.search(p.read_text())
+        ]
+        assert offenders == [], f"links into deleted dirs: {offenders}"
+
+
+class TestMissionOrchestratorPluginRegistration:
+    """Feature: Plugin registry integration."""
+
+    @pytest.mark.bdd
+    def test_skill_registered_in_plugin_json(self) -> None:
+        """An unregistered skill is invisible to /attune:mission."""
+        plugin_json = ATTUNE_DIR / ".claude-plugin" / "plugin.json"
+        config = json.loads(plugin_json.read_text())
+        assert any("mission-orchestrator" in s for s in config.get("skills", []))
+
+
+class TestRouterTable:
+    """Feature: Each phase routes to one named skill."""
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize(("phase", "skill"), BUILD_PHASE_SKILLS.items())
+    def test_build_phase_routes_to_its_skill(self, phase: str, skill: str) -> None:
+        """Each build phase row names the skill that runs it."""
+        assert skill in _row(_body(), phase)
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize(("phase", "skill"), REVIEW_PHASE_SKILLS.items())
+    def test_review_phase_routes_to_its_skill(self, phase: str, skill: str) -> None:
+        """Each review phase row names the skill that runs it."""
+        assert skill in _row(_body(), phase)
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize(
+        "call", [*BUILD_PHASE_SKILLS.values(), *REVIEW_PHASE_SKILLS.values()]
+    )
+    def test_phase_skill_targets_exist(self, call: str) -> None:
+        """A routed Skill() call must resolve, or the phase cannot start."""
+        plugin, name = call[len("Skill(") : -1].split(":")
+        assert (PLUGINS_DIR / plugin / "skills" / name / "SKILL.md").exists()
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize(
+        ("mission_type", "signal"),
+        [
+            ("quickfix", "docs/implementation-plan.md"),
+            ("tactical", "docs/specification.md"),
+            ("standard", "docs/project-brief.md"),
+        ],
+    )
+    def test_type_row_names_its_detection_artifact(
+        self, mission_type: str, signal: str
     ) -> None:
-        """Scenario: Adaptive constraints documents directive override
-        Given the adaptive-constraints.md module
-        When reading content
-        Then it should document the User Directive Override parsing table
-        with at least the canonical trust-signal phrases.
-        """
-        content = (MODULES_DIR / "adaptive-constraints.md").read_text()
-        assert "User Directive Override" in content, (
-            "adaptive-constraints.md must document the User Directive "
-            "Override section so natural-language trust signals are "
-            "recognized without requiring --constraints= flags."
-        )
-        for phrase in (
-            "ignore scope guard",
-            "ultrathink",
-            "stop asking",
-            "be autonomous",
-        ):
-            assert phrase in content, (
-                f"directive override table must include phrase: {phrase!r}"
-            )
+        """Type detection keys on the artifact each row names."""
+        assert signal in _row(_body(), f"`{mission_type}`")
 
     @pytest.mark.bdd
-    def test_skill_md_references_user_directive_overrides(self) -> None:
-        """Scenario: SKILL.md surfaces directive override capability
-        Given the mission-orchestrator SKILL.md
-        When reading content
-        Then it should reference User Directive Overrides so a reader
-        landing on the SKILL.md alone learns the natural-language path
-        before drilling into modules.
-        """
-        content = SKILL_FILE.read_text()
-        assert "User Directive Override" in content, (
-            "SKILL.md must surface User Directive Overrides at the "
-            "skill index level, not bury them only in adaptive-constraints"
-        )
-
-
-class TestBrainstormSocraticWiring:
-    """
-    Feature: Brainstorm phase and Socratic reasoning stay wired into the mission
-
-    As a workflow maintainer
-    I want the mission workflow to keep its brainstorm phase and its Socratic
-    questioning methodology
-    So that ideation and assumption-probing are not silently dropped from the
-    lifecycle by a future refactor
-
-    These guards exist because the older phase-coverage test only required
-    3-of-4 phase names, so a regression that removed brainstorm entirely could
-    still pass. They pin the specific brainstorm -> Socratic chain end to end.
-    """
-
-    # plugins/attune (four parents up from tests/unit/skills/<file>)
-    _ATTUNE_DIR = Path(__file__).resolve().parent.parent.parent.parent
-    _BRAINSTORM_SKILL = _ATTUNE_DIR / "skills" / "project-brainstorming" / "SKILL.md"
+    def test_full_mission_leads_with_brainstorm(self) -> None:
+        """A full mission specifies only after brainstorming."""
+        row = _row(_body(), "`full`")
+        assert row.find("brainstorm") < row.find("specify")
 
     @pytest.mark.bdd
-    def test_phase_routing_maps_brainstorm_to_brainstorming_skill(self) -> None:
-        """Scenario: the brainstorm phase routes to the brainstorming skill
-        Given the phase-routing.md module
-        When reading the skill invocation table
-        Then the brainstorm phase must invoke Skill(attune:project-brainstorming)
+    def test_review_is_detected_before_the_artifact_ladder(self) -> None:
+        """Leftover build artifacts must not select quickfix for audit work.
+
+        Discussion #586: a tree full of plans looks the same whether the
+        ask is "ship this" or "audit this".
         """
-        content = (MODULES_DIR / "phase-routing.md").read_text()
-        assert "Skill(attune:project-brainstorming)" in content, (
-            "phase-routing.md no longer maps the brainstorm phase to "
-            "Skill(attune:project-brainstorming) -- brainstorm has been "
-            "unwired from the mission workflow"
-        )
-
-    @pytest.mark.bdd
-    def test_full_mission_type_leads_with_brainstorm(self) -> None:
-        """Scenario: the full mission type still begins with brainstorm
-        Given the mission-types.md module
-        When reading the `full` type definition
-        Then brainstorm must appear and precede the specify phase
-        """
-        lowered = (MODULES_DIR / "mission-types.md").read_text().lower()
-        full_idx = lowered.find("### full")
-        assert full_idx != -1, "mission-types.md no longer defines a `full` type"
-        rest = lowered[full_idx + len("### full") :]
-        next_section = rest.find("### ")
-        full_block = rest if next_section == -1 else rest[:next_section]
-        assert "brainstorm" in full_block, (
-            "the `full` mission type dropped the brainstorm phase"
-        )
-        assert full_block.find("brainstorm") < full_block.find("specify"), (
-            "brainstorm is no longer the leading phase of the full mission type"
-        )
-
-    @pytest.mark.bdd
-    def test_brainstorming_skill_target_exists(self) -> None:
-        """Scenario: the brainstorming skill the workflow depends on exists
-        Given the phase-to-skill mapping targets project-brainstorming
-        When resolving that skill on disk
-        Then its SKILL.md must exist (the phase target is not dangling)
-        """
-        assert self._BRAINSTORM_SKILL.exists(), (
-            f"project-brainstorming SKILL.md missing at {self._BRAINSTORM_SKILL}; "
-            "the brainstorm phase target is dangling"
-        )
-
-    @pytest.mark.bdd
-    def test_brainstorming_skill_retains_socratic_methodology(self) -> None:
-        """Scenario: the brainstorming skill retains Socratic reasoning substance
-        Given the project-brainstorming SKILL.md
-        When reading its questioning methodology
-        Then it must document the Socratic method with assumption- and
-             reasoning-probing question banks, not merely name-drop the term
-        """
-        content = self._BRAINSTORM_SKILL.read_text()
-        assert "socratic" in content.lower(), (
-            "project-brainstorming SKILL.md no longer mentions the Socratic method"
-        )
-        for marker in ("Probing Assumptions", "Probing Reasoning"):
-            assert marker in content, (
-                f"Socratic questioning bank '{marker}' was stripped from "
-                "project-brainstorming SKILL.md"
-            )
-
-    @pytest.mark.bdd
-    def test_brainstorming_skill_delegates_socratic_to_superpowers(self) -> None:
-        """Scenario: Socratic delegation to superpowers is preserved
-        Given the project-brainstorming SKILL.md
-        When reading its integration section
-        Then it must delegate to Skill(superpowers:brainstorming) for the
-             Socratic method
-        """
-        content = self._BRAINSTORM_SKILL.read_text()
-        assert "Skill(superpowers:brainstorming)" in content, (
-            "project-brainstorming no longer delegates to "
-            "superpowers:brainstorming for the Socratic method"
-        )
-
-
-class TestReviewMissionType:
-    """Feature: a first-class mission type for observational work.
-
-    Discussion #586: attune's four types all assume building from
-    artifacts in sequence. Review work (dogfooding, audits, feature
-    review) produces findings, not code, and the 2026-06-28 dogfooding
-    run only completed by leaning on directive overrides because state
-    detection would have selected `quickfix` from leftover build
-    artifacts.
-    """
-
-    _TYPES = MODULES_DIR / "mission-types.md"
-
-    @pytest.mark.bdd
-    def test_review_type_is_defined(self) -> None:
-        """Scenario: review is a documented type
-        Given the mission-types module
-        When its type definitions are read
-        Then `review` appears alongside the four build types
-        """
-        content = self._TYPES.read_text()
-        assert "### review" in content, (
-            "mission-types.md does not define a `review` mission type"
-        )
-
-    @pytest.mark.bdd
-    def test_review_declares_its_four_phases(self) -> None:
-        """Scenario: the phase sequence is stated
-        Given the review type definition
-        When its phases are read
-        Then scope, investigate, verify, and report are all named
-        """
-        content = self._TYPES.read_text()
-        section = content[content.index("### review") :]
-        section = section[: section.find("\n## ")]
-        for phase in ("scope", "investigate", "verify", "report"):
-            assert phase in section, (
-                f"the review type no longer declares its `{phase}` phase"
-            )
-
-    @pytest.mark.bdd
-    def test_review_is_intent_detected_not_artifact_detected(self) -> None:
-        """Scenario: detection runs before the artifact ladder
-        Given the auto-detection logic
-        When the review branch is read
-        Then it is checked before the implementation-plan branch
-
-        Artifact detection cannot distinguish "audit this" from "build
-        this": both run in a tree full of build artifacts. Review is
-        selected from request intent, so its check must come first or
-        leftover artifacts silently win.
-        """
-        content = self._TYPES.read_text()
-        detect = content[content.index("function detect_mission_type") :]
-        detect = detect[: detect.index("```", 10)]
-        review_at = detect.find("review")
-        plan_at = detect.find("implementation-plan.md")
-        assert review_at != -1, "detect_mission_type never returns `review`"
-        assert review_at < plan_at, (
-            "the review branch runs after artifact detection, so a stale "
-            "implementation-plan.md would select quickfix for audit work"
-        )
+        body = _body()
+        review_at = body.index(_row(body, "`review`"))
+        quickfix_at = body.index(_row(body, "`quickfix`"))
+        assert review_at < quickfix_at, "review row must be checked first"
+        assert "request intent" in body
 
     @pytest.mark.bdd
     def test_review_names_its_output_artifact(self) -> None:
-        """Scenario: the report has a canonical home
-        Given the review type definition
-        When its output is read
-        Then it names a path under reports/
-        """
-        content = self._TYPES.read_text()
-        assert "reports/" in content, (
-            "the review type does not name a canonical output path"
-        )
+        """The report path is the review mission's exit artifact."""
+        assert "reports/<topic>-<YYYY-MM-DD>.md" in _row(_body(), "report")
+
+
+class TestPlanToExecuteGate:
+    """Feature: The plan is challenged before execution.
+
+    leyline:additive-bias-defense names this skill as the consumer that
+    scans plan sections before user review.
+    """
 
     @pytest.mark.bdd
-    def test_review_states_the_war_room_gate_does_not_apply(self) -> None:
-        """Scenario: the plan-review gate is scoped out
-        Given the review type definition
-        When its interaction with the war-room gate is read
-        Then it says the gate does not apply
-
-        The mandatory war-room gate guards the plan-to-execute
-        transition. A review mission never executes, so leaving the
-        question open would strand the mission at a gate with no
-        matching phase.
-        """
-        content = self._TYPES.read_text().lower()
-        assert "war-room" in content or "war room" in content, (
-            "the review type does not say how it interacts with the war-room gate"
-        )
+    def test_gate_scans_for_additive_bias(self) -> None:
+        """additive-bias-defense names this gate as its consumer."""
+        assert "Skill(leyline:additive-bias-defense)" in _body()
 
     @pytest.mark.bdd
-    def test_skill_hub_lists_review_in_the_type_table(self) -> None:
-        """Scenario: the hub advertises the type
-        Given the mission-orchestrator SKILL.md
-        When its mission type table is read
-        Then `review` is listed
-        """
-        content = SKILL_FILE.read_text()
-        assert "`review`" in content, "SKILL.md's mission type table omits `review`"
+    def test_gate_requires_war_room_approval(self) -> None:
+        """Execution waits on the war-room verdict for the plan."""
+        assert "Skill(attune:war-room)" in _body()
 
     @pytest.mark.bdd
-    def test_skill_hub_maps_review_phases_to_skills(self) -> None:
-        """Scenario: each review phase routes to a real skill
-        Given the phase-to-skill mapping
-        When the review phases are read
-        Then each names a skill that exists in the ecosystem
-        """
-        content = SKILL_FILE.read_text()
-        for skill in (
-            "Skill(pensive:tiered-audit)",
-            "Skill(imbue:feature-review)",
-            "Skill(imbue:proof-of-work)",
-            "Skill(imbue:structured-output)",
-        ):
-            assert skill in content, (
-                f"the review phase mapping does not route to {skill}"
-            )
+    def test_review_missions_skip_the_gate(self) -> None:
+        """A review produces no plan, so there is nothing to gate."""
+        body = re.sub(r"\s+", " ", _body())
+        assert "never enters the war-room gate" in body
+
+
+class TestDirectiveOverrides:
+    """Feature: Natural-language trust signals and the safety floor."""
+
+    @pytest.mark.bdd
+    def test_skill_documents_user_directive_overrides(self) -> None:
+        """Users relax checkpoints in plain language, not flags."""
+        assert "User Directive Override" in _body()
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize(
+        "phrase", ["ignore scope guard", "ultrathink", "be autonomous"]
+    )
+    def test_canonical_trust_phrases_are_listed(self, phrase: str) -> None:
+        """Each phrase must be recognized as an override."""
+        assert phrase in _body()
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize(
+        "floor", ["pre-commit hooks", "proof-of-work", "destructive"]
+    )
+    def test_safety_floor_survives_overrides(self, floor: str) -> None:
+        """No directive may switch these checks off."""
+        assert floor in _body()
+
+
+class TestStateContract:
+    """Feature: The state file callers write and resume from.
+
+    skill-library-mission writes a custom mission into the same file,
+    so the field names are a contract between the two skills.
+    """
+
+    @pytest.mark.bdd
+    def test_names_the_state_file(self) -> None:
+        """Resume reads this path, and skill-library-mission writes it."""
+        assert ".attune/mission-state.json" in _body()
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "mission_id",
+            "type",
+            "phases",
+            "current_phase",
+            "decisions",
+            "directive_overrides",
+        ],
+    )
+    def test_state_field_is_named(self, field: str) -> None:
+        """Each field is part of the contract shared with skill-library-mission."""
+        assert f"`{field}`" in _body()
+
+
+class TestBrainstormSocraticWiring:
+    """Feature: The brainstorm phase keeps its Socratic method.
+
+    These guards pin the brainstorm to Socratic chain end to end, so a
+    refactor cannot unwire ideation from the lifecycle.
+    """
+
+    _BRAINSTORM_SKILL = ATTUNE_DIR / "skills" / "project-brainstorming" / "SKILL.md"
+
+    @pytest.mark.bdd
+    def test_brainstorming_skill_retains_socratic_methodology(self) -> None:
+        """The brainstorm phase must keep its probing questions."""
+        content = self._BRAINSTORM_SKILL.read_text()
+        assert "socratic" in content.lower()
+        for marker in ("Probing Assumptions", "Probing Reasoning"):
+            assert marker in content, f"'{marker}' stripped from brainstorming"
+
+    @pytest.mark.bdd
+    def test_brainstorming_skill_delegates_socratic_to_superpowers(self) -> None:
+        """The Socratic method comes from superpowers, not a local copy."""
+        content = self._BRAINSTORM_SKILL.read_text()
+        assert "Skill(superpowers:brainstorming)" in content
+
+
+class TestMissionCommand:
+    """Feature: /attune:mission still invokes the router."""
+
+    _COMMAND = ATTUNE_DIR / "commands" / "mission.md"
+
+    @pytest.mark.bdd
+    def test_command_invokes_the_skill(self) -> None:
+        """/attune:mission must reach the router."""
+        assert "Skill(attune:mission-orchestrator)" in self._COMMAND.read_text()
 
     @pytest.mark.bdd
     def test_command_documents_the_review_type(self) -> None:
-        """Scenario: /attune:mission advertises the type
-        Given the mission command
-        When its mission types table is read
-        Then `review` is listed with its phases
-        """
-        command = (
-            Path(__file__).resolve().parent.parent.parent.parent
-            / "commands"
-            / "mission.md"
-        )
-        content = command.read_text()
-        assert "review" in content, "mission.md omits the review type"
+        """The command lists review so users can request it."""
+        assert "`review`" in self._COMMAND.read_text()

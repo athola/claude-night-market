@@ -413,6 +413,5 @@ The mission-orchestrator skill produces a Mission Report when:
 
 ## Related References
 
-- `../../mission-orchestrator/references/mission-charter.md` - Original mission definition
-- `../../mission-orchestrator/references/progress-report.md` - Checkpoint reports during execution
-- `../modules/mission-state.md` - State persistence schema
+- `../../mission-orchestrator/SKILL.md` - Mission types, phase routing,
+  and the `.attune/mission-state.json` contract
