@@ -1,5 +1,5 @@
 ---
-parent_skill: pensive:makefile-review
+parent_skill: pensive:unified-review
 module: deduplication-patterns
 description: Detect and eliminate recipe duplication using pattern rules and functions
 tags: [deduplication, pattern-rules, functions, automatic-variables]

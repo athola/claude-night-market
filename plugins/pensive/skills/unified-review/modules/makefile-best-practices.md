@@ -1,5 +1,5 @@
 ---
-parent_skill: pensive:makefile-review
+parent_skill: pensive:unified-review
 module: best-practices
 description: Makefile structure patterns, examples, and anti-patterns to avoid
 tags: [best-practices, patterns, anti-patterns, examples]

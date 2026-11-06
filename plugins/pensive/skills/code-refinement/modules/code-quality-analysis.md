@@ -118,5 +118,5 @@ This provides six analysis dimensions:
 - **Algorithm efficiency**: `pensive:code-refinement/modules/algorithm-efficiency` - Time/space complexity analysis
 - **Clean code**: `pensive:code-refinement/modules/clean-code-checks` - SOLID, naming, complexity
 - **Architectural fit**: `pensive:code-refinement/modules/architectural-fit` - Coupling, cohesion, paradigm alignment
-- **Makefile-specific**: `pensive:makefile-review/modules/deduplication-patterns` - Pattern rules, functions
+- **Makefile-specific**: `pensive:unified-review/modules/makefile-deduplication-patterns` - Pattern rules, functions
 - **Safety-critical patterns**: `pensive:safety-critical-patterns` - NASA Power of 10 adapted guidelines

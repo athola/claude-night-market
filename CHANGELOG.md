@@ -18,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   unchanged, and entries that never began an evaluation are stored
   without the `eval_*` keys.
 
+### Deprecated
+
+- **`pensive:makefile-review` is a module of `pensive:unified-review`.**
+  It is the second of the two folds ADR-0014 planned (#616). The audit
+  workflow and its five rule modules moved to
+  `skills/unified-review/modules/makefile-review.md` and `makefile-*.md`.
+  `/makefile-review` still works and routes to unified-review's makefile
+  focus, the same as `/full-review makefile`.
+  `Skill(pensive:makefile-review)` is a redirect stub for one release and
+  will be removed in the release after.
+
 ### Fixed
 
 - **abstract's evaluation window counts the run that was just logged.**

@@ -12,7 +12,7 @@ per-plugin delegation rules are generated with `$(eval)` before `all:`
 is declared, so the first rule Make saw was `abstract:` and a bare
 `make` at the repository root ran `make -C plugins/abstract`.
 
-`Skill(pensive:makefile-review)` module `best-practices.md` already
+`Skill(pensive:unified-review)` module `makefile-best-practices.md` already
 prescribes `.DEFAULT_GOAL := help`. This is the contract that keeps it
 true.
 """

@@ -142,7 +142,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `latent-space-engineering` | [imbue](../plugins/imbue.md) | Agent behavior shaping through instruction framing |
 | `loop-optimization` | [leyline](../plugins/leyline.md) | Hand-vs-compiler decision rule for loop transforms |
 | `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
-| `makefile-review` | [pensive](../plugins/pensive.md) | Makefile best practices |
+| `makefile-review` | [pensive](../plugins/pensive.md) | Deprecated alias for unified-review's makefile module |
 | `markdown-formatting` | [leyline](../plugins/leyline.md) | Line wrapping and style conventions |
 | `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
 | `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |

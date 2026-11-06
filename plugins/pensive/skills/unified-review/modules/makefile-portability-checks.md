@@ -1,5 +1,5 @@
 ---
-parent_skill: pensive:makefile-review
+parent_skill: pensive:unified-review
 module: portability-checks
 description: Cross-platform compatibility and POSIX vs GNU Make feature detection
 tags: [portability, posix, gnu-make, cross-platform]

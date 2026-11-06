@@ -1,5 +1,5 @@
 ---
-parent_skill: pensive:makefile-review
+parent_skill: pensive:unified-review
 module: dependency-graph
 description: Make database inspection and dependency analysis
 tags: [dependencies, phony, circular-deps, includes]
