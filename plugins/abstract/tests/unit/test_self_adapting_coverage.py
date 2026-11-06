@@ -163,11 +163,11 @@ class TestRecordEvalExecutionNoOp:
         """
         queue = ImprovementQueue(queue_file)
         queue.flag_skill("my-skill", 0.4, "exec-001")
-        assert queue.skills["my-skill"]["status"] == "monitoring"
+        assert queue.skills["my-skill"].status == "monitoring"
 
         queue.record_eval_execution("my-skill", 0.3)
 
-        assert queue.skills["my-skill"].get("eval_executions") is None
+        assert queue.skills["my-skill"].eval_executions == 0
 
     @pytest.mark.unit
     def test_evaluating_skill_records_execution(self, queue_file: Path) -> None:
@@ -179,11 +179,11 @@ class TestRecordEvalExecutionNoOp:
         queue = ImprovementQueue(queue_file)
         queue.flag_skill("my-skill", 0.4, "exec-001")
         queue.start_evaluation("my-skill", 0.4)
-        assert queue.skills["my-skill"]["status"] == "evaluating"
+        assert queue.skills["my-skill"].status == "evaluating"
 
         queue.record_eval_execution("my-skill", 0.35)
 
-        assert queue.skills["my-skill"]["eval_executions"] == 1
+        assert queue.skills["my-skill"].eval_executions == 1
 
 
 # ---------------------------------------------------------------------------
@@ -205,9 +205,9 @@ class TestHomeostaticMonitorSkipPath:
         queue.flag_skill("test-skill", 0.5, "exec-001")
         queue.start_evaluation("test-skill", 0.5)
 
-        entry = queue.skills.get("test-skill", {})
+        entry = queue.skills["test-skill"]
         # The hook checks this status pair for the skip condition
-        assert entry.get("status") in (
+        assert entry.status in (
             "evaluating",
             "pending_rollback_review",
         )
@@ -223,11 +223,11 @@ class TestHomeostaticMonitorSkipPath:
         queue.flag_skill("test-skill", 0.5, "exec-001")
         queue.start_evaluation("test-skill", 0.3)
         # Simulate regression: avg gap (0.5) >= baseline (0.3)
-        queue.skills["test-skill"]["eval_gaps"] = [0.5]
+        queue.skills["test-skill"].eval_gaps = [0.5]
         queue.evaluate("test-skill")
 
-        entry = queue.skills.get("test-skill", {})
-        assert entry.get("status") == "pending_rollback_review"
+        entry = queue.skills["test-skill"]
+        assert entry.status == "pending_rollback_review"
 
     @pytest.mark.unit
     def test_monitoring_skill_is_not_skipped(self, queue_file: Path) -> None:
@@ -239,8 +239,8 @@ class TestHomeostaticMonitorSkipPath:
         queue = ImprovementQueue(queue_file)
         queue.flag_skill("test-skill", 0.4, "exec-001")
 
-        entry = queue.skills.get("test-skill", {})
-        assert entry.get("status") not in ("evaluating", "pending_rollback_review")
+        entry = queue.skills["test-skill"]
+        assert entry.status not in ("evaluating", "pending_rollback_review")
 
     @pytest.mark.unit
     def test_hook_main_skips_evaluating_skill(
@@ -295,7 +295,7 @@ class TestHomeostaticMonitorSkipPath:
 
         # Reload queue and verify flagged_count did NOT increase
         reloaded = ImprovementQueue(queue_file)
-        assert reloaded.skills["test-plugin:my-skill"]["flagged_count"] == 0
+        assert reloaded.skills["test-plugin:my-skill"].flagged_count == 0
 
 
 # ---------------------------------------------------------------------------

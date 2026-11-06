@@ -35,7 +35,7 @@ from shared.stability import (  # noqa: E402 - import after path setup
 )
 
 try:
-    from abstract.improvement_queue import ImprovementQueue
+    from abstract.improvement_queue import ImprovementQueue, QueueEntry
     from abstract.paths import get_improvement_queue_path
 
     _HAS_QUEUE = True
@@ -180,7 +180,7 @@ def _flag_and_build_output(
     if trigger:
         metacognitive_needed = _needs_metacognition(claude_home)
         sys.stderr.write(
-            f"HOMEOSTATIC: {skill_ref} flagged {entry['flagged_count']}x "
+            f"HOMEOSTATIC: {skill_ref} flagged {entry.flagged_count}x "
             f"(gap={health.gap:.2f}), improvement eligible"
             f"{' [metacognitive recommended]' if metacognitive_needed else ''}\n"
         )
@@ -191,7 +191,7 @@ def _flag_and_build_output(
         status,
         health.velocity,
         health.trend,
-        flagged_count=entry["flagged_count"],
+        flagged_count=entry.flagged_count,
         improvement_triggered=trigger,
         metacognitive_needed=metacognitive_needed,
     )
@@ -202,7 +202,7 @@ def _mean(outcomes: list[float]) -> float:
 
 
 def _record_window_outcome(
-    claude_home: Path, skill_ref: str, entry: dict[str, Any], accuracies: list[float]
+    claude_home: Path, skill_ref: str, entry: QueueEntry, accuracies: list[float]
 ) -> None:
     """Write the closed window's measured scores to the learning stores.
 
@@ -211,13 +211,13 @@ def _record_window_outcome(
     classifies the change as success, failure or neutral from data. A
     window opened without a history position has no measured "before".
     """
-    start = entry.get("eval_history_start", 0)
+    start = entry.eval_history_start
     before_runs = accuracies[max(0, start - RECENT_RUNS) : start]
     window_runs = accuracies[start:]
     if not before_runs or not window_runs:
         return
     after_score = _mean(window_runs)
-    version = str(entry.get("eval_version", ""))
+    version = entry.eval_version
     if _HAS_MEMORY:
         ImprovementMemory(
             claude_home / "skills" / "improvement_memory.json"
@@ -225,7 +225,7 @@ def _record_window_outcome(
             skill_ref,
             ImprovementOutcome(
                 version=version,
-                change_summary=str(entry.get("eval_change_summary", "")),
+                change_summary=entry.eval_change_summary,
                 before_score=_mean(before_runs),
                 after_score=after_score,
             ),
@@ -256,10 +256,10 @@ def _advance_evaluation(
     if not queue_file.exists():
         return None
     queue = ImprovementQueue(queue_file)
-    entry = queue.skills.get(skill_ref, {})
-    if entry.get("status") != "evaluating":
+    entry = queue.skills.get(skill_ref)
+    if entry is None or entry.status != "evaluating":
         return None
-    window_gap = stability_gap_since(accuracies, entry.get("eval_history_start", 0))
+    window_gap = stability_gap_since(accuracies, entry.eval_history_start)
     if not queue.record_eval_execution(skill_ref, window_gap):
         return None
     if not queue.is_eval_complete(skill_ref):
@@ -267,8 +267,8 @@ def _advance_evaluation(
         return {
             "window_gap": window_gap,
             "evaluation": {
-                "executions": entry["eval_executions"],
-                "target": entry.get("eval_target", queue.EVAL_TARGET),
+                "executions": entry.eval_executions,
+                "target": entry.eval_target,
             },
         }
     decision = queue.evaluate(skill_ref)

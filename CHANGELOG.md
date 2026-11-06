@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **abstract's improvement queue entries are typed.** Each skill's record
+  is a `QueueEntry` dataclass with a `Literal` status, read by attribute
+  across the queue, the homeostatic monitor and the recorder (#1020). An
+  evaluating entry without `eval_start`, or a status outside the four
+  known ones, cannot be built. A queue file holding such an entry is set
+  aside like unparseable JSON. Files written before this change load
+  unchanged, and entries that never began an evaluation are stored
+  without the `eval_*` keys.
+
 ### Fixed
 
 - **abstract's experience records carry only what is written.**

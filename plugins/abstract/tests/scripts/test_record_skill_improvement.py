@@ -71,8 +71,8 @@ def test_queued_skill_is_versioned_and_starts_evaluation(tmp_path: Path) -> None
     assert result.returncode == 0, result.stderr
     assert SkillVersionManager(skill_file).current_version == "1.1.0"
     entry = _queue(home).skills[SKILL]
-    assert entry["status"] == "evaluating"
-    assert entry["baseline_gap"] == pytest.approx(0.6)
+    assert entry.status == "evaluating"
+    assert entry.baseline_gap == pytest.approx(0.6)
     assert "1.1.0" in result.stdout
 
 
@@ -102,7 +102,7 @@ def test_skill_without_history_is_versioned_without_a_window(
 
     assert result.returncode == 0, result.stderr
     assert SkillVersionManager(skill_file).current_version == "1.1.0"
-    assert _queue(home).skills[SKILL]["status"] == "monitoring"
+    assert _queue(home).skills[SKILL].status == "monitoring"
     assert "no evaluation window" in result.stdout
 
 
@@ -130,9 +130,9 @@ def test_window_opens_at_the_history_position_and_carries_the_change(
 
     assert result.returncode == 0, result.stderr
     entry = _queue(home).skills[SKILL]
-    assert entry["eval_history_start"] == len(CRITICAL)
-    assert entry["eval_version"] == "1.1.0"
-    assert entry["eval_change_summary"] == "added examples"
+    assert entry.eval_history_start == len(CRITICAL)
+    assert entry.eval_version == "1.1.0"
+    assert entry.eval_change_summary == "added examples"
 
 
 @pytest.mark.unit

@@ -316,7 +316,7 @@ def _start_evaluation(home: Path, baseline: float, target: int) -> None:
     queue = _queue(home)
     queue.flag_skill(SKILL, baseline, "exec-0")
     queue.start_evaluation(SKILL, baseline)
-    queue.skills[SKILL]["eval_target"] = target
+    queue.skills[SKILL].eval_target = target
     queue._save()
 
 
@@ -345,8 +345,8 @@ class TestMonitorDrivesEvaluationWindow:
 
         assert code == 0
         entry = _queue(tmp_path).skills[SKILL]
-        assert entry["eval_executions"] == 1
-        assert entry["status"] == "evaluating"
+        assert entry.eval_executions == 1
+        assert entry.status == "evaluating"
         report = json.loads(out)["hookSpecificOutput"]
         assert report["evaluation"] == {"executions": 1, "target": 10}
 
@@ -359,7 +359,7 @@ class TestMonitorDrivesEvaluationWindow:
 
         _, out = _run_monitor(monkeypatch, capsys, tmp_path)
 
-        assert _queue(tmp_path).skills[SKILL]["status"] == "promoted"
+        assert _queue(tmp_path).skills[SKILL].status == "promoted"
         report = json.loads(out)["hookSpecificOutput"]
         assert report["evaluation_decision"] == "promote"
 
@@ -372,7 +372,7 @@ class TestMonitorDrivesEvaluationWindow:
 
         _, out = _run_monitor(monkeypatch, capsys, tmp_path)
 
-        assert _queue(tmp_path).skills[SKILL]["status"] == "pending_rollback_review"
+        assert _queue(tmp_path).skills[SKILL].status == "pending_rollback_review"
         report = json.loads(out)["hookSpecificOutput"]
         assert report["evaluation_decision"] == "pending_rollback_review"
 
@@ -454,8 +454,8 @@ class TestWindowJudgesOnlyOutcomesSinceItOpened:
         entry = _queue(tmp_path).skills[SKILL]
         assert baseline > 0.5
         assert json.loads(out)["hookSpecificOutput"]["evaluation_decision"] == "promote"
-        assert entry["status"] == "promoted"
-        assert entry["eval_gaps"][-1] == 0.0
+        assert entry.status == "promoted"
+        assert entry.eval_gaps[-1] == 0.0
 
     @pytest.mark.unit
     def test_failures_inside_the_window_still_send_it_to_review(

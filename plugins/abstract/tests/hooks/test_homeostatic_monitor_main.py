@@ -244,6 +244,8 @@ class TestQueueFlagging:
             "execution_ids": [],
             "status": held,
         }
+        if held == "evaluating":
+            entry["eval_start"] = "2026-01-01T00:00:00+00:00"
         queue_file.write_text(json.dumps({"skills": {SKILL: entry}}))
 
         code, out, _ = _run_main(monkeypatch, capsys, tmp_path, _skill_payload())
