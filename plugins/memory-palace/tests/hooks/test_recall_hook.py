@@ -13,7 +13,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-HOOK = Path(__file__).resolve().parent.parent.parent / "hooks" / "recall.py"
+HOOK = Path(__file__).resolve().parent.parent.parent / "hooks" / "_recall.py"
 
 
 def _run(prompt: str, cwd: Path | None = None) -> subprocess.CompletedProcess:
@@ -144,7 +144,9 @@ class TestChangedDependencyFlagging:
 
         spec = importlib.util.spec_from_file_location(
             "recall_mod",
-            _PathAlias(__file__).resolve().parent.parent.parent / "hooks" / "recall.py",
+            _PathAlias(__file__).resolve().parent.parent.parent
+            / "hooks"
+            / "_recall.py",
         )
         recall = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(recall)
@@ -169,7 +171,9 @@ class TestChangedDependencyFlagging:
 
         spec = importlib.util.spec_from_file_location(
             "recall_mod2",
-            _PathAlias(__file__).resolve().parent.parent.parent / "hooks" / "recall.py",
+            _PathAlias(__file__).resolve().parent.parent.parent
+            / "hooks"
+            / "_recall.py",
         )
         recall = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(recall)
@@ -202,7 +206,7 @@ class TestImportsActuallyResolve:
         from pathlib import Path as _PathAlias
 
         hook = (
-            _PathAlias(__file__).resolve().parent.parent.parent / "hooks" / "recall.py"
+            _PathAlias(__file__).resolve().parent.parent.parent / "hooks" / "_recall.py"
         )
         spec = importlib.util.spec_from_file_location("recall_imports", hook)
         recall = importlib.util.module_from_spec(spec)
@@ -239,7 +243,7 @@ class TestImportsActuallyResolve:
         from pathlib import Path as _PathAlias
 
         hook = (
-            _PathAlias(__file__).resolve().parent.parent.parent / "hooks" / "recall.py"
+            _PathAlias(__file__).resolve().parent.parent.parent / "hooks" / "_recall.py"
         )
         spec = importlib.util.spec_from_file_location("recall_weight", hook)
         recall = importlib.util.module_from_spec(spec)

@@ -493,12 +493,12 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `setup.sh` | conserve | Setup | Environment initialization |
 | `setup.sh` | memory-palace | Setup | Palace directory initialization |
 | `skill_execution_logger.py` | abstract | PostToolUse | Skill metrics logging |
+| `user_prompt.py` | memory-palace | UserPromptSubmit | URL detection and `+recall` |
 | `stop_hook.py` | egregore | Stop | Prevent early exit while work items remain |
 | `supply_chain_check.py` | leyline | SessionStart | Warn about known-compromised package versions in lockfiles |
 | `task_created_tracker.py` | sanctum | TaskCreated | Track task creation for workflow completeness monitoring |
 | `tdd_bdd_gate.py` | imbue | PreToolUse | Iron Law enforcement at write-time |
 | `tool_output_summarizer.py` | conserve | PostToolUse | Monitor and warn about tool output bloat |
-| `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
 | `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
 | `verify_workflow_complete.py` | sanctum | Stop | Post-implementation checklist after a turn that edited files |

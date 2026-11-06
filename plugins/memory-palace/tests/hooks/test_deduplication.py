@@ -1003,7 +1003,7 @@ class TestStagingBudget:
         # Scoped to the hooks that actually reach _stage_index. The
         # manifest's smallest cap belongs to a hook that never stages.
         consumers = {
-            "url_detector.py",
+            "user_prompt.py",
             "local_doc_processor.py",
             "index_surfacer.py",
             "web_research_handler.py",

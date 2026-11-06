@@ -46,7 +46,7 @@ that use spatial metaphors for organization and retrieval.
 | Hook | Type | Description |
 |------|------|-------------|
 | `research_interceptor.py` | PreToolUse | Checks local knowledge before web searches |
-| `url_detector.py` | UserPromptSubmit | Detects URLs for intake |
+| `user_prompt.py` | UserPromptSubmit | Detects URLs for intake and serves `+recall`, in one process |
 | `local_doc_processor.py` | PostToolUse | Processes local docs after reads |
 | `web_research_handler.py` | PostToolUse | Processes web content, skips non-2xx error pages (#547), and prompts for knowledge storage |
 

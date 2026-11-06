@@ -107,23 +107,18 @@ def extract_urls(text: str) -> list[str]:
     return filtered
 
 
-def main() -> None:
-    """Run the URL detector hook entry point."""
-    try:
-        payload: dict[str, Any] = json.load(sys.stdin)
-    except json.JSONDecodeError:
-        sys.exit(0)  # Invalid input, exit silently
-
+def prompt_context(payload: dict[str, Any]) -> str | None:
+    """Return the intake hint for the prompt's URLs, or None when it has none."""
     prompt = payload.get("prompt", "")
 
     # Fast path: no URL indicators
     if "://" not in prompt and "www." not in prompt:
-        sys.exit(0)
+        return None
 
     urls = extract_urls(prompt)
 
     if not urls:
-        sys.exit(0)
+        return None
 
     # Imported here, not at module scope: this hook runs on every
     # prompt and `shared` pulls in memory_palace.paths and xxhash,
@@ -133,7 +128,7 @@ def main() -> None:
 
     config = get_config()
     if not config.get("enabled", True):
-        sys.exit(0)
+        return None
 
     # Check which URLs are new
     new_urls = []
@@ -145,38 +140,48 @@ def main() -> None:
         else:
             new_urls.append(url)
 
-    # Build response
-    response: dict[str, Any] | None = None
-    if new_urls or known_urls:
-        context_parts = []
+    context_parts = []
 
-        if new_urls:
-            context_parts.append(
-                f"Memory Palace: Detected {len(new_urls)} new URL(s) for knowledge intake:\n"
-                + "\n".join(f"  - {url}" for url in new_urls[:5]),
+    if new_urls:
+        context_parts.append(
+            f"Memory Palace: Detected {len(new_urls)} new URL(s) for knowledge intake:\n"
+            + "\n".join(f"  - {url}" for url in new_urls[:5]),
+        )
+        if len(new_urls) > 5:
+            context_parts.append(f"  ... and {len(new_urls) - 5} more")
+        context_parts.append(
+            "\nAfter processing the user's request, consider running the knowledge-intake "
+            "workflow to store valuable content from these URLs.",
+        )
+
+    if known_urls:
+        context_parts.append(
+            f"\nMemory Palace: {len(known_urls)} URL(s) already indexed. "
+            "Check memory-palace for existing knowledge before re-fetching.",
+        )
+
+    return "\n".join(context_parts)
+
+
+def main() -> None:
+    """Run the URL detector hook entry point."""
+    try:
+        payload: dict[str, Any] = json.load(sys.stdin)
+    except json.JSONDecodeError:
+        sys.exit(0)  # Invalid input, exit silently
+
+    context = prompt_context(payload)
+    if context:
+        print(
+            json.dumps(
+                {
+                    "hookSpecificOutput": {
+                        "hookEventName": "UserPromptSubmit",
+                        "additionalContext": context,
+                    },
+                }
             )
-            if len(new_urls) > 5:
-                context_parts.append(f"  ... and {len(new_urls) - 5} more")
-            context_parts.append(
-                "\nAfter processing the user's request, consider running the knowledge-intake "
-                "workflow to store valuable content from these URLs.",
-            )
-
-        if known_urls:
-            context_parts.append(
-                f"\nMemory Palace: {len(known_urls)} URL(s) already indexed. "
-                "Check memory-palace for existing knowledge before re-fetching.",
-            )
-
-        response = {
-            "hookSpecificOutput": {
-                "hookEventName": "UserPromptSubmit",
-                "additionalContext": "\n".join(context_parts),
-            },
-        }
-
-    if response:
-        print(json.dumps(response))
+        )
 
     sys.exit(0)
 

@@ -27,12 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/url_detector.py\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/recall.py\"",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/user_prompt.py\"",
             "timeout": 5
           }
         ]

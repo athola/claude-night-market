@@ -39,6 +39,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Fewer processes block each prompt.** Five plugins registered
+  `UserPromptSubmit`, run in sequence, and the chain hit its 2000ms limit
+  on about 16% of prompts (#779). memory-palace's URL detector and
+  `+recall` now share one process, `hooks/user_prompt.py`, so a prompt
+  pays one interpreter start-up instead of two. The two modules are now
+  helpers, `_url_detector.py` and `_recall.py`. sanctum's
+  `--clear-state` observer runs `async`, since it returns no context.
+
 - **abstract's evaluation window counts the run that was just logged.**
   The homeostatic monitor advanced an open window from its own
   PostToolUse hook, which runs alongside the execution logger, so it

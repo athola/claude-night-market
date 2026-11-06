@@ -249,39 +249,43 @@ def _render(
     return "\n".join(lines)
 
 
+def prompt_context(payload: object) -> str | None:
+    """Return past-session units when the prompt opts in, else None."""
+    if os.environ.get("MEMORY_PALACE_RECALL") == "off":
+        return None
+    if not isinstance(payload, dict):
+        return None
+    match = RECALL_TOKEN.search(payload.get("prompt", ""))
+    if not match:
+        return None
+
+    visible = match.group(1) == "?"
+    query = RECALL_TOKEN.sub(" ", payload["prompt"])
+    units = _load_units()
+    ranked = _rank(query, units)
+    root = Path(payload.get("cwd") or Path.cwd())
+    return _render(ranked, visible, _changed_dependencies([u for u, _ in ranked], root))
+
+
 def main() -> None:
     """Inject past-session units when the prompt opts in."""
-    if os.environ.get("MEMORY_PALACE_RECALL") == "off":
-        sys.exit(0)
     try:
         payload = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
         sys.exit(0)
 
-    prompt = payload.get("prompt", "") if isinstance(payload, dict) else ""
-    match = RECALL_TOKEN.search(prompt)
-    if not match:
-        sys.exit(0)
-
-    visible = match.group(1) == "?"
-    query = RECALL_TOKEN.sub(" ", prompt)
-    units = _load_units()
-    ranked = _rank(query, units)
-    root = Path(payload.get("cwd") or Path.cwd())
-    context = _render(
-        ranked, visible, _changed_dependencies([u for u, _ in ranked], root)
-    )
-
-    print(
-        json.dumps(
-            {
-                "hookSpecificOutput": {
-                    "hookEventName": "UserPromptSubmit",
-                    "additionalContext": context,
+    context = prompt_context(payload)
+    if context is not None:
+        print(
+            json.dumps(
+                {
+                    "hookSpecificOutput": {
+                        "hookEventName": "UserPromptSubmit",
+                        "additionalContext": context,
+                    }
                 }
-            }
+            )
         )
-    )
     sys.exit(0)
 
 
