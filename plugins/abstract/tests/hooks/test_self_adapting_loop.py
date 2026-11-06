@@ -28,7 +28,7 @@ if str(_HOOKS_DIR) not in sys.path:
 
 import homeostatic_monitor as hm
 import skill_execution_logger as sel
-from shared.stability import stability_gap
+from shared.stability import stability_gap, stability_gap_since
 
 SKILL = "abstract:skill-auditor"
 _LEGACY_ENV = (
@@ -331,7 +331,14 @@ def _run_monitor(
     return exc.value.code, capsys.readouterr().out
 
 
-class TestMonitorDrivesEvaluationWindow:
+def _log_run(home: Path, passed: bool) -> dict:
+    """Log one run through the logger and return its window report, if any."""
+    evaluator = sel.ContinualEvaluator(home / "skills" / "logs" / ".history.json", home)
+    metrics = evaluator.evaluate_iteration(SKILL, passed, 10)
+    return metrics.get("window_evaluation", {})
+
+
+class TestLoggerDrivesEvaluationWindow:
     """An evaluating skill records each execution and is decided when full."""
 
     @pytest.mark.unit
@@ -341,13 +348,11 @@ class TestMonitorDrivesEvaluationWindow:
         _seed_history(tmp_path, HEALTHY)
         _start_evaluation(tmp_path, baseline=0.6, target=10)
 
-        code, out = _run_monitor(monkeypatch, capsys, tmp_path)
+        report = _log_run(tmp_path, True)
 
-        assert code == 0
         entry = _queue(tmp_path).skills[SKILL]
         assert entry.eval_executions == 1
         assert entry.status == "evaluating"
-        report = json.loads(out)["hookSpecificOutput"]
         assert report["evaluation"] == {"executions": 1, "target": 10}
 
     @pytest.mark.unit
@@ -357,10 +362,9 @@ class TestMonitorDrivesEvaluationWindow:
         _seed_history(tmp_path, HEALTHY)
         _start_evaluation(tmp_path, baseline=0.6, target=1)
 
-        _, out = _run_monitor(monkeypatch, capsys, tmp_path)
+        report = _log_run(tmp_path, True)
 
         assert _queue(tmp_path).skills[SKILL].status == "promoted"
-        report = json.loads(out)["hookSpecificOutput"]
         assert report["evaluation_decision"] == "promote"
 
     @pytest.mark.unit
@@ -370,10 +374,9 @@ class TestMonitorDrivesEvaluationWindow:
         _seed_history(tmp_path, CRITICAL)
         _start_evaluation(tmp_path, baseline=0.2, target=1)
 
-        _, out = _run_monitor(monkeypatch, capsys, tmp_path)
+        report = _log_run(tmp_path, True)
 
         assert _queue(tmp_path).skills[SKILL].status == "pending_rollback_review"
-        report = json.loads(out)["hookSpecificOutput"]
         assert report["evaluation_decision"] == "pending_rollback_review"
 
     @pytest.mark.unit
@@ -448,12 +451,11 @@ class TestWindowJudgesOnlyOutcomesSinceItOpened:
         queue.start_evaluation(SKILL, baseline, history_position=len(before))
 
         for _ in range(10):
-            evaluator.evaluate_iteration(SKILL, True, 10)
-            _, out = _run_monitor(monkeypatch, capsys, tmp_path)
+            report = _log_run(tmp_path, True)
 
         entry = _queue(tmp_path).skills[SKILL]
         assert baseline > 0.5
-        assert json.loads(out)["hookSpecificOutput"]["evaluation_decision"] == "promote"
+        assert report["evaluation_decision"] == "promote"
         assert entry.status == "promoted"
         assert entry.eval_gaps[-1] == 0.0
 
@@ -473,10 +475,9 @@ class TestWindowJudgesOnlyOutcomesSinceItOpened:
         queue.start_evaluation(SKILL, baseline, history_position=len(before))
 
         for passed in [False, False, False] + [True] * 7:
-            evaluator.evaluate_iteration(SKILL, passed, 10)
-            _, out = _run_monitor(monkeypatch, capsys, tmp_path)
+            report = _log_run(tmp_path, passed)
 
-        decision = json.loads(out)["hookSpecificOutput"]["evaluation_decision"]
+        decision = report["evaluation_decision"]
         assert decision == "pending_rollback_review"
 
 
@@ -532,8 +533,7 @@ class TestEvaluationRecordsTheOutcome:
         )
 
         for _ in range(10):
-            evaluator.evaluate_iteration(SKILL, True, 10)
-            _run_monitor(monkeypatch, capsys, tmp_path)
+            _log_run(tmp_path, True)
 
         outcomes = ImprovementMemory(
             tmp_path / "skills" / "improvement_memory.json"
@@ -564,11 +564,92 @@ class TestEvaluationRecordsTheOutcome:
         queue.start_evaluation(SKILL, 0.2, history_position=5)
 
         for passed in [False] * 5 + [True] * 5:
-            evaluator.evaluate_iteration(SKILL, passed, 10)
-            _run_monitor(monkeypatch, capsys, tmp_path)
+            _log_run(tmp_path, passed)
 
         outcomes = ImprovementMemory(
             tmp_path / "skills" / "improvement_memory.json"
         ).outcomes[SKILL]
         assert outcomes[0]["outcome_type"] == "failure"
         assert outcomes[0]["after_score"] == pytest.approx(0.5)
+
+
+class TestLoggerAdvancesTheEvaluationWindow:
+    """The window is advanced by the logger, after it writes the run (#1018).
+
+    The monitor runs in parallel with the logger and may read the history
+    before the run is written, so only the logger can order the two.
+    """
+
+    @staticmethod
+    def _open_window(home: Path, target: int, history: list[int]) -> None:
+        _seed_history(home, history)
+        queue = _queue(home)
+        queue.flag_skill(SKILL, 0.6, "exec-0")
+        queue.start_evaluation(SKILL, 0.6, history_position=len(history))
+        queue.skills[SKILL].eval_target = target
+        queue._save()
+
+    @pytest.mark.unit
+    def test_window_is_computed_over_the_run_just_logged(self, tmp_path: Path) -> None:
+        self._open_window(tmp_path, target=10, history=HEALTHY)
+
+        result = _run_hook(
+            "skill_execution_logger.py",
+            _post_payload({"skill": SKILL}, "Error: failed"),
+            tmp_path,
+        )
+
+        assert result.returncode == 0, result.stderr
+        accuracies = _history_accuracies(tmp_path, SKILL)
+        assert accuracies == [*HEALTHY, 0]
+        entry = _queue(tmp_path).skills[SKILL]
+        assert entry.eval_executions == 1
+        assert entry.eval_gaps == [stability_gap_since(accuracies, len(HEALTHY))]
+
+    @pytest.mark.unit
+    def test_decision_is_reported_in_the_logger_output(self, tmp_path: Path) -> None:
+        self._open_window(tmp_path, target=1, history=HEALTHY)
+
+        result = _run_hook(
+            "skill_execution_logger.py",
+            _post_payload({"skill": SKILL}, {"success": True}),
+            tmp_path,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert _queue(tmp_path).skills[SKILL].status == "promoted"
+        metrics = json.loads(result.stdout)["hookSpecificOutput"]["continual_metrics"]
+        assert metrics["window_evaluation"]["evaluation_decision"] == "promote"
+
+    @pytest.mark.unit
+    def test_monitor_does_not_count_the_run_a_second_time(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        self._open_window(tmp_path, target=10, history=HEALTHY)
+        _run_hook(
+            "skill_execution_logger.py",
+            _post_payload({"skill": SKILL}, {"success": True}),
+            tmp_path,
+        )
+
+        _run_monitor(monkeypatch, capsys, tmp_path)
+
+        assert _queue(tmp_path).skills[SKILL].eval_executions == 1
+
+    @pytest.mark.unit
+    def test_skill_not_under_evaluation_leaves_the_queue_absent(
+        self, tmp_path: Path
+    ) -> None:
+        result = _run_hook(
+            "skill_execution_logger.py",
+            _post_payload({"skill": SKILL}, {"success": True}),
+            tmp_path,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert not (tmp_path / "skills" / "improvement-queue.json").exists()
+        metrics = json.loads(result.stdout)["hookSpecificOutput"]["continual_metrics"]
+        assert "window_evaluation" not in metrics

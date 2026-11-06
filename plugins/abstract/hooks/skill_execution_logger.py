@@ -26,6 +26,8 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+import homeostatic_monitor  # same directory, so on sys.path when run as a hook
+
 from shared.dir_utils import (
     get_experience_library_dir,
     get_log_directory,
@@ -50,8 +52,11 @@ STABILITY_GAP_THRESHOLD = 0.3
 class ContinualEvaluator:
     """Implements continual evaluation metrics (Avalanche-style)."""
 
-    def __init__(self, history_file: Path):
+    def __init__(self, history_file: Path, claude_home: Path | None = None):
+        # With a claude_home, each saved run also advances that skill's
+        # open evaluation window; without one, only the history is kept.
         self.history_file = history_file
+        self.claude_home = claude_home
         self.skill_history: dict[str, dict[str, list]] = defaultdict(
             lambda: {"accuracies": [], "durations": []}
         )
@@ -138,6 +143,15 @@ class ContinualEvaluator:
             if duration_ms is not None:
                 history["durations"].append(duration_ms)
             self._save_history()
+            # Under the history lock and after the write, so the window is
+            # computed over a history that ends with this run (#1018).
+            window_report = (
+                homeostatic_monitor.evaluate_window(
+                    self.claude_home, skill_ref, history["accuracies"]
+                )
+                if self.claude_home is not None
+                else None
+            )
 
         accuracies = history["accuracies"]
         durations = history["durations"]
@@ -152,13 +166,16 @@ class ContinualEvaluator:
         avg_duration = sum(durations) / len(durations) if durations else 0.0
         execution_count = len(accuracies)
 
-        return {
+        metrics: dict[str, Any] = {
             "worst_case_accuracy": worst_case,
             "average_accuracy": avg_accuracy,
             "stability_gap": stability_gap,
             "avg_duration_ms": avg_duration,
             "execution_count": execution_count,
         }
+        if window_report is not None:
+            metrics["window_evaluation"] = window_report
+        return metrics
 
 
 def sanitize_output(output: str, max_length: int = 5000) -> str:
@@ -383,7 +400,7 @@ def store_experience(
 ) -> None:
     """Record a successful call in the experience library (ADR-0006).
 
-    Only the args are known here, so approach and tools stay empty. A
+    Only the args are known here, so approach stays empty. A
     call without args is skipped: it names no task to recall, and every
     such call would hash to the same entry.
     """
@@ -471,7 +488,9 @@ def main() -> None:
 
         # Initialize continual evaluator
         history_file = get_log_directory() / ".history.json"
-        evaluator = ContinualEvaluator(history_file)
+        evaluator = ContinualEvaluator(
+            history_file, homeostatic_monitor.get_claude_home()
+        )
 
         # Create log entry with pre-execution state and metrics
         log_entry = create_log_entry(

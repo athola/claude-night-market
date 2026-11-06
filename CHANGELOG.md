@@ -20,6 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **abstract's evaluation window counts the run that was just logged.**
+  The homeostatic monitor advanced an open window from its own
+  PostToolUse hook, which runs alongside the execution logger, so it
+  could read the history before the run was written and judge the window
+  without it (#1018). The logger now advances the window under its
+  history lock, after the write, and reports the result in
+  `continual_metrics.window_evaluation`. The monitor no longer counts or
+  reports an evaluating skill.
+
 - **abstract's experience records carry only what is written.**
   `ExecutionTrajectory` declared `tools_used` and `key_decisions`, which
   `store_experience` never set, so every stored entry held two empty

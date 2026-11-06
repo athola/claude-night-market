@@ -3,7 +3,9 @@
 
 Reads stability gap from execution history and flags degrading
 skills in the improvement queue. When a skill accumulates 3+
-flags, it becomes eligible for auto-improvement.
+flags, it becomes eligible for auto-improvement. Evaluation windows
+are advanced by skill_execution_logger through ``evaluate_window``,
+because only the logger knows the run it just wrote is in the history.
 
 Part of the self-adapting system. See: docs/adr/0006-self-adapting-skill-health.md
 """
@@ -277,30 +279,46 @@ def _advance_evaluation(
     return {"window_gap": window_gap, "evaluation_decision": decision}
 
 
-def _evaluation_report(
-    claude_home: Path, skill_ref: str, health: SkillHealth, accuracies: list[float]
+def evaluate_window(
+    claude_home: Path, skill_ref: str, accuracies: list[float]
 ) -> dict | None:
-    """Return the hook output for an evaluating skill, else None."""
+    """Advance an open evaluation window and return its hook report.
+
+    Called by skill_execution_logger after it writes the run, so
+    ``accuracies`` always ends with that run. Run from this hook instead,
+    the read raced the logger's write and could miss the run.
+
+    Returns:
+        The report fields, or None when the skill is not under evaluation
+        or the window could not be recorded.
+
+    """
     if not _HAS_QUEUE:
         return None
     try:
         evaluation = _advance_evaluation(claude_home, skill_ref, accuracies)
-    except OSError as e:
+        if evaluation is None:
+            return None
+        try:
+            trend = _get_improvement_trend(claude_home, skill_ref)
+        except (OSError, ValueError, KeyError) as e:
+            sys.stderr.write(f"homeostatic_monitor: tracker error: {e}\n")
+            trend = None
+    except (OSError, ValueError, KeyError, TypeError) as e:
         sys.stderr.write(
             f"homeostatic_monitor: evaluation not recorded for {skill_ref}: {e}\n"
         )
         return None
-    if evaluation is None:
-        return None
     window_gap = evaluation.pop("window_gap")
-    return _build_output(
+    report: dict = _build_output(
         skill_ref,
         window_gap,
         _status(window_gap),
-        health.velocity,
-        health.trend,
+        _stewardship_velocity(claude_home),
+        trend,
         **evaluation,
-    )
+    )["hookSpecificOutput"]
+    return report
 
 
 # Stewardship integration: lightweight velocity read
@@ -385,18 +403,6 @@ def main() -> None:
             trend = None
 
         velocity = _stewardship_velocity(claude_home)
-
-        # Before the healthy exit: a window exists to watch the executions
-        # that follow an improvement, and those are meant to be healthy.
-        report = _evaluation_report(
-            claude_home,
-            skill_ref,
-            SkillHealth(gap, velocity, trend),
-            skill_history.get("accuracies", []),
-        )
-        if report is not None:
-            print(json.dumps(report))
-            sys.exit(0)
 
         if gap <= STABILITY_GAP_THRESHOLD:
             print(json.dumps(_build_output(skill_ref, gap, "healthy", velocity, trend)))
