@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **leyline's suppression guard catches file-level directives.** It
+  matched `# noqa` and `#[allow(` but not `# ruff: noqa`,
+  `# flake8: noqa`, `# pyright: ignore`, Rust's inner `#![allow(` or
+  `/* eslint-disable */`, and the file-level forms silence more than a
+  line-level one.
+
 - **gauntlet's problem-bank survey reports a corrupt bank file.** A
   YAML syntax error or a non-mapping top level read as an empty
   category, so the gap report showed zero problems there and hid the

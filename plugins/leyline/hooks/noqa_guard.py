@@ -4,8 +4,9 @@
 Scans Edit and Write tool inputs for inline lint suppression
 comments across multiple languages:
 
-- Python: ``# noqa``, ``# type: ignore``, ``# pylint: disable``
-- Rust: ``#[allow(...)]``
+- Python: ``# noqa``, ``# type: ignore``, ``# pylint: disable``,
+  ``# ruff: noqa``, ``# flake8: noqa``, ``# pyright: ignore``
+- Rust: ``#[allow(...)]`` and ``#![allow(...)]``
 - JavaScript/TypeScript: ``eslint-disable``, ``@ts-ignore``,
   ``@ts-expect-error``
 - Go: ``//nolint``
@@ -29,10 +30,13 @@ _PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"#\s*noqa\b"), "# noqa"),
     (re.compile(r"#\s*type:\s*ignore"), "# type: ignore"),
     (re.compile(r"#\s*pylint:\s*disable"), "# pylint: disable"),
-    # Rust
-    (re.compile(r"#\[allow\("), "#[allow(...)]"),
+    # File-level forms silence the whole file, not one line.
+    (re.compile(r"#\s*(?:ruff|flake8):\s*noqa\b"), "# ruff/flake8: noqa"),
+    (re.compile(r"#\s*pyright:\s*ignore"), "# pyright: ignore"),
+    # Rust: outer #[allow] and the crate- or module-wide inner #![allow]
+    (re.compile(r"#!?\[allow\("), "#[allow(...)]"),
     # JavaScript / TypeScript
-    (re.compile(r"//\s*eslint-disable"), "eslint-disable"),
+    (re.compile(r"(?://|/\*)\s*eslint-disable"), "eslint-disable"),
     (re.compile(r"//\s*@ts-ignore"), "@ts-ignore"),
     (re.compile(r"//\s*@ts-expect-error"), "@ts-expect-error"),
     # Go
