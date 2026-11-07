@@ -38,14 +38,14 @@ def get_security_patterns() -> list[dict[str, Any]]:
     return [
         {
             "ruleName": "dynamic_code_evaluation",
-            "pattern": rf"\b{ev}\s*\(",
+            "pattern": rf"(?<![.\w]){ev}\s*\(",
             "file_types": [".py", ".js", ".ts"],
             "reminder": f"Security Warning: {ev}() runs arbitrary code. "
             "Use JSON.parse() or ast.literal_eval() instead.",
         },
         {
             "ruleName": "dynamic_code_execution",
-            "pattern": rf"\b{ex}\s*\(",
+            "pattern": rf"(?<![.\w]){ex}\s*\(",
             "file_types": [".py"],
             "reminder": f"Security Warning: {ex}() is a major security risk. "
             "Consider safer alternatives.",

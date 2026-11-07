@@ -56,6 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **sanctum's code-execution warning skips methods that share the
+  name.** The rule matched any `eval(` or `exec(`, so PyTorch's
+  `model.eval()` and a cursor's `.exec(sql)` drew the "runs arbitrary
+  code" warning. Only the bare builtin call matches now.
+
 - **sanctum's deferred-item watcher reads clean titles from structured
   output.** A dict `tool_response` was flattened with `json.dumps`,
   which turns newlines into a backslash and an `n`, so a
