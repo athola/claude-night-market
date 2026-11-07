@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **hookify conditions on a field the event lacks no longer match.** A
+  missing field read as the empty string, so every negated operator was
+  true: a rule with `event: all` and `file_path not_contains /tests/`
+  fired on every Bash command and prompt. Such a condition now does not
+  apply.
+
 - **imbue's no-emoji vow lets plain symbols through.** It blocked all
   of U+2300-23FF and U+2600-27BF, so `fix: mark ✓ done` and `use ⌘
   key` were denied when blocking was on. In that range only characters

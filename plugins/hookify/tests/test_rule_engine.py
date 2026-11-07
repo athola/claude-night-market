@@ -478,11 +478,15 @@ class TestEvaluateConditionOperators:
         results = engine.evaluate_event("bash", {"command": 42})
         assert len(results) == 1
 
-    def test_missing_field_uses_empty_string(self) -> None:
-        """Missing field defaults to empty string."""
+    def test_missing_field_does_not_match(self) -> None:
+        """A field the event lacks is not an empty string that equals "".
+
+        Reading it as "" made every negated operator true on events that
+        never carry the field.
+        """
         engine = self._make_engine_with_condition("nonexistent", "equals", "")
         results = engine.evaluate_event("bash", {"command": "test"})
-        assert len(results) == 1
+        assert len(results) == 0
 
 
 class TestEvaluateConditionsEdgeCases:
@@ -696,3 +700,49 @@ class TestEventTypeFiltering:
             assert len(results) == 1
         else:
             assert len(results) == 0
+
+
+class TestAnAbsentFieldMatchesNothing:
+    """A condition on a field the event does not carry does not apply."""
+
+    def test_not_contains_on_a_missing_field_does_not_match(self) -> None:
+        """`file_path not_contains /tests/` fired on every Bash command."""
+        rules = [
+            RuleConfig(
+                name="no-non-test-edits",
+                enabled=True,
+                event="all",
+                conditions=[
+                    Condition(
+                        field="file_path", operator="not_contains", pattern="/tests/"
+                    )
+                ],
+                action="warn",
+                message="m",
+            )
+        ]
+
+        results = RuleEngine(rules).evaluate_event("bash", {"command": "ls"})
+
+        assert not any(r.matched for r in results)
+
+    def test_the_condition_still_applies_when_the_field_is_present(self) -> None:
+        """Only absence changes; a present field is judged as before."""
+        rules = [
+            RuleConfig(
+                name="no-non-test-edits",
+                enabled=True,
+                event="all",
+                conditions=[
+                    Condition(
+                        field="file_path", operator="not_contains", pattern="/tests/"
+                    )
+                ],
+                action="warn",
+                message="m",
+            )
+        ]
+
+        results = RuleEngine(rules).evaluate_event("file", {"file_path": "src/a.py"})
+
+        assert any(r.matched for r in results)
