@@ -145,6 +145,29 @@ class TestCommitVowGates:
         assert not is_git_commit(command)
         assert not _any_gate_matches(script, command)
 
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "script", ["vow_no_ai_attribution.py", "vow_no_emoji_commits.py"]
+    )
+    @pytest.mark.parametrize(
+        "command",
+        [
+            'git add . && git commit -m "feat: thing"',
+            'cd repo && git commit -m "feat: thing"',
+            'git status; git commit -m "feat: thing"',
+            'git -C repo commit -m "feat: thing"',
+            'git -c user.name=x commit -m "feat: thing"',
+            'git --no-pager commit -m "feat: thing"',
+        ],
+    )
+    def test_gate_and_hook_both_accept_chained_and_flagged_commits(
+        self, script, command
+    ):
+        """A gate that admits a commit the hook then ignores is a dead vow."""
+        assert _any_gate_matches(script, command)
+        assert is_git_commit(command)
+
 
 class TestPackageGuardGates:
     """Feature: every ecosystem the guard parses has a gate admitting it."""

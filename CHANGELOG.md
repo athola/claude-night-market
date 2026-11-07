@@ -56,6 +56,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Commit vows inspect chained commits.** imbue's no-AI-attribution
+  and no-emoji vows only saw a command that began with `git commit`, so
+  `git add -A && git commit ...`, `git -C repo commit` and
+  `git -c k=v commit` were never checked, even with `VOW_SHADOW_MODE=0`.
+  Detection now tests each shell segment and allows git's global options
+  before `commit`, and the `if` gate widens to `Bash(git *commit*)` to
+  admit the flagged forms.
+
 - **Fewer processes block each prompt.** Five plugins registered
   `UserPromptSubmit`, run in sequence, and the chain hit its 2000ms limit
   on about 16% of prompts (#779). memory-palace's URL detector and

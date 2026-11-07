@@ -30,7 +30,11 @@ __all__ = [
     "shadow_mode_active",
 ]
 
-_GIT_COMMIT_RE = re.compile(r"git\s+commit\b")
+# git, then any global options (-C <dir>, -c <k=v>, --no-pager, ...),
+# then the commit subcommand. Applied per shell segment, because the
+# harness `if` gate admits `git add . && git commit` segment by segment.
+_GIT_COMMIT_RE = re.compile(r"git(?:\s+(?:-[Cc]\s+\S+|-\S+))*\s+commit\b")
+_SEGMENT_SPLIT_RE = re.compile(r"&&|\|\||[;|\n]")
 _OFF_VALUES = ("0", "false", "no")
 
 # O_NOFOLLOW makes open() fail (ELOOP) when the final path component is a
@@ -113,8 +117,11 @@ def vow_output(enforce: bool, reason: str) -> dict[str, Any]:
 
 
 def is_git_commit(command: str) -> bool:
-    """Return True if the Bash command is a git commit invocation."""
-    return bool(_GIT_COMMIT_RE.match(command.strip()))
+    """Return True if any segment of the Bash command runs git commit."""
+    return any(
+        _GIT_COMMIT_RE.match(segment.strip())
+        for segment in _SEGMENT_SPLIT_RE.split(command)
+    )
 
 
 def read_counter_path(session_id: str) -> Path:

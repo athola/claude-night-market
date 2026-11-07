@@ -52,8 +52,20 @@ class TestIsGitCommit:
             ("git status", False),
             ("git push origin main", False),
             ("echo 'git commit'", False),
+            ("git log --grep commit", False),
+            ("git add . && git commit -m x", True),
+            ("git -C repo commit -m x", True),
         ],
-        ids=["plain-commit", "amend", "status", "push", "echo-with-commit"],
+        ids=[
+            "plain-commit",
+            "amend",
+            "status",
+            "push",
+            "echo-with-commit",
+            "log-grep-commit",
+            "chained",
+            "dash-C",
+        ],
     )
     def test_is_git_commit_detection(self, hook_module, command, expected):
         """
