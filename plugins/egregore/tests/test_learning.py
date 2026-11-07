@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import fields
 from pathlib import Path
 
 import pytest
@@ -711,3 +712,23 @@ class TestMathReviewLearningFindings:
         (pattern,) = extract_patterns(items)
 
         assert pattern.last_seen == "2026-09-30T00:00:00+00:00"
+
+
+def test_from_dict_keeps_every_declared_field() -> None:
+    """Accepted keys come from the dataclass, so a new field is never dropped."""
+    raw = {
+        "category": "c",
+        "description": "d",
+        "frequency": 4,
+        "last_seen": "2026-11-07",
+        "success_count": 3,
+        "source_items": ["w1"],
+        "unknown": "ignored",
+    }
+    assert {f.name for f in fields(LearnedPattern)} <= set(raw)
+
+    pattern = LearnedPattern.from_dict(raw)
+
+    assert {f.name: getattr(pattern, f.name) for f in fields(pattern)} == {
+        k: v for k, v in raw.items() if k != "unknown"
+    }

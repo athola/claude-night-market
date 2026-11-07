@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -35,14 +35,7 @@ class DiscussionsConfig:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> DiscussionsConfig:
         """Deserialize from a plain dictionary, ignoring unknown keys."""
-        known = {
-            "enabled",
-            "publish_discoveries",
-            "publish_insights",
-            "publish_contention",
-            "publish_retrospectives",
-            "max_per_work_item",
-        }
+        known = {f.name for f in fields(cls)}
         filtered = {k: v for k, v in data.items() if k in known}
         return cls(**filtered)
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import Any
 
@@ -51,14 +51,7 @@ class LearnedPattern:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> LearnedPattern:
         """Deserialize from a plain dictionary."""
-        known = {
-            "category",
-            "description",
-            "frequency",
-            "last_seen",
-            "success_count",
-            "source_items",
-        }
+        known = {f.name for f in fields(cls)}
         filtered = {k: v for k, v in data.items() if k in known}
         # Backward compat: reconstruct success_count from success_rate
         if "success_count" not in filtered and "success_rate" in data:
