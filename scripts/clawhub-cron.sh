@@ -60,8 +60,12 @@ run_sync() {
   printf '\n' >>"${LOG}"
   printf '=== %s: clawhub-cron run ===\n' "$(date)" >>"${LOG}"
 
-  # Ensure PATH includes node/clawhub
-  export PATH="${HOME}/.local/bin:${HOME}/.nvm/versions/node/v25.2.1/bin:${PATH}"
+  # Ensure PATH includes node/clawhub. cron's PATH holds neither, and a
+  # pinned node version stopped finding clawhub at the first upgrade, so
+  # nvm's default alias is used, then the last installed version.
+  local node_bin
+  node_bin="$(nvm_node_bin)"
+  export PATH="${HOME}/.local/bin:${node_bin}${PATH}"
 
   # No explicit version -- clawhub-submit.sh auto-detects from
   # plugins/abstract/.claude-plugin/plugin.json so the cron stays
@@ -78,6 +82,23 @@ run_sync() {
     *)
       log_line "Partial sync (exit ${exit_code}). Will retry next hour."
       ;;
+  esac
+}
+
+# Print "<dir>:" for nvm's node bin directory, or nothing without nvm.
+nvm_node_bin() {
+  _versions="${HOME}/.nvm/versions/node"
+  _alias="$(cat "${HOME}/.nvm/alias/default" 2>/dev/null || printf '')"
+  case "${_alias}" in
+    v*) [ -d "${_versions}/${_alias}/bin" ] && printf '%s:' "${_versions}/${_alias}/bin" && return 0 ;;
+  esac
+  _last=""
+  for _dir in "${_versions}"/*/bin; do
+    [ -d "${_dir}" ] && _last="${_dir}"
+  done
+  case "${_last}" in
+    "") ;;
+    *) printf '%s:' "${_last}" ;;
   esac
 }
 
