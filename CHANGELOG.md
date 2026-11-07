@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **sanctum's deferred-item watcher reads clean titles from structured
+  output.** A dict `tool_response` was flattened with `json.dumps`,
+  which turns newlines into a backslash and an `n`, so a
+  `[Deferred] Add caching` marker captured the rest of the JSON as its
+  title and the sweep filed an issue under it. The watcher now reads
+  the strings the response holds, one per line.
+
 - **herald files an alert in a repository without its labels.**
   `gh issue create --label herald,crash` fails outright when either
   label is missing, and herald never creates labels, so the crash alert

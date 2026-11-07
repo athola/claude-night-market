@@ -249,15 +249,25 @@ def read_payload() -> dict:
     }
 
 
-def _response_text(payload: dict) -> str:
-    """Return ``tool_response`` as text (the runtime sends dict or str)."""
-    value = payload.get("tool_response", "")
+def _string_leaves(value: object) -> list[str]:
+    """Every string inside ``value``, depth first, in document order."""
     if isinstance(value, str):
-        return value
-    try:
-        return json.dumps(value)
-    except (TypeError, ValueError):
-        return str(value)
+        return [value]
+    if isinstance(value, dict):
+        return [leaf for item in value.values() for leaf in _string_leaves(item)]
+    if isinstance(value, list):
+        return [leaf for item in value for leaf in _string_leaves(item)]
+    return [] if value is None else [str(value)]
+
+
+def _response_text(payload: dict) -> str:
+    """Return ``tool_response`` as text (the runtime sends dict or str).
+
+    A dict is read as the strings it holds, joined by newlines. json.dumps
+    escaped each newline to a backslash and an n, so a marker's
+    title ran on through the rest of the JSON.
+    """
+    return "\n".join(_string_leaves(payload.get("tool_response", "")))
 
 
 def should_process(payload: dict | None = None) -> bool:

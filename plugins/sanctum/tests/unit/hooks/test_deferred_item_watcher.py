@@ -761,7 +761,7 @@ class TestMainOrchestration:
 
 
 class TestResponseText:
-    """Test _response_text() serialises dict tool_response to JSON."""
+    """Test _response_text() reads a dict tool_response as its strings."""
 
     def test_str_response_returned_unchanged(self) -> None:
         """String tool_response is returned as-is.
@@ -773,16 +773,17 @@ class TestResponseText:
         """
         assert mod._response_text({"tool_response": "plain text"}) == "plain text"
 
-    def test_dict_response_serialized_to_json_string(self) -> None:
-        """Dict tool_response is JSON-encoded.
+    def test_dict_response_is_read_as_the_strings_it_holds(self) -> None:
+        """Dict tool_response is read as its string values, one per line.
 
         GIVEN a payload where tool_response is a dict
         WHEN _response_text is called
-        THEN the dict is returned as a JSON string
-        AND the result is the compact JSON encoding of the dict
+        THEN each string value appears on its own line
+        AND keys and JSON punctuation do not, since a marker title ran on
+        into them when the dict was JSON-encoded
         """
-        encoded = mod._response_text({"tool_response": {"key": "value"}})
-        assert encoded == '{"key": "value"}'
+        text = mod._response_text({"tool_response": {"key": "value", "b": "two"}})
+        assert text == "value\ntwo"
 
     def test_missing_response_returns_empty_string(self) -> None:
         """Absent tool_response key defaults to empty string.
@@ -875,3 +876,21 @@ class TestLedgerLocationAndPayloadShapes:
 
         assert payload["tool_name"] == "Skill"
         assert payload["tool_input"] == {}
+
+
+class TestDictResponsesKeepTheirLines:
+    """A dict tool_response is scanned as the text it holds, line by line."""
+
+    def test_a_marker_in_a_dict_response_yields_only_its_own_line(self) -> None:
+        """json.dumps escaped the newlines, so the title ran to the end of the JSON."""
+        payload = {"tool_response": {"output": "[Deferred] Add caching\n- next item"}}
+
+        text = mod._response_text(payload)
+
+        assert extract_deferred_titles(text) == ["Add caching"]
+
+    def test_nested_values_are_all_read(self) -> None:
+        """Text can sit anywhere in the structure the runtime returns."""
+        payload = {"tool_response": {"content": [{"text": "[Deferred] Fix x"}], "n": 3}}
+
+        assert extract_deferred_titles(mod._response_text(payload)) == ["Fix x"]
