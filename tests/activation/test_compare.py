@@ -15,6 +15,7 @@ import yaml
 from scripts.activation.compare import (
     RATES,
     CompareRefused,
+    _paired_delta_ci,
     compare,
     git_is_ancestor,
     holm,
@@ -257,3 +258,22 @@ def test_git_is_ancestor_follows_commit_order(tmp_path, monkeypatch):
         )
     assert git_is_ancestor(shas[0], shas[1])
     assert not git_is_ancestor(shas[1], shas[0])
+
+
+def test_a_draw_with_an_empty_arm_is_not_scored_as_a_zero_rate() -> None:
+    """A draw holding only cases with no valid base run has no base rate.
+
+    Scoring it 0.0 turned a 0.25 point delta into a CI of [0.0, 1.0].
+    """
+    base = {
+        "case_meta": {"a": {"cluster": "a"}, "b": {"cluster": "b"}},
+        "cases": {"a": {"v": 0, "k": 0}, "b": {"v": 4, "k": 2}},
+    }
+    new = {
+        "case_meta": base["case_meta"],
+        "cases": {"a": {"v": 4, "k": 4}, "b": {"v": 4, "k": 2}},
+    }
+
+    low, high = _paired_delta_ci(base, new, ["a", "b"], "k")
+
+    assert high < 1.0

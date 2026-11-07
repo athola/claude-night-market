@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The activation comparison's bootstrap no longer invents a zero
+  rate.** A resampled draw whose cases had no valid run in one arm
+  scored that arm's rate as 0.0, so a 0.25 point delta came back with a
+  CI of [0.0, 1.0]. Such draws are now skipped, and the percentiles are
+  taken over the draws that remain.
+
 - **minister's DORA report names the open incidents its restore time
   leaves out.** Time to Restore is a median over resolved incidents, so
   two incidents open for weeks beside one fixed in 30 minutes reported

@@ -126,15 +126,18 @@ def _paired_delta_ci(
     deltas = []
     for _ in range(BOOTSTRAP_B):
         drawn = [cid for _ in keys for cid in clusters[rng.choice(keys)]]
-        rates = []
-        for m in (base, new):
-            n = sum(m["cases"][c]["v"] for c in drawn)
-            rates.append(sum(m["cases"][c][field] for c in drawn) / n if n else 0.0)
+        rates = [_rate(m, drawn, field) for m in (base, new)]
+        # A draw with no valid run in one arm has no rate there. Scoring it
+        # 0.0 imputed a measurement that was never taken.
+        if rates[0] is None or rates[1] is None:
+            continue
         deltas.append(rates[1] - rates[0])
+    if not deltas:
+        return [0.0, 0.0]
     deltas.sort()
     return [
-        round(deltas[int(0.025 * BOOTSTRAP_B)], 6),
-        round(deltas[int(0.975 * BOOTSTRAP_B) - 1], 6),
+        round(deltas[int(0.025 * len(deltas))], 6),
+        round(deltas[max(0, int(0.975 * len(deltas)) - 1)], 6),
     ]
 
 
