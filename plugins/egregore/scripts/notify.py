@@ -32,22 +32,32 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from config import AlertsConfig, OverseerConfig
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vendored_leyline_sibling_plugins import (  # noqa: E402 - after sys.path setup
+    sibling_plugin_dir,
+)
+
 logger = logging.getLogger(__name__)
 
 _HERALD_AVAILABLE = False
 
 
-def _find_herald_notify_path() -> Path:
-    """Locate herald's notify.py via env var override or repo-relative default."""
+def _find_herald_notify_path(anchor: Path = Path(__file__)) -> Path:
+    """Locate herald's notify.py: the env override, else the sibling plugin.
+
+    The sibling is looked up both beside this plugin (the repository) and
+    as the newest version in the plugin cache, where three parents up from
+    ``scripts/`` is ``cache/<market>/egregore`` and holds no herald. When
+    herald is absent the repository-layout path is returned; it does not
+    exist, so loading fails and notifications stay off.
+    """
     env_override = os.getenv("HERALD_NOTIFY_PATH")
     if env_override:
         return Path(env_override)
-    return (
-        Path(__file__).resolve().parent.parent.parent
-        / "herald"
-        / "scripts"
-        / "notify.py"
-    )
+    herald = sibling_plugin_dir(anchor, "herald")
+    if herald is None:
+        herald = anchor.resolve().parent.parent.parent / "herald"
+    return herald / "scripts" / "notify.py"
 
 
 # Load herald's notify module from its known file path using

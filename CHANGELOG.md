@@ -56,6 +56,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **egregore finds an installed herald.** It looked for herald's
+  `notify.py` three directories above its own `scripts/`, which is the
+  repository layout. In the plugin cache that resolves to
+  `cache/<market>/egregore/herald/`, which never exists, so overseer
+  notifications stayed off even with herald installed. The lookup now
+  uses the vendored `sibling_plugin_dir`, which also checks the newest
+  installed version. `HERALD_NOTIFY_PATH` still overrides it.
+
 - **The night run reviews files it creates.** Its diff-size cap and the
   babysitter's review both read `git diff HEAD`, which leaves untracked
   files out. A 5,000-line file the implementer created counted as 0

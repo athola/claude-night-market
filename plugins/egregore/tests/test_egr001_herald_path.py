@@ -38,3 +38,22 @@ class TestFindHeraldNotifyPath:
         result = _find_herald_notify_path()
         assert result.name == "notify.py"
         assert "herald" in result.parts
+
+    def test_finds_herald_in_the_installed_plugin_cache(
+        self, monkeypatch, tmp_path
+    ) -> None:
+        """Installed plugins sit at cache/<market>/<plugin>/<version>/.
+
+        Three parents up from scripts/ is cache/<market>/egregore there, so
+        a fixed repo-relative path never found an installed herald.
+        """
+        monkeypatch.delenv("HERALD_NOTIFY_PATH", raising=False)
+        market = tmp_path / "cache" / "market"
+        egregore_notify = market / "egregore" / "1.10.0" / "scripts" / "notify.py"
+        herald_notify = market / "herald" / "1.10.0" / "scripts" / "notify.py"
+        for path in (egregore_notify, herald_notify):
+            path.parent.mkdir(parents=True)
+            path.write_text("")
+            (path.parents[1] / ".claude-plugin").mkdir()
+
+        assert _find_herald_notify_path(egregore_notify) == herald_notify
