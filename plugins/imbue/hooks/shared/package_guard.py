@@ -26,6 +26,7 @@ never blocks on a network failure.
 from __future__ import annotations
 
 import re
+import shlex
 import time
 from collections.abc import Callable
 
@@ -52,11 +53,71 @@ _INSTALL_HEADS: list[tuple[re.Pattern[str], str]] = [
 
 # Tokens that are flags, not package names.
 _FLAG_RE = re.compile(r"^-")
-# Flags that consume the following token as their value (a file or path,
-# never a registry package name): -r req.txt, -c constraints.txt, -e path.
-_VALUE_FLAGS = frozenset(
+# Flags that consume the following token as their value, never a registry
+# package name: -r req.txt, --target dir, --group docs, -F feature. Each
+# ecosystem's installers have their own, so a probe of "build_out" or
+# "docs" does not 404 and block a legitimate install.
+_COMMON_VALUE_FLAGS = frozenset(
     {"-r", "--requirement", "-c", "--constraint", "-e", "--editable"}
 )
+_VALUE_FLAGS = {
+    "pypi": _COMMON_VALUE_FLAGS
+    | {
+        "-t",
+        "--target",
+        "--prefix",
+        "--root",
+        "--src",
+        "-i",
+        "--index-url",
+        "--extra-index-url",
+        "--index",
+        "-f",
+        "--find-links",
+        "--trusted-host",
+        "--platform",
+        "--python-version",
+        "--implementation",
+        "--abi",
+        "--cache-dir",
+        "--log",
+        "--proxy",
+        "--timeout",
+        "--retries",
+        "--group",
+        "-G",
+        "--optional",
+        "--extra",
+        "-E",
+        "--extras",
+        "--source",
+        "--branch",
+        "--tag",
+        "--rev",
+        "-p",
+        "--python",
+        "--package",
+        "--directory",
+    },
+    "npm": _COMMON_VALUE_FLAGS
+    | {"--prefix", "--registry", "-w", "--workspace", "--tag", "--cache"},
+    "crates": _COMMON_VALUE_FLAGS
+    | {
+        "-F",
+        "--features",
+        "-p",
+        "--package",
+        "--rename",
+        "--git",
+        "--branch",
+        "--tag",
+        "--rev",
+        "--path",
+        "--registry",
+        "--target",
+        "--manifest-path",
+    },
+}
 # Where one shell command ends and the next begins. A subshell or command
 # substitution opener and closer also start a new command, so the install
 # inside "(pip install x)" or "$(pip install x)" heads its own segment.
@@ -259,7 +320,13 @@ def _parse_install_segment(text: str) -> list[tuple[str, str]]:
 
     packages: list[tuple[str, str]] = []
     skip_next = False
-    for token in text[len(head) :].split():
+    value_flags = _VALUE_FLAGS[ecosystem]
+    # shlex keeps a quoted specifier such as "requests >= 2" in one token.
+    try:
+        tokens = shlex.split(text[len(head) :], comments=True)
+    except ValueError:
+        tokens = text[len(head) :].split()
+    for token in tokens:
         if skip_next:
             skip_next = False
             continue
@@ -270,7 +337,7 @@ def _parse_install_segment(text: str) -> list[tuple[str, str]]:
             # Bare ("> log") names its file in the next token.
             skip_next = redirect.end() == len(token)
             continue
-        if token in _VALUE_FLAGS:
+        if token in value_flags:
             skip_next = True
             continue
         if _FLAG_RE.match(token):
@@ -295,7 +362,7 @@ def _strip_version(token: str) -> str:
         scope, _, rest = token.partition("/")
         rest = re.split(r"[@<>=!~^]", rest, maxsplit=1)[0]
         return f"{scope}/{rest}"
-    return re.split(r"[@<>=!~^\[]", token, maxsplit=1)[0]
+    return re.split(r"[@<>=!~^\[]", token, maxsplit=1)[0].strip()
 
 
 _PEP503_SEPARATORS = re.compile(r"[-_.]+")

@@ -56,6 +56,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **imbue's package guard stops probing option values as packages.** It
+  knew six value-taking flags, so `pip install --target build_out x`,
+  `npm install --prefix frontend x`, `uv add --group docs x` and
+  `cargo add x -F full` sent `build_out`, `frontend`, `docs` and `full`
+  to the registry, and a 404 blocked the install when blocking was on.
+  Each ecosystem now has its own value-flag list. Arguments are split
+  the way the shell splits them, so `"requests >= 2"` stays one package.
+
 - **sanctum's code-execution warning skips methods that share the
   name.** The rule matched any `eval(` or `exec(`, so PyTorch's
   `model.eval()` and a cursor's `.exec(sql)` drew the "runs arbitrary
