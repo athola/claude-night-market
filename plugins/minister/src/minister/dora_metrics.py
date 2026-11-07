@@ -467,8 +467,11 @@ def collect_deployments_from_git(
 
     This is the simplest mapping that works for trunk-based and merge-PR
     workflows; teams with explicit deploy events should override this with a
-    custom collector. ``commit_at`` and ``deployed_at`` collapse to the same
-    timestamp here, giving lead time = 0; pass real deploy data for accuracy.
+    custom collector. ``commit_at`` is the author date and ``deployed_at``
+    the committer date, so lead time is the time from writing a change to
+    landing it on ``branch``. A rebase or cherry-pick moves the committer
+    date and lengthens it; a commit whose author date is later than its
+    committer date is left out by the ``deployed_at >= commit_at`` filter.
 
     Returns a CollectionResult so the CLI can distinguish between "no
     deploys in window" and "collector failed." Malformed timestamps are
