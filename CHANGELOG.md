@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **herald's webhook check refuses shared and multicast addresses.** It
+  rejected private, reserved and loopback IPs, which leaves out the
+  CGNAT block `100.64.0.0/10` (home of `100.100.100.200`, Alibaba
+  Cloud's metadata endpoint) and multicast. It now requires a global,
+  non-multicast address, for literal IPs and resolved names alike.
+
 - **oracle's daemon answers a bad `Content-Length` at once.** A
   negative length reached `rfile.read(-1)`, which waits for the client
   to close. The server takes one request at a time, so one such request

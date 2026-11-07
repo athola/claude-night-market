@@ -193,6 +193,22 @@ class TestValidateWebhookUrl:
         with pytest.raises(WebhookURLError, match="private/reserved"):
             validate_webhook_url(f"https://{ip}/hook")
 
+    @pytest.mark.parametrize(
+        "ip", ["100.100.100.200", "100.64.0.1", "224.0.0.1", "239.1.2.3"]
+    )
+    def test_rejects_shared_and_multicast_ranges(self, ip: str) -> None:
+        """CGNAT space holds cloud metadata endpoints; multicast is not a host.
+
+        100.100.100.200 is Alibaba Cloud's metadata service, and none of
+        is_private, is_reserved or is_loopback covers 100.64.0.0/10.
+        """
+        with pytest.raises(WebhookURLError, match="private/reserved"):
+            validate_webhook_url(f"https://{ip}/hook")
+
+    def test_a_public_address_is_accepted(self) -> None:
+        """The check must not refuse the internet."""
+        assert validate_webhook_url("https://8.8.8.8/hook") == "8.8.8.8"
+
     def test_rejects_ipv6_loopback(self) -> None:
         """Scenario: IPv6 loopback ::1 is rejected.
 

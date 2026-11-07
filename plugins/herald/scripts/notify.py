@@ -78,18 +78,29 @@ def validate_webhook_url(url: str) -> str:
             ) from None
         for _family, _type, _proto, _canon, sockaddr in results:
             resolved = ipaddress.ip_address(sockaddr[0])
-            if resolved.is_private or resolved.is_reserved or resolved.is_loopback:
+            if _not_a_public_host(resolved):
                 raise WebhookURLError(
                     f"Webhook URL hostname {hostname!r} resolves to "
                     f"private/reserved IP ({sockaddr[0]})"
                 ) from None
         return str(results[0][4][0])
 
-    if addr.is_private or addr.is_reserved or addr.is_loopback:
+    if _not_a_public_host(addr):
         raise WebhookURLError(
             f"Webhook URL must not target private/reserved IP ({hostname})"
         )
     return str(addr)
+
+
+def _not_a_public_host(addr: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+    """Return whether a webhook must not reach this address.
+
+    ``is_global`` covers the private, loopback, link-local and reserved
+    ranges plus the CGNAT block 100.64.0.0/10, where some cloud metadata
+    endpoints sit. Multicast is added because ``is_global`` calls parts of
+    it global, and a multicast group is not a webhook host.
+    """
+    return not addr.is_global or addr.is_multicast
 
 
 class AlertEvent(enum.Enum):
