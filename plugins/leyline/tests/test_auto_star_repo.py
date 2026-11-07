@@ -531,3 +531,15 @@ class TestStarFailureIsReported:
         )
 
         assert run.returncode == 0, run.stderr
+
+
+class TestThePromptMatchesWhenItArrives:
+    """An async hook's context reaches Claude on the next turn, not this one."""
+
+    @pytest.mark.unit
+    def test_the_prompt_does_not_claim_to_open_the_first_response(
+        self, hook_source: str
+    ) -> None:
+        """The old wording, start of your response, landed mid-conversation."""
+        assert "START of your response" not in hook_source
+        assert "async" in hook_source.split("star-prompt:", 1)[1].split("\n", 1)[0]
