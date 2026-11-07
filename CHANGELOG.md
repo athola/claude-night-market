@@ -56,6 +56,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **parseltongue's checks judge what code actually needs and does.**
+  The compatibility checker called `x: int | None` a 3.10 feature even
+  under `from __future__ import annotations`, and let `tomllib`,
+  `datetime.UTC` and `except*` pass as 3.8-compatible. The async check
+  reported `await sleep(1)` as blocking after `from asyncio import
+  sleep`, and `await client.close()` as a call to a module-level
+  `def close()`. All four now read the code's imports and call shape.
+
 - **conserve's Setup hook keeps its state file inside the allowed
   directories.** The check matched the `$HOME` prefix with no trailing
   `/`, so `CONSERVE_SESSION_STATE_PATH=$HOME-other/state.md` passed and

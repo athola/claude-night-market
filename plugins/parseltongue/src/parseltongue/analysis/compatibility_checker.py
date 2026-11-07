@@ -34,6 +34,27 @@ def _has_union_annotation(node: ast.AST) -> bool:
     )
 
 
+def _feature_needing_3_11(node: ast.AST, try_star: type | None) -> str | None:
+    """Name the 3.11-only feature ``node`` uses, if any."""
+    if try_star is not None and isinstance(node, try_star):
+        return "except_star"
+    if isinstance(node, ast.Import) and any(a.name == "tomllib" for a in node.names):
+        return "tomllib"
+    if isinstance(node, ast.ImportFrom):
+        if node.module == "tomllib":
+            return "tomllib"
+        if node.module == "datetime" and any(a.name == "UTC" for a in node.names):
+            return "datetime_utc"
+    if (
+        isinstance(node, ast.Attribute)
+        and node.attr == "UTC"
+        and isinstance(node.value, ast.Name)
+        and node.value.id == "datetime"
+    ):
+        return "datetime_utc"
+    return None
+
+
 class CompatibilityChecker:
     """Check code compatibility across Python versions using AST analysis."""
 
@@ -158,8 +179,27 @@ class CompatibilityChecker:
     ) -> None:
         """Check for version-specific features by walking the AST."""
         union_reported = False
+        # With postponed evaluation an annotation is a string at runtime, so
+        # `int | None` in one runs on any version that has the future import.
+        postponed = any(
+            isinstance(node, ast.ImportFrom)
+            and node.module == "__future__"
+            and any(alias.name == "annotations" for alias in node.names)
+            for node in tree.body
+        )
+        try_star = getattr(ast, "TryStar", None)
         for node in ast.walk(tree):
-            if _has_union_annotation(node):
+            feature_311 = _feature_needing_3_11(node, try_star)
+            if feature_311:
+                features_found.append({"feature": feature_311, "min_version": "3.11"})
+                issues.append(
+                    {
+                        "feature": feature_311,
+                        "status": "requires_3.11+",
+                        "min_version": "3.11",
+                    }
+                )
+            if not postponed and _has_union_annotation(node):
                 features_found.append(
                     {"feature": "union_type_syntax", "min_version": "3.10"}
                 )
