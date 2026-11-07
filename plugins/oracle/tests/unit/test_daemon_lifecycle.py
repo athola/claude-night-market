@@ -380,6 +380,14 @@ class TestStartDaemon:
     So that inference is available for the session
     """
 
+    @pytest.fixture(autouse=True)
+    def _models_present(self, tmp_path: Path) -> Iterator[None]:
+        """Provide the models directory a launch needs."""
+        models = tmp_path / "models"
+        models.mkdir(exist_ok=True)
+        with patch("daemon_lifecycle._get_models_dir", return_value=models):
+            yield
+
     @pytest.mark.unit
     def test_skips_launch_when_already_running(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -654,15 +662,46 @@ class TestLifecycleErrorPaths:
         launched = MagicMock()
         launched.pid = 4242
         payload = json.dumps({"hook_event_name": "SessionStart"})
+        models = tmp_path / "models"
+        models.mkdir()
 
         with (
             patch("sys.stdin", StringIO(payload)),
+            patch("daemon_lifecycle._get_models_dir", return_value=models),
             patch("daemon_lifecycle.subprocess.Popen", return_value=launched) as popen,
         ):
             main()
 
         assert popen.call_args[0][0][0] == str(python)
         assert (tmp_path / "daemon.pid").read_text() == "4242"
+
+    @pytest.mark.unit
+    def test_session_start_does_not_launch_without_a_models_directory(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """
+        Scenario: The plugin ships no models
+        GIVEN the sentinel and venv but no models directory
+        WHEN main is called with a SessionStart event
+        THEN no daemon is launched, no pid is written, and the log says why
+        """
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        (tmp_path / ".oracle-enabled").touch()
+        python = tmp_path / "venv" / "bin" / "python"
+        python.parent.mkdir(parents=True)
+        python.touch()
+        payload = json.dumps({"hook_event_name": "SessionStart"})
+
+        with (
+            patch("sys.stdin", StringIO(payload)),
+            patch("daemon_lifecycle._get_models_dir", return_value=tmp_path / "none"),
+            patch("daemon_lifecycle.subprocess.Popen") as popen,
+        ):
+            main()
+
+        popen.assert_not_called()
+        assert not (tmp_path / "daemon.pid").exists()
+        assert "models directory" in (tmp_path / "daemon.log").read_text()
 
     @pytest.mark.unit
     def test_unrelated_event_neither_starts_nor_stops(

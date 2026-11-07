@@ -56,6 +56,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **oracle's daemon answers a bad `Content-Length` at once.** A
+  negative length reached `rfile.read(-1)`, which waits for the client
+  to close. The server takes one request at a time, so one such request
+  stalled `/health` too and the client read the daemon as down. Lengths
+  below 0 or above 1 MiB now get a 400. The lifecycle hook no longer
+  launches the daemon when the plugin has no `models/` directory: the
+  daemon refused to start, the hook had already written its pid, and
+  every session paid for a launch that could not succeed.
+
 - **tome survives a source that answers in the wrong shape or at no
   end.** A Semantic Scholar, OpenAlex or Unpaywall reply that parsed as
   JSON but was a list or `null` raised `AttributeError`, which the
