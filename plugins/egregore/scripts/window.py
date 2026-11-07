@@ -199,20 +199,6 @@ def cron_for(reset_at: datetime, grace_minutes: int = 0) -> str:
     return f"{fire.minute} {fire.hour} {fire.day} {fire.month} *"
 
 
-def parse_cli_version(text: str) -> Optional[tuple[int, int, int]]:
-    """Read the version out of ``claude --version``, or return None.
-
-    The CLI prints something like ``2.1.241 (Claude Code)``. Anything
-    that does not carry three numbers returns None, because a guessed
-    version is worse than an admitted unknown: it is what decides
-    whether a spend cap is waited out or refused.
-    """
-    match = _VERSION.search(text or "")
-    if not match:
-        return None
-    return (int(match.group(1)), int(match.group(2)), int(match.group(3)))
-
-
 def supports(
     version: Optional[tuple[int, int, int]],
     minimum: tuple[int, int, int],

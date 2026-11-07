@@ -76,7 +76,7 @@ module = ["leyline.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = ["conventions", "scout"]
+module = ["conventions"]
 disable_error_code = ["assignment", "arg-type"]
 
 [tool.pytest.ini_options]

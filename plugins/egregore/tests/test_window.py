@@ -208,16 +208,6 @@ class TestUnattendedEnvironment:
 class TestParseCliVersion:
     """Reading the CLI's version, or admitting it could not be read."""
 
-    def test_it_reads_the_version_the_cli_prints(self) -> None:
-        assert window.parse_cli_version("2.1.241 (Claude Code)") == (2, 1, 241)
-
-    def test_it_tolerates_surrounding_noise(self) -> None:
-        assert window.parse_cli_version("  2.1.186 (Claude Code)\n") == (2, 1, 186)
-
-    @pytest.mark.parametrize("bad", ["", "unknown", "Claude Code", "v.x.y"])
-    def test_it_returns_none_rather_than_guessing(self, bad: str) -> None:
-        assert window.parse_cli_version(bad) is None
-
     def test_a_newer_version_satisfies_a_minimum(self) -> None:
         assert window.supports((2, 2, 0), (2, 1, 239)) is True
 

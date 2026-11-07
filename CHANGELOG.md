@@ -65,6 +65,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- **egregore's unused Discussions pipeline and scout.** `scout.py` (no
+  entry point and no importer outside its tests) and everything in
+  `discussions.py` except `DiscussionsConfig` had no production caller,
+  so two Discussions implementations could drift while the dead one
+  read as authoritative. `window.parse_cli_version` also had no caller.
+  `config.save_config` and `learning.load_patterns` are kept: they are
+  the write and read halves of live formats, and their tests check the
+  live halves through them.
+
 - **Six abstract helpers nothing called.** `errors.safe_file_read`,
   `safe_file_write`, `safe_yaml_load` and `validate_path_exists` were a
   second error-handling convention, each wrapping its call in a broad
