@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The night run reviews files it creates.** Its diff-size cap and the
+  babysitter's review both read `git diff HEAD`, which leaves untracked
+  files out. A 5,000-line file the implementer created counted as 0
+  lines against a cap of 200, the babysitter saw an empty diff, and the
+  task commit then added the file unreviewed. Untracked files are now
+  diffed against `/dev/null` for both.
+
 - **sanctum's Windows toast no longer runs code from a directory name.**
   The toast XML sat in a double-quoted PowerShell here-string, which
   expands `$(...)` and `$var`, and its body names the working

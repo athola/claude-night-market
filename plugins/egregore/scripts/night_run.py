@@ -191,10 +191,35 @@ class TaskResult:
     ledger: list[dict[str, Any]] = field(default_factory=list)
 
 
+def _untracked_diff(runner: Runner, workdir: Path, *options: str) -> str:
+    """Diff each untracked file against /dev/null, as if it were added.
+
+    ``git diff HEAD`` leaves untracked files out, so a file the implementer
+    created escaped the line cap and reached the babysitter as nothing.
+    ``--no-index`` exits 1 when the two sides differ, which they always do.
+    """
+    chunks = []
+    for path in _untracked(runner, workdir):
+        argv = ("diff", "--no-index", *options, "--", "/dev/null", path)
+        observed = _git(runner, workdir, *argv)
+        if observed.returncode not in (0, 1):
+            raise GitFailed(["git", *argv], observed)
+        chunks.append(observed.output)
+    return "".join(chunks)
+
+
+def _review_diff(runner: Runner, workdir: Path) -> str:
+    """Return every change the babysitter judges, new files included."""
+    tracked = _git_query(runner, workdir, "diff", "HEAD", "--unified=0")
+    return tracked + _untracked_diff(runner, workdir, "--unified=0")
+
+
 def _diff_line_count(runner: Runner, workdir: Path) -> int:
-    """Count added and removed lines against HEAD, staged ones included."""
+    """Count added and removed lines against HEAD, staged and untracked included."""
+    numstat = _git_query(runner, workdir, "diff", "HEAD", "--numstat")
+    numstat += _untracked_diff(runner, workdir, "--numstat")
     total = 0
-    for line in _git_query(runner, workdir, "diff", "HEAD", "--numstat").splitlines():
+    for line in numstat.splitlines():
         parts = line.split()
         if len(parts) >= _NUMSTAT_COUNT_FIELDS:
             total += int(parts[0]) if parts[0].isdigit() else 0
@@ -406,7 +431,7 @@ def run_task(
         else:
             sitter_verdict, sitter_reason, next_instruction = babysitter(
                 task=task,
-                diff=_git_query(runner, workdir, "diff", "HEAD", "--unified=0"),
+                diff=_review_diff(runner, workdir),
                 test_output=observed.output,
                 test_exit=observed.returncode,
             )
