@@ -1075,3 +1075,85 @@ class TestEveryReaderIsDeniedWhatCatIsDenied:
         decision = evaluate_permission("Bash", {"command": command})
         assert decision is not None, command
         assert decision.behavior == PermissionDecision.ALLOW, command
+
+
+class TestShellObfuscatedCredentialReads:
+    """The shell rewrites a command before it runs.
+
+    Quotes, backslashes, globs, braces and variables all turn a name the
+    deny list does not see into one it would refuse.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "cat .e?v",
+            "cat .e''nv",
+            'cat ".env"',
+            "cat .e\\nv",
+            "cat .en[v]",
+            "cat {.e,}nv",
+            "head -n5 .e*",
+            "tail ~/.ss?/id_rsa",
+            "cat ~/.aws/cred*",
+            "cat $SECRET_FILE",
+            "grep -r token ~/.aws/cred*",
+            "rg token ~/.aws/cred*",
+        ],
+    )
+    def test_obfuscated_credential_read_is_never_auto_approved(
+        self, command: str
+    ) -> None:
+        """A name the shell rewrites into a secret file gets a dialog."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is None or decision.behavior != PermissionDecision.ALLOW, (
+            command
+        )
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("command", ["cat .e''nv", 'cat ".env"', "cat .e\\nv"])
+    def test_quoted_credential_name_is_denied_like_the_plain_name(
+        self, command: str
+    ) -> None:
+        """Quoting is removed before the deny list runs."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is not None, command
+        assert decision.behavior == PermissionDecision.DENY, command
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "rg 'foo.*bar' src/",
+            "rg -g '*.py' foo",
+            "rg --glob=*.md TODO docs/",
+            'grep -n "def main" app.py',
+            "cat README.md",
+            "head -n5 notes.txt",
+            "ls *.py",
+            "echo $PATH",
+            "echo $HOME",
+        ],
+    )
+    def test_ordinary_quoted_or_globbed_reads_stay_allowed(self, command: str) -> None:
+        """A quoted search pattern or a --glob value is not a file name."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is not None, command
+        assert decision.behavior == PermissionDecision.ALLOW, command
+
+
+class TestEnvironmentDumpsAsk:
+    """An environment dump puts API keys in the transcript without a prompt."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        ["env", "printenv", "printenv ANTHROPIC_API_KEY", "echo $ANTHROPIC_API_KEY"],
+    )
+    def test_environment_dump_is_not_auto_approved(self, command: str) -> None:
+        """Dumping the environment needs the user to agree."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is None or decision.behavior != PermissionDecision.ALLOW, (
+            command
+        )

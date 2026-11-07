@@ -31,6 +31,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import shlex
 import sys
 from dataclasses import dataclass
 from enum import Enum
@@ -169,10 +170,10 @@ SAFE_PATTERNS: list[str] = [
     # -h is help only for tools where it means help; `shutdown -h` halts.
     r"^(git|uv|npm|pip|cargo|gh|docker|kubectl|claude|make|pytest|ruff|rg)\s+-h$",
     r"^help\s+",
-    # Environment inspection
-    r"^env$",
-    r"^printenv(\s|$)",
-    r"^echo\s+\$",
+    # Environment inspection. Only named variables that never hold a
+    # secret: `env`, `printenv` and `echo $ANY_KEY` put API keys in the
+    # transcript, so they fall through to the dialog.
+    r"^echo\s+\$\{?(PATH|HOME|PWD|SHELL|USER|TERM|LANG|TMPDIR|VIRTUAL_ENV)\}?$",
     # Python/Node read operations
     r"^python\s+--version$",
     r"^python3\s+--version$",
@@ -223,6 +224,71 @@ _WRITE_OR_EXEC_OPTIONS = re.compile(
 )
 
 
+# The shell rewrites a command before it runs. Quotes and backslashes
+# hide a name from the deny list (`cat .e''nv` runs `cat .env`), and a
+# glob, brace or variable names a file the text never spells out
+# (`cat .e?v`, `cat $F`). Readers and searchers with such an operand
+# fall through to the dialog.
+_EXPANDING = re.compile(r"[*?\[{$]")
+_READERS = frozenset(
+    {"cat", "head", "tail", "wc", "file", "stat", "realpath", "dirname", "basename"}
+)
+_SEARCHERS = frozenset({"grep", "rg", "ag"})
+# Search options whose next word is a value, not a path: `rg -g '*.py' x`.
+_SEARCH_VALUE_FLAGS = frozenset(
+    {
+        "-e",
+        "--regexp",
+        "-f",
+        "--file",
+        "-g",
+        "--glob",
+        "--iglob",
+        "-t",
+        "--type",
+        "-T",
+        "--type-not",
+        "-m",
+        "--max-count",
+        "-A",
+        "-B",
+        "-C",
+        "--context",
+        "--include",
+        "--exclude",
+        "--exclude-dir",
+    }
+)
+
+
+def _shell_words(command: str) -> list[str] | None:
+    """Split *command* as the shell would, or None when it will not parse."""
+    try:
+        return shlex.split(command)
+    except ValueError:
+        return None
+
+
+def _path_operands(words: list[str]) -> list[str]:
+    """Return the operands of a reader or searcher that name files."""
+    head, rest = words[0], words[1:]
+    if head in _READERS:
+        return [word for word in rest if not word.startswith("-")]
+    if head not in _SEARCHERS:
+        return []
+    positional: list[str] = []
+    takes_value = False
+    for word in rest:
+        if takes_value:
+            takes_value = False
+        elif word in _SEARCH_VALUE_FLAGS:
+            takes_value = True
+        elif not word.startswith("-"):
+            positional.append(word)
+    # The first positional is the pattern.
+    return positional[1:]
+
+
 def check_safe(command: str) -> Decision | None:
     """Check if command matches safe patterns.
 
@@ -244,6 +310,10 @@ def check_safe(command: str) -> Decision | None:
     # Commands with chaining, substitution or an output redirect (`>`
     # writes a file) never get auto-approved.
     if _CHAIN_CHARS.search(candidate) or _WRITE_OR_EXEC_OPTIONS.search(candidate):
+        return None
+
+    words = _shell_words(candidate)
+    if not words or any(_EXPANDING.search(op) for op in _path_operands(words)):
         return None
 
     for pattern in SAFE_PATTERNS:
@@ -272,10 +342,16 @@ def evaluate_permission(tool_name: str, tool_input: dict[str, Any]) -> Decision 
     if not command:
         return None
 
-    # Dangerous patterns take priority
+    # Dangerous patterns take priority, on the text and on what the shell
+    # makes of it once quotes and backslashes are removed.
     dangerous = check_dangerous(command)
     if dangerous:
         return dangerous
+    words = _shell_words(command)
+    if words and " ".join(words) != command:
+        dangerous = check_dangerous(" ".join(words))
+        if dangerous:
+            return dangerous
 
     # Then check safe patterns
     safe = check_safe(command)

@@ -56,6 +56,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **conserve's auto-approve no longer reads secrets the shell rewrites.**
+  The permission hook matched the deny list against the text it was
+  given, so `cat .e''nv`, `cat .e?v`, `head -n5 .e*` and
+  `cat ~/.aws/cred*` reached the safe list and were approved without a
+  dialog. The deny list now also runs on the command after shell
+  quoting is removed, and a reader or searcher whose file operand holds
+  a glob, brace or variable falls through to the dialog. `env`,
+  `printenv` and `echo $ANY_KEY` now ask too. Only `echo` of named
+  non-secret variables such as `$PATH` stays approved.
+
 - **conserve reads list-shaped tool results.** A `tool_result` block
   usually carries `content` as a list of text items. The PreCompact
   hook passed that list to a regex and raised `TypeError`, so it exited
