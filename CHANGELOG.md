@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **leyline sanitizes more `gh` output.** The external-content hook
+  matched `gh api`, `issue`, `pr`, `run` and `release` by substring
+  with one space, so `gh gist view`, `gh search`, `gh repo view` and
+  `gh  api` returned text anyone can write without sanitizing it. The
+  match is now a word-bounded regex over those subcommands plus `gist`,
+  `search`, `repo` and `discussion`.
+
 - **leyline's suppression guard catches file-level directives.** It
   matched `# noqa` and `#[allow(` but not `# ruff: noqa`,
   `# flake8: noqa`, `# pyright: ignore`, Rust's inner `#![allow(` or
