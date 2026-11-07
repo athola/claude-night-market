@@ -29,11 +29,24 @@ import hashlib
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 from _manifest_utils import find_manifest, has_active_work, read_stdin_payload
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+from continuation_baton import (  # noqa: E402 - scripts/ joins sys.path above
+    advance_baton,
+    clear_baton,
+)
+
+#: Seconds the next turn has to start once a stop re-injects. The harness
+#: feeds the reason back at once, so a baton still unmoved after this
+#: means the reinjection did not happen (ADR-0023).
+BATON_GRACE_SECONDS = 300
+
 STATE_FILENAME = "stop-hook-state.json"
+BATON_FILENAME = "baton.json"
 DEFAULT_MAX_STALLS = 3
 
 
@@ -132,7 +145,10 @@ def main() -> None:
 
     manifest_path = find_manifest()
 
-    if not has_active_work(manifest_path) or orchestrator_running(payload):
+    if not has_active_work(manifest_path):
+        clear_baton(manifest_path.parent / BATON_FILENAME)
+        approve()
+    if orchestrator_running(payload):
         approve()
 
     state_path = manifest_path.parent / STATE_FILENAME
@@ -169,7 +185,16 @@ def main() -> None:
     if not persisted:
         approve()
 
-    print(json.dumps({"decision": "block", "reason": block_reason(manifest_path)}))
+    reason = block_reason(manifest_path)
+    now = time.time()
+    advance_baton(
+        manifest_path.parent / BATON_FILENAME,
+        unit=f"manifest {fingerprint[:12]}",
+        now=now,
+        deadline=now + BATON_GRACE_SECONDS,
+        next_prompt=reason,
+    )
+    print(json.dumps({"decision": "block", "reason": reason}))
     sys.exit(0)
 
 

@@ -8,6 +8,7 @@ from io import StringIO
 
 import pytest
 from _manifest_utils import ACTIVE_STATUSES, get_items, read_stdin_payload
+from continuation_baton import read_baton
 from stop_hook import (
     DEFAULT_MAX_STALLS,
     STATE_FILENAME,
@@ -473,3 +474,41 @@ def test_main_still_blocks_when_only_unrelated_work_runs(tmp_path, monkeypatch, 
         {"id": "a2", "type": "subagent", "agent_type": "pensive:code-reviewer"},
     ]
     assert _stop_with_background(tmp_path, monkeypatch, capsys, other) == "block"
+
+
+def _stop(tmp_path, monkeypatch, status: str) -> dict:
+    egregore_dir = tmp_path / ".egregore"
+    egregore_dir.mkdir(exist_ok=True)
+    manifest = {"work_items": [{"id": "wrk_001", "status": status}]}
+    (egregore_dir / "manifest.json").write_text(json.dumps(manifest))
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr("sys.stdin", StringIO("{}"))
+    with pytest.raises(SystemExit):
+        main()
+    return egregore_dir
+
+
+def test_a_blocked_stop_hands_off_a_baton(tmp_path, monkeypatch, capsys):
+    """ADR-0023: each stop that re-injects records the handoff."""
+    egregore_dir = _stop(tmp_path, monkeypatch, "active")
+    reason = json.loads(capsys.readouterr().out)["reason"]
+    first = read_baton(egregore_dir / "baton.json")
+
+    assert first is not None
+    assert first.sequence == 1
+    assert first.next_prompt == reason
+    assert first.deadline > first.written_at
+
+    _stop(tmp_path, monkeypatch, "active")
+    assert read_baton(egregore_dir / "baton.json").sequence == 2
+
+
+def test_a_finished_run_clears_its_baton(tmp_path, monkeypatch, capsys):
+    """A baton left behind by finished work would read as stranded."""
+    egregore_dir = _stop(tmp_path, monkeypatch, "active")
+    assert (egregore_dir / "baton.json").exists()
+
+    _stop(tmp_path, monkeypatch, "completed")
+
+    assert json.loads(capsys.readouterr().out.splitlines()[-1])["decision"] == "approve"
+    assert not (egregore_dir / "baton.json").exists()

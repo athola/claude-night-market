@@ -97,6 +97,13 @@ A relaunch also carries the session's own `next_prompt` rather than
 the watchdog's generic fallback, which spares a resumed session from
 rediscovering what it was doing.
 
+The producer is `plugins/egregore/hooks/stop_hook.py`. A stop it
+blocks advances the baton with the re-injected reason as `next_prompt`
+and a deadline `BATON_GRACE_SECONDS` away, and a stop with no active
+work left clears it. No watcher reads the baton yet: `watchdog.sh`
+still decides on the pidfile alone, so the stranded states are
+recorded but not acted on.
+
 ## What this does not change
 
 The dependency in ADR-0022 stands. Egregore still continues because

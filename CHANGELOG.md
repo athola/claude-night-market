@@ -56,6 +56,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **egregore's Stop hook writes the continuation baton.** ADR-0023
+  says each stop records a baton so a dropped turn is observable, but
+  nothing outside the tests wrote one, so every run read as "nothing
+  handed off". A stop the hook blocks now advances the baton with the
+  re-injected reason and a five-minute deadline, and a stop with no
+  active work clears it. The watchdog does not read it yet, as the ADR
+  now states.
+
 - **The night-run handoff gate refuses every spelling of the repo
   root.** It rejected `.`, `./` and `/` by string, so `./.` and `././`
   passed, and the scope check then read them as an allowlist covering
