@@ -21,6 +21,7 @@ _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
+from gauntlet.git_commands import is_git_commit
 from gauntlet.knowledge_store import KnowledgeStore
 from gauntlet.progress import ProgressTracker
 
@@ -418,7 +419,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     tool_input = hook_input.get("tool_input", {})
     command = tool_input.get("command", "")
 
-    if not command.startswith("git commit"):
+    if not is_git_commit(command):
         return None
 
     gauntlet_dir = _get_gauntlet_dir()

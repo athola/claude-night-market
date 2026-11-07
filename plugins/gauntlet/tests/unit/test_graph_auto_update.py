@@ -226,6 +226,26 @@ class TestMainHook:
         assert "3 files" in context
 
     @pytest.mark.unit
+    def test_a_chained_commit_also_refreshes_the_graph(
+        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """`git add -A && git commit` is a commit, so the graph refreshes."""
+        (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
+        GraphStore(str(gauntlet_dir / "graph.db")).close()
+        event = {
+            **_COMMIT_EVENT,
+            "tool_input": {"command": "git add -A && git commit -m 'test'"},
+        }
+        monkeypatch.chdir(gauntlet_dir.parent)
+        with patch(
+            "gauntlet.incremental.incremental_update",
+            return_value={"files_parsed": 1, "nodes_created": 1, "edges_created": 0},
+        ):
+            result = main(event)
+        assert result is not None
+        assert "Graph updated" in result["hookSpecificOutput"]["additionalContext"]
+
+    @pytest.mark.unit
     @pytest.mark.parametrize(
         ("layout", "found"),
         [("dir", True), ("file", False), ("absent", False)],

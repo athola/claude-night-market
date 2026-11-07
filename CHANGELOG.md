@@ -56,6 +56,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **gauntlet gates and graph refreshes see chained commits.** The
+  pre-commit challenge gate and the post-commit graph refresh both
+  checked `command.startswith("git commit")`, so `git add -A && git
+  commit`, `cd repo && git commit` and `git -C repo commit` skipped the
+  gate and left `graph.db` stale. Both hooks now share
+  `gauntlet.git_commands.is_git_commit`, which tests each shell segment,
+  and their `if` gates widen to `Bash(git *commit*)`.
+
 - **Commit vows inspect chained commits.** imbue's no-AI-attribution
   and no-emoji vows only saw a command that began with `git commit`, so
   `git add -A && git commit ...`, `git -C repo commit` and
