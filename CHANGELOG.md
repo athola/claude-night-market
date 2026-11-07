@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **conserve's Setup hook keeps its state file inside the allowed
+  directories.** The check matched the `$HOME` prefix with no trailing
+  `/`, so `CONSERVE_SESSION_STATE_PATH=$HOME-other/state.md` passed and
+  was written. A path `readlink -f` could not resolve also fell back to
+  the raw string. Both now fall back to the default location.
+
 - **memory-palace ignores partial reads of tracked docs.** A `Read`
   with `offset` or `limit` hashed only the slice it returned, so an
   unchanged document was reported as "changed since last indexing" and

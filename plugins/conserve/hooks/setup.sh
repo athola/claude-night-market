@@ -74,10 +74,13 @@ main() {
       SESSION_STATE_FILE="${CONSERVE_SESSION_STATE_PATH:-${SESSION_STATE_DIR}/session-state.md}"
       # Validate SESSION_STATE_FILE stays within allowed directories
       if [ -n "${CONSERVE_SESSION_STATE_PATH:-}" ]; then
-        _resolved_state="$(readlink -f "${SESSION_STATE_FILE}" 2>/dev/null || printf '%s\n' "${SESSION_STATE_FILE}")"
+        # A path readlink cannot resolve is not known to be inside, so it is
+        # treated as outside. The trailing / keeps $HOME-other from passing
+        # as $HOME.
+        _resolved_state="$(readlink -f "${SESSION_STATE_FILE}" 2>/dev/null || printf '%s\n' "/unresolvable")"
         _home_prefix="$(readlink -f "${HOME}" 2>/dev/null || printf '%s\n' "${HOME}")"
         case "${_resolved_state}" in
-          "${_home_prefix}"* | "${PROJECT_DIR}"*) ;;
+          "${_home_prefix}"/* | "${PROJECT_DIR}"/*) ;;
           *)
             printf '%s\n' "[conserve] WARNING: CONSERVE_SESSION_STATE_PATH escapes allowed dirs, using default" >&2
             SESSION_STATE_FILE="${SESSION_STATE_DIR}/session-state.md"

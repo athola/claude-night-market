@@ -22,13 +22,19 @@ HOOK_SCRIPT = Path(__file__).parents[3] / "hooks" / "setup.sh"
 
 
 def _run(
-    trigger: str, home: Path, *, terminator: str = "\n"
+    trigger: str,
+    home: Path,
+    *,
+    terminator: str = "\n",
+    state_path: str | None = None,
 ) -> subprocess.CompletedProcess:
     env = os.environ.copy()
     env["HOME"] = str(home)
     env["CLAUDE_PROJECT_DIR"] = str(home / "project")
     env.pop("CLAUDE_ENV_FILE", None)
     env.pop("CONSERVE_SESSION_STATE_PATH", None)
+    if state_path is not None:
+        env["CONSERVE_SESSION_STATE_PATH"] = state_path
     (home / "project").mkdir(parents=True, exist_ok=True)
     return subprocess.run(
         ["/bin/bash", str(HOOK_SCRIPT)],
@@ -76,3 +82,26 @@ def test_maintenance_runs_when_the_input_has_no_trailing_newline(
     assert result.returncode == 0, result.stderr
     context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
     assert "maintenance" in context.splitlines()[0]
+
+
+@pytest.mark.unit
+def test_a_sibling_directory_sharing_the_home_prefix_is_not_home(
+    tmp_path: Path,
+) -> None:
+    """`$HOME-other/...` matched the `$HOME*` prefix and was written to.
+
+    Given CONSERVE_SESSION_STATE_PATH under a directory whose name only
+    starts with HOME's
+    When the Setup hook runs
+    Then it warns and writes the default path, not the given one.
+    """
+    home = tmp_path / "home"
+    sibling = tmp_path / "home-other"
+    sibling.mkdir()
+    target = sibling / "state.md"
+
+    result = _run("init", home, state_path=str(target))
+
+    assert result.returncode == 0, result.stderr
+    assert not target.exists()
+    assert "escapes allowed dirs" in result.stderr
