@@ -56,6 +56,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **abstract's discussion promotion honors `target_repo` and
+  `promotion_emoji`.** Both were read from `config.json` and then
+  ignored: the queries named `athola/claude-night-market` and counted
+  FIRE reactions, so a fork scanned upstream and filed issues there.
+  The owner and name now go in as GraphQL variables, and the emoji maps
+  to GitHub's reaction enum. A fork still has to point
+  `LEARNINGS_CATEGORY_ID` at its own Learnings category.
+
 - **abstract's tool benchmark measures every discovered tool.** It
   found tools by path and then measured them by bare name, which reran
   the first match, so two skills that each ship a `run.sh` reported the

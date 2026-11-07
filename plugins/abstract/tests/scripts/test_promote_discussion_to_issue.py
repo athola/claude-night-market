@@ -509,3 +509,70 @@ class TestMain:
                 promote_module.main()
         assert exc.value.code == 0
         assert message in capsys.readouterr().err
+
+
+class TestTheConfiguredRepositoryIsTheOneScanned:
+    """target_repo and promotion_emoji were loaded and then never read."""
+
+    @pytest.mark.unit
+    @patch("promote_discussion_to_issue.run_gh_graphql")
+    def test_fetch_queries_the_configured_repo_and_reaction(
+        self, mock_graphql: MagicMock
+    ) -> None:
+        """A fork's config named its own repo, and the upstream one was scanned."""
+        mock_graphql.return_value = {
+            "data": {"repository": {"discussions": {"nodes": []}}}
+        }
+
+        fetch_learnings_discussions(repo="me/fork", reaction="THUMBS_UP")
+
+        query, variables = (
+            mock_graphql.call_args[0][0],
+            mock_graphql.call_args[1]["variables"],
+        )
+        assert variables == {"owner": "me", "name": "fork"}
+        assert "reactions(content: THUMBS_UP)" in query
+        assert "athola" not in query
+
+    @pytest.mark.unit
+    def test_config_maps_the_emoji_to_its_reaction(self, tmp_path: Path) -> None:
+        """GitHub counts reactions by enum name, not by the emoji."""
+        config_dir = tmp_path / "discussions"
+        config_dir.mkdir(parents=True)
+        (config_dir / "config.json").write_text(
+            json.dumps({"promotion_emoji": "\U0001f44d", "target_repo": "me/fork"})
+        )
+        with patch(
+            "promote_discussion_to_issue.get_config_dir", return_value=config_dir
+        ):
+            config = PromotionConfig.load()
+
+        assert config.reaction == "THUMBS_UP"
+        assert config.target_repo == "me/fork"
+
+    @pytest.mark.unit
+    @patch("promote_discussion_to_issue.promote_discussion")
+    @patch("promote_discussion_to_issue.get_repo_node_id")
+    @patch("promote_discussion_to_issue.fetch_learnings_discussions")
+    def test_run_promotion_passes_the_configured_repo_through(
+        self, mock_fetch: MagicMock, mock_repo_id: MagicMock, mock_promote: MagicMock
+    ) -> None:
+        """Both the scan and the issue go to the configured repository."""
+        mock_fetch.return_value = [DiscussionItem("D1", "t", "u", "b", 9)]
+        mock_repo_id.return_value = "R_fork"
+        mock_promote.return_value = "https://github.com/me/fork/issues/1"
+        record = PromotedRecord()
+        record.save = MagicMock()
+        config = PromotionConfig(promotion_threshold=3, target_repo="me/fork")
+        with (
+            patch(
+                "promote_discussion_to_issue.PromotionConfig.load", return_value=config
+            ),
+            patch(
+                "promote_discussion_to_issue.PromotedRecord.load", return_value=record
+            ),
+        ):
+            run_promotion()
+
+        assert mock_fetch.call_args.kwargs["repo"] == "me/fork"
+        assert mock_repo_id.call_args.args == ("me/fork",)
