@@ -56,6 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **imbue's ramp token reads off-values in any case.** `IMBUE_RAMP_OK`
+  counted as set unless it was exactly `0`, `false` or `no`, so `False`,
+  `OFF` and an empty value granted a free jump up the increment ladder.
+  The value is now lowercased, and empty or `off` is off.
+
 - **imbue's TDD gate finds tests in nested test directories.** It looked
   for `tests/unit/test_X.py`, `tests/test_X.py` and a sibling file only,
   so a new `hooks/foo.py` whose test already sat at

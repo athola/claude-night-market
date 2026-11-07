@@ -132,8 +132,13 @@ def _explicit_stakes() -> str | None:
 
 
 def _ramp_token_present() -> bool:
-    """Return True when a recorded-demonstration token is available."""
-    if os.environ.get("IMBUE_RAMP_OK", "0").strip() not in _OFF_VALUES:
+    """Return True when a recorded-demonstration token is available.
+
+    Case-insensitive, and empty or "off" is off: `IMBUE_RAMP_OK=False`
+    handed out a free rung jump because only lowercase spellings matched.
+    """
+    value = os.environ.get("IMBUE_RAMP_OK", "0").strip().lower()
+    if value and value not in (*_OFF_VALUES, "off"):
         return True
     return Path(_RAMP_OK_FILE).exists()
 

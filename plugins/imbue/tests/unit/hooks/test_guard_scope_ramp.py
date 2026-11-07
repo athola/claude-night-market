@@ -459,7 +459,9 @@ class TestRampToken:
     """The recorded-demonstration token that permits one rung jump."""
 
     @pytest.mark.unit
-    @pytest.mark.parametrize("value", ["0", "false", "no", " no "])
+    @pytest.mark.parametrize(
+        "value", ["0", "false", "no", " no ", "False", "FALSE", "No", "off", "OFF", ""]
+    )
     def test_an_off_value_is_not_a_token(self, hook, tmp_path, monkeypatch, value):
         """
         GIVEN IMBUE_RAMP_OK set to a disabling value and no token file
