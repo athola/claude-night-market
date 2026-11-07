@@ -54,3 +54,16 @@ def test_target_skill_lists_and_points_at_the_module(source: str, target: str) -
     assert entry in _frontmatter(skill)["modules"]
     body = skill.read_text(encoding="utf-8").split("---", 2)[2]
     assert entry in body, f"{target} SKILL.md body never says when to load {entry}"
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(("source", "target"), FOLDS)
+def test_no_skill_still_depends_on_a_folded_skill(source: str, target: str) -> None:
+    """A dependency on a folded name points at a node the skill graph lost."""
+    stale = [
+        str(skill.relative_to(SKILLS.parents[1]))
+        for skill in SKILLS.parents[1].glob("*/skills/*/SKILL.md")
+        if source in (_frontmatter(skill).get("dependencies") or [])
+    ]
+
+    assert not stale, f"{stale} depend on {source}; depend on {target} instead"

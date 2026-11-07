@@ -10,7 +10,7 @@ tags:
 - resilience
 - debugging
 dependencies:
-- usage-logging
+- service-registry
 provides:
   infrastructure:
   - error-handling
