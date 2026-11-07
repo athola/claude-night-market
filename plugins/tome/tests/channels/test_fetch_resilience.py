@@ -398,3 +398,75 @@ def test_cli_fulltext_without_doi_or_title_exits_with_usage_error(
 
     assert exc_info.value.code == 2
     assert "fulltext needs --doi or --title" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("body", ["[]", "null"])
+def test_one_source_in_the_wrong_shape_does_not_end_the_search(body: str) -> None:
+    """A body that parses but is not the documented shape is one source's error.
+
+    `.get` on a list or None raised AttributeError, which the source loop
+    did not catch, so the whole channel run died and lost the findings
+    the other sources had already returned.
+    """
+    transport, _ = _routed(
+        {
+            "export.arxiv.org": http.Response(429, "Rate exceeded.", {}),
+            "api.semanticscholar.org": _ok(body),
+            "api.openalex.org": _ok(json.dumps(OPENALEX)),
+        }
+    )
+    report = fetch_cli.search_academic(
+        "halow mesh",
+        fetch=lambda u, **kw: http.fetch(
+            u, transport=transport, sleep=lambda s: None, **kw
+        ),
+    )
+    assert [f["title"] for f in report["findings"]] == ["Multi-hop HaLow throughput"]
+    assert ("semantic_scholar", "source_error") in {
+        (e["source"], e["kind"]) for e in report["errors"]
+    }
+
+
+class _HugeReply:
+    status = 200
+    headers: dict[str, str] = {}
+
+    def __init__(self, size: int) -> None:
+        self._size = size
+
+    def __enter__(self) -> _HugeReply:
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        return None
+
+    def read(self, amount: int = -1) -> bytes:
+        size = self._size if amount < 0 else min(amount, self._size)
+        return b"x" * size
+
+
+def test_a_body_over_the_cap_is_refused_not_held_in_memory(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A source or redirect target can stream without end."""
+    opener = types.SimpleNamespace(open=lambda request, timeout: _HugeReply(10**9))
+    monkeypatch.setattr(http, "_https_only_opener", lambda: opener)
+    monkeypatch.setattr(http, "MAX_BODY_BYTES", 1024)
+
+    reply = http.urllib_transport("https://x", {})
+
+    assert reply.status == http.REFUSED
+    assert reply.body == ""
+    assert "1024" in (reply.error or "")
+
+
+def test_a_body_at_the_cap_is_read(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The cap itself is allowed; only more is refused."""
+    opener = types.SimpleNamespace(open=lambda request, timeout: _HugeReply(1024))
+    monkeypatch.setattr(http, "_https_only_opener", lambda: opener)
+    monkeypatch.setattr(http, "MAX_BODY_BYTES", 1024)
+
+    reply = http.urllib_transport("https://x", {})
+
+    assert reply.status == 200
+    assert len(reply.body) == 1024

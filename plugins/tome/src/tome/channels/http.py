@@ -30,6 +30,11 @@ NO_RESPONSE = 0
 # The request was never sent: the URL, or a redirect, named a scheme other
 # than https. Waiting does not change the URL, so it is not retried.
 REFUSED = -1
+# The most a response body may hold. A source or a redirect target can
+# stream without end, and read() kept all of it in memory. 64 MiB clears
+# the largest paper PDF a full-text fetch is after. An oversized body is
+# REFUSED: waiting does not make it smaller, so it is not retried.
+MAX_BODY_BYTES = 64 * 1024 * 1024
 # A timeout or reset (NO_RESPONSE) clears on its own as often as a 429 does.
 RETRYABLE = frozenset({NO_RESPONSE, TOO_MANY_REQUESTS, 503})
 _BASE_BACKOFF = 2.0
@@ -173,7 +178,12 @@ def urllib_transport(
     try:
         request = urllib.request.Request(url, headers=dict(headers))  # noqa: S310 - opener has only an https handler, file: and ftp: fail
         with _https_only_opener().open(request, timeout=timeout) as reply:
-            body = reply.read().decode("utf-8", errors="replace")
+            raw = reply.read(MAX_BODY_BYTES + 1)
+            if len(raw) > MAX_BODY_BYTES:
+                return Response(
+                    REFUSED, "", {}, error=f"body over {MAX_BODY_BYTES} bytes"
+                )
+            body = raw.decode("utf-8", errors="replace")
             return Response(reply.status, body, dict(reply.headers))
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")

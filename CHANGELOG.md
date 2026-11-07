@@ -56,6 +56,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **tome survives a source that answers in the wrong shape or at no
+  end.** A Semantic Scholar, OpenAlex or Unpaywall reply that parsed as
+  JSON but was a list or `null` raised `AttributeError`, which the
+  per-source handler did not catch, so the academic search crashed and
+  lost the findings other sources had returned. That is now a
+  `source_error` for the one source. Response bodies are also capped at
+  64 MiB: `read()` kept an endless stream in memory.
+
 - **cartograph's community refresh no longer imports a repository's
   own gauntlet package uninvited.** The hook fired on any Bash command
   containing `graph_build.py`, `rg graph_build.py` included, and put
