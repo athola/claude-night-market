@@ -727,3 +727,20 @@ class TestAnalyzeToolsAndReport:
         report = empty_analyzer.get_performance_report()
         assert isinstance(report, str)
         assert "Performance" in report
+
+
+class TestToolsWithTheSameName:
+    """Two skills may each ship a run.sh; each is a separate tool."""
+
+    def test_benchmark_measures_each_discovered_file(self, tmp_path: Path) -> None:
+        """Looking a tool up by name ran the first run.sh found, twice."""
+        for skill, code in (("a", 0), ("b", 3)):
+            script = tmp_path / skill / "run.sh"
+            script.parent.mkdir()
+            script.write_text(f"#!/bin/sh\nexit {code}\n")
+            script.chmod(0o755)
+
+        report = ToolPerformanceAnalyzer(tmp_path).benchmark_all_tools()
+
+        by_path = {Path(t["path"]).parent.name: t["exit_code"] for t in report["tools"]}
+        assert by_path == {"a": 0, "b": 3}

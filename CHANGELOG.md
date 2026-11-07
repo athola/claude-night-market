@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **abstract's tool benchmark measures every discovered tool.** It
+  found tools by path and then measured them by bare name, which reran
+  the first match, so two skills that each ship a `run.sh` reported the
+  first one twice. The benchmark now passes the discovered path, and
+  each result carries it.
+
 - **hookify's `require-tests` example works as written.** It used
   `not_contains` with `pytest|npm test`, but `not_contains` is a literal
   substring test, so the rule warned on every stop, tests run or not.

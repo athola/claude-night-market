@@ -53,11 +53,16 @@ class ToolPerformanceAnalyzer:
                 )
         return tools
 
-    def measure_tool_performance(self, tool_name: str) -> dict[str, Any]:
+    def measure_tool_performance(
+        self, tool_name: str, tool_path: Path | None = None
+    ) -> dict[str, Any]:
         """Measure performance of a single tool.
 
         Args:
             tool_name: Name of the tool to measure.
+            tool_path: The discovered file, when known. Two skills may each
+                ship a ``run.sh``, so a lookup by name alone can run the
+                wrong one.
 
         Returns:
             Dictionary with performance metrics.
@@ -67,11 +72,11 @@ class ToolPerformanceAnalyzer:
 
         """
         # Find the tool
-        tool_path = None
-        for file_path in self.skills_dir.rglob(tool_name):
-            if file_path.is_file() and os.access(file_path, os.X_OK):
-                tool_path = file_path
-                break
+        if tool_path is None:
+            for file_path in self.skills_dir.rglob(tool_name):
+                if file_path.is_file() and os.access(file_path, os.X_OK):
+                    tool_path = file_path
+                    break
 
         if not tool_path:
             msg = f"Tool not found: {tool_name}"
@@ -95,6 +100,7 @@ class ToolPerformanceAnalyzer:
 
             return {
                 "name": tool_name,
+                "path": str(tool_path),
                 "execution_time": execution_time,
                 "exit_code": result.returncode,
                 "output_length": output_len,
@@ -105,6 +111,7 @@ class ToolPerformanceAnalyzer:
         except subprocess.TimeoutExpired:
             return {
                 "name": tool_name,
+                "path": str(tool_path),
                 "execution_time": 5.0,
                 "exit_code": -1,
                 "output_length": 0,
@@ -126,12 +133,15 @@ class ToolPerformanceAnalyzer:
 
         for tool_info in tools:
             try:
-                metrics = self.measure_tool_performance(tool_info["name"])
+                metrics = self.measure_tool_performance(
+                    tool_info["name"], Path(tool_info["path"])
+                )
                 tool_results.append(metrics)
             except (FileNotFoundError, OSError):
                 tool_results.append(
                     {
                         "name": tool_info["name"],
+                        "path": tool_info["path"],
                         "execution_time": 0,
                         "success": False,
                         "error": True,
