@@ -208,3 +208,20 @@ class TestRunTask:
         out = capsys.readouterr().out
         assert "Stop reason: completed" in out
         assert "Done it" in out
+
+
+class TestSafetyControlsReachTheCli:
+    """The library's budget and confirmation gate had no CLI switch."""
+
+    def test_budget_usd_is_parsed(self) -> None:
+        args = build_parser().parse_args(["--budget-usd", "0.50", "open", "it"])
+        assert args.budget_usd == 0.5
+
+    def test_confirm_is_off_unless_asked_for(self) -> None:
+        assert build_parser().parse_args(["go"]).confirm is False
+        assert build_parser().parse_args(["--confirm", "go"]).confirm is True
+
+    def test_a_thinking_budget_at_or_over_max_tokens_is_refused(self) -> None:
+        """The API rejects budget_tokens >= max_tokens; say so before calling it."""
+        with pytest.raises(SystemExit):
+            main(["--thinking-budget", "8000", "--max-tokens", "4096", "go"])

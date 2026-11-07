@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **phantom's CLI can cap spend and ask before acting.** The library
+  had a dollar budget and a confirmation gate, but the CLI exposed
+  neither, so every CLI run was unbudgeted and acted without asking.
+  `--budget-usd` and `--confirm` now reach them. A `--thinking-budget`
+  at or above `--max-tokens` is refused up front instead of failing at
+  the API.
+
 ### Changed
 
 - **Shorter skill descriptions in six rarely invoked plugins.** Every

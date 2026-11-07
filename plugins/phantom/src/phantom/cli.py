@@ -60,6 +60,7 @@ def run_task(args: argparse.Namespace) -> None:
         max_tokens=args.max_tokens,
         thinking_budget=args.thinking_budget,
         system_prompt=args.system_prompt,
+        budget_usd=args.budget_usd,
     )
 
     def on_action(action_type: str, action: dict[str, Any]) -> None:
@@ -75,7 +76,10 @@ def run_task(args: argparse.Namespace) -> None:
         task=task,
         api_key=api_key,
         setup=LoopSetup(loop_config=loop_config, display_config=display_config),
-        hooks=LoopHooks(on_action=on_action),
+        hooks=LoopHooks(
+            on_action=on_action,
+            confirm_callback=_ask_before_acting if args.confirm else None,
+        ),
     )
 
     print()
@@ -86,6 +90,12 @@ def run_task(args: argparse.Namespace) -> None:
         print()
         print("Response:")
         print(result.final_text)
+
+
+def _ask_before_acting(action: dict[str, Any]) -> bool:
+    """Show the action and run it only on an explicit yes."""
+    reply = input(f"Run {action.get('action', action)}? [y/N] ")
+    return reply.strip().lower().startswith("y")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -148,6 +158,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="Custom system prompt",
     )
     parser.add_argument(
+        "--budget-usd",
+        type=float,
+        default=None,
+        help="Stop the run once its estimated API cost exceeds this many dollars",
+    )
+    parser.add_argument(
+        "--confirm",
+        action="store_true",
+        help="Ask before each action; anything but y rejects it",
+    )
+    parser.add_argument(
         "--quiet",
         "-q",
         action="store_true",
@@ -168,10 +189,14 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     """Parse arguments and dispatch."""
     parser = build_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    # The API refuses budget_tokens >= max_tokens; failing here names the
+    # two flags instead of returning an API error mid-run.
+    if args.thinking_budget is not None and args.thinking_budget >= args.max_tokens:
+        parser.error("--thinking-budget must be smaller than --max-tokens")
 
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
