@@ -56,6 +56,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **attune's generated Rust Makefile works on a fresh project.**
+  `make test-integration` ran `cargo test --test '*'`, which errors
+  when there is no `tests/` directory, and `make ci` ran `cargo fmt`,
+  rewriting files where the generated CI workflow runs `--check`. The
+  integration target now skips a project without `tests/`, `ci` runs a
+  new `fmt-check` target, and `CARGO_HOME` defaults to `~/.cargo`, where
+  `cargo install` puts binaries.
+
+- **attune escapes values written into generated TOML.** Author,
+  description and name went into TOML strings verbatim, so
+  `attune_init.py --author 'A "Q" B'` exited 0 and wrote a Cargo.toml
+  that cargo could not read. A rendered `.toml` file now escapes `\`,
+  `"` and control characters in every substituted value.
+
 - **spec-kit's `cached` decorator keys on the call's arguments.**
   Without `data_arg` the key was the function name alone, so a cached
   `parse("b.md")` returned `parse("a.md")`'s result for the whole TTL.
