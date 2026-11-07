@@ -19,7 +19,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from scribe.pattern_loader import (
     detect_language,
-    get_all_language_patterns,
     get_calibration_factor,
     get_phrase_patterns,
     get_ste_patterns,
@@ -27,7 +26,6 @@ from scribe.pattern_loader import (
     get_tier1_words,
     get_tier2_words,
     get_tier5_patterns,
-    list_supported_languages,
     load_language_patterns,
 )
 
@@ -111,14 +109,6 @@ class TestPatternFileOnDisk:
         (tmp_path / "en.yaml").write_text("")
         with patch("scribe.pattern_loader.DATA_DIR", tmp_path):
             assert load_language_patterns("en") == {}
-
-    @pytest.mark.unit
-    def test_get_all_skips_a_language_whose_file_is_missing(
-        self, tmp_path: Path
-    ) -> None:
-        (tmp_path / "en.yaml").write_text("language: en\n")
-        with patch("scribe.pattern_loader.DATA_DIR", tmp_path):
-            assert get_all_language_patterns(["en", "de"]) == {"en": {"language": "en"}}
 
 
 class TestMalformedSections:
@@ -259,30 +249,6 @@ class TestLanguageDetection:
         assert detect_language("") == "en"
 
 
-class TestSupportedLanguages:
-    """Feature: List available language packs."""
-
-    @pytest.mark.unit
-    def test_list_supported_languages(self) -> None:
-        """Lists all supported languages with codes and names."""
-        langs = list_supported_languages()
-        codes = {lang["code"] for lang in langs}
-        assert "en" in codes
-        assert "de" in codes
-        assert "fr" in codes
-        assert "es" in codes
-        assert "pt" in codes
-        assert "it" in codes
-
-    @pytest.mark.unit
-    def test_language_entries_have_names(self) -> None:
-        """Each language entry includes a human-readable name."""
-        langs = list_supported_languages()
-        for lang in langs:
-            assert "name" in lang
-            assert len(lang["name"]) > 0
-
-
 class TestCalibrationFactor:
     """Feature: Language-specific scoring calibration."""
 
@@ -316,42 +282,6 @@ class TestCalibrationFactor:
         """Unknown language code raises, as load_language_patterns does."""
         with pytest.raises(ValueError, match="Unsupported language: xx"):
             get_calibration_factor("xx")
-
-
-class TestGetAllLanguagePatterns:
-    """Feature: Batch-load patterns for multiple languages."""
-
-    @pytest.mark.unit
-    def test_loads_all_languages_by_default(self) -> None:
-        """Calling with no args loads all supported languages."""
-        all_patterns = get_all_language_patterns()
-        assert "en" in all_patterns
-        assert "de" in all_patterns
-        assert "fr" in all_patterns
-        assert "es" in all_patterns
-        assert "pt" in all_patterns
-        assert "it" in all_patterns
-
-    @pytest.mark.unit
-    def test_loads_subset_of_languages(self) -> None:
-        """Providing a list loads only the requested languages."""
-        result = get_all_language_patterns(["en", "de"])
-        assert "en" in result
-        assert "de" in result
-        assert "fr" not in result
-
-    @pytest.mark.unit
-    def test_unsupported_language_raises_value_error(self) -> None:
-        """Unsupported language codes raise, as load_language_patterns does."""
-        with pytest.raises(ValueError, match="Unsupported language: xx"):
-            get_all_language_patterns(["en", "xx"])
-
-    @pytest.mark.unit
-    def test_each_entry_contains_tier1(self) -> None:
-        """Every loaded language entry includes tier1 data."""
-        result = get_all_language_patterns(["en", "pt", "it"])
-        for lang, patterns in result.items():
-            assert "tier1" in patterns, f"Missing tier1 for {lang}"
 
 
 class TestTier5RuntimeSource:

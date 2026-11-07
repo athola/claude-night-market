@@ -65,6 +65,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- **Seven helpers across five plugins that nothing called:** scribe's
+  `get_all_language_patterns` and `list_supported_languages`,
+  memory-palace's `staleness_report` and `format_session_gap`, leyline's
+  `verify_plugin_offline`, conserve's `find_area_config` and sanctum's
+  `update_ledger_entry`.
+
 - **tome's unwired graph and channel helpers.** The citation-graph
   writer, the thread finder (`graph/threads.py`), the visualizer
   (`output/visualizer.py`), the `CitationEdge` model, citation-chaining

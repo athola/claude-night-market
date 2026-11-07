@@ -79,31 +79,3 @@ def load_area_config(config_path: Path) -> AreaAgentConfig:
         tags=list(tags_raw),
         body=body,
     )
-
-
-def find_area_config(
-    file_path: str,
-    configs_dir: Path,
-) -> AreaAgentConfig | None:
-    """Find the area-agent config matching a file path.
-
-    Scans all .md files in configs_dir and returns the first
-    config whose ownership globs match the given file path.
-
-    Args:
-        file_path: The file path to match.
-        configs_dir: Directory containing area-agent .md configs.
-
-    Returns:
-        Matching AreaAgentConfig, or None if no match.
-
-    """
-    if not configs_dir.is_dir():
-        return None
-
-    for config_file in sorted(configs_dir.glob("*.md")):
-        config = load_area_config(config_file)
-        if config.matches_path(file_path):
-            return config
-
-    return None

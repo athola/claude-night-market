@@ -20,7 +20,6 @@ from deferred_item_watcher import (
     read_ledger,
     scan_for_deferrals,
     should_process,
-    update_ledger_entry,
     write_ledger_entry,
 )
 
@@ -494,53 +493,6 @@ class TestLedger:
         ledger_path.write_text("{corrupt json!!!")
         assert read_ledger(ledger_path) == []
 
-    def test_update_ledger_entry_sets_filed(self, tmp_path: Path) -> None:
-        """
-        GIVEN a ledger entry with filed=False written to disk
-        WHEN update_ledger_entry is called with filed=True and issue_number
-        THEN the matching entry has its filed field set to True
-        AND the issue_number field is also recorded on the entry
-        """
-        ledger_path = tmp_path / "deferred-items-session.json"
-        write_ledger_entry(
-            ledger_path,
-            {
-                "title": "Add retry logic",
-                "source": "scope-guard",
-                "filed": False,
-                "timestamp": "2026-03-19T10:00:00",
-            },
-        )
-        update_ledger_entry(
-            ledger_path, title="Add retry logic", filed=True, issue_number=42
-        )
-        entries = read_ledger(ledger_path)
-        assert entries[0]["filed"] is True
-        assert entries[0]["issue_number"] == 42
-
-    def test_update_nonexistent_title_is_noop(self, tmp_path: Path) -> None:
-        """
-        GIVEN a ledger with one entry titled 'Existing item'
-        WHEN update_ledger_entry is called with a non-matching title
-        THEN the existing entry is not modified
-        AND the filed field of the original entry remains False
-        """
-        ledger_path = tmp_path / "deferred-items-session.json"
-        write_ledger_entry(
-            ledger_path,
-            {
-                "title": "Existing item",
-                "source": "war-room",
-                "filed": False,
-                "timestamp": "2026-03-19T10:00:00",
-            },
-        )
-        update_ledger_entry(
-            ledger_path, title="Nonexistent item", filed=True, issue_number=99
-        )
-        entries = read_ledger(ledger_path)
-        assert entries[0]["filed"] is False
-
     def test_write_normalizes_deferred_prefix_from_title(self, tmp_path: Path) -> None:
         """
         GIVEN a ledger entry with a title prefixed by '[Deferred] '
@@ -560,33 +512,6 @@ class TestLedger:
         )
         entries = read_ledger(ledger_path)
         assert entries[0]["title"] == "Some feature"
-
-    def test_update_matches_normalized_title(self, tmp_path: Path) -> None:
-        """
-        GIVEN a ledger entry stored with the normalized title 'Some feature'
-        WHEN update_ledger_entry is called with '[Deferred] Some feature'
-        THEN the entry is matched and its filed field is set to True
-        AND the prefix is stripped from the update title before matching
-        """
-        ledger_path = tmp_path / "deferred-items-session.json"
-        write_ledger_entry(
-            ledger_path,
-            {
-                "title": "Some feature",
-                "source": "war-room",
-                "filed": False,
-                "timestamp": "2026-03-19T10:00:00",
-            },
-        )
-        # Update using prefixed variant: should still match after normalization
-        update_ledger_entry(
-            ledger_path,
-            title="[Deferred] Some feature",
-            filed=True,
-            issue_number=7,
-        )
-        entries = read_ledger(ledger_path)
-        assert entries[0]["filed"] is True
 
 
 # ---------------------------------------------------------------------------

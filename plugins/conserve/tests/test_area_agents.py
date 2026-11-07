@@ -11,7 +11,6 @@ from pathlib import Path
 
 import pytest
 from scripts.area_agent_registry import (
-    find_area_config,
     load_area_config,
 )
 
@@ -83,114 +82,6 @@ class TestAreaAgentConfigLoading:
 
 
 # --------------- path matching ---------------
-
-
-class TestAreaAgentLookup:
-    """Feature: Match file paths to area-agent configs.
-
-    As a dispatcher
-    I want to find the right config for a given file
-    So that the agent gets area-specific context.
-    """
-
-    @pytest.mark.unit
-    def test_match_file_to_area(self, tmp_path: Path) -> None:
-        """Given configs and a file path, return matching config."""
-        configs_dir = tmp_path / "area-agents"
-        configs_dir.mkdir()
-        (configs_dir / "plugins-imbue.md").write_text(
-            textwrap.dedent("""\
-            ---
-            area_name: plugins/imbue
-            ownership_globs:
-              - "plugins/imbue/**"
-            ---
-            Imbue guide.
-        """)
-        )
-        (configs_dir / "plugins-conserve.md").write_text(
-            textwrap.dedent("""\
-            ---
-            area_name: plugins/conserve
-            ownership_globs:
-              - "plugins/conserve/**"
-            ---
-            Conserve guide.
-        """)
-        )
-
-        result = find_area_config(
-            "plugins/imbue/scripts/validator.py",
-            configs_dir,
-        )
-        assert result is not None
-        assert result.area_name == "plugins/imbue"
-
-    @pytest.mark.unit
-    def test_no_match_returns_none(self, tmp_path: Path) -> None:
-        """Given a path with no matching config, return None."""
-        configs_dir = tmp_path / "area-agents"
-        configs_dir.mkdir()
-        (configs_dir / "plugins-imbue.md").write_text(
-            textwrap.dedent("""\
-            ---
-            area_name: plugins/imbue
-            ownership_globs:
-              - "plugins/imbue/**"
-            ---
-            Imbue guide.
-        """)
-        )
-
-        result = find_area_config(
-            "plugins/unknown/foo.py",
-            configs_dir,
-        )
-        assert result is None
-
-    @pytest.mark.unit
-    def test_multiple_files_multiple_configs(self, tmp_path: Path) -> None:
-        """Given files spanning 2 areas, find both configs."""
-        configs_dir = tmp_path / "area-agents"
-        configs_dir.mkdir()
-        (configs_dir / "plugins-imbue.md").write_text(
-            textwrap.dedent("""\
-            ---
-            area_name: plugins/imbue
-            ownership_globs:
-              - "plugins/imbue/**"
-            ---
-            Imbue guide.
-        """)
-        )
-        (configs_dir / "plugins-conserve.md").write_text(
-            textwrap.dedent("""\
-            ---
-            area_name: plugins/conserve
-            ownership_globs:
-              - "plugins/conserve/**"
-            ---
-            Conserve guide.
-        """)
-        )
-
-        files = [
-            "plugins/imbue/foo.py",
-            "plugins/conserve/bar.py",
-        ]
-        configs = [find_area_config(f, configs_dir) for f in files]
-        valid = [c for c in configs if c is not None]
-        area_names = {c.area_name for c in valid}
-        assert area_names == {"plugins/imbue", "plugins/conserve"}
-
-    @pytest.mark.unit
-    def test_missing_configs_dir_returns_none(self, tmp_path: Path) -> None:
-        """Given a nonexistent configs directory, return None."""
-        result = find_area_config(
-            "plugins/imbue/foo.py",
-            tmp_path / "does-not-exist",
-        )
-        assert result is None
 
 
 # --------------- config edge cases ---------------

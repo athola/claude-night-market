@@ -96,32 +96,6 @@ def write_ledger_entry(path: Path, entry: dict) -> None:
         path.write_text(json.dumps(entries, indent=2), encoding="utf-8")
 
 
-def update_ledger_entry(
-    path: Path,
-    title: str,
-    filed: bool,
-    issue_number: int | None = None,
-) -> None:
-    """Update an existing ledger entry by normalised *title*.
-
-    Sets ``filed`` and optionally ``issue_number``.  If no matching entry
-    is found the ledger is left unchanged.
-    """
-    normalised = _normalize_title(title)
-    with ledger_lock(path):
-        entries = read_ledger(path)
-        changed = False
-        for entry in entries:
-            if _normalize_title(entry.get("title", "")) == normalised:
-                entry["filed"] = filed
-                if issue_number is not None:
-                    entry["issue_number"] = issue_number
-                changed = True
-        if changed:
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(json.dumps(entries, indent=2), encoding="utf-8")
-
-
 # ---------------------------------------------------------------------------
 # Signal detection
 # ---------------------------------------------------------------------------

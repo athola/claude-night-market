@@ -28,10 +28,9 @@ try:
 except ImportError:  # pragma: no cover - yaml is a hard runtime dep
     yaml = None  # type: ignore[assignment]  # optional-import fallback sentinel
 
-from memory_palace.corpus.decay_model import DecayModel
 
 if TYPE_CHECKING:
-    from memory_palace.corpus.decay_model import DecayState
+    pass
 
 logger = logging.getLogger(__name__)
 
@@ -227,30 +226,6 @@ def cluster_by_domain(index: dict[str, Any]) -> dict[str, list[str]]:
         domain = _domain(entry.get("url"))
         clusters.setdefault(domain, []).append(key)
     return clusters
-
-
-def staleness_report(index: dict[str, Any]) -> list[DecayState]:
-    """Compute decay state for every entry, worst (most decayed) first.
-
-    Delegates to :class:`DecayModel` so staleness here matches the
-    maturity-aware half-lives used elsewhere in the corpus tooling.
-    """
-    model = DecayModel()
-    states: list[DecayState] = []
-    for key, entry in index.get("entries", {}).items():
-        last_updated = _parse_timestamp(entry.get("last_updated"))
-        maturity = entry.get("maturity", "growing")
-        score = int(entry.get("importance_score", 0))
-        states.append(
-            model.calculate_decay(
-                entry_id=key,
-                maturity=maturity,
-                last_validated=last_updated,
-                importance_score=score,
-            )
-        )
-    states.sort(key=lambda state: state.decay_factor)
-    return states
 
 
 def _recency_credit(last_updated: datetime) -> float:
