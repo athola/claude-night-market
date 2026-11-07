@@ -340,7 +340,7 @@ def _check_unsafe(docs: dict[str, Any]) -> list[str]:
         allow_paths = []
 
     for path in allow_paths:
-        if str(path).strip() in {".", "/", "./"}:
+        if scope.names_root(str(path)):
             problems.append(f"scope.allow_paths contains the repository root: {path!r}")
         elif scope.is_denied(str(path)):
             problems.append(

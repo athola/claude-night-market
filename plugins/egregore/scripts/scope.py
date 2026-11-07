@@ -137,13 +137,26 @@ def _normalized_allow(allow_paths: Sequence[str]) -> list[str]:
 
     Dropping rather than raising, because an allowlist that cannot be
     trusted should narrow the scope, not widen it. An item whose every
-    entry is dropped allows nothing, which is the safe reading.
+    entry is dropped allows nothing, which is the safe reading. A root
+    entry is dropped for the same reason: it would allow every path.
     """
     return [
         entry
         for entry in allow_paths
-        if ".." not in PurePosixPath(entry).parts and not entry.startswith("/")
+        if ".." not in PurePosixPath(entry).parts
+        and not entry.startswith("/")
+        and not names_root(entry)
     ]
+
+
+def names_root(entry: str) -> bool:
+    """Return whether ``entry`` names the repository root, however spelled.
+
+    ``.``, ``./.`` and ``././`` all reduce to no path segments, and
+    ``within`` treats an entry of no segments as the parent of every path.
+    """
+    stripped = entry.strip()
+    return stripped == "/" or PurePosixPath(stripped).parts == ()
 
 
 def check(allow_paths: Sequence[str], changed: Sequence[str]) -> ScopeResult:

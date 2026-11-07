@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The night-run handoff gate refuses every spelling of the repo
+  root.** It rejected `.`, `./` and `/` by string, so `./.` and `././`
+  passed, and the scope check then read them as an allowlist covering
+  the whole tree. Both now test whether the entry reduces to no path
+  segments.
+
 - **The egregore watchdog keeps the session it relaunches.** The
   watchdog exits right after starting `claude` in the background.
   systemd's default `KillMode` for the oneshot unit and launchd's

@@ -220,3 +220,9 @@ class TestTheDenylistIsAnchoredAtEveryDepth:
     )
     def test_ordinary_work_is_still_allowed(self, path: str) -> None:
         assert not scope.is_denied(path)
+
+
+@pytest.mark.parametrize("root", [".", "./", "./.", "././"])
+def test_a_root_entry_does_not_authorize_the_whole_tree(root: str) -> None:
+    """``within`` treats an empty-parts entry as the parent of every path."""
+    assert not scope.check([root], ["x/y"]).ok

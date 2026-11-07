@@ -211,9 +211,11 @@ class TestUnsafe:
         assert result.code == gate.UNSAFE
         assert any(".github" in p for p in result.problems)
 
-    def test_repo_root_allowlist(self, tmp_path: Path) -> None:
+    @pytest.mark.parametrize("root", [".", "./", "./.", "././", "/", "' . '"])
+    def test_repo_root_allowlist(self, tmp_path: Path, root: str) -> None:
+        """Every spelling of the root is the root; a set of three was not."""
         body = GOOD_HANDOFF.replace(
-            "    - plugins/conjure/scripts/delegation_executor.py", "    - ."
+            "    - plugins/conjure/scripts/delegation_executor.py", f"    - {root}"
         )
         assert gate.check_item(write_item(tmp_path, **{"handoff.md": body})).code == (
             gate.UNSAFE
