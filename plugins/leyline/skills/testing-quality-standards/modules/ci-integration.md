@@ -1,7 +1,7 @@
 ---
 name: ci-integration
 description: GitHub Actions workflows and CI/CD integration patterns for pytest
-parent_skill: leyline:pytest-config
+parent_skill: leyline:testing-quality-standards
 category: infrastructure
 tags: [pytest, ci-cd, github-actions, automation]
 estimated_tokens: 120

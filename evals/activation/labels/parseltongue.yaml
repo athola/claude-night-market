@@ -334,7 +334,7 @@ cases:
     the HTTP client. The goal is fast, deterministic unit tests for the business logic,
     with coverage thresholds in pyproject.toml.
   target: parseltongue:python-testing
-  competitor: leyline:pytest-config
+  competitor: leyline:testing-quality-standards
   cluster: parseltongue:python-testing
   proposers:
   - judge

@@ -24,8 +24,7 @@ modules:
 - modules/gemini-specifics.md
 references:
 - delegation-core/../../leyline/skills/authentication-patterns/SKILL.md
-- delegation-core/../../leyline/skills/quota-management/SKILL.md
-- delegation-core/../../leyline/skills/usage-logging/SKILL.md
+- delegation-core/../../leyline/skills/service-registry/SKILL.md
 - delegation-core/../../leyline/skills/error-patterns/SKILL.md
 ---
 

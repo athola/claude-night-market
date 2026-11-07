@@ -119,18 +119,18 @@ class TestLey004CostTrackingOwner:
     also claim cost-tracking.
     """
 
-    _SKILLS = Path(__file__).resolve().parents[1] / "skills"
+    _MODULES = (
+        Path(__file__).resolve().parents[1] / "skills" / "service-registry" / "modules"
+    )
 
-    def _frontmatter(self, skill: str) -> dict:
-        text = (self._SKILLS / skill / "SKILL.md").read_text(encoding="utf-8")
+    def _frontmatter(self, module: str) -> dict:
+        text = (self._MODULES / f"{module}.md").read_text(encoding="utf-8")
         return yaml.safe_load(text.split("---")[1])
 
     def test_quota_management_does_not_claim_cost_tracking(self) -> None:
         meta = self._frontmatter("quota-management")
         assert "cost-tracking" not in meta["tags"]
-        assert "cost-tracking" not in meta["usage_patterns"]
 
     def test_usage_logging_owns_cost_tracking(self) -> None:
         meta = self._frontmatter("usage-logging")
-        assert "cost-tracking" in meta["usage_patterns"]
-        assert "cost-tracking" in meta["provides"]["patterns"]
+        assert "cost-tracking" in meta["tags"]

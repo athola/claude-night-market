@@ -1,34 +1,10 @@
 ---
 name: quota-management
-description: Tracks quotas, monitors thresholds, and degrades gracefully for rate-limited APIs. Use when integrating external services that impose rate or cost limits.
-alwaysApply: false
+description: Quota tracking, threshold tiers, and graceful degradation for rate-limited services
+parent_skill: leyline:service-registry
 category: infrastructure
-tags:
-- quota
-- rate-limiting
-- resource-management
-- thresholds
-dependencies: []
-tools: []
-provides:
-  infrastructure:
-  - quota-tracking
-  - threshold-monitoring
-  - usage-estimation
-  patterns:
-  - graceful-degradation
-  - quota-enforcement
-  - cost-optimization
-usage_patterns:
-- service-integration
-- rate-limit-management
-- resource-monitoring
-complexity: intermediate
+tags: [quota, rate-limiting, resource-management, thresholds]
 estimated_tokens: 500
-progressive_loading: true
-modules:
-- modules/threshold-strategies.md
-- modules/estimation-patterns.md
 ---
 
 # Quota Management
@@ -36,23 +12,11 @@ modules:
 ## Overview
 
 Tracks cumulative token budgets and enforces limits. For per-call logging,
-use usage-logging.
+see `modules/usage-logging.md`.
 
 Patterns for tracking and enforcing resource quotas across rate-limited
-services. This skill provides the infrastructure that other plugins use for
+services. This module describes the infrastructure that other plugins use for
 consistent quota handling.
-
-## When To Use
-
-- Building integrations with rate-limited APIs
-- Need to track usage across sessions
-- Want graceful degradation when limits approached
-- Require cost estimation before operations
-
-## When NOT To Use
-
-- Project doesn't use the leyline infrastructure patterns
-- Simple scripts without service architecture needs
 
 ## Core Concepts
 
@@ -105,11 +69,11 @@ if not can_proceed:
 
 ## Integration Pattern
 
-Other plugins reference this skill:
+Other plugins reference the parent skill:
 
 ```yaml
 # In your skill's frontmatter
-dependencies: [leyline:quota-management]
+dependencies: [leyline:service-registry]
 ```
 
 Then use the shared patterns:

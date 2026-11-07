@@ -1,44 +1,15 @@
 ---
 name: pytest-config
-description: Provides standardized pytest config, reusable fixtures, and CI integration patterns. Use when setting up or auditing a Python plugin's test infrastructure.
-globs: ["**/conftest.py", "**/pytest.ini", "**/pyproject.toml"]
-alwaysApply: false
+description: Standardized pytest configuration, coverage settings, and the index of fixture and CI modules
+parent_skill: leyline:testing-quality-standards
 category: infrastructure
-tags:
-- pytest
-- testing
-- configuration
-- fixtures
-dependencies:
-- leyline:testing-quality-standards
+tags: [pytest, testing, configuration, fixtures]
 estimated_tokens: 200
-provides:
-  infrastructure:
-  - pytest-config
-  - conftest-patterns
-  - coverage-config
-modules:
-- modules/conftest-patterns.md
-- modules/git-testing-fixtures.md
-- modules/mock-fixtures.md
-- modules/ci-integration.md
-- modules/README.md
 ---
 
 # Pytest Configuration Patterns
 
 Standardized pytest configuration and patterns for consistent testing infrastructure across Claude Night Market plugins.
-
-
-## When To Use
-
-- Setting up pytest configuration and fixtures
-- Configuring conftest.py patterns for test infrastructure
-
-## When NOT To Use
-
-- Non-Python projects or projects using other test frameworks
-- Simple scripts that do not need test infrastructure
 
 ## Quick Start
 
@@ -88,22 +59,21 @@ show_missing = true
 
 For detailed implementation patterns, see:
 
-- **[Conftest Patterns](modules/conftest-patterns.md)** - Conftest.py templates, fixtures, test markers, and directory structure
-- **[Git Testing Fixtures](modules/git-testing-fixtures.md)** - GitRepository helper class for testing git workflows
-- **[Mock Fixtures](modules/mock-fixtures.md)** - Mock tool fixtures for Bash, TodoWrite, and other Claude Code tools
-- **[CI Integration](modules/ci-integration.md)** - GitHub Actions workflows and test commands for automated testing
-- **Module Index**: See `modules/README.md` for module organization overview
+- **[Conftest Patterns](conftest-patterns.md)** - Conftest.py templates, fixtures, test markers, and directory structure
+- **[Git Testing Fixtures](git-testing-fixtures.md)** - GitRepository helper class for testing git workflows
+- **[Mock Fixtures](mock-fixtures.md)** - Mock tool fixtures for Bash, TodoWrite, and other Claude Code tools
+- **[CI Integration](ci-integration.md)** - GitHub Actions workflows and test commands for automated testing
 
 ## Integration with Other Skills
 
-This skill provides foundational patterns referenced by:
+These patterns are referenced by:
 - `parseltongue:python-testing` - Uses pytest configuration and fixtures
 - `pensive:test-review` - Uses test quality standards
 - `sanctum:test-*` - Uses conftest patterns and Git fixtures
 
 Reference in your skill's frontmatter:
 ```yaml
-dependencies: [leyline:pytest-config, leyline:testing-quality-standards]
+dependencies: [leyline:testing-quality-standards]
 ```
 
 ## Exit Criteria

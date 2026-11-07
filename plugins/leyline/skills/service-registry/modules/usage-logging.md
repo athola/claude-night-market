@@ -1,37 +1,10 @@
 ---
 name: usage-logging
-description: Implements structured usage logging and audit trails for cost and session tracking. Use when adding audit trails, usage analytics, or cost tracking to a skill.
-alwaysApply: false
+description: Session-aware JSONL usage logging for audit trails, usage analytics, and per-call cost tracking
+parent_skill: leyline:service-registry
 category: infrastructure
-tags:
-- logging
-- usage
-- audit
-- metrics
-- sessions
-- analytics
-dependencies: []
-tools: []
-provides:
-  infrastructure:
-  - usage-logging
-  - session-management
-  - audit-trails
-  patterns:
-  - structured-logging
-  - metrics-collection
-  - cost-tracking
-usage_patterns:
-- audit-logging
-- cost-tracking
-- usage-analytics
-- session-management
-complexity: beginner
+tags: [logging, usage, audit, metrics, sessions, analytics, cost-tracking]
 estimated_tokens: 450
-progressive_loading: true
-modules:
-- modules/session-patterns.md
-- modules/log-formats.md
 ---
 
 # Usage Logging
@@ -39,22 +12,11 @@ modules:
 ## Overview
 
 Records individual call costs and usage events. For aggregate budget
-enforcement, use quota-management.
+enforcement, see `modules/quota-management.md`.
 
 Session-aware logging infrastructure for tracking operations across plugins.
 Provides structured JSONL logging with automatic session management for
 audit trails and analytics.
-
-## When To Use
-
-- Need audit trails for operations
-- Tracking costs across sessions
-- Building usage analytics
-- Debugging with operation history
-
-## When NOT To Use
-
-- Simple operations without logging needs
 
 ## Core Concepts
 
@@ -126,7 +88,7 @@ errors = logger.get_recent_errors(count=10)
 
 ```yaml
 # In your skill's frontmatter
-dependencies: [leyline:usage-logging]
+dependencies: [leyline:service-registry]
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 

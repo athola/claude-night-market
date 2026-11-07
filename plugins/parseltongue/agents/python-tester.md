@@ -9,7 +9,7 @@ tools:
 - Bash
 - Glob
 - Grep
-skills: parseltongue:python-testing, leyline:pytest-config
+skills: parseltongue:python-testing, leyline:testing-quality-standards
 escalation:
   to: opus
   hints:

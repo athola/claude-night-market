@@ -56,7 +56,7 @@ const HEALTH = {
 const checked = await parallel(
   plugins.map((plugin) => () =>
     agent(
-      `Check plugins/${plugin} against the shared contracts. Read Skill(leyline:stewardship) and Skill(leyline:pytest-config) for what they are.\n\nCheck these contracts:\n\n- plugin.json registers every skill, command and agent on disk, and nothing that is not on disk\n- declared dependencies exist\n- hooks named in hooks.json exist and are executable\n- vendored shared helpers match the canonical copy\n- every SKILL.md has a description and exit criteria\n\nList what you checked and found satisfied as well as what you found violated. The satisfied list is what the next stage needs to tell a stale contract from a broken plugin.`,
+      `Check plugins/${plugin} against the shared contracts. Read Skill(leyline:stewardship) and Skill(leyline:testing-quality-standards) (module pytest-config) for what they are.\n\nCheck these contracts:\n\n- plugin.json registers every skill, command and agent on disk, and nothing that is not on disk\n- declared dependencies exist\n- hooks named in hooks.json exist and are executable\n- vendored shared helpers match the canonical copy\n- every SKILL.md has a description and exit criteria\n\nList what you checked and found satisfied as well as what you found violated. The satisfied list is what the next stage needs to tell a stale contract from a broken plugin.`,
       { label: `check:${plugin}`, phase: 'Check', schema: HEALTH },
     ),
   ),

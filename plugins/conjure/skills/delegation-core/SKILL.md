@@ -16,8 +16,6 @@ tags:
 - task-management
 - quality-control
 dependencies:
-- leyline:quota-management
-- leyline:usage-logging
 - leyline:service-registry
 - leyline:error-patterns
 - leyline:authentication-patterns
@@ -37,8 +35,6 @@ modules:
 - modules/handoff-patterns.md
 - modules/troubleshooting.md
 references:
-- leyline/skills/quota-management/SKILL.md
-- leyline/skills/usage-logging/SKILL.md
 - leyline/skills/error-patterns/SKILL.md
 - leyline/skills/authentication-patterns/SKILL.md
 - leyline/skills/service-registry/SKILL.md
@@ -210,9 +206,7 @@ Conjure uses leyline infrastructure:
 
 | Leyline Skill | Used For |
 |---------------|----------|
-| `quota-management` | Track service quotas and thresholds. |
-| `usage-logging` | Session-aware audit trails. |
-| `service-registry` | Unified service configuration. |
+| `service-registry` | Unified service configuration, quota tracking (`quota-management` module), and session-aware audit trails (`usage-logging` module). |
 | `error-patterns` | Consistent error handling. |
 | `authentication-patterns` | Auth verification. |
 

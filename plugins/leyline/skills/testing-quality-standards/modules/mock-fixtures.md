@@ -1,7 +1,7 @@
 ---
 name: mock-fixtures
 description: Mock tool fixtures for testing Claude Code tool interactions (Bash, TodoWrite, etc.)
-parent_skill: leyline:pytest-config
+parent_skill: leyline:testing-quality-standards
 category: infrastructure
 tags: [pytest, mocking, fixtures, tools]
 estimated_tokens: 95
@@ -17,7 +17,6 @@ Fixtures for mocking Claude Code tool interactions in tests.
 from typing import Any, Dict, List
 from unittest.mock import Mock
 import pytest
-
 
 @pytest.fixture
 def mock_bash_tool():
@@ -61,7 +60,6 @@ def test_command_execution(mock_bash_tool):
     result = mock_bash_tool("git status")
     assert "file1.txt" in result
     assert "file2.txt" in result
-
 
 def test_todo_creation(mock_todo_tool):
     """Test todo creation with mocked TodoWrite tool."""

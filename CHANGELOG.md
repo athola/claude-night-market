@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking: six leyline contract skills are modules of four.** Skill
+  descriptions were 93% of the listing budget, and leyline carried 25
+  skills, many of them short contracts nothing invoked on its own
+  (#781). `deferred-capture` and `storage-templates` are modules of
+  `decision-journal`, `pytest-config` of `testing-quality-standards`,
+  `quota-management` and `usage-logging` of `service-registry`, and
+  `utility` of `evaluation-framework`. Callers in this repository and
+  the activation labels name the new homes. A plugin that calls
+  `Skill(leyline:<old-name>)` must call the skill that now holds it.
+
 - **`attune:mission-orchestrator` is a single-file router.** It was 12
   modules and two references for "detect the phase, call that phase's
   skill" (#989). SKILL.md now holds the phase table, the artifact check

@@ -5,8 +5,7 @@ parent_skill: conjure:delegation-core
 category: delegation-framework
 estimated_tokens: 250
 dependencies:
-  - leyline:quota-management
-  - leyline:usage-logging
+  - leyline:service-registry
 ---
 
 # Cost Estimation and Budget Guidelines

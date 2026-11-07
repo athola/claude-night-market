@@ -65,7 +65,8 @@ break.
 Record who or what performed the independent check and what they
 evaluated against, as part of the evidence log. For the four-eyes
 audit trail (which prompt, which agent, which diff, who approved
-and why), see `leyline:usage-logging`.
+and why), see the `usage-logging` module of
+`leyline:service-registry`.
 
 ## When This Does Not Apply
 

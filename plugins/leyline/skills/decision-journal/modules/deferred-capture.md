@@ -1,24 +1,16 @@
 ---
 name: deferred-capture
-description: Defines the contract for deferred-item capture across plugins. Use when building or validating a plugin's deferred-capture wrapper or adding source labels.
-alwaysApply: false
+description: Contract every plugin deferred-capture wrapper implements (CLI, issue template, labels, duplicate detection, JSON output)
+parent_skill: leyline:decision-journal
+category: infrastructure
+estimated_tokens: 700
 ---
 # Deferred Capture Contract
 
-## When To Use
-
-- Building a new plugin deferred-capture wrapper
-- Validating an existing wrapper against the contract
-- Adding new source labels or template fields
-
-## When NOT To Use
-
-- Capturing a deferred item at runtime (use the plugin
-  wrapper directly, e.g. `plugins/<plugin>/scripts/deferred_capture.py`)
-- Creating GitHub issues manually
-
 Specification that all plugin deferred-capture wrappers implement.
-Not a runtime dependency, just a convention.
+Not a runtime dependency, just a convention. To capture an item at
+runtime, call the plugin wrapper directly, e.g.
+`plugins/<plugin>/scripts/deferred_capture.py`.
 
 ## CLI Interface
 

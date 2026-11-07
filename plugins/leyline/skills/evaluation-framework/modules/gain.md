@@ -12,10 +12,10 @@ This is a heuristic signal rather than a calibrated probability.
 
 | Range   | Meaning                                              |
 |---------|------------------------------------------------------|
-| 0.0-0.2 | Answer is sufficient; action is speculative          |
-| 0.3-0.5 | Known gap exists; action might address it            |
-| 0.6-0.8 | Clear gap exists; action likely addresses it         |
-| 0.9-1.0 | Critical missing piece; action directly fills it     |
+| 0.0-0.2 | Answer is sufficient, and the action is speculative  |
+| 0.3-0.5 | A known gap exists that the action might address     |
+| 0.6-0.8 | A clear gap exists that the action likely addresses  |
+| 0.9-1.0 | A critical piece is missing and the action fills it  |
 
 ## Estimation Prompts
 
@@ -51,12 +51,11 @@ Match the question to your current execution scope before scoring.
 Actions that are directly mapped to the active `current_task_id`
 receive a +0.1 bonus, capped at 1.0.
 Use this boost only when the action explicitly advances the tracked
-task, not for tangentially related work.
+task. Tangentially related work gets no boost.
 
 ## Anti-Pattern
 
 Never assign 0.9+ to a speculative action.
 Reserve the top tier for cases where the missing information is
 specifically identified and the action is known to retrieve it.
-A vague sense that more information might help is a 0.3-0.5 score,
-not a 0.9.
+A vague sense that more information might help scores 0.3-0.5.

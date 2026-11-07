@@ -50,7 +50,6 @@ class MetaEvaluator:
         "leyline": [
             "evaluation-framework",
             "testing-quality-standards",
-            "pytest-config",
         ],
         # Pensive plugin (review skills)
         "pensive": [

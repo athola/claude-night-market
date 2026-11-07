@@ -42,7 +42,7 @@ trivially true, and it will keep passing after the behavior breaks.
 - Assertion depth and coverage thresholds:
   `Skill(leyline:testing-quality-standards)`
 - Fixtures, markers, and `conftest.py` layout:
-  `Skill(leyline:pytest-config)`
+  `Skill(leyline:testing-quality-standards)`, module `pytest-config`
 - Whether a test is a real guard: `modules/quality-validation.md`
 
 ## Exit Criteria

@@ -172,7 +172,7 @@ mode requires per-skill consent via frontmatter.
 
 **Current examples:**
 
-- `leyline:utility` advisory mode (default) vs
+- `leyline:evaluation-framework` utility scoring: advisory mode (default) vs
   prescriptive mode (frontmatter-controlled)
 
 ## How to apply this when adding a feature

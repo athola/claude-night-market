@@ -1,36 +1,10 @@
 ---
 name: storage-templates
-description: Provides templates and lifecycle patterns for storage and documentation systems. Use when organizing knowledge storage, config lifecycle, or naming conventions.
-alwaysApply: false
+description: Content templates, maturity lifecycle (seedling to evergreen to archive), and file naming conventions for knowledge storage
+parent_skill: leyline:decision-journal
 category: infrastructure
-tags:
-- templates
-- storage
-- lifecycle
-- maturity
-- organization
-- patterns
-dependencies: []
-provides:
-  infrastructure:
-  - templates
-  - lifecycle-management
-  - naming-conventions
-  patterns:
-  - maturity-stages
-  - template-structures
-  - file-organization
-usage_patterns:
-- knowledge-management
-- documentation-systems
-- configuration-management
-complexity: beginner
+tags: [templates, storage, lifecycle, maturity, organization]
 estimated_tokens: 600
-progressive_loading: true
-modules:
-- modules/template-patterns.md
-- modules/lifecycle-stages.md
-- modules/storage-patterns.md
 ---
 
 # Storage Templates
@@ -38,18 +12,6 @@ modules:
 ## Overview
 
 Generic template patterns and lifecycle management for structured content storage. Provides reusable templates, maturity progression models, and file naming conventions that work across different storage domains.
-
-## When To Use
-
-- Building knowledge management systems
-- Organizing documentation with maturity stages
-- Need consistent file naming patterns
-- Want template-driven content creation
-- Implementing lifecycle-based workflows
-
-## When NOT To Use
-
-- Simple storage without lifecycle or structure needs
 
 ## Core Concepts
 
@@ -143,7 +105,7 @@ See `modules/template-patterns.md` for detailed examples.
 
 ```yaml
 # In your skill's frontmatter
-dependencies: [leyline:storage-templates]
+dependencies: [leyline:decision-journal]
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 

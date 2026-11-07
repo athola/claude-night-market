@@ -1,7 +1,13 @@
 ---
 name: decision-journal
-description: Contract for the project decision journal (tradeoffs and lessons-learned logs). Use when recording a decision, tradeoff, or lesson, or building a consumer hook.
+description: Decision journal (tradeoffs, lessons learned), deferred-capture contract ([Deferred] issues, CLI args, source labels), storage templates. Use to log a lesson.
 alwaysApply: false
+modules:
+- modules/deferred-capture.md
+- modules/storage-templates.md
+- modules/template-patterns.md
+- modules/lifecycle-stages.md
+- modules/storage-patterns.md
 ---
 
 # Decision Journal Contract
@@ -13,6 +19,10 @@ alwaysApply: false
 - A workflow has hit a failed approach, rework, or blocker and needs to
   record the lesson.
 - Building or validating a consumer hook that writes to the journal.
+- Building or validating a plugin's deferred-capture wrapper, or adding a
+  source label (load `modules/deferred-capture.md`).
+- Choosing a template, maturity stage, or file name for stored knowledge
+  (load `modules/storage-templates.md`).
 
 ## When NOT To Use
 
@@ -124,6 +134,17 @@ Each workflow adds one block at its natural endpoint:
       --title "Compliance check" --field context="verify" --dry-run
 
 Must print a rendered entry containing `## TR-001:` and write nothing.
+
+## Related Contracts
+
+- `modules/deferred-capture.md`: the CLI, issue template, label
+  taxonomy, duplicate detection, and JSON output that every plugin
+  deferred-capture wrapper implements. Load it when building or checking
+  a wrapper.
+- `modules/storage-templates.md`: seedling, growing, evergreen, and
+  reference templates, the promotion lifecycle, and naming conventions.
+  Load it when organizing a knowledge store. Detail is in
+  `template-patterns`, `lifecycle-stages`, and `storage-patterns`.
 
 ## Exit Criteria
 

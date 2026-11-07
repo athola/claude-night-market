@@ -20,11 +20,9 @@ dependencies:
     source: gh@athola/claude-night-market
     path: plugins/leyline
     skills:
-    - quota-management
-    - usage-logging
+    - service-registry
     - authentication-patterns
     - error-patterns
-    - service-registry
 skills:
 - skills/delegation-core
 - skills/gemini-delegation

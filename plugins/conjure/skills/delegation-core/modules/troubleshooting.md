@@ -46,7 +46,7 @@ dependencies:
 **Problem: Quota exhaustion**
 - **Immediate**: Pause delegations, check quota status
 - **Long-term**: Implement quota monitoring and throttling
-- **See**: `Skill(leyline:quota-management)` for tracking patterns
+- **See**: `Skill(leyline:service-registry)`, module `quota-management`, for tracking patterns
 
 **Problem: Authentication failures**
 - **Check**: API keys, environment variables, service

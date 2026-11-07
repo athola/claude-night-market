@@ -1,7 +1,7 @@
 ---
 name: git-testing-fixtures
 description: GitRepository helper class and fixtures for testing git-based workflows
-parent_skill: leyline:pytest-config
+parent_skill: leyline:testing-quality-standards
 category: infrastructure
 tags: [pytest, git, fixtures, testing]
 estimated_tokens: 140
@@ -16,7 +16,6 @@ Reusable fixtures for testing git-based workflows and operations.
 ```python
 import subprocess
 from pathlib import Path
-
 
 class GitRepository:
     """Helper class to create and manage test Git repositories."""
@@ -61,7 +60,6 @@ class GitRepository:
 
 ```python
 import pytest
-
 
 @pytest.fixture
 def temp_git_repo(tmp_path: Path) -> GitRepository:

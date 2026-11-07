@@ -20,8 +20,8 @@ The skill author adds a short evaluation block before each action decision.
 
 4-step checklist:
 
-1. Construct state per `leyline:utility/modules/state-builder`
-2. Score candidates per `leyline:utility/modules/action-selector`
+1. Construct state per `leyline:evaluation-framework/modules/state-builder`
+2. Score candidates per `leyline:evaluation-framework/modules/action-selector`
 3. Prefer the highest-utility action unless you have a specific reason
    to override
 4. Log the score and your decision before executing the action
@@ -34,8 +34,8 @@ utility score.
 
 ```
 Before taking your next action, evaluate utility:
-1. Construct state per leyline:utility/modules/state-builder
-2. Score candidates per leyline:utility/modules/action-selector
+1. Construct state per leyline:evaluation-framework/modules/state-builder
+2. Score candidates per leyline:evaluation-framework/modules/action-selector
 3. Prefer the highest-utility action unless you have a
    specific reason to override
 4. Log the score and your decision

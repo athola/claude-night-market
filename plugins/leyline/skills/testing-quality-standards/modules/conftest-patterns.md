@@ -1,7 +1,7 @@
 ---
 name: conftest-patterns
 description: Conftest.py templates and fixtures for standardized pytest configuration across plugins
-parent_skill: leyline:pytest-config
+parent_skill: leyline:testing-quality-standards
 category: infrastructure
 tags: [pytest, fixtures, conftest, testing]
 estimated_tokens: 220
@@ -34,25 +34,21 @@ import pytest
 # Plugin root for test data
 PLUGIN_ROOT = Path(__file__).parent.parent
 
-
 @pytest.fixture
 def plugin_root() -> Path:
     """Return the path to the plugin root directory."""
     return PLUGIN_ROOT
-
 
 @pytest.fixture
 def temp_dir(tmp_path: Path) -> Path:
     """Provide a temporary directory for test isolation."""
     return tmp_path
 
-
 @pytest.fixture(autouse=True)
 def isolate_tests(tmp_path: Path, monkeypatch):
     """Isolate tests by changing to temporary directory."""
     monkeypatch.chdir(tmp_path)
     yield
-
 
 def pytest_configure(config):
     """Configure custom pytest markers."""
@@ -82,7 +78,6 @@ estimated_tokens: 300
 ## When to Use
 Use this skill for testing purposes.
 """
-
 
 @pytest.fixture
 def sample_plugin_json() -> dict:

@@ -13,7 +13,7 @@ dependencies:
 - memory-palace-architect
 - digital-garden-cultivator
 - leyline:evaluation-framework
-- leyline:storage-templates
+- leyline:decision-journal
 - leyline:document-conversion
 - scribe:slop-detector
 scripts: []

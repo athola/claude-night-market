@@ -1,41 +1,12 @@
 ---
 name: utility
-description: Scores agent actions by expected gain, cost, uncertainty, and redundancy. Use when deciding whether to dispatch an agent or invoke a tool.
-alwaysApply: false
-category: infrastructure
-tags:
-- orchestration
-- cost-control
-- decision-making
-- agent-dispatch
-dependencies: []
-provides:
-  infrastructure:
-  - utility-scoring
-  - action-selection
-  - termination-control
-  patterns:
-  - gain-estimation
-  - cost-computation
-  - redundancy-detection
-usage_patterns:
-- agent-dispatch-gating
-- tool-call-decisions
-- continuation-decisions
-- model-tier-selection
-complexity: intermediate
+description: Utility scoring for agent actions (gain minus weighted cost, uncertainty, redundancy) to gate tool calls and agent dispatch
+parent_skill: leyline:evaluation-framework
+category: orchestration
+tags: [orchestration, cost-control, decision-making, agent-dispatch]
 estimated_tokens: 600
-progressive_loading: true
-modules:
-- modules/state-builder.md
-- modules/gain.md
-- modules/step-cost.md
-- modules/uncertainty.md
-- modules/redundancy.md
-- modules/action-selector.md
-- modules/integration.md
 ---
-# Utility Skill
+# Utility Scoring
 
 ## Overview
 
@@ -48,20 +19,6 @@ selection.
 The framework prevents over-calling tools and premature stopping by
 making both errors costly.
 Utility range is [-2.3, 1.0].
-
-## When To Use
-
-- Deciding whether to dispatch another agent or tool call
-- Gating expensive tool calls (search, code execution, delegation)
-- Selecting the right model tier for a sub-task
-- Continuation decisions after receiving partial results
-- Verification gating before writing or committing output
-
-## When NOT to Use
-
-- Single-step operations with one obvious action
-- Trivial tasks where cost of scoring exceeds benefit
-- Already-committed actions that cannot be undone
 
 ## Action Space
 

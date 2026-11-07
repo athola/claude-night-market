@@ -13,9 +13,9 @@ Reference leyline skills in your skill's frontmatter:
 ```yaml
 ---
 name: my-skill
-dependencies: [leyline:quota-management, leyline:error-patterns]
+dependencies: [leyline:service-registry, leyline:error-patterns]
 references:
-  - leyline/skills/quota-management/modules/threshold-strategies.md
+  - leyline/skills/service-registry/modules/threshold-strategies.md
   - leyline/skills/error-patterns/modules/recovery-strategies.md
 ---
 ```
@@ -62,8 +62,6 @@ Conjure uses leyline for delegation infrastructure:
 ```yaml
 # conjure/skills/delegation-core/SKILL.md
 dependencies:
-  - leyline:quota-management
-  - leyline:usage-logging
   - leyline:service-registry
   - leyline:error-patterns
   - leyline:authentication-patterns
@@ -76,8 +74,7 @@ Conservation can use leyline for context metrics:
 ```yaml
 # conserve/skills/context-optimization/SKILL.md
 dependencies:
-  - leyline:quota-management  # For context budget tracking
-  - leyline:usage-logging     # For optimization metrics
+  - leyline:service-registry  # quota-management and usage-logging modules
 ```
 
 ### Memory Palace → Leyline

@@ -23,7 +23,7 @@ dependencies:
     path: plugins/leyline
     skills:
     - evaluation-framework
-    - storage-templates
+    - decision-journal
 skills:
 - skills/memory-palace-architect
 - skills/knowledge-locator
