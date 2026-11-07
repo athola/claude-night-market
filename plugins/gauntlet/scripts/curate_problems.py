@@ -235,13 +235,22 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 
 def _load_yaml_safe(path: Path) -> dict[str, Any]:
-    """Load YAML from *path*, returning an empty dict on any error."""
+    """Load the mapping in *path*; an empty file is an empty mapping.
+
+    A file that does not parse, or whose top level is not a mapping, raises
+    ValueError naming it. Reading either as {} reported a corrupt category
+    as an empty one, and the gap report then hid the corruption.
+    """
     try:
         with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
-        return data if isinstance(data, dict) else {}
-    except Exception:  # noqa: BLE001 - yaml errors, file errors, and type errors all safe to swallow here
+    except yaml.YAMLError as exc:
+        raise ValueError(f"{path}: not valid YAML: {exc}") from exc
+    if data is None:
         return {}
+    if not isinstance(data, dict):
+        raise ValueError(f"{path}: top level is {type(data).__name__}, not a mapping")
+    return data
 
 
 def _build_report_lines(

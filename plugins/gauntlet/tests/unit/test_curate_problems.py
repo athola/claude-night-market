@@ -404,3 +404,36 @@ class TestNoWriteToProblems:
         content = output_path.read_text()
         assert "trees" in content.lower()
         assert "gap" in content.lower() or "missing" in content.lower()
+
+
+class TestUnreadableBankFilesAreReported:
+    """A YAML file that does not parse is a corrupt bank, not an empty one.
+
+    It used to read as {}, so the coverage survey reported the category
+    as holding no problems and the gap report hid the corruption.
+    """
+
+    @pytest.mark.unit
+    def test_a_yaml_syntax_error_names_the_file(self, tmp_path: Path) -> None:
+        """The survey stops on the broken file and says which one."""
+        (tmp_path / "arrays.yaml").write_text("problems: [\n")
+
+        with pytest.raises(ValueError, match="arrays.yaml"):
+            cp.survey_bank_coverage(tmp_path)
+
+    @pytest.mark.unit
+    def test_a_file_whose_top_level_is_not_a_mapping_is_reported(
+        self, tmp_path: Path
+    ) -> None:
+        """A list at the top level has no `problems` key to read."""
+        (tmp_path / "arrays.yaml").write_text("- one\n- two\n")
+
+        with pytest.raises(ValueError, match="arrays.yaml"):
+            cp.survey_bank_coverage(tmp_path)
+
+    @pytest.mark.unit
+    def test_an_empty_file_is_an_empty_bank(self, tmp_path: Path) -> None:
+        """An empty file holds no problems, which is not corruption."""
+        (tmp_path / "arrays.yaml").write_text("")
+
+        assert cp.survey_bank_coverage(tmp_path) == {}

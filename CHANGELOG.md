@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **gauntlet's problem-bank survey reports a corrupt bank file.** A
+  YAML syntax error or a non-mapping top level read as an empty
+  category, so the gap report showed zero problems there and hid the
+  damage. The survey now stops with an error naming the file. An empty
+  file is still an empty bank.
+
 - **gauntlet's dependency-map scoring checks precision and ignores
   case.** It scored recall only and compared names case-sensitively,
   so `Auth, DB` failed against `auth, db` and a list padded with ten
