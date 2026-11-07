@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **phantom blocks an action with a malformed coordinate instead of
+  crashing.** A model reply with `coordinate: [null, 1]`, `5` or
+  `["a", "b"]` raised out of the run loop and discarded the run's
+  results. The action filter now refuses any coordinate that is not a
+  pair of numbers.
+
 - **parseltongue's checks judge what code actually needs and does.**
   The compatibility checker called `x: int | None` a 3.10 feature even
   under `from __future__ import annotations`, and let `tomllib`,

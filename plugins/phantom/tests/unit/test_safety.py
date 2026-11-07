@@ -8,6 +8,8 @@ Feature: Safety Controls
 
 from __future__ import annotations
 
+import pytest
+
 from phantom.safety import (
     ActionFilter,
     ConfirmationGate,
@@ -118,3 +120,19 @@ class TestConfirmationGate:
         gate.check({"action": "left_click", "coordinate": [1, 1]})
         gate.check({"action": "left_click", "coordinate": [2, 2]})
         assert gate.rejection_count == 2
+
+
+class TestMalformedCoordinates:
+    """Coordinates come from the model; a bad one blocks rather than crashes."""
+
+    @pytest.mark.parametrize(
+        "coord", [[None, 1], ["a", "b"], 5, [1], [1, 2, 3], "10,10"]
+    )
+    def test_an_unparseable_coordinate_is_blocked(self, coord: object) -> None:
+        """int(None) and len(5) raised out of the loop and lost the run."""
+        f = ActionFilter(blocked_regions=[(0, 0, 10, 10)])
+        assert f.is_allowed({"action": "left_click", "coordinate": coord}) is False
+
+    def test_an_action_with_no_coordinate_still_passes(self) -> None:
+        f = ActionFilter(blocked_regions=[(0, 0, 10, 10)])
+        assert f.is_allowed({"action": "type", "text": "hi"}) is True
