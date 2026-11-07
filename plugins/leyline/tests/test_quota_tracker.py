@@ -576,3 +576,28 @@ class TestMinuteWindowAndDailyTokens:
         assert level == "critical"
         assert any("Daily tokens" in warning for warning in warnings)
         assert tracker.can_handle_task(1)[0] is False
+
+
+class TestAClosedMinuteWindowStopsCounting:
+    """A tracker kept alive past its window must not refuse new work."""
+
+    @staticmethod
+    def _full_minute(tmp_path: Path) -> QuotaTracker:
+        config = QuotaConfig(requests_per_minute=2, tokens_per_minute=1_000)
+        tracker = QuotaTracker(service="window", config=config, storage_dir=tmp_path)
+        tracker.record_request(tokens=1)
+        tracker.record_request(tokens=1)
+        tracker.usage.minute_window_start -= 61
+        return tracker
+
+    def test_can_handle_task_after_the_window_closed(self, tmp_path: Path) -> None:
+        """Two requests a minute ago leave this minute's budget untouched."""
+        tracker = self._full_minute(tmp_path)
+
+        assert tracker.can_handle_task(10) == (True, [])
+
+    def test_quota_status_after_the_window_closed(self, tmp_path: Path) -> None:
+        """The old minute's usage no longer reads as critical."""
+        tracker = self._full_minute(tmp_path)
+
+        assert tracker.get_quota_status() == ("healthy", [])

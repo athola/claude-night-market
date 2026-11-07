@@ -56,6 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **leyline's quota tracker forgets a closed minute before it answers.**
+  `can_handle_task` and `get_quota_status` read the counters without
+  resetting a window that had closed, so a tracker kept alive past its
+  minute refused work for requests it no longer counted against.
+
 - **leyline sanitizes more `gh` output.** The external-content hook
   matched `gh api`, `issue`, `pr`, `run` and `release` by substring
   with one space, so `gh gist view`, `gh search`, `gh repo view` and
