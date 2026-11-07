@@ -48,9 +48,10 @@ _STOPWORDS = frozenset(
 
 def _tokenize(text: str) -> set[str]:
     """Reduce text to lowercase content words for overlap scoring."""
-    return {
-        w for w in re.findall(r"[a-z0-9_.-]{3,}", text.lower()) if w not in _STOPWORDS
-    }
+    # Edge punctuation is stripped so a sentence-final "cache." matches
+    # "cache"; inner dots stay, so "config.yaml" is still one token.
+    words = (w.strip("._-") for w in re.findall(r"[a-z0-9_.-]+", text.lower()))
+    return {w for w in words if len(w) >= 3 and w not in _STOPWORDS}
 
 
 def _sessions_dir() -> Path:
@@ -75,9 +76,16 @@ def _recent_session_files() -> list[Path]:
     sessions_dir = _sessions_dir()
     if not sessions_dir.is_dir():
         return []
-    files = [p for p in sessions_dir.glob("*.json") if p.name != "session_index.json"]
-    files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-    return files[:MAX_SESSIONS_SCANNED]
+    dated: list[tuple[float, Path]] = []
+    for path in sessions_dir.glob("*.json"):
+        if path.name == "session_index.json":
+            continue
+        try:
+            dated.append((path.stat().st_mtime, path))
+        except OSError:
+            continue  # pruned by another process between glob and stat
+    dated.sort(key=lambda pair: pair[0], reverse=True)
+    return [path for _, path in dated[:MAX_SESSIONS_SCANNED]]
 
 
 def _supersede(units: list[dict]) -> list[dict]:

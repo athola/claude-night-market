@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **memory-palace's `+recall` matches the last word of a sentence and
+  survives a pruned session file.** The tokenizer kept edge punctuation,
+  so the query "fix the cache." never matched a stored `cache`. A
+  session file deleted between `glob` and `stat` raised
+  `FileNotFoundError` on the prompt path. Edge punctuation is now
+  stripped, and a vanished file is skipped.
+
 - **memory-palace's web research hook survives a malformed intake queue
   line.** A line such as `{"query": null}` or `[1]` raised
   `AttributeError`, and an undecodable file raised `UnicodeDecodeError`,
