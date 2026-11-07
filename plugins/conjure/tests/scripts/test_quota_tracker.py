@@ -516,3 +516,26 @@ def test_prompt_estimate_is_the_same_with_or_without_an_encoder(
         GeminiQuotaTracker._get_encoder.cache_clear()
 
     assert with_encoder == without_encoder == prompt_length // 4
+
+
+class TestGeminiUsageIsReadFromTheFileItWrites:
+    """usage.json is where the tracker saves, so it is what it must load.
+
+    The base class loaded gemini_usage.json, then the path was switched
+    to usage.json without reading it, so every new tracker started at
+    zero and the quota gate never tripped.
+    """
+
+    def test_usage_saved_by_one_tracker_is_seen_by_the_next(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A process that builds a tracker per call sees the prior total."""
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+        first = GeminiQuotaTracker(limits={"requests_per_day": 2})
+        first.record_request(tokens=10)
+        first.record_request(tokens=10)
+
+        second = GeminiQuotaTracker(limits={"requests_per_day": 2})
+
+        assert second.usage.requests_today == 2
+        assert second.get_quota_status()[0] != "healthy"

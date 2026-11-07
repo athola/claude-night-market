@@ -5,6 +5,7 @@ import json
 
 # Import modules for testing
 import sys
+import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -271,6 +272,9 @@ class TestUsageLoggerIntegration:
         """A tracker at its daily request limit reports critical and says why."""
         tracker = GeminiQuotaTracker(limits={"requests_per_day": 10})
         tracker.usage.requests_today = 10
+        # Counts belong to the day of the last request; without one they
+        # date from 1970 and the status read resets them as a past day.
+        tracker.usage.last_request_time = time.time()
 
         status, warnings = tracker.get_quota_status()
 

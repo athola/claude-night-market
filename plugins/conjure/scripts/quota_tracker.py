@@ -79,7 +79,10 @@ except ImportError:  # pragma: no cover
 
         def get_quota_status(self) -> tuple[str, list[str]]:
             """Get quota status (stub when leyline not available)."""
-            return "[OK] Healthy", ["(leyline not installed; quota tracking disabled)"]
+            return "healthy", ["(leyline not installed; quota tracking disabled)"]
+
+        def _load_usage(self) -> None:
+            """Nothing to load: the stub tracks no usage."""
 
 
 if TYPE_CHECKING:
@@ -207,8 +210,10 @@ class GeminiQuotaTracker(QuotaTracker):  # ty: ignore[unsupported-base]
             storage_dir=storage_dir,
         )
 
-        # Rename usage.json to match Gemini expectations
+        # Gemini keeps its usage in usage.json, not the base class's
+        # gemini_usage.json, so reload from the file this tracker writes.
         self.usage_file = storage_dir / "usage.json"
+        self._load_usage()
 
     @property
     def limits(self) -> dict[str, int]:

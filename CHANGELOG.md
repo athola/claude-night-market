@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **conjure's Gemini quota gate reads the usage it saved.** The tracker
+  loaded `gemini_usage.json` from the base class and then switched to
+  `usage.json` without reading it. The bridge hook builds a fresh
+  tracker per process, so usage always started at zero and the gate
+  never tripped. The stub tracker used when leyline is absent also
+  reported `[OK] Healthy` where the real one says `healthy`.
+
 - **leyline's quota tracker forgets a closed minute before it answers.**
   `can_handle_task` and `get_quota_status` read the counters without
   resetting a window that had closed, so a tracker kept alive past its
