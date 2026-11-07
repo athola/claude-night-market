@@ -56,6 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **conserve's context warning runs before subagent dispatches.** Its
+  `PreToolUse` matcher listed `Task`, the legacy name of the dispatch
+  tool, but not `Agent`, so the warning never ran before the dispatches
+  that spend the most context. The matcher now names both.
+
 - **conserve's auto-approve no longer reads secrets the shell rewrites.**
   The permission hook matched the deny list against the text it was
   given, so `cat .e''nv`, `cat .e?v`, `head -n5 .e*` and
