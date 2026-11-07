@@ -238,6 +238,10 @@ class DORAMetrics:
     lead_time_hours: float | None  # median commit -> deploy hours
     change_failure_rate: float | None  # 0.0 - 1.0
     time_to_restore_hours: float | None  # median resolve - open hours
+    # Failures opened in the window and still open. TRS is a median over
+    # resolved ones, so long-running incidents drop out of it; the count
+    # says how many it leaves out.
+    open_failures: int = 0
 
     def tier(self) -> dict[str, Tier]:
         """Return per-metric tier classification."""
@@ -364,6 +368,7 @@ def compute_metrics(
         lead_time_hours=lt,
         change_failure_rate=cfr,
         time_to_restore_hours=trs,
+        open_failures=sum(1 for f in in_window_failures if f.resolved_at is None),
     )
 
 
@@ -427,6 +432,12 @@ def format_report(m: DORAMetrics, window_days: int) -> str:
     for label, value, tier, key in rows:
         marker = "  <- bottleneck" if key == bottleneck else ""
         lines.append(f"{label:<26} {value:>14} {tier:<7}{marker}")
+
+    if m.open_failures:
+        lines.append(
+            f"Time to Restore excludes {m.open_failures} open incident(s) "
+            "still unresolved."
+        )
 
     lines.append("")
     lines.append(f"Overall Tier: {m.overall_tier()} (bottleneck: {bottleneck})")

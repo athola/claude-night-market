@@ -1075,3 +1075,40 @@ class TestJsonPayloadPartialField:
         assert payload["data"]["partial"] is True
         assert "warnings" in payload["data"]
         assert any("gh" in w.lower() for w in payload["data"]["warnings"])
+
+
+class TestOpenIncidentsAreReported:
+    """TRS is a median over resolved incidents; the open ones must be visible.
+
+    Two incidents open for 15 and 20 days beside one fixed in 30 minutes
+    reported 0.5 hours and Elite, with nothing to say the long ones exist.
+    """
+
+    def test_metrics_count_the_open_incidents_left_out_of_trs(self) -> None:
+        """The median ignores open incidents, and the count records them."""
+        now = datetime(2026, 5, 1, tzinfo=timezone.utc)
+        failures = [
+            FailureEvent(opened_at=now - timedelta(days=20), resolved_at=None),
+            FailureEvent(opened_at=now - timedelta(days=15), resolved_at=None),
+            FailureEvent(
+                opened_at=now - timedelta(days=2),
+                resolved_at=now - timedelta(days=2) + timedelta(minutes=30),
+            ),
+        ]
+
+        metrics = compute_metrics([], failures, window_days=30, window_end=now)
+
+        assert metrics.time_to_restore_hours == pytest.approx(0.5)
+        assert metrics.open_failures == 2
+
+    def test_the_report_says_trs_excludes_open_incidents(self) -> None:
+        """A reader of the report learns the TRS leaves some out."""
+        metrics = DORAMetrics(1.0, 1.0, 0.1, 0.5, open_failures=2)
+
+        assert "excludes 2 open incident" in format_report(metrics, window_days=30)
+
+    def test_the_report_is_silent_when_none_are_open(self) -> None:
+        """No open incidents, no caveat."""
+        metrics = DORAMetrics(1.0, 1.0, 0.1, 0.5)
+
+        assert "open incident" not in format_report(metrics, window_days=30)

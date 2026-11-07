@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **minister's DORA report names the open incidents its restore time
+  leaves out.** Time to Restore is a median over resolved incidents, so
+  two incidents open for weeks beside one fixed in 30 minutes reported
+  0.5 hours, Elite, with no sign the others existed. `DORAMetrics` now
+  carries `open_failures`, and the report says how many the median
+  excludes. The median itself is unchanged.
+
 - **abstract declares its memory-palace dependency.** Its insight
   bridge resolves memory-palace's directory and imports a module from
   it, but `plugin.json` named only leyline, and the dependency map's
