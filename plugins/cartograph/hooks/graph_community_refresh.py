@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,13 @@ def _find_graph_db() -> Path | None:
     return None
 
 
+# A run of graph_build.py, not a command that merely names it (rg, cat).
+_RUNS_GRAPH_BUILD = re.compile(
+    r"(?:^|[;&|(]\s*)(?:uv\s+run\s+)?(?:\S*python[\d.]*\s+(?:-\S+\s+)*)?"
+    r"(?P<script>\S*graph_build\.py)\b"
+)
+
+
 def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     """Refresh communities after graph_build.py runs."""
     tool_name = hook_input.get("tool_name", "")
@@ -35,7 +43,8 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     command = tool_input.get("command", "")
-    if "graph_build.py" not in command:
+    ran = _RUNS_GRAPH_BUILD.search(command)
+    if ran is None:
         return None
 
     # PostToolUse fires only after a tool completes successfully, so reaching
@@ -48,24 +57,21 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if db_path is None:
         return None
 
-    # Add gauntlet src to path for imports
+    # A project that vendors gauntlet in ./src is preferred only when the
+    # graph_build.py that ran is the project's own: its code has run anyway.
+    # When the plugin's script ran inside some other repository, importing
+    # that repository's src/gauntlet would run code the user never chose to.
     gauntlet_src = None
-    for search in [
-        db_path.parent.parent / "src",  # .gauntlet/../src
-    ]:
-        if (search / "gauntlet").is_dir():
-            gauntlet_src = search
-            break
+    project = db_path.parent.parent.resolve()
+    script = (Path.cwd() / ran.group("script")).resolve()
+    local_src = project / "src"
+    if (local_src / "gauntlet").is_dir() and script.is_relative_to(project):
+        gauntlet_src = local_src
 
-    if gauntlet_src is None:
-        # Try finding via plugin directories
-        # Beside this plugin in the repo, or the newest cached install.
-        gauntlet = sibling_plugin_dir(__file__, "gauntlet")
-        candidate = (
-            gauntlet or Path(__file__).resolve().parents[2] / "gauntlet"
-        ) / "src"
-        if (candidate / "gauntlet").is_dir():
-            gauntlet_src = candidate
+    gauntlet = sibling_plugin_dir(__file__, "gauntlet")
+    candidate = (gauntlet or Path(__file__).resolve().parents[2] / "gauntlet") / "src"
+    if gauntlet_src is None and (candidate / "gauntlet").is_dir():
+        gauntlet_src = candidate
 
     if gauntlet_src and str(gauntlet_src) not in sys.path:
         sys.path.insert(0, str(gauntlet_src))

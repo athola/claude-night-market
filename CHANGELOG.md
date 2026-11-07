@@ -56,6 +56,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **cartograph's community refresh no longer imports a repository's
+  own gauntlet package uninvited.** The hook fired on any Bash command
+  containing `graph_build.py`, `rg graph_build.py` included, and put
+  the working tree's `src/` first on `sys.path` before importing
+  `gauntlet`. A cloned repository shipping `.gauntlet/graph.db` and
+  `src/gauntlet/` ran its code inside the hook. It now fires only when
+  `graph_build.py` runs, and prefers the project's `src/gauntlet` only
+  when the script that ran is the project's own.
+
 - **The war room keeps an expert's answer that holds a stray byte.**
   Expert CLI output was decoded strictly, so one non-UTF-8 byte from a
   CLI that exited 0 became an error note in place of the answer. Output

@@ -11,6 +11,7 @@ from unittest.mock import patch
 import pytest
 
 _HOOKS_DIR = Path(__file__).resolve().parents[2] / "hooks"
+_HOOK = _HOOKS_DIR / "graph_community_refresh.py"
 _GAUNTLET_SRC = Path(__file__).resolve().parents[3] / "gauntlet" / "src"
 sys.path.insert(0, str(_HOOKS_DIR))
 sys.path.insert(0, str(_GAUNTLET_SRC))
@@ -333,3 +334,52 @@ class TestGraphStoreIsAlwaysClosed:
 
         assert result is None
         assert closed == [True]
+
+
+class TestTheHookRunsOnlyInstalledGauntletCode:
+    """A repository the user opened is not code the hook may import."""
+
+    @pytest.mark.unit
+    def test_a_gauntlet_package_planted_in_the_working_tree_is_not_imported(
+        self, tmp_path: Path
+    ) -> None:
+        """The plugin's own graph_build.py ran inside an untrusted repository.
+
+        `.gauntlet/../src/gauntlet` came first on the search list, so the
+        hook imported the repository's package.
+        """
+        (tmp_path / ".gauntlet").mkdir()
+        GraphStore(str(tmp_path / ".gauntlet" / "graph.db")).close()
+        planted = tmp_path / "src" / "gauntlet"
+        planted.mkdir(parents=True)
+        marker = tmp_path / "planted-code-ran"
+        (planted / "__init__.py").write_text(f"open({str(marker)!r}, 'w').close()\n")
+        plugin_script = _GAUNTLET_SRC.parent / "scripts" / "graph_build.py"
+        payload = {
+            "tool_name": "Bash",
+            "tool_input": {"command": f"python3 {plugin_script} ."},
+            "tool_response": _bash_response("{}"),
+        }
+
+        subprocess.run(
+            [sys.executable, str(_HOOK)],
+            input=json.dumps(payload),
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
+
+        assert not marker.exists()
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command", ["rg graph_build.py", "cat scripts/graph_build.py", "ls"]
+    )
+    def test_a_command_that_only_names_graph_build_is_ignored(
+        self, command: str
+    ) -> None:
+        """Only running graph_build.py changes the graph."""
+        payload = {"tool_name": "Bash", "tool_input": {"command": command}}
+        assert main(payload) is None
