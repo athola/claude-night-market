@@ -24,6 +24,7 @@ from session_complete_notify import (
     CONTENT_DEDUP_SECONDS,
     DEBOUNCE_SECONDS,
     NotificationState,
+    _build_toast_script,
     clear_notification_state,
     content_hash,
     get_terminal_info,
@@ -1135,3 +1136,30 @@ class TestWSLDetectionEdgeCases:
             return_value="",
         ):
             assert is_wsl() is False
+
+
+class TestToastScriptKeepsTextLiteral:
+    """The toast body comes from the working directory's name.
+
+    A double-quoted here-string expands `$(...)` and `$var`, so a
+    directory named `proj$(Start-Process calc)` ran the command.
+    """
+
+    @pytest.mark.unit
+    def test_message_is_placed_in_a_single_quoted_here_string(self) -> None:
+        """Only @'...'@ keeps PowerShell from evaluating the message."""
+        script = _build_toast_script(
+            "t", "Awaiting input in: proj$(Start-Process calc)"
+        )
+
+        assert "$template = @'\n" in script
+        assert "\n'@\n" in script
+        assert '@"' not in script
+        assert "proj$(Start-Process calc)" in script.split("@'", 1)[1].split("'@", 1)[0]
+
+    @pytest.mark.unit
+    def test_a_quote_in_the_message_cannot_close_the_here_string(self) -> None:
+        """html.escape turns ' into an entity, so '@ never appears in the body."""
+        body = _build_toast_script("t", "x\n'@\nStart-Process calc").split("@'", 1)[1]
+
+        assert body.split("'@", 1)[1].strip().startswith("$xml = New-Object")

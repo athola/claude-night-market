@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **sanctum's Windows toast no longer runs code from a directory name.**
+  The toast XML sat in a double-quoted PowerShell here-string, which
+  expands `$(...)` and `$var`, and its body names the working
+  directory. A directory named `proj$(Start-Process calc)` ran the
+  command on the next notification. The XML now sits in a single-quoted
+  here-string, which PowerShell never expands.
+
 - **Skill evaluations compare like with like.** The baseline a changed
   skill is judged against was the worst five-run window over its last 20
   runs, and the evaluation window holds 10. The worst of more windows is
