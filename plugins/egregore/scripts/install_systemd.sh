@@ -69,6 +69,12 @@ Description=Egregore Watchdog Service
 
 [Service]
 Type=oneshot
+# The watchdog exits right after starting claude in the background. The
+# default control-group mode kills every process in the unit when it
+# does, the new session included.
+KillMode=process
+# A user unit's PATH has no ~/.local/bin, where claude installs.
+Environment="PATH=${UNIT_PATH}"
 WorkingDirectory=${UNIT_WORKING_DIR}
 ExecStart="${EXEC_SCRIPT}"
 EOF
@@ -117,7 +123,8 @@ main() {
   # WorkingDirectory expands specifiers too. It takes one path per line, so
   # a space needs no quoting there.
   UNIT_WORKING_DIR="${WORKING_DIR//%/%%}"
-  readonly INTERVAL WORKING_DIR WATCHDOG_SCRIPT UNIT_DIR EXEC_SCRIPT UNIT_WORKING_DIR
+  UNIT_PATH="${PATH//%/%%}"
+  readonly INTERVAL WORKING_DIR WATCHDOG_SCRIPT UNIT_DIR EXEC_SCRIPT UNIT_WORKING_DIR UNIT_PATH
 
   depcheck || exit 1
 

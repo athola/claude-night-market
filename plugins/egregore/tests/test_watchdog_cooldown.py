@@ -10,10 +10,12 @@ hours gone, so the watchdog relaunched into the same limit.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import shutil
 import subprocess
+from collections.abc import Iterator
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -23,6 +25,25 @@ from window import record_reset
 
 WATCHDOG = Path(__file__).resolve().parent.parent / "scripts" / "watchdog.sh"
 
+
+@contextlib.contextmanager
+def live_session(tmp_path: Path) -> Iterator[int]:
+    """Yield the pid of a running process whose name is ``claude``.
+
+    The watchdog trusts a pid only when ps names it claude, since a pid
+    left in the file across a reboot may belong to anything by then.
+    """
+    fake = tmp_path / "session-bin" / "claude"
+    fake.parent.mkdir()
+    shutil.copy(shutil.which("sleep") or "/bin/sleep", fake)
+    proc = subprocess.Popen([str(fake), "60"])
+    try:
+        yield proc.pid
+    finally:
+        proc.kill()
+        proc.wait()
+
+
 pytestmark = pytest.mark.skipif(
     shutil.which("jq") is None, reason="watchdog.sh requires jq"
 )
@@ -31,9 +52,9 @@ pytestmark = pytest.mark.skipif(
 def _run_watchdog(tmp_path: Path, cooldown_until: str, tz: str) -> str:
     """Run one watchdog tick and return its log.
 
-    The pidfile names this live process, so a tick that gets past the
-    cooldown check exits at the "session alive" check instead of
-    launching anything.
+    The pidfile names a live process called ``claude``, so a tick that
+    gets past the cooldown check exits at the "session alive" check
+    instead of launching anything.
     """
     egregore_dir = tmp_path / ".egregore"
     egregore_dir.mkdir()
@@ -43,13 +64,14 @@ def _run_watchdog(tmp_path: Path, cooldown_until: str, tz: str) -> str:
     (egregore_dir / "budget.json").write_text(
         json.dumps({"cooldown_until": cooldown_until})
     )
-    (egregore_dir / "pid").write_text(str(os.getpid()))
-    subprocess.run(
-        ["bash", str(WATCHDOG)],
-        env={**os.environ, "EGREGORE_DIR": str(egregore_dir), "TZ": tz},
-        check=True,
-        cwd=tmp_path,
-    )
+    with live_session(tmp_path) as pid:
+        (egregore_dir / "pid").write_text(str(pid))
+        subprocess.run(
+            ["bash", str(WATCHDOG)],
+            env={**os.environ, "EGREGORE_DIR": str(egregore_dir), "TZ": tz},
+            check=True,
+            cwd=tmp_path,
+        )
     log = egregore_dir / "watchdog.log"
     return log.read_text() if log.exists() else ""
 
@@ -123,3 +145,36 @@ def test_an_unparseable_cooldown_is_an_error_not_an_expired_cooldown(
     assert f"cooldown_until '{stamp}' does not parse" in log
     assert "Relaunching" not in log
     assert not (egregore_dir / "pid").exists()
+
+
+def test_a_reused_pid_is_not_taken_for_a_live_session(tmp_path: Path) -> None:
+    """After a reboot the recorded pid can name an unrelated process.
+
+    kill -0 succeeded on it, so the watchdog exited "session alive" on
+    every tick and never relaunched.
+    """
+    egregore_dir = tmp_path / ".egregore"
+    egregore_dir.mkdir()
+    (egregore_dir / "manifest.json").write_text(
+        json.dumps({"work_items": [{"status": "active"}]})
+    )
+    (egregore_dir / "pid").write_text(str(os.getpid()))
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    claude = fake_bin / "claude"
+    claude.write_text(f"#!/bin/sh\ntouch '{tmp_path / 'launched'}'\n")
+    claude.chmod(0o755)
+
+    subprocess.run(
+        ["bash", str(WATCHDOG)],
+        env={
+            **os.environ,
+            "EGREGORE_DIR": str(egregore_dir),
+            "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
+        },
+        cwd=tmp_path,
+        check=True,
+    )
+
+    log = (egregore_dir / "watchdog.log").read_text()
+    assert "Relaunching" in log

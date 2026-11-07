@@ -75,6 +75,7 @@ xml_escape() {
 write_plist() {
   XML_SCRIPT="$(xml_escape "${WATCHDOG_SCRIPT}")"
   XML_DIR="$(xml_escape "${WORKING_DIR}")"
+  XML_PATH="$(xml_escape "${PATH}")"
 
   cat >"${PLIST_PATH}" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -98,6 +99,16 @@ write_plist() {
     <string>${XML_DIR}/.egregore/watchdog-launchd.log</string>
     <key>RunAtLoad</key>
     <false/>
+    <!-- The watchdog exits right after starting claude in the background,
+         and launchd kills the job's process group when it does. -->
+    <key>AbandonProcessGroup</key>
+    <true/>
+    <!-- launchd's default PATH has no ~/.local/bin, where claude installs. -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>${XML_PATH}</string>
+    </dict>
 </dict>
 </plist>
 EOF
@@ -138,7 +149,18 @@ main() {
   esac
 
   INTERVAL="${1:-300}"
-  WORKING_DIR="${2:-$(pwd)}"
+  # StartInterval is an integer of seconds; "5m" fails the bootstrap.
+  case "${INTERVAL}" in
+    "" | *[!0-9]*)
+      log 5 "Interval must be a whole number of seconds, got '${INTERVAL}'"
+      exit 1
+      ;;
+  esac
+  # launchd runs the job from /, so a relative directory names the wrong one.
+  WORKING_DIR="$(cd "${2:-.}" && pwd)" || {
+    log 5 "Working directory '${2:-.}' does not exist"
+    exit 1
+  }
   WATCHDOG_SCRIPT="$(cd "${MYDIR}" && pwd)/watchdog.sh"
   PLIST_PATH="${HOME}/Library/LaunchAgents/${PLIST_NAME}.plist"
   readonly INTERVAL WORKING_DIR WATCHDOG_SCRIPT PLIST_PATH

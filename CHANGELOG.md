@@ -56,6 +56,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The egregore watchdog keeps the session it relaunches.** The
+  watchdog exits right after starting `claude` in the background.
+  systemd's default `KillMode` for the oneshot unit and launchd's
+  process-group cleanup then killed the new session within
+  milliseconds, so every tick relaunched again. The systemd unit now
+  sets `KillMode=process` and the launchd job `AbandonProcessGroup`.
+  Both record the install-time `PATH`, because neither service PATH
+  holds `~/.local/bin`, so `claude` exited 127 while the log said
+  "Launched". A pid left in the pidfile across a reboot counts as alive
+  only when `ps` names it `claude`. `install_launchd.sh` rejects an
+  interval that is not whole seconds and resolves a relative working
+  directory.
+
 - **egregore finds an installed herald.** It looked for herald's
   `notify.py` three directories above its own `scripts/`, which is the
   repository layout. In the plugin cache that resolves to
