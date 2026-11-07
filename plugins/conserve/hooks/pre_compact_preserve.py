@@ -28,6 +28,7 @@ from pathlib import Path
 
 # D-05: shared resolver lives at hooks/shared/session_file.py.
 sys.path.insert(0, str(Path(__file__).parent))
+from shared.content_blocks import block_text
 from shared.session_file import (
     resolve_session_file,  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
 )
@@ -115,7 +116,7 @@ def extract_file_paths(entries: list[dict]) -> list[str]:
             # Handle content blocks
             for block in content:
                 if isinstance(block, dict):
-                    text = block.get("text", "") or block.get("content", "")
+                    text = block_text(block)
                     if text:
                         matches = _FILE_PATH_PATTERN.findall(text)
                         file_paths.update(matches)

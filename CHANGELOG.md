@@ -56,6 +56,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **conserve reads list-shaped tool results.** A `tool_result` block
+  usually carries `content` as a list of text items. The PreCompact
+  hook passed that list to a regex and raised `TypeError`, so it exited
+  1 on every compaction and preserved nothing. The context warning
+  counted the list's length, so a 50,000-character result counted as 1
+  and the warning fired late in tool-heavy sessions. Both now read the
+  block through `shared.content_blocks.block_text`.
+
 - **gauntlet gates and graph refreshes see chained commits.** The
   pre-commit challenge gate and the post-commit graph refresh both
   checked `command.startswith("git commit")`, so `git add -A && git

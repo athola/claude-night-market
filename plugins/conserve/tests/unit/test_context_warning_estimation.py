@@ -731,6 +731,28 @@ class TestCountContent:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_tool_result_with_list_content_counts_its_characters(
+        self, context_warning_full_module
+    ) -> None:
+        """Scenario: a tool_result carries content as a list of text items.
+
+        That is the shape Claude Code writes. Counting the list's length
+        made a 50,000-character result count as 1.
+        """
+        content = [
+            {
+                "type": "tool_result",
+                "content": [{"type": "text", "text": "x" * 50_000}, "tail"],
+            }
+        ]
+
+        chars, tool_results = context_warning_full_module._count_content(content)
+
+        assert chars >= 50_000 + len("tail")
+        assert tool_results == 1
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_list_with_string_blocks(self, context_warning_full_module) -> None:
         """Scenario: Content is a list of plain strings."""
         content = ["hello", "world"]

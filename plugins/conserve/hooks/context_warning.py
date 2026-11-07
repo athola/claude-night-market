@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).parent))
+from shared.content_blocks import block_text
 from shared.session_file import (
     project_dir_name,  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
 )
@@ -352,9 +353,7 @@ def _count_content(message_content: object) -> tuple[int, int]:
             if isinstance(block, dict):
                 if block.get("type") == "tool_result":
                     tool_results += 1
-                text = block.get("text", "") or block.get("content", "")
-                if text:
-                    chars += len(text)
+                chars += len(block_text(block))
             elif isinstance(block, str):
                 chars += len(block)
     elif isinstance(message_content, str):

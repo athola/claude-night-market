@@ -35,6 +35,29 @@ class TestPreCompactPreserve:
     """
 
     @pytest.mark.unit
+    def test_extract_file_paths_from_list_shaped_tool_result(
+        self, tmp_path: Path
+    ) -> None:
+        """A tool_result whose content is a list of text items is scanned.
+
+        It is the normal transcript shape, and passing the list to the
+        regex raised TypeError, so every compaction preserved nothing.
+        """
+        edited = tmp_path / "x.py"
+        edited.write_text("")
+        entries = [
+            {
+                "content": [
+                    {
+                        "type": "tool_result",
+                        "content": [{"type": "text", "text": f"edited {edited}"}],
+                    }
+                ]
+            }
+        ]
+
+        assert str(edited) in extract_file_paths(entries)
+
     def test_extract_file_paths_from_content(self, tmp_path: Path):
         """Scenario: File paths are extracted from conversation.
 
