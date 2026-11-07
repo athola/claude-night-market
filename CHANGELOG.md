@@ -65,6 +65,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- **Six abstract helpers nothing called.** `errors.safe_file_read`,
+  `safe_file_write`, `safe_yaml_load` and `validate_path_exists` were a
+  second error-handling convention, each wrapping its call in a broad
+  `except Exception`. `skill_graph.detect_dangling_refs` restated
+  `classify_dangling_refs(...)["bugs"]`. `aggregate_learnings_daily.
+  run_post_learnings` was superseded by the Stop hook that posts
+  learnings.
+
 - **hookify's `utils` package.** Its six helpers had no caller outside
   their own tests, and `validate_event_type`'s docstring named event
   types the config loader does not accept.

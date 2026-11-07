@@ -59,9 +59,6 @@ try:
         get_log_directory,
     )
     from auto_promote_learnings import run_auto_promote as _promote
-    from post_learnings_to_discussions import (
-        post_learnings as _post_learnings,
-    )
 
     _HAS_SCRIPTS = True
 except ImportError as _imp_err:
@@ -190,13 +187,6 @@ def run_auto_promote() -> None:
     if not _HAS_SCRIPTS:
         return
     best_effort(_HOOK, "auto-promote", _promote)
-
-
-def run_post_learnings() -> None:
-    """Chain to learnings Discussion posting after aggregation."""
-    if not _HAS_SCRIPTS:
-        return
-    best_effort(_HOOK, "post-learnings", _post_learnings)
 
 
 def run_daily_pipeline() -> None:

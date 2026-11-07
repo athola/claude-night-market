@@ -32,7 +32,6 @@ from skill_graph import (  # noqa: E402 - import after sys.path mutation
     build_graph,
     classify_by_role,
     classify_dangling_refs,
-    detect_dangling_refs,
     detect_isolates,
     detect_uncalled_libraries,
     detect_unearned_utilities,
@@ -639,15 +638,17 @@ class TestClassifyDanglingRefs:
         assert result["external"] == []
 
     @pytest.mark.unit
-    def test_detect_dangling_refs_returns_only_bugs(self, tmp_path: Path) -> None:
-        """Scenario: Wrapper helper filters out external + placeholder noise."""
+    def test_bug_class_excludes_external_and_placeholder_refs(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: Only typos and retired skills count as bugs."""
         body = (
             "Use `Skill(superpowers:brainstorming)` and "
             "`Skill(archetypes:architecture-paradigm-NAME)` and "
             "`Skill(imbue:typo-skill)`."
         )
         graph = self._make_graph_with_refs(tmp_path, body)
-        bugs = detect_dangling_refs(graph)
+        bugs = classify_dangling_refs(graph)["bugs"]
         assert bugs == [("src:main", "imbue:typo-skill")]
 
     @pytest.mark.unit
@@ -668,14 +669,16 @@ class TestClassifyDanglingRefs:
             "---\nname: main\ndescription: x\n---\n"
             "Use `Skill(imbue:typo-one)` and `Skill(imbue:typo-two)`."
         )
-        initial_bugs = detect_dangling_refs(build_graph(tmp_path / "plugins"))
+        initial_bugs = classify_dangling_refs(build_graph(tmp_path / "plugins"))["bugs"]
         assert len(initial_bugs) == 2
 
         # WHEN: one bug ref is removed from source and the graph is rebuilt
         src_skill.write_text(
             "---\nname: main\ndescription: x\n---\nUse `Skill(imbue:typo-two)`."
         )
-        after_fix_bugs = detect_dangling_refs(build_graph(tmp_path / "plugins"))
+        after_fix_bugs = classify_dangling_refs(build_graph(tmp_path / "plugins"))[
+            "bugs"
+        ]
 
         # THEN: the count drops by exactly 1 and the surviving ref is preserved
         assert len(after_fix_bugs) == len(initial_bugs) - 1
@@ -958,7 +961,7 @@ class TestThePlantedFixtureIsStillDetected:
             "fixtureplugin:gamma",
         }
         assert len(graph.edges) == 2
-        assert detect_dangling_refs(graph) == [
+        assert classify_dangling_refs(graph)["bugs"] == [
             ("fixtureplugin:alpha", "fixtureplugin:absent")
         ]
         assert "fixtureplugin:gamma" in detect_isolates(graph)

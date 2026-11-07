@@ -554,15 +554,6 @@ def classify_dangling_refs(
     return {"bugs": bugs, "external": external, "placeholders": placeholders}
 
 
-def detect_dangling_refs(graph: SkillGraph) -> list[tuple[str, str]]:
-    """Return only true bug-class dangling refs (typos / retired skills).
-
-    External plugin references and template placeholders are excluded.
-    For the full classification, use ``classify_dangling_refs``.
-    """
-    return classify_dangling_refs(graph)["bugs"]
-
-
 def generate_report(plugins_root: Path, top_n: int = 10) -> dict:
     """Generate a report dict suitable for JSON serialization."""
     graph = build_graph(plugins_root)
