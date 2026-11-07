@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **imbue's TDD gate finds tests in nested test directories.** It looked
+  for `tests/unit/test_X.py`, `tests/test_X.py` and a sibling file only,
+  so a new `hooks/foo.py` whose test already sat at
+  `tests/unit/hooks/test_foo.py` got the "write tests first" reminder
+  and, in headless mode, a deferred write. The search now falls back to
+  any `test_X.py` under `tests/`.
+
 - **imbue's package guard stops probing option values as packages.** It
   knew six value-taking flags, so `pip install --target build_out x`,
   `npm install --prefix frontend x`, `uv add --group docs x` and

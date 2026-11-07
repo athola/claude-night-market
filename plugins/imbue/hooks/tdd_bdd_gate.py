@@ -99,7 +99,13 @@ def _find_python_test(path: Path, tests_dir: Path) -> Path:
         path.parent / f"test_{impl_name}.py",
         tests_dir / f"test_{impl_name}.py",
     ]
-    return next((t for t in candidates if t.exists()), candidates[0])
+    found = next((t for t in candidates if t.exists()), None)
+    if found is not None:
+        return found
+    # Tests grouped by subsystem (tests/unit/hooks/, tests/unit/validators/)
+    # are a test for this file all the same.
+    nested = sorted(tests_dir.rglob(f"test_{impl_name}.py"))
+    return nested[0] if nested else candidates[0]
 
 
 def find_test_file(impl_path: str, impl_type: str) -> Path | None:

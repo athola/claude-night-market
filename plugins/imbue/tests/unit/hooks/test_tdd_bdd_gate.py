@@ -223,6 +223,28 @@ class TestFindTestFile:
         assert "test_validator" in str(test_path)
 
 
+class TestNestedTestDirectories:
+    """Tests organized by subsystem sit below tests/unit/."""
+
+    @pytest.mark.unit
+    def test_finds_a_test_under_a_nested_tests_directory(
+        self, tdd_gate_module, tmp_path
+    ) -> None:
+        """tests/unit/hooks/test_x.py exists, so x is not untested."""
+        plugin_root = tmp_path / "plugins" / "imbue"
+        (plugin_root / "hooks").mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
+        nested = plugin_root / "tests" / "unit" / "hooks" / "test_guard.py"
+        nested.parent.mkdir(parents=True)
+        nested.touch()
+
+        test_path = tdd_gate_module.find_test_file(
+            str(plugin_root / "hooks" / "guard.py"), tdd_gate_module.PYTHON_FILE
+        )
+
+        assert test_path == nested
+
+
 class TestFormatTddBddReminder:
     """Feature: Format TDD/BDD reminder messages.
 
