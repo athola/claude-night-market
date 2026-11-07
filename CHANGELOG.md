@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **spec-kit's `cached` decorator keys on the call's arguments.**
+  Without `data_arg` the key was the function name alone, so a cached
+  `parse("b.md")` returned `parse("a.md")`'s result for the whole TTL.
+  Positional and keyword arguments are now part of the key, and a call
+  with none keeps the bare key.
+
 - **The activation comparison's bootstrap no longer invents a zero
   rate.** A resampled draw whose cases had no valid run in one arm
   scored that arm's rate as 0.0, so a 0.25 point delta came back with a
