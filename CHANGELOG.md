@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **imbue's no-emoji vow lets plain symbols through.** It blocked all
+  of U+2300-23FF and U+2600-27BF, so `fix: mark ✓ done` and `use ⌘
+  key` were denied when blocking was on. In that range only characters
+  that render as emoji by default, such as ✅ ❌ ⌚, or a symbol with the
+  emoji selector U+FE0F, count as emoji now.
+
 - **imbue's ramp token reads off-values in any case.** `IMBUE_RAMP_OK`
   counted as set unless it was exactly `0`, `false` or `no`, so `False`,
   `OFF` and an empty value granted a free jump up the increment ladder.

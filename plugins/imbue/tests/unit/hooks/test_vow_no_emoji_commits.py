@@ -94,8 +94,20 @@ class TestHasEmoji:
             "git commit -m 'feat ✨ sparkles'",  # sparkles (U+2728)
             "git commit -m '\U0001f916 bot commit'",  # robot
             "git commit -m 'done ✅'",  # white check mark
+            "git commit -m 'fix \u274c'",  # cross mark
+            "git commit -m 'hot \u2600\ufe0f'",  # sun, emoji presentation
+            "git commit -m 'time \u231a'",  # watch
         ],
-        ids=["bug-emoji", "rocket", "sparkles", "robot", "check-mark"],
+        ids=[
+            "bug-emoji",
+            "rocket",
+            "sparkles",
+            "robot",
+            "check-mark",
+            "x",
+            "sun",
+            "watch",
+        ],
     )
     def test_emoji_detected(self, hook_module, command):
         """
@@ -114,8 +126,21 @@ class TestHasEmoji:
             "git commit -m 'feat: add user authentication'",
             "git commit -m 'chore: update dependencies'",
             "git commit -m 'docs: update README'",
+            "git commit -m 'fix: mark \u2713 done'",
+            "git commit -m 'docs: use \u2318 key'",
+            "git commit -m 'test: \u2717 is failure'",
+            "git commit -m 'docs: arrow \u2192 here'",
         ],
-        ids=["bugfix", "feature", "chore", "docs"],
+        ids=[
+            "bugfix",
+            "feature",
+            "chore",
+            "docs",
+            "check",
+            "command",
+            "cross",
+            "arrow",
+        ],
     )
     def test_clean_message_not_flagged(self, hook_module, command):
         """
