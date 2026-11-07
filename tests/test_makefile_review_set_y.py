@@ -266,3 +266,17 @@ def test_security_runs_and_passes(plugin: str) -> None:
         check=False,
     )
     assert result.returncode == 0, (result.stdout + result.stderr)[-1500:]
+
+
+def test_hookify_dev_setup_fails_when_hook_install_fails(tmp_path: Path) -> None:
+    """`pre-commit install || true` reported success with no hooks installed."""
+    uv = _shim(tmp_path, "uv", _UV_FAILS_PRE_COMMIT) / "uv"
+    result = _make("hookify", "dev-setup", f"UV={uv}")
+    assert result.returncode != 0
+
+
+def test_abstract_ci_check_does_not_rewrite_files() -> None:
+    """ci-check ran `format`, which rewrites files CI only checks."""
+    plan = _make("abstract", "-n", "ci-check").stdout
+    assert "ruff format --check" in plan
+    assert "ruff check --fix" not in plan

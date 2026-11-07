@@ -283,7 +283,7 @@ except Exception as e:
 *   **Plugin not loading:** Verify syntax
     and paths in `.claude-plugin/plugin.json`
     and entry points in `marketplace.json`.
-*   **Tests failing:** Run `make install` to check dependencies,
+*   **Tests failing:** Run `uv sync --extra dev` to install dependencies,
     then `pytest tests/test_specific.py -v` to isolate.
 *   **Performance:** Profile with `python -m cProfile`.
     Consider caching or lazy loading for heavy modules.

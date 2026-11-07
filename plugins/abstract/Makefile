@@ -156,7 +156,7 @@ dev-setup: ## Complete development environment setup
 
 ci-check: ## Run all CI checks locally
 	@echo "Running CI checks locally..."
-	@$(MAKE) format
+	@$(MAKE) format-check
 	@$(MAKE) lint
 	@$(MAKE) typecheck
 	@$(MAKE) security
