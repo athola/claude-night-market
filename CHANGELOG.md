@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **memory-palace ignores partial reads of tracked docs.** A `Read`
+  with `offset` or `limit` hashed only the slice it returned, so an
+  unchanged document was reported as "changed since last indexing" and
+  the model was told to update its stored entry. Partial reads are now
+  skipped.
+
 - **memory-palace's `+recall` matches the last word of a sentence and
   survives a pruned session file.** The tokenizer kept edge punctuation,
   so the query "fix the cache." never matched a stored `cache`. A

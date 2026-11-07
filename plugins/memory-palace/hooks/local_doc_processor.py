@@ -77,6 +77,11 @@ def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with many valid
     if not any(path_lower.endswith(ext) for ext in doc_extensions):
         sys.exit(0)
 
+    # A Read with offset or limit returns a slice. Its hash is not the
+    # document's, so comparing it reported an unchanged doc as changed.
+    if tool_input.get("offset") or tool_input.get("limit"):
+        sys.exit(0)
+
     config = get_config()
     if not config.get("enabled", True):
         sys.exit(0)
