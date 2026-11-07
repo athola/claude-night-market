@@ -63,6 +63,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Skill(pensive:makefile-review)` is a redirect stub for one release and
   will be removed in the release after.
 
+### Removed
+
+- **hookify's `utils` package.** Its six helpers had no caller outside
+  their own tests, and `validate_event_type`'s docstring named event
+  types the config loader does not accept.
+
 ### Fixed
 
 - **phantom blocks an action with a malformed coordinate instead of
