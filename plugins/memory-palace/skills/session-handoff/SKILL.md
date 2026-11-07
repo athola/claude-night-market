@@ -128,7 +128,7 @@ The token is the user's to type, so the work here is to say when it
 would pay and leave the choice with them. Offer it in one line at the
 moment it applies, then answer the question that was actually asked.
 
-`plugins/memory-palace/hooks/recall.py` ranks units by keyword overlap
+`plugins/memory-palace/hooks/_recall.py` ranks units by keyword overlap
 between the prompt and each unit's `thread`, `state`, `why`, and
 `open` fields, scaled by type-aware decay. The rest follows from that:
 overlap is the retrieval, so a prompt naming its topic retrieves and a

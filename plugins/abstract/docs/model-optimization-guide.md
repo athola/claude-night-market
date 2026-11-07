@@ -255,10 +255,9 @@ These tasks are deterministic, rule-based, and don't require reasoning:
 |-----------|------|-----------|
 | `error-patterns` | skill | Pattern reference |
 | `progressive-loading` | skill | Template application |
-| `pytest-config` | skill | Config generation |
-| `quota-management` | skill | Quota calculations |
-| `storage-templates` | skill | Template generation |
-| `usage-logging` | skill | Log formatting |
+| `testing-quality-standards` (pytest-config module) | skill | Config generation |
+| `service-registry` (quota and usage-logging modules) | skill | Quota calculations, log formatting |
+| `decision-journal` (storage-templates module) | skill | Template generation |
 
 ### Archetypes Plugin
 | Component | Type | Rationale |

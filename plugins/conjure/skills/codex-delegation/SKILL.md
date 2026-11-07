@@ -1,6 +1,6 @@
 ---
 name: codex-delegation
-description: Delegates tasks to the OpenAI Codex CLI (codex exec) via delegation-core. Use when delegation-core selects Codex or OpenAI credentials are already configured.
+description: Delegates to the OpenAI Codex CLI (codex exec). Use when delegation-core selects Codex.
 alwaysApply: false
 category: delegation-implementation
 tags:

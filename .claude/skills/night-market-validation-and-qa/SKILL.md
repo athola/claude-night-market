@@ -225,8 +225,8 @@ Any hit that discards an error without emitting a finding or an inline
 - History of why a guard exists (incident narratives, reverts): use
   `night-market-failure-archaeology`.
 - Setting up pytest config or fixtures for a new plugin:
-  `Skill(leyline:pytest-config)` has the templates, and
-  `Skill(leyline:testing-quality-standards)` the anti-pattern catalog.
+  `Skill(leyline:testing-quality-standards)` has the templates (module
+  `pytest-config`) and the anti-pattern catalog.
 
 ## Exit Criteria
 

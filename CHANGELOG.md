@@ -7,6 +7,85 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Shorter skill descriptions in six rarely invoked plugins.** Every
+  registered description is resident in every session, and the skill
+  listing ran over its budget (#778). 25 descriptions in archetypes,
+  conjure, scry, spec-kit, hookify and phantom drop from 3,789 to 2,743
+  characters, about 260 tokens, and keep the terms the router matches
+  on. Trims that created a new rank-1 router collision were rolled back.
+
+- **Breaking: six leyline contract skills are modules of four.** Skill
+  descriptions were 93% of the listing budget, and leyline carried 25
+  skills, many of them short contracts nothing invoked on its own
+  (#781). `deferred-capture` and `storage-templates` are modules of
+  `decision-journal`, `pytest-config` of `testing-quality-standards`,
+  `quota-management` and `usage-logging` of `service-registry`, and
+  `utility` of `evaluation-framework`. Callers in this repository and
+  the activation labels name the new homes. A plugin that calls
+  `Skill(leyline:<old-name>)` must call the skill that now holds it.
+
+- **`attune:mission-orchestrator` is a single-file router.** It was 12
+  modules and two references for "detect the phase, call that phase's
+  skill" (#989). SKILL.md now holds the phase table, the artifact check
+  per phase and the `.attune/mission-state.json` contract. The reflexion
+  buffer, trust tiers and adaptive constraints went with their modules,
+  and nothing outside the skill read them. `/attune:mission` invocations
+  are unchanged.
+
+- **abstract's improvement queue entries are typed.** Each skill's record
+  is a `QueueEntry` dataclass with a `Literal` status, read by attribute
+  across the queue, the homeostatic monitor and the recorder (#1020). An
+  evaluating entry without `eval_start`, or a status outside the four
+  known ones, cannot be built. A queue file holding such an entry is set
+  aside like unparseable JSON. Files written before this change load
+  unchanged, and entries that never began an evaluation are stored
+  without the `eval_*` keys.
+
+### Deprecated
+
+- **`pensive:makefile-review` is a module of `pensive:unified-review`.**
+  It is the second of the two folds ADR-0014 planned (#616). The audit
+  workflow and its five rule modules moved to
+  `skills/unified-review/modules/makefile-review.md` and `makefile-*.md`.
+  `/makefile-review` still works and routes to unified-review's makefile
+  focus, the same as `/full-review makefile`.
+  `Skill(pensive:makefile-review)` is a redirect stub for one release and
+  will be removed in the release after.
+
+### Fixed
+
+- **Fewer processes block each prompt.** Five plugins registered
+  `UserPromptSubmit`, run in sequence, and the chain hit its 2000ms limit
+  on about 16% of prompts (#779). memory-palace's URL detector and
+  `+recall` now share one process, `hooks/user_prompt.py`, so a prompt
+  pays one interpreter start-up instead of two. The two modules are now
+  helpers, `_url_detector.py` and `_recall.py`. sanctum's
+  `--clear-state` observer runs `async`, since it returns no context.
+
+- **abstract's evaluation window counts the run that was just logged.**
+  The homeostatic monitor advanced an open window from its own
+  PostToolUse hook, which runs alongside the execution logger, so it
+  could read the history before the run was written and judge the window
+  without it (#1018). The logger now advances the window under its
+  history lock, after the write, and reports the result in
+  `continual_metrics.window_evaluation`. The monitor no longer counts or
+  reports an evaluating skill.
+
+- **abstract's experience records carry only what is written.**
+  `ExecutionTrajectory` declared `tools_used` and `key_decisions`, which
+  `store_experience` never set, so every stored entry held two empty
+  defaults (#1019). Both fields are gone, along with the `Tools:` line
+  `format_context` printed from one of them. Passing either to `store`
+  raises `TypeError`.
+
+- **egregore's webhook tests no longer need DNS.** `send_webhook`
+  resolves the hostname before curl runs, and the tests stubbed only
+  curl, so a slow lookup failed two of them and let three failure-path
+  tests pass before reaching curl (#1021). The resolver is stubbed, and
+  one test pins the unresolvable-host path.
+
 ## [1.10.1] - 2026-11-04
 
 Two entries below are marked Breaking, and this release ships them under

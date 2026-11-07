@@ -6,7 +6,7 @@ Infrastructure and pipeline building blocks for Claude Code plugins.
 
 ```bash
 # Use quota management for rate-limited services
-Skill(leyline:quota-management)
+Skill(leyline:service-registry)  # quota-management module
 
 # Implement standardized error handling
 Skill(leyline:error-patterns)
@@ -29,23 +29,19 @@ communication and system stability.
 
 | Skill | Purpose | Use When |
 |-------|---------|----------|
-| `quota-management` | Track and enforce resource limits. | Implementing services with rate limits. |
-| `usage-logging` | Session-aware usage tracking. | Capturing audit trails or cost metrics. |
-| `service-registry` | Manage external service connections. | Coordinating multiple external services. |
+| `service-registry` | Manage external service connections, quotas, and usage logs. | Coordinating services, enforcing rate limits, or capturing audit trails and cost metrics. |
 | `error-patterns` | Standardized error handling. | Implementing error recovery logic. |
 | `authentication-patterns` | Common auth flows. | Connecting to external APIs. |
 | `content-sanitization` | Sanitize external content. | Loading Issues, PRs, or WebFetch results. |
 | `damage-control` | Agent crash recovery. | Context overflow, merge conflicts, broken state. |
-| `evaluation-framework` | Decision thresholds and scoring. | Building evaluation criteria. |
+| `evaluation-framework` | Decision thresholds, scoring, and action utility. | Building evaluation criteria or gating agent dispatch. |
 | `git-platform` | Cross-platform git forge commands. | Abstracting GitHub/GitLab/Bitbucket. |
 | `ticket-writing` | Glanceable tickets with the why inline or one link away. | Creating or editing tracker tickets. |
 | `markdown-formatting` | Line wrapping and style conventions. | Generating or editing markdown prose. |
 | `progressive-loading` | Dynamic content loading. | Lazy loading strategies. |
-| `pytest-config` | Pytest configuration patterns. | Standardized test configuration. |
 | `risk-classification` | Inline 4-tier risk model. | Risk-based task routing. |
 | `stewardship` | Stewardship principles and virtues. | Codebase improvement and health. |
-| `storage-templates` | Storage abstraction. | File and database patterns. |
-| `testing-quality-standards` | Test quality guidelines. | Ensuring high-quality tests. |
+| `testing-quality-standards` | Test quality guidelines and pytest configuration. | Ensuring high-quality tests or standardizing test setup. |
 
 ## Commands
 

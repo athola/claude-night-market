@@ -14,7 +14,7 @@ import pytest
 
 MAX_PROSE_LINE_LENGTH = 80
 
-SKILL_DIR = Path(__file__).parents[3] / "skills" / "deferred-capture"
+SKILL_DIR = Path(__file__).parents[3] / "skills" / "decision-journal" / "modules"
 
 
 class TestDeferredCaptureSkillStructure:
@@ -28,7 +28,7 @@ class TestDeferredCaptureSkillStructure:
     @pytest.fixture
     def skill_path(self) -> Path:
         """Path to the deferred-capture SKILL.md."""
-        return SKILL_DIR / "SKILL.md"
+        return SKILL_DIR / "deferred-capture.md"
 
     @pytest.fixture
     def skill_content(self, skill_path: Path) -> str:

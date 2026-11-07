@@ -5,7 +5,7 @@ parent_skill: conjure:delegation-core
 category: delegation-framework
 estimated_tokens: 200
 dependencies:
-  - leyline:quota-management
+  - leyline:service-registry
 ---
 
 # Task Assessment for Delegation

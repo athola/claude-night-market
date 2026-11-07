@@ -23,12 +23,49 @@ class TestExperienceLibraryStorage:
             approach_taken="Used jinja2 templates",
             outcome="success",
             duration_ms=4200,
-            tools_used=["Read", "Write"],
-            key_decisions=["Template-based over freeform"],
         )
         entries = lib.list_entries("abstract:test-skill")
         assert len(entries) == 1
         assert entries[0]["outcome"] == "success"
+
+    def test_should_store_only_the_fields_the_producer_sets(
+        self, tmp_path: Path
+    ) -> None:
+        """Given a stored entry, then it holds no field nothing ever fills."""
+        lib = ExperienceLibrary(tmp_path / "experience-library")
+        lib.store(
+            project=PROJECT,
+            skill_ref="abstract:test-skill",
+            task_description="Generate API docs",
+            approach_taken="",
+            outcome="success",
+            duration_ms=None,
+        )
+        (entry,) = lib.list_entries("abstract:test-skill")
+        assert set(entry) == {
+            "project",
+            "task_description",
+            "approach_taken",
+            "outcome",
+            "duration_ms",
+            "stored_at",
+        }
+
+    def test_should_reject_a_field_the_record_no_longer_has(
+        self, tmp_path: Path
+    ) -> None:
+        """Given the removed tools_used kwarg, when stored, then TypeError."""
+        lib = ExperienceLibrary(tmp_path / "experience-library")
+        with pytest.raises(TypeError):
+            lib.store(
+                project=PROJECT,
+                skill_ref="abstract:test-skill",
+                task_description="Generate API docs",
+                approach_taken="",
+                outcome="success",
+                duration_ms=1,
+                tools_used=["Read"],
+            )
 
     def test_should_reject_failed_execution(self, tmp_path: Path) -> None:
         """Given a failed execution, when stored, then rejected."""
@@ -40,8 +77,6 @@ class TestExperienceLibraryStorage:
             approach_taken="Wrong approach",
             outcome="failure",
             duration_ms=10000,
-            tools_used=["Read"],
-            key_decisions=[],
         )
         entries = lib.list_entries("abstract:test-skill")
         assert len(entries) == 0
@@ -142,8 +177,6 @@ class TestExperienceLibraryPruning:
                 approach_taken=f"Approach {i}",
                 outcome="success",
                 duration_ms=1000,
-                tools_used=["Read"],
-                key_decisions=[],
             )
         entries = lib.list_entries("abstract:test-skill")
         assert len(entries) <= 20
@@ -162,8 +195,6 @@ class TestExperienceLibraryEdgeCases:
             approach_taken="Good approach",
             outcome="success",
             duration_ms=1000,
-            tools_used=["Read"],
-            key_decisions=[],
         )
         # Inject a corrupt JSON file into the skill directory
         skill_dir = tmp_path / "experience-library" / "abstract_test-skill"

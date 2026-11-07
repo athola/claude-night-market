@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-modular-monolith
-description: Applies modular monolith with enforced internal boundaries. Use when teams want service-level autonomy without distributed system overhead.
+description: Modular monolith with enforced internal boundaries. Use for service-level autonomy without a distributed system.
 alwaysApply: false
 category: architectural-pattern
 tags:

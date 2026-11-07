@@ -1,6 +1,6 @@
 ---
 name: service-registry
-description: Registers external services with health checks, central config, and unified execution. Use when integrating multiple external services needing coordination.
+description: Registers external services with health checks, quotas, and a usage logger for per-call cost and sessions. Use when adding rate-limited APIs or logging usage.
 alwaysApply: false
 category: infrastructure
 tags:
@@ -9,9 +9,7 @@ tags:
 - execution
 - health-checks
 - integration
-dependencies:
-- quota-management
-- usage-logging
+dependencies: []
 tools: []
 provides:
   infrastructure:
@@ -33,6 +31,12 @@ progressive_loading: true
 modules:
 - modules/service-config.md
 - modules/execution-patterns.md
+- modules/quota-management.md
+- modules/threshold-strategies.md
+- modules/estimation-patterns.md
+- modules/usage-logging.md
+- modules/session-patterns.md
+- modules/log-formats.md
 ---
 
 # Service Registry
@@ -164,6 +168,12 @@ dependencies: [leyline:service-registry]
 
 - **Service Config**: See `modules/service-config.md` for configuration options.
 - **Execution Patterns**: See `modules/execution-patterns.md` for advanced usage.
+- **Quota Management**: Load `modules/quota-management.md` when a service
+  imposes rate or cost limits. It covers threshold tiers, `QuotaTracker`,
+  and degradation (`threshold-strategies`, `estimation-patterns`).
+- **Usage Logging**: Load `modules/usage-logging.md` when a skill needs an
+  audit trail, usage analytics, or per-call cost tracking. It covers
+  `UsageLogger` and JSONL sessions (`session-patterns`, `log-formats`).
 
 ## Exit Criteria
 

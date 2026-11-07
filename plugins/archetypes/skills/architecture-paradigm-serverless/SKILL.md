@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-serverless
-description: Applies serverless FaaS patterns for event-driven workloads. Use when designing bursty workloads with minimal infrastructure and pay-per-execution cost model.
+description: Serverless FaaS patterns. Use for bursty event-driven workloads with pay-per-execution cost and little infrastructure.
 alwaysApply: false
 category: architectural-pattern
 tags:

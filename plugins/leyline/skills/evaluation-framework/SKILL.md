@@ -1,6 +1,6 @@
 ---
 name: evaluation-framework
-description: Provides weighted scoring, rubrics, and decision-threshold patterns. Use when designing quality gates, evaluation systems, or decision frameworks.
+description: Weighted scoring, rubrics, thresholds, agent-action utility by expected gain and cost. Use for quality gates or deciding if a tool call or dispatch is worth it.
 alwaysApply: false
 category: infrastructure
 tags:
@@ -33,6 +33,14 @@ modules:
 - modules/evaluation-rubric.md
 - modules/multi-metric-evaluation-methodology.md
 - modules/quality-metrics.md
+- modules/utility.md
+- modules/state-builder.md
+- modules/gain.md
+- modules/step-cost.md
+- modules/uncertainty.md
+- modules/redundancy.md
+- modules/action-selector.md
+- modules/integration.md
 ---
 
 # Evaluation Framework
@@ -173,6 +181,11 @@ Then customize the framework for your domain:
 
 - **Scoring Patterns**: See `modules/scoring-patterns.md` for detailed methodology
 - **Decision Thresholds**: See `modules/decision-thresholds.md` for threshold design
+- **Utility Scoring**: Load `modules/utility.md` when deciding whether to
+  dispatch an agent, make a tool call, or stop. It scores each action as
+  gain minus weighted cost, uncertainty, and redundancy, and links its
+  component modules (`state-builder`, `gain`, `step-cost`, `uncertainty`,
+  `redundancy`, `action-selector`, `integration`)
 
 ## Exit Criteria
 

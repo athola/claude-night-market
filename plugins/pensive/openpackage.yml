@@ -27,7 +27,7 @@ dependencies:
     source: gh@athola/claude-night-market
     path: plugins/leyline
     skills:
-    - deferred-capture
+    - decision-journal
 skills:
 - skills/api-review
 - skills/architecture-review

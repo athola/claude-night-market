@@ -104,7 +104,7 @@ Skill(memory-palace:knowledge-intake)
 |------|-------|-------------|
 | `research_interceptor.py` | PreToolUse | Checks local knowledge cache before web requests. |
 | `local_doc_processor.py` | PostToolUse | Monitors Read operations for indexing suggestions. |
-| `url_detector.py` | UserPromptSubmit | Detects URLs for potential knowledge intake. |
+| `user_prompt.py` | UserPromptSubmit | One process for URL detection (`_url_detector.py`) and `+recall` (`_recall.py`). |
 | `web_content_processor.py` | PostToolUse | Processes web content for knowledge extraction. |
 | `skill_tracker_pre.py` | PreToolUse | Records start time when Skill tool is invoked. |
 | `skill_tracker_post.py` | PostToolUse | Logs completion, calculates metrics, stores memory. |

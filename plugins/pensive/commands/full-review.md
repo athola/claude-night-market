@@ -20,7 +20,7 @@ Run a detailed review using intelligent skill selection based on codebase analys
 /full-review tests        # Test suite review
 /full-review rust         # Rust-specific review
 /full-review math         # Mathematical review
-/full-review makefile     # Makefile review
+/full-review makefile     # Makefile review (also /makefile-review)
 /full-review shell        # Shell script review (also /shell-review)
 /full-review safety-critical # NASA Power of 10 verifiable-code review
 /full-review all          # Run all applicable
@@ -67,7 +67,7 @@ Skills are NOT agents. Use this table to dispatch correctly:
 | rust-review | `pensive:rust-auditor` | Rust-specific |
 | code-refinement | `pensive:code-refiner` | Quality |
 | math-review | `general-purpose` | Invoke `Skill(pensive:math-review)` |
-| makefile-review | `general-purpose` | Invoke `Skill(pensive:makefile-review)` |
+| makefile-review | `general-purpose` | Follow `Skill(pensive:unified-review)`'s `modules/makefile-review.md` |
 | shell-review | `general-purpose` | Follow `Skill(pensive:unified-review)`'s `modules/shell-review.md` |
 | safety-critical-patterns | `general-purpose` | Invoke `Skill(pensive:safety-critical-patterns)` |
 

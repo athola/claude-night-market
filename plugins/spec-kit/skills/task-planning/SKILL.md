@@ -1,6 +1,6 @@
 ---
 name: task-planning
-description: Generates phased, dependency-ordered implementation tasks from specifications. Use after spec is complete and before starting implementation.
+description: Generates phased, dependency-ordered tasks from a specification. Use after the spec, before implementation.
 alwaysApply: false
 category: planning
 tags:

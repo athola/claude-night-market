@@ -20,10 +20,10 @@ HOOKS_DIR = Path(__file__).resolve().parents[2] / "hooks"
 if str(HOOKS_DIR) not in sys.path:
     sys.path.insert(0, str(HOOKS_DIR))
 
-import recall  # noqa: E402 - import after sys.path setup
+import _recall as recall  # noqa: E402 - import after sys.path setup
+import _url_detector as url_detector  # noqa: E402 - import after sys.path setup
 import research_queue  # noqa: E402 - import after sys.path setup
 import session_lifecycle as lc  # noqa: E402 - import after sys.path setup
-import url_detector  # noqa: E402 - import after sys.path setup
 
 import shared.config as config_module  # noqa: E402 - import after sys.path setup
 from memory_palace.session_history import (  # noqa: E402 - import after sys.path setup

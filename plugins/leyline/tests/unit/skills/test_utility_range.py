@@ -14,9 +14,10 @@ from pathlib import Path
 
 import pytest
 
-SKILL_DIR = Path(__file__).resolve().parents[3] / "skills" / "utility"
-SKILL_FILE = SKILL_DIR / "SKILL.md"
-MODULES = SKILL_DIR / "modules"
+MODULES = (
+    Path(__file__).resolve().parents[3] / "skills" / "evaluation-framework" / "modules"
+)
+SKILL_FILE = MODULES / "utility.md"
 
 
 def _lambda_defaults(skill_text: str) -> list[float]:

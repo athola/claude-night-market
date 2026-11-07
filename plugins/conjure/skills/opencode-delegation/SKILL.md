@@ -1,6 +1,6 @@
 ---
 name: opencode-delegation
-description: Delegates tasks to OpenCode (opencode run) via delegation-core. Use when delegation-core selects OpenCode or a provider-agnostic harness is wanted.
+description: Delegates to OpenCode (opencode run). Use when delegation-core selects OpenCode or a provider-agnostic harness.
 alwaysApply: false
 category: delegation-implementation
 tags:

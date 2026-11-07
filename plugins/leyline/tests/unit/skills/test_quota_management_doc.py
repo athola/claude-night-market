@@ -15,7 +15,11 @@ import pytest
 from leyline.quota_tracker import QuotaConfig, QuotaTracker
 
 SKILL_FILE = (
-    Path(__file__).resolve().parents[3] / "skills" / "quota-management" / "SKILL.md"
+    Path(__file__).resolve().parents[3]
+    / "skills"
+    / "service-registry"
+    / "modules"
+    / "quota-management.md"
 )
 
 

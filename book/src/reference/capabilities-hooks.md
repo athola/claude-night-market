@@ -457,10 +457,12 @@ Injects cached knowledge as visible context before tool execution.
 `cache_first` checks the corpus then hits the web if nothing matches;
 `augment` always mixes corpus context into web responses.
 
-### `url_detector.py`
+### `user_prompt.py`
 **Type**: UserPromptSubmit
 
-Detects URLs in user prompts for processing.
+Detects URLs in user prompts for intake (`_url_detector.py`) and injects
+past-session units when the prompt carries `+recall` (`_recall.py`). One
+registration runs both, so a prompt pays one interpreter start-up.
 
 ### `local_doc_processor.py`
 **Type**: PostToolUse

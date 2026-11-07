@@ -83,7 +83,7 @@ cases:
     at four, and nobody knows that from reading the code. Write that down as a YAML
     note for the notifications module so future questions pick it up.
   target: gauntlet:curate
-  competitor: leyline:quota-management
+  competitor: leyline:service-registry
   cluster: gauntlet:curate
   proposers:
   - judge

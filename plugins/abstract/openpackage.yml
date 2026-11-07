@@ -29,7 +29,7 @@ dependencies:
     source: gh@athola/claude-night-market
     path: plugins/leyline
     skills:
-    - deferred-capture
+    - decision-journal
 skills:
 - skills/escalation-governance
 - skills/hook-authoring

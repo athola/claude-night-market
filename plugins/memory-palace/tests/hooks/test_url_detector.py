@@ -12,8 +12,8 @@ import pytest
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 
-import url_detector
-from url_detector import extract_urls
+import _url_detector as url_detector
+from _url_detector import extract_urls
 
 
 class TestExtractUrls:
@@ -126,7 +126,7 @@ class TestQuietPathImports:
     prompts. `shared.config` and `shared.deduplication` pull in
     memory_palace.paths and xxhash, about 100ms measured with
     `python -X importtime`, and neither is reachable until a URL has
-    already been found. Its sibling `recall.py` pins the same contract
+    already been found. Its sibling `_recall.py` pins the same contract
     for the same reason.
     """
 
@@ -135,7 +135,7 @@ class TestQuietPathImports:
         import ast
         from pathlib import Path
 
-        hook = Path(__file__).resolve().parents[2] / "hooks" / "url_detector.py"
+        hook = Path(__file__).resolve().parents[2] / "hooks" / "_url_detector.py"
         tree = ast.parse(hook.read_text())
         toplevel = {
             node.module

@@ -21,7 +21,7 @@ dependencies:
     source: gh@athola/claude-night-market
     path: plugins/leyline
     skills:
-    - pytest-config
+    - testing-quality-standards
 skills:
 - skills/python-testing
 - skills/python-performance

@@ -1,6 +1,6 @@
 ---
 name: browser-recording
-description: Records browser sessions via Playwright and converts video to GIF. Use when creating web UI tutorials or demos showing browser interactions.
+description: Records browser sessions with Playwright and converts them to GIF. Use for web UI demos and tutorials.
 alwaysApply: false
 category: media-generation
 tags:

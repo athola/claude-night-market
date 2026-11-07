@@ -11,7 +11,7 @@ details follow in the next section.
 
 ## API Inventory
 
-The ecosystem includes 134 CLI commands, 207 modular
+The ecosystem includes 134 CLI commands, 201 modular
 skills, 57 specialized agents, and 13 Python packages
 with public APIs. We also maintain 58 executable hooks.
 
@@ -28,7 +28,7 @@ with public APIs. We also maintain 58 executable hooks.
 | herald | 1.10.1 | 0 | 0 | 0 | No | - |
 | hookify | 1.10.1 | 6 | 2 | 0 | No | - |
 | imbue | 1.10.1 | 5 | 16 | 1 | No | - |
-| leyline | 1.10.1 | 3 | 25 | 0 | Yes | - |
+| leyline | 1.10.1 | 3 | 19 | 0 | Yes | - |
 | memory-palace | 1.10.1 | 5 | 10 | 4 | Yes | - |
 | minister | 1.10.1 | 3 | 3 | 0 | Yes | - |
 | oracle | 1.10.1 | 1 | 1 | 0 | Yes | - |
@@ -122,7 +122,8 @@ Skills cover authentication,
 error handling (including agent crash recovery via `error-patterns`),
 testing standards, cross-platform git forge detection via `git-platform`,
 4-tier risk routing via `risk-classification`, stewardship principles,
-and a `deferred-capture` contract for unified deferred-item filing.
+and a `deferred-capture` contract (a `decision-journal` module) for
+unified deferred-item filing.
 The `git_platform` Python wrapper provides typed helpers
 for `gh api` and `gh api graphql` calls; the `bootstrap`
 helper centralizes cross-plugin `sys.path` setup so plugin
