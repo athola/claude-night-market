@@ -63,8 +63,12 @@ _SKIP_DIRS = {
 
 
 def _validate_ref(ref: str) -> str:
-    """Validate a git ref to prevent injection."""
-    if _UNSAFE_REF_PATTERN.search(ref):
+    """Validate a git ref to prevent injection.
+
+    A ref starting with ``-`` reaches git as an option, and
+    ``--output=FILE`` makes ``git diff`` write a file.
+    """
+    if _UNSAFE_REF_PATTERN.search(ref) or ref.lstrip().startswith("-"):
         msg = f"unsafe git ref: {ref}"
         raise ValueError(msg)
     return ref

@@ -56,6 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **gauntlet refuses a git ref that git would read as an option.** The
+  ref check rejected shell metacharacters but not a leading `-`, so
+  `--base-ref --output=pwned.txt` made `git diff` write that file.
+
 - **A passed gauntlet challenge releases the commit it gated.** The
   pre-commit gate consumes a one-time pass token for the staged files,
   and the challenge skill said to write one, but no command did. A
