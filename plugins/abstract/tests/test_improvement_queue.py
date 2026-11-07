@@ -351,3 +351,31 @@ class TestQueueFileCompatibility:
 
         assert "abstract:s" not in queue.skills
         assert list(tmp_path.glob("improvement-queue.json.corrupt-*"))
+
+
+class TestAbandonEvaluation:
+    """An evaluation with nothing left to judge is closed without a verdict."""
+
+    @pytest.mark.unit
+    def test_abandoned_window_returns_the_skill_to_monitoring(
+        self, tmp_path: Path
+    ) -> None:
+        queue = ImprovementQueue(tmp_path / "queue.json")
+        queue.flag_skill("abstract:s", 0.6, "exec-1")
+        queue.start_evaluation("abstract:s", 0.6, history_position=20)
+
+        assert queue.abandon_evaluation("abstract:s", "history reset")
+
+        stored = ImprovementQueue(tmp_path / "queue.json").skills["abstract:s"]
+        assert stored.status == "monitoring"
+        assert stored.eval_start is None
+        assert stored.eval_history_start == 0
+        assert "eval_start" not in stored.to_dict()
+
+    @pytest.mark.unit
+    def test_a_skill_that_is_not_evaluating_is_left_alone(self, tmp_path: Path) -> None:
+        queue = ImprovementQueue(tmp_path / "queue.json")
+        queue.flag_skill("abstract:s", 0.6, "exec-1")
+
+        assert not queue.abandon_evaluation("abstract:s", "history reset")
+        assert not queue.abandon_evaluation("abstract:unknown", "history reset")

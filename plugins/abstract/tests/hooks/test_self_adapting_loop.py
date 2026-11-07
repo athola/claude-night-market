@@ -607,6 +607,33 @@ class TestLoggerAdvancesTheEvaluationWindow:
         assert entry.eval_gaps == [stability_gap_since(accuracies, len(HEALTHY))]
 
     @pytest.mark.unit
+    def test_window_is_abandoned_when_the_history_no_longer_reaches_its_start(
+        self, tmp_path: Path
+    ) -> None:
+        """A history reset under an open window leaves nothing to judge.
+
+        The slice from the window's start was empty, scored as a perfect
+        0.0 gap, and promoted a skill whose every run in the window failed.
+        """
+        _seed_history(tmp_path, HEALTHY)
+        queue = _queue(tmp_path)
+        queue.flag_skill(SKILL, 0.6, "exec-0")
+        queue.start_evaluation(SKILL, 0.6, history_position=50)
+        queue.skills[SKILL].eval_target = 1
+        queue._save()
+
+        result = _run_hook(
+            "skill_execution_logger.py",
+            _post_payload({"skill": SKILL}, "Error: failed"),
+            tmp_path,
+        )
+
+        assert result.returncode == 0, result.stderr
+        entry = _queue(tmp_path).skills[SKILL]
+        assert entry.status == "monitoring"
+        assert entry.eval_start is None
+
+    @pytest.mark.unit
     def test_decision_is_reported_in_the_logger_output(self, tmp_path: Path) -> None:
         self._open_window(tmp_path, target=1, history=HEALTHY)
 

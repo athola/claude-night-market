@@ -12,7 +12,7 @@ import fcntl
 import json
 import os
 from collections.abc import Iterator
-from dataclasses import asdict, dataclass, field, fields
+from dataclasses import MISSING, asdict, dataclass, field, fields
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal, get_args
@@ -126,6 +126,17 @@ class QueueEntry:
         self.baseline_gap = baseline_gap
         self.flagged_count = 0
         self.execution_ids = []
+
+    def abandon_evaluation(self) -> None:
+        """Close an open window without a decision and resume monitoring."""
+        self.status = "monitoring"
+        specs = {spec.name: spec for spec in fields(self)}
+        for name in self._EVAL_FIELDS:
+            spec = specs[name]
+            if spec.default_factory is not MISSING:
+                setattr(self, name, spec.default_factory())
+            else:
+                setattr(self, name, spec.default)
 
 
 class ImprovementQueue:
@@ -303,6 +314,17 @@ class ImprovementQueue:
                 version,
                 change_summary,
             )
+            self._save()
+            return True
+
+    def abandon_evaluation(self, skill_ref: str, reason: str) -> bool:
+        """Close an evaluating skill's window undecided; False if not evaluating."""
+        with self._locked_reload():
+            entry = self.skills.get(skill_ref)
+            if entry is None or entry.status != "evaluating":
+                return False
+            _warn(f"abandoning evaluation of {skill_ref!r}: {reason}")
+            entry.abandon_evaluation()
             self._save()
             return True
 

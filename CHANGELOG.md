@@ -56,6 +56,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Skill evaluations compare like with like.** The baseline a changed
+  skill is judged against was the worst five-run window over its last 20
+  runs, and the evaluation window holds 10. The worst of more windows is
+  lower, so an unchanged skill with a 75% success rate was promoted 54%
+  of the time. `record_skill_improvement.py` now takes the baseline over
+  the last 10 runs. A window whose history was reset under it (a corrupt
+  `.history.json` is set aside and restarted) scored its empty slice as
+  a perfect gap and promoted a skill whose every run failed. Such a
+  window is now abandoned and the skill returns to monitoring.
+
 - **conserve's context warning runs before subagent dispatches.** Its
   `PreToolUse` matcher listed `Task`, the legacy name of the dispatch
   tool, but not `Agent`, so the warning never ran before the dispatches

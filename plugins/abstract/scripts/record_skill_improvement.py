@@ -27,7 +27,7 @@ from abstract.improvement_queue import ImprovementQueue
 from abstract.paths import get_improvement_queue_path, get_log_directory
 from abstract.skill_versioning import SkillVersionManager
 from abstract.stdlib_helpers import safe_json_load
-from shared.stability import stability_gap
+from shared.stability import stability_gap, stability_gap_since
 
 
 def skill_ref_for(skill_file: Path) -> str | None:
@@ -56,9 +56,14 @@ def current_metrics(skill_ref: str) -> dict[str, float] | None:
     )
     if not accuracies:
         return None
+    # The window is judged on its last EVAL_TARGET runs, so the baseline
+    # covers the same count: the worst of more windows is lower, and a
+    # longer baseline would make an unchanged skill look improved.
+    baseline_start = max(0, len(accuracies) - ImprovementQueue.EVAL_TARGET)
     return {
         "success_rate": sum(accuracies) / len(accuracies),
         "stability_gap": stability_gap(accuracies),
+        "window_baseline_gap": stability_gap_since(accuracies, baseline_start),
         "run_count": len(accuracies),
     }
 
@@ -75,7 +80,11 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"{args.skill_file} is not <plugin>/skills/<skill>/SKILL.md")
 
     metrics = current_metrics(skill_ref)
-    baseline = {k: v for k, v in (metrics or {}).items() if k != "run_count"}
+    baseline = {
+        k: v
+        for k, v in (metrics or {}).items()
+        if k not in ("run_count", "window_baseline_gap")
+    }
     version = SkillVersionManager(args.skill_file).bump_version(args.summary, baseline)
     print(f"{skill_ref}: adaptation version {version}")
 
@@ -89,13 +98,14 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     queue.start_evaluation(
         skill_ref,
-        metrics["stability_gap"],
+        metrics["window_baseline_gap"],
         history_position=int(metrics["run_count"]),
         version=version,
         change_summary=args.summary,
     )
     print(
-        f"{skill_ref}: evaluating against baseline gap {metrics['stability_gap']:.2f}"
+        f"{skill_ref}: evaluating against baseline gap "
+        f"{metrics['window_baseline_gap']:.2f}"
     )
     return 0
 

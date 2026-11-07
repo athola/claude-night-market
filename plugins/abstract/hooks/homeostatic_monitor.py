@@ -261,6 +261,13 @@ def _advance_evaluation(
     entry = queue.skills.get(skill_ref)
     if entry is None or entry.status != "evaluating":
         return None
+    if len(accuracies) <= entry.eval_history_start:
+        # The history was reset under the window (a corrupt file is set
+        # aside and restarted), so no run since the window opened is left
+        # to judge. An empty slice would score as a perfect gap.
+        reason = "history no longer reaches the window's start"
+        queue.abandon_evaluation(skill_ref, reason)
+        return {"evaluation_abandoned": reason}
     window_gap = stability_gap_since(accuracies, entry.eval_history_start)
     if not queue.record_eval_execution(skill_ref, window_gap):
         return None

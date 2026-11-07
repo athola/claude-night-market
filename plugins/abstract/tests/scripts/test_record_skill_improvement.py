@@ -35,11 +35,11 @@ def _skill_file(root: Path) -> Path:
     return skill_file
 
 
-def _seed_history(home: Path) -> None:
+def _seed_history(home: Path, accuracies: list[int] = CRITICAL) -> None:
     logs = home / "skills" / "logs"
     logs.mkdir(parents=True)
     (logs / ".history.json").write_text(
-        json.dumps({SKILL: {"accuracies": CRITICAL, "durations": []}})
+        json.dumps({SKILL: {"accuracies": accuracies, "durations": []}})
     )
 
 
@@ -74,6 +74,27 @@ def test_queued_skill_is_versioned_and_starts_evaluation(tmp_path: Path) -> None
     assert entry.status == "evaluating"
     assert entry.baseline_gap == pytest.approx(0.6)
     assert "1.1.0" in result.stdout
+
+
+@pytest.mark.unit
+def test_baseline_covers_as_many_runs_as_the_window_it_is_judged_against(
+    tmp_path: Path,
+) -> None:
+    """A 20-run worst window beside a 10-run one promotes unchanged skills.
+
+    The minimum over more windows is lower, so a longer baseline makes the
+    evaluation window look better with no change at all. Here the bad
+    stretch is 15 runs back: inside a 20-run baseline, outside a 10-run one.
+    """
+    home = tmp_path / "home"
+    skill_file = _skill_file(tmp_path)
+    _seed_history(home, [1] * 5 + [0, 0, 0, 1, 1] + [1] * 10)
+    _queue(home).flag_skill(SKILL, 0.6, "exec-1")
+
+    result = _run(home, str(skill_file), "--summary", "added examples")
+
+    assert result.returncode == 0, result.stderr
+    assert _queue(home).skills[SKILL].baseline_gap == pytest.approx(0.0)
 
 
 @pytest.mark.unit
