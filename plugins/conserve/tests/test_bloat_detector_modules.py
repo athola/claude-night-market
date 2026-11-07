@@ -68,6 +68,9 @@ def test_module_frontmatter():
     """Verify that all modules have proper frontmatter."""
     modules_dir = Path(__file__).parent.parent / "skills" / "bloat-detector" / "modules"
     module_files = list(modules_dir.glob("*.md"))
+    assert module_files, (
+        f"no modules in {modules_dir}; the checks below would pass on nothing"
+    )
 
     issues = []
 
@@ -106,6 +109,9 @@ def test_no_spoke_to_spoke_references():
     """Verify that modules don't reference each other (hub-spoke pattern)."""
     modules_dir = Path(__file__).parent.parent / "skills" / "bloat-detector" / "modules"
     module_files = list(modules_dir.glob("*.md"))
+    assert module_files, (
+        f"no modules in {modules_dir}; the checks below would pass on nothing"
+    )
 
     violations = []
 
