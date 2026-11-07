@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A passed gauntlet challenge releases the commit it gated.** The
+  pre-commit gate consumes a one-time pass token for the staged files,
+  and the challenge skill said to write one, but no command did. A
+  developer who passed the challenge stayed blocked. `answer_evaluator.py
+  --gate` now writes the token on a pass, and the skill names the
+  command.
+
 - **egregore's Stop hook writes the continuation baton.** ADR-0023
   says each stop records a baton so a dropped turn is observable, but
   nothing outside the tests wrote one, so every run read as "nothing

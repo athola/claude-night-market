@@ -45,8 +45,15 @@ register_in_loop_provider_if_inside_claude_code()
 
 6. **Record result**: update developer progress and streak
 
-7. **On pass**: write pass token if from pre-commit gate. Show
-   next challenge if in session.
+7. **On pass**: when the challenge came from the pre-commit gate,
+   score it with the command below, which writes the one-time token
+   that releases the commit of the staged files. Show next challenge
+   if in session.
+
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/scripts/answer_evaluator.py \
+     <challenge.json> "<answer>" --gate
+   ```
 
 8. **On fail**: show correct answer with explanation. Present a
    new challenge.
@@ -71,3 +78,6 @@ register_in_loop_provider_if_inside_claude_code()
   or updated after evaluation
 - [ ] On fail, the correct answer and explanation are shown before
   the next challenge is presented (not skipped silently)
+- [ ] On a pass from the pre-commit gate,
+  `.gauntlet/state/pass_token.json` exists and names the staged set,
+  so the retried commit is released

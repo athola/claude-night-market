@@ -7,12 +7,14 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
 from answer_evaluator import main as answer_main
 from challenge_engine import main as challenge_main
 from extractor import main as extractor_main
+from precommit_gate import _get_staged_hash, check_pass_token
 from progress_tracker import main as progress_main
 
 # ---------------------------------------------------------------------------
@@ -514,3 +516,70 @@ class TestProgressTrackerRecordCLI:
 
         assert exit_code != 0
         assert not (gauntlet_dir / "progress" / "d_e.com.json").exists()
+
+
+class TestAnswerEvaluatorWritesThePassToken:
+    """A pass taken from the pre-commit gate releases that one commit.
+
+    The gate consumes ``state/pass_token.json`` for the staged set, and
+    nothing wrote it: the skill said "write pass token" with no command
+    to do so, so a passed challenge never let the commit through.
+    """
+
+    _CHALLENGE = {
+        "id": "ch-gate",
+        "type": "multiple_choice",
+        "knowledge_entry_id": "abc123",
+        "difficulty": 2,
+        "prompt": "What is X?",
+        "context": "some context",
+        "answer": "A",
+        "options": ["correct", "wrong1", "wrong2", "wrong3"],
+        "hints": [],
+        "scope_files": [],
+    }
+
+    @staticmethod
+    def _repo_with_staged_file(root: Path) -> Path:
+        subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+        (root / "a.py").write_text("x = 1\n")
+        subprocess.run(["git", "add", "a.py"], cwd=root, check=True)
+        (root / ".gauntlet").mkdir()
+        return root / ".gauntlet"
+
+    def _evaluate(self, tmp_path: Path, answer: str, *flags: str) -> int:
+        challenge_file = tmp_path / "challenge.json"
+        challenge_file.write_text(json.dumps(self._CHALLENGE))
+        with contextlib.redirect_stdout(io.StringIO()):
+            return answer_main([str(challenge_file), answer, *flags])
+
+    @pytest.mark.unit
+    def test_a_gate_pass_writes_a_token_the_gate_accepts(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The token matches the staged set, so check_pass_token takes it."""
+        gauntlet_dir = self._repo_with_staged_file(tmp_path)
+        monkeypatch.chdir(tmp_path)
+
+        assert self._evaluate(tmp_path, "A", "--gate") == 0
+        assert check_pass_token(gauntlet_dir, _get_staged_hash())
+
+    @pytest.mark.unit
+    def test_a_gate_fail_writes_no_token(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Only a pass releases the commit."""
+        gauntlet_dir = self._repo_with_staged_file(tmp_path)
+        monkeypatch.chdir(tmp_path)
+
+        assert self._evaluate(tmp_path, "C", "--gate") == 0
+        assert not (gauntlet_dir / "state" / "pass_token.json").exists()
+
+    @pytest.mark.unit
+    def test_a_gate_pass_outside_a_gauntlet_project_is_an_error(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """No .gauntlet directory means no gate to release."""
+        monkeypatch.chdir(tmp_path)
+
+        assert self._evaluate(tmp_path, "A", "--gate") == 1
