@@ -1,6 +1,6 @@
 ---
 name: delegation-core
-description: Delegates execution to eight CLIs (Gemini, Qwen, MiniMax, GLM, Muse, Codex, OpenCode, Glimmer). Use for execution tasks. Do not use for secrets.
+description: Delegates execution to external CLIs (Gemini, Qwen, MiniMax, GLM, Muse, Codex, OpenCode, Glimmer). Use for execution tasks. Do not use for secrets.
 alwaysApply: false
 category: delegation-framework
 tags:

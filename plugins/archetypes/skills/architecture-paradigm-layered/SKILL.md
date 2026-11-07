@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-layered
-description: Applies layered n-tier architecture with enforced boundaries. Use when designing moderate systems needing clear presentation, domain, and persistence layers.
+description: Layered n-tier architecture. Use for moderate systems needing presentation, domain, and persistence layers.
 alwaysApply: false
 category: architectural-pattern
 tags:

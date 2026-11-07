@@ -1,6 +1,6 @@
 ---
 name: muse-delegation
-description: Delegates tasks to Meta's Muse Code CLI (muse) via delegation-core. Use when delegation-core selects Muse or repository-scale work needs a 1M-token context.
+description: Delegates to Meta's Muse Code CLI (muse). Use when delegation-core selects Muse for repository-scale work.
 alwaysApply: false
 category: delegation-implementation
 tags:

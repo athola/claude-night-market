@@ -1,6 +1,6 @@
 ---
 name: gemini-delegation
-description: Delegates tasks to Gemini CLI implementing delegation-core for Google's models. Use when delegation-core selects Gemini or 1M+ token context is needed.
+description: Delegates to the Gemini CLI. Use when delegation-core selects Gemini or 1M+ token context is needed.
 alwaysApply: false
 category: delegation-implementation
 tags:

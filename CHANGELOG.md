@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Shorter skill descriptions in six rarely invoked plugins.** Every
+  registered description is resident in every session, and the skill
+  listing ran over its budget (#778). 25 descriptions in archetypes,
+  conjure, scry, spec-kit, hookify and phantom drop from 3,789 to 2,743
+  characters, about 260 tokens, and keep the terms the router matches
+  on. Trims that created a new rank-1 router collision were rolled back.
+
 - **Breaking: six leyline contract skills are modules of four.** Skill
   descriptions were 93% of the listing budget, and leyline carried 25
   skills, many of them short contracts nothing invoked on its own

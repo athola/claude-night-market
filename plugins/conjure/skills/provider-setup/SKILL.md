@@ -1,6 +1,6 @@
 ---
 name: provider-setup
-description: Reports which delegation CLIs are installed and authenticated, installs missing ones, and stores the result. Use before delegating or when a provider errors.
+description: Reports which delegation CLIs are installed and authenticated, and installs missing ones. Use before delegating.
 alwaysApply: false
 category: delegation-infrastructure
 tags:

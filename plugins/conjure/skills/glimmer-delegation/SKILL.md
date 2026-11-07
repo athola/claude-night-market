@@ -1,6 +1,6 @@
 ---
 name: glimmer-delegation
-description: Delegates tasks to a locally served Muse Glimmer via ollama. Use when delegation-core selects glimmer or the prompt must not leave the machine.
+description: Delegates to a local Muse Glimmer via ollama. Use when the prompt must not leave the machine.
 alwaysApply: false
 category: delegation-implementation
 tags:
