@@ -188,8 +188,8 @@ event: stop
 action: warn
 conditions:
   - field: transcript
-    operator: not_contains
-    pattern: pytest|npm test
+    operator: regex_match
+    pattern: \A(?![\s\S]*(?:pytest|npm test))
 ---
 
 ⚠️ **Tests not run!**

@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **hookify's `require-tests` example works as written.** It used
+  `not_contains` with `pytest|npm test`, but `not_contains` is a literal
+  substring test, so the rule warned on every stop, tests run or not.
+  The example now uses `regex_match` with an anchored negative
+  lookahead, and a test loads the documented block and checks both
+  outcomes.
+
 - **hookify conditions on a field the event lacks no longer match.** A
   missing field read as the empty string, so every negated operator was
   true: a rule with `event: all` and `file_path not_contains /tests/`
