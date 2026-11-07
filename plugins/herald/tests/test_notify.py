@@ -476,6 +476,32 @@ class TestCreateGithubAlert:
         assert "--label" not in cmd
 
     @patch("subprocess.run")
+    def test_a_missing_label_does_not_lose_the_alert(self, mock_run: MagicMock) -> None:
+        """The alert is filed even when the repository lacks its labels.
+
+        A repository without `herald` and `crash` labels got no issue at
+        all, so the crash went unreported.
+        """
+        mock_run.side_effect = [
+            MagicMock(returncode=1, stderr="could not add label: 'crash' not found"),
+            MagicMock(returncode=0, stdout="https://github.com/o/r/issues/9"),
+        ]
+        assert create_github_alert(title="T", body="B", labels=["crash"]) is True
+        assert mock_run.call_count == 2
+        assert "--label" not in mock_run.call_args_list[1][0][0]
+
+    @patch("subprocess.run")
+    def test_a_failure_unrelated_to_labels_is_not_retried(
+        self, mock_run: MagicMock
+    ) -> None:
+        """Only a label refusal is worth a second attempt."""
+        mock_run.return_value = MagicMock(
+            returncode=1, stderr="HTTP 401: Bad credentials"
+        )
+        assert create_github_alert(title="T", body="B", labels=["crash"]) is False
+        assert mock_run.call_count == 1
+
+    @patch("subprocess.run")
     def test_returns_false_on_nonzero_exit(self, mock_run: MagicMock) -> None:
         """Scenario: gh CLI error returns False.
 

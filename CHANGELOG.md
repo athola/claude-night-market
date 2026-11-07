@@ -56,6 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **herald files an alert in a repository without its labels.**
+  `gh issue create --label herald,crash` fails outright when either
+  label is missing, and herald never creates labels, so the crash alert
+  was lost. A refusal that names a label is now retried without labels.
+
 - **herald's webhook check refuses shared and multicast addresses.** It
   rejected private, reserved and loopback IPs, which leaves out the
   CGNAT block `100.64.0.0/10` (home of `100.100.100.200`, Alibaba
