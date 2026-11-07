@@ -71,8 +71,10 @@ run_plugin_lint() {
 
   log "Linting ${plugin_name}..."
 
-  # Check if plugin has source code
-  if [ ! -d "${plugin_dir}/src" ] && [ ! -d "${plugin_dir}/scripts" ]; then
+  # Check if plugin has source code: src/, scripts/, or hook modules only
+  # (cartograph's code is all in hooks/).
+  if [ ! -d "${plugin_dir}/src" ] && [ ! -d "${plugin_dir}/scripts" ] &&
+    ! compgen -G "${plugin_dir}/hooks/*.py" >/dev/null; then
     log "  ⊘ No Python source code"
     SKIPPED_PLUGINS+=("${plugin_name}")
     return 0

@@ -106,10 +106,14 @@ run_plugin_typecheck() {
   log "Type checking ${plugin_name}..."
 
   # Primary source check: prefer a Makefile typecheck target (custom layouts),
-  # then fall back to running mypy on src/ or scripts/ directly.
+  # then fall back to running mypy on src/ or scripts/ directly. The target
+  # may come from an included .mk, so make's own rule database is read:
+  # `make -n typecheck` succeeded for any plugin including base.mk, whose
+  # `%::` catch-all dry-runs every name.
   if [ -f "${plugin_dir}/Makefile" ] &&
     (grep -qE "^(typecheck|type-check):" "${plugin_dir}/Makefile" 2>/dev/null ||
-      (cd "${plugin_dir}" && make -n typecheck >/dev/null 2>&1)); then
+      (cd "${plugin_dir}" && make -pn __typecheck_probe__ 2>/dev/null |
+        grep -qE "^(typecheck|type-check):")); then
     # Prefer explicit target in Makefile, fall back to typecheck
     local target
     target=$(grep -oE "^(typecheck|type-check):" "${plugin_dir}/Makefile" 2>/dev/null | head -1 | tr -d ':')

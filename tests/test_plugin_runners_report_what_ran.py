@@ -86,3 +86,29 @@ def test_fix_reaches_ruff_for_a_makefile_linted_plugin(tmp_path: Path) -> None:
     result = _run(repo, "run-plugin-lint.sh", "--fix", "demo", path_prefix=str(shims))
     assert result.returncode == 0, result.stdout + result.stderr
     assert "--fix" in log.read_text()
+
+
+def test_a_plugin_whose_python_is_all_hooks_is_linted(tmp_path: Path) -> None:
+    """cartograph has only hooks/*.py, and the runner skipped it as sourceless."""
+    repo = _sandbox(tmp_path)
+    plugin = repo / "plugins" / "demo"
+    (plugin / "hooks").mkdir(parents=True)
+    (plugin / "hooks" / "refresh.py").write_text("x = 1\n")
+    (plugin / "Makefile").write_text("lint:\n\t@echo make-lint-ran\n")
+
+    result = _run(repo, "run-plugin-lint.sh", "demo")
+
+    assert "No Python source code" not in result.stdout + result.stderr
+    assert "make-lint-ran" in result.stdout
+
+
+def test_typecheck_probe_ignores_a_catch_all_rule(tmp_path: Path) -> None:
+    """A `%::` rule dry-runs any name, so `make -n typecheck` always passed."""
+    repo = _sandbox(tmp_path)
+    plugin = repo / "plugins" / "demo"
+    (plugin / "src").mkdir(parents=True)
+    (plugin / "Makefile").write_text('%::\n\t@echo "Unknown target $@"\n')
+
+    result = _run(repo, "run-plugin-typecheck.sh", "demo")
+
+    assert "Unknown target typecheck" not in result.stdout + result.stderr
