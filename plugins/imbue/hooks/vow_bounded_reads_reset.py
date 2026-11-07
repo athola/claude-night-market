@@ -62,8 +62,8 @@ def _atomic_reset(path: Path) -> None:
     so a Read in flight cannot clobber the reset.  Falls back to
     unlocked truncate on systems without ``fcntl``.
 
-    Never raises -- write errors are logged to stderr only so the
-    hook cannot crash the agent.
+    I/O errors are logged to stderr. Any other exception propagates to
+    main(), which reports it as an internal error and exits 0.
     """
     fd = -1
     try:
@@ -99,7 +99,10 @@ def _atomic_reset(path: Path) -> None:
                 f"[vow-bounded-reads] WARN: counter reset failed: {exc}",
                 file=sys.stderr,
             )
-    except Exception as exc:  # noqa: BLE001 - hook must not crash agent
+    # Opening or chmod-ing the counter is the I/O left to fail here; the
+    # write's own OSError is handled above. Anything else is a bug and
+    # reaches main(), whose catch-all keeps the hook from crashing.
+    except OSError as exc:
         print(
             f"[vow-bounded-reads] WARN: counter reset failed: {exc}",
             file=sys.stderr,
