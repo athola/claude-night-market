@@ -11,8 +11,6 @@ from __future__ import annotations
 import pytest
 
 from tome.channels.academic import expand_academic_queries
-from tome.channels.discourse import expand_discourse_queries
-from tome.channels.github import expand_github_queries
 
 
 class TestExpandAcademicQueries:
@@ -81,81 +79,3 @@ class TestExpandAcademicQueries:
         queries = expand_academic_queries("graph neural networks")
         lowered = [q.lower() for q in queries]
         assert any("survey" in q or "review" in q for q in lowered)
-
-
-class TestExpandGithubQueries:
-    """
-    Feature: GitHub query expansion
-
-    As the code channel
-    I want diverse search variants for GitHub
-    So that implementation search finds repos beyond the obvious keywords
-    """
-
-    @pytest.mark.unit
-    def test_returns_multiple_queries(self) -> None:
-        """
-        Scenario: Basic expansion
-        Given a topic
-        When expand_github_queries is called
-        Then at least 3 queries are returned
-        """
-        queries = expand_github_queries("rate limiter")
-        assert len(queries) >= 3
-
-    @pytest.mark.unit
-    def test_queries_are_unique(self) -> None:
-        """
-        Scenario: No duplicates
-        Given a topic
-        When expand_github_queries is called
-        Then all queries are distinct
-        """
-        queries = expand_github_queries("websocket server")
-        assert len(queries) == len(set(queries))
-
-    @pytest.mark.unit
-    def test_includes_implementation_variant(self) -> None:
-        """
-        Scenario: Implementation-focused variant
-        Given a topic
-        When expand_github_queries is called
-        Then at least one query targets implementations
-        """
-        queries = expand_github_queries("bloom filter")
-        lowered = [q.lower() for q in queries]
-        assert any(
-            "implementation" in q or "library" in q or "example" in q for q in lowered
-        )
-
-
-class TestExpandDiscourseQueries:
-    """
-    Feature: Discourse query expansion
-
-    As the discourse channel
-    I want diverse community search queries
-    So that HN, Reddit, and blog searches capture varied discussions
-    """
-
-    @pytest.mark.unit
-    def test_returns_multiple_queries(self) -> None:
-        """
-        Scenario: Basic expansion
-        Given a topic
-        When expand_discourse_queries is called
-        Then at least 2 queries are returned
-        """
-        queries = expand_discourse_queries("microservice patterns")
-        assert len(queries) >= 2
-
-    @pytest.mark.unit
-    def test_queries_are_unique(self) -> None:
-        """
-        Scenario: No duplicates
-        Given a topic
-        When expand_discourse_queries is called
-        Then all queries are distinct
-        """
-        queries = expand_discourse_queries("async python")
-        assert len(queries) == len(set(queries))

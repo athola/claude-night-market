@@ -65,6 +65,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- **tome's unwired graph and channel helpers.** The citation-graph
+  writer, the thread finder (`graph/threads.py`), the visualizer
+  (`output/visualizer.py`), the `CitationEdge` model, citation-chaining
+  and page-chunking helpers in the academic channel, TRIZ bridge and
+  canonical-matrix helpers, query expansion for the GitHub and
+  discourse channels, the Reddit parser, `fuzzy_deduplicate` and
+  `embedder_available` had no caller outside their tests, so the
+  features they suggest could not fire. ADR-0018 now records that the
+  graph layer is decided but not wired. `ideation.get_method` is kept:
+  it is the catalog lookup the catalog tests read through.
+
 - **egregore's unused Discussions pipeline and scout.** `scout.py` (no
   entry point and no importer outside its tests) and everything in
   `discussions.py` except `DiscussionsConfig` had no production caller,

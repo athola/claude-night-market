@@ -9,14 +9,9 @@ an agent passes to WebSearch/WebFetch tool calls.
 from __future__ import annotations
 
 import argparse
-import csv
-import functools
 import json
 import re
-from importlib import resources
 from typing import Any
-
-from tome.models import Finding
 
 # ---------------------------------------------------------------------------
 # Altshuller's 40 Inventive Principles
@@ -978,116 +973,9 @@ def suggest_inventive_principles(
 # the software-friendly suggest_inventive_principles catalogue above.
 
 
-@functools.cache
-def _load_canonical_matrix() -> dict[tuple[int, int], list[int]]:
-    """Lazily load and cache the vendored sparse contradiction matrix.
-
-    Returns an empty dict (and caches it) when the data file is absent, so
-    the optional lookup degrades gracefully rather than raising.
-    """
-    matrix: dict[tuple[int, int], list[int]] = {}
-    try:
-        data_file = resources.files("tome.channels.triz_data").joinpath(
-            "contradiction_matrix.csv"
-        )
-        text = data_file.read_text(encoding="utf-8")
-    except (FileNotFoundError, ModuleNotFoundError, OSError):
-        return matrix
-
-    for row in csv.DictReader(text.splitlines()):
-        try:
-            improving = int(row["improving_parameter"])
-            worsening = int(row["worsening_parameter"])
-            principles = [
-                int(n) for n in row["recommended_principles"].split(";") if n.strip()
-            ]
-        except (KeyError, ValueError, AttributeError):
-            # A missing column, non-integer parameter, or non-integer
-            # principle token drops just this row, honoring the documented
-            # graceful-degradation contract for this OPTIONAL lookup.
-            continue
-        matrix[(improving, worsening)] = principles
-
-    return matrix
-
-
-def lookup_canonical_principles(
-    improving_param: int,
-    worsening_param: int,
-) -> list[int]:
-    """Look up inventive principles for a canonical matrix cell.
-
-    OPTIONAL grounding lookup, SECONDARY to ``suggest_inventive_principles``.
-    The matrix is Altshuller's classical 39x39 engineering-parameter table,
-    frozen since 1985, mapping engineering rather than software parameters.
-
-    An empty cell does NOT mean "no solution": by the empty-box convention
-    any of the 40 principles may apply.  This function returns ``[]`` for
-    both empty cells and out-of-range indices, so callers branch on a
-    single "no recommendation" signal.
-
-    Args:
-        improving_param: Engineering parameter to improve (1-39).
-        worsening_param: Engineering parameter that worsens (1-39).
-
-    Returns:
-        A list of inventive-principle numbers (1-40), or ``[]`` when the
-        cell is empty or either index is out of range.
-    """
-    if not (1 <= improving_param <= 39 and 1 <= worsening_param <= 39):
-        return []
-    matrix = _load_canonical_matrix()
-    return list(matrix.get((improving_param, worsening_param), []))
-
-
 # ---------------------------------------------------------------------------
 # Bridge statement
 # ---------------------------------------------------------------------------
-
-
-def format_bridge_statement(
-    source_field: str,
-    source_solution: str,
-    target_domain: str,
-    application: str,
-    confidence: float,
-) -> Finding:
-    """Create a Finding representing a TRIZ cross-domain bridge mapping.
-
-    The Finding encodes an analogical leap from a solved problem in one
-    field to an unsolved problem in the target domain.
-
-    Args:
-        source_field: The field where the analogical solution exists.
-        source_solution: Brief description of the solution in that field.
-        target_domain: The domain being researched.
-        application: How the source solution applies to the target domain.
-        confidence: Estimated confidence of the analogy on [0.0, 1.0].
-
-    Returns:
-        A Finding with source="triz", channel="triz", and metadata
-        recording bridge_confidence, source_field, and target_field.
-    """
-    title = f"Bridge: {source_field} to {target_domain}"
-    summary = (
-        f"In {source_field}, {source_solution}. "
-        f"This maps to {target_domain} as {application}."
-    )
-    url = f"triz://bridge/{source_field.replace(' ', '-')}/{target_domain}"
-
-    return Finding(
-        source="triz",
-        channel="triz",
-        title=title,
-        url=url,
-        relevance=confidence,
-        summary=summary,
-        metadata={
-            "source_field": source_field,
-            "target_field": target_domain,
-            "bridge_confidence": confidence,
-        },
-    )
 
 
 def analyze(topic: str, domain: str) -> dict[str, Any]:

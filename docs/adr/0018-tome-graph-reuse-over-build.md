@@ -40,11 +40,19 @@ Two amendments came out of the war-room review and are binding:
    capability-unavailable signal. Base research is unaffected because
    the graph layer is additive.
 
-Coupling sits in three modules, each importing one memory-palace
-surface: `tome/graph/palace_adapter.py` (`KnowledgeGraph`),
-`tome/graph/threads.py` (`PalaceGraphAnalyzer`) and
-`tome/retrieval/semantic.py` (`EmbeddingIndex`). A change to any of
-those memory-palace APIs is checked against all three.
+Coupling sits in `tome/retrieval/semantic.py` (`EmbeddingIndex`), the
+one module that imports a memory-palace surface. A change to that API
+is checked against it.
+
+The citation-graph writer (`CitationGraphWriter` in
+`tome/graph/palace_adapter.py`, over `KnowledgeGraph`) and the thread
+finder (`tome/graph/threads.py`, over `PalaceGraphAnalyzer`) were
+built and tested but never wired into a research run, so nothing
+executed them. They were removed on 2026-11-07, together with the
+citation-chaining helpers in `tome/channels/academic.py` that would
+have fed them. `palace_adapter.py` keeps `GraphBackendUnavailable`,
+which `semantic.py` raises. The decision stands: when the graph layer
+is wired, it reuses memory-palace's graph rather than building one.
 
 ## Evidence
 

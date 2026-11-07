@@ -14,14 +14,10 @@ import pytest
 
 from tome.channels.academic import (
     build_arxiv_search_url,
-    build_citation_citations_url,
-    build_citation_references_url,
     build_core_search_url,
     build_openalex_search_url,
-    build_paper_summary_prompt,
     build_semantic_scholar_url,
     build_unpaywall_url,
-    estimate_page_chunks,
     expand_academic_queries,
     generate_access_fallback_guidance,
     parse_arxiv_response,
@@ -35,17 +31,14 @@ from tome.channels.discourse import (
     build_lobsters_search_url,
     build_lobsters_websearch_query,
     build_reddit_search_url,
-    expand_discourse_queries,
     parse_blog_result,
     parse_hn_response,
     parse_lobsters_result,
-    parse_reddit_response,
     suggest_subreddits,
 )
 from tome.channels.github import (
     build_github_api_search,
     build_github_search_queries,
-    expand_github_queries,
     parse_github_api_response,
     parse_github_result,
     rank_github_findings,
@@ -58,18 +51,6 @@ from tome.models import Finding
 
 
 class TestGitHubQueryBuilders:
-    @pytest.mark.unit
-    def test_expand_returns_unique_queries_capped_at_max(self) -> None:
-        out = expand_github_queries("rate limiting", max_variants=3)
-        assert len(out) == 3
-        assert len(set(out)) == 3
-        assert all("rate limiting" in q for q in out)
-
-    @pytest.mark.unit
-    def test_expand_default_returns_five(self) -> None:
-        out = expand_github_queries("topic")
-        assert len(out) == 5
-
     @pytest.mark.unit
     def test_build_search_queries_clamps_to_one_to_five(self) -> None:
         assert len(build_github_search_queries("x", max_queries=0)) == 1
@@ -236,17 +217,6 @@ class TestRankGitHubFindings:
 
 class TestDiscourseQueryBuilders:
     @pytest.mark.unit
-    def test_expand_returns_distinct_variants(self) -> None:
-        out = expand_discourse_queries("kafka")
-        assert len(out) == 4
-        assert len(set(out)) == 4
-        assert "kafka" in out
-
-    @pytest.mark.unit
-    def test_expand_caps_at_max_variants(self) -> None:
-        assert len(expand_discourse_queries("topic", max_variants=2)) == 2
-
-    @pytest.mark.unit
     def test_hn_search_url_encodes_topic(self) -> None:
         url = build_hn_search_url("rate limit", hits_per_page=20)
         assert "rate+limit" in url or "rate%20limit" in url
@@ -378,100 +348,6 @@ class TestSuggestSubreddits:
         assert subs1 is not subs2
 
 
-class TestParseRedditResponse:
-    @pytest.mark.unit
-    def test_parses_qualifying_post(self) -> None:
-        data = {
-            "data": {
-                "children": [
-                    {
-                        "data": {
-                            "title": "Post",
-                            "url": "https://example.com/article",
-                            "score": 500,
-                            "selftext": "long text" * 30,
-                            "permalink": "/r/programming/comments/x",
-                        }
-                    }
-                ]
-            }
-        }
-        out = parse_reddit_response(data)
-        assert len(out) == 1
-        assert out[0].title == "Post"
-        assert out[0].url == "https://example.com/article"
-        assert len(out[0].summary) <= 200
-        assert out[0].metadata["score"] == 500
-
-    @pytest.mark.unit
-    def test_uses_permalink_when_external_url_is_reddit(self) -> None:
-        data = {
-            "data": {
-                "children": [
-                    {
-                        "data": {
-                            "title": "Self",
-                            "url": "https://www.reddit.com/r/x/comments/y",
-                            "score": 100,
-                            "permalink": "/r/x/comments/y",
-                        }
-                    }
-                ]
-            }
-        }
-        out = parse_reddit_response(data)
-        assert "reddit.com/r/x/comments/y" in out[0].url
-
-    @pytest.mark.unit
-    def test_excludes_below_min_score(self) -> None:
-        data = {
-            "data": {
-                "children": [
-                    {"data": {"title": "low", "score": 1, "url": "https://x"}},
-                ]
-            }
-        }
-        assert parse_reddit_response(data, min_score=10) == []
-
-    @pytest.mark.unit
-    def test_handles_missing_path(self) -> None:
-        assert parse_reddit_response({}) == []
-        assert parse_reddit_response({"data": "not a dict"}) == []
-
-    @pytest.mark.unit
-    def test_skips_non_dict_children(self) -> None:
-        data = {
-            "data": {
-                "children": [
-                    "bad",
-                    {"data": {"title": "ok", "score": 100, "url": "https://x"}},
-                ]
-            }
-        }
-        out = parse_reddit_response(data)
-        assert len(out) == 1
-
-    @pytest.mark.unit
-    def test_summary_falls_back_to_score_for_link_post(self) -> None:
-        data = {
-            "data": {
-                "children": [
-                    {
-                        "data": {
-                            "title": "no selftext",
-                            "url": "https://example.com",
-                            "score": 250,
-                            "permalink": "/r/x/y",
-                            "selftext": "",
-                        }
-                    }
-                ]
-            }
-        }
-        out = parse_reddit_response(data)
-        assert "250 upvotes" in out[0].summary
-
-
 class TestParseBlogResult:
     @pytest.mark.unit
     def test_extracts_domain_as_source(self) -> None:
@@ -552,17 +428,6 @@ class TestAcademicQueryBuilders:
     def test_openalex_search_url(self) -> None:
         url = build_openalex_search_url("topic", per_page=15)
         assert "per_page=15" in url
-
-    @pytest.mark.unit
-    def test_citation_references_url(self) -> None:
-        url = build_citation_references_url("paper-123", limit=5)
-        assert "paper-123/references" in url
-        assert "limit=5" in url
-
-    @pytest.mark.unit
-    def test_citation_citations_url(self) -> None:
-        url = build_citation_citations_url("paper-123")
-        assert "paper-123/citations" in url
 
 
 # ============================================================================
@@ -805,24 +670,6 @@ class TestParseCitationChain:
 # ============================================================================
 
 
-class TestEstimatePageChunks:
-    @pytest.mark.unit
-    def test_evenly_divisible_pages(self) -> None:
-        assert estimate_page_chunks(40, chunk_size=20) == ["1-20", "21-40"]
-
-    @pytest.mark.unit
-    def test_remaining_partial_chunk(self) -> None:
-        assert estimate_page_chunks(55, chunk_size=20) == ["1-20", "21-40", "41-55"]
-
-    @pytest.mark.unit
-    def test_zero_pages_returns_empty(self) -> None:
-        assert estimate_page_chunks(0, chunk_size=20) == []
-
-    @pytest.mark.unit
-    def test_single_chunk(self) -> None:
-        assert estimate_page_chunks(5, chunk_size=20) == ["1-5"]
-
-
 class TestGenerateAccessFallback:
     @pytest.mark.unit
     def test_includes_doi_section_when_doi_provided(self) -> None:
@@ -841,11 +688,3 @@ class TestGenerateAccessFallback:
     def test_includes_google_scholar_search_link(self) -> None:
         out = generate_access_fallback_guidance("transformers")
         assert "scholar.google.com" in out
-
-
-class TestBuildPaperSummaryPrompt:
-    @pytest.mark.unit
-    def test_includes_title_and_abstract(self) -> None:
-        out = build_paper_summary_prompt("My Paper", "this is the abstract")
-        assert "My Paper" in out
-        assert "this is the abstract" in out

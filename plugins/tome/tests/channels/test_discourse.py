@@ -22,7 +22,6 @@ from tome.channels.discourse import (
     parse_blog_result,
     parse_hn_response,
     parse_lobsters_result,
-    parse_reddit_response,
     suggest_subreddits,
 )
 
@@ -448,123 +447,6 @@ class TestSuggestSubreddits:
         assert isinstance(subs, list)
         assert len(subs) > 0
         assert all(isinstance(s, str) for s in subs)
-
-
-class TestParseRedditResponse:
-    """
-    Feature: Reddit JSON response parsing
-
-    As a research pipeline
-    I want Reddit search results converted to Findings with score filtering
-    So that low-quality posts are excluded
-    """
-
-    @pytest.mark.unit
-    def test_parses_post_into_finding(self) -> None:
-        """
-        Scenario: Single high-score Reddit post is converted to a Finding
-        Given a valid Reddit JSON response with one post
-        When parse_reddit_response is called
-        Then one Finding is returned with correct fields
-        """
-        data: dict[str, Any] = {
-            "data": {
-                "children": [
-                    {
-                        "data": {
-                            "title": "Best resources for learning consistent hashing?",
-                            "url": "https://example.com/hashing",
-                            "score": 500,
-                            "selftext": "Looking for books and papers",
-                            "permalink": "/r/programming/comments/abc/best_resources/",
-                        }
-                    }
-                ]
-            }
-        }
-
-        findings = parse_reddit_response(data, min_score=10)
-
-        assert len(findings) == 1
-        f = findings[0]
-        assert f.source == "reddit"
-        assert f.channel == "discourse"
-
-    @pytest.mark.unit
-    def test_filters_below_min_score(self) -> None:
-        """
-        Scenario: Post below min_score is excluded
-        Given a post with score=2 and min_score=10
-        When parse_reddit_response is called
-        Then an empty list is returned
-        """
-        data: dict[str, Any] = {
-            "data": {
-                "children": [
-                    {
-                        "data": {
-                            "title": "Bad post",
-                            "url": "https://example.com",
-                            "score": 2,
-                            "selftext": "",
-                            "permalink": "/r/programming/comments/xyz/bad/",
-                        }
-                    }
-                ]
-            }
-        }
-
-        findings = parse_reddit_response(data, min_score=10)
-
-        assert findings == []
-
-    @pytest.mark.unit
-    def test_empty_children_returns_empty(self) -> None:
-        """
-        Scenario: Response with no children
-        Given {"data": {"children": []}}
-        When parse_reddit_response is called
-        Then an empty list is returned
-        """
-        assert parse_reddit_response({"data": {"children": []}}) == []
-
-    @pytest.mark.unit
-    def test_malformed_response_returns_empty(self) -> None:
-        """
-        Scenario: Completely malformed response
-        Given {}
-        When parse_reddit_response is called
-        Then an empty list is returned without raising
-        """
-        assert parse_reddit_response({}) == []
-
-    @pytest.mark.unit
-    def test_post_without_url_uses_permalink(self) -> None:
-        """
-        Scenario: Self-post with no external URL uses permalink
-        Given a post with a permalink but no url
-        When parse_reddit_response is called
-        Then a Finding is returned with a reddit.com URL
-        """
-        data: dict[str, Any] = {
-            "data": {
-                "children": [
-                    {
-                        "data": {
-                            "title": "Self post no url",
-                            "score": 50,
-                            "selftext": "Discussion here",
-                            "permalink": "/r/programming/comments/abc/self_post/",
-                        }
-                    }
-                ]
-            }
-        }
-
-        findings = parse_reddit_response(data, min_score=10)
-
-        assert len(findings) == 1
-        assert "reddit.com" in findings[0].url
 
 
 class TestBuildBlogSearchQueries:

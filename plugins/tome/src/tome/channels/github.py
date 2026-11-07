@@ -12,37 +12,13 @@ from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import quote_plus
 
-from tome.channels import deduplicate_queries, estimate_relevance
+from tome.channels import estimate_relevance
 from tome.models import Finding
 from tome.synthesis.ranker import compute_relevance_score
 
 # ---------------------------------------------------------------------------
 # Query Expansion
 # ---------------------------------------------------------------------------
-
-
-def expand_github_queries(topic: str, max_variants: int = 5) -> list[str]:
-    """Generate diverse GitHub search query variants.
-
-    Produces the original topic plus implementation, library, framework,
-    and alternative-keyword variants.
-
-    Args:
-        topic: Free-text research topic.
-        max_variants: Maximum total queries to return (default 5).
-
-    Returns:
-        List of distinct query strings.
-    """
-    queries: list[str] = [
-        f"site:github.com {topic}",
-        f"site:github.com {topic} implementation",
-        f"site:github.com {topic} library",
-        f"github {topic} stars:>100",
-        f"site:github.com {topic} framework example",
-    ]
-
-    return deduplicate_queries(queries, max_variants)
 
 
 # ---------------------------------------------------------------------------

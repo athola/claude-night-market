@@ -45,7 +45,7 @@ test-channels: ## Run channel-specific tests
 test-synthesis: ## Run synthesis tests (merger, ranker)
 	$(PYTEST) tests/unit/ -v -k "merger or ranker" --tb=short
 
-test-output: ## Run output tests (export, visualizer)
+test-output: ## Run output tests (export)
 	$(PYTEST) tests/output/ -v --tb=short
 
 metrics: ## Score the retrieval gold set (offline, no network)

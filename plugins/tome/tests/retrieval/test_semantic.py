@@ -24,7 +24,6 @@ from tome.retrieval.semantic import (
     SemanticRetriever,
     _cosine,
     best_available_provider,
-    embedder_available,
     open_embedder,
 )
 
@@ -179,19 +178,6 @@ class TestOpenEmbedder:
         monkeypatch.setattr(semantic_module, "_EmbeddingIndex", None)
         with pytest.raises(GraphBackendUnavailable, match="memory-palace"):
             open_embedder(str(tmp_path / "tome-emb.yaml"))
-
-    @pytest.mark.unit
-    def test_availability_tracks_the_backend_alias(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """The predicate reports the backend it actually guards, so it
-        cannot drift from the branch ``open_embedder`` takes.
-        """
-        monkeypatch.setattr(semantic_module, "_EmbeddingIndex", None)
-        assert embedder_available() is False
-
-        monkeypatch.setattr(semantic_module, "_EmbeddingIndex", object())
-        assert embedder_available() is True
 
 
 class TestRealEmbedderContract:

@@ -72,11 +72,6 @@ _HASH_PROVIDER: Provider = "none"
 _MODEL_PROVIDER: Provider = "local"
 
 
-def embedder_available() -> bool:
-    """Return whether the embedding backend is importable."""
-    return _EmbeddingIndex is not None
-
-
 def best_available_provider() -> Provider:
     """Pick the real embedding provider when possible, else the fallback.
 
