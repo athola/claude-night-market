@@ -56,6 +56,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The war room keeps an expert's answer that holds a stray byte.**
+  Expert CLI output was decoded strictly, so one non-UTF-8 byte from a
+  CLI that exited 0 became an error note in place of the answer. Output
+  is now decoded with replacement. A Haiku-lookup bug other than a
+  missing CLI is no longer passed off as the expert's reply, and two
+  sessions started in the same second get distinct ids instead of one
+  overwriting the other.
+
 - **conjure's Gemini quota gate reads the usage it saved.** The tracker
   loaded `gemini_usage.json` from the base class and then switched to
   `usage.json` without reading it. The bridge hook builds a fresh

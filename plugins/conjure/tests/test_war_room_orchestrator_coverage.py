@@ -563,3 +563,44 @@ class TestInvokeParallel:
         # Verify the default prompt was used
         prompt_arg = mock_invoke.call_args.args[1]
         assert prompt_arg == "fallback prompt"
+
+
+class TestExpertOutputSurvivesItsOwnBytes:
+    """An expert CLI that exits 0 has answered, whatever bytes it printed."""
+
+    @pytest.mark.asyncio
+    async def test_a_stray_non_utf8_byte_does_not_discard_the_answer(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Strict decoding turned the whole answer into an error note."""
+        mock_proc = AsyncMock()
+        mock_proc.returncode = 0
+        mock_proc.communicate.return_value = (b"use a queue \xff here", b"")
+        with patch("asyncio.create_subprocess_exec", return_value=mock_proc):
+            result = await orchestrator._run_subprocess(["x"], "Expert", "missing")
+
+        assert result.startswith("use a queue")
+        assert "error" not in result
+
+    @pytest.mark.asyncio
+    async def test_a_haiku_lookup_bug_is_not_reported_as_an_expert_answer(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """get_haiku_command raises FileNotFoundError only; anything else is a bug."""
+        expert = MagicMock(role="Scout", description="d")
+        with patch(
+            "scripts.war_room.orchestrator.get_haiku_command",
+            side_effect=TypeError("bad config"),
+        ):
+            with pytest.raises(TypeError):
+                await orchestrator._invoke_haiku_fallback(expert, "prompt")
+
+    def test_two_sessions_started_in_one_second_get_distinct_ids(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """A one-second timestamp alone collided and overwrote the first."""
+        first = orchestrator._initialize_session("p", "lightweight")
+        second = orchestrator._initialize_session("p", "lightweight")
+
+        assert first.session_id != second.session_id
+        assert first.session_id.startswith("war-room-")
