@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **memory-palace's web research hook survives a malformed intake queue
+  line.** A line such as `{"query": null}` or `[1]` raised
+  `AttributeError`, and an undecodable file raised `UnicodeDecodeError`,
+  so the hook exited 1 on every later WebFetch and WebSearch until the
+  file was repaired. Such lines are skipped and such a file reads as
+  nothing pending.
+
 - **attune's generated Rust Makefile works on a fresh project.**
   `make test-integration` ran `cargo test --test '*'`, which errors
   when there is no `tests/` directory, and `make ci` ran `cargo fmt`,
