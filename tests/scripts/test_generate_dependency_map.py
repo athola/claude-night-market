@@ -540,3 +540,23 @@ class TestScanDeclaredDeps:
         meta.mkdir(parents=True)
         (meta / "plugin.json").write_text(json.dumps({"name": "alpha"}))
         assert scan_declared_deps(tmp_path / "alpha", ["alpha", "beta"]) == []
+
+
+def test_a_sibling_resolver_call_is_an_edge(tmp_path: Path) -> None:
+    """abstract resolved memory-palace's dir and imported a bare module from it.
+
+    No import statement names the plugin, so the edge went undeclared.
+    """
+    scripts = tmp_path / "abstract" / "scripts"
+    scripts.mkdir(parents=True)
+    (scripts / "bridge.py").write_text(
+        "from _vendored import sibling_plugin_dir\n"
+        "palace = sibling_plugin_dir(__file__, 'memory-palace')\n"
+        "from deduplication import x\n"
+    )
+
+    edges = scan_python_imports(
+        tmp_path / "abstract", "abstract", ["abstract", "memory-palace"]
+    )
+
+    assert [e["plugin"] for e in edges] == ["memory-palace"]

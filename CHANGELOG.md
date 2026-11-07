@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **abstract declares its memory-palace dependency.** Its insight
+  bridge resolves memory-palace's directory and imports a module from
+  it, but `plugin.json` named only leyline, and the dependency map's
+  scan missed the edge because no import statement names the plugin.
+  The scan now reads `sibling_plugin_dir(..., "<plugin>")` and
+  `add_sibling_src_to_path(..., "<plugin>")` calls as edges.
+
 - **abstract's discussion promotion honors `target_repo` and
   `promotion_emoji`.** Both were read from `config.json` and then
   ignored: the queries named `athola/claude-night-market` and counted

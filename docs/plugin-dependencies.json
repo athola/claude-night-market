@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generated": "2026-10-29",
+  "generated": "2026-11-07",
   "dependencies": {
     "abstract": {
       "dependents": [
@@ -65,6 +65,7 @@
     },
     "memory-palace": {
       "dependents": [
+        "abstract",
         "tome"
       ],
       "type": "runtime",
@@ -80,7 +81,8 @@
   },
   "reverse_index": {
     "abstract": [
-      "leyline"
+      "leyline",
+      "memory-palace"
     ],
     "archetypes": [
       "abstract"
