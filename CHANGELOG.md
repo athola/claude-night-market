@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **gauntlet's dependency-map scoring checks precision and ignores
+  case.** It scored recall only and compared names case-sensitively,
+  so `Auth, DB` failed against `auth, db` and a list padded with ten
+  modules passed. The score is now the Jaccard overlap of the
+  lowercased sets, with the same 0.8 and 0.3 thresholds.
+
 - **gauntlet refuses a git ref that git would read as an option.** The
   ref check rejected shell metacharacters but not a leading `-`, so
   `--base-ref --output=pwned.txt` made `git diff` write that file.

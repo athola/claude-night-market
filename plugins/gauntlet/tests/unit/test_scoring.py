@@ -283,6 +283,19 @@ class TestMLEnhancedScoring:
         assert evaluate_answer(ch, "B") == "pass"
 
     @pytest.mark.unit
+    def test_dependency_map_ignores_module_name_case(self):
+        """`Auth, DB` names the same modules as `auth, db`."""
+        ch = _challenge("dependency_map", "auth, db")
+        assert evaluate_answer(ch, "Auth, DB") == "pass"
+
+    @pytest.mark.unit
+    def test_dependency_map_does_not_pass_a_list_padded_with_guesses(self):
+        """Naming every module in the codebase is not knowing which ones."""
+        ch = _challenge("dependency_map", "auth, db")
+        padded = "auth, db, cache, queue, api, ui, cli, log, cfg, util"
+        assert evaluate_answer(ch, padded) != "pass"
+
+    @pytest.mark.unit
     def test_dependency_map_unchanged(self):
         """
         Scenario: Dependency map scoring is not affected by ML

@@ -10,8 +10,8 @@ from gauntlet.models import Challenge, ChallengeResult, ChallengeType
 # Scoring thresholds
 # ---------------------------------------------------------------------------
 
-# dependency_map: fraction of expected modules that must appear in the
-# answer for a pass / partial verdict.
+# dependency_map: Jaccard overlap between the expected and given module
+# sets needed for a pass / partial verdict.
 _DEPENDENCY_PASS_THRESHOLD = 0.8
 _DEPENDENCY_PARTIAL_THRESHOLD = 0.3
 
@@ -35,8 +35,8 @@ def _word_overlap_ratio(reference: str, candidate: str) -> float:
 
 
 def _dep_set(text: str) -> set[str]:
-    """Split a comma-separated list of module names into a set."""
-    return {item.strip() for item in text.split(",") if item.strip()}
+    """Split a comma-separated list of module names into a lowercase set."""
+    return {item.strip().lower() for item in text.split(",") if item.strip()}
 
 
 def _bucket_result(
@@ -60,12 +60,17 @@ def _score_multiple_choice(challenge: Challenge, stripped: str) -> ChallengeResu
 
 
 def _score_dependency_map(challenge: Challenge, stripped: str) -> ChallengeResult:
-    """Score a dependency_map answer by set overlap against the expected modules."""
+    """Score a dependency_map answer by Jaccard overlap with the expected modules.
+
+    Recall alone passed a list padded with every module in the codebase,
+    so the union is the denominator: each guess that is not a dependency
+    costs as much as each dependency left out.
+    """
     expected = _dep_set(challenge.answer)
     if not expected:
         return ChallengeResult.FAIL
     given = _dep_set(stripped)
-    overlap = len(expected & given) / len(expected)
+    overlap = len(expected & given) / len(expected | given)
     return _bucket_result(
         overlap, _DEPENDENCY_PASS_THRESHOLD, _DEPENDENCY_PARTIAL_THRESHOLD
     )
@@ -108,7 +113,8 @@ def evaluate_answer(challenge: Challenge, answer: str) -> ChallengeResult:
     Scoring rules by challenge type:
 
     - **multiple_choice**: exact letter match (case-insensitive).
-    - **dependency_map**: set overlap.  >= 80% = pass, >= 30% = partial.
+    - **dependency_map**: Jaccard overlap, case-insensitive.  >= 0.8 = pass,
+      >= 0.3 = partial.
     - **explain_why / trace / spot_bug / code_completion**: blended
       word-overlap + ML quality score.  >= 0.5 = pass, >= 0.2 = partial.
       Falls back to word-overlap alone when ML is unavailable.
