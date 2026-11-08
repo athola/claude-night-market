@@ -67,8 +67,9 @@ def main(argv: list[str] | None = None) -> int:
     """Score a submitted answer against a challenge file.
 
     Returns the process exit code: 0 when the answer was scored, non-zero
-    when the challenge file is missing or unreadable, or when ``--gate``
-    passes outside a directory holding ``.gauntlet``.
+    when the challenge file is missing or unreadable, or when a ``--gate``
+    pass cannot release the commit: no ``.gauntlet`` here, a challenge
+    other than the pending one, or an unreadable staged set.
     """
     parser = _build_parser()
     args = parser.parse_args(argv)
@@ -87,7 +88,26 @@ def main(argv: list[str] | None = None) -> int:
         if gauntlet_dir is None:
             print("error: --gate needs a .gauntlet directory here", file=sys.stderr)
             return 1
-        write_pass_token(gauntlet_dir, _get_staged_hash())
+        # Only the challenge the gate set releases the commit, so a passed
+        # practice problem cannot stand in for it.
+        pending_path = gauntlet_dir / "state" / "pending_challenge.json"
+        try:
+            pending_id = json.loads(pending_path.read_text()).get("id")
+        except (OSError, json.JSONDecodeError):
+            pending_id = None
+        if pending_id != challenge.id:
+            print(
+                "error: --gate scores only the pending gate challenge", file=sys.stderr
+            )
+            return 1
+        # A failing git call hashes to "", which the gate's own failing
+        # call would match without any staged set behind it.
+        staged_hash = _get_staged_hash()
+        if not staged_hash:
+            print("error: --gate cannot read the staged files", file=sys.stderr)
+            return 1
+        write_pass_token(gauntlet_dir, staged_hash)
+        pending_path.unlink()
     return 0
 
 

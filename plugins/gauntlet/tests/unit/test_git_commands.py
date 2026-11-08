@@ -32,7 +32,14 @@ def test_commit_forms_are_detected(command: str) -> None:
 @pytest.mark.unit
 @pytest.mark.parametrize(
     "command",
-    ["git status", "git log --grep commit", "echo 'git commit'", "git push"],
+    [
+        "git status",
+        "git log --grep commit",
+        "echo 'git commit'",
+        "git push",
+        "git commit-tree HEAD^{tree} -m x",
+        "git commit-graph write",
+    ],
 )
 def test_non_commit_commands_are_not_detected(command: str) -> None:
     assert not is_git_commit(command)

@@ -704,6 +704,26 @@ class TestLifecycleErrorPaths:
         assert "models directory" in (tmp_path / "daemon.log").read_text()
 
     @pytest.mark.unit
+    def test_a_missing_models_directory_still_clears_stale_port_and_pid(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """A port file left by a dead daemon would point clients at its port."""
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        (tmp_path / "daemon.port").write_text("54321")
+        (tmp_path / "daemon.pid").write_text("999999")
+
+        with (
+            patch("daemon_lifecycle._get_models_dir", return_value=tmp_path / "none"),
+            patch("daemon_lifecycle._is_daemon_running", return_value=False),
+            patch("daemon_lifecycle.subprocess.Popen") as popen,
+        ):
+            _start_daemon()
+
+        popen.assert_not_called()
+        assert not (tmp_path / "daemon.port").exists()
+        assert not (tmp_path / "daemon.pid").exists()
+
+    @pytest.mark.unit
     def test_unrelated_event_neither_starts_nor_stops(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ):

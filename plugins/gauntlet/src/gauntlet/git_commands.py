@@ -10,7 +10,7 @@ import re
 
 # git, then any global options (-C <dir>, -c <k=v>, --no-pager, ...),
 # then the commit subcommand.
-_GIT_COMMIT_RE = re.compile(r"git(?:\s+(?:-[Cc]\s+\S+|-\S+))*\s+commit\b")
+_GIT_COMMIT_RE = re.compile(r"git(?:\s+(?:-[Cc]\s+\S+|-\S+))*\s+commit(?![\w-])")
 _SEGMENT_SPLIT_RE = re.compile(r"&&|\|\||[;|\n]")
 
 

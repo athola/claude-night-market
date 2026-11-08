@@ -121,17 +121,17 @@ def _start_daemon() -> None:
     if _is_daemon_running(pid_file):
         return
 
+    # Clean stale files from a previous run.
+    for f in (port_file, pid_file):
+        if f.exists():
+            f.unlink()
+
     # The daemon refuses to start without its models, so launching it
     # would write a pid for a process that is already gone.
     if not models_dir.is_dir():
         with open(data_dir / "daemon.log", "a") as log:
             log.write(f"oracle: not starting, models directory missing: {models_dir}\n")
         return
-
-    # Clean stale files from a previous run.
-    for f in (port_file, pid_file):
-        if f.exists():
-            f.unlink()
 
     log_fh = open(str(data_dir / "daemon.log"), "a")  # noqa: SIM115 - fd duped into subprocess; closed on the parent side after Popen returns
     try:
