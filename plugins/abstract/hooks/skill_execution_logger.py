@@ -145,13 +145,11 @@ class ContinualEvaluator:
             self._save_history()
             # Under the history lock and after the write, so the window is
             # computed over a history that ends with this run (#1018).
-            window_report = (
-                homeostatic_monitor.evaluate_window(
+            window_report = None
+            if self.claude_home is not None:
+                window_report = homeostatic_monitor.evaluate_window(
                     self.claude_home, skill_ref, history["accuracies"]
                 )
-                if self.claude_home is not None
-                else None
-            )
 
         accuracies = history["accuracies"]
         durations = history["durations"]

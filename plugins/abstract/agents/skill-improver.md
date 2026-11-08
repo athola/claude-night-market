@@ -374,7 +374,7 @@ carries and the system `python3` may not. It does two things:
   baseline. Other frontmatter lines stay byte-identical.
 - Marks the skill `evaluating` in
   `~/.claude/skills/improvement-queue.json`. The
-  homeostatic monitor hook then counts the next 10
+  skill execution logger hook then counts the next 10
   executions and reports `promote` or
   `pending_rollback_review`.
 
@@ -424,8 +424,8 @@ Data source: ~/.claude/skills/LEARNINGS.md"
 
 **Record insights in ImprovementMemory** so future improvement
 cycles can learn from what worked. Do not record the outcome by
-hand: the homeostatic monitor writes it when the evaluation window
-closes, with the success rate before the window as `before_score`
+hand: the skill execution logger hook writes it when the evaluation
+window closes, with the success rate before the window as `before_score`
 and the rate inside it as `after_score`.
 
 ```python

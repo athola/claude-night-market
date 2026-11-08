@@ -238,7 +238,7 @@ def _record_window_outcome(
         ).record_generation(skill_ref, version, after_score)
 
 
-def _advance_evaluation(
+def _advance_evaluation(  # noqa: PLR0911 - one early return per way a window is not advanced
     claude_home: Path, skill_ref: str, accuracies: list[float]
 ) -> dict[str, Any] | None:
     """Count this execution toward an open evaluation window.
@@ -250,8 +250,9 @@ def _advance_evaluation(
 
     Returns:
         Output fields for the hook report, plus ``window_gap``, or None
-        when the skill is not under evaluation. A missing queue file is
-        not created.
+        when the skill is not under evaluation, its window was abandoned,
+        or another process decided it first. A missing queue file is not
+        created.
 
     """
     queue_file = get_improvement_queue_path(claude_home)
@@ -265,9 +266,10 @@ def _advance_evaluation(
         # The history was reset under the window (a corrupt file is set
         # aside and restarted), so no run since the window opened is left
         # to judge. An empty slice would score as a perfect gap.
-        reason = "history no longer reaches the window's start"
-        queue.abandon_evaluation(skill_ref, reason)
-        return {"evaluation_abandoned": reason}
+        queue.abandon_evaluation(
+            skill_ref, "history no longer reaches the window's start"
+        )
+        return None
     window_gap = stability_gap_since(accuracies, entry.eval_history_start)
     if not queue.record_eval_execution(skill_ref, window_gap):
         return None
@@ -281,6 +283,8 @@ def _advance_evaluation(
             },
         }
     decision = queue.evaluate(skill_ref)
+    if decision not in ("promote", "pending_rollback_review"):
+        return None
     sys.stderr.write(f"HOMEOSTATIC: {skill_ref} evaluation finished: {decision}\n")
     _record_window_outcome(claude_home, skill_ref, queue.skills[skill_ref], accuracies)
     return {"window_gap": window_gap, "evaluation_decision": decision}
@@ -311,7 +315,7 @@ def evaluate_window(
         except (OSError, ValueError, KeyError) as e:
             sys.stderr.write(f"homeostatic_monitor: tracker error: {e}\n")
             trend = None
-    except (OSError, ValueError, KeyError, TypeError) as e:
+    except (OSError, ValueError) as e:
         sys.stderr.write(
             f"homeostatic_monitor: evaluation not recorded for {skill_ref}: {e}\n"
         )

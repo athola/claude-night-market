@@ -1,11 +1,12 @@
 """Tests for improvement queue management."""
 
 import json
+from dataclasses import fields
 from pathlib import Path
 
 import pytest
 
-from abstract.improvement_queue import ImprovementQueue, QueueEntry
+from abstract.improvement_queue import _FIELD_TYPES, ImprovementQueue, QueueEntry
 
 
 class TestImprovementQueueInit:
@@ -299,6 +300,35 @@ class TestQueueEntry:
         entry = QueueEntry.from_dict("abstract:s", {"evaluating": True})
         assert entry.status == "monitoring"
 
+    def test_from_dict_rejects_execution_ids_that_are_not_a_list(self) -> None:
+        with pytest.raises(ValueError, match="execution_ids"):
+            QueueEntry.from_dict("abstract:s", {"execution_ids": None})
+
+    def test_from_dict_rejects_a_string_flagged_count(self) -> None:
+        with pytest.raises(ValueError, match="flagged_count"):
+            QueueEntry.from_dict("abstract:s", {"flagged_count": "3"})
+
+    def test_from_dict_rejects_a_non_numeric_eval_gap(self) -> None:
+        with pytest.raises(ValueError, match="eval_gaps"):
+            QueueEntry.from_dict("abstract:s", {"eval_gaps": [0.1, "x"]})
+
+    def test_every_field_has_a_stored_type(self) -> None:
+        assert set(_FIELD_TYPES) == {spec.name for spec in fields(QueueEntry)}
+
+    def test_from_dict_accepts_an_integer_for_a_float_field(self) -> None:
+        entry = QueueEntry.from_dict("abstract:s", {"stability_gap": 0})
+        assert entry.stability_gap == 0
+
+    def test_begin_evaluation_clears_the_previous_windows_regression(self) -> None:
+        entry = QueueEntry(
+            skill_name="abstract:s",
+            regression_detected="2026-01-01T00:00:00+00:00",
+            current_gap=0.7,
+        )
+        entry.begin_evaluation(0.5, 10, 7, "1.1.0", "added checks")
+        assert entry.regression_detected is None
+        assert entry.current_gap is None
+
     def test_monitoring_entry_is_stored_without_evaluation_fields(self) -> None:
         stored = QueueEntry(skill_name="abstract:s", stability_gap=0.4).to_dict()
         assert set(stored) == {
@@ -339,18 +369,80 @@ class TestQueueFileCompatibility:
         stored = json.loads(queue_file.read_text())["skills"]
         assert stored["abstract:s"] == old
 
-    def test_evaluating_entry_without_eval_start_sets_the_file_aside(
+    def test_invalid_entry_is_set_aside_and_its_siblings_kept(
         self, tmp_path: Path
     ) -> None:
         queue_file = tmp_path / "improvement-queue.json"
+        bad = {"status": "evaluating"}
+        good = {"skill_name": "abstract:ok", "flagged_count": 2}
         queue_file.write_text(
-            json.dumps({"skills": {"abstract:s": {"status": "evaluating"}}})
+            json.dumps({"skills": {"abstract:s": bad, "abstract:ok": good}})
         )
 
         queue = ImprovementQueue(queue_file)
+        queue.flag_skill("abstract:other", 0.1, "e1")
 
         assert "abstract:s" not in queue.skills
-        assert list(tmp_path.glob("improvement-queue.json.corrupt-*"))
+        assert queue.skills["abstract:ok"].flagged_count == 2
+        stored = json.loads(queue_file.read_text())["skills"]
+        assert set(stored) == {"abstract:ok", "abstract:other"}
+        (backup,) = tmp_path.glob("improvement-queue.json.corrupt-*")
+        assert json.loads(backup.read_text()) == {"skills": {"abstract:s": bad}}
+
+    def test_invalid_entry_is_left_in_place_until_the_queue_is_saved(
+        self, tmp_path: Path
+    ) -> None:
+        queue_file = tmp_path / "improvement-queue.json"
+        original = json.dumps({"skills": {"abstract:s": {"flagged_count": "3"}}})
+        queue_file.write_text(original)
+
+        ImprovementQueue(queue_file)
+        ImprovementQueue(queue_file)
+
+        assert queue_file.read_text() == original
+        assert not list(tmp_path.glob("improvement-queue.json.corrupt-*"))
+
+
+class TestEvaluationTransitions:
+    """Only an evaluating entry is decided, and a restart is announced."""
+
+    @pytest.mark.unit
+    def test_evaluate_refuses_a_skill_that_is_not_evaluating(
+        self, tmp_path: Path, capsys
+    ) -> None:
+        queue = ImprovementQueue(tmp_path / "queue.json")
+        queue.flag_skill("abstract:s", 0.6, "exec-1")
+
+        assert queue.evaluate("abstract:s") == "not_evaluating"
+
+        stored = ImprovementQueue(tmp_path / "queue.json").skills["abstract:s"]
+        assert stored.status == "monitoring"
+        assert "not evaluating" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_evaluate_does_not_decide_a_window_twice(self, tmp_path: Path) -> None:
+        queue = ImprovementQueue(tmp_path / "queue.json")
+        queue.flag_skill("abstract:s", 0.6, "exec-1")
+        queue.start_evaluation("abstract:s", 0.6)
+        queue.record_eval_execution("abstract:s", 0.9)
+
+        assert queue.evaluate("abstract:s") == "pending_rollback_review"
+        assert queue.evaluate("abstract:s") == "not_evaluating"
+
+    @pytest.mark.unit
+    def test_start_evaluation_warns_when_it_restarts_an_open_window(
+        self, tmp_path: Path, capsys
+    ) -> None:
+        queue = ImprovementQueue(tmp_path / "queue.json")
+        queue.flag_skill("abstract:s", 0.6, "exec-1")
+        queue.start_evaluation("abstract:s", 0.6)
+        queue.record_eval_execution("abstract:s", 0.4)
+        capsys.readouterr()
+
+        assert queue.start_evaluation("abstract:s", 0.4)
+
+        assert "restart" in capsys.readouterr().err
+        assert queue.skills["abstract:s"].eval_gaps == []
 
 
 class TestAbandonEvaluation:

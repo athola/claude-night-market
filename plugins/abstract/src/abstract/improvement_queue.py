@@ -12,7 +12,7 @@ import fcntl
 import json
 import os
 from collections.abc import Iterator
-from dataclasses import MISSING, asdict, dataclass, field, fields
+from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal, get_args
@@ -33,6 +33,32 @@ QueueStatus = Literal["monitoring", "evaluating", "pending_rollback_review", "pr
 _HELD_STATUSES = ("evaluating", "pending_rollback_review")
 
 _DEFAULT_EVAL_TARGET = 10
+
+_NUMBER = (int, float)
+_OPTIONAL_STR = (str, type(None))
+
+# The stored type of each field, checked when an entry is read back: a
+# hand-edited value of the wrong type would otherwise load and fail later,
+# in whichever method first used it.
+_FIELD_TYPES: dict[str, Any] = {
+    "skill_name": str,
+    "stability_gap": _NUMBER,
+    "flagged_count": int,
+    "last_flagged": str,
+    "execution_ids": list,
+    "status": str,
+    "eval_start": _OPTIONAL_STR,
+    "eval_executions": int,
+    "eval_gaps": list,
+    "eval_target": int,
+    "eval_history_start": int,
+    "eval_version": str,
+    "eval_change_summary": str,
+    "baseline_gap": _NUMBER,
+    "regression_detected": _OPTIONAL_STR,
+    "current_gap": (int, float, type(None)),
+}
+_ITEM_TYPES: dict[str, Any] = {"execution_ids": str, "eval_gaps": _NUMBER}
 
 
 @dataclass
@@ -93,6 +119,15 @@ class QueueEntry:
         known = {f.name for f in fields(cls)}
         kwargs = {key: value for key, value in raw.items() if key in known}
         kwargs.setdefault("skill_name", skill_ref)
+        for name, value in kwargs.items():
+            item_type = _ITEM_TYPES.get(name)
+            if not isinstance(value, _FIELD_TYPES[name]) or (
+                item_type is not None
+                and not all(isinstance(item, item_type) for item in value)
+            ):
+                raise ValueError(
+                    f"queue entry for {skill_ref!r} has an invalid {name}: {value!r}"
+                )
         return cls(**kwargs)
 
     def to_dict(self) -> dict[str, Any]:
@@ -124,19 +159,17 @@ class QueueEntry:
         self.eval_version = version
         self.eval_change_summary = change_summary
         self.baseline_gap = baseline_gap
+        self.regression_detected = None
+        self.current_gap = None
         self.flagged_count = 0
         self.execution_ids = []
 
     def abandon_evaluation(self) -> None:
         """Close an open window without a decision and resume monitoring."""
         self.status = "monitoring"
-        specs = {spec.name: spec for spec in fields(self)}
+        fresh = QueueEntry(skill_name=self.skill_name)
         for name in self._EVAL_FIELDS:
-            spec = specs[name]
-            if spec.default_factory is not MISSING:
-                setattr(self, name, spec.default_factory())
-            else:
-                setattr(self, name, spec.default)
+            setattr(self, name, getattr(fresh, name))
 
 
 class ImprovementQueue:
@@ -145,6 +178,9 @@ class ImprovementQueue:
     def __init__(self, queue_file: Path) -> None:
         self.queue_file = queue_file
         self.skills: dict[str, QueueEntry] = {}
+        # Stored entries that could not be built, kept as read until the
+        # next save moves them to a backup file.
+        self._invalid: dict[str, object] = {}
         if not self._load():
             # Create under the lock: another process may have written the
             # queue since the unlocked read missed it, and an empty save
@@ -158,8 +194,10 @@ class ImprovementQueue:
 
         Only a parse failure counts as corruption. Any other OSError
         propagates: moving a healthy file aside on a transient read error
-        would empty the queue.
+        would empty the queue. An entry that cannot be built is left out
+        of ``skills`` and held in ``_invalid``, so its siblings still load.
         """
+        self._invalid = {}
         try:
             text = self.queue_file.read_text(encoding="utf-8")
         except FileNotFoundError:
@@ -170,21 +208,18 @@ class ImprovementQueue:
             data = json.loads(text)
         except ValueError:
             data = None
-        skills: dict[str, QueueEntry] | None = None
-        if isinstance(data, dict) and isinstance(data.get("skills", {}), dict):
-            try:
-                skills = {
-                    ref: QueueEntry.from_dict(ref, raw)
-                    for ref, raw in data.get("skills", {}).items()
-                }
-            except (ValueError, TypeError) as e:
-                # An entry that cannot be built is as unusable as bad JSON.
-                _warn(f"invalid entry in {self.queue_file}: {e}")
-        if skills is None:
+        stored = data.get("skills", {}) if isinstance(data, dict) else None
+        if not isinstance(stored, dict):
             self._set_aside_corrupt()
             self.skills = {}
-        else:
-            self.skills = skills
+            return True
+        self.skills = {}
+        for ref, raw in stored.items():
+            try:
+                self.skills[ref] = QueueEntry.from_dict(ref, raw)
+            except ValueError as e:
+                _warn(f"invalid entry in {self.queue_file}: {e}")
+                self._invalid[ref] = raw
         return True
 
     def _set_aside_corrupt(self) -> None:
@@ -202,6 +237,19 @@ class ImprovementQueue:
             return  # another process already moved it aside
         _warn(f"corrupt queue file {self.queue_file}; moved to {backup}")
 
+    def _set_aside_invalid_entries(self) -> None:
+        """Write the entries _load could not build to a backup file.
+
+        Called from _save, which runs under the lock and drops them from
+        the queue file. The backup is written once, by the save that
+        removes them.
+        """
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+        backup = self.queue_file.with_name(f"{self.queue_file.name}.corrupt-{stamp}")
+        write_atomic(backup, json.dumps({"skills": self._invalid}, indent=2))
+        _warn(f"invalid entries {sorted(self._invalid)} moved to {backup}")
+        self._invalid = {}
+
     def _save(self) -> None:
         """Persist queue to disk using atomic write.
 
@@ -210,6 +258,8 @@ class ImprovementQueue:
         """
         self.queue_file.parent.mkdir(parents=True, exist_ok=True)
         try:
+            if self._invalid:
+                self._set_aside_invalid_entries()
             stored = {ref: entry.to_dict() for ref, entry in self.skills.items()}
             write_atomic(self.queue_file, json.dumps({"skills": stored}, indent=2))
         except OSError as e:
@@ -307,6 +357,11 @@ class ImprovementQueue:
             if entry is None:
                 _warn(f"start_evaluation called for unknown skill {skill_ref!r}")
                 return False
+            if entry.status == "evaluating":
+                _warn(
+                    f"restarting the open evaluation of {skill_ref!r}:"
+                    f" {entry.eval_executions} recorded executions are discarded"
+                )
             entry.begin_evaluation(
                 baseline_gap,
                 self.EVAL_TARGET,
@@ -364,8 +419,13 @@ class ImprovementQueue:
     def evaluate(self, skill_ref: str) -> str:
         """Make promotion/rollback decision after evaluation completes.
 
+        The status is read under the lock, so of two processes that both
+        saw the window complete, only the first decides it.
+
         Returns:
-            "promote" if improved, "pending_rollback_review" otherwise.
+            "promote" if improved, "pending_rollback_review" otherwise,
+            "unknown" for a skill not in the queue, and "not_evaluating"
+            for one with no open window.
 
         """
         with self._locked_reload():
@@ -373,6 +433,12 @@ class ImprovementQueue:
             if entry is None:
                 _warn(f"evaluate called for unknown skill {skill_ref!r}")
                 return "unknown"
+            if entry.status != "evaluating":
+                _warn(
+                    f"evaluate called for {skill_ref!r}, which is not evaluating"
+                    f" (status {entry.status!r})"
+                )
+                return "not_evaluating"
 
             # Each recorded gap already covers every run since the window
             # opened, so the last one is the window's. Averaging them would

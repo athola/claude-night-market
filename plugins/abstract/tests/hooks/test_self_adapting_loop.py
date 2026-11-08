@@ -632,6 +632,47 @@ class TestLoggerAdvancesTheEvaluationWindow:
         entry = _queue(tmp_path).skills[SKILL]
         assert entry.status == "monitoring"
         assert entry.eval_start is None
+        metrics = json.loads(result.stdout)["hookSpecificOutput"]["continual_metrics"]
+        assert "window_evaluation" not in metrics
+        assert _history_accuracies(tmp_path, SKILL) == [*HEALTHY, 0]
+
+    @pytest.mark.unit
+    def test_window_decided_by_another_process_is_not_recorded_twice(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Two runs that both read the window as complete decide it once."""
+        self._open_window(tmp_path, target=10, history=HEALTHY)
+
+        def _decided_elsewhere(queue: ImprovementQueue, skill_ref: str) -> bool:
+            hm._record_window_outcome(
+                tmp_path,
+                skill_ref,
+                queue.skills[skill_ref],
+                _history_accuracies(tmp_path, skill_ref),
+            )
+            _queue(tmp_path).evaluate(skill_ref)
+            return True
+
+        monkeypatch.setattr(ImprovementQueue, "is_eval_complete", _decided_elsewhere)
+
+        assert _log_run(tmp_path, True) == {}
+
+        outcomes = ImprovementMemory(
+            tmp_path / "skills" / "improvement_memory.json"
+        ).outcomes[SKILL]
+        assert len(outcomes) == 1
+
+    @pytest.mark.unit
+    def test_a_programming_error_in_the_window_is_not_swallowed(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        def _broken(*_args: object) -> None:
+            raise KeyError("eval_target")
+
+        monkeypatch.setattr(hm, "_advance_evaluation", _broken)
+
+        with pytest.raises(KeyError):
+            hm.evaluate_window(tmp_path, SKILL, [1, 0])
 
     @pytest.mark.unit
     def test_decision_is_reported_in_the_logger_output(self, tmp_path: Path) -> None:
