@@ -13,7 +13,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from phantom.cli import build_parser, check_environment, main
+from phantom.cli import _ask_before_acting, build_parser, check_environment, main
 from phantom.loop import LoopConfig
 
 
@@ -221,7 +221,41 @@ class TestSafetyControlsReachTheCli:
         assert build_parser().parse_args(["go"]).confirm is False
         assert build_parser().parse_args(["--confirm", "go"]).confirm is True
 
-    def test_a_thinking_budget_at_or_over_max_tokens_is_refused(self) -> None:
+    def test_a_thinking_budget_at_or_over_max_tokens_is_refused(
+        self, monkeypatch, capsys
+    ) -> None:
         """The API rejects budget_tokens >= max_tokens; say so before calling it."""
-        with pytest.raises(SystemExit):
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+        loop = MagicMock()
+        monkeypatch.setattr("phantom.cli.run_loop", loop)
+        with pytest.raises(SystemExit) as exc:
             main(["--thinking-budget", "8000", "--max-tokens", "4096", "go"])
+        assert exc.value.code == 2
+        assert "--thinking-budget must be smaller than --max-tokens" in (
+            capsys.readouterr().err
+        )
+        loop.assert_not_called()
+
+    @staticmethod
+    def _run_with_loop(monkeypatch, argv: list[str]) -> MagicMock:
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+        loop = MagicMock(
+            return_value=SimpleNamespace(
+                iterations=1, actions_taken=0, stopped_reason="completed", final_text=""
+            )
+        )
+        monkeypatch.setattr("phantom.cli.run_loop", loop)
+        main(argv)
+        return loop
+
+    def test_budget_usd_reaches_the_loop(self, monkeypatch) -> None:
+        loop = self._run_with_loop(monkeypatch, ["--budget-usd", "0.50", "go"])
+        assert loop.call_args.kwargs["setup"].loop_config.budget_usd == 0.5
+
+    def test_confirm_installs_the_confirmation_gate(self, monkeypatch) -> None:
+        loop = self._run_with_loop(monkeypatch, ["--confirm", "go"])
+        assert loop.call_args.kwargs["hooks"].confirm_callback is _ask_before_acting
+
+    def test_no_confirmation_gate_without_confirm(self, monkeypatch) -> None:
+        loop = self._run_with_loop(monkeypatch, ["go"])
+        assert loop.call_args.kwargs["hooks"].confirm_callback is None
