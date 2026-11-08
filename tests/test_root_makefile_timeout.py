@@ -67,3 +67,15 @@ def test_a_finished_check_keeps_its_exit_code() -> None:
         [*_fallback_command(), "5", "sh", "-c", "exit 3"], check=False, timeout=20
     )
     assert result.returncode == 3
+
+
+@pytest.mark.parametrize(("signal_name", "expected"), [("SEGV", 139), ("KILL", 137)])
+def test_a_check_killed_by_a_signal_exits_128_plus_the_signal(
+    signal_name: str, expected: int
+) -> None:
+    result = subprocess.run(
+        [*_fallback_command(), "5", "sh", "-c", f"kill -{signal_name} $$"],
+        check=False,
+        timeout=20,
+    )
+    assert result.returncode == expected

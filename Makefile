@@ -28,8 +28,9 @@ ALL_PLUGINS := $(patsubst %/Makefile,%,$(PLUGIN_MAKEFILES))
 # GNU coreutils timeout is not on stock macOS. perl is. Like timeout, the
 # fallback signals the whole process group, so a hung check's pytest children
 # die with it instead of running on orphaned: perl leads its own group, runs
-# the check in it, and on the alarm sends TERM to every member.
-TIMEOUT_180 := $(if $(shell command -v timeout 2>/dev/null),timeout 180,perl -e '$$SIG{ALRM}=sub{$$SIG{TERM}="IGNORE"; kill "TERM", -$$$$; exit 124}; setpgrp; alarm shift; system @ARGV; exit($$? >> 8)' 180)
+# the check in it, and on the alarm sends TERM to every member. A check
+# killed by a signal exits 128 plus the signal, as a shell reports it.
+TIMEOUT_180 := $(if $(shell command -v timeout 2>/dev/null),timeout 180,perl -e '$$SIG{ALRM}=sub{$$SIG{TERM}="IGNORE"; kill "TERM", -$$$$; exit 124}; setpgrp; alarm shift; system @ARGV; exit($$? & 127 ? 128 + ($$? & 127) : $$? >> 8)' 180)
 # GNU coreutils sha256sum is not on stock macOS; shasum -a 256 is everywhere.
 SHA256 := $(if $(shell command -v sha256sum 2>/dev/null),sha256sum,shasum -a 256)
 ALL_PLUGIN_NAMES := $(notdir $(ALL_PLUGINS))
