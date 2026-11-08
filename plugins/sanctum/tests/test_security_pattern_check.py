@@ -721,6 +721,7 @@ class TestMethodCallsNamedEvalOrExec:
             "model." + "ev" + "al()",
             "pattern." + "ex" + "ec(text)",
             "cursor." + "ex" + "ec(sql)",
+            "self." + "ex" + "ec(cmd)",
         ],
     )
     def test_a_method_call_is_not_flagged(self, content: str) -> None:
@@ -732,4 +733,20 @@ class TestMethodCallsNamedEvalOrExec:
     def test_the_builtin_is_still_flagged(self) -> None:
         """The bare call is what runs arbitrary code."""
         rule, _reminder = check_content("app.py", "x = " + "ev" + "al(s)")
+        assert rule == "dynamic_code_evaluation"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "content",
+        [
+            "window." + "ev" + "al(s)",
+            "globalThis." + "ev" + "al(s)",
+            "builtins." + "ev" + "al(s)",
+        ],
+    )
+    def test_the_builtin_reached_through_its_global_object_is_flagged(
+        self, content: str
+    ) -> None:
+        """`window.eval(s)` is the same builtin, not a method that shares its name."""
+        rule, _reminder = check_content("app.js", content)
         assert rule == "dynamic_code_evaluation"

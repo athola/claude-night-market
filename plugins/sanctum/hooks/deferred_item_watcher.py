@@ -237,9 +237,10 @@ def _string_leaves(value: object) -> list[str]:
 def _response_text(payload: dict) -> str:
     """Return ``tool_response`` as text (the runtime sends dict or str).
 
-    A dict is read as the strings it holds, joined by newlines. json.dumps
-    escaped each newline to a backslash and an n, so a marker's
-    title ran on through the rest of the JSON.
+    A dict or list is read as the leaves it holds, joined by newlines. A
+    non-string scalar is converted by str() and None is dropped. Serializing
+    it instead would escape each newline, and a marker's title would run on
+    to the end.
     """
     return "\n".join(_string_leaves(payload.get("tool_response", "")))
 

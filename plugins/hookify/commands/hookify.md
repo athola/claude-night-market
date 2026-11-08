@@ -114,8 +114,8 @@ event: stop
 action: warn
 conditions:
   - field: transcript
-    operator: not_contains
-    pattern: npm test|pytest
+    operator: regex_match
+    pattern: \A(?![\s\S]*(?:npm test|pytest))
 ---
 
 ⚠️ **Tests not detected!**
