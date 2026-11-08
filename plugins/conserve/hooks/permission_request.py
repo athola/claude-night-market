@@ -259,6 +259,13 @@ _SEARCH_VALUE_FLAGS = frozenset(
         "--exclude-dir",
     }
 )
+# Options that supply the pattern, so no positional is the pattern:
+# `grep -e token FILE`, `grep -etoken FILE`, `grep --regexp=token FILE`.
+_SEARCH_PATTERN_FLAGS = frozenset({"-e", "--regexp", "-f", "--file"})
+# Short options among the value flags above, which end a `-ie` style cluster.
+_SHORT_VALUE_LETTERS = frozenset("gtTmABC")
+# Modes that take no pattern at all: `rg --files PATH`.
+_PATTERNLESS_MODES = frozenset({"--files", "--type-list"})
 
 
 def _shell_words(command: str) -> list[str] | None:
@@ -278,15 +285,33 @@ def _path_operands(words: list[str]) -> list[str]:
         return []
     positional: list[str] = []
     takes_value = False
+    pattern_given = False
     for word in rest:
         if takes_value:
             takes_value = False
         elif word in _SEARCH_VALUE_FLAGS:
             takes_value = True
-        elif not word.startswith("-"):
+            pattern_given = pattern_given or word in _SEARCH_PATTERN_FLAGS
+        elif word in _PATTERNLESS_MODES:
+            pattern_given = True
+        elif word.startswith("--"):
+            pattern_given = (
+                pattern_given or word.split("=", 1)[0] in _SEARCH_PATTERN_FLAGS
+            )
+        elif word.startswith("-"):
+            # A short cluster: `-ie token` or `-ietoken` supplies the pattern.
+            cluster = word[1:]
+            for index, letter in enumerate(cluster):
+                if letter in _SHORT_VALUE_LETTERS:
+                    break
+                if letter in "ef":
+                    pattern_given = True
+                    takes_value = index == len(cluster) - 1
+                    break
+        else:
             positional.append(word)
-    # The first positional is the pattern.
-    return positional[1:]
+    # Without a pattern option, the first positional is the pattern.
+    return positional if pattern_given else positional[1:]
 
 
 def check_safe(command: str) -> Decision | None:

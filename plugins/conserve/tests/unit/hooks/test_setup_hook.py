@@ -27,8 +27,11 @@ def _run(
     *,
     terminator: str = "\n",
     state_path: str | None = None,
+    path: str | None = None,
 ) -> subprocess.CompletedProcess:
     env = os.environ.copy()
+    if path is not None:
+        env["PATH"] = path
     env["HOME"] = str(home)
     env["CLAUDE_PROJECT_DIR"] = str(home / "project")
     env.pop("CLAUDE_ENV_FILE", None)
@@ -105,3 +108,52 @@ def test_a_sibling_directory_sharing_the_home_prefix_is_not_home(
     assert result.returncode == 0, result.stderr
     assert not target.exists()
     assert "escapes allowed dirs" in result.stderr
+
+
+@pytest.mark.unit
+def test_a_state_path_under_home_that_does_not_exist_yet_is_created(
+    tmp_path: Path,
+) -> None:
+    """BSD `readlink -f` on macOS fails for a missing file.
+
+    Given CONSERVE_SESSION_STATE_PATH naming a file not yet created,
+    in a directory under HOME
+    When the Setup hook runs
+    Then it writes the template there and does not warn.
+    """
+    home = tmp_path / "home"
+    target = home / "state.md"
+
+    # /usr/bin first, so macOS runs its BSD readlink, not a GNU one.
+    result = _run(
+        "init", home, state_path=str(target), path="/usr/bin:/bin:/usr/sbin:/sbin"
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "escapes allowed dirs" not in result.stderr
+    assert target.is_file()
+
+
+@pytest.mark.unit
+def test_a_dangling_symlink_under_home_pointing_outside_is_not_followed(
+    tmp_path: Path,
+) -> None:
+    """Writing through a dangling link would create its target.
+
+    Given CONSERVE_SESSION_STATE_PATH naming a symlink under HOME whose
+    missing target is outside HOME and the project
+    When the Setup hook runs
+    Then it warns and does not create the target.
+    """
+    home = tmp_path / "home"
+    home.mkdir()
+    outside = tmp_path / "outside" / "state.md"
+    outside.parent.mkdir()
+    link = home / "state.md"
+    link.symlink_to(outside)
+
+    result = _run("init", home, state_path=str(link))
+
+    assert result.returncode == 0, result.stderr
+    assert "escapes allowed dirs" in result.stderr
+    assert not outside.exists()

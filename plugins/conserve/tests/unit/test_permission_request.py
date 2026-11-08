@@ -1100,6 +1100,15 @@ class TestShellObfuscatedCredentialReads:
             "cat $SECRET_FILE",
             "grep -r token ~/.aws/cred*",
             "rg token ~/.aws/cred*",
+            "grep -e token ~/.aws/cred*",
+            "grep -etoken ~/.aws/cred*",
+            "grep --regexp=token ~/.aws/cred*",
+            "rg --regexp token ~/.aws/cred*",
+            "rg --files ~/.aws/cred*",
+            "rg -l -e token ~/.aws/cred*",
+            "grep -ie token ~/.aws/cred*",
+            "grep -ietoken ~/.aws/cred*",
+            "grep -f patterns.txt ~/.aws/cred*",
         ],
     )
     def test_obfuscated_credential_read_is_never_auto_approved(
@@ -1126,6 +1135,10 @@ class TestShellObfuscatedCredentialReads:
         "command",
         [
             "rg 'foo.*bar' src/",
+            "rg -e 'foo.*bar' src/",
+            "rg --files src/",
+            "grep -rne 'foo.*bar' src/",
+            "rg -C2 'foo.*bar' src/",
             "rg -g '*.py' foo",
             "rg --glob=*.md TODO docs/",
             'grep -n "def main" app.py',
