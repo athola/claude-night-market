@@ -22,12 +22,18 @@ pytestmark = pytest.mark.skipif(shutil.which("perl") is None, reason="needs perl
 
 
 def _fallback_command() -> list[str]:
-    """TIMEOUT_180 as make expands it on a PATH with no timeout binary."""
+    """TIMEOUT_180 as make expands it on a PATH with no timeout binary.
+
+    make is resolved before PATH is filtered: on Linux it shares /usr/bin
+    with coreutils timeout, and filtering that directory drops make too.
+    """
+    make = shutil.which("make")
+    assert make, "make is not on PATH"
     path = ":".join(
         p for p in os.environ["PATH"].split(":") if not (Path(p) / "timeout").exists()
     )
     database = subprocess.run(
-        ["make", "-pn", "help"],
+        [make, "-pn", "help"],
         cwd=ROOT,
         env={**os.environ, "PATH": path},
         capture_output=True,
