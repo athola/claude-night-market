@@ -55,6 +55,9 @@ class TestIsGitCommit:
             ("git log --grep commit", False),
             ("git add . && git commit -m x", True),
             ("git -C repo commit -m x", True),
+            ('echo "done; git commit -m x"', False),
+            ("git --git-dir .git commit -m x", True),
+            ("git --work-tree . commit -m x", True),
         ],
         ids=[
             "plain-commit",
@@ -65,16 +68,19 @@ class TestIsGitCommit:
             "log-grep-commit",
             "chained",
             "dash-C",
+            "separator-inside-quotes",
+            "git-dir-with-value",
+            "work-tree-with-value",
         ],
     )
     def test_is_git_commit_detection(self, hook_module, command, expected):
         """
         Scenario: Correctly identify git commit invocations
         Given a Bash command string
-        When is_git_commit is called
-        Then it returns True only for git commit commands
+        When git_commit_offset is called
+        Then it finds an offset only for git commit commands
         """
-        assert hook_module.is_git_commit(command) == expected
+        assert (hook_module.git_commit_offset(command) is not None) == expected
 
 
 class TestHasEmoji:
@@ -230,6 +236,33 @@ class TestMainHook:
         captured = capsys.readouterr()
         output = json.loads(captured.out)
         assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("command", "denied"),
+        [
+            ('echo "\u2705 tests pass" && git commit -m "fix: parser"', False),
+            ("git commit -m 'fix: x; \u2705 done'", True),
+            ("git commit -F - <<EOF\nfix: parser \u2705\nEOF", True),
+        ],
+        ids=["emoji-before-commit", "emoji-after-quoted-semicolon", "heredoc"],
+    )
+    def test_only_the_commit_and_what_follows_it_is_scanned(
+        self, hook_module, capsys, command, denied
+    ):
+        """
+        Scenario: An emoji in an earlier command is not in the commit
+        Given a chain whose emoji sits before the git commit segment
+        When main() runs with VOW_SHADOW_MODE=0
+        Then it is not denied, while an emoji in the message still is
+        """
+        stdin_data = _make_input(command=command)
+        with patch.dict("os.environ", {"VOW_SHADOW_MODE": "0"}):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit):
+                    hook_module.main()
+        out = capsys.readouterr().out.strip()
+        assert ('"permissionDecision": "deny"' in out) is denied
 
     @pytest.mark.unit
     def test_no_output_on_clean_commit(self, hook_module, capsys):

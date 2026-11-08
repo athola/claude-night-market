@@ -322,8 +322,11 @@ def _parse_install_segment(text: str) -> list[tuple[str, str]]:
     skip_next = False
     value_flags = _VALUE_FLAGS[ecosystem]
     # shlex keeps a quoted specifier such as "requests >= 2" in one token.
+    # Its comments=True also ends a word at a mid-word "#", as in a
+    # "#egg=" fragment, where the shell starts a comment only at a "#"
+    # that opens a word. The loop below applies the shell's rule.
     try:
-        tokens = shlex.split(text[len(head) :], comments=True)
+        tokens = shlex.split(text[len(head) :])
     except ValueError:
         tokens = text[len(head) :].split()
     for token in tokens:

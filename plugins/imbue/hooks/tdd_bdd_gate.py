@@ -103,8 +103,13 @@ def _find_python_test(path: Path, tests_dir: Path) -> Path:
     if found is not None:
         return found
     # Tests grouped by subsystem (tests/unit/hooks/, tests/unit/validators/)
-    # are a test for this file all the same.
-    nested = sorted(tests_dir.rglob(f"test_{impl_name}.py"))
+    # are a test for this file all the same. The test's directory must name
+    # one of the file's directories below the plugin root:
+    # tests/skills/test_base.py is no test of review/base.py.
+    impl_dirs = path.parent.relative_to(tests_dir.parent).parts
+    nested = sorted(
+        t for t in tests_dir.rglob(f"test_{impl_name}.py") if t.parent.name in impl_dirs
+    )
     return nested[0] if nested else candidates[0]
 
 

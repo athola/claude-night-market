@@ -15,10 +15,10 @@ import re
 import sys
 from pathlib import Path
 
-# D-06: shadow_mode + is_git_commit live in shared/vow_utils.
+# D-06: shadow_mode + git_commit_offset live in shared/vow_utils.
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
-    is_git_commit,
+    git_commit_offset,
     shadow_mode_active,
     vow_output,
 )
@@ -65,10 +65,13 @@ def main() -> None:
             sys.exit(0)
 
         command = data.get("tool_input", {}).get("command", "")
-        if not is_git_commit(command):
+        offset = git_commit_offset(command)
+        if offset is None:
             sys.exit(0)
 
-        if not _has_emoji(command):
+        # An emoji in an earlier command ("echo ... && git commit") is not
+        # in the commit message.
+        if not _has_emoji(command[offset:]):
             sys.exit(0)
 
         shadow = shadow_mode_active()

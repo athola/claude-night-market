@@ -406,6 +406,31 @@ def test_parse_packages_does_not_read_a_redirect_or_comment_as_a_package(
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
+    ("command", "expected"),
+    [
+        (
+            "pip install git+https://github.com/x/y.git#egg=y fakepkgzz",
+            [("pypi", "fakepkgzz")],
+        ),
+        (
+            "pip install requests#x fakepkgzz",
+            [("pypi", "requests#x"), ("pypi", "fakepkgzz")],
+        ),
+    ],
+)
+def test_parse_packages_reads_past_a_hash_inside_a_word(
+    pg, command: str, expected: list
+) -> None:
+    """The shell starts a comment only at a `#` that opens a word.
+
+    A mid-word `#` such as a `#egg=` fragment ended parsing, and every
+    package after it was installed unchecked.
+    """
+    assert pg.parse_packages(command) == expected
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
     "command",
     [
         "(pip install reqeusts)",

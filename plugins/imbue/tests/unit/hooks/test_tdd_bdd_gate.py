@@ -244,6 +244,45 @@ class TestNestedTestDirectories:
 
         assert test_path == nested
 
+    @pytest.mark.unit
+    def test_finds_the_subsystem_test_for_a_file_one_level_deeper(
+        self, tdd_gate_module, tmp_path
+    ) -> None:
+        """tests/unit/hooks/test_x.py tests hooks/shared/x.py."""
+        plugin_root = tmp_path / "plugins" / "imbue"
+        (plugin_root / "hooks" / "shared").mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
+        nested = plugin_root / "tests" / "unit" / "hooks" / "test_guard.py"
+        nested.parent.mkdir(parents=True)
+        nested.touch()
+
+        test_path = tdd_gate_module.find_test_file(
+            str(plugin_root / "hooks" / "shared" / "guard.py"),
+            tdd_gate_module.PYTHON_FILE,
+        )
+
+        assert test_path == nested
+
+    @pytest.mark.unit
+    def test_a_nested_test_for_a_same_named_module_elsewhere_does_not_count(
+        self, tdd_gate_module, tmp_path
+    ) -> None:
+        """tests/skills/test_base.py tests skills/base.py, not review/base.py."""
+        plugin_root = tmp_path / "plugins" / "pensive"
+        (plugin_root / "src" / "pensive" / "review").mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
+        nested = plugin_root / "tests" / "skills" / "test_base.py"
+        nested.parent.mkdir(parents=True)
+        nested.touch()
+
+        test_path = tdd_gate_module.find_test_file(
+            str(plugin_root / "src" / "pensive" / "review" / "base.py"),
+            tdd_gate_module.PYTHON_FILE,
+        )
+
+        assert test_path == plugin_root / "tests" / "unit" / "test_base.py"
+        assert not test_path.exists()
+
 
 class TestFormatTddBddReminder:
     """Feature: Format TDD/BDD reminder messages.
