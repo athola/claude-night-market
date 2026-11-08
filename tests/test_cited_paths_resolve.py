@@ -113,6 +113,9 @@ ALLOWLIST = {
     ".claude/scheduled_tasks.json",
     ".claude/session-state.md",
     ".claude/session-state.md.bak",
+    # Stewardship actions, appended by stewardship_tracker.py record and
+    # read by /imbue:stewardship-health.
+    ".claude/stewardship/actions.jsonl",
     # Per-machine permission overrides. Claude Code writes this one; the
     # repo ships .claude/settings.json and gitignores the local twin.
     ".claude/settings.local.json",
