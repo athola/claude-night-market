@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 from io import StringIO
+from pathlib import Path
 
 import pytest
 from _manifest_utils import ACTIVE_STATUSES, get_items, read_stdin_payload
@@ -476,7 +477,7 @@ def test_main_still_blocks_when_only_unrelated_work_runs(tmp_path, monkeypatch, 
     assert _stop_with_background(tmp_path, monkeypatch, capsys, other) == "block"
 
 
-def _stop(tmp_path, monkeypatch, status: str) -> dict:
+def _stop(tmp_path, monkeypatch, status: str) -> Path:
     egregore_dir = tmp_path / ".egregore"
     egregore_dir.mkdir(exist_ok=True)
     manifest = {"work_items": [{"id": "wrk_001", "status": status}]}
@@ -501,6 +502,18 @@ def test_a_blocked_stop_hands_off_a_baton(tmp_path, monkeypatch, capsys):
 
     _stop(tmp_path, monkeypatch, "active")
     assert read_baton(egregore_dir / "baton.json").sequence == 2
+
+
+def test_a_failed_baton_write_still_blocks(tmp_path, monkeypatch, capsys):
+    """The baton is observability; losing it must not release the loop."""
+
+    def unwritable(*_args, **_kwargs):
+        raise OSError("read-only filesystem")
+
+    monkeypatch.setattr("stop_hook.advance_baton", unwritable)
+    _stop(tmp_path, monkeypatch, "active")
+
+    assert json.loads(capsys.readouterr().out)["decision"] == "block"
 
 
 def test_a_finished_run_clears_its_baton(tmp_path, monkeypatch, capsys):

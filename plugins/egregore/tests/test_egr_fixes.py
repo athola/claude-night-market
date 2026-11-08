@@ -1,6 +1,4 @@
-"""Tests for EGR-003 and EGR-004 -- classify_technique guard and alert title
-extraction.
-"""
+"""Tests for EGR-004: alert title extraction."""
 
 from __future__ import annotations
 

@@ -266,16 +266,21 @@ class TestModelRoutingContent:
         """Scenario: Dynamic adjustment signals documented
         Given the model-routing.md module
         When scanning the Dynamic Tier Adjustment section
-        Then step failure and reflexion buffer should be listed as signals
+        Then step failure and manual override should be listed as signals
+        And no signal should name the deleted reflexion buffer or trust tiers
         """
         content = MODULE_FILE.read_text()
         lower = content.lower()
         assert "step failure" in lower or "fails" in lower, (
             "model-routing.md must document step failure as adjustment signal"
         )
-        assert "reflexion" in lower, (
-            "model-routing.md must document reflexion buffer as adjustment signal"
+        assert "model_override" in content, (
+            "model-routing.md must document manual override as adjustment signal"
         )
+        for deleted in ("reflexion", "trust tier"):
+            assert deleted not in lower, (
+                f"model-routing.md names '{deleted}', which nothing defines"
+            )
 
 
 class TestModelRoutingLineWrapping:

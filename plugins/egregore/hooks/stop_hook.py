@@ -187,13 +187,19 @@ def main() -> None:
 
     reason = block_reason(manifest_path)
     now = time.time()
-    advance_baton(
-        manifest_path.parent / BATON_FILENAME,
-        unit=f"manifest {fingerprint[:12]}",
-        now=now,
-        deadline=now + BATON_GRACE_SECONDS,
-        next_prompt=reason,
-    )
+    try:
+        advance_baton(
+            manifest_path.parent / BATON_FILENAME,
+            unit=f"manifest {fingerprint[:12]}",
+            now=now,
+            deadline=now + BATON_GRACE_SECONDS,
+            next_prompt=reason,
+        )
+    except OSError:
+        # The baton only observes the handoff. The stall bound above is
+        # already persisted, so a lost baton must not turn the block
+        # into a traceback that ends the loop.
+        pass
     print(json.dumps({"decision": "block", "reason": reason}))
     sys.exit(0)
 

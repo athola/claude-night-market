@@ -183,14 +183,6 @@ high-frequency ones into a briefing. The orchestrator runs
 briefing to the item's context. Patterns persist in
 `.egregore/learning/patterns.json`.
 
-## GitHub Discussions Publishing
-
-Discoveries, insights, contentions and retrospectives from
-autonomous sessions are published to GitHub Discussions.
-`max_per_work_item` (default 10) rate-limits a single item,
-and published entries are logged so a rerun does not post
-them twice.
-
 ## Related Plugins
 
 - [conjure](conjure.md): External LLM delegation

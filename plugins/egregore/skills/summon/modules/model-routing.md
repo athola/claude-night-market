@@ -59,26 +59,18 @@ compared to running every step at Opus.
 
 ## Dynamic Tier Adjustment
 
-The default routing table is a starting point. Four
+The default routing table is a starting point. Two
 signals can shift the tier at runtime:
 
 1. **Step failure**: if a step fails at its default tier,
    retry at one tier higher. Lightweight becomes Standard,
    Standard becomes Deep.
-2. **Reflexion buffer**: if the reflexion buffer shows
-   repeated failures for the same step across work items,
-   escalate directly to Deep regardless of default tier.
-3. **Trust tier**: if the skill's trust tier is T3
-   (autonomous), the orchestrator may downgrade one tier
-   to save cost. T3 indicates the skill has proven
-   reliability, so a lighter model can handle it.
-4. **Manual override**: a `model_override` field in the
+2. **Manual override**: a `model_override` field in the
    manifest work item config forces a specific tier for
    any step, bypassing all other logic.
 
 Adjustment priority (highest wins): manual override,
-reflexion escalation, step failure escalation, trust
-downgrade, default table.
+step failure escalation, default table.
 
 ## Cost Tracking
 

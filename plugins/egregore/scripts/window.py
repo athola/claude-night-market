@@ -64,8 +64,6 @@ RESET_HEADERS = (
 #: lift for weeks.
 RETRY_WATCHDOG_MIN_VERSION = (2, 1, 239)
 
-_VERSION = re.compile(r"(\d+)\.(\d+)\.(\d+)")
-
 _SPEND_MARKERS = ("enforced_spend_limit_reached", "reached your api usage limits")
 _SPEND_TIME = re.compile(
     r"regain access on\s+(\d{4}-\d{2}-\d{2})\s+at\s+(\d{2}:\d{2})\s*UTC",

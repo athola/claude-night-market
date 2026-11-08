@@ -47,7 +47,7 @@ def _find_herald_notify_path(anchor: Path = Path(__file__)) -> Path:
 
     The sibling is looked up both beside this plugin (the repository) and
     as the newest version in the plugin cache, where three parents up from
-    ``scripts/`` is ``cache/<market>/egregore`` and holds no herald. When
+    this file is ``cache/<market>/egregore`` and holds no herald. When
     herald is absent the repository-layout path is returned; it does not
     exist, so loading fails and notifications stay off.
     """
