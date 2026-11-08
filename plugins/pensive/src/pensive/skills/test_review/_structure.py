@@ -90,9 +90,8 @@ class StructureMixin:
             if is_test_file and entry["action"] == "created":
                 test_first_count += 1
                 test_created = True
-            elif not is_test_file and entry["action"] == "created":
-                if not test_created:
-                    code_first_count += 1
+            elif not is_test_file and entry["action"] == "created" and not test_created:
+                code_first_count += 1
 
         total_patterns = test_first_count + code_first_count
         tdd_score = test_first_count / total_patterns if total_patterns > 0 else 0.0

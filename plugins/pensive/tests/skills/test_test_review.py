@@ -212,6 +212,39 @@ class TestCalculator:
         assert "compliance_issues" in tdd_analysis
         assert tdd_analysis["test_first_pattern"] is True
 
+    @pytest.mark.unit
+    def test_code_created_before_any_test_counts_as_code_first(
+        self, mock_skill_context
+    ) -> None:
+        """Given code created before any test, it lowers the TDD score."""
+        mock_skill_context.get_git_history.return_value = [
+            {"file": "src/user.py", "action": "created", "content": ""},
+            {"file": "src/admin.py", "action": "created", "content": ""},
+            {"file": "tests/test_user.py", "action": "created", "content": ""},
+        ]
+
+        tdd_analysis = self.skill.evaluate_tdd_compliance(mock_skill_context)
+
+        assert tdd_analysis["tdd_score"] == pytest.approx(1 / 3)
+        assert tdd_analysis["test_first_pattern"] is False
+        assert "Low test-first adherence" in tdd_analysis["compliance_issues"]
+
+    @pytest.mark.unit
+    def test_code_created_after_a_test_is_not_counted_as_code_first(
+        self, mock_skill_context
+    ) -> None:
+        """Given a test created first, later code creation keeps a full score."""
+        mock_skill_context.get_git_history.return_value = [
+            {"file": "tests/test_user.py", "action": "created", "content": ""},
+            {"file": "src/user.py", "action": "created", "content": ""},
+            {"file": "src/admin.py", "action": "created", "content": ""},
+        ]
+
+        tdd_analysis = self.skill.evaluate_tdd_compliance(mock_skill_context)
+
+        assert tdd_analysis["tdd_score"] == 1.0
+        assert tdd_analysis["test_first_pattern"] is True
+
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_bdd_patterns(self, mock_skill_context) -> None:
