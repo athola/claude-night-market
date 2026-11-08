@@ -108,7 +108,8 @@ For each phase in the sequence:
 
 After brainstorm and specify, open a GitHub issue for each "Out of
 Scope" item that has no issue reference yet, and add the number to the
-artifact. `--no-auto-issues` skips this.
+artifact. Confirm the list with the user first: opening an issue is an
+external-facing action.
 
 On a failed phase, use `Skill(leyline:damage-control)` to classify it.
 Retry a transient failure up to twice. Otherwise give the user the

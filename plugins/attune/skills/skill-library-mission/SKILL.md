@@ -78,10 +78,18 @@ interruption and records user directives:
 {
   "mission_id": "skill-library-YYYY-MM-DD",
   "type": "custom",
-  "phases": ["discover", "author", "review", "report"],
-  "artifacts": { "library_root": ".claude/skills/" }
+  "phases": [
+    { "name": "discover", "status": "pending", "artifact": null },
+    { "name": "author", "status": "pending", "artifact": ".claude/skills/" },
+    { "name": "review", "status": "pending", "artifact": null },
+    { "name": "report", "status": "pending", "artifact": null }
+  ],
+  "current_phase": "discover"
 }
 ```
+
+The field names and the per-phase shape are the ones
+`Skill(attune:mission-orchestrator)` reads on `--resume`.
 
 Save this to `.attune/mission-state.json`, advance `current_phase` at
 each gate, and record every user decision and override in
