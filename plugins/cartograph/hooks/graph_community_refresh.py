@@ -61,17 +61,25 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     # graph_build.py that ran is the project's own: its code has run anyway.
     # When the plugin's script ran inside some other repository, importing
     # that repository's src/gauntlet would run code the user never chose to.
+    # The command is unexpanded text, so `${CLAUDE_PLUGIN_ROOT}/...`, `~/...`
+    # and a quoted path all read as relative paths under the project. Only
+    # an absolute path to an existing file inside the project proves it.
     gauntlet_src = None
     project = db_path.parent.parent.resolve()
-    script = (Path.cwd() / ran.group("script")).resolve()
+    named = ran.group("script").strip("'\"")
     local_src = project / "src"
-    if (local_src / "gauntlet").is_dir() and script.is_relative_to(project):
-        gauntlet_src = local_src
+    if named.startswith("/") and "$" not in named and (local_src / "gauntlet").is_dir():
+        script = Path(named).resolve()
+        if script.is_file() and script.is_relative_to(project):
+            gauntlet_src = local_src
 
-    gauntlet = sibling_plugin_dir(__file__, "gauntlet")
-    candidate = (gauntlet or Path(__file__).resolve().parents[2] / "gauntlet") / "src"
-    if gauntlet_src is None and (candidate / "gauntlet").is_dir():
-        gauntlet_src = candidate
+    if gauntlet_src is None:
+        gauntlet = sibling_plugin_dir(__file__, "gauntlet")
+        candidate = (
+            gauntlet or Path(__file__).resolve().parents[2] / "gauntlet"
+        ) / "src"
+        if (candidate / "gauntlet").is_dir():
+            gauntlet_src = candidate
 
     if gauntlet_src and str(gauntlet_src) not in sys.path:
         sys.path.insert(0, str(gauntlet_src))

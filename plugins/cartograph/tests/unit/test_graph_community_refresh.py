@@ -236,15 +236,22 @@ class TestGraphDiscovery:
         graph_with_data: GraphStore,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """A project that vendors gauntlet in ./src is put on sys.path first."""
+        """A project that vendors gauntlet in ./src is put on sys.path first.
+
+        Only when the graph_build.py that ran is the project's own file,
+        named by an absolute path that exists inside the project.
+        """
         local_src = gauntlet_dir.parent / "src"
         (local_src / "gauntlet").mkdir(parents=True)
+        own_script = gauntlet_dir.parent / "scripts" / "graph_build.py"
+        own_script.parent.mkdir()
+        own_script.write_text("")
         monkeypatch.setattr(sys, "path", list(sys.path))
         monkeypatch.chdir(gauntlet_dir.parent)
         main(
             {
                 "tool_name": "Bash",
-                "tool_input": {"command": "python3 scripts/graph_build.py ."},
+                "tool_input": {"command": f"python3 {own_script} ."},
                 "tool_response": _bash_response(""),
             }
         )
@@ -358,6 +365,47 @@ class TestTheHookRunsOnlyInstalledGauntletCode:
         payload = {
             "tool_name": "Bash",
             "tool_input": {"command": f"python3 {plugin_script} ."},
+            "tool_response": _bash_response("{}"),
+        }
+
+        subprocess.run(
+            [sys.executable, str(_HOOK)],
+            input=json.dumps(payload),
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
+
+        assert not marker.exists()
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "script",
+        [
+            "${CLAUDE_PLUGIN_ROOT}/scripts/graph_build.py",
+            "~/scripts/graph_build.py",
+            '"scripts/graph_build.py"',
+        ],
+    )
+    def test_a_script_path_that_is_not_provably_the_projects_does_not_select_its_src(
+        self, tmp_path: Path, script: str
+    ) -> None:
+        """Unexpanded, home-relative and quoted paths resolve under cwd as text.
+
+        Each one named the plugin's script, or one outside the project,
+        yet read as a path inside the project, so the planted package ran.
+        """
+        (tmp_path / ".gauntlet").mkdir()
+        GraphStore(str(tmp_path / ".gauntlet" / "graph.db")).close()
+        planted = tmp_path / "src" / "gauntlet"
+        planted.mkdir(parents=True)
+        marker = tmp_path / "planted-code-ran"
+        (planted / "__init__.py").write_text(f"open({str(marker)!r}, 'w').close()\n")
+        payload = {
+            "tool_name": "Bash",
+            "tool_input": {"command": f"python3 {script} ."},
             "tool_response": _bash_response("{}"),
         }
 
