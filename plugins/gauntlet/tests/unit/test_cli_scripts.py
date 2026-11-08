@@ -17,6 +17,10 @@ from extractor import main as extractor_main
 from precommit_gate import _get_staged_hash, check_pass_token
 from progress_tracker import main as progress_main
 
+from gauntlet.challenges import get_variation_provider, set_variation_provider
+from gauntlet.graph import GraphStore
+from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
+
 # ---------------------------------------------------------------------------
 # Feature: extractor CLI
 # ---------------------------------------------------------------------------
@@ -583,3 +587,80 @@ class TestAnswerEvaluatorWritesThePassToken:
         monkeypatch.chdir(tmp_path)
 
         assert self._evaluate(tmp_path, "A", "--gate") == 1
+
+
+class TestChallengeSources:
+    """The problem bank and the code graph reach a challenge through the CLI.
+
+    generate_bank_challenge and generate_graph_challenges had no caller, so
+    the bank's 150 problems and the graph's impact questions never reached a
+    developer, and the in-loop provider the skill registers varied nothing.
+    """
+
+    @staticmethod
+    def _run(*argv: str) -> tuple[int, str]:
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = challenge_main(list(argv))
+        return code, buf.getvalue()
+
+    @pytest.fixture(autouse=True)
+    def _restore_provider(self):
+        saved = get_variation_provider()
+        yield
+        set_variation_provider(saved)
+
+    @pytest.mark.unit
+    def test_a_bank_challenge_is_drawn_from_the_requested_category(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Inside Claude Code the in-loop provider varies it, with no API call."""
+        monkeypatch.setenv("CLAUDECODE", "1")
+        code, out = self._run(
+            str(tmp_path), "--source", "bank", "--category", "1d-dynamic-programming"
+        )
+
+        assert code == 0
+        challenge = json.loads(out)
+        assert challenge["prompt"]
+        assert "1d-dynamic-programming" in json.dumps(challenge)
+
+    @pytest.mark.unit
+    def test_an_unknown_bank_category_is_an_error(self, tmp_path: Path) -> None:
+        code, out = self._run(str(tmp_path), "--source", "bank", "--category", "nope")
+        assert code == 1
+        assert "error" in json.loads(out)
+
+    @pytest.mark.unit
+    def test_a_graph_challenge_asks_about_a_real_call_edge(
+        self, tmp_path: Path
+    ) -> None:
+        store = GraphStore(tmp_path / "graph.db")
+        for qn in ("a.py::caller", "b.py::callee"):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=qn,
+                    file_path=qn.split("::")[0],
+                    line_start=1,
+                    line_end=5,
+                    language="python",
+                )
+            )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.CALLS, source_qn="a.py::caller", target_qn="b.py::callee"
+            )
+        )
+        store.close()
+
+        code, out = self._run(str(tmp_path), "--source", "graph")
+
+        assert code == 0
+        assert json.loads(out)["type"] in ("impact_prediction", "dependency_trace")
+
+    @pytest.mark.unit
+    def test_a_graph_source_without_a_graph_is_an_error(self, tmp_path: Path) -> None:
+        code, out = self._run(str(tmp_path), "--source", "graph")
+        assert code == 1
+        assert "graph" in json.loads(out)["error"]

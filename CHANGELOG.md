@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **gauntlet challenges from the problem bank and the code graph.**
+  `challenge_engine.py --source bank` draws a problem from the shipped
+  bank, narrowed by `--category` and `--difficulty` and varied through
+  the in-loop provider inside Claude Code. `--source graph` asks an
+  impact or dependency question about a real call edge in
+  `.gauntlet/graph.db`. Both generators existed with tests and no
+  caller, so neither source had ever reached a developer.
+
 - **Stewardship actions can be recorded.** The stewardship skill asks
   for a small action when one of its questions triggers, and
   `/imbue:stewardship-health` reports improvement velocity and virtue

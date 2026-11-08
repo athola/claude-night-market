@@ -12,19 +12,22 @@ Present challenges from the knowledge base and evaluate answers.
 - The knowledge base does not exist yet (use `gauntlet:extract`)
 - A staged path for a new contributor (use `gauntlet:onboard`)
 
-## In-Loop Provider Setup
+## Challenge Sources
 
-Before generating a challenge, register the in-loop variation
-provider so we do not call out to the Anthropic API just to spawn
-a sibling Claude (issue #464). Outside Claude Code this is a
-no-op and the default Anthropic provider remains active.
+`scripts/challenge_engine.py` draws from one of three sources:
 
-```python
-from gauntlet.providers.in_loop import (
-    register_in_loop_provider_if_inside_claude_code,
-)
-register_in_loop_provider_if_inside_claude_code()
-```
+- `--source knowledge` (default): an entry from
+  `.gauntlet/knowledge.json`, weighted by the developer's progress
+- `--source bank`: a problem from the shipped problem bank, narrowed
+  with `--category` and `--difficulty`, and varied so its answer
+  cannot be memorised
+- `--source graph`: an impact or dependency question about a real
+  call edge in `.gauntlet/graph.db`
+
+The bank variation goes through the in-loop provider inside Claude
+Code and the Anthropic API outside it (issue #464). The script calls
+`register_in_loop_provider_if_inside_claude_code()` in its own process,
+so no setup step is needed.
 
 ## Steps
 
@@ -36,8 +39,11 @@ register_in_loop_provider_if_inside_claude_code()
    developer's most recent message as an answer before generating
    a new one
 
-3. **Generate challenge**: use adaptive weighting to select a
-   knowledge entry and challenge type
+3. **Generate challenge**: run
+   `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/challenge_engine.py .gauntlet`
+   with the source that fits: the default for codebase knowledge, a
+   `--source bank --category <name>` for practice problems, or
+   `--source graph` once a graph has been built
 
 4. **Present challenge**: show the question with context
 
@@ -76,6 +82,8 @@ register_in_loop_provider_if_inside_claude_code()
 - [ ] `.gauntlet/state/pending_challenge.json` is evaluated before
   generating a new challenge when it exists; the file is removed
   or updated after evaluation
+- [ ] A `--source bank` or `--source graph` request yields a challenge
+  from that source, or the script's error naming what is missing
 - [ ] On fail, the correct answer and explanation are shown before
   the next challenge is presented (not skipped silently)
 - [ ] On a pass from the pre-commit gate,

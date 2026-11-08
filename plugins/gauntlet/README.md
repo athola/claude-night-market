@@ -159,7 +159,7 @@ seed prompt. Two implementations ship:
   sibling Claude through the API when the parent LLM is
   already in-loop. Imports nothing from `anthropic`.
 
-The challenge skill calls
+The challenge engine calls
 `register_in_loop_provider_if_inside_claude_code()` to
 switch providers based on the runtime. The selection is
 automatic and requires no configuration.
