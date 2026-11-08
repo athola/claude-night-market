@@ -136,6 +136,24 @@ class TestGenerateProblemVariation:
         call_kwargs = mock_client.messages.create.call_args
         assert call_kwargs.kwargs["model"] == "claude-haiku-5-5"
 
+    def test_request_never_sends_sampling_parameters(self):
+        """Given a variation request, it carries no temperature, top_p or top_k.
+
+        API version 2026-10-21, the anthropic 2.x default, rejects any of
+        the three with a 400 on every model.
+        """
+        mock_response = _make_anthropic_response("Return the largest element.")
+
+        with patch("anthropic.Anthropic") as mock_cls:
+            mock_client = MagicMock()
+            mock_cls.return_value = mock_client
+            mock_client.messages.create.return_value = mock_response
+
+            _generate_problem_variation(_make_problem())
+
+        sent = mock_client.messages.create.call_args.kwargs
+        assert not {"temperature", "top_p", "top_k"} & sent.keys()
+
     def test_falls_back_on_api_exception(self):
         problem = _make_problem()
 

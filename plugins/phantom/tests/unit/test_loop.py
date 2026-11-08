@@ -788,6 +788,42 @@ class TestProcessIterationBudgetExceeded:
         mock_client.beta.messages.create.assert_called_once()
         assert stop_reason == "completed"
 
+    def test_request_never_sends_sampling_parameters(self):
+        """
+        Given a loop config with a system prompt and a thinking budget
+        When _process_iteration sends the request
+        Then it carries no temperature, top_p or top_k
+
+        API version 2026-10-21, the anthropic 2.x default, rejects any of
+        the three with a 400 on every model.
+        """
+        mock_response = MagicMock()
+        mock_response.stop_reason = "end_turn"
+        mock_response.content = []
+        mock_response.usage = None
+        mock_client = MagicMock()
+        mock_client.beta.messages.create.return_value = mock_response
+        cfg = _IterationConfig(
+            loop_config=LoopConfig(system_prompt="be careful", thinking_budget=1024),
+            display_config=DisplayConfig(),
+        )
+        client_setup = _ClientSetup(
+            client=mock_client, tools=[], beta_flag="computer-use-2025-11-24"
+        )
+
+        _process_iteration(
+            cfg,
+            _make_iteration_context(),
+            client_setup,
+            [{"role": "user", "content": "do a thing"}],
+            LoopResult(),
+        )
+
+        sent = mock_client.beta.messages.create.call_args.kwargs
+        assert "system" in sent
+        assert "thinking" in sent
+        assert not {"temperature", "top_p", "top_k"} & sent.keys()
+
 
 class TestIterationCostUsesReportedUsage:
     """Feature: Each iteration is charged what the API reported.
