@@ -7,11 +7,8 @@ vast majority of entries sit inert at their capture defaults
 (``routing_type: pending``, ``maturity: seedling``,
 ``importance_score: 50``).
 
-This module turns that write-only buffer into observable metrics. It
-reuses the existing :class:`~memory_palace.corpus.decay_model.DecayModel`
-for staleness so the analysis layer stays consistent with the rest of
-the corpus tooling. Every function here is read-only: nothing in this
-module writes to disk.
+This module turns that write-only buffer into observable metrics. Every
+function here is read-only: nothing in this module writes to disk.
 """
 
 from __future__ import annotations
@@ -20,7 +17,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from urllib.parse import urlparse
 
 try:
@@ -28,9 +25,6 @@ try:
 except ImportError:  # pragma: no cover - yaml is a hard runtime dep
     yaml = None  # type: ignore[assignment]  # optional-import fallback sentinel
 
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 

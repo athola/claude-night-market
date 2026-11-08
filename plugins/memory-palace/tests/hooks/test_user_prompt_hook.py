@@ -8,14 +8,20 @@ Feature: One process per prompt
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 PLUGIN = Path(__file__).resolve().parent.parent.parent
 HOOK = PLUGIN / "hooks" / "user_prompt.py"
+sys.path.insert(0, str(PLUGIN / "hooks"))
+
+import user_prompt  # noqa: E402 - import after sys.path setup
 
 
 def _run(prompt: str, home: Path) -> subprocess.CompletedProcess:
@@ -84,3 +90,41 @@ def test_user_prompt_hook_runs_synchronously() -> None:
     ]
     assert hooks
     assert not any(hook.get("async") for hook in hooks)
+
+
+def _boom(payload: object) -> str:
+    raise RuntimeError("feature failed")
+
+
+@pytest.mark.parametrize(
+    ("broken", "working"), [("_url_detector", "_recall"), ("_recall", "_url_detector")]
+)
+def test_one_feature_raising_does_not_suppress_the_other(
+    broken: str,
+    working: str,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Scenario: the two features ran as separate processes before #779.
+
+    Given one feature raising and the other returning context
+    When the merged hook runs
+    Then the working feature's context still reaches the prompt
+    And the failure is reported on stderr.
+    """
+    monkeypatch.setattr(getattr(user_prompt, broken), "prompt_context", _boom)
+    monkeypatch.setattr(
+        getattr(user_prompt, working), "prompt_context", lambda payload: "kept-ctx"
+    )
+    monkeypatch.setattr(
+        sys, "stdin", io.StringIO(json.dumps({"prompt": "https://x.org +recall"}))
+    )
+
+    with pytest.raises(SystemExit) as exit_info:
+        user_prompt.main()
+
+    captured = capsys.readouterr()
+    assert exit_info.value.code == 0
+    context = json.loads(captured.out)["hookSpecificOutput"]["additionalContext"]
+    assert context == "kept-ctx"
+    assert "feature failed" in captured.err

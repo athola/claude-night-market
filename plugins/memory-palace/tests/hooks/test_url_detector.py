@@ -12,7 +12,7 @@ import pytest
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 
-import _url_detector as url_detector
+import user_prompt
 from _url_detector import extract_urls
 
 
@@ -159,9 +159,10 @@ class TestQuietPathImports:
 class TestMain:
     """Feature: the hook tells the session which pasted URLs are new.
 
-    `get_config` and `is_known` are imported inside `main()`, so they are
-    patched at their source modules. `is_known` reads the dedup index on
-    disk, which is the external dependency here.
+    `get_config` and `is_known` are imported inside `prompt_context()`, so
+    they are patched at their source modules. `is_known` reads the dedup
+    index on disk, which is the external dependency here. The prompts carry
+    no `+recall`, so the merged entry point adds nothing from recall.
     """
 
     @staticmethod
@@ -180,7 +181,7 @@ class TestMain:
         monkeypatch.setattr(shared.config, "get_config", lambda: {"enabled": enabled})
         monkeypatch.setattr(shared.deduplication, "is_known", lambda url: url in known)
         with pytest.raises(SystemExit) as exit_info:
-            url_detector.main()
+            user_prompt.main()
         assert exit_info.value.code == 0
         return capsys.readouterr().out
 

@@ -71,11 +71,6 @@ def format_context(entries: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-# Gap thresholds. Below the floor a session is a continuation and needs no
-# announcement; above it, stale state units become an active hazard.
-GAP_NARRATION_FLOOR_HOURS = 12
-
-
 def build_session_context(
     index: dict[str, Any],
     enabled: bool,

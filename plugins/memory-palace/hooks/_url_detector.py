@@ -7,9 +7,7 @@ Optimized for speed - most prompts have no URLs.
 
 from __future__ import annotations
 
-import json
 import re
-import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -161,30 +159,3 @@ def prompt_context(payload: dict[str, Any]) -> str | None:
         )
 
     return "\n".join(context_parts)
-
-
-def main() -> None:
-    """Run the URL detector hook entry point."""
-    try:
-        payload: dict[str, Any] = json.load(sys.stdin)
-    except json.JSONDecodeError:
-        sys.exit(0)  # Invalid input, exit silently
-
-    context = prompt_context(payload)
-    if context:
-        print(
-            json.dumps(
-                {
-                    "hookSpecificOutput": {
-                        "hookEventName": "UserPromptSubmit",
-                        "additionalContext": context,
-                    },
-                }
-            )
-        )
-
-    sys.exit(0)
-
-
-if __name__ == "__main__":
-    main()

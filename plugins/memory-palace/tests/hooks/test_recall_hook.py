@@ -14,12 +14,14 @@ import sys
 from pathlib import Path
 
 HOOK = Path(__file__).resolve().parent.parent.parent / "hooks" / "_recall.py"
+# The registered UserPromptSubmit entry point that runs recall.
+ENTRY = HOOK.parent / "user_prompt.py"
 
 
 def _run(prompt: str, cwd: Path | None = None) -> subprocess.CompletedProcess:
     """Invoke the hook the way Claude Code does: JSON on stdin."""
     return subprocess.run(
-        [sys.executable, str(HOOK)],
+        [sys.executable, str(ENTRY)],
         input=json.dumps({"prompt": prompt, "hook_event_name": "UserPromptSubmit"}),
         capture_output=True,
         text=True,
@@ -96,7 +98,7 @@ class TestTriggeredPath:
     def test_malformed_stdin_does_not_crash(self) -> None:
         """Scenario: a hook must never break the prompt path."""
         result = subprocess.run(
-            [sys.executable, str(HOOK)],
+            [sys.executable, str(ENTRY)],
             input="not json at all",
             capture_output=True,
             text=True,

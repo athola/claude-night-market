@@ -273,29 +273,3 @@ def prompt_context(payload: object) -> str | None:
     ranked = _rank(query, units)
     root = Path(payload.get("cwd") or Path.cwd())
     return _render(ranked, visible, _changed_dependencies([u for u, _ in ranked], root))
-
-
-def main() -> None:
-    """Inject past-session units when the prompt opts in."""
-    try:
-        payload = json.load(sys.stdin)
-    except (json.JSONDecodeError, ValueError):
-        sys.exit(0)
-
-    context = prompt_context(payload)
-    if context is not None:
-        print(
-            json.dumps(
-                {
-                    "hookSpecificOutput": {
-                        "hookEventName": "UserPromptSubmit",
-                        "additionalContext": context,
-                    }
-                }
-            )
-        )
-    sys.exit(0)
-
-
-if __name__ == "__main__":
-    main()
