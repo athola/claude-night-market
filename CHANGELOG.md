@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.10.2] - 2026-11-07
 
+One entry below is marked Breaking, and this release ships it under a
+patch number as the maintainer's choice of version: the fold removes no
+capability, and a caller needs only the one-line change its entry describes.
+
 ### Added
 
 - **Slop scores apply each language's calibration.**

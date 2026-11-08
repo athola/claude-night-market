@@ -283,7 +283,9 @@ except Exception as e:
 *   **Plugin not loading:** Verify syntax
     and paths in `.claude-plugin/plugin.json`
     and entry points in `marketplace.json`.
-*   **Tests failing:** Run `uv sync --extra dev` to install dependencies,
+*   **Tests failing:** Run `uv sync` in the plugin directory, which
+    installs the `dev` dependency group (phantom declares dev as an
+    extra and needs `uv sync --extra dev`),
     then `pytest tests/test_specific.py -v` to isolate.
 *   **Performance:** Profile with `python -m cProfile`.
     Consider caching or lazy loading for heavy modules.
