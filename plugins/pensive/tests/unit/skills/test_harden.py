@@ -27,6 +27,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.unit.skills._skill_text import read_frontmatter
+
 REPO_ROOT = Path(__file__).resolve().parents[5]
 SKILL_DIR = REPO_ROOT / "plugins" / "pensive" / "skills" / "harden"
 SKILL_FILE = SKILL_DIR / "SKILL.md"
@@ -37,16 +39,6 @@ def _read_skill() -> str:
     if not SKILL_FILE.exists():
         pytest.fail(f"harden SKILL.md missing: {SKILL_FILE}")
     return SKILL_FILE.read_text(encoding="utf-8")
-
-
-def _read_frontmatter(content: str) -> str:
-    """Return the YAML frontmatter block (between leading --- markers)."""
-    if not content.startswith("---\n"):
-        pytest.fail("SKILL.md must begin with `---` YAML frontmatter")
-    end = content.find("\n---\n", 4)
-    if end == -1:
-        pytest.fail("SKILL.md frontmatter has no closing `---`")
-    return content[4:end]
 
 
 class TestHardenSkillFrontmatter:
@@ -67,7 +59,7 @@ class TestHardenSkillFrontmatter:
         Then it must declare name, description, category, complexity,
         modules, and dependencies.
         """
-        fm = _read_frontmatter(_read_skill())
+        fm = read_frontmatter(_read_skill())
         for key in (
             "name: harden",
             "category: security",
@@ -83,7 +75,7 @@ class TestHardenSkillFrontmatter:
         When the skill declares estimated_tokens
         Then the value must be within the project's ~1500-token cap.
         """
-        fm = _read_frontmatter(_read_skill())
+        fm = read_frontmatter(_read_skill())
         # Find `estimated_tokens: NNN`
         for line in fm.splitlines():
             if line.strip().startswith("estimated_tokens:"):
