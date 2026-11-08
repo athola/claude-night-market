@@ -21,6 +21,7 @@ from scripts.activation.compare import (
     holm,
     main,
     mcnemar_p,
+    render,
 )
 
 ALPHA = 0.05
@@ -277,3 +278,39 @@ def test_a_draw_with_an_empty_arm_is_not_scored_as_a_zero_rate() -> None:
     low, high = _paired_delta_ci(base, new, ["a", "b"], "k")
 
     assert high < 1.0
+
+
+def test_no_usable_draw_reports_no_interval_instead_of_zero() -> None:
+    """[0, 0] rendered "+0.000 to +0.000", which reads as a measured no-change."""
+    base = {
+        "case_meta": {"a": {"cluster": "a"}},
+        "cases": {"a": {"v": 0, "k": 0}},
+    }
+    new = {"case_meta": base["case_meta"], "cases": {"a": {"v": 4, "k": 4}}}
+
+    assert _paired_delta_ci(base, new, ["a"], "k") is None
+    assert _paired_delta_ci(base, new, [], "k") is None
+
+
+def test_the_table_shows_a_missing_interval_as_not_available(capsys) -> None:
+    out = {
+        "change": "c",
+        "rates": {
+            rate: {
+                "base": None,
+                "new": None,
+                "delta": None,
+                "delta_ci": None,
+                "b": 0,
+                "c": 0,
+                "p": 1.0,
+                "verdict": "no evidence of change",
+            }
+            for rate in RATES
+        },
+    }
+
+    table = render(out)
+
+    assert "+0.000 to +0.000" not in table
+    assert "(CI n/a)" in table

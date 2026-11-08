@@ -168,9 +168,12 @@ def _sibling_plugin_names(tree: ast.AST) -> list[str]:
         func = node.func
         called = func.id if isinstance(func, ast.Name) else getattr(func, "attr", "")
         target = node.args[1]
-        if called in _SIBLING_RESOLVERS and isinstance(target, ast.Constant):
-            if isinstance(target.value, str):
-                names.append(target.value)
+        if (
+            called in _SIBLING_RESOLVERS
+            and isinstance(target, ast.Constant)
+            and isinstance(target.value, str)
+        ):
+            names.append(target.value)
     return names
 
 

@@ -1355,13 +1355,29 @@ class TestLanguageCalibration:
             f.category for f in english.findings
         }
 
-    def test_english_is_unchanged(self) -> None:
+    def test_english_is_unchanged(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """English is the baseline: factor 1.0, the merge gate's numbers hold."""
         text = "This seamless, robust solution leverages synergy. " * 10
-        assert (
-            slop_score.score_text(text).score
-            == slop_score.score_text(text, language="en").score
-        )
+        calibrated = slop_score.score_text(text, language="en").score
+        monkeypatch.setitem(pattern_loader.LANGUAGE_CALIBRATION, "en", 1.0)
+
+        assert calibrated > 0
+        assert calibrated == slop_score.score_text(text, language="en").score
+
+    @pytest.mark.parametrize("mode", [[], ["--audit"]])
+    def test_the_lang_flag_reaches_scoring(
+        self, mode: list, tmp_path: Path, capsys: pytest.CaptureFixture
+    ) -> None:
+        """Both the report and --audit score in the language --lang names."""
+        doc = tmp_path / "bericht.md"
+        doc.write_text("Wir müssen das ganzheitlich und nachhaltig betrachten. " * 20)
+
+        outputs = {}
+        for lang in ("en", "de"):
+            slop_score.main([*mode, "--lang", lang, str(doc)])
+            outputs[lang] = capsys.readouterr().out
+
+        assert outputs["en"] != outputs["de"]
 
     def test_auto_detects_the_language_of_each_file(self) -> None:
         """--lang auto picks German patterns for a German document."""

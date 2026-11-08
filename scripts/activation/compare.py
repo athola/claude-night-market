@@ -115,13 +115,17 @@ def _activated(row: dict, field: str) -> bool | None:
 
 def _paired_delta_ci(
     base: dict, new: dict, case_ids: list[str], field: str
-) -> list[float]:
+) -> list[float] | None:
+    """Cluster-bootstrap 95% CI of the rate delta, or None with no usable draw.
+
+    [0, 0] for "nothing measured" rendered as a measured no-change.
+    """
     clusters: dict[str, list[str]] = {}
     for cid in case_ids:
         clusters.setdefault(base["case_meta"][cid]["cluster"], []).append(cid)
     keys = sorted(clusters)
     if not keys:
-        return [0.0, 0.0]
+        return None
     rng = random.Random(0)
     deltas = []
     for _ in range(BOOTSTRAP_B):
@@ -133,7 +137,7 @@ def _paired_delta_ci(
             continue
         deltas.append(rates[1] - rates[0])
     if not deltas:
-        return [0.0, 0.0]
+        return None
     deltas.sort()
     return [
         round(deltas[int(0.025 * len(deltas))], 6),
@@ -221,9 +225,11 @@ def render(out: dict) -> str:
     ]
     for rate in RATES:
         r = out["rates"][rate]
+        ci = r["delta_ci"]
+        interval = "CI n/a" if ci is None else f"{ci[0]:+.3f} to {ci[1]:+.3f}"
         lines.append(
             f"| {rate} | {_fmt(r['base'])} | {_fmt(r['new'])} | {_fmt(r['delta'])} "
-            f"({r['delta_ci'][0]:+.3f} to {r['delta_ci'][1]:+.3f}) | {r['b']} | {r['c']} "
+            f"({interval}) | {r['b']} | {r['c']} "
             f"| {r['p']:.4f} | {r['verdict']} |"
         )
     return "\n".join(lines) + "\n"

@@ -109,11 +109,12 @@ run_plugin_typecheck() {
   # then fall back to running mypy on src/ or scripts/ directly. The target
   # may come from an included .mk, so make's own rule database is read:
   # `make -n typecheck` succeeded for any plugin including base.mk, whose
-  # `%::` catch-all dry-runs every name.
+  # `%::` catch-all dry-runs every name. A here-string, not a pipe: under
+  # pipefail, make's exit 2 on the probe goal or its SIGPIPE when grep -q
+  # stops reading would turn a match into a miss.
   if [ -f "${plugin_dir}/Makefile" ] &&
     (grep -qE "^(typecheck|type-check):" "${plugin_dir}/Makefile" 2>/dev/null ||
-      (cd "${plugin_dir}" && make -pn __typecheck_probe__ 2>/dev/null |
-        grep -qE "^(typecheck|type-check):")); then
+      grep -qE "^(typecheck|type-check):" <<<"$(cd "${plugin_dir}" && make -pn __typecheck_probe__ 2>/dev/null)"); then
     # Prefer explicit target in Makefile, fall back to typecheck
     local target
     target=$(grep -oE "^(typecheck|type-check):" "${plugin_dir}/Makefile" 2>/dev/null | head -1 | tr -d ':')

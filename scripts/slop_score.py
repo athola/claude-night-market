@@ -241,8 +241,7 @@ def _rules(language: str = "en") -> list:
     return rules
 
 
-# Keyed by language: one global list served every later language the
-# rules of whichever was scored first.
+# Compiled rules per language code, built on first use of each language.
 _RULES_CACHE: dict[str, list] = {}
 _AUDIT_RULES_CACHE: dict[str, list] = {}
 
@@ -518,7 +517,8 @@ def _language_for(text: str, lang: str) -> str:
     """The language to score *text* in: *lang*, or a detected one for "auto".
 
     Detection is the function-word count in scribe.pattern_loader, which
-    defaults to English unless another language clearly dominates.
+    returns English unless another language has more marker words than
+    English does.
     """
     return detect_language(text) if lang == "auto" else lang
 
@@ -529,7 +529,7 @@ def _read_prose(path: Path) -> str:
     return _python_prose(text) if path.suffix == ".py" else text
 
 
-def _audit(paths: list, allow: frozenset, lang: str = "en") -> int:
+def _audit(paths: list, allow: frozenset, lang: str) -> int:
     """Print every finding with its location. Always exits 0."""
     total = 0
     for path in paths:
