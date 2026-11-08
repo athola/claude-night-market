@@ -1,4 +1,4 @@
-"""The quota-management skill's examples compare against real return values.
+"""The quota-management module's examples compare against real return values.
 
 The Quick Start compared ``status == "CRITICAL"`` while
 ``QuotaTracker.get_quota_status`` returns lowercase levels, so the
@@ -37,9 +37,9 @@ def _levels_the_tracker_returns(tmp_path: Path) -> set[str]:
 def test_documented_status_comparisons_use_values_the_tracker_returns(
     tmp_path: Path,
 ) -> None:
-    """Every ``status == "..."`` in the skill names a returned level."""
+    """Every ``status == "..."`` in the module names a returned level."""
     returned = _levels_the_tracker_returns(tmp_path)
     compared = set(re.findall(r'status == "([^"]+)"', SKILL_FILE.read_text()))
 
-    assert compared, "the skill no longer shows a status comparison"
+    assert compared, "the module no longer shows a status comparison"
     assert compared <= returned, compared - returned

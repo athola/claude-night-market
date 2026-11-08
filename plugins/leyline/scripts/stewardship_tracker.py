@@ -30,7 +30,7 @@ class StewardshipAction:
     virtue: str | None = None
 
 
-def record_action(base_dir: Path, action: StewardshipAction) -> None:
+def record_action(base_dir: Path, action: StewardshipAction) -> bool:
     """Append a stewardship action to the JSONL tracking file.
 
     Creates the directory and file if they don't exist.
@@ -40,12 +40,16 @@ def record_action(base_dir: Path, action: StewardshipAction) -> None:
         base_dir: Directory where actions.jsonl is stored.
         action: The stewardship action to record. Its ``virtue`` is
             omitted from the entry when None.
+
+    Returns:
+        False when the directory or the append failed, after reporting
+        the error on stderr, so the CLI can exit nonzero.
     """
     try:
         base_dir.mkdir(parents=True, exist_ok=True)
     except OSError as e:
         sys.stderr.write(f"stewardship_tracker: failed to create {base_dir}: {e}\n")
-        return
+        return False
 
     entry: dict[str, Any] = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -65,6 +69,8 @@ def record_action(base_dir: Path, action: StewardshipAction) -> None:
         sys.stderr.write(
             f"stewardship_tracker: failed to write to {actions_file}: {e}\n"
         )
+        return False
+    return True
 
 
 def read_actions(
@@ -142,7 +148,7 @@ def main(argv: list[str] | None = None) -> int:
     record.add_argument("--virtue", choices=VIRTUES)
     args = parser.parse_args(argv)
 
-    record_action(
+    recorded = record_action(
         args.dir,
         StewardshipAction(
             plugin=args.plugin,
@@ -152,7 +158,7 @@ def main(argv: list[str] | None = None) -> int:
             virtue=args.virtue,
         ),
     )
-    return 0
+    return 0 if recorded else 1
 
 
 if __name__ == "__main__":

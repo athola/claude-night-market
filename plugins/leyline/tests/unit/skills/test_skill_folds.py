@@ -30,6 +30,13 @@ def _frontmatter(path: Path) -> dict:
     return yaml.safe_load(path.read_text(encoding="utf-8").split("---")[1])
 
 
+def _dependencies(path: Path) -> set[str]:
+    """Names a document's frontmatter depends on; none without frontmatter."""
+    if not path.read_text(encoding="utf-8").startswith("---"):
+        return set()
+    return set(_frontmatter(path).get("dependencies") or [])
+
+
 @pytest.mark.unit
 @pytest.mark.parametrize(("source", "target"), FOLDS)
 def test_folded_skill_directory_is_gone(source: str, target: str) -> None:
@@ -58,12 +65,23 @@ def test_target_skill_lists_and_points_at_the_module(source: str, target: str) -
 
 @pytest.mark.unit
 @pytest.mark.parametrize(("source", "target"), FOLDS)
-def test_no_skill_still_depends_on_a_folded_skill(source: str, target: str) -> None:
-    """A dependency on a folded name points at a node the skill graph lost."""
+def test_no_skill_or_module_still_depends_on_a_folded_skill(
+    source: str, target: str
+) -> None:
+    """A dependency on a folded name points at a node the skill graph lost.
+
+    Modules count too: the three that moved with storage-templates kept it
+    as their dependency. Both the bare and the ``leyline:`` form are stale.
+    """
+    plugins = SKILLS.parents[1]
+    documents = [
+        *plugins.glob("*/skills/*/SKILL.md"),
+        *plugins.glob("*/skills/*/modules/*.md"),
+    ]
     stale = [
-        str(skill.relative_to(SKILLS.parents[1]))
-        for skill in SKILLS.parents[1].glob("*/skills/*/SKILL.md")
-        if source in (_frontmatter(skill).get("dependencies") or [])
+        str(document.relative_to(plugins))
+        for document in documents
+        if {source, f"leyline:{source}"} & _dependencies(document)
     ]
 
     assert not stale, f"{stale} depend on {source}; depend on {target} instead"

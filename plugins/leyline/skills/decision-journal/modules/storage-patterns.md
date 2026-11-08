@@ -3,7 +3,7 @@ name: storage-patterns
 description: Storage backend patterns for templates and lifecycle data with retention, atomic writes, and selection criteria
 category: storage
 tags: [storage, files, sqlite, json, retention, atomic-writes]
-dependencies: [storage-templates]
+dependencies: [decision-journal]
 complexity: beginner
 estimated_tokens: 800
 ---

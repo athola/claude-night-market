@@ -3,7 +3,7 @@ name: template-patterns
 description: Detailed template structures for different content types and storage domains
 category: templates
 tags: [templates, structures, formats, examples]
-dependencies: [storage-templates]
+dependencies: [decision-journal]
 complexity: beginner
 estimated_tokens: 800
 ---

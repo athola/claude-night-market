@@ -1,6 +1,6 @@
-"""The utility skill's stated range follows from its component bounds.
+"""The utility module's stated range follows from its component bounds.
 
-SKILL.md states ``Utility range: [-2.3, 1.0]``, which is
+``evaluation-framework/modules/utility.md`` states ``Utility range: [-2.3, 1.0]``, which is
 ``0 - λ1·1 - λ2·1 - λ3·1`` and so assumes every subtracted term lies in
 [0, 1]. Gain, Uncertainty and Redundancy declare that bound; StepCost did
 not, and its dispatch overhead (+0.3) and an unbounded token_ratio pushed

@@ -628,3 +628,35 @@ class TestRecordCommand:
             ]
         )
         assert read_actions(tmp_path / ".claude" / "stewardship", plugin="p")
+
+    @staticmethod
+    def _record_into(directory: Path) -> int:
+        return stewardship_tracker.main(
+            [
+                "record",
+                "--dir",
+                str(directory),
+                "--plugin",
+                "p",
+                "--type",
+                "t",
+                "--file",
+                "f",
+                "--description",
+                "d",
+            ]
+        )
+
+    def test_record_exits_1_when_the_directory_cannot_be_created(
+        self, tmp_path: Path
+    ) -> None:
+        """The skill's exit criterion read a failed append as recorded."""
+        blocker = tmp_path / "not-a-dir"
+        blocker.write_text("")
+
+        assert self._record_into(blocker / "stewardship") == 1
+
+    def test_record_exits_1_when_the_append_fails(self, tmp_path: Path) -> None:
+        (tmp_path / "actions.jsonl").mkdir()
+
+        assert self._record_into(tmp_path) == 1

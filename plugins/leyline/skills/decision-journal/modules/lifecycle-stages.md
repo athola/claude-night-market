@@ -3,7 +3,7 @@ name: lifecycle-stages
 description: Maturity progression patterns, promotion criteria, and lifecycle management workflows
 category: lifecycle
 tags: [maturity, lifecycle, progression, workflow]
-dependencies: [storage-templates]
+dependencies: [decision-journal]
 complexity: beginner
 estimated_tokens: 600
 ---

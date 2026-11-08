@@ -538,8 +538,12 @@ class TestThePromptMatchesWhenItArrives:
 
     @pytest.mark.unit
     def test_the_prompt_does_not_claim_to_open_the_first_response(
-        self, hook_source: str
+        self, tmp_path: Path
     ) -> None:
         """The old wording, start of your response, landed mid-conversation."""
-        assert "START of your response" not in hook_source
-        assert "async" in hook_source.split("star-prompt:", 1)[1].split("\n", 1)[0]
+        run = _run_with_shims(tmp_path, {"gh": _GH_NOT_STARRED}, [])
+
+        context = json.loads(run.stdout)["hookSpecificOutput"]["additionalContext"]
+        assert context.startswith("star-prompt:")
+        assert "START of your response" not in context
+        assert "async" in context
