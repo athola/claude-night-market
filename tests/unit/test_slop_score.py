@@ -39,6 +39,8 @@ from slop_score import (  # noqa: E402 - scripts/ must join sys.path above befor
     score_text,
 )
 
+from scribe import pattern_loader  # noqa: E402 - scribe/src must join sys.path above
+
 
 class TestScoringSourcesFromTheYaml:
     """Feature: the gate and the skill read one pattern source."""
@@ -1322,3 +1324,50 @@ class TestFileCountCeiling:
         counted = re.search(r"(\d+) files over 3\.0", result.stdout)
         assert counted, result.stdout
         assert int(counted.group(1)) == int(match.group(1))
+
+
+class TestLanguageCalibration:
+    """A language's calibration factor scales its score.
+
+    pattern_loader carried a factor per language (German 0.85, French
+    0.80, ...) that the language-handling module documents, and scoring
+    never applied it. The rule cache also ignored the language, so the
+    second language scored in one process reused the first's patterns.
+    """
+
+    def test_the_factor_scales_the_score(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        text = "Wir müssen das ganzheitlich und nachhaltig betrachten. " * 20
+        monkeypatch.setitem(pattern_loader.LANGUAGE_CALIBRATION, "de", 1.0)
+        full = slop_score.score_text(text, language="de").score
+        monkeypatch.setitem(pattern_loader.LANGUAGE_CALIBRATION, "de", 0.5)
+        half = slop_score.score_text(text, language="de").score
+
+        assert full > 0
+        assert half == pytest.approx(full * 0.5)
+
+    def test_each_language_scores_with_its_own_patterns(self) -> None:
+        """English rules applied to German text find English words only."""
+        text = "Wir müssen das ganzheitlich und nachhaltig betrachten. " * 20
+        english = slop_score.score_text(text, language="en")
+        german = slop_score.score_text(text, language="de")
+
+        assert {f.category for f in german.findings} != {
+            f.category for f in english.findings
+        }
+
+    def test_english_is_unchanged(self) -> None:
+        """English is the baseline: factor 1.0, the merge gate's numbers hold."""
+        text = "This seamless, robust solution leverages synergy. " * 10
+        assert (
+            slop_score.score_text(text).score
+            == slop_score.score_text(text, language="en").score
+        )
+
+    def test_auto_detects_the_language_of_each_file(self) -> None:
+        """--lang auto picks German patterns for a German document."""
+        german = (
+            "Der Bericht ist nicht fertig und die Daten sind mit der Zeit alt. " * 10
+        )
+        assert slop_score._language_for(german, "auto") == "de"
+        assert slop_score._language_for(german, "fr") == "fr"
+        assert slop_score._language_for("The report is ready.", "auto") == "en"

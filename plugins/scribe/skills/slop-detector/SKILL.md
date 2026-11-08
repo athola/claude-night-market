@@ -88,7 +88,8 @@ score lower than the same markers in API reference.
 ### Language Detection
 
 - Auto-detect language from text content using function word frequency
-- Override with explicit `--lang` parameter (en, de, fr, es)
+- Override with `scripts/slop_score.py --lang` (en, de, fr, es, pt,
+  it, or auto); the score is scaled by the language's calibration
 - Load language-specific patterns from `data/languages/{lang}.yaml`
 - Fall back to English if detection confidence is low
 - See `modules/language-handling.md` for cultural calibration and concrete pattern sets

@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Slop scores apply each language's calibration.**
+  `scripts/slop_score.py --lang <code>` scores a document with that
+  language's patterns and scales the result by its factor (German
+  0.85, French 0.80, and so on), as the language-handling module
+  documented. `--lang auto` detects the language per file. The default
+  stays English, so the CI gate and the ratchet are unchanged. Rule
+  caches are now kept per language: one shared list had served every
+  later language the patterns of whichever was scored first.
+
 - **gauntlet challenges from the problem bank and the code graph.**
   `challenge_engine.py --source bank` draws a problem from the shipped
   bank, narrowed by `--category` and `--difficulty` and varied through

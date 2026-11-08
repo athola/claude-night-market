@@ -123,6 +123,12 @@ Slop perception varies by culture:
 - **Portuguese**: Academic norms closely follow Spanish; formal phrasing less penalised
 - **Italian**: Literary style is culturally valued, similar to French calibration
 
+The factor in the Calibration column multiplies the score that
+`scripts/slop_score.py --lang <code>` reports, so a French document
+scoring 4.0 on raw hits reports 3.2. `--lang auto` detects the
+language per file. The `--ratchet` gate always scores English, since
+it compares a file with its own history.
+
 Structural metrics (em dashes, bullet ratios) are language-agnostic.
 
 Each language has a calibration factor (see `LANGUAGE_CALIBRATION` in `pattern_loader.py`).

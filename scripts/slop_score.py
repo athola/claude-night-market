@@ -48,6 +48,8 @@ from scribe.negation import (  # noqa: E402 - path must be set before import
     check_negation_density,
 )
 from scribe.pattern_loader import (  # noqa: E402 - path must be set before import
+    detect_language,
+    get_calibration_factor,
     get_sycophantic_patterns,
     get_tier1_words,
     get_tier2_words,
@@ -239,8 +241,10 @@ def _rules(language: str = "en") -> list:
     return rules
 
 
-_RULES_CACHE: list = []
-_AUDIT_RULES_CACHE: list = []
+# Keyed by language: one global list served every later language the
+# rules of whichever was scored first.
+_RULES_CACHE: dict[str, list] = {}
+_AUDIT_RULES_CACHE: dict[str, list] = {}
 
 
 def _audit_rules(language: str = "en") -> list:
@@ -329,14 +333,13 @@ def audit_text(
     text: str, language: str = "en", allowlist: frozenset | None = None
 ) -> list:
     """Locate every finding in *text*, sorted by line."""
-    global _AUDIT_RULES_CACHE
-    if not _AUDIT_RULES_CACHE:
-        _AUDIT_RULES_CACHE = _audit_rules(language)
+    if language not in _AUDIT_RULES_CACHE:
+        _AUDIT_RULES_CACHE[language] = _audit_rules(language)
     allow = allowlist or frozenset()
 
     prose = _prose_keeping_offsets(text)
     hits = []
-    for category, regex, confidence in _AUDIT_RULES_CACHE:
+    for category, regex, confidence in _AUDIT_RULES_CACHE[language]:
         body = text if category in _RAW_TEXT_CATEGORIES else prose
         for match in regex.finditer(body):
             if match.group(0).lower() in allow:
@@ -356,10 +359,14 @@ def audit_text(
 def score_text(
     text: str, language: str = "en", allowlist: frozenset | None = None
 ) -> Score:
-    """Return the weighted slop score for *text*."""
-    global _RULES_CACHE
-    if not _RULES_CACHE:
-        _RULES_CACHE = _rules(language)
+    """Return the weighted slop score for *text*.
+
+    The score is scaled by the language's calibration factor: formal or
+    literary register reads as slop in English and is ordinary in, say,
+    French academic prose. English is the 1.0 baseline.
+    """
+    if language not in _RULES_CACHE:
+        _RULES_CACHE[language] = _rules(language)
     allow = allowlist or frozenset()
 
     prose = _prose_only(text)
@@ -367,7 +374,7 @@ def score_text(
 
     findings = []
     weighted = 0
-    for category, regex, weight in _RULES_CACHE:
+    for category, regex, weight in _RULES_CACHE[language]:
         # Raw-text categories read the whole file, fences included, so a
         # file with no prose words is still scanned for them.
         if not words and category not in _RAW_TEXT_CATEGORIES:
@@ -383,7 +390,10 @@ def score_text(
 
     # A file with no prose words has no ratio to take: a raw-text hit there
     # is scored as though the file held one word, which clears any threshold.
-    return Score(score=weighted / max(words, 1) * 100, words=words, findings=findings)
+    factor = get_calibration_factor(language)
+    return Score(
+        score=weighted / max(words, 1) * 100 * factor, words=words, findings=findings
+    )
 
 
 _SKIP_PARTS = {".git", "worktrees", "node_modules", "__pycache__", ".venv"}
@@ -504,18 +514,27 @@ def _below_word_floor(path: Path, words: int) -> bool:
     return path.suffix == ".py" and words < PYTHON_WORD_FLOOR
 
 
+def _language_for(text: str, lang: str) -> str:
+    """The language to score *text* in: *lang*, or a detected one for "auto".
+
+    Detection is the function-word count in scribe.pattern_loader, which
+    defaults to English unless another language clearly dominates.
+    """
+    return detect_language(text) if lang == "auto" else lang
+
+
 def _read_prose(path: Path) -> str:
     """The scorable prose of *path*: all of a .md, the comments of a .py."""
     text = path.read_text(errors="replace")
     return _python_prose(text) if path.suffix == ".py" else text
 
 
-def _audit(paths: list, allow: frozenset) -> int:
+def _audit(paths: list, allow: frozenset, lang: str = "en") -> int:
     """Print every finding with its location. Always exits 0."""
     total = 0
     for path in paths:
         text = _read_prose(path)
-        hits = audit_text(text, allowlist=allow)
+        hits = audit_text(text, language=_language_for(text, lang), allowlist=allow)
         density = check_negation_density(text)
         so_density = check_so_density(text)
         if not hits and not density and not so_density:
@@ -613,6 +632,16 @@ def main(argv: list | None = None) -> int:
     parser.add_argument("--threshold", type=float, default=3.0)
     parser.add_argument("--top", type=int, default=20)
     parser.add_argument(
+        "--lang",
+        choices=["en", "de", "fr", "es", "pt", "it", "auto"],
+        default="en",
+        help=(
+            "Pattern set and calibration for the report and --audit "
+            "(default en; auto detects per file). --ratchet always scores "
+            "English, since it compares a file with its own history."
+        ),
+    )
+    parser.add_argument(
         "--no-exclude",
         action="store_true",
         help=(
@@ -666,7 +695,7 @@ def main(argv: list | None = None) -> int:
         return 2
 
     if args.audit:
-        return _audit(paths, allow)
+        return _audit(paths, allow, args.lang)
 
     if args.no_exclude:
         excluded: list = []
@@ -681,7 +710,10 @@ def main(argv: list | None = None) -> int:
     scored = []
     floored = []
     for path in paths:
-        result = score_text(_read_prose(path), allowlist=allow)
+        prose = _read_prose(path)
+        result = score_text(
+            prose, language=_language_for(prose, args.lang), allowlist=allow
+        )
         if not result.words and not result.findings:
             continue
         if _below_word_floor(path, result.words):
