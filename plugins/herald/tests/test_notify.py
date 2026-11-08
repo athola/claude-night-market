@@ -205,6 +205,16 @@ class TestValidateWebhookUrl:
         with pytest.raises(WebhookURLError, match="private/reserved"):
             validate_webhook_url(f"https://{ip}/hook")
 
+    @pytest.mark.parametrize("ip", ["100.100.100.200", "224.0.0.1"])
+    def test_rejects_a_hostname_resolving_to_shared_or_multicast(self, ip: str) -> None:
+        """The resolved-name path refuses the same ranges a literal does."""
+        with patch(
+            "socket.getaddrinfo",
+            return_value=[(socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, 443))],
+        ):
+            with pytest.raises(WebhookURLError, match="resolves to private/reserved"):
+                validate_webhook_url("https://metadata.example.com/hook")
+
     def test_a_public_address_is_accepted(self) -> None:
         """The check must not refuse the internet."""
         assert validate_webhook_url("https://8.8.8.8/hook") == "8.8.8.8"

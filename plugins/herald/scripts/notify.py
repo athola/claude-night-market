@@ -197,14 +197,13 @@ def create_github_alert(
     if labels:
         cmd.extend(["--label", ",".join(labels)])
 
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=30,
-            check=False,
+    def _gh(argv: list[str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            argv, capture_output=True, text=True, timeout=30, check=False
         )
+
+    try:
+        result = _gh(cmd)
         if result.returncode != 0 and labels and "label" in result.stderr.lower():
             # A repository without these labels refuses the whole issue.
             # The alert matters more than its labels, so file it bare.
@@ -213,13 +212,7 @@ def create_github_alert(
                 labels,
                 result.stderr.strip(),
             )
-            result = subprocess.run(
-                cmd[: cmd.index("--label")],
-                capture_output=True,
-                text=True,
-                timeout=30,
-                check=False,
-            )
+            result = _gh(cmd[: cmd.index("--label")])
         if result.returncode != 0:
             logger.error(
                 "gh issue create failed (rc=%d): %s",

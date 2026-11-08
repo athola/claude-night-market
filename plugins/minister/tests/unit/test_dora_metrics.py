@@ -1107,6 +1107,31 @@ class TestOpenIncidentsAreReported:
 
         assert "excludes 2 open incident" in format_report(metrics, window_days=30)
 
+    def test_the_json_payload_carries_the_open_incident_count(
+        self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A JSON consumer sees the same caveat a report reader does."""
+        opened = datetime.now(timezone.utc) - timedelta(days=1)
+        monkeypatch.setattr(
+            dora_metrics,
+            "collect_deployments_from_git",
+            lambda **kw: CollectionResult(events=[], partial=False, warnings=()),
+        )
+        monkeypatch.setattr(
+            dora_metrics,
+            "collect_failures_from_gh",
+            lambda **kw: CollectionResult(
+                events=[FailureEvent(opened_at=opened, resolved_at=None)],
+                partial=False,
+                warnings=(),
+            ),
+        )
+
+        dora_metrics.run_cli(["--window", "30", "--json"])
+
+        payload = _json.loads(capsys.readouterr().out)
+        assert payload["data"]["metrics"]["open_failures"] == 1
+
     def test_the_report_is_silent_when_none_are_open(self) -> None:
         """No open incidents, no caveat."""
         metrics = DORAMetrics(1.0, 1.0, 0.1, 0.5)

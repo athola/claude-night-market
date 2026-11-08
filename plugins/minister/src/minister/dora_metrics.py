@@ -739,6 +739,7 @@ def run_cli(argv: list[str] | None = None) -> int:
                     "lead_time_hours": metrics.lead_time_hours,
                     "change_failure_rate": metrics.change_failure_rate,
                     "time_to_restore_hours": metrics.time_to_restore_hours,
+                    "open_failures": metrics.open_failures,
                 },
                 "tiers": metrics.tier(),
                 "overall_tier": metrics.overall_tier(),
