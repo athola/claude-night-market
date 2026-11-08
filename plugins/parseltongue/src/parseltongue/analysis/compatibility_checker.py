@@ -34,9 +34,13 @@ def _has_union_annotation(node: ast.AST) -> bool:
     )
 
 
-def _feature_needing_3_11(node: ast.AST, try_star: type | None) -> str | None:
+#: ``except*`` parses only on 3.11+, so older interpreters have no node for it.
+_TRY_STAR: type | None = getattr(ast, "TryStar", None)
+
+
+def _feature_needing_3_11(node: ast.AST) -> str | None:
     """Name the 3.11-only feature ``node`` uses, if any."""
-    if try_star is not None and isinstance(node, try_star):
+    if _TRY_STAR is not None and isinstance(node, _TRY_STAR):
         return "except_star"
     if isinstance(node, ast.Import) and any(a.name == "tomllib" for a in node.names):
         return "tomllib"
@@ -179,6 +183,7 @@ class CompatibilityChecker:
     ) -> None:
         """Check for version-specific features by walking the AST."""
         union_reported = False
+        reported_311: set[str] = set()
         # With postponed evaluation an annotation is a string at runtime, so
         # `int | None` in one runs on any version that has the future import.
         postponed = any(
@@ -187,11 +192,12 @@ class CompatibilityChecker:
             and any(alias.name == "annotations" for alias in node.names)
             for node in tree.body
         )
-        try_star = getattr(ast, "TryStar", None)
         for node in ast.walk(tree):
-            feature_311 = _feature_needing_3_11(node, try_star)
+            feature_311 = _feature_needing_3_11(node)
             if feature_311:
                 features_found.append({"feature": feature_311, "min_version": "3.11"})
+            if feature_311 and feature_311 not in reported_311:
+                reported_311.add(feature_311)
                 issues.append(
                     {
                         "feature": feature_311,

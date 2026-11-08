@@ -23,7 +23,7 @@ def _bare_sleep_is_asyncio(tree: ast.Module) -> bool:
     )
 
 
-def _is_blocking_sleep(call: ast.Call, bare_sleep_blocks: bool = True) -> bool:
+def _is_blocking_sleep(call: ast.Call, bare_sleep_blocks: bool) -> bool:
     """Match time.sleep() and a bare sleep() not imported from asyncio."""
     return is_call_to(call, "time.sleep") or (
         bare_sleep_blocks
@@ -36,9 +36,9 @@ def _collect_sync_function_info(
     tree: ast.Module,
     sync_func_names: set[str],
     sync_func_blocking: dict[str, list[str]],
+    bare_sleep_blocks: bool,
 ) -> None:
     """Collect information about sync functions and their blocking calls."""
-    bare_sleep_blocks = not _bare_sleep_is_asyncio(tree)
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef) and not isinstance(
             node, ast.AsyncFunctionDef
@@ -55,7 +55,7 @@ def _check_time_sleep(
     call: ast.Call,
     blocking_patterns: dict[str, Any],
     recommendations: list[str],
-    bare_sleep_blocks: bool = True,
+    bare_sleep_blocks: bool,
 ) -> None:
     """Check for time.sleep() calls."""
     if _is_blocking_sleep(call, bare_sleep_blocks):
@@ -93,9 +93,19 @@ def _check_sync_function_call(
     recommendations: list[str],
 ) -> None:
     """Check for calls to sync functions from async context."""
-    # Only a direct call names a module-level function: `client.close()` is
-    # a method of whatever `client` is, not the file's own `def close()`.
-    call_name = call.func.id if isinstance(call.func, ast.Name) else None
+    # A direct call, or one through `self`/`cls`, names a function in this
+    # file. `client.close()` is a method of whatever `client` is, not the
+    # file's own `def close()`.
+    func = call.func
+    call_name = None
+    if isinstance(func, ast.Name):
+        call_name = func.id
+    elif (
+        isinstance(func, ast.Attribute)
+        and isinstance(func.value, ast.Name)
+        and func.value.id in ("self", "cls")
+    ):
+        call_name = func.attr
 
     if call_name and call_name in sync_func_names:
         blocking_patterns["sync_function_call"] = {
@@ -136,8 +146,10 @@ async def detect_blocking_calls(
 
     sync_func_names: set[str] = set()
     sync_func_blocking: dict[str, list[str]] = {}
-    _collect_sync_function_info(tree, sync_func_names, sync_func_blocking)
     bare_sleep_blocks = not _bare_sleep_is_asyncio(tree)
+    _collect_sync_function_info(
+        tree, sync_func_names, sync_func_blocking, bare_sleep_blocks
+    )
 
     for node in ast.walk(tree):
         if isinstance(node, ast.AsyncFunctionDef):
