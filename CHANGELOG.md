@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Stewardship actions can be recorded.** The stewardship skill asks
+  for a small action when one of its questions triggers, and
+  `/imbue:stewardship-health` reports improvement velocity and virtue
+  practice from `.claude/stewardship/actions.jsonl`, but nothing wrote
+  that file, so both always read "not measured". `stewardship_tracker.py
+  record` now appends an action, and the skill names the command.
+
 - **phantom's CLI can cap spend and ask before acting.** The library
   had a dollar budget and a confirmation gate, but the CLI exposed
   neither, so every CLI run was unbudgeted and acted without asking.

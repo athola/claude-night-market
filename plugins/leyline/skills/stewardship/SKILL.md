@@ -90,7 +90,18 @@ Ask yourself these questions when working in a plugin:
 that way.
 
 **If any question triggers**: take the small action. It costs
-seconds and pays dividends for every future reader.
+seconds and pays dividends for every future reader. Then record it,
+so `/imbue:stewardship-health` counts it toward the plugin's
+improvement velocity and virtue practice:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/stewardship_tracker.py record \
+  --plugin <plugin> --type <doc-update|typo-fix|comment|...> \
+  --file <path> --description "<what changed>" [--virtue care]
+```
+
+`--virtue` takes one of the five below. The action is appended to
+`.claude/stewardship/actions.jsonl` in the project.
 
 ## Layer-Specific Guidance
 
@@ -136,6 +147,9 @@ a brief self-assessment grounded in the five virtues. See
   before completing work on any plugin; any triggered question
   results in the corresponding small action (comment, README
   update, typo fix, abstraction reconsidered)
+- [ ] Each small action taken is recorded with
+  `stewardship_tracker.py record` and appears in
+  `.claude/stewardship/actions.jsonl`
 - [ ] Layer-specific guidance applied: foundation plugins (leyline,
   sanctum, imbue) use additive changes with migration guides for
   breaking changes; domain plugins include examples, not just

@@ -10,6 +10,7 @@ Part of the stewardship framework. See: STEWARDSHIP.md
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from dataclasses import dataclass
@@ -113,3 +114,46 @@ def read_actions(
         sys.stderr.write(f"stewardship_tracker: failed to read {actions_file}: {e}\n")
 
     return actions
+
+
+#: The five virtues the stewardship skill names. A virtue outside them
+#: would be counted as a sixth by the health report.
+VIRTUES = ("care", "curiosity", "humility", "diligence", "foresight")
+
+#: Where stewardship-health reads actions, relative to the project root.
+DEFAULT_DIR = Path(".claude") / "stewardship"
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Record a stewardship action from the command line.
+
+    The stewardship skill asks for a small action whenever one of its
+    questions triggers. This is how that action reaches the health
+    report, which reads the same file.
+    """
+    parser = argparse.ArgumentParser(description="Record a stewardship action.")
+    sub = parser.add_subparsers(dest="command", required=True)
+    record = sub.add_parser("record", help="append one action")
+    record.add_argument("--dir", type=Path, default=DEFAULT_DIR)
+    record.add_argument("--plugin", required=True)
+    record.add_argument("--type", dest="action_type", required=True)
+    record.add_argument("--file", dest="file_path", required=True)
+    record.add_argument("--description", required=True)
+    record.add_argument("--virtue", choices=VIRTUES)
+    args = parser.parse_args(argv)
+
+    record_action(
+        args.dir,
+        StewardshipAction(
+            plugin=args.plugin,
+            action_type=args.action_type,
+            file_path=args.file_path,
+            description=args.description,
+            virtue=args.virtue,
+        ),
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

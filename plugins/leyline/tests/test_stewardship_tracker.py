@@ -14,6 +14,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
+import stewardship_tracker
 from stewardship_tracker import StewardshipAction, read_actions, record_action
 
 
@@ -553,3 +554,77 @@ class TestEdgeCases:
         # Should not raise ValueError if format is valid
         parsed = datetime.fromisoformat(entry["timestamp"])
         assert parsed.tzinfo is not None
+
+
+class TestRecordCommand:
+    """The skill's small actions reach the health report through this CLI.
+
+    read_actions and plugin_health read .claude/stewardship/actions.jsonl,
+    and nothing wrote it, so every plugin's velocity read "not measured".
+    """
+
+    def test_record_appends_an_action_the_reader_returns(self, tmp_path: Path) -> None:
+        code = stewardship_tracker.main(
+            [
+                "record",
+                "--dir",
+                str(tmp_path),
+                "--plugin",
+                "leyline",
+                "--type",
+                "doc-update",
+                "--file",
+                "README.md",
+                "--description",
+                "Clarified the install step",
+                "--virtue",
+                "care",
+            ]
+        )
+
+        assert code == 0
+        [entry] = read_actions(tmp_path, plugin="leyline")
+        assert entry["action_type"] == "doc-update"
+        assert entry["virtue"] == "care"
+
+    def test_a_virtue_outside_the_five_is_refused(self, tmp_path: Path) -> None:
+        """A misspelled virtue would be counted as a sixth one forever."""
+        with pytest.raises(SystemExit):
+            stewardship_tracker.main(
+                [
+                    "record",
+                    "--dir",
+                    str(tmp_path),
+                    "--plugin",
+                    "p",
+                    "--type",
+                    "t",
+                    "--file",
+                    "f",
+                    "--description",
+                    "d",
+                    "--virtue",
+                    "kindness",
+                ]
+            )
+        assert read_actions(tmp_path) == []
+
+    def test_the_default_directory_is_the_one_health_reads(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """stewardship-health passes .claude/stewardship/ as actions_dir."""
+        monkeypatch.chdir(tmp_path)
+        stewardship_tracker.main(
+            [
+                "record",
+                "--plugin",
+                "p",
+                "--type",
+                "t",
+                "--file",
+                "f",
+                "--description",
+                "d",
+            ]
+        )
+        assert read_actions(tmp_path / ".claude" / "stewardship", plugin="p")
