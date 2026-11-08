@@ -964,20 +964,6 @@ def suggest_inventive_principles(
     return results
 
 
-# ---------------------------------------------------------------------------
-# Optional canonical contradiction-matrix lookup
-# ---------------------------------------------------------------------------
-# Vendored data: NickScherbakov/Heinrich-The-Inventing-Machine (Apache-2.0).
-# See triz_data/NOTICE.  This is a sparse subset of Altshuller's classical
-# 39x39 engineering-parameter matrix and is OPTIONAL grounding, secondary to
-# the software-friendly suggest_inventive_principles catalogue above.
-
-
-# ---------------------------------------------------------------------------
-# Bridge statement
-# ---------------------------------------------------------------------------
-
-
 def analyze(topic: str, domain: str) -> dict[str, Any]:
     """Run the skill's per-candidate steps over the ranked contradictions.
 

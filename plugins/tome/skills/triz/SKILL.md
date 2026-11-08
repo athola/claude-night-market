@@ -34,7 +34,7 @@ to find solutions from adjacent fields.
 | light | 1 | Ideality and contradiction |
 | medium | 2 | Ideality, contradiction, field mapping |
 | deep | 3 | Adds principle suggestions and separation |
-| maximum | 5 | Adds distant fields and optional matrix lookup |
+| maximum | 5 | Adds distant fields |
 
 ## Workflow
 
@@ -100,13 +100,6 @@ For diverse, category-spanning ideation with rotation, see
   trade-offs to principles. It is a convenience mapping
   rather than part of the classical TRIZ Body of Knowledge, which is
   scoped to technological systems.
-- The optional canonical matrix is a sparse subset of
-  Altshuller's 39x39 engineering-parameter table. It has
-  been frozen since 1985 and uses engineering, not software,
-  parameters. Treat it as a cross-check, not the primary
-  source.
-- An empty matrix cell does not mean "no solution". By the
-  empty-box convention, any of the 40 principles may apply.
 - The strongest, most portable parts of TRIZ are the 40
   principles as a divergence checklist and Ideality as a
   framing question. ARIZ, Substance-Field analysis, the 76 standard
@@ -127,10 +120,6 @@ For diverse, category-spanning ideation with rotation, see
   Reformulations in Mathematical Programming (2009); Duncker, On
   Problem-Solving (1945); Hipple, TRIZ Separation Principles (2012).
   ADR-0026.
-- The vendored canonical 39x39 matrix subset comes from
-  NickScherbakov/Heinrich-The-Inventing-Machine (Apache-2.0);
-  see `src/tome/channels/triz_data/NOTICE` for attribution and
-  the exact vendored scope.
 
 ## Exit Criteria
 
@@ -149,6 +138,3 @@ For diverse, category-spanning ideation with rotation, see
 - [ ] At least one cross-domain bridge with a confidence
       score is returned per active adjacent field, or the
       field is explicitly reported as yielding nothing.
-- [ ] When the canonical matrix is consulted, an empty cell
-      is reported as "any of the 40 may apply", not as "no
-      solution".

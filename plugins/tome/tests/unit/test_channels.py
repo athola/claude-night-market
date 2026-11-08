@@ -21,7 +21,6 @@ from tome.channels.academic import (
     expand_academic_queries,
     generate_access_fallback_guidance,
     parse_arxiv_response,
-    parse_citation_chain_response,
     parse_semantic_scholar_response,
     parse_unpaywall_response,
 )
@@ -46,7 +45,7 @@ from tome.channels.github import (
 from tome.models import Finding
 
 # ============================================================================
-# github.expand_github_queries / build_github_search_queries
+# github.build_github_search_queries
 # ============================================================================
 
 
@@ -604,65 +603,6 @@ class TestParseUnpaywall:
         assert parse_unpaywall_response({}) is None
         assert parse_unpaywall_response({"best_oa_location": None}) is None
         assert parse_unpaywall_response({"best_oa_location": {}}) is None
-
-
-# ============================================================================
-# academic: citation chain parser
-# ============================================================================
-
-
-class TestParseCitationChain:
-    @pytest.mark.unit
-    def test_handles_references_shape(self) -> None:
-        data = {
-            "data": [
-                {
-                    "citedPaper": {
-                        "title": "Cited",
-                        "paperId": "ref1",
-                        "year": 2020,
-                        "citationCount": 50,
-                        "externalIds": {"ArXiv": "1234.5678"},
-                        "authors": [{"name": "X"}],
-                    }
-                }
-            ]
-        }
-        out = parse_citation_chain_response(data)
-        assert len(out) == 1
-        assert out[0].url == "https://arxiv.org/abs/1234.5678"
-        assert out[0].source == "semantic_scholar_chain"
-
-    @pytest.mark.unit
-    def test_handles_citations_shape(self) -> None:
-        data = {
-            "data": [
-                {
-                    "citingPaper": {
-                        "title": "Citing",
-                        "paperId": "p2",
-                        "citationCount": 5,
-                    }
-                }
-            ]
-        }
-        out = parse_citation_chain_response(data)
-        assert len(out) == 1
-        assert "semanticscholar.org/paper/p2" in out[0].url
-
-    @pytest.mark.unit
-    def test_skips_items_without_title(self) -> None:
-        data = {"data": [{"citedPaper": {"paperId": "p", "citationCount": 5}}]}
-        assert parse_citation_chain_response(data) == []
-
-    @pytest.mark.unit
-    def test_handles_non_list_data(self) -> None:
-        assert parse_citation_chain_response({"data": "bad"}) == []
-
-    @pytest.mark.unit
-    def test_skips_when_paper_field_missing(self) -> None:
-        data = {"data": [{"unrelated": {"title": "x"}}]}
-        assert parse_citation_chain_response(data) == []
 
 
 # ============================================================================

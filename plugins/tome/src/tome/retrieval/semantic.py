@@ -27,8 +27,10 @@ class NonSemanticRetrievalWarning(UserWarning):
     """
 
 
-# memory-palace is an optional, co-installed backend. See the note in
-# graph/palace_adapter.py for why the alias is declared ``Any``.
+# memory-palace is an optional, co-installed backend. The alias is declared
+# ``Any`` so this module type-checks the same whether or not the backend is
+# installed: binding the imported class directly would make the absent
+# branch an invalid assignment once the real types resolve.
 _EmbeddingIndex: Any
 try:
     from memory_palace import EmbeddingIndex as _mp_embedding_index

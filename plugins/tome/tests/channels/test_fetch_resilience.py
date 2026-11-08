@@ -340,6 +340,22 @@ def test_an_http_error_status_is_returned_with_its_body(
     assert reply.headers == {"Retry-After": "5"}
 
 
+def test_an_http_error_body_over_the_cap_is_cut_and_its_status_kept(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A 4xx/5xx body can stream without end, as a 200 body can."""
+    error = urllib.error.HTTPError(
+        "https://x", 503, "Unavailable", {}, io.BytesIO(b"x" * 5000)
+    )
+    monkeypatch.setattr(http, "_https_only_opener", lambda: _RaisingOpener(error))
+    monkeypatch.setattr(http, "MAX_BODY_BYTES", 1024)
+
+    reply = http.urllib_transport("https://x", {})
+
+    assert reply.status == 503
+    assert len(reply.body) == 1024
+
+
 def test_retry_after_as_an_http_date_waits_until_that_moment(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

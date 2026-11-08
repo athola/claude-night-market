@@ -15,11 +15,6 @@ from urllib.parse import quote, quote_plus
 
 from tome.models import Finding
 
-# ---------------------------------------------------------------------------
-# Query Expansion
-# ---------------------------------------------------------------------------
-
-
 _LOBSTERS_BASE_RELEVANCE = 0.6
 _BLOG_BASE_RELEVANCE = 0.65
 

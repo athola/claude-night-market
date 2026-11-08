@@ -5,7 +5,8 @@ arXiv, Semantic Scholar and Reddit all answer HTTP 429 to bursts, and on
 retried. A 429, a 503 or no response at all is retried after the server's
 ``Retry-After`` when it sends one, otherwise after an exponential backoff,
 both capped. Any other status is final: a 403 block page does not clear by
-waiting, and a URL that is not https is refused unsent.
+waiting, a URL that is not https is refused unsent, and a success body
+over ``MAX_BODY_BYTES`` is refused unread.
 
 Standard library only, so the channel agents can run it with no install.
 """
@@ -27,8 +28,9 @@ from typing import Any
 OK = 200
 TOO_MANY_REQUESTS = 429
 NO_RESPONSE = 0
-# The request was never sent: the URL, or a redirect, named a scheme other
-# than https. Waiting does not change the URL, so it is not retried.
+# The reply was not accepted: the URL, or a redirect, named a scheme other
+# than https and nothing was sent, or the body was over MAX_BODY_BYTES.
+# Waiting changes neither, so it is not retried.
 REFUSED = -1
 # The most a response body may hold. A source or a redirect target can
 # stream without end, and read() kept all of it in memory. 64 MiB clears
@@ -49,7 +51,8 @@ class Response:
     """One HTTP answer.
 
     ``status`` NO_RESPONSE means the request got no answer and REFUSED that
-    it was never sent. ``error`` says why, and is set for those two only.
+    it was never sent or its body was over the cap. ``error`` says why, and
+    is set for those two only.
     """
 
     status: int
@@ -186,7 +189,8 @@ def urllib_transport(
             body = raw.decode("utf-8", errors="replace")
             return Response(reply.status, body, dict(reply.headers))
     except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
+        # An error body is diagnostic, so it is cut to the cap, not refused.
+        body = exc.read(MAX_BODY_BYTES).decode("utf-8", errors="replace")
         return Response(exc.code, body, dict(exc.headers or {}))
     except _RefusedSchemeError as exc:
         return Response(REFUSED, "", {}, error=str(exc.reason))

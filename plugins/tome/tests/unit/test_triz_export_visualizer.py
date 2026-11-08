@@ -1,8 +1,7 @@
 # ruff: noqa: D101,D102,D103,D205,D212,PLR2004,E501
-"""Unit tests for tome.channels.triz, tome.output.export, and
-tome.output.visualizer.
+"""Unit tests for tome.channels.triz and tome.output.export.
 
-These three modules were ~0% covered by the existing suite. The tests
+These modules were ~0% covered by the existing suite. The tests
 here exercise the public surface of each module so the plugin clears
 its 90% coverage gate (issue raised by /sanctum:update-plugins on
 branch dora-1.9.6).
@@ -10,8 +9,6 @@ branch dora-1.9.6).
 
 from __future__ import annotations
 
-import csv
-import importlib.resources
 from datetime import datetime, timezone
 
 import pytest
@@ -208,11 +205,6 @@ class TestSuggestInventivePrinciples:
 
 
 # ============================================================================
-# triz.format_bridge_statement
-# ============================================================================
-
-
-# ============================================================================
 # triz module data integrity
 # ============================================================================
 
@@ -229,46 +221,6 @@ class TestTrizCatalogues:
     def test_field_adjacency_keys_have_three_entries(self) -> None:
         for domain, fields in FIELD_ADJACENCY.items():
             assert len(fields) == 3, f"{domain} should list 3 adjacent fields"
-
-    @pytest.mark.unit
-    def test_vendored_39_parameters_present(self) -> None:
-        data_pkg = importlib.resources.files("tome.channels.triz_data")
-        raw = data_pkg.joinpath("39_parameters.yaml").read_text(encoding="utf-8")
-        parsed = yaml.safe_load(raw)
-
-        params = parsed["parameters"]
-        assert len(params) == 39
-        for entry in params:
-            assert isinstance(entry["id"], int)
-            assert 1 <= entry["id"] <= 39
-            assert isinstance(entry["name"], str) and entry["name"].strip() != ""
-
-    @pytest.mark.unit
-    def test_vendored_matrix_csv_header_and_size(self) -> None:
-        data_pkg = importlib.resources.files("tome.channels.triz_data")
-        raw = data_pkg.joinpath("contradiction_matrix.csv").read_text(encoding="utf-8")
-        rows = list(csv.reader(raw.splitlines()))
-
-        assert rows[0] == [
-            "improving_parameter",
-            "worsening_parameter",
-            "recommended_principles",
-            "principle_names",
-        ]
-        # Sparse matrix: 109 populated cells in the vendored subset.
-        assert len(rows) - 1 >= 100
-
-    @pytest.mark.unit
-    def test_vendored_matrix_principle_numbers_in_range(self) -> None:
-        data_pkg = importlib.resources.files("tome.channels.triz_data")
-        raw = data_pkg.joinpath("contradiction_matrix.csv").read_text(encoding="utf-8")
-        reader = csv.DictReader(raw.splitlines())
-
-        for row in reader:
-            numbers = [int(n) for n in row["recommended_principles"].split(";") if n]
-            assert numbers, "every populated cell lists at least one principle"
-            for num in numbers:
-                assert 1 <= num <= 40, f"principle {num} out of range"
 
 
 # ============================================================================
@@ -367,8 +319,3 @@ class TestExportForMemoryPalace:
         for topic in ("- yes: [maybe]", "no", "null", "*anchor", "%directive"):
             out = export_for_memory_palace(_session(topic=topic, findings=[]))
             assert yaml.safe_load(out.split("---")[1])["topic"] == topic
-
-
-# ============================================================================
-# output.visualizer.generate_visualization
-# ============================================================================
