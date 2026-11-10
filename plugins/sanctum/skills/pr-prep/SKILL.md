@@ -157,6 +157,19 @@ and examples are in `modules/pr-template.md`.
 
 ## Step 5: Draft the PR (`pr-drafted`)
 
+Project template first: when the project's merged, human-edited
+descriptions share a shape, write that shape and apply the rules in
+the "Project template first" section of `modules/pr-template.md`.
+Otherwise populate the default.
+
+Before posting, check that every file the description names is in the
+diff. A description claiming changes the diff lacks merges far less
+often (arXiv 2601.04886):
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/description_paths.py" --base origin/main pr_description.md
+```
+
 Populate the template with the facts table (Who, Where, When), then
 the Why and What-and-how sections, then Test plan and Checklist. Write
 the title imperative and self-contained so it reads correctly in `git
@@ -221,7 +234,12 @@ If project-specific commands like `make` or `npm` are unavailable, verify the en
 - [ ] PR description file written to the specified path and its
       contents displayed for confirmation
 - [ ] Facts table present with all three rows (Who, Where, When)
-      filled, including the `External:` half of Where
+      filled, including the `External:` half of Where, or the
+      project's own shape used instead (Project template first)
+- [ ] `description_paths.py` ran on the description file. Each
+      `phantom` line is fixed, or is a device or build path outside
+      git. Each `not in diff` line names a file the description means
+      to mention unchanged
 - [ ] Why section grounded in an issue, a number, or an incident
       rather than a general claim
 - [ ] Manual test plan attached whenever one of the four triggers in

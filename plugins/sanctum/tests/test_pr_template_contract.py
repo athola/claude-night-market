@@ -19,6 +19,19 @@ from pathlib import Path
 
 import pytest
 
+OBSERVED_EDIT_RULES = (
+    "Project template first",
+    "closing keyword on the first line",
+    "Impact, Expected behavior, Actual behavior, Steps to reproduce",
+    "link the pipeline",
+    "No device run",
+    "Fold a review fix into the section it changes",
+    "one provenance line",
+    "Name the baseline",
+    "Read the live description",
+    ", causing",
+)
+
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -454,3 +467,51 @@ class TestDecisionIsRecorded:
             "ADR-0021 must keep the citation showing patch size, not "
             "description length, is the validated latency predictor."
         )
+
+
+class TestObservedReviewerEdits:
+    """What a reviewer deleted from agent MR descriptions, written down.
+
+    Across smal-idn and model-armory-lite the user made about 120 edits to
+    agent descriptions. The largest groups deleted validation narration
+    (36), port and branch history (23) and dated review appendices (7),
+    and rebuilt fix MRs in the Jira bug shape (16). ADR-0021 records the
+    amendment.
+    """
+
+    @pytest.mark.parametrize("rule", OBSERVED_EDIT_RULES)
+    def test_template_states_the_rule(self, template: str, rule: str) -> None:
+        """GIVEN a pattern the reviewer removed by hand in several MRs
+        WHEN its rule leaves the template
+        THEN this fails, and the agent writes the pattern again.
+        """
+        assert _normalize(rule) in template, (
+            f"pr-template.md must keep the observed-edit rule '{rule}'."
+        )
+
+    @pytest.mark.parametrize(
+        "path",
+        [PR_AGENT, PR_PREP_SKILL, PREPARE_PR],
+        ids=["pr-agent", "pr-prep-skill", "prepare-pr-command"],
+    )
+    def test_consumer_applies_project_template_first(self, path: Path) -> None:
+        """GIVEN a file a description-writing session loads
+        WHEN it stops deferring to the project's own shape
+        THEN this fails, and the session writes the facts table anyway.
+        """
+        assert "Project template first" in _read(path)
+
+    def test_pr_prep_runs_the_description_to_diff_check(self) -> None:
+        """GIVEN a description can name files the diff never touched
+        WHEN pr-prep stops running the check or the script goes missing
+        THEN this fails, and a phantom change reaches the reviewer.
+        """
+        assert "description_paths.py" in _read(PR_PREP_SKILL)
+        assert (PLUGIN_ROOT / "scripts" / "description_paths.py").is_file()
+
+    def test_adr_records_the_amendment(self) -> None:
+        """GIVEN the default structure is a recorded decision
+        WHEN the project-template precedence is not in the ADR
+        THEN this fails, and the two disagree silently.
+        """
+        assert "Project template first" in _read(ADR)

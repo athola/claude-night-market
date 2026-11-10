@@ -156,6 +156,19 @@ guidance or a crafted new-PR URL. If those links go unused, the
 variants should be folded back into the default template rather than
 maintained as dead weight.
 
+## Amendment 2026-11-10: Project template first
+
+The structure above is the default for a repository without a shape of
+its own. Where a team edits descriptions by hand, its shape wins. In
+smal-idn and model-armory-lite the user made about 120 edits to agent
+descriptions over ten weeks. They rebuilt fix MRs in their Jira bug
+shape (Impact, Expected behavior, Actual behavior, Steps to reproduce)
+in 16 MRs, and deleted narrated pass counts and device runs in 36.
+None of the 200 drafts used the facts table, and narrated test counts
+were among what they deleted. The default would reintroduce both.
+`pr-template.md` states the rules under "Project template first", and
+the contract test anchors them.
+
 ## Sources
 
 - Bacchelli and Bird, "Expectations, Outcomes, and Challenges of

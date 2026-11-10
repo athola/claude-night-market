@@ -25,6 +25,11 @@ against vendor docs on 2026-10-30. Bitbucket was not checked.
 - A maintainer can turn auto-close off per project under Settings > Repository.
 - Templates live in `.gitlab/issue_templates/`, with `Default.md` as the
   default.
+- Every edit to a merge request or issue description is kept. In GraphQL,
+  a `notes` node with `systemNoteMetadata.action` of `description` carries
+  `descriptionVersion { description }`, the text after that edit. The last
+  version you wrote, compared with the live `description`, shows what a
+  person changed since.
 
 ## Jira
 
@@ -45,3 +50,10 @@ against vendor docs on 2026-10-30. Bitbucket was not checked.
 - Descriptions in REST v3 are Atlassian Document Format, not markdown: a
   `{"type": "doc", "version": 1}` root with `code` and `link` marks for inline
   text. Search with `/rest/api/3/search/jql`, which pages by `nextPageToken`.
+- REST v2 takes and returns the description as a wiki markup string, and the
+  changelog's `fromString` is the same markup. A v2 `PUT` of that string
+  restores an old version exactly. Wiki markup: `h3.` for a heading,
+  `{{code}}` for an identifier, `[text|url]` for a link, `*bold*` for a UI
+  label, `{code:bash}` and `{noformat}` for blocks, `*` and `**` for nested
+  bullets.
+  Write identifiers, commits, and merge request numbers in `{{code}}`.

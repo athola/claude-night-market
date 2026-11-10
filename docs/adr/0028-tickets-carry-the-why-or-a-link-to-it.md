@@ -44,3 +44,21 @@ reproduction steps must not be cut to meet one.
 - Deferred: `sanctum` fix-pr issue creation, `sanctum` auto-issue creation,
   `imbue` workflow-monitor templates, and `spec-kit` tasks-to-issues keep their
   longer bodies.
+
+## Amendment 2026-11-10: Project template first
+
+The shape above is the default for a project with no shape of its own.
+In the ARIA Jira project the user edited 67 agent-written tickets. The
+labels they deleted most were `Why:` and `Done when:`, and 42 of the 67
+ended in one of two team templates: Impact, Expected behavior, Actual
+behavior, Steps to reproduce, Environment, Workarounds, Other
+information for bugs, and Summary, Context, Acceptance criteria, Other
+information for tasks. A rewrite tool produced some of those headings
+and the user fixed the wording by hand. The team kept the shape either
+way.
+
+`leyline:ticket-writing` now samples three recent human-edited tickets
+of the same type and copies their headings and markup. The three-heading
+shape applies only when no such shape exists. The glance test still
+holds: the first screen says what was decided and why. ADR-0021 carries
+the same amendment for merge request descriptions.

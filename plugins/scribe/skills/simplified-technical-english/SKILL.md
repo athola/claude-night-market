@@ -76,6 +76,7 @@ docstrings and ADRs exist to carry.
 | Command and skill instructions | Commit message bodies |
 | Checklists | This repository's own prose docs |
 | Workflow prompts and log lines | Workflow header comments |
+| | Contractions in MR, PR, and ticket bodies a person edits |
 
 The last row is the one that bites. These skill files are descriptive
 repo prose, so the house rules govern them, not STE. Full reasoning and

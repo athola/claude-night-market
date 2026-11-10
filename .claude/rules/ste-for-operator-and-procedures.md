@@ -24,6 +24,9 @@ to a docstring deletes the reasoning the docstring exists to carry.
 - Commit message bodies
 - The `scribe:voice-*` skills
 - This repository's descriptive documentation, these rules included
+- Merge request, pull request, and ticket descriptions a person edits.
+  Acceptance criteria keep one instruction per bullet, but
+  the author's contractions stay
 
 **The adopted limits:** 20 words per procedural sentence, 25 per
 descriptive sentence, 6 sentences per paragraph, 3 words per noun

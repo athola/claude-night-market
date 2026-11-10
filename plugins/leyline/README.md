@@ -36,7 +36,7 @@ communication and system stability.
 | `damage-control` | Agent crash recovery. | Context overflow, merge conflicts, broken state. |
 | `evaluation-framework` | Decision thresholds, scoring, and action utility. | Building evaluation criteria or gating agent dispatch. |
 | `git-platform` | Cross-platform git forge commands. | Abstracting GitHub/GitLab/Bitbucket. |
-| `ticket-writing` | Glanceable tickets with the why inline or one link away. | Creating or editing tracker tickets. |
+| `ticket-writing` | Glanceable tickets in the project's own shape, else the why inline or one link away. | Creating or editing tracker tickets. |
 | `markdown-formatting` | Line wrapping and style conventions. | Generating or editing markdown prose. |
 | `progressive-loading` | Dynamic content loading. | Lazy loading strategies. |
 | `risk-classification` | Inline 4-tier risk model. | Risk-based task routing. |

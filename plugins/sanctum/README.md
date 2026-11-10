@@ -142,6 +142,9 @@ and run `commit-messages` to generate the message.
 **Pre-PR**: Execute a preflight check,
 run quality gates such as `make fmt && make lint && make test`,
 and use `pr-prep` to generate the description.
+It copies the project's own description shape when one exists,
+and `scripts/description_paths.py` fails a description
+that names a file the diff and the tree both lack.
 
 **Post-Review**: Use `/fix-pr` to triage comments,
 implement fixes, and resolve threads.

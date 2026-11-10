@@ -225,3 +225,37 @@ class TestSpecWriting:
         checklists = read(CHECKLISTS)
         assert "Checklists are **unit tests for requirements writing**" in checklists
         assert "NOT implementation correctness" in checklists
+
+
+REGISTER = "skills/spec-writing/modules/spec-register.md"
+
+
+class TestSpecRegister:
+    """The sentence-level rules a spec is written in.
+
+    Drawn from the zombie-ant ``docs/spec`` set, which a teammate wrote
+    with every statement tagged as current or planned, and from RFC 8174.
+    """
+
+    def test_should_declare_the_register_module(self, skill: str) -> None:
+        assert "modules/spec-register.md" in skill
+
+    @pytest.mark.parametrize(
+        "rule",
+        [
+            "## Terms",
+            "Planned",
+            "present tense",
+            'Do not write "will"',
+            "RFC 8174",
+            "only in capitals",
+            "One fact per sentence",
+            "already exists",
+        ],
+    )
+    def test_should_state_the_register_rule(self, rule: str) -> None:
+        assert rule in read(REGISTER)
+
+    def test_should_flag_a_declared_convention_left_unused(self) -> None:
+        """zombie-ant's README declares RFC 2119 and uses one capital keyword."""
+        assert "declares RFC 2119" in read(REGISTER)

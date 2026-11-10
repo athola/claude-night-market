@@ -385,3 +385,29 @@ class TestContrastiveCategoriesAreDocumented:
         assert "tier5.contrastive_scaffold" in text
         assert "not a documented AI tell" in text
         assert "504 times" in text
+
+
+class TestAntiGoalsReplacementRegister:
+    """Feature: a rewrite does not trade one tell for another.
+
+    In smal-idn and model-armory-lite the user removed ", so" tails and
+    figurative verbs, and in 7 of 11 such edits wrote ", causing" or ", resulting in"
+    in their place. A cleaner that copies those swaps reproduces the tail.
+    """
+
+    @pytest.fixture
+    def text(self) -> str:
+        return (MODULES_DIR / "anti-goals.md").read_text()
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "phrase",
+        [
+            "### Replacing a tell with its twin",
+            ", resulting in",
+            "plain literal verb",
+            "clipped idiom",
+        ],
+    )
+    def test_names_the_replacement_trap(self, text: str, phrase: str) -> None:
+        assert phrase in text
