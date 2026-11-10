@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.2] - 2026-11-10
+
+This release number is lower than 1.10.2 by the maintainer's choice.
+Version-ordered update tools see it as older than 1.10.2.
+
 ### Added
 
 - **PR descriptions are checked against the diff.**

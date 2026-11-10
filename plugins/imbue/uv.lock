@@ -571,7 +571,7 @@ wheels = [
 
 [[package]]
 name = "imbue-dev"
-version = "1.10.2"
+version = "0.10.2"
 source = { editable = "." }
 
 [package.optional-dependencies]
