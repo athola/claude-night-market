@@ -113,11 +113,13 @@ run_plugin_typecheck() {
   # pipefail, make's exit 2 on the probe goal or its SIGPIPE when grep -q
   # stops reading would turn a match into a miss. A name listed only in
   # .PHONY prints there as a bare `typecheck:` with no prerequisites and no
-  # recipe, so the entry counts only when it carries one of the two.
+  # recipe, so the entry counts only when it carries one of the two. GNU
+  # make 3.81 heads a recipe `#  commands to execute`, 4.x `#  recipe to
+  # execute`.
   if [ -f "${plugin_dir}/Makefile" ] &&
     (grep -qE "^(typecheck|type-check):" "${plugin_dir}/Makefile" 2>/dev/null ||
       awk '/^(typecheck|type-check):/ { entry = 1; if ($0 ~ /:[ \t]*[^ \t]/) found = 1; next }
-        entry && /^#  commands to execute/ { found = 1 }
+        entry && /^#  (commands|recipe) to execute/ { found = 1 }
         /^$/ { entry = 0 }
         END { exit !found }' <<<"$(cd "${plugin_dir}" && make -pn __typecheck_probe__ 2>/dev/null)"); then
     # Prefer explicit target in Makefile, fall back to typecheck
