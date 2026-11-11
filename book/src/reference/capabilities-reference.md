@@ -454,7 +454,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 
 | Hook | Plugin | Type | Description |
 |------|--------|------|-------------|
-| `aggregate_learnings_daily.py` | abstract | UserPromptSubmit | Daily learning aggregation (24h cadence) with severity-based issue creation |
+| `aggregate_learnings_daily.py` | abstract | UserPromptSubmit | Daily learning aggregation (24h cadence) into LEARNINGS.md |
 | `auto-star-repo.sh` | leyline | SessionStart | Ask Claude to offer a repo star when not starred (async) |
 | `config_change_audit.py` | sanctum | ConfigChange | Audit configuration changes |
 | `context_warning.py` | conserve | PreToolUse | Context utilization monitoring |

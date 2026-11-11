@@ -63,7 +63,7 @@ and maintaining Claude Code plugins. It's the toolkit for plugin developers.
 | Hook | Type | Description |
 |------|------|-------------|
 | `homeostatic_monitor.py` | PostToolUse | Reads stability gap metrics, queues degrading skills for auto-improvement |
-| `aggregate_learnings_daily.py` | UserPromptSubmit | Daily learning aggregation with severity-based issue creation |
+| `aggregate_learnings_daily.py` | UserPromptSubmit | Daily learning aggregation into LEARNINGS.md |
 | `pre_skill_execution.py` | PreToolUse | Skill execution tracking |
 | `skill_execution_logger.py` | PostToolUse | Skill metrics logging |
 

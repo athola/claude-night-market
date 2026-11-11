@@ -112,7 +112,7 @@ class DiscussionConfig:
     auto_post_learnings: bool = True
     target_repo: str = ""  # empty = auto-detect from gh repo view
     promotion_threshold: int = 3
-    promotion_emoji: str = "\U0001f525"  # fire emoji
+    promotion_emoji: str = "\U0001f44d"  # thumbs up, a GitHub ReactionContent
 
     @classmethod
     def load(cls) -> DiscussionConfig:
@@ -125,7 +125,7 @@ class DiscussionConfig:
                     auto_post_learnings=data.get("auto_post_learnings", True),
                     target_repo=data.get("target_repo", ""),
                     promotion_threshold=data.get("promotion_threshold", 3),
-                    promotion_emoji=data.get("promotion_emoji", "\U0001f525"),
+                    promotion_emoji=data.get("promotion_emoji", "\U0001f44d"),
                 )
             except (json.JSONDecodeError, OSError) as e:
                 print(
@@ -329,7 +329,7 @@ def format_discussion_body(summary: LearningSummary) -> str:
     lines.append("*Auto-posted by Phase 6a Collective Intelligence Loop (Issue #69)*")
     lines.append("")
     lines.append(
-        "React with \U0001f525 if you've experienced similar issues. "
+        "React with \U0001f44d if you've experienced similar issues. "
         "Items with 3+ reactions will be promoted to Issues."
     )
 
@@ -659,7 +659,7 @@ def _footer_block() -> str:
         "---\n"
         "*Auto-posted by Phase 6a Collective Intelligence Loop "
         "(Issue #69)*\n\n"
-        "React with \U0001f525 if you've experienced similar issues. "
+        "React with \U0001f44d if you've experienced similar issues. "
         "Items with 3+ reactions will be promoted to Issues."
     )
 

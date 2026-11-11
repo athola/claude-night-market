@@ -325,7 +325,7 @@ def evaluate_window(
         skill_ref,
         window_gap,
         _status(window_gap),
-        _stewardship_velocity(claude_home),
+        _stewardship_velocity(Path.cwd()),
         trend,
         **evaluation,
     )["hookSpecificOutput"]
@@ -335,9 +335,13 @@ def evaluate_window(
 # Stewardship integration: lightweight velocity read
 
 
-def _stewardship_velocity(claude_home: Path) -> int:
-    """Count stewardship actions (0 if tracker absent)."""
-    actions_file = claude_home / "stewardship" / "actions.jsonl"
+def _stewardship_velocity(project_dir: Path) -> int:
+    """Count stewardship actions (0 if tracker absent).
+
+    leyline's stewardship_tracker.py records to ``.claude/stewardship``
+    relative to its working directory, and this resolves the same way.
+    """
+    actions_file = project_dir / ".claude" / "stewardship" / "actions.jsonl"
     if not actions_file.exists():
         return 0
     try:
@@ -413,7 +417,7 @@ def main() -> None:
             sys.stderr.write(f"homeostatic_monitor: tracker error: {e}\n")
             trend = None
 
-        velocity = _stewardship_velocity(claude_home)
+        velocity = _stewardship_velocity(Path.cwd())
 
         if gap <= STABILITY_GAP_THRESHOLD:
             print(json.dumps(_build_output(skill_ref, gap, "healthy", velocity, trend)))

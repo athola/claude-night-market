@@ -302,7 +302,7 @@ class TestStewardshipVelocity:
     """Feature: counting stewardship actions from the JSONL tracker."""
 
     def test_returns_zero_when_tracker_is_absent(self, tmp_path: Path) -> None:
-        """Given: no stewardship/actions.jsonl
+        """Given: no .claude/stewardship/actions.jsonl in the project
         When: _stewardship_velocity is asked
         Then: it reports zero actions
         """
@@ -316,7 +316,7 @@ class TestStewardshipVelocity:
         A trailing newline is normal for an append-only file, so the
         blank-line skip is load-bearing rather than defensive.
         """
-        actions_dir = tmp_path / "stewardship"
+        actions_dir = tmp_path / ".claude" / "stewardship"
         actions_dir.mkdir(parents=True)
         (actions_dir / "actions.jsonl").write_text(
             '{"action": "a"}\n\n{"action": "b"}\n   \n{"action": "c"}\n'
@@ -335,7 +335,7 @@ class TestStewardshipVelocity:
         the failure is swallowed; naming the path is what keeps the
         swallow from being silent.
         """
-        actions_dir = tmp_path / "stewardship"
+        actions_dir = tmp_path / ".claude" / "stewardship"
         actions_dir.mkdir(parents=True)
         actions_file = actions_dir / "actions.jsonl"
         actions_file.write_text("{}\n")

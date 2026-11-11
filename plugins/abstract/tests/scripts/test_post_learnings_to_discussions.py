@@ -243,12 +243,13 @@ class TestFormatDiscussionBody:
         """Scenario: Include reaction instructions for voting
         Given any learning summary
         When I format it as a discussion body
-        Then instructions for fire emoji voting are included
+        Then voting instructions name the reaction promotion counts
         """
         summary = LearningSummary(skills_analyzed=1, total_executions=5)
         body = format_discussion_body(summary)
 
-        assert "\U0001f525" in body
+        assert "\U0001f44d" in body
+        assert "\U0001f525" not in body
         assert "3+ reactions" in body
 
     @pytest.mark.unit

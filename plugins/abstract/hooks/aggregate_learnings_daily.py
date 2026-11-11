@@ -5,8 +5,8 @@ Runs aggregate_skill_logs.py on a daily cadence (once per 24h) to generate
 LEARNINGS.md.
 
 It does not chain to auto_promote_learnings.py. ``run_daily_pipeline``
-stops after aggregation, and line 194 of this file records that the Stop
-hook owns promotion. The docstring said otherwise, which left a reader
+stops after aggregation, and its docstring records that the Stop hook
+owns promotion. The docstring said otherwise, which left a reader
 looking for a call that is not here.
 
 Must complete in <2s with no user-visible output.
@@ -58,7 +58,6 @@ try:
         get_learnings_path,
         get_log_directory,
     )
-    from auto_promote_learnings import run_auto_promote as _promote
 
     _HAS_SCRIPTS = True
 except ImportError as _imp_err:
@@ -180,13 +179,6 @@ def run_aggregation() -> bool:
         return True
 
     return bool(best_effort(_HOOK, "aggregation", _aggregate))
-
-
-def run_auto_promote() -> None:
-    """Chain to auto-promotion after successful aggregation."""
-    if not _HAS_SCRIPTS:
-        return
-    best_effort(_HOOK, "auto-promote", _promote)
 
 
 def run_daily_pipeline() -> None:

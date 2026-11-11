@@ -2,12 +2,12 @@
 """Promote highly-voted GitHub Discussions to Issues.
 
 Checks athola/claude-night-market Discussions for items with sufficient
-fire emoji reactions and promotes them to GitHub Issues for triage.
+thumbs-up reactions and promotes them to GitHub Issues for triage.
 
 Part of Issue #69 Phase 6c: Collective Intelligence Loop
 
 Features:
-- Configurable reaction threshold (default: 3 fire reactions)
+- Configurable reaction threshold (default: 3 thumbs-up reactions)
 - Deduplication via promoted.json tracking
 - Creates Issues with [Community Learning] prefix and labels
 - Graceful failure (warns to stderr, exits 0)
@@ -57,9 +57,9 @@ except ImportError:
 # Default target repository; config.json's target_repo overrides it.
 TARGET_REPO = "athola/claude-night-market"
 
-# GitHub counts reactions by enum name. These are the reactions it offers.
+# GitHub counts reactions by ReactionContent enum name. Its eight values
+# are the only reactions a discussion can carry, and it has no fire.
 _REACTION_FOR_EMOJI = {
-    "\U0001f525": "FIRE",
     "\U0001f44d": "THUMBS_UP",
     "\U0001f44e": "THUMBS_DOWN",
     "\u2764\ufe0f": "HEART",
@@ -101,7 +101,7 @@ class PromotionConfig:
     """Configuration for discussion promotion."""
 
     promotion_threshold: int = 3
-    promotion_emoji: str = "\U0001f525"  # fire emoji
+    promotion_emoji: str = "\U0001f44d"  # thumbs up
     target_repo: str = TARGET_REPO
 
     @property
@@ -123,7 +123,7 @@ class PromotionConfig:
                 data = json.loads(config_path.read_text())
                 return cls(
                     promotion_threshold=data.get("promotion_threshold", 3),
-                    promotion_emoji=data.get("promotion_emoji", "\U0001f525"),
+                    promotion_emoji=data.get("promotion_emoji", "\U0001f44d"),
                     target_repo=data.get("target_repo", TARGET_REPO),
                 )
             except (json.JSONDecodeError, OSError) as e:
@@ -205,7 +205,7 @@ def get_repo_node_id(repo: str = TARGET_REPO) -> str:
 
 
 def fetch_learnings_discussions(
-    repo: str = TARGET_REPO, reaction: str = "FIRE"
+    repo: str = TARGET_REPO, reaction: str = "THUMBS_UP"
 ) -> list[DiscussionItem]:
     """Fetch recent Learnings Discussions of ``repo`` with ``reaction`` counts.
 
@@ -270,11 +270,11 @@ def format_issue_body(item: DiscussionItem) -> str:
     lines.append(
         f"This issue was auto-promoted from a GitHub Discussion "
         f"that received **{item.reaction_count}** "
-        f"\U0001f525 reactions from the community."
+        f"reactions from the community."
     )
     lines.append("")
     lines.append(f"**Source Discussion**: {item.url}")
-    lines.append(f"**Vote Count**: {item.reaction_count} \U0001f525")
+    lines.append(f"**Vote Count**: {item.reaction_count}")
     lines.append("")
     lines.append("## Original Content")
     lines.append("")
@@ -388,7 +388,9 @@ def main() -> None:
                 print(f"  {url}")
         else:
             print("No discussions promoted.")
-    except RuntimeError as e:
+    except (RuntimeError, ValueError) as e:
+        # ValueError is a bad config.json value: an emoji GitHub does not
+        # offer, or a target_repo that is not owner/name.
         print(f"Warning: Promotion failed: {e}", file=sys.stderr)
         sys.exit(0)
     except FileNotFoundError:

@@ -39,11 +39,12 @@ class TestPromotionConfig:
         """Scenario: Default promotion threshold
         Given no config file exists
         When I load the config
-        Then the threshold is 3 fire reactions
+        Then the threshold is 3 thumbs-up reactions
         """
         config = PromotionConfig()
         assert config.promotion_threshold == 3
-        assert config.promotion_emoji == "\U0001f525"
+        assert config.promotion_emoji == "\U0001f44d"
+        assert config.reaction == "THUMBS_UP"
 
     @pytest.mark.unit
     def test_loads_custom_threshold(self, tmp_path: Path) -> None:
@@ -576,3 +577,58 @@ class TestTheConfiguredRepositoryIsTheOneScanned:
 
         assert mock_fetch.call_args.kwargs["repo"] == "me/fork"
         assert mock_repo_id.call_args.args == ("me/fork",)
+
+
+# GitHub's ReactionContent enum. A name outside it fails query validation.
+REACTION_CONTENT = {
+    "THUMBS_UP",
+    "THUMBS_DOWN",
+    "LAUGH",
+    "HOORAY",
+    "CONFUSED",
+    "HEART",
+    "ROCKET",
+    "EYES",
+}
+
+
+class TestReactionNamesAreGitHubEnumValues:
+    """FIRE is not a ReactionContent value, and the default query failed."""
+
+    @pytest.mark.unit
+    def test_every_mapped_reaction_is_a_reaction_content_value(self) -> None:
+        assert set(promote_module._REACTION_FOR_EMOJI.values()) <= REACTION_CONTENT
+
+    @pytest.mark.unit
+    def test_default_config_reaction_is_a_reaction_content_value(self) -> None:
+        assert PromotionConfig().reaction in REACTION_CONTENT
+
+    @pytest.mark.unit
+    @patch("promote_discussion_to_issue.run_gh_graphql")
+    def test_default_fetch_queries_a_reaction_content_value(
+        self, mock_graphql: MagicMock
+    ) -> None:
+        mock_graphql.return_value = {
+            "data": {"repository": {"discussions": {"nodes": []}}}
+        }
+
+        fetch_learnings_discussions()
+
+        query = mock_graphql.call_args[0][0]
+        assert "FIRE" not in query
+        assert "reactions(content: THUMBS_UP)" in query
+
+    @pytest.mark.unit
+    def test_saved_fire_config_exits_zero_naming_the_emoji(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """The command doc once told users to save 🔥, which GitHub lacks."""
+        (tmp_path / "config.json").write_text(
+            json.dumps({"promotion_emoji": "\U0001f525"})
+        )
+        with patch("promote_discussion_to_issue.get_config_dir", return_value=tmp_path):
+            with pytest.raises(SystemExit) as exc:
+                promote_module.main()
+
+        assert exc.value.code == 0
+        assert "is not a GitHub reaction" in capsys.readouterr().err

@@ -427,7 +427,7 @@ rm -rf "$WORKTREE_PATH/.session-state" 2>/dev/null
 
 ## Memory Palace Hooks
 
-### `web_content_processor.py`
+### `web_research_handler.py`
 **Type**: PostToolUse
 **Matcher**: `WebFetch|WebSearch`
 
@@ -603,8 +603,8 @@ files. Turns that only read or answer show nothing.
 **Type**: UserPromptSubmit
 
 Daily learning aggregation with 24-hour cadence.
-Creates severity-based GitHub issues from accumulated
-skill execution data.
+Regenerates LEARNINGS.md from accumulated skill
+execution data. The Stop hook owns promotion.
 
 ### `homeostatic_monitor.py`
 **Type**: PostToolUse
