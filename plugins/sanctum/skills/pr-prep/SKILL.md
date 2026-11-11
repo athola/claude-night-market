@@ -87,7 +87,8 @@ git diff --cached --name-only | xargs grep -nE \
 git diff --cached | grep -c '^+.*//.*[a-zA-Z]' || true
 
 # Check for formatting-only commits mixed with feature work
-git log --oneline $(git merge-base HEAD origin/master)..HEAD | \
+base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+git log --oneline "$(git merge-base HEAD "$base")"..HEAD | \
   grep -iE '(fmt|format|lint|style|whitespace)' || true
 ```
 
