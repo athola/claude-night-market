@@ -31,6 +31,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `knowledge-extract` | [gauntlet](../plugins/gauntlet.md) | Extract and enrich the gauntlet knowledge base one subsystem per agent, then merge into a single corpus |
 | `palace-sweep` | [memory-palace](../plugins/memory-palace.md) | Ask one question of every memory palace in parallel and rank the answers, including the ones filed under an unexpected domain |
 | `paradigm-panel` | [archetypes](../plugins/archetypes.md) | Score candidate architecture paradigms independently against one requirement set and return a ranked comparison |
+| `parity-sweep` | [pensive](../plugins/pensive.md) | Find features that one platform client has and another lacks, or that behave differently, and confirm each with file evidence |
 | `plugin-health` | [leyline](../plugins/leyline.md) | Check every plugin against the shared leyline contracts in parallel, then report contracts that no plugin satisfies |
 | `provider-sweep` | [conjure](../plugins/conjure.md) | Ask every delegation provider in parallel whether this machine can call it, and separate a missing binary from a rejected credential |
 | `python-sweep` | [parseltongue](../plugins/parseltongue.md) | Run the lint, type, performance and test specialists over the same Python in parallel and merge their findings |
