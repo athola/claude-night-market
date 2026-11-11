@@ -426,8 +426,44 @@ class TestTheHookRunsOnlyInstalledGauntletCode:
         "command", ["rg graph_build.py", "cat scripts/graph_build.py", "ls"]
     )
     def test_a_command_that_only_names_graph_build_is_ignored(
-        self, command: str
+        self, command: str, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Only running graph_build.py changes the graph."""
+        """Only running graph_build.py changes the graph.
+
+        The graph db exists, so the command text is the only thing that
+        can stop the refresh. Without the db the hook returns None before
+        it reads the command at all.
+        """
+        GraphStore(str(gauntlet_dir / "graph.db")).close()
+        monkeypatch.chdir(gauntlet_dir.parent)
         payload = {"tool_name": "Bash", "tool_input": {"command": command}}
-        assert main(payload) is None
+        with patch(
+            "gauntlet.communities.detect_communities", return_value=[]
+        ) as detect:
+            assert main(payload) is None
+        detect.assert_not_called()
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "uv run --with pyyaml python scripts/graph_build.py .",
+            "uv run python scripts/graph_build.py .",
+            "FOO=1 python3 scripts/graph_build.py .",
+            "time python3 scripts/graph_build.py .",
+            'python3 "my scripts/graph_build.py" .',
+            "  python3 scripts/graph_build.py .",
+        ],
+    )
+    def test_each_way_of_running_graph_build_refreshes_communities(
+        self, command: str, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A run behind a launcher, env prefix, timer or quotes still counts."""
+        GraphStore(str(gauntlet_dir / "graph.db")).close()
+        monkeypatch.chdir(gauntlet_dir.parent)
+        payload = {"tool_name": "Bash", "tool_input": {"command": command}}
+        with patch(
+            "gauntlet.communities.detect_communities", return_value=[]
+        ) as detect:
+            assert main(payload) is not None
+        detect.assert_called_once()

@@ -28,9 +28,14 @@ def _find_graph_db() -> Path | None:
 
 
 # A run of graph_build.py, not a command that merely names it (rg, cat).
+# Before the script or its interpreter a command may carry, in any order,
+# `NAME=value` assignments, `time`, and `uv run` with its options.
 _RUNS_GRAPH_BUILD = re.compile(
-    r"(?:^|[;&|(]\s*)(?:uv\s+run\s+)?(?:\S*python[\d.]*\s+(?:-\S+\s+)*)?"
-    r"(?P<script>\S*graph_build\.py)\b"
+    r"(?:^|[;&|(])\s*"
+    r"(?:(?:[A-Za-z_]\w*=\S*|time|uv\s+run(?:\s+-\S+(?:\s+[^-\s]\S*)?)*)\s+)*"
+    r"(?:\S*python[\d.]*\s+(?:-\S+\s+)*)?"
+    r"(?P<script>\"[^\"]*graph_build\.py\"|'[^']*graph_build\.py'"
+    r"|\S*graph_build\.py\b)"
 )
 
 
