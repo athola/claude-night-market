@@ -146,7 +146,12 @@ def main() -> None:
     manifest_path = find_manifest()
 
     if not has_active_work(manifest_path):
-        clear_baton(manifest_path.parent / BATON_FILENAME)
+        try:
+            clear_baton(manifest_path.parent / BATON_FILENAME)
+        except OSError:
+            # Same as advance_baton below: the baton only observes the
+            # run, and an unlink error must not stop the session approving.
+            pass
         approve()
     if orchestrator_running(payload):
         approve()

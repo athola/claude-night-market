@@ -525,3 +525,15 @@ def test_a_finished_run_clears_its_baton(tmp_path, monkeypatch, capsys):
 
     assert json.loads(capsys.readouterr().out.splitlines()[-1])["decision"] == "approve"
     assert not (egregore_dir / "baton.json").exists()
+
+
+def test_a_failed_baton_clear_still_approves(tmp_path, monkeypatch, capsys):
+    """Clearing the baton is observability too; an unlink error must not raise."""
+
+    def unremovable(*_args, **_kwargs):
+        raise PermissionError("operation not permitted")
+
+    monkeypatch.setattr("stop_hook.clear_baton", unremovable)
+    _stop(tmp_path, monkeypatch, "completed")
+
+    assert json.loads(capsys.readouterr().out)["decision"] == "approve"

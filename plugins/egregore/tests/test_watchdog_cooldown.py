@@ -14,6 +14,7 @@ import contextlib
 import json
 import os
 import shutil
+import signal
 import subprocess
 from collections.abc import Iterator
 from datetime import datetime, timedelta, timezone
@@ -178,3 +179,50 @@ def test_a_reused_pid_is_not_taken_for_a_live_session(tmp_path: Path) -> None:
 
     log = (egregore_dir / "watchdog.log").read_text()
     assert "Relaunching" in log
+
+
+def test_a_session_behind_an_interpreter_shim_is_taken_for_a_live_session(
+    tmp_path: Path,
+) -> None:
+    """An npm install runs claude as ``node /path/to/claude``.
+
+    ps then reports the interpreter as the command name, and the watchdog
+    deleted the live session's pidfile and started a second session in the
+    same ``.egregore``.
+    """
+    egregore_dir = tmp_path / ".egregore"
+    egregore_dir.mkdir()
+    (egregore_dir / "manifest.json").write_text(
+        json.dumps({"work_items": [{"status": "active"}]})
+    )
+    shim = tmp_path / "shim-bin" / "claude"
+    shim.parent.mkdir()
+    shim.write_text("#!/bin/sh\nsleep 60\n")
+    shim.chmod(0o755)
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    launcher = fake_bin / "claude"
+    launcher.write_text(f"#!/bin/sh\ntouch '{tmp_path / 'launched'}'\n")
+    launcher.chmod(0o755)
+
+    session = subprocess.Popen([str(shim)], start_new_session=True)
+    try:
+        (egregore_dir / "pid").write_text(str(session.pid))
+        subprocess.run(
+            ["bash", str(WATCHDOG)],
+            env={
+                **os.environ,
+                "EGREGORE_DIR": str(egregore_dir),
+                "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
+            },
+            cwd=tmp_path,
+            check=True,
+        )
+    finally:
+        os.killpg(session.pid, signal.SIGKILL)
+        session.wait()
+
+    log = egregore_dir / "watchdog.log"
+    assert "Relaunching" not in (log.read_text() if log.exists() else "")
+    assert (egregore_dir / "pid").exists()
+    assert not (tmp_path / "launched").exists()

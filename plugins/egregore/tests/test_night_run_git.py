@@ -199,6 +199,27 @@ class TestStagedChangesAreFenced:
         assert "new.py" in diff
         assert "+print('hi')" in diff
 
+    def test_an_untracked_nested_repo_adds_no_git_error_to_the_diff(
+        self, tmp_path: Path
+    ) -> None:
+        """Git lists a nested repository as one directory entry.
+
+        ``git diff --no-index`` on a directory exits 1 with "Could not
+        access", the same code as a real difference, so the error text
+        reached the babysitter as if it were a diff.
+        """
+        repo = self._repo(tmp_path)
+        runner = night_run.SubprocessRunner()
+        (repo / "sub").mkdir()
+        self._repo(repo / "sub")
+        (repo / "new.py").write_text("print('hi')\n")
+
+        diff = night_run._review_diff(runner, repo)
+
+        assert "error:" not in diff
+        assert "+print('hi')" in diff
+        assert night_run._diff_line_count(runner, repo) == 1
+
     def test_the_task_commit_leaves_a_staged_stray_out(self, tmp_path: Path) -> None:
         repo = self._repo(tmp_path)
         runner = night_run.SubprocessRunner()
