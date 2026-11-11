@@ -48,8 +48,10 @@ project root.
 2. **Multiply, do not merely preserve**: improve what you touch.
    Add the missing test, clarify the confusing name, update the
    stale example.
-3. **Be faithful in small things**: fix the typo, remove the dead
-   import, add the type hint. Small acts compound.
+3. **Be faithful in small things**: fix the typo, remove the
+   import your change made dead, add the type hint. Small acts
+   compound. Cleanup outside the lines you touch goes in its own
+   commit.
 4. **Serve those who come after you**: write for the contributor
    who arrives with no context. Prioritize their experience.
 5. **Think seven iterations ahead**: prefer simple, transparent

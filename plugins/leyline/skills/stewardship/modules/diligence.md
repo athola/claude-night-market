@@ -5,12 +5,13 @@
 - You run format, lint, and test before every commit,
   not because a hook forces you but because quality is
   how craft improves
-- You fix the typo you noticed in a file you were
-  editing for something else
-- You remove the dead import, add the missing type hint,
-  or update the stale example while you are nearby
-- You follow through on the campsite rule even when the
-  diff is already large enough
+- You fix the typo you noticed in a line you were
+  already changing
+- You remove the import your change made dead, add the
+  missing type hint, or update the stale example you
+  just relied on
+- You put cleanup outside the lines you touched in its
+  own commit, so the main change stays reviewable
 - You write the test that would have caught the bug you
   just fixed
 
@@ -20,8 +21,9 @@
   every commit. Treat quality gates as practice, not
   obstacles.
 - When you notice something small that is wrong, fix it
-  now. It takes seconds and pays dividends for every
-  future reader. This is Principle 3 in action.
+  now, in its own commit if it sits outside your change.
+  It takes seconds and pays dividends for every future
+  reader. This is Principle 3 in action.
 - When you add a bugfix, add the regression test. The
   fix solves today's problem; the test prevents
   tomorrow's.

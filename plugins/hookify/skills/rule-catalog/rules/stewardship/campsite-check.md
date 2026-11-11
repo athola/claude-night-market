@@ -21,7 +21,9 @@ Before wrapping up, a brief reflection on the work just done:
 - **Foresight**: Will your choices be easy to change tomorrow?
 
 If any prompt surfaces an improvement you can make in under
-a minute, consider making it now. Small acts compound.
+a minute, consider making it now. If it sits outside the
+lines you changed, give it its own commit. Small acts
+compound.
 
 For deeper reflection, see `modules/reflection.md` in
 `Skill(leyline:stewardship)`. Record voluntary improvements

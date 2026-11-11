@@ -128,6 +128,14 @@ capability, and a caller needs only the one-line change its entry describes.
   lead, because the file has always had an amendment process. Sources
   are in `docs/deep-dive/governance-evidence.md`.
 
+- **Stewardship's campsite rule stops at the lines a change touches.**
+  Cleanup elsewhere goes in its own commit, so a pull request still
+  carries one reviewable problem. `STEWARDSHIP.md`,
+  `leyline:stewardship`, and hookify's `campsite-check` agree. The
+  seven-generations origin notes that the words are not in written
+  transcriptions of the Great Law of Peace, and the Martin and Claude
+  constitution attributions now match their sources.
+
 ### Deprecated
 
 - **`pensive:makefile-review` is a module of `pensive:unified-review`.**

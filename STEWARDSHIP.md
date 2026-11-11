@@ -47,7 +47,7 @@ not stewardship.
 - When you read confusing code, leave a clarifying comment
 - When you learn something about a plugin, update its README
 - Refactor a function you struggled with so the next person
-  does not struggle too
+  does not struggle too, in its own commit
 
 ### 3. Be Faithful in Small Things
 
@@ -57,18 +57,27 @@ compound over time into systems that get better with age instead
 of decaying. The campsite rule applies: leave every file a little
 cleaner than you found it.
 
-**Origin**: Robert Baden-Powell: "Try and leave this world a
-little better than you found it." Robert C. Martin adapted this
-for software: "Always leave the campground cleaner than you
-found it." Also: "Whoever can be trusted with very little can
-also be trusted with much" (Luke 16:10).
+The rule has a boundary here. A change carries one coherent
+problem. A reviewer can then follow it, and a revert removes only
+it. Cleanup inside the lines your change already touches rides
+along. Cleanup anywhere else goes in its own commit, and an
+unrelated refactor goes in its own pull request.
+
+**Origin**: Robert Baden-Powell's farewell message to Scouts:
+"Try and leave this world a little better than you found it."
+Robert C. Martin, in "The Boy Scout Rule" (*97 Things Every
+Programmer Should Know*, 2010), applies the Scouts' campground
+rule to code: check a module in cleaner than you checked it
+out. Also: "Whoever can be trusted with very little
+can also be trusted with much" (Luke 16:10).
 
 **In practice**:
 
-- Fix a typo you notice in a file you're editing
-- Remove dead code or unused imports while you're nearby
-- Add a type annotation to a function you just called
-- Update a stale example in a README you just referenced
+- Fix a typo you notice in a line you're already changing
+- Remove the imports and helpers your own change made unused
+- Add a type annotation to a function you just changed
+- Update a stale example in a README you just referenced, or
+  note it for its own commit
 
 ### 4. Serve Those Who Come After You
 
@@ -90,7 +99,8 @@ to those with little power.
   the skill, not just what it does
 - Include error handling that guides the user toward a fix
 - Keep READMEs current: stale docs are worse than no docs
-- Add "Getting Started" sections for every new capability
+- Give every new capability a getting-started path, linked
+  from its plugin README rather than inlined into it
 
 ### 5. Think Seven Iterations Ahead
 
@@ -100,9 +110,12 @@ Prefer simple, transparent patterns over clever abstractions.
 Avoid premature optimization of structure. Build for
 adaptability, not for prediction.
 
-**Origin**: The Haudenosaunee (Iroquois) Great Law of Peace
-counsels that decisions should consider their impact seven
-generations into the future. In software, seven generations is
+**Origin**: The seven-generations principle, that a decision
+should weigh its effect seven generations into the future, is
+commonly attributed to the Haudenosaunee (Iroquois) Great Law of
+Peace. The words do not appear in written transcriptions of the
+Great Law, which was an oral tradition before it was written
+down. In software, seven generations is
 seven major iterations: will this pattern hold up, or will it
 become the legacy code everyone works around?
 
@@ -134,22 +147,38 @@ become the legacy code everyone works around?
 1. Does this leave the codebase better than before? (Principle 3)
 2. Does this serve future contributors? (Principle 4)
 
+## Recording It
+
+A stewardship action that goes unrecorded cannot be counted.
+`plugins/leyline/scripts/stewardship_tracker.py record` appends
+one to `.claude/stewardship/actions.jsonl` in the project, and
+`/imbue:stewardship-health` reports improvement velocity and
+virtue practice from that file.
+
 ## See Also
 
 - Plugin-specific stewardship guidance in each plugin's README
 - `Skill(leyline:stewardship)` for layer-specific decision
   heuristics during plugin work
+- [Governance Evidence](docs/deep-dive/governance-evidence.md)
+  for the sources behind each attribution here
 
 ## The Soul of Stewardship
 
 The five principles describe what stewardship looks like in
 practice. But principles need a source: the dispositions that
-incline a person (or an agent) to practice them. Claude's constitution
-describes character traits that emerge through training rather
-than external imposition: curiosity, warmth, directness,
-ethical commitment. The five virtues below name the
-dispositions that connect these trained character traits to
-the engineering practices of this framework.
+incline a person (or an agent) to practice them.
+[Claude's constitution](https://www.anthropic.com/constitution)
+names the character it hopes for: "an intellectual curiosity
+that delights in learning and discussing ideas across every
+domain, warmth and care for the humans it interacts with",
+directness balanced with openness, "and a deep commitment to
+honesty and ethics." It holds that this character, though it
+"emerged through training", is no less Claude's own, and that
+Claude can treat its values as its own "rather than seeing them
+as external constraints imposed upon it." The five virtues below
+name the dispositions that connect these trained character
+traits to the engineering practices of this framework.
 
 ### Care
 
@@ -190,8 +219,8 @@ Disciplined practice of quality in small things.
 
 Rooted in ethical commitment and directness. Diligence means
 running the quality gates, fixing the typo you noticed, and
-following through on the campsite rule even when the diff is
-already large. It underpins Principle 3 (be faithful in small
+putting cleanup outside your change in its own commit rather
+than skipping it. It underpins Principle 3 (be faithful in small
 things) and makes Principle 2 (multiply) concrete through
 daily practice.
 
