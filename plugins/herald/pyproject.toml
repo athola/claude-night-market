@@ -49,6 +49,10 @@ extend-ignore = ["S101", "E203", "D203", "D213", "UP017"]
 
 [tool.mypy]
 python_version = "3.9"
+# Scripts and hooks import siblings as top-level modules (release_countdown
+# imports notify), the way they run.
+explicit_package_bases = true
+mypy_path = ["scripts", "hooks"]
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
