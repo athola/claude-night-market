@@ -259,3 +259,28 @@ class TestSafetyControlsReachTheCli:
     def test_no_confirmation_gate_without_confirm(self, monkeypatch) -> None:
         loop = self._run_with_loop(monkeypatch, ["go"])
         assert loop.call_args.kwargs["hooks"].confirm_callback is None
+
+
+class TestAskBeforeActing:
+    """Feature: --confirm runs an action only on an explicit yes."""
+
+    @pytest.mark.parametrize(
+        ("reply", "approved"),
+        [("y", True), ("Y", True), (" yes ", True), ("n", False), ("", False)],
+    )
+    def test_only_a_reply_starting_with_y_approves(
+        self, monkeypatch, reply: str, approved: bool
+    ) -> None:
+        monkeypatch.setattr("builtins.input", lambda prompt: reply)
+        assert _ask_before_acting({"action": "left_click"}) is approved
+
+    def test_closed_stdin_rejects_the_action_instead_of_raising(
+        self, monkeypatch
+    ) -> None:
+        """Run under `< /dev/null`, input() raised EOFError and ended the run."""
+
+        def closed_stdin(prompt: str) -> str:
+            raise EOFError
+
+        monkeypatch.setattr("builtins.input", closed_stdin)
+        assert _ask_before_acting({"action": "left_click"}) is False

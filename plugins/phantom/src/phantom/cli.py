@@ -93,8 +93,14 @@ def run_task(args: argparse.Namespace) -> None:
 
 
 def _ask_before_acting(action: dict[str, Any]) -> bool:
-    """Show the action and run it only on an explicit yes."""
-    reply = input(f"Run {action.get('action', action)}? [y/N] ")
+    """Show the action and run it only on an explicit yes.
+
+    A closed stdin (a piped or `< /dev/null` run) is a reply of no.
+    """
+    try:
+        reply = input(f"Run {action.get('action', action)}? [y/N] ")
+    except EOFError:
+        return False
     return reply.strip().lower().startswith("y")
 
 
