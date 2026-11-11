@@ -15,6 +15,18 @@ capability, and a caller needs only the one-line change its entry describes.
 
 ### Added
 
+- **Trust-based delivery support, with PRs kept as the human gate
+  (ADR-0029).** `sanctum`'s `review_routing.py` names who should review
+  the directories a PR touches outside its author's lane, from each
+  directory's history and CODEOWNERS, and pr-prep runs it for the Who
+  row and adds a machine review before the PR opens. `herald`'s
+  `release_countdown.py` announces a release and holds it for a window
+  anyone who can label issues may pause, with no skip, failing closed
+  when the announcement or the pause check fails. The publish workflow
+  runs it when `RELEASE_COUNTDOWN_MINUTES` is set. `pensive`'s
+  `parity-sweep` workflow reports features that independently shipped
+  platform clients disagree on, each confirmed against the code.
+
 - **Slop scores apply each language's calibration.**
   `scripts/slop_score.py --lang <code>` scores a document with that
   language's patterns and scales the result by its factor (German

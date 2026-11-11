@@ -109,6 +109,11 @@ Reviews identify modified files and apply domain-specific checks.
 Findings are documented with precise location data, severity rankings,
 and specific remediation steps.
 
+For platform clients that ship independently, the `parity-sweep`
+workflow inventories each platform root and reports the features one
+has and another lacks, each confirmed against the code on every
+platform.
+
 ## Progress Tracking
 
 Skills use `TodoWrite` for lifecycle tracking,

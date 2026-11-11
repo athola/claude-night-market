@@ -49,6 +49,25 @@ alert(
 | COMPLETION | `completion` | Task finished |
 | WATCHDOG_RELAUNCH | `watchdog_relaunch` | Watchdog restarted agent |
 
+## Release Countdown
+
+`scripts/release_countdown.py` holds a release for a window anyone can
+pause and nobody can skip (ADR-0029). It announces the release to the
+webhook in `RELEASE_WEBHOOK_URL`, waits `--minutes` (1 to 60), and stops
+the release when an open issue carries the pause label (default
+`release:pause`). Anyone who can label issues can pause.
+
+```bash
+RELEASE_WEBHOOK_URL=https://hooks.slack.com/services/... \
+  python3 scripts/release_countdown.py --minutes 15 --release v1.2.3 --repo owner/name
+```
+
+It exits 0 when the release may leave, 3 when it was paused, and 2 when
+it failed closed: an announcement that did not go out, or a pause check
+that could not run, stops the release. This repository's publish
+workflow runs it only when the `RELEASE_COUNTDOWN_MINUTES` repository
+variable is set.
+
 ## Stop-Hook Continuation Judge
 
 Herald registers a `Stop` hook, `double-shot-latte`, that decides
