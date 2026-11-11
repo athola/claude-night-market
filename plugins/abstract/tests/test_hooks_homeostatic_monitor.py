@@ -211,3 +211,38 @@ class TestStewardshipVelocityIntegration:
         result = run_hook(hook_path, env, cwd=project)
         output = json.loads(result["stdout"])
         assert output["hookSpecificOutput"]["stewardship_actions"] == 2
+
+    def test_stewardship_actions_follow_claude_project_dir_not_cwd(
+        self, tmp_path: Path
+    ) -> None:
+        """Given CLAUDE_PROJECT_DIR names the project, cwd does not matter.
+
+        The harness sets CLAUDE_PROJECT_DIR for every hook, and a session
+        that ran cd leaves the hook's cwd somewhere else.
+        """
+        hook_path = Path(__file__).parent.parent / "hooks" / "homeostatic_monitor.py"
+        history_file = tmp_path / "skills" / "logs" / ".history.json"
+        history_file.parent.mkdir(parents=True, exist_ok=True)
+        history_file.write_text(
+            json.dumps({"abstract:test-skill": {"accuracies": [1, 1, 1]}})
+        )
+        project = tmp_path / "project"
+        stewardship_dir = project / ".claude" / "stewardship"
+        stewardship_dir.mkdir(parents=True)
+        (stewardship_dir / "actions.jsonl").write_text(
+            '{"plugin":"abstract","action_type":"fix","file":"x.py","description":"d"}\n'
+        )
+        elsewhere = project / "plugins" / "abstract"
+        elsewhere.mkdir(parents=True)
+
+        env = {
+            "CLAUDE_TOOL_NAME": "Skill",
+            "CLAUDE_TOOL_INPUT": json.dumps({"skill": "abstract:test-skill"}),
+            "CLAUDE_TOOL_OUTPUT": "Success",
+            "CLAUDE_SESSION_ID": "test-session",
+            "CLAUDE_HOME": str(tmp_path),
+            "CLAUDE_PROJECT_DIR": str(project),
+        }
+        result = run_hook(hook_path, env, cwd=elsewhere)
+        output = json.loads(result["stdout"])
+        assert output["hookSpecificOutput"]["stewardship_actions"] == 1
