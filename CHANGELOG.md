@@ -23,7 +23,8 @@ Version-ordered update tools see it as older than 1.10.2.
   Branches, addresses, globs, directories, and bare identifiers are
   skipped. Over 200 real MR descriptions, 5 named files never existed
   in git, and 3 of those were legitimate device or build paths.
-  pr-prep runs it before posting. Descriptions claiming changes the diff
+  A git failure, such as an unknown `--base`, exits 2 and names the
+  base. pr-prep runs it before posting. Descriptions claiming changes the diff
   lacks merge at 28.3% against 80.0% (arXiv 2601.04886).
 
 - **spec-kit `spec-register` module** for specs of a system that already
@@ -34,9 +35,9 @@ Version-ordered update tools see it as older than 1.10.2.
 
 - **Tickets and PR descriptions copy the project's own shape first.**
   About 120 hand edits to agent MR descriptions and 67 edited Jira
-  tickets in two GitLab projects showed the user deleting the default
-  `Why:` / `Done when:` labels and the facts table, and rebuilding fix
-  MRs in the team's bug template. `leyline:ticket-writing`,
+  tickets in two GitLab projects deleted the default `Why:` /
+  `Done when:` labels and the facts table, and rebuilt fix MRs in the
+  team's bug template. `leyline:ticket-writing`,
   `sanctum:pr-prep`, `/prepare-pr`, and `pr-agent` now sample three
   recent human-edited items and use their shape. The old shapes apply
   only where a project has none. ADR-0021 carries the amendment.
@@ -78,11 +79,15 @@ capability, and a caller needs only the one-line change its entry describes.
   practice from `.claude/stewardship/actions.jsonl`, but nothing wrote
   that file, so both always read "not measured". `stewardship_tracker.py
   record` now appends an action, and the skill names the command.
+  abstract's homeostatic monitor counts the same file under
+  `CLAUDE_PROJECT_DIR`. It read `$CLAUDE_HOME/stewardship`, which
+  nothing writes.
 
 - **phantom's CLI can cap spend and ask before acting.** The library
   had a dollar budget and a confirmation gate, but the CLI exposed
   neither, so every CLI run was unbudgeted and acted without asking.
-  `--budget-usd` and `--confirm` now reach them. A `--thinking-budget`
+  `--budget-usd` and `--confirm` now reach them. Under `--confirm`, a
+  closed stdin rejects the action. A `--thinking-budget`
   at or above `--max-tokens` is refused up front instead of failing at
   the API.
 
@@ -156,18 +161,19 @@ capability, and a caller needs only the one-line change its entry describes.
   entry point and no importer outside its tests) and everything in
   `discussions.py` except `DiscussionsConfig` had no production caller,
   so two Discussions implementations could drift while the dead one
-  read as authoritative. `window.parse_cli_version` also had no caller.
+  read as authoritative. `window.parse_cli_version`, `unattended_env`,
+  `supports` and `RETRY_WATCHDOG_MIN_VERSION` also had no caller.
   `config.save_config` and `learning.load_patterns` are kept: they are
   the write and read halves of live formats, and their tests check the
   live halves through them.
 
-- **Six abstract helpers nothing called.** `errors.safe_file_read`,
+- **Seven abstract helpers nothing called.** `errors.safe_file_read`,
   `safe_file_write`, `safe_yaml_load` and `validate_path_exists` were a
   second error-handling convention, each wrapping its call in a broad
   `except Exception`. `skill_graph.detect_dangling_refs` restated
   `classify_dangling_refs(...)["bugs"]`. `aggregate_learnings_daily.
   run_post_learnings` was superseded by the Stop hook that posts
-  learnings.
+  learnings, and `run_auto_promote` had no caller.
 
 - **hookify's `utils` package.** Its six helpers had no caller outside
   their own tests, and `validate_event_type`'s docstring named event
@@ -223,11 +229,13 @@ capability, and a caller needs only the one-line change its entry describes.
   new `fmt-check` target, and `CARGO_HOME` defaults to `~/.cargo`, where
   `cargo install` puts binaries.
 
-- **attune escapes values written into generated TOML.** Author,
+- **attune escapes values written into generated TOML and JSON.** Author,
   description and name went into TOML strings verbatim, so
   `attune_init.py --author 'A "Q" B'` exited 0 and wrote a Cargo.toml
   that cargo could not read. A rendered `.toml` file now escapes `\`,
-  `"` and control characters in every substituted value.
+  `"` and control characters in every substituted value. A rendered
+  `.json` file escapes each value as a JSON string. A quoted
+  description no longer breaks `package.json`.
 
 - **spec-kit's `cached` decorator keys on the call's arguments.**
   Without `data_arg` the key was the function name alone, so a cached
@@ -260,8 +268,10 @@ capability, and a caller needs only the one-line change its entry describes.
   ignored: the queries named `athola/claude-night-market` and counted
   FIRE reactions, so a fork scanned upstream and filed issues there.
   The owner and name now go in as GraphQL variables, and the emoji maps
-  to GitHub's reaction enum. A fork still has to point
-  `LEARNINGS_CATEGORY_ID` at its own Learnings category.
+  to GitHub's reaction enum. GitHub offers no 🔥 reaction. The default
+  is 👍, and an emoji outside the enum stops the run with a warning.
+  A fork still has to point `LEARNINGS_CATEGORY_ID` at its own
+  Learnings category.
 
 - **abstract's tool benchmark measures every discovered tool.** It
   found tools by path and then measured them by bare name, which reran
@@ -410,8 +420,10 @@ capability, and a caller needs only the one-line change its entry describes.
   pre-commit gate consumes a one-time pass token for the staged files,
   and the challenge skill said to write one, but no command did. A
   developer who passed the challenge stayed blocked. `answer_evaluator.py
-  --gate` now writes the token on a pass, and the skill names the
-  command.
+  --gate` now scores the challenge saved in
+  `.gauntlet/state/pending_challenge.json` and writes the token on a
+  pass. An answer file the caller writes cannot earn one. The skill
+  names the command.
 
 - **egregore's Stop hook writes the continuation baton.** ADR-0023
   says each stop records a baton so a dropped turn is observable, but
@@ -436,7 +448,8 @@ capability, and a caller needs only the one-line change its entry describes.
   Both record the install-time `PATH`, because neither service PATH
   holds `~/.local/bin`, so `claude` exited 127 while the log said
   "Launched". A pid left in the pidfile across a reboot counts as alive
-  only when `ps` names it `claude`. `install_launchd.sh` rejects an
+  only when `ps` names it `claude` or its arguments run `claude`, as
+  under an npm install's node shim. `install_launchd.sh` rejects an
   interval that is not whole seconds and resolves a relative working
   directory.
 
@@ -484,7 +497,9 @@ capability, and a caller needs only the one-line change its entry describes.
   dialog. The deny list now also runs on the command after shell
   quoting is removed, and a reader or searcher whose file operand holds
   a glob, brace or variable falls through to the dialog. `env`,
-  `printenv` and `echo $ANY_KEY` now ask too. Only `echo` of named
+  `printenv` and `echo $ANY_KEY` now ask too. Operands are found with
+  each tool's own value flags. `grep -T token .e?v` and
+  `ag -t token .e?v` ask as well. Only `echo` of named
   non-secret variables such as `$PATH` stays approved.
 
 - **conserve reads list-shaped tool results.** A `tool_result` block
