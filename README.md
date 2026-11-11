@@ -144,8 +144,8 @@ review:
 - **Additive-bias audits** (`leyline`) flag unjustified additions
   before commit.
 
-[CONSTITUTION.md](CONSTITUTION.md) holds the immutable rules that
-override any conflicting skill or hook;
+[CONSTITUTION.md](CONSTITUTION.md) holds the rules that override any
+conflicting skill or hook, each paired with what checks it.
 [STEWARDSHIP.md](STEWARDSHIP.md) is the maintenance contract.
 
 ## Network and data

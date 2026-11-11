@@ -118,6 +118,16 @@ capability, and a caller needs only the one-line change its entry describes.
 - **The slop detector's anti-goals name the replacement tell.** Swapping
   ", so" for ", causing" or ", resulting in" keeps the same tail.
 
+- **The constitution says what checks each rule, and Rules 1 and 2 are
+  amended.** A table pairs every rule with its hook, test, or reviewer,
+  and names the four that only a reviewer checks. Rule 1 discloses AI
+  involvement at the repository level and asks it per pull request
+  only of outside contributors, which every PR template now says. Rule
+  2 asks an AI change over 200 lines to name its plan, spec, or ADR,
+  in place of a cap no hook enforced. "Immutable" is gone from the
+  lead, because the file has always had an amendment process. Sources
+  are in `docs/deep-dive/governance-evidence.md`.
+
 ### Deprecated
 
 - **`pensive:makefile-review` is a module of `pensive:unified-review`.**

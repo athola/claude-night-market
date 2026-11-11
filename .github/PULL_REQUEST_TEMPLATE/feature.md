@@ -1,6 +1,9 @@
 <!--
 Title: imperative, naming the capability.
 "Add symmetric to_pdf and read_yaml I/O methods".
+
+Outside contributors: name the AI tool you used and how far it went,
+or say you used none (CONSTITUTION.md rule 1).
 -->
 
 | | |

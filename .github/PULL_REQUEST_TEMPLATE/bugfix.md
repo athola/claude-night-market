@@ -1,6 +1,9 @@
 <!--
 Title: name the wrong behavior and the correction.
 "Reject empty resume bodies with 422 instead of 500".
+
+Outside contributors: name the AI tool you used and how far it went,
+or say you used none (CONSTITUTION.md rule 1).
 -->
 
 | | |
