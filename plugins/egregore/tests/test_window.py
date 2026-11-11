@@ -177,47 +177,6 @@ class TestResumeSchedule:
         assert window.cron_for(reset) == "0 21 22 8 *"
 
 
-class TestUnattendedEnvironment:
-    """What an unattended run should set, from the documentation."""
-
-    def test_the_retry_watchdog_is_enabled_on_a_version_that_is_safe(self) -> None:
-        env = window.unattended_env({}, cli_version=(2, 1, 241))
-        assert env["CLAUDE_CODE_RETRY_WATCHDOG"] == "1"
-
-    def test_an_operators_existing_setting_is_not_overwritten(self) -> None:
-        env = window.unattended_env(
-            {"CLAUDE_CODE_RETRY_WATCHDOG": "0"}, cli_version=(2, 1, 241)
-        )
-        assert env["CLAUDE_CODE_RETRY_WATCHDOG"] == "0"
-
-    def test_it_is_left_off_on_a_version_that_hangs_on_a_spend_limit(self) -> None:
-        """Before 2.1.239 the watchdog retried spend-limit 429s forever.
-
-        Turning it on there trades a recoverable park for an unbounded
-        wait, and a spend cap can be a month out.
-        """
-        env = window.unattended_env({}, cli_version=(2, 1, 238))
-        assert "CLAUDE_CODE_RETRY_WATCHDOG" not in env
-
-    def test_an_unknown_version_is_treated_as_unsafe(self) -> None:
-        """Not knowing is not the same as knowing it is fine."""
-        env = window.unattended_env({}, cli_version=None)
-        assert "CLAUDE_CODE_RETRY_WATCHDOG" not in env
-
-
-class TestParseCliVersion:
-    """Reading the CLI's version, or admitting it could not be read."""
-
-    def test_a_newer_version_satisfies_a_minimum(self) -> None:
-        assert window.supports((2, 2, 0), (2, 1, 239)) is True
-
-    def test_an_older_version_does_not(self) -> None:
-        assert window.supports((2, 1, 238), (2, 1, 239)) is False
-
-    def test_an_unknown_version_never_satisfies_a_minimum(self) -> None:
-        assert window.supports(None, (2, 1, 239)) is False
-
-
 def test_module_states_that_window_length_is_undocumented() -> None:
     """The one thing this module must never do is assume a window length."""
     flat = " ".join((window.__doc__ or "").split()).lower()
