@@ -1109,6 +1109,14 @@ class TestShellObfuscatedCredentialReads:
             "grep -ie token ~/.aws/cred*",
             "grep -ietoken ~/.aws/cred*",
             "grep -f patterns.txt ~/.aws/cred*",
+            "grep -T token .e?v",
+            "grep -Tetoken .e?v",
+            "ag -t token .e?v",
+            "ag --context token .e?v",
+            "ag -A token .e?v",
+            "ag -B token .e?v",
+            "ag -C token .e?v",
+            "ag -Ctoken .e?v",
         ],
     )
     def test_obfuscated_credential_read_is_never_auto_approved(
@@ -1142,6 +1150,7 @@ class TestShellObfuscatedCredentialReads:
             "rg -g '*.py' foo",
             "rg --glob=*.md TODO docs/",
             'grep -n "def main" app.py',
+            "ag -C 3 token src/",
             "cat README.md",
             "head -n5 notes.txt",
             "ls *.py",

@@ -233,37 +233,110 @@ _EXPANDING = re.compile(r"[*?\[{$]")
 _READERS = frozenset(
     {"cat", "head", "tail", "wc", "file", "stat", "realpath", "dirname", "basename"}
 )
-_SEARCHERS = frozenset({"grep", "rg", "ag"})
-# Search options whose next word is a value, not a path: `rg -g '*.py' x`.
-_SEARCH_VALUE_FLAGS = frozenset(
-    {
-        "-e",
-        "--regexp",
-        "-f",
-        "--file",
-        "-g",
-        "--glob",
-        "--iglob",
-        "-t",
-        "--type",
-        "-T",
-        "--type-not",
-        "-m",
-        "--max-count",
-        "-A",
-        "-B",
-        "-C",
-        "--context",
-        "--include",
-        "--exclude",
-        "--exclude-dir",
-    }
-)
-# Options that supply the pattern, so no positional is the pattern:
-# `grep -e token FILE`, `grep -etoken FILE`, `grep --regexp=token FILE`.
-_SEARCH_PATTERN_FLAGS = frozenset({"-e", "--regexp", "-f", "--file"})
-# Short options among the value flags above, which end a `-ie` style cluster.
-_SHORT_VALUE_LETTERS = frozenset("gtTmABC")
+
+
+@dataclass(frozen=True)
+class _SearchSyntax:
+    """Which options of one search tool consume the next word.
+
+    The same letter means different things to each tool: `grep -T` and
+    `ag -t` take no value, while `rg -T` and `rg -t` do. Counting a flag
+    as value-taking when it is not hides the real path behind it. A flag
+    is listed only when the tool's own documentation says it requires a
+    value.
+    """
+
+    value_flags: frozenset[str]
+    # Options that supply the pattern, so no positional is the pattern:
+    # `grep -e token FILE`, `grep -etoken FILE`, `grep --regexp=token FILE`.
+    pattern_flags: frozenset[str]
+    # Short value options that end a `-ie` style cluster.
+    value_letters: frozenset[str]
+    # Short pattern options; inside a cluster the rest is the pattern.
+    pattern_letters: frozenset[str]
+    # Short options whose value counts only when it is a number. Any other
+    # word, attached or not, is the search pattern instead.
+    number_letters: frozenset[str] = frozenset()
+
+
+# grep: the GNU grep manual and BSD grep(1). `-T` is --initial-tab, and
+# --context is left out because both document only `--context=NUM`.
+# rg: `rg --help`. ag: the getopt string in ag's src/options.c, where
+# `-t` is --all-text, `-f` is --follow, `-g PATTERN` replaces the search
+# pattern, and the long --after, --before and --context take a value
+# only after `=`. ag's `-A`, `-B` and `-C` keep their value only when it
+# parses as a number, and otherwise read it as the search pattern.
+_SEARCH_SYNTAX = {
+    "grep": _SearchSyntax(
+        value_flags=frozenset(
+            {
+                "-e",
+                "--regexp",
+                "-f",
+                "--file",
+                "-m",
+                "--max-count",
+                "-A",
+                "-B",
+                "-C",
+                "--include",
+                "--exclude",
+                "--exclude-dir",
+            }
+        ),
+        pattern_flags=frozenset({"-e", "--regexp", "-f", "--file"}),
+        value_letters=frozenset("mABC"),
+        pattern_letters=frozenset("ef"),
+    ),
+    "rg": _SearchSyntax(
+        value_flags=frozenset(
+            {
+                "-e",
+                "--regexp",
+                "-f",
+                "--file",
+                "-g",
+                "--glob",
+                "--iglob",
+                "-t",
+                "--type",
+                "-T",
+                "--type-not",
+                "-m",
+                "--max-count",
+                "-A",
+                "-B",
+                "-C",
+                "--context",
+            }
+        ),
+        pattern_flags=frozenset({"-e", "--regexp", "-f", "--file"}),
+        value_letters=frozenset("gtTmABC"),
+        pattern_letters=frozenset("ef"),
+    ),
+    "ag": _SearchSyntax(
+        value_flags=frozenset(
+            {
+                "-G",
+                "--file-search-regex",
+                "-g",
+                "-m",
+                "--max-count",
+                "-p",
+                "--path-to-ignore",
+                "-W",
+                "--width",
+                "--depth",
+                "--ignore",
+            }
+        ),
+        pattern_flags=frozenset({"-g"}),
+        value_letters=frozenset("GmpW"),
+        pattern_letters=frozenset("g"),
+        number_letters=frozenset("ABC"),
+    ),
+}
+_SEARCHERS = frozenset(_SEARCH_SYNTAX)
 # Modes that take no pattern at all: `rg --files PATH`.
 _PATTERNLESS_MODES = frozenset({"--files", "--type-list"})
 
@@ -276,6 +349,26 @@ def _shell_words(command: str) -> list[str] | None:
         return None
 
 
+def _scan_cluster(cluster: str, syntax: _SearchSyntax) -> tuple[bool, bool, bool]:
+    """Read a short option cluster such as `-ie` or `-ietoken`.
+
+    Returns whether it supplies the pattern, whether the next word is its
+    value, and whether the next word is its value only if it is a number.
+    """
+    for index, letter in enumerate(cluster):
+        if letter in syntax.value_letters:
+            break
+        if letter in syntax.number_letters:
+            attached = cluster[index + 1 :]
+            if not attached:
+                return False, False, True
+            # `ag -Ctoken`: the whole word is the pattern.
+            return not attached.isdigit(), False, False
+        if letter in syntax.pattern_letters:
+            return True, index == len(cluster) - 1, False
+    return False, False, False
+
+
 def _path_operands(words: list[str]) -> list[str]:
     """Return the operands of a reader or searcher that name files."""
     head, rest = words[0], words[1:]
@@ -283,31 +376,31 @@ def _path_operands(words: list[str]) -> list[str]:
         return [word for word in rest if not word.startswith("-")]
     if head not in _SEARCHERS:
         return []
+    syntax = _SEARCH_SYNTAX[head]
     positional: list[str] = []
     takes_value = False
+    takes_number = False
     pattern_given = False
     for word in rest:
         if takes_value:
             takes_value = False
-        elif word in _SEARCH_VALUE_FLAGS:
+            continue
+        if takes_number:
+            takes_number = False
+            if word.isdigit():
+                continue
+        if word in syntax.value_flags:
             takes_value = True
-            pattern_given = pattern_given or word in _SEARCH_PATTERN_FLAGS
+            pattern_given = pattern_given or word in syntax.pattern_flags
         elif word in _PATTERNLESS_MODES:
             pattern_given = True
         elif word.startswith("--"):
             pattern_given = (
-                pattern_given or word.split("=", 1)[0] in _SEARCH_PATTERN_FLAGS
+                pattern_given or word.split("=", 1)[0] in syntax.pattern_flags
             )
         elif word.startswith("-"):
-            # A short cluster: `-ie token` or `-ietoken` supplies the pattern.
-            cluster = word[1:]
-            for index, letter in enumerate(cluster):
-                if letter in _SHORT_VALUE_LETTERS:
-                    break
-                if letter in "ef":
-                    pattern_given = True
-                    takes_value = index == len(cluster) - 1
-                    break
+            supplies, takes_value, takes_number = _scan_cluster(word[1:], syntax)
+            pattern_given = pattern_given or supplies
         else:
             positional.append(word)
     # Without a pattern option, the first positional is the pattern.
