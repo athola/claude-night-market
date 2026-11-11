@@ -23,7 +23,7 @@ from gauntlet.challenges import (
     set_variation_provider,
 )
 from gauntlet.graph import GraphStore
-from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
+from gauntlet.models import Challenge, EdgeKind, GraphEdge, GraphNode, NodeKind
 from gauntlet.providers.in_loop import in_loop_variation_provider
 
 # ---------------------------------------------------------------------------
@@ -548,19 +548,29 @@ class TestAnswerEvaluatorWritesThePassToken:
         "scope_files": [],
     }
 
-    @staticmethod
-    def _repo_with_staged_file(root: Path) -> Path:
+    @classmethod
+    def _repo_with_staged_file(
+        cls, root: Path, pending: dict[str, object] | None = None
+    ) -> Path:
         subprocess.run(["git", "init", "-q"], cwd=root, check=True)
         (root / "a.py").write_text("x = 1\n")
         subprocess.run(["git", "add", "a.py"], cwd=root, check=True)
         state = root / ".gauntlet" / "state"
         state.mkdir(parents=True)
-        (state / "pending_challenge.json").write_text(json.dumps({"id": "ch-gate"}))
+        # The gate writes Challenge.to_dict(), answer included.
+        challenge = Challenge.from_dict(pending or cls._CHALLENGE)
+        (state / "pending_challenge.json").write_text(json.dumps(challenge.to_dict()))
         return root / ".gauntlet"
 
-    def _evaluate(self, tmp_path: Path, answer: str, *flags: str) -> int:
+    def _evaluate(
+        self,
+        tmp_path: Path,
+        answer: str,
+        *flags: str,
+        challenge: dict[str, object] | None = None,
+    ) -> int:
         challenge_file = tmp_path / "challenge.json"
-        challenge_file.write_text(json.dumps(self._CHALLENGE))
+        challenge_file.write_text(json.dumps(challenge or self._CHALLENGE))
         with contextlib.redirect_stdout(io.StringIO()):
             return answer_main([str(challenge_file), answer, *flags])
 
@@ -633,13 +643,32 @@ class TestAnswerEvaluatorWritesThePassToken:
         """An empty hash is what a failing git call yields on both sides."""
         state = tmp_path / ".gauntlet" / "state"
         state.mkdir(parents=True)
-        (state / "pending_challenge.json").write_text(json.dumps({"id": "ch-gate"}))
+        (state / "pending_challenge.json").write_text(json.dumps(self._CHALLENGE))
         monkeypatch.setenv("GIT_CEILING_DIRECTORIES", str(tmp_path.parent))
         monkeypatch.chdir(tmp_path)
 
         with contextlib.redirect_stderr(io.StringIO()):
             assert self._evaluate(tmp_path, "A", "--gate") == 1
         assert not (state / "pass_token.json").exists()
+
+    @pytest.mark.unit
+    def test_a_forged_challenge_file_with_the_pending_id_writes_no_token(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """--gate scores the pending challenge, not the file it is handed.
+
+        A caller who copies the pending id into a file of its own and sets
+        that file's answer to whatever it submits must not release the
+        commit.
+        """
+        gauntlet_dir = self._repo_with_staged_file(
+            tmp_path, pending={**self._CHALLENGE, "answer": "B"}
+        )
+        monkeypatch.chdir(tmp_path)
+        forged = {**self._CHALLENGE, "answer": "A"}
+
+        assert self._evaluate(tmp_path, "A", "--gate", challenge=forged) == 0
+        assert not (gauntlet_dir / "state" / "pass_token.json").exists()
 
 
 class TestChallengeSources:

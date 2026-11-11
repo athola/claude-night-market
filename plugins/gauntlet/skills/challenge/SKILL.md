@@ -53,12 +53,13 @@ so no setup step is needed.
 
 7. **On pass**: when the challenge came from the pre-commit gate,
    score it with the command below, which writes the one-time token
-   that releases the commit of the staged files. Show next challenge
-   if in session.
+   that releases the commit of the staged files. Under `--gate` the
+   script scores `.gauntlet/state/pending_challenge.json` and ignores
+   the file argument. Show next challenge if in session.
 
    ```bash
    python3 ${CLAUDE_PLUGIN_ROOT}/scripts/answer_evaluator.py \
-     <challenge.json> "<answer>" --gate
+     .gauntlet/state/pending_challenge.json "<answer>" --gate
    ```
 
 8. **On fail**: show correct answer with explanation. Present a
