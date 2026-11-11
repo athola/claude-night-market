@@ -67,7 +67,7 @@ what was left.
 ## Domain Classification
 
 Topics are classified into domains that determine TRIZ
-depth, channel weights, and visualization style:
+depth and channel weights:
 
 | Domain | TRIZ Depth | Example Topic |
 |--------|-----------|---------------|

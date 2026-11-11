@@ -186,9 +186,3 @@ Envelope rules, identical across all four channel agents:
   relevant, say so
 - For deep/maximum: consult Altshuller's 40 inventive
   principles if a clear contradiction exists
-- The classical contradiction matrix is available as an
-  optional, secondary grounding lookup. It is frozen since
-  1985, sparse, and uses engineering parameters, so treat it
-  as a cross-check, not the primary source. An empty cell
-  means any of the 40 principles may apply, not that no
-  solution exists.

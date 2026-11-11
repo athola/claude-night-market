@@ -17,10 +17,10 @@ processing:
 
 | Hook | Event | When Triggered |
 |------|-------|----------------|
-| `url_detector` | UserPromptSubmit | User message contains URLs |
-| `web_content_processor` | PostToolUse (WebFetch/WebSearch) | After fetching web content |
+| `user_prompt` | UserPromptSubmit | User message contains URLs |
+| `web_research_handler` | PostToolUse (WebFetch/WebSearch) | After fetching web content |
 | `local_doc_processor` | PostToolUse (Read) | Reading files in knowledge paths |
-| `research_queue_integration` | SessionEnd | Research sessions with 3+ WebSearch calls |
+| `research_queue` | SessionEnd | Research sessions with 3+ WebSearch calls |
 
 ### Hook Signals
 

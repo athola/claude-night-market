@@ -486,3 +486,35 @@ def test_a_body_at_the_cap_is_read(monkeypatch: pytest.MonkeyPatch) -> None:
 
     assert reply.status == 200
     assert len(reply.body) == 1024
+
+
+@pytest.mark.parametrize("body", ["[]", "null"])
+def test_one_full_text_source_in_the_wrong_shape_does_not_end_the_lookup(
+    body: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`.get` on a list or None in one fulltext parser is that source's error.
+
+    The fulltext loop shares `_UNPARSEABLE` with the search loop. Without
+    AttributeError in it, an OpenAlex body of `[]` ended the lookup before
+    Semantic Scholar's PDF was collected.
+    """
+    monkeypatch.delenv("TOME_CONTACT_EMAIL", raising=False)
+    transport, _ = _routed(
+        {
+            "api.openalex.org/works/doi:": _ok(body),
+            "api.semanticscholar.org": _ok(
+                json.dumps({"openAccessPdf": {"url": "https://s2.example/x.pdf"}})
+            ),
+        }
+    )
+    found = fetch_cli.find_full_text(
+        doi="10.1/x",
+        fetch=lambda u, **kw: http.fetch(
+            u, transport=transport, sleep=lambda s: None, **kw
+        ),
+    )
+    statuses = {t["source"]: t["status"] for t in found["tried"]}
+    assert statuses["openalex"] == "unparseable response"
+    assert found["candidates"] == [
+        {"url": "https://s2.example/x.pdf", "source": "semantic_scholar"}
+    ]

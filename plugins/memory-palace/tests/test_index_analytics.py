@@ -3,9 +3,8 @@
 The capture index (``hooks/memory-palace-index.yaml``) is a URL-keyed
 log of auto-captured web content. These tests pin the analysis layer
 that turns that write-only buffer into observable metrics: corpus
-statistics, inert-entry detection, orphan detection, topic clustering,
-staleness (via the existing DecayModel), and promotion-candidate
-ranking.
+statistics, inert-entry and null-capture counts, orphan detection,
+domain clustering and authority tiers, and promotion-candidate ranking.
 
 The analysis layer mutates nothing.
 """
