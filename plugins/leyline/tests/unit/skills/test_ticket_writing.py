@@ -78,9 +78,9 @@ class TestGlanceRule:
 class TestProjectTemplateFirst:
     """Feature: A project's own ticket shape wins over the default.
 
-    In the ARIA Jira project the user rewrote every agent ticket from the
-    default shape (Why:, Done when:, Repro:) into the team's h3 template,
-    and once restored it after the agent overwrote it (ARIA-184).
+    In one private Jira project, reviewers rewrote every agent ticket from
+    the default shape (Why:, Done when:, Repro:) into the team's h3
+    template, and once restored one after the agent overwrote it.
     """
 
     @pytest.mark.unit

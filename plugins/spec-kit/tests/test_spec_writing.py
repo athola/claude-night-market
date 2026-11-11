@@ -233,8 +233,8 @@ REGISTER = "skills/spec-writing/modules/spec-register.md"
 class TestSpecRegister:
     """The sentence-level rules a spec is written in.
 
-    Drawn from the zombie-ant ``docs/spec`` set, which a teammate wrote
-    with every statement tagged as current or planned, and from RFC 8174.
+    Drawn from a private runtime spec set, written with every statement
+    tagged as current or planned, and from RFC 8174.
     """
 
     def test_should_declare_the_register_module(self, skill: str) -> None:
@@ -257,5 +257,5 @@ class TestSpecRegister:
         assert rule in read(REGISTER)
 
     def test_should_flag_a_declared_convention_left_unused(self) -> None:
-        """zombie-ant's README declares RFC 2119 and uses one capital keyword."""
+        """The model set's README declares RFC 2119 and uses one capital keyword."""
         assert "declares RFC 2119" in read(REGISTER)

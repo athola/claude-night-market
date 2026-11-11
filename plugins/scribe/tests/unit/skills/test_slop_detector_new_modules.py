@@ -390,7 +390,7 @@ class TestContrastiveCategoriesAreDocumented:
 class TestAntiGoalsReplacementRegister:
     """Feature: a rewrite does not trade one tell for another.
 
-    In smal-idn and model-armory-lite the user removed ", so" tails and
+    In an observed sample, a reviewer removed ", so" tails and
     figurative verbs, and in 7 of 11 such edits wrote ", causing" or ", resulting in"
     in their place. A cleaner that copies those swaps reproduces the tail.
     """

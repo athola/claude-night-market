@@ -50,10 +50,10 @@ markup. A tracker template (see tracker mechanics) counts as the same signal.
 Keep every heading that shape uses. Where the samples put `N/A` under an
 empty heading, do the same.
 
-This rule comes from the ARIA Jira project. The labels the user deleted most
-were `Why:` and `Done when:` from the default shape below, plus `Repro:` and
-`h2.` headings. Of 67 tickets with description edits, 42 end in one of these
-two shapes:
+This rule comes from one private Jira project. The labels reviewers deleted
+most were `Why:` and `Done when:` from the default shape below, plus `Repro:`
+and `h2.` headings. Of 67 tickets with description edits, 42 end in one of
+these two shapes:
 
 ```markdown
 ### Impact                 ### Summary
@@ -67,10 +67,11 @@ two shapes:
 
 A rewrite tool produced some of these headings. The team kept them, and
 that is the signal: copy the shape a project keeps, whatever wrote it
-first. The user then fixed the wording by hand:
+first. The wording fixes reviewers made by hand:
 
 - Title: component prefix if the project uses one, then the symptom a user
-  sees ("Cancelled mesh download not displayed in MINE"), not the mechanism.
+  sees ("Cancelled download not shown in the downloads list"), not the
+  mechanism.
 - Expected behavior and acceptance criteria use "should". Actual behavior
   uses the present tense.
 - A ticket states the problem and how to tell it is fixed. How the code
@@ -98,8 +99,9 @@ template supplies when it has nothing under it.
 
 Read the live description before every edit, diff it against what you last
 wrote, and change only the sentence that needs it. If a person changed it,
-patch their text and never regenerate it from your draft. ARIA-184 lost the
-user's restructure that way and had to be restored from the changelog.
+patch their text and never regenerate it from your draft. In the observed
+project, one ticket lost a reviewer's restructure that way and had to be
+restored from the changelog.
 
 ## Inline Or Link
 

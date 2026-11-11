@@ -48,13 +48,14 @@ reproduction steps must not be cut to meet one.
 ## Amendment 2026-11-10: Project template first
 
 The shape above is the default for a project with no shape of its own.
-In the ARIA Jira project the user edited 67 agent-written tickets. The
-labels they deleted most were `Why:` and `Done when:`, and 42 of the 67
+In one private Jira project, reviewers edited 67 agent-written
+tickets. The labels deleted most were `Why:` and `Done when:`, and 42
+of the 67
 ended in one of two team templates: Impact, Expected behavior, Actual
 behavior, Steps to reproduce, Environment, Workarounds, Other
 information for bugs, and Summary, Context, Acceptance criteria, Other
-information for tasks. A rewrite tool produced some of those headings
-and the user fixed the wording by hand. The team kept the shape either
+information for tasks. A rewrite tool produced some of those headings,
+and a person fixed the wording by hand. The team kept the shape either
 way.
 
 `leyline:ticket-writing` now samples three recent human-edited tickets

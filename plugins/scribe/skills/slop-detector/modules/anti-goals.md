@@ -259,16 +259,16 @@ em dashes alone unless other signals also fire.
 
 ### Replacing a tell with its twin
 
-A cleanup that removes one pattern often writes its neighbor. The user
-cut ", so" tails from 11 agent MR descriptions in smal-idn. In 7 of
-them they wrote ", causing", ", resulting in", or ", such that" in its
-place. That is the same appended consequence.
+A cleanup that removes one pattern often writes its neighbor. In one
+observed sample, a reviewer cut ", so" tails from 11 agent MR
+descriptions. In 7 of them the replacement was ", causing",
+", resulting in", or ", such that". That is the same appended consequence.
 Delete the tail, or give the consequence its own sentence.
 
 The opposite failure is clipped idiom. An agent avoiding inflated
 vocabulary drifts into short words used in odd senses: "the bytes
 landed", "nothing gave way", "is told at once", "the far side". The
-user replaced 21 of these with the plain literal verb ("were synced",
+reviewer replaced 21 of these with the plain literal verb ("were synced",
 "immediately", "far-side peer"). Single-word counts over 223 Jira edits
 showed no removal bias for "lands" or "holds". This stays judgment,
 and no regex is added for it.

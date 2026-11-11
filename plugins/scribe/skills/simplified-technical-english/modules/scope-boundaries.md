@@ -33,7 +33,7 @@ executing:
 
 Acceptance criteria inside a ticket stay in scope for one instruction
 per bullet and simple tenses, but the author's contractions stay. In
-model-armory-lite !29 and !37 the user wrote "didn't" and "aren't",
+two observed merge requests a reviewer wrote "didn't" and "aren't",
 and a later pass expanded them back. Rewriting a person's words to a
 register they did not choose undoes their edit.
 

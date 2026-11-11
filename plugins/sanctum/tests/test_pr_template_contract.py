@@ -472,7 +472,7 @@ class TestDecisionIsRecorded:
 class TestObservedReviewerEdits:
     """What a reviewer deleted from agent MR descriptions, written down.
 
-    Across smal-idn and model-armory-lite the user made about 120 edits to
+    Across two private repositories, reviewers made about 120 edits to
     agent descriptions. The largest groups deleted validation narration
     (36), port and branch history (23) and dated review appendices (7),
     and rebuilt fix MRs in the Jira bug shape (16). ADR-0021 records the

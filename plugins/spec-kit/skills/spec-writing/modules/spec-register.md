@@ -10,8 +10,9 @@ says which sections a spec has. This one says how each statement in
 them is written. The goal is a reader who can tell what the system
 does today from what it is meant to do.
 
-The model is the zombie-ant spec set (19 files, about 12,000
-words). The repo's slop detector found 22 findings in it. Twelve are
+The model is a private spec set kept beside a runtime's code (19
+files, about 12,000 words). The repo's slop detector found 22 findings
+in it. Twelve are
 semicolons, several inside table cells. It tags status 145 times and
 uses "will" nowhere.
 
@@ -64,18 +65,17 @@ that adopts them with the BCP 14 boilerplate. Pick one:
   as plain present-tense statements.
 
 A spec that declares RFC 2119 and then writes "must" in lowercase has
-promised a convention it does not use. The zombie-ant README declares
-RFC 2119, yet the set contains one capital keyword against 8 lowercase
+promised a convention it does not use. The model set's README
+declares RFC 2119, yet the set contains one capital keyword against 8 lowercase
 "must", 6 "should", and 22 "may". Check with
 `rg -c '\b(MUST|SHOULD|MAY)\b'` before claiming the convention.
 
 **Name what code a statement covers.** Write identifiers, routes, and
-file names in backticks: `zombie-ant-runtime`, `POST /models`.
+file names in backticks: `example-runtime`, `POST /models`.
 
 ## Sources
 
 - RFC 8174, <https://www.rfc-editor.org/rfc/rfc8174>
 - RFC 7322 (RFC Style Guide), <https://www.rfc-editor.org/rfc/rfc7322>
-- zombie-ant spec set, read 2026-11-10 at master `4b72abbb`,
-  <https://gitlab.com/iris-core/pubsec/zombie-ant/-/tree/master/docs/spec>
-  (private repository)
+- A private runtime spec set, read 2026-11-10. It is not public, and
+  the counts above are the only part of it this module relies on.

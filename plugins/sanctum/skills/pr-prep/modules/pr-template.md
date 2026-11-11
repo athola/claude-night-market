@@ -11,11 +11,11 @@ descriptions by hand has its own. Before writing, check for
 `.gitlab/merge_request_templates/` or `.github/PULL_REQUEST_TEMPLATE*`,
 then read three recent merged descriptions a person edited. When they
 share a shape, use it, together with the rules below. They come from
-about 120 edits the user made to agent descriptions in smal-idn and
-model-armory-lite. A repository with no shape of its own uses the
-default structure, test counts included.
+about 120 reviewer edits to agent descriptions in two private
+repositories. A repository with no shape of its own uses the default
+structure, test counts included.
 
-- Put the closing keyword on the first line: `Closes ARIA-212`. Use
+- Put the closing keyword on the first line: `Closes PROJ-123`. Use
   "Relates to" only when the change does not finish the ticket.
 - Fix MRs use the ticket's bug shape: Impact, Expected behavior, Actual
   behavior, Steps to reproduce. What changed goes under `## What`
@@ -26,9 +26,9 @@ default structure, test counts included.
   short table or line. A gap stays stated in one line: "No device run."
 - Fold a review fix into the section it changes. No dated appendices
   such as "Review fixes (2026-11-08)" or "Second review".
-- A port or backport gets one provenance line ("Port of event/ls5
-  c7328413"). Drop what was adapted, left out, rebased, or found
-  along the way.
+- A port or backport gets one provenance line ("Port of
+  `<branch>` `<commit>`"). Drop what was adapted, left out, rebased,
+  or found along the way.
 - Drop sentences about code motion done for a test ("moves into X so a
   test reaches it"). The diff shows it.
 - Name the baseline in a test table: "Fails on `main` because". In a
@@ -42,8 +42,8 @@ default structure, test counts included.
 
 To edit a description that already exists, Read the live description
 first and diff it against your last write. If a person changed it,
-patch their text and never regenerate it. The agent overwrote the
-user's edits seven times across the two repos.
+patch their text and never regenerate it. In the observed sample, a
+regenerated description overwrote a reviewer's edits seven times.
 
 ## The structure
 

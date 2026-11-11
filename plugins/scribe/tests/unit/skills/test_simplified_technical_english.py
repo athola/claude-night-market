@@ -180,9 +180,9 @@ class TestScopeBoundary:
 
     @pytest.mark.unit
     def test_scope_module_leaves_contractions_in_reviewer_text_alone(self) -> None:
-        """Agent sweeps expanded the user's contractions in MR bodies.
+        """Agent sweeps expanded a reviewer's contractions in MR bodies.
 
-        model-armory-lite !29 and !37: the user wrote "didn't" and
+        In two observed merge requests a reviewer wrote "didn't" and
         "aren't", and a later STE-style pass changed them back.
         """
         text = _read(MODULES["scope"])
