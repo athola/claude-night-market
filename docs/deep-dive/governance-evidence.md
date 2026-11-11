@@ -5,9 +5,11 @@
 this page.*
 
 Both files state rules and principles. This page holds the sources
-behind them, which keeps the files short enough to read in one sitting. Every
-source below was read from the primary page on 2026-11-11 unless it is
-marked secondary.
+behind them, which keeps the files short enough to read in one sitting.
+The arXiv abstracts, the Wikipedia article, and Claude's constitution
+were read on 2026-11-11. The project policies were read by research
+agents in the same session. The Block and Baden-Powell wording comes
+from search results that reproduce it.
 
 ## Rule files are followed unevenly
 

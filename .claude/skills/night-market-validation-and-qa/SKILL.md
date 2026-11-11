@@ -58,8 +58,9 @@ first. Scope:
 - Applies to every code change in plugin Python sources
   (`plugins/*/src/`, `plugins/*/scripts/`, `plugins/*/hooks/`).
 - Skill files, agent files, and prose docs are exempt. Their analogue
-  is a structural validation test: every new skill needs a
-  `test_skill_<name>.py` proving the structure.
+  is structural validation: the repo-wide `SKILL.md` tests, plus a
+  plugin test, usually `tests/unit/skills/test_<name>.py`, where the
+  skill's contract matters.
 
 A structural validation test asserts observable content in the skill
 file: required sections exist, the referenced modules exist on disk,
@@ -182,7 +183,8 @@ are legal. Registered in root `pyproject.toml`: `unit`, `integration`,
   `integration/` accordingly.
 - [ ] Plugin suite passes locally with its coverage flag:
   `uv run python -m pytest tests/ --cov-fail-under=<threshold>`.
-- [ ] New skill files have a `test_skill_<name>.py` structural test.
+- [ ] New skill files pass the repo-wide `SKILL.md` tests, and a skill
+  whose contract matters has its own structural test.
 
 ## Failure-mode detection: silent failure in scanners
 
@@ -238,8 +240,8 @@ Any hit that discards an error without emitting a finding or an inline
 - [ ] New plugin Python code landed with a test observed failing
   first, and the plugin suite passes at or above its
   `[tool.nightmarket]` coverage_threshold.
-- [ ] Any new skill file has a passing `test_skill_<name>.py`
-  structural test.
+- [ ] Any new skill file passes the repo-wide `SKILL.md` tests, and
+  one whose contract matters has a passing structural test.
 - [ ] No scanner code added or reviewed in the session contains an
   except-continue that drops input without an ADVISORY finding or a
   stated reason.

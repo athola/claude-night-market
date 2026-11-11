@@ -116,21 +116,21 @@ at boundaries are propagated. Errors that are genuinely safe to discard
 get an inline comment naming why. The default is propagate.
 
 Hooks are the one stated exception. A hook that raises blocks the
-user's prompt. A hook's optional work therefore runs inside
-`plugins/abstract/hooks/shared/best_effort.py`, which catches the error
-and prints it to stderr instead.
+user's prompt. A hook therefore catches broad errors at its entry point
+and prints them to stderr instead. abstract's
+`hooks/shared/best_effort.py` is the shared form of that catch.
 
 ## How each rule is checked
 
 | Rule | Checked by |
 |------|------------|
-| 1 | The outside-contributor line in the pull request template, then a reviewer |
+| 1 | The outside-contributor line in the pull request template, then a reviewer. imbue's `vow_no_ai_attribution.py` keeps attribution out of commit messages, because the README carries the disclosure (warns by default) |
 | 2 | A reviewer. `Skill(imbue:scope-guard)` reports branch size as an advisory signal and blocks nothing |
 | 3 | imbue's `tdd_bdd_gate.py` hook on implementation writes, and the repo-wide skill structure tests |
 | 4 | A reviewer, with `Skill(scribe:slop-detector)`. No automated check |
 | 5 | A reviewer, with `Skill(scribe:slop-detector)` module `evidence-backed-claims.md` |
 | 6 | The pre-commit chain, including `check-noqa`. Nothing detects `--no-verify` after the fact |
-| 7 | A reviewer, with `Skill(imbue:dependency-verification)` |
+| 7 | imbue's `guard_package_hallucination.py` hook on install commands, then a reviewer with `Skill(imbue:dependency-verification)` |
 | 8 | The `slop-ratchet` pre-commit hook on staged markdown |
 | 9 | A reviewer |
 | 10 | ruff's `E722` in the pre-commit chain |

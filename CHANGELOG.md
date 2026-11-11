@@ -124,7 +124,13 @@ capability, and a caller needs only the one-line change its entry describes.
   involvement at the repository level and asks it per pull request
   only of outside contributors, which every PR template now says. Rule
   2 asks an AI change over 200 lines to name its plan, spec, or ADR,
-  in place of a cap no hook enforced. "Immutable" is gone from the
+  in place of a cap no hook enforced. Rule 1 also asks that AI
+  involvement never be denied and holds the submitter accountable.
+  Rule 3 names the repo-wide skill structure tests in place of a
+  per-skill filename only 16 of 201 skills used. Rule 10 states the
+  hook exception: a hook catches broad errors so it cannot block the
+  prompt. An amendment may ride in a larger PR as a commit with the
+  `constitution: amend rule N` subject. "Immutable" is gone from the
   lead, because the file has always had an amendment process. Sources
   are in `docs/deep-dive/governance-evidence.md`.
 

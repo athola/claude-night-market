@@ -39,10 +39,10 @@ Implementation order (Iron Law: failing test first):
    `plugins/egregore/README.md`.
 5. Add a CHANGELOG entry under `[Unreleased]` in Keep a Changelog
    format. Never rewrite historical entries.
-6. Check the diff against the 200-line AI-commit cap (CONSTITUTION
-   rule 2). The code flip is tiny, but the doc sweep plus ADR may
-   exceed it: if so, the ADR itself is the required planning doc;
-   reference it in the commit body.
+6. Check the diff against CONSTITUTION rule 2: an AI change over
+   200 lines names its planning doc. The code flip is tiny, but the
+   doc sweep plus ADR may exceed it. If so, the ADR itself is the
+   required planning doc. Reference it in the commit body.
 7. Run the standard gates before committing (`make lint`,
    `make typecheck`, plugin tests) and follow the PR flow in
    `night-market-operations`.
