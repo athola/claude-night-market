@@ -73,7 +73,7 @@ uv run python -m phantom.cli "Open Firefox and search for Claude AI"
 ```
 
 `--confirm` asks before each action and runs it only on a reply that
-starts with `y`. Any other reply, or a closed stdin, rejects it.
+starts with `y` or `Y`. Any other reply, or a closed stdin, rejects it.
 `--budget-usd 0.50` stops the run with `budget_exceeded` once its
 estimated API cost passes that many dollars.
 
@@ -86,9 +86,10 @@ from phantom.loop import LoopConfig, LoopHooks, LoopSetup, run_loop
 
 def approve(action: dict) -> bool:
     try:
-        return input(f"Run {action.get('action')}? [y/N] ").startswith("y")
+        reply = input(f"Run {action.get('action')}? [y/N] ")
     except EOFError:  # closed stdin is a no
         return False
+    return reply.strip().lower().startswith("y")
 
 
 result = run_loop(
