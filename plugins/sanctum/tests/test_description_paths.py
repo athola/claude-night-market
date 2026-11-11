@@ -67,7 +67,7 @@ class TestNamedPaths:
         THEN none is taken for a file.
         """
         text = (
-            "Port of `event/ls5` on `origin/main`, `127.0.0.1/tcp/44337`, "
+            "Port of `feature/rc5` on `origin/main`, `127.0.0.1/tcp/44337`, "
             "`142/142`, `v1.2.4-rc.8`, `manager/src-tauri/**/*`, "
             "`[mobile/*.kt]`, and `swarm/tests/`."
         )
@@ -255,3 +255,15 @@ class TestMain:
         repo, base = branch_repo
         text = "Called from `src/other.py`."
         assert self._run(repo, base, text, "--strict") == 1
+
+    def test_unresolvable_base_exits_two_and_names_the_base(
+        self, branch_repo: tuple[Path, str], capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """GIVEN a --base that git cannot resolve
+        WHEN the CLI runs
+        THEN it exits 2 and names the base, so a git failure is not read
+        as a phantom path.
+        """
+        repo, _ = branch_repo
+        assert self._run(repo, "origin/no-such-branch", "Changes `src/api.py`.") == 2
+        assert "origin/no-such-branch" in capsys.readouterr().err

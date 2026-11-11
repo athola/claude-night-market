@@ -13,7 +13,7 @@ draft is written before the last commit:
   may name the caller of a fixed function. ``--strict`` fails on it.
 
 A token counts as a file only when its last segment has an extension
-with a letter in it, so branches (``event/ls5``), addresses, versions,
+with a letter in it, so branches (``feature/rc5``), addresses, versions,
 globs, and directories are skipped. Paths match by suffix, because
 descriptions name files relative to a crate. A bare name nothing tracks
 is an identifier (``Dispatchers.IO``) and is skipped.
@@ -41,7 +41,7 @@ _FENCE = re.compile(r"^(```|~~~).*?^\1", re.MULTILINE | re.DOTALL)
 _TICKED = re.compile(r"`([^`\s]+)`")
 _SUFFIX = re.compile(r"(::\w+|:\d+(?::\d+)?)$")
 # A last segment shaped like a file name: an extension that holds a letter.
-# Branches (event/ls5), addresses, versions, and directories have none.
+# Branches (feature/rc5), addresses, versions, and directories have none.
 _FILE_NAME = re.compile(r"^[\w.-]*\w\.[A-Za-z][A-Za-z0-9]{0,5}$")
 _SKIP_PREFIX = ("-", "~", "/", "...")
 
@@ -96,7 +96,10 @@ def _git(repo: Path, *args: str) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Exit 1 on a phantom path, or on any path outside the diff with --strict."""
+    """Exit 1 on a phantom path, or on any path outside the diff with --strict.
+
+    Exit 2 when git fails, so a bad base is not read as a phantom path.
+    """
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("description", help="description file, or - for stdin")
     parser.add_argument("--base", default="origin/master")
@@ -109,12 +112,18 @@ def main(argv: list[str] | None = None) -> int:
         text = sys.stdin.read()
     else:
         text = Path(args.description).read_text(encoding="utf-8")
-    merge_base = _git(repo, "merge-base", args.base, "HEAD")[0]
-    # --no-renames lists a moved file under both names.
-    changed = _git(repo, "diff", "--name-only", "--no-renames", merge_base)
-    changed += _git(repo, "ls-files", "--others", "--exclude-standard")
-
-    tracked = _git(repo, "ls-files")
+    try:
+        merge_base = _git(repo, "merge-base", args.base, "HEAD")[0]
+        # --no-renames lists a moved file under both names.
+        changed = _git(repo, "diff", "--name-only", "--no-renames", merge_base)
+        changed += _git(repo, "ls-files", "--others", "--exclude-standard")
+        tracked = _git(repo, "ls-files")
+    except subprocess.CalledProcessError as err:
+        print(
+            f"git failed against base {args.base}: {err.stderr.strip()}",
+            file=sys.stderr,
+        )
+        return 2
     report = check(text, changed, tracked)
     for path in report.phantom:
         print(f"phantom: {path}")

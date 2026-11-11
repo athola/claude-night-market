@@ -116,8 +116,14 @@ If issues are found, fix them before proceeding.
 Start from the analyzer rather than from a fresh reading of the diff:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pr_prep_analyze.py" --base origin/main
+base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pr_prep_analyze.py" --base "${base}"
 ```
+
+The base is the remote's default branch, because a repository may use
+`master`, `main` or another name. When `origin/HEAD` is not set, the
+first command fails. Run `git remote set-head origin --auto` once, or
+set `base` to the branch the PR targets.
 
 It reads the branch's changed files and commits, sorts the files into
 feature, test, docs and other, flags any `!` breaking-change marker in
@@ -167,8 +173,12 @@ diff. A description claiming changes the diff lacks merges far less
 often (arXiv 2601.04886):
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/description_paths.py" --base origin/main pr_description.md
+base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/description_paths.py" --base "${base}" pr_description.md
 ```
+
+It exits 1 on a named file that does not exist, and 2 when git cannot
+resolve the base.
 
 Populate the template with the facts table (Who, Where, When), then
 the Why and What-and-how sections, then Test plan and Checklist. Write
