@@ -17,33 +17,33 @@ with public APIs. We also maintain 58 executable hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 0.10.2 | 17 | 14 | 6 | Yes | abstract-skills |
-| archetypes | 0.10.2 | 0 | 15 | 0 | No | - |
-| attune | 0.10.2 | 11 | 14 | 2 | No | - |
-| cartograph | 0.10.2 | 1 | 7 | 1 | No | - |
-| conjure | 0.10.2 | 0 | 11 | 0 | No | quota-tracker, usage-logger, delegator |
-| conserve | 0.10.2 | 6 | 12 | 5 | No | - |
-| egregore | 0.10.2 | 5 | 4 | 2 | No | - |
-| gauntlet | 0.10.2 | 6 | 7 | 1 | Yes | - |
-| herald | 0.10.2 | 0 | 0 | 0 | No | - |
-| hookify | 0.10.2 | 6 | 2 | 0 | No | - |
-| imbue | 0.10.2 | 5 | 16 | 1 | No | - |
-| leyline | 0.10.2 | 3 | 19 | 0 | Yes | - |
-| memory-palace | 0.10.2 | 5 | 10 | 4 | Yes | - |
-| minister | 0.10.2 | 3 | 3 | 0 | Yes | - |
-| oracle | 0.10.2 | 1 | 1 | 0 | Yes | - |
-| parseltongue | 0.10.2 | 3 | 4 | 4 | Yes | parseltongue |
-| pensive | 0.10.2 | 14 | 15 | 6 | Yes | - |
-| phantom | 0.10.2 | 1 | 1 | 1 | Yes | - |
-| sanctum | 0.10.2 | 21 | 18 | 9 | Yes | - |
-| scribe | 0.10.2 | 9 | 11 | 5 | Yes | - |
-| scry | 0.10.2 | 2 | 4 | 1 | No | - |
-| spec-kit | 0.10.2 | 11 | 3 | 3 | Yes | - |
-| tome | 0.10.2 | 4 | 10 | 6 | Yes | - |
+| abstract | 1.10.2 | 17 | 14 | 6 | Yes | abstract-skills |
+| archetypes | 1.10.2 | 0 | 15 | 0 | No | - |
+| attune | 1.10.2 | 11 | 14 | 2 | No | - |
+| cartograph | 1.10.2 | 1 | 7 | 1 | No | - |
+| conjure | 1.10.2 | 0 | 11 | 0 | No | quota-tracker, usage-logger, delegator |
+| conserve | 1.10.2 | 6 | 12 | 5 | No | - |
+| egregore | 1.10.2 | 5 | 4 | 2 | No | - |
+| gauntlet | 1.10.2 | 6 | 7 | 1 | Yes | - |
+| herald | 1.10.2 | 0 | 0 | 0 | No | - |
+| hookify | 1.10.2 | 6 | 2 | 0 | No | - |
+| imbue | 1.10.2 | 5 | 16 | 1 | No | - |
+| leyline | 1.10.2 | 3 | 19 | 0 | Yes | - |
+| memory-palace | 1.10.2 | 5 | 10 | 4 | Yes | - |
+| minister | 1.10.2 | 3 | 3 | 0 | Yes | - |
+| oracle | 1.10.2 | 1 | 1 | 0 | Yes | - |
+| parseltongue | 1.10.2 | 3 | 4 | 4 | Yes | parseltongue |
+| pensive | 1.10.2 | 14 | 15 | 6 | Yes | - |
+| phantom | 1.10.2 | 1 | 1 | 1 | Yes | - |
+| sanctum | 1.10.2 | 21 | 18 | 9 | Yes | - |
+| scribe | 1.10.2 | 9 | 11 | 5 | Yes | - |
+| scry | 1.10.2 | 2 | 4 | 1 | No | - |
+| spec-kit | 1.10.2 | 11 | 3 | 3 | Yes | - |
+| tome | 1.10.2 | 4 | 10 | 6 | Yes | - |
 
 ## Plugin Details
 
-### Abstract (v0.10.2)
+### Abstract (v1.10.2)
 Validation and analysis framework for the ecosystem.
 Includes commands for creating and validating skills, hooks,
 and plugins (`validate-plugin`, `create-skill`).
@@ -52,12 +52,12 @@ Skills focus on governance, authoring, and evaluation, including `skills-eval`,
 A daily learning aggregation hook generates LEARNINGS.md
 and promotes findings to GitHub Issues or Discussions based on severity.
 
-### Archetypes (v0.10.2)
+### Archetypes (v1.10.2)
 Reference library for architecture paradigms.
 Contains 15 skills covering patterns like hexagonal architecture,
 microservices, and event-driven design.
 
-### Attune (v0.10.2)
+### Attune (v1.10.2)
 Project initialization, architecture templates, and strategic decision-making.
 Commands include `arch-init`, `init`,
 `war-room` (multi-expert deliberation with optional agent teams execution for
@@ -65,28 +65,28 @@ Full Council and Delphi modes),
 and `mission` (unified lifecycle orchestrator with state detection
 and session recovery).
 
-### Cartograph (v0.10.2)
+### Cartograph (v1.10.2)
 Codebase visualization through Mermaid Chart MCP.
 Seven diagram skills (architecture, data-flow,
 dependency-graph, workflow, class-diagram, call-chain,
 code-communities), one `/visualize` command, and a
 codebase-explorer agent.
 
-### Conjure (v0.10.2)
+### Conjure (v1.10.2)
 Cross-model delegation and multi-agent coordination.
 Skills like `gemini-delegation`
 and `qwen-delegation` route tasks to specific models,
 while `agent-teams` coordinates parallel Claude Code agents through a
 filesystem-based protocol.
 
-### Conserve (v0.10.2)
+### Conserve (v1.10.2)
 Context window usage and resource management.
 Commands like `bloat-scan`
 and `optimize-context` help developers understand token consumption.
 Skills include `context-optimization`, `clear-context`,
 and `cpu-gpu-performance`.
 
-### Gauntlet (v0.10.2)
+### Gauntlet (v1.10.2)
 Developer reintegration through active recall and spaced
 repetition. Extracts knowledge from codebases, generates
 six challenge types (multiple choice, explain why, trace,
@@ -97,25 +97,25 @@ ML-enhanced answer scoring via a config-as-model pattern
 (YAML coefficients, pure-Python dot product) with optional
 ONNX Runtime inference through the oracle sidecar.
 
-### Herald (v0.10.2)
+### Herald (v1.10.2)
 Standalone notification system for Claude Code plugins.
 Provides GitHub issue alerts and webhook support for
 Slack, Discord, and generic endpoints.
 
-### Hookify (v0.10.2)
+### Hookify (v1.10.2)
 Behavioral rules engine with markdown-based configuration.
 Commands convert Python hooks to declarative rules (`from-hook`),
 manage rule catalogs (`install`, `list`),
 and configure rule activation (`configure`).
 
-### Imbue (v0.10.2)
+### Imbue (v1.10.2)
 Review workflows. Offers commands for catchups,
 reviews, and stewardship health checks
 (`catchup`, `structured-review`, `stewardship-health`).
 Skills include `proof-of-work`, `scope-guard`,
 `rigorous-reasoning`, and `latent-space-engineering`.
 
-### Leyline (v0.10.2)
+### Leyline (v1.10.2)
 Shared patterns and utilities library.
 Allows for bulk plugin updates via `reinstall-all-plugins`.
 Skills cover authentication,
@@ -130,7 +130,7 @@ helper centralizes cross-plugin `sys.path` setup so plugin
 scripts can import shared modules without ad-hoc path
 manipulation.
 
-### Memory-Palace (v0.10.2)
+### Memory-Palace (v1.10.2)
 Knowledge management organization. Commands include
 `garden` (digital garden curation), `palace` (spatial
 palace construction), `navigate` (cross-palace
@@ -138,12 +138,12 @@ lookup), `review-room` (PR-review capture), and
 `skill-logs` (per-skill execution history). Skills
 focus on knowledge intake and retrieval.
 
-### Minister (v0.10.2)
+### Minister (v1.10.2)
 GitHub issue management and initiative tracking.
 Commands include `create-issue`, `close-issue`, and `update-labels`.
 Skills provide release health gates and initiative pulse dashboards.
 
-### Oracle (v0.10.2)
+### Oracle (v1.10.2)
 ONNX Runtime inference sidecar for the plugin ecosystem.
 Runs an HTTP daemon in an isolated Python 3.11+ venv
 provisioned by uv, serving model inference on localhost.
@@ -154,12 +154,12 @@ installing the plugin does nothing until the user runs
 `/oracle:setup`. Provides the `setup` command and a
 `sidecar-status` skill.
 
-### Parseltongue (v0.10.2)
+### Parseltongue (v1.10.2)
 Python development utilities. Includes tools for analyzing tests
 and profiling performance (`analyze-tests`, `run-profiler`).
 Skills support async programming and packaging.
 
-### Pensive (v0.10.2)
+### Pensive (v1.10.2)
 Code review and analysis framework.
 Provides specific review commands for various languages
 and domains, such as `api-review`, `rust-review`, and
@@ -167,20 +167,20 @@ and domains, such as `api-review`, `rust-review`, and
 NASA Power of 10 rules and `tiered-audit` for
 three-tier escalation analysis.
 
-### Phantom (v0.10.2)
+### Phantom (v1.10.2)
 Computer use toolkit for driving desktop environments
 through Claude's vision and action API. Provides
 screenshot capture, mouse/keyboard control, and an
 autonomous agent loop via the `desktop-pilot` agent.
 
-### Sanctum (v0.10.2)
+### Sanctum (v1.10.2)
 Git workflow automation.
 Handles tasks from commit message generation to PR reviews with mandatory code
 quality analysis. Commands include `fix-pr`, `merge-docs`,
 and `update-dependencies`. Hooks include a PostToolUse deferred-item watcher
 and a Stop hook that sweeps the session ledger to file GitHub issues.
 
-### Scribe (v0.10.2)
+### Scribe (v1.10.2)
 Documentation quality enforcement.
 Commands include `doc-polish` (interactive editing),
 `doc-generate` (documentation generation), `style-learn` (style profiling),
@@ -202,17 +202,17 @@ empirical baseline calibration, and a
 cleanup-workflow walkthrough; the `anti-goals`
 module guards against over-correction.
 
-### Scry (v0.10.2)
+### Scry (v1.10.2)
 Terminal and browser session recording.
 Supports creating media assets with commands like `record-browser`
 and `record-terminal`.
 
-### Spec-Kit (v0.10.2)
+### Spec-Kit (v1.10.2)
 Specification-driven development.
 Offers a suite of commands for planning, specifying,
 and implementing features based on strict requirements.
 
-### Egregore (v0.10.2)
+### Egregore (v1.10.2)
 Autonomous agent orchestrator for development lifecycles.
 Commands include `summon` (spawn sessions), `dismiss`
 (terminate), `status` (check progress),
@@ -221,7 +221,7 @@ recovery). Skills cover session spawning with budget
 management (`summon`), pre-merge validation
 (`quality-gate`), and watchdog lifecycle management.
 
-### Tome (v0.10.2)
+### Tome (v1.10.2)
 Multi-source research plugin for code archaeology,
 community discourse, academic literature, and TRIZ
 cross-domain analysis.

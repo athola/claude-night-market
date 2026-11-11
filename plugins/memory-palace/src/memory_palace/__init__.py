@@ -89,4 +89,4 @@ def __dir__() -> list[str]:
     return sorted({*globals(), *__all__})
 
 
-__version__ = "0.10.2"
+__version__ = "1.10.2"

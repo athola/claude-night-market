@@ -455,7 +455,7 @@ wheels = [
 
 [[package]]
 name = "hookify"
-version = "0.10.2"
+version = "1.10.2"
 source = { virtual = "." }
 dependencies = [
     { name = "pyyaml" },

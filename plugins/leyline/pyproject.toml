@@ -1,6 +1,6 @@
 [project]
 name = "leyline"
-version = "0.10.2"
+version = "1.10.2"
 description = "Infrastructure and pipeline building blocks for Claude Code plugins"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}

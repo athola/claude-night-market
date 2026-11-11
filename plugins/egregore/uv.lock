@@ -443,7 +443,7 @@ wheels = [
 
 [[package]]
 name = "egregore-dev"
-version = "0.10.2"
+version = "1.10.2"
 source = { editable = "." }
 dependencies = [
     { name = "pyyaml" },

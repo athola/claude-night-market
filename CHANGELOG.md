@@ -7,48 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.10.2] - 2026-11-10
-
-This release number is lower than 1.10.2 by the maintainer's choice.
-Version-ordered update tools see it as older than 1.10.2.
-
-### Added
-
-- **PR descriptions are checked against the diff.**
-  `plugins/sanctum/scripts/description_paths.py` reads the paths a
-  description names in backticks. It fails on a path that is neither in
-  the diff nor in the tree, and warns on one that exists but is
-  untouched (`--strict` fails on that too). Uncommitted and untracked
-  files count as changed, because a draft comes before the last commit.
-  Branches, addresses, globs, directories, and bare identifiers are
-  skipped. Over 200 real MR descriptions, 5 named files never existed
-  in git, and 3 of those were legitimate device or build paths.
-  A git failure, such as an unknown `--base`, exits 2 and names the
-  base. pr-prep runs it before posting. Descriptions claiming changes the diff
-  lacks merge at 28.3% against 80.0% (arXiv 2601.04886).
-
-- **spec-kit `spec-register` module** for specs of a system that already
-  exists: a terms table, a Planned tag on what is not built, no "will",
-  and normative keywords in capitals only when the spec adopts RFC 8174.
-
-### Changed
-
-- **Tickets and PR descriptions copy the project's own shape first.**
-  About 120 hand edits to agent MR descriptions and 67 edited Jira
-  tickets in two GitLab projects deleted the default `Why:` /
-  `Done when:` labels and the facts table, and rebuilt fix MRs in the
-  team's bug template. `leyline:ticket-writing`,
-  `sanctum:pr-prep`, `/prepare-pr`, and `pr-agent` now sample three
-  recent human-edited items and use their shape. The old shapes apply
-  only where a project has none. ADR-0021 carries the amendment.
-
-- **STE leaves contractions alone in MR, PR, and ticket text a person
-  edits.** The scope tables in the rule file and the scribe skill say so.
-
-- **The slop detector's anti-goals name the replacement tell.** Swapping
-  ", so" for ", causing" or ", resulting in" keeps the same tail.
-
-## [1.10.2] - 2026-11-07
+## [1.10.2] - 2026-11-11
 
 One entry below is marked Breaking, and this release ships it under a
 patch number as the maintainer's choice of version: the fold removes no
@@ -91,6 +50,23 @@ capability, and a caller needs only the one-line change its entry describes.
   at or above `--max-tokens` is refused up front instead of failing at
   the API.
 
+- **PR descriptions are checked against the diff.**
+  `plugins/sanctum/scripts/description_paths.py` reads the paths a
+  description names in backticks. It fails on a path that is neither in
+  the diff nor in the tree, and warns on one that exists but is
+  untouched (`--strict` fails on that too). Uncommitted and untracked
+  files count as changed, because a draft comes before the last commit.
+  Branches, addresses, globs, directories, and bare identifiers are
+  skipped. Over 200 real MR descriptions, 5 named files never existed
+  in git, and 3 of those were legitimate device or build paths.
+  A git failure, such as an unknown `--base`, exits 2 and names the
+  base. pr-prep runs it before posting. Descriptions claiming changes the diff
+  lacks merge at 28.3% against 80.0% (arXiv 2601.04886).
+
+- **spec-kit `spec-register` module** for specs of a system that already
+  exists: a terms table, a Planned tag on what is not built, no "will",
+  and normative keywords in capitals only when the spec adopts RFC 8174.
+
 ### Changed
 
 - **Shorter skill descriptions in six rarely invoked plugins.** Every
@@ -126,6 +102,21 @@ capability, and a caller needs only the one-line change its entry describes.
   aside like unparseable JSON. Files written before this change load
   unchanged, and entries that never began an evaluation are stored
   without the `eval_*` keys.
+
+- **Tickets and PR descriptions copy the project's own shape first.**
+  About 120 hand edits to agent MR descriptions and 67 edited Jira
+  tickets in two GitLab projects deleted the default `Why:` /
+  `Done when:` labels and the facts table, and rebuilt fix MRs in the
+  team's bug template. `leyline:ticket-writing`,
+  `sanctum:pr-prep`, `/prepare-pr`, and `pr-agent` now sample three
+  recent human-edited items and use their shape. The old shapes apply
+  only where a project has none. ADR-0021 carries the amendment.
+
+- **STE leaves contractions alone in MR, PR, and ticket text a person
+  edits.** The scope tables in the rule file and the scribe skill say so.
+
+- **The slop detector's anti-goals name the replacement tell.** Swapping
+  ", so" for ", causing" or ", resulting in" keeps the same tail.
 
 ### Deprecated
 
