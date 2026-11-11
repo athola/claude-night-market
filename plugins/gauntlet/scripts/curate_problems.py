@@ -79,7 +79,7 @@ def survey_bank_coverage(problems_dir: Path) -> dict[str, int]:
     for yaml_file in sorted(problems_dir.glob("*.yaml")):
         if yaml_file.name.startswith("_"):
             continue
-        data = _load_yaml_safe(yaml_file)
+        data = _load_yaml_mapping(yaml_file)
         problems = data.get("problems", [])
         if not problems:
             continue
@@ -179,7 +179,7 @@ def generate_report(problems_dir: Path, output_path: Path) -> None:
     Never modifies any file inside *problems_dir*.
     """
     manifest_path = problems_dir / "_manifest.yaml"
-    manifest = _load_yaml_safe(manifest_path) if manifest_path.exists() else {}
+    manifest = _load_yaml_mapping(manifest_path) if manifest_path.exists() else {}
     manifest_categories = manifest.get("categories", [])
 
     coverage = survey_bank_coverage(problems_dir)
@@ -234,7 +234,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
 # ---------------------------------------------------------------------------
 
 
-def _load_yaml_safe(path: Path) -> dict[str, Any]:
+def _load_yaml_mapping(path: Path) -> dict[str, Any]:
     """Load the mapping in *path*; an empty file is an empty mapping.
 
     A file that does not parse, or whose top level is not a mapping, raises
