@@ -184,3 +184,88 @@ class TestMain:
         _commit_as(repo, "Ana", "app/ui/view.py", "v = 2\n")
         main(["--repo", str(repo), "--base", base])
         assert "inside the author's lanes" in capsys.readouterr().out
+
+
+class TestCodeownersForms:
+    """The pattern forms GitHub accepts beyond the two above."""
+
+    def test_unanchored_directory_pattern_matches_at_any_depth(self) -> None:
+        """GIVEN a directory pattern without a leading slash
+        WHEN a nested path sits under a directory of that name
+        THEN it matches.
+        """
+        rules = parse_codeowners("ui/ @design\n")
+        assert owners_for("app/ui/view.py", rules) == ["@design"]
+        assert owners_for("app/core/logic.py", rules) == []
+
+    def test_anchored_file_pattern_matches_only_from_the_root(self) -> None:
+        """GIVEN an anchored file pattern
+        WHEN the same file name sits deeper in another tree
+        THEN only the rooted path matches.
+        """
+        rules = parse_codeowners("/app/core/logic.py @ben\n")
+        assert owners_for("app/core/logic.py", rules) == ["@ben"]
+        assert owners_for("vendor/app/core/logic.py", rules) == []
+
+    def test_a_later_rule_without_owners_clears_earlier_ones(self) -> None:
+        """GIVEN a catch-all owner and a later ownerless rule
+        WHEN a path matches the ownerless rule
+        THEN it has no owner, as GitHub reads it.
+        """
+        rules = parse_codeowners("* @all\n/vendor/\n")
+        assert owners_for("vendor/lib.py", rules) == []
+
+
+class TestMainPaths:
+    """Entry-point paths the PR flow depends on."""
+
+    def test_codeowners_routing_is_printed_for_the_who_row(
+        self, team_repo: tuple[Path, str], capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """GIVEN CODEOWNERS covers the changed directory
+        WHEN the report is printed
+        THEN it says GitHub's owners will be requested.
+        """
+        repo, base = team_repo
+        (repo / "CODEOWNERS").write_text("/app/core/ @org/core\n")
+        _commit_as(repo, "Ana", "app/core/logic.py", "x = 3\n")
+        main(["--repo", str(repo), "--base", base])
+        assert "CODEOWNERS requests @org/core" in capsys.readouterr().out
+
+    def test_base_defaults_to_origins_head_branch(
+        self, team_repo: tuple[Path, str], capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """GIVEN origin/HEAD points at the base commit and no --base is given
+        WHEN the report runs
+        THEN it measures against that branch.
+        """
+        repo, base = team_repo
+        _git(repo, "update-ref", "refs/remotes/origin/main", base)
+        _git(
+            repo, "symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/main"
+        )
+        _commit_as(repo, "Ana", "app/core/logic.py", "x = 3\n")
+        assert main(["--repo", str(repo)]) == 0
+        assert "Ask Ben or Cy" in capsys.readouterr().out
+
+    def test_an_unknown_base_exits_2_and_names_it(
+        self, team_repo: tuple[Path, str], capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """GIVEN a base git cannot resolve
+        WHEN the report runs
+        THEN it exits 2 naming the base, not with a traceback.
+        """
+        repo, _ = team_repo
+        assert main(["--repo", str(repo), "--base", "no-such-ref"]) == 2
+        assert "no-such-ref" in capsys.readouterr().err
+
+    def test_a_root_level_file_is_its_own_lane(
+        self, team_repo: tuple[Path, str]
+    ) -> None:
+        """GIVEN a change to a file at the repository root
+        WHEN lanes are computed
+        THEN it is reported under the root directory.
+        """
+        repo, base = team_repo
+        _commit_as(repo, "Ana", "README.md", "hi\n")
+        assert [lane.directory for lane in lanes(repo, base)] == ["."]

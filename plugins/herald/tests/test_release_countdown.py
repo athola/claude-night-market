@@ -12,6 +12,7 @@ import subprocess
 from unittest.mock import MagicMock, patch
 
 import pytest
+import release_countdown
 from notify import send_text
 from release_countdown import (
     DEPARTED,
@@ -204,3 +205,88 @@ class TestSendText:
         """
         assert send_text("http://127.0.0.1/x", "hello") is False
         run.assert_not_called()
+
+
+class TestMainRuns:
+    """The entry point with a webhook configured, on a clock no test waits on."""
+
+    @pytest.fixture
+    def fast(self, monkeypatch: pytest.MonkeyPatch) -> FakeClock:
+        """Run main's countdown on a fake clock and a configured webhook."""
+        clock = FakeClock()
+        real = release_countdown.run_countdown
+        monkeypatch.setattr(
+            release_countdown,
+            "run_countdown",
+            lambda window, announce, paused: real(
+                window, announce, paused, clock=clock.time, sleep=clock.sleep
+            ),
+        )
+        monkeypatch.setenv("RELEASE_WEBHOOK_URL", "https://hooks.slack.com/x")
+        return clock
+
+    def test_an_unpaused_release_departs_and_is_announced_as_release(
+        self, fast: FakeClock
+    ) -> None:
+        """GIVEN a webhook and no pause issue
+        WHEN main runs a one-minute window
+        THEN it exits DEPARTED and every message goes out labeled release.
+        """
+        with patch("release_countdown.send_text", return_value=True) as send:
+            with patch("release_countdown.open_pause_issues", return_value=False):
+                code = main(["--minutes", "1", "--release", "v9", "--repo", "o/r"])
+        assert code == DEPARTED
+        assert all(c.kwargs["source"] == "release" for c in send.call_args_list)
+        assert "o/r" in send.call_args_list[0].args[1]
+
+    def test_a_pause_issue_makes_main_exit_paused(self, fast: FakeClock) -> None:
+        """GIVEN an open pause issue
+        WHEN main runs
+        THEN it exits PAUSED.
+        """
+        with patch("release_countdown.send_text", return_value=True):
+            with patch("release_countdown.open_pause_issues", return_value=True):
+                code = main(["--minutes", "1", "--release", "v9", "--repo", "o/r"])
+        assert code == PAUSED
+
+    def test_a_zero_minute_window_fails_closed_before_announcing(
+        self, fast: FakeClock, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """GIVEN --minutes 0
+        WHEN main runs
+        THEN it fails closed, says why, and announces nothing.
+        """
+        with patch("release_countdown.send_text") as send:
+            code = main(["--minutes", "0", "--release", "v9", "--repo", "o/r"])
+        assert code == FAILED_CLOSED
+        assert "1 and 60" in capsys.readouterr().err
+        send.assert_not_called()
+
+
+def test_gh_output_that_is_not_a_count_is_unknown() -> None:
+    """GIVEN gh prints something other than a number
+    WHEN the pause check reads it
+    THEN it returns None rather than guessing unpaused.
+    """
+    odd = MagicMock(returncode=0, stdout="null\n", stderr="")
+    with patch("release_countdown.subprocess.run", return_value=odd):
+        assert open_pause_issues("o/r", "release:pause") is None
+
+
+@pytest.mark.parametrize(
+    ("webhook_format", "expected"),
+    [("discord", '"content": "[release] hi"'), ("generic", '"detail": "hi"')],
+)
+@patch("subprocess.run")
+def test_send_text_shapes_discord_and_generic_payloads(
+    run: MagicMock, webhook_format: str, expected: str
+) -> None:
+    """GIVEN a Discord or generic webhook
+    WHEN text is sent
+    THEN the payload uses that format's field.
+    """
+    run.return_value = subprocess.CompletedProcess([], 0, "", "")
+    with patch("notify.validate_webhook_url", return_value="203.0.113.7"):
+        assert send_text("https://example.com/x", "hi", webhook_format, "release")
+    argv = run.call_args.args[0]
+    assert expected in argv[argv.index("-d") + 1]
