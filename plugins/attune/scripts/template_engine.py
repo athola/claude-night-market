@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Callable
 from datetime import datetime
@@ -29,7 +30,7 @@ class TemplateEngine:
         Args:
             template_content: Template string with {{VAR}} placeholders
             escape: Applied to each substituted value, for output formats
-                whose strings need it (TOML)
+                whose strings need it (TOML, JSON)
 
         Returns:
             Rendered string with variables substituted
@@ -56,9 +57,11 @@ class TemplateEngine:
 
         """
         content = template_path.read_text()
-        # The TOML templates put every variable inside a basic string, where
-        # a quote or backslash in an author or description broke the file.
-        escape = toml_basic_escape if output_path.suffix == ".toml" else None
+        # The TOML and JSON templates put every variable inside a string,
+        # where a quote or backslash in an author or description broke the file.
+        escape = {".toml": toml_basic_escape, ".json": json_string_escape}.get(
+            output_path.suffix
+        )
         rendered = self.render(content, escape)
 
         # Create parent directory if it doesn't exist
@@ -73,6 +76,11 @@ def toml_basic_escape(value: str) -> str:
     return re.sub(
         r"[\x00-\x08\x0a-\x1f\x7f]", lambda m: f"\\u{ord(m.group()):04x}", escaped
     )
+
+
+def json_string_escape(value: str) -> str:
+    """Escape ``value`` for use inside a JSON string literal."""
+    return json.dumps(value)[1:-1]
 
 
 def python_module_name(project_name: str) -> str:

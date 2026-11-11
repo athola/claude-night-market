@@ -169,3 +169,41 @@ class TestSkillLibraryCommand:
         )
         assert "./commands/skill-library.md" in manifest["commands"]
         assert "./skills/skill-library-mission" in manifest["skills"]
+
+
+class TestSkillLibraryMissionState:
+    """
+    Feature: the mission state block is a valid state file
+
+    As a session resuming a skill-library mission
+    I want the documented state JSON to parse and name every phase field
+    So that a state file copied from the skill can be resumed from
+    """
+
+    @staticmethod
+    def _state_block() -> dict:
+        content = SKILL_FILE.read_text(encoding="utf-8")
+        section = content.split("## Mission Shape", 1)[1]
+        fenced = section.split("```json", 1)[1].split("```", 1)[0]
+        return json.loads(fenced)
+
+    @pytest.mark.unit
+    def test_every_phase_has_name_status_and_artifact(self):
+        """
+        Scenario: the Mission Shape JSON carries the per-phase fields
+        Given the fenced JSON under "## Mission Shape"
+        When I parse it
+        Then every phase has name, status and artifact keys
+        And current_phase names one of those phases
+        """
+        state = self._state_block()
+        phases = state["phases"]
+        assert [p["name"] for p in phases] == [
+            "discover",
+            "author",
+            "review",
+            "report",
+        ]
+        for phase in phases:
+            assert {"name", "status", "artifact"} <= phase.keys(), phase
+        assert state["current_phase"] in {p["name"] for p in phases}

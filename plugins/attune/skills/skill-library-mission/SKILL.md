@@ -88,8 +88,9 @@ interruption and records user directives:
 }
 ```
 
-The field names and the per-phase shape are the ones
-`Skill(attune:mission-orchestrator)` reads on `--resume`.
+The field names match the state file `Skill(attune:mission-orchestrator)`
+writes. Its routing table has no `discover` or `author` phase. Resume
+with `/attune:skill-library --resume`, which re-invokes this skill.
 
 Save this to `.attune/mission-state.json`, advance `current_phase` at
 each gate, and record every user decision and override in

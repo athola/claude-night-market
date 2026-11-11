@@ -3,12 +3,18 @@
 Following BDD principles with Given/When/Then structure.
 """
 
+import json
 import subprocess
 from pathlib import Path
 
 import pytest
 
-from template_engine import TemplateEngine, get_default_variables
+from template_engine import TemplateEngine, get_default_variables, toml_basic_escape
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python < 3.11; pytest depends on tomli there
+    import tomli as tomllib
 
 
 @pytest.mark.unit
@@ -545,6 +551,16 @@ class TestTomlOutputIsEscaped:
         lines = out.read_text().splitlines()
         assert 'authors = ["A \\"Q\\" B <a@b.c>"]' in lines
         assert 'description = "Say \\"hi\\" \\\\d"' in lines
+        cargo = tomllib.loads(out.read_text())
+        assert cargo["package"]["authors"] == ['A "Q" B <a@b.c>']
+        assert cargo["package"]["description"] == 'Say "hi" \\d'
+
+    def test_control_characters_become_unicode_escapes(self):
+        """A newline or DEL in a value cannot end or corrupt the TOML string."""
+        escaped = toml_basic_escape("a\nb\x7fc\td")
+
+        assert escaped == "a\\u000ab\\u007fc\td"
+        assert tomllib.loads(f'k = "{escaped}"')["k"] == "a\nb\x7fc\td"
 
     def test_non_toml_output_is_left_as_written(self, tmp_path):
         """A Makefile or README gets the value verbatim."""
@@ -555,6 +571,34 @@ class TestTomlOutputIsEscaped:
         TemplateEngine({"PROJECT_NAME": 'say "hi"'}).render_file(template, out)
 
         assert out.read_text() == '# say "hi"\n'
+
+
+class TestJsonOutputIsEscaped:
+    """A quote or backslash in a value must not break a generated JSON file."""
+
+    def test_package_json_with_quotes_and_backslashes_parses(self, tmp_path):
+        """`Say "hi"` as a description wrote `"description": "Say "hi""`."""
+        template = (
+            Path(__file__).parents[1]
+            / "templates"
+            / "typescript"
+            / "package.json.template"
+        )
+        engine = TemplateEngine(
+            get_default_variables(
+                "demo",
+                language="typescript",
+                author="Dom\\User",
+                description='Say "hi"',
+            )
+        )
+        out = tmp_path / "package.json"
+
+        engine.render_file(template, out)
+
+        package = json.loads(out.read_text())
+        assert package["description"] == 'Say "hi"'
+        assert package["author"].startswith("Dom\\User <")
 
 
 class TestRustMakefileTemplate:
