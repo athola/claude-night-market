@@ -31,7 +31,6 @@ if _scripts_path not in sys.path:
     sys.path.insert(0, _scripts_path)
 
 import aggregate_learnings_daily  # noqa: E402 - import after sys.path setup
-import auto_promote_learnings  # noqa: E402 - import after sys.path setup
 from aggregate_skill_logs import (  # noqa: E402 - import after sys.path setup
     AggregationResult,
     SkillLogSummary,
@@ -319,28 +318,6 @@ class TestAutoPromoteChaining:
     UserPromptSubmit timeout.
     """
 
-    def test_does_not_call_auto_promote(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Given: Aggregation completed successfully
-        When: run_daily_pipeline() is called
-        Then: auto_promote is NOT triggered (moved to Stop hook)
-        """
-        monkeypatch.setattr(
-            hook_module, "run_aggregation", MagicMock(return_value=True)
-        )
-        mock_promote = MagicMock()
-        monkeypatch.setattr(auto_promote_learnings, "run_auto_promote", mock_promote)
-        monkeypatch.setattr(
-            hook_module, "should_aggregate", MagicMock(return_value=True)
-        )
-        monkeypatch.setattr(
-            hook_module, "has_logs_to_aggregate", MagicMock(return_value=True)
-        )
-
-        hook_module.run_daily_pipeline()
-        mock_promote.assert_not_called()
-
     def test_hook_has_no_auto_promote_stage(self, hook_module) -> None:
         """The Stop hook owns promotion; a second copy here had no caller."""
         assert not hasattr(hook_module, "run_auto_promote")
@@ -351,31 +328,26 @@ class TestAutoPromoteChaining:
     ) -> None:
         """Given: Aggregation is not due (<24h since last run)
         When: run_daily_pipeline() is called
-        Then: Neither aggregation nor promotion runs
+        Then: Aggregation does not run
         """
         mock_agg = MagicMock()
-        mock_promote = MagicMock()
         monkeypatch.setattr(hook_module, "run_aggregation", mock_agg)
-        monkeypatch.setattr(auto_promote_learnings, "run_auto_promote", mock_promote)
         monkeypatch.setattr(
             hook_module, "should_aggregate", MagicMock(return_value=False)
         )
 
         hook_module.run_daily_pipeline()
         mock_agg.assert_not_called()
-        mock_promote.assert_not_called()
 
     def test_skips_when_no_logs_to_aggregate(
         self, hook_module, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Given: Aggregation is due but no log files exist
         When: run_daily_pipeline() is called
-        Then: Neither aggregation nor promotion runs
+        Then: Aggregation does not run
         """
         mock_agg = MagicMock()
-        mock_promote = MagicMock()
         monkeypatch.setattr(hook_module, "run_aggregation", mock_agg)
-        monkeypatch.setattr(auto_promote_learnings, "run_auto_promote", mock_promote)
         monkeypatch.setattr(
             hook_module, "should_aggregate", MagicMock(return_value=True)
         )
@@ -385,7 +357,6 @@ class TestAutoPromoteChaining:
 
         hook_module.run_daily_pipeline()
         mock_agg.assert_not_called()
-        mock_promote.assert_not_called()
 
     def test_updates_timestamp_only_on_success(
         self, hook_module, timestamp_path: Path, monkeypatch: pytest.MonkeyPatch
