@@ -92,6 +92,14 @@ git log --oneline "$(git merge-base HEAD "$base")"..HEAD | \
   grep -iE '(fmt|format|lint|style|whitespace)' || true
 ```
 
+**Machine review:**
+
+Run a machine review of the diff before the PR opens. The human
+reviewer then spends their time on what a machine cannot judge. Use
+`Skill(pensive:unified-review)` for a change that spans several
+dimensions, or `/code-review` for a smaller one. Fix or answer each
+finding before posting.
+
 **Additive bias audit:**
 
 Run `Skill(imbue:justify)` to compute the additive bias
@@ -108,6 +116,7 @@ proceeding. If RED or STOP, rethink the approach.
 - [ ] No formatting changes mixed with logic changes
 - [ ] No fixup commits that should be squashed
 - [ ] Additive bias score is GREEN or justified YELLOW
+- [ ] Each machine-review finding is fixed or answered
 - [ ] Iron Law compliance: PASS (no test tampering)
 
 If issues are found, fix them before proceeding.
@@ -181,6 +190,14 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/description_paths.py" --base "${base}" pr
 It exits 1 on a named file that does not exist, and 2 when git cannot
 resolve the base.
 
+Find who should review the parts of the change outside the author's
+lane. The script reads each touched directory's history up to the
+base, honors CODEOWNERS first, and prints names for the Who row:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/review_routing.py" --base "${base}"
+```
+
 Populate the template with the facts table (Who, Where, When), then
 the Why and What-and-how sections, then Test plan and Checklist. Write
 the title imperative and self-contained so it reads correctly in `git
@@ -247,6 +264,9 @@ If project-specific commands like `make` or `npm` are unavailable, verify the en
 - [ ] Facts table present with all three rows (Who, Where, When)
       filled, including the `External:` half of Where, or the
       project's own shape used instead (Project template first)
+- [ ] `review_routing.py` ran, and each directory it reports as
+      outside the author's lane names its suggested reviewer in the
+      Who row, or the description says why none is needed
 - [ ] `description_paths.py` ran on the description file. Each
       `phantom` line is fixed, or is a device or build path outside
       git. Each `not in diff` line names a file the description means

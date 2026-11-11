@@ -130,7 +130,9 @@ reader cannot tell a missing blast radius from a blast radius of none.
 **Who**: who feels this change. Name the audience, not the author.
 Codeowners handle routine reviewer assignment, so only name a person
 when the change needs routing they would not get automatically
-(security review, a docs owner, a downstream team).
+(security review, a docs owner, a downstream team, or an author
+working outside their lane, which `scripts/review_routing.py`
+reports).
 
 **Where**: two halves, and the second is the one people forget.
 Internal is the module or package plus a file count. External is any
