@@ -84,3 +84,15 @@ def test_dual_output_prompt_pack(tmp_path: Path) -> None:
     prompt_path = tmp_path / "docs" / "prompts" / "marginal-value-dual.md"
     assert prompt_path.exists()
     assert summary["prompt_pack"] == "marginal-value-dual"
+
+
+def test_a_title_with_no_letters_or_digits_slugs_to_intake_entry() -> None:
+    """GIVEN an intake title with nothing a slug can keep
+    WHEN it is slugified
+    THEN it falls back to intake-entry, while a real title "Untitled"
+    still slugs to untitled.
+    """
+    cli = load_cli_module()
+    assert cli.slugify("") == "intake-entry"
+    assert cli.slugify("!!! ---") == "intake-entry"
+    assert cli.slugify("Untitled") == "untitled"
