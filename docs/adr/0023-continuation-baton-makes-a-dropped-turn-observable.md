@@ -146,5 +146,5 @@ is what makes two tests fail when the mechanism degrades.
   and its contract land first.
 - **Negative / debt accepted**: The deadline is chosen by the session,
   and a session that consistently underestimates its next unit will
-  strand batons on healthy runs. No calibration exists; the grace
+  strand batons on healthy runs. No calibration exists. The grace
   period is a judgment the caller passes in.

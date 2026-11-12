@@ -20,7 +20,7 @@ pass then searches the right channel less.
 
 A five-channel research pass was run before designing the fix. This ADR
 records what it decided and what it rejected. The working synthesis is
-local and untracked by design; the decision is here and the contract is
+local and untracked by design. The decision is here and the contract is
 in `plugins/tome/tests/unit/test_channel_outcomes.py`.
 
 ## Decision
@@ -88,7 +88,7 @@ effective sample for tuning is far smaller than the corpus.
 It counts a reported subset. The threshold compares against
 `session.findings`, which is what the agents chose to report, and their
 own instructions cap that ("at most 10 findings", "top 2-3 posts"). The
-count of results a query actually returned lives in the query log and
+count of results a query actually returned is in the query log and
 feeds `channel_outcomes` instead. A threshold fitted to the reported
 number would shift the next time an agent's markdown reworded a cap.
 
@@ -189,7 +189,7 @@ the minimum publication density the spent budget could have found.
 
 The TRIZ pass supplied the reason this specific property matters.
 Separating the cases on a condition is the right frame, but a condition
-derived from result volume cannot adjudicate result volume; it stays
+derived from result volume cannot adjudicate result volume. It stays
 circular until the condition is instrumented by something else. A
 control is that something else.
 
@@ -226,7 +226,7 @@ canary target can go stale as an index changes, reporting a false
 defect. Neither is addressed.
 
 Nothing here detects a field that exists under different vocabulary. A
-control proves a channel can see; it cannot prove the query used the
+control proves a channel can see. It cannot prove the query used the
 words the field uses. That failure mode is open.
 
 The claim that no integrated quantitative coverage estimator exists in

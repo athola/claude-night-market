@@ -6,7 +6,7 @@
 
 Claude Night Market exposes 23 plugins through CLI
 commands, Python packages, and skill-based APIs. The
-inventory below is the canonical surface; per-plugin
+inventory below is the canonical surface. Per-plugin
 details follow in the next section.
 
 ## API Inventory
@@ -199,7 +199,7 @@ covering identity-and-voice leaks, hallucination
 detection, stub-and-deferral handling, document
 economy, evidence-backed claims, vocabulary patterns,
 empirical baseline calibration, and a
-cleanup-workflow walkthrough; the `anti-goals`
+cleanup-workflow walkthrough. The `anti-goals`
 module guards against over-correction.
 
 ### Scry (v1.10.2)
@@ -234,7 +234,7 @@ problem solving).
 
 ## API Quality Assessment
 
-Plugins are validated by `ruff`, `mypy`, and `bandit` in CI; the
+Plugins are validated by `ruff`, `mypy`, and `bandit` in CI. The
 `make validate-all` target runs the same gates locally. Directory
 structure is verified by `abstract:validate-plugin` and the
 `/sanctum:update-plugins` audit. Current focus: normalizing command

@@ -74,7 +74,7 @@ is useless. Every creativity metric is therefore paired with relevance.
 
 **Guardrail.** Score novelty only jointly with relevance (a bandit
 exploit/explore split), and apply an exploration-saturation stop so
-speculative "further research paths" stay bounded, not a flood.
+speculative "further research paths" stay bounded.
 
 ## Dimension 4: Performance
 
@@ -97,7 +97,7 @@ speed alone makes a fast-but-useless run look good.
 
 Downstream influence and structural importance. Powerful and cheap to
 compute from the graph, but the most bias-prone. Normalization is
-mandatory, not optional.
+mandatory.
 
 | Metric | Formula / source | Status |
 |--------|------------------|--------|
@@ -119,8 +119,8 @@ module this page cites still exists.
 **Guardrail (evidence-backed, non-negotiable).** The disruption index is
 biased by citation inflation, depends on the chosen citation-window
 length, and barely overlaps with other novelty constructs. So: compare
-only within field and publication-year cohort; fix and disclose the
-citation window; never present a single collapsed "impact" number.
+only within field and publication-year cohort. Fix and disclose the
+citation window. Never present a single collapsed "impact" number.
 
 ## Composite index
 
@@ -147,7 +147,7 @@ to five.
   in-repo set), committed under `tests/fixtures/`. The fixtures keep
   nDCG/MRR/recall reproducible offline with no network and no LLM.
 - **Before/after protocol.** Run the same topics through the current
-  pipeline and the upgraded one; report the per-dimension delta. A
+  pipeline and the upgraded one. Report the per-dimension delta. A
   metric that does not move on the benchmark does not justify its code.
 - **Persistence.** Computed scores are ephemeral today (recomputed each
   run, never stored). Persist them on `Finding.metadata` and in the

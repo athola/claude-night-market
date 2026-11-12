@@ -25,7 +25,7 @@ The distinctive guideline from rails-ai-context, verbatim:
 > call in THIS turn.
 
 This is a stronger version of Karpathy Principle 1 (Think Before
-Coding). Our current AP-1 says "list silent assumptions"; this
+Coding). Our current AP-1 says "list silent assumptions". This
 pattern enforces a typed assumption discipline at the
 line-of-output level. Every claim the agent emits carries its
 epistemic status.
@@ -36,7 +36,7 @@ epistemic status.
 |------|--------------|----------|
 | Hook scanning agent output for unmarked factual claims | Hard regex; high false-positive rate | Low precision, hard to specify |
 | Skill that retrains output style for one tag per claim | Forces typed output | Large prose-style change; conversational tone disruption |
-| Style guide encouraging tags for ambiguous statements | Lightweight; opt-in | Easily ignored; no enforcement |
+| Style guide encouraging tags for ambiguous statements | Lightweight, opt-in | Easily ignored, no enforcement |
 | Per-domain pilot inside one skill family (e.g. imbue introspection output) | Bounded scope | Cannot test cross-skill effects |
 
 None is a small surgical edit. Each has a different cost/benefit

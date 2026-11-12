@@ -45,6 +45,6 @@ Two ship here. conserve's `hooks/context-band.tsx` draws context fill and
 prompt-cache reuse above the prompt beside `context_warning.py`, which
 stays the part Claude reads. egregore's `hooks/loop-band.tsx` draws the
 active work item and answers `/egregore-loop` without a model turn. Their
-kit tests live in each plugin's `mod-tests/`, out of pytest's reach, and
+kit tests are in each plugin's `mod-tests/`, out of pytest's reach, and
 `tests/test_make_test_mods.py` fails if a module ever hooks `tool.call` or
 `tool.check`.

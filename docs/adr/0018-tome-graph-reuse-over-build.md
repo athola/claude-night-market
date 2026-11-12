@@ -40,7 +40,7 @@ Two amendments came out of the war-room review and are binding:
    capability-unavailable signal. Base research is unaffected because
    the graph layer is additive.
 
-Coupling sits in `tome/retrieval/semantic.py` (`EmbeddingIndex`), the
+Coupling is in `tome/retrieval/semantic.py` (`EmbeddingIndex`), the
 one module that imports a memory-palace surface. A change to that API
 is checked against it.
 
@@ -146,7 +146,7 @@ Guards that the decision obliges, each tied to the risk it answers:
 
 | Risk | Guard |
 |------|-------|
-| Over-building the graph. Graph value is real but bounded to multi-hop | Escalate to the graph on condition; measure the before and after delta on a multi-hop benchmark ([MultiHop-RAG][mhr]); drop the graph path if it does not beat vector retrieval |
+| Over-building the graph. Graph value is real but bounded to multi-hop | Escalate to the graph on condition. Measure the before and after delta on a multi-hop benchmark ([MultiHop-RAG][mhr]). Drop the graph path if it does not beat vector retrieval |
 | Trusting LLM-judge metrics. 0.55 human correlation, 12 known biases | Deterministic metrics are the headline; judges are labeled "directional" |
 | Shipping biased impact numbers | Normalize by field and cohort, fix and disclose the citation window, never collapse to one number |
 | Supply-chain surface. Nougat weights are CC-BY-NC, OpenAlex mandates an API key as of Feb 2026, and nano-graphrag and Nougat are both stale | Keep the heavy tier optional and isolated; every new dependency runs through `Skill(leyline:supply-chain-advisory)` |

@@ -50,9 +50,9 @@ One PR per skill, ordered by data signal strength:
 1. ``abstract:skills-eval``: collapse 11 modules to a flat
    checklist (already lost 5 fictional tools in Wave 1)
 2. ``imbue:feature-review``: pick the most-used framework as
-   default; others move to opt-in extensions
+   default and move the others to opt-in extensions
 3. ``attune:mission-orchestrator``: replace dependency graph
-   with a router table; eliminate unused phase modules
+   with a router table and eliminate unused phase modules
 4. ``attune:war-room``: drop unused deliberation modes;
    reversibility-score formula stays only if data shows it
    routes meaningfully

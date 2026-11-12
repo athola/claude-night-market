@@ -23,7 +23,7 @@ modes.
 
 ## Research Background
 
-Five research channels informed this decision on 2026-03-31; the
+Five research channels informed this decision on 2026-03-31. The
 load-bearing findings are recorded below rather than in a separate
 report.
 The ONNX Python API provides model construction, validation,

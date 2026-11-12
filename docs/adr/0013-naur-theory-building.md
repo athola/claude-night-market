@@ -42,8 +42,8 @@ complementary defense.
 |---------|--------------|----------|
 | Senior-engineer-test question: "Could I explain this code without re-reading the LLM transcript?" | Lightweight; relies on agent self-report | Easily fooled by motivated reasoning |
 | New module ``theory-maintenance.md`` (reference doc and checklist) | Adds scaffolding | May be ignored; doesn't change behavior |
-| Behavior change: agent must produce a 2-sentence narrative summary alongside any non-trivial diff | Forces theory articulation | Increases output volume; may fragment focus |
-| Audit: periodic check that the human has written N% of recent commits by hand | Quantitative discipline | Hard to define "by hand"; may game |
+| Behavior change: agent must produce a 2-sentence narrative summary alongside any non-trivial diff | Forces theory articulation | Increases output volume. May fragment focus |
+| Audit: periodic check that the human has written N% of recent commits by hand | Quantitative discipline | Hard to define "by hand". May be gamed |
 
 Each variant has tradeoffs. None is a clear winner without data.
 
@@ -65,8 +65,8 @@ Capture:
    help them answer?
 3. Prose drag: does it feel like ceremony, or signal?
 
-The 2-sentence variant is the lowest-cost test; the audit variant
-is the highest-cost. Pilot the cheap one first; escalate if data
+The 2-sentence variant is the lowest-cost test and the audit variant
+is the highest-cost. Pilot the cheap one first, and escalate if data
 warrants.
 
 ## Consequences

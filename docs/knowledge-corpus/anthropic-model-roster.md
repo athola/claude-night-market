@@ -100,7 +100,7 @@ it cost.
 `CostTracker.budget_exceeded` compares cumulative spend to a limit, so
 an unpriced model is billed at whatever the fallback says. A fallback
 set to Sonnet's rate understates Fable by 3.3x, and the run passes its
-budget long before the guard notices. The fallback now sits at the
+budget long before the guard notices. The fallback is now set to the
 highest current rate so the guard fails toward stopping early.
 
 ## Open questions this does not answer

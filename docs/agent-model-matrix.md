@@ -17,7 +17,7 @@ Before CLI 2.1.251 the environment variable came first.
 
 Rung 4 is the trap. The `model` field defaults to `inherit`: an agent
 that omits it runs on whatever the parent session runs on. Explore used
-to always run on Haiku; as of v2.1.198 it inherits instead, capped at
+to always run on Haiku. As of v2.1.198 it inherits instead, capped at
 Opus on the Claude API. Plan and general-purpose inherit as well.
 
 "Subagents are basically free" was true once. It is not true now. On an
@@ -97,7 +97,7 @@ An agent belongs in **Deep** when any of these hold:
 
 An agent belongs in **Frontier** when all of these hold:
 
-- It already sits in Deep and `opus` has measurably fallen short on the
+- It is already in Deep and `opus` has measurably fallen short on the
   same task, with the shortfall written down.
 - It runs long enough that an early wrong turn compounds instead of
   surfacing immediately.
@@ -253,7 +253,7 @@ hook registration exist. Removing either fails CI rather than silently
 disabling enforcement.
 
 The frontmatter is the single source of truth for which tier an agent
-sits in. There is deliberately no parallel machine-readable matrix file
+is in. There is deliberately no parallel machine-readable matrix file
 for the validator to diff against: a second copy is a second thing to
 drift. This document carries the reasoning and is checked for roster
 drift, never consulted for the tier itself.

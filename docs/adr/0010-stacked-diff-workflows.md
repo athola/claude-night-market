@@ -72,7 +72,7 @@ teammates using standard git.
 **gh-stack** (GitHub private preview) offers a stack map
 UI, cascading rebase after merge, and simultaneous multi-PR
 merge.
-It is not GA; adoption is premature.
+It is not GA. Adoption is premature.
 
 **Graphite** is the most feature-complete commercial
 offering but adds a vendor dependency.

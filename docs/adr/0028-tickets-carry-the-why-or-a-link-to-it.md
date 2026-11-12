@@ -30,8 +30,8 @@ ticket must say what was decided and why. The why stays inline unless options
 were weighed, the choice outlives the work, or the reasoning already exists.
 Then the ticket carries one sentence and a link, and never the pasted document.
 
-The rule lives in leyline next to `decision-journal`, not in `git-platform`,
-because `git-platform` maps commands and this governs content. Tracker facts sit
+The rule is in leyline next to `decision-journal`, not in `git-platform`,
+because `git-platform` maps commands and this governs content. Tracker facts are
 in one module, since the general rule does not vary by tracker.
 
 Rejected: a line limit. Nothing measured supports a number, and a bug's

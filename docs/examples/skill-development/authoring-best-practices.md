@@ -90,7 +90,7 @@ description: Helps with documents
 
 ## Progressive Disclosure Patterns
 
-SKILL.md serves as overview pointing to detailed materials (like table of
+SKILL.md is an overview pointing to detailed materials (like table of
 contents).
 
 **Keep SKILL.md body under 500 lines** for optimal performance.

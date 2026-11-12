@@ -134,7 +134,7 @@ Anthropic's recommended activation format:
 **Why**: The majority of skills had noun-phrase descriptions that told
 Claude WHAT a skill does but not WHEN to invoke it. The `description:`
 field is the only signal in the system-reminder Claude uses for skill
-selection; triggering skills requires action-oriented triggers.
+selection, and triggering skills requires action-oriented triggers.
 
 **Results**:
 
@@ -143,7 +143,7 @@ selection; triggering skills requires action-oriented triggers.
 | **Total Chars (raw)** | ~15,966 | 35,472 |
 | **With overhead** | ~21k | 70,239 |
 | **Avg desc length** | 77.7 chars | 144.6 chars |
-| **Skills with a trigger phrase** | ~8% | 100% (majority "Use when"; remainder "Use before/after/for/at") |
+| **Skills with a trigger phrase** | ~8% | 100% (majority "Use when", remainder "Use before/after/for/at") |
 | **Per-desc over 160 chars** | 0 | 0 |
 
 The raw description budget grew 2.2x because descriptions now contain

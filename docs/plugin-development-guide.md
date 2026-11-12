@@ -106,7 +106,7 @@ wanted only a stdlib leaf. The fix belongs at the root, resolving
 exports on first attribute access (`memory_palace/__init__.py` is the
 model), or in a stdlib-only home for the helpers a hook needs
 (`abstract/paths.py`). Guarding the leaf's `import yaml` is the wrong
-fix when the leaf cannot do its job without it; that degrades the
+fix when the leaf cannot do its job without it. That degrades the
 module silently instead of the hook loudly.
 `tests/test_hooks_import_without_project_deps.py` imports every
 registered hook with PyYAML blocked and fails on the one that cannot.

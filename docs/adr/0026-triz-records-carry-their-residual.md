@@ -38,7 +38,7 @@ with reruns outstanding: Semantic Scholar returned HTTP 429 on three
 queries in pass 1 and on two of them again on retry in pass 2,
 WebFetch cannot reach Reddit from this environment, and one web page
 timed out. Those are gaps in the run and are recorded as such in the
-session reports under `docs/research/` (machine-local; gitignored).
+session reports under `docs/research/` (machine-local and gitignored).
 The triz analyst reached the article at
 `gods.art/articles/equation_shadows.html` on its second attempt after
 a 404 on the URL it was first given.

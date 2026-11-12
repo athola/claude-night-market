@@ -11,8 +11,8 @@ with working examples.
 
 | Page | Description |
 |------|-------------|
-| [Commands — Core](capabilities-commands.md) | Core plugin command reference (abstract, attune, conserve, imbue, sanctum) |
-| [Commands — Extended](capabilities-commands-extended.md) | Extended plugin command reference (memory-palace, pensive, parseltongue, spec-kit, scribe, scry, hookify, leyline) |
+| [Commands: Core](capabilities-commands.md) | Core plugin command reference (abstract, attune, conserve, imbue, sanctum) |
+| [Commands: Extended](capabilities-commands-extended.md) | Extended plugin command reference (memory-palace, pensive, parseltongue, spec-kit, scribe, scry, hookify, leyline) |
 | [Skills](capabilities-skills.md) | Methodology guides and invocation patterns |
 | [Agents](capabilities-agents.md) | Subagent configuration and dispatch patterns |
 | [Hooks](capabilities-hooks.md) | Lifecycle event handlers and implementation patterns |

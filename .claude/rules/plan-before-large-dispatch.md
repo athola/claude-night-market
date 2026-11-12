@@ -11,7 +11,7 @@ conditions:
 
 **Plan mode required for large agent dispatch!**
 
-Tasks involving comprehensive analysis, audits, or
+Tasks involving codebase-wide analysis, audits, or
 research across the codebase typically require 4+
 parallel agents. Before dispatching:
 

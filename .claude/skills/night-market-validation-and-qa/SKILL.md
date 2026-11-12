@@ -108,7 +108,7 @@ The counter-discipline is the revert test, executed by
    clean first, or the step is skipped as unsafe).
 3. Run the test that supposedly guards the fix.
 4. The test must FAIL against the reverted code. If it stays green,
-   the test is a dead assertion, not a guard.
+   the test is a dead assertion and guards nothing.
 5. Restore the fix.
 
 When writing a new test, apply the same standard preemptively: write

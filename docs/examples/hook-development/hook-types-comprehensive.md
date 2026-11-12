@@ -59,7 +59,7 @@ fire correctly.
 New built-in tools `CronCreate`, `CronList`,
 `CronDelete` for scheduled tasks. `CronCreate` accepts
 `cron`, `prompt`, `recurring` (default true), and
-`durable` (default false; true persists across
+`durable` (default false, where true persists across
 restarts). These appear as tool names in
 `PreToolUse`/`PostToolUse`
 events. Sessions support up to 50 scheduled tasks with

@@ -322,8 +322,8 @@ claude --continue
 
 ### Persistent Presence Loop (World Model + Agent Model)
 
-Treat SDD artifacts as a self-modeling architecture where the repo state serves
-as the world model and the loaded skills as the agent model.
+Treat SDD artifacts as a self-modeling architecture where the repo state is
+the world model and the loaded skills are the agent model.
 Experiments are run with small diffs
 and verified through rigorous loops (tests, linters, repro scripts),
 while model updates refine both the code artifacts

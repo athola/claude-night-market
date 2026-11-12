@@ -89,7 +89,7 @@ flowchart LR
   budgets, defer nice-to-haves. The first question.
 - `imbue:karpathy-principles`: four-principle gate (think
   first, simplicity, surgical edits, verifiable goals).
-  Synthesis hub; routes into the others.
+  Synthesis hub that routes into the others.
 - `leyline:additive-bias-defense`: inverts burden of proof
   for additions. Cross-cutting contract that reviews consult.
 
@@ -104,7 +104,7 @@ flowchart LR
 
 - `imbue:proof-of-work`: evidence and acceptance gates with
   `[E1]`/`[E2]` citations. The "is it actually done?" gate.
-- `imbue:justify`: minimal-intervention audit; every change
+- `imbue:justify`: minimal-intervention audit. Every change
   must justify itself against a "do nothing" baseline.
 
 **Meta-constraint** (governs all phases)
@@ -131,7 +131,7 @@ karpathy-principles -> scope-guard -> [implement]
 
 **Hub-and-spoke entry** (using karpathy-principles as router):
 
-`imbue:karpathy-principles` references 18 outbound skills --
+`imbue:karpathy-principles` references 18 outbound skills,
 the highest count in the marketplace. It is the de-facto
 entry point for the federation: invoking it pulls in the
 relevant gates for the work at hand without forcing a
@@ -441,7 +441,7 @@ Other plugins reference individual gates:
 
 No caller invokes the full federation in the order the
 gate authors intended. `imbue:vow-enforcement` is invoked
-nowhere in skill prose; it only fires through hook
+nowhere in skill prose. It only fires through hook
 paths (`imbue/hooks/vow_*.py`).
 
 ### Recommended composition order

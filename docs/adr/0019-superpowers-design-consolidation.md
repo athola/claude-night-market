@@ -87,7 +87,7 @@ is the fallback.
 
 | Rejected or deferred | Reason |
 |----------------------|--------|
-| Central registry or dashboard | GitHub Projects v2 could serve it later; no consumer now |
+| Central registry or dashboard | GitHub Projects v2 could serve it later. No consumer now |
 | Cross-source deduplication | Each source files independently. Within-source dedup is in the script |
 | Scoring normalization across plugins | Worthiness, RICE and gap analysis stay source-specific |
 | Automatic prioritization | No consumer |

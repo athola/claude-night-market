@@ -40,7 +40,7 @@ lies in the manifest defeats the gate. Candidate hardening (unbuilt):
 teach the Stop hook to refuse `completed` status on items whose most
 recent quality decision is `fix-required`, which moves one enforcement
 point out of the prompt and into code the agent does not author
-mid-loop. Treat that as a P4 prerequisite discussion item, not a given.
+mid-loop. Treat that as an open P4 prerequisite discussion item.
 
 ## Attack C: mutation-prove every gate you add
 
@@ -56,5 +56,4 @@ campaign, record evidence in the module's format:
      Passing run: <command + output reference>
 ```
 
-A single surviving mutation is a hole in the gate, not a rounding
-error.
+A single surviving mutation is a hole in the gate.

@@ -56,7 +56,7 @@ Nothing else lifts the budget. Wanting more context, one more file to
 be safe, or the full picture is the situation the budget exists for:
 those reads are the ones that burned the quota. A complex task gets
 focused reads, not more of them. Where a name is used elsewhere is a
-`Grep` for paths, which is free; read the file only when the change
+`Grep` for paths, which is free. Read the file only when the change
 cannot be made without it. When the budget is spent and the task is
 not clear, ask, with the count of files read.
 

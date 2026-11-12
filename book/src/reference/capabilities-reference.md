@@ -165,7 +165,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
 | `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
-| `problem-bank` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank; surveys coverage gaps and proposes YAML-valid entries |
+| `problem-bank` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank. Surveys coverage gaps and proposes YAML-valid entries |
 | `progressive-loading` | [leyline](../plugins/leyline.md) | Dynamic content loading |
 | `project-brainstorming` | [attune](../plugins/attune.md) | Socratic ideation workflow |
 | `project-execution` | [attune](../plugins/attune.md) | Systematic implementation |
@@ -190,7 +190,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `rule-catalog` | [hookify](../plugins/hookify.md) | Pre-built behavioral rule templates |
 | `rules-eval` | [abstract](../plugins/abstract.md) | Evaluate and validate Claude Code rules in `.claude/rules/` directories |
 | `rust-review` | [pensive](../plugins/pensive.md) | Rust-specific checking |
-| `safety-critical-patterns` | [pensive](../plugins/pensive.md) | NASA Power of 10 rules for robust code |
+| `safety-critical-patterns` | [pensive](../plugins/pensive.md) | NASA Power of 10 rules for verifiable code |
 | `scope-guard` | [imbue](../plugins/imbue.md) | Anti-overengineering |
 | `sem-integration` | [leyline](../plugins/leyline.md) | Semantic diff CLI detection and fallback |
 | `service-registry` | [leyline](../plugins/leyline.md) | Service discovery, quotas, and usage logging |

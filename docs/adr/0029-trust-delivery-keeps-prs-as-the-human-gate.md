@@ -11,7 +11,7 @@ with machine review before the push and human review after it. Anyone
 can start a release, which announces itself in Slack and waits 15
 minutes, and anyone can pause it inside that window. Platform clients
 ship features independently, and review after the fact finds where
-they diverge. The team says every part of it rests on reciprocity:
+they diverge. The team says every part of it depends on reciprocity:
 you fix your own mess, someone fixes it if you do not, and you do the
 same for them.
 

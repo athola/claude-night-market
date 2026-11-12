@@ -220,7 +220,7 @@ As practiced in Discussion #449, the April 2026 skill-audit synthesis
 4. Policy-shaped findings become issues, and landed issues become
    rules. Issues #454 (Exit Criteria required in every SKILL.md) and
    #457 (utility skills need 2+ consumers) both followed this path,
-   are CLOSED, and live on as `.claude/rules/skill-exit-criteria.md`
+   are CLOSED, and survive as `.claude/rules/skill-exit-criteria.md`
    and `.claude/rules/shared-utility-consumer-rule.md`.
 
 5. The deferred remainder gets a tracking issue: #574 (Wave-3

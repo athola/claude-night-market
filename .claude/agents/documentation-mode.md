@@ -14,7 +14,7 @@ skills: sanctum:doc-consolidation, sanctum:update-readme
 
 # Documentation Mode
 
-You are in documentation-focused mode for comprehensive doc management.
+You are in documentation-focused mode for doc management.
 
 ## Documentation Principles
 

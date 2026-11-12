@@ -40,7 +40,7 @@ names the blood.
 | # | Rule | Motivating incident |
 |---|------|---------------------|
 | 1 | The README discloses AI development for maintainer work. Outside contributors name their AI tool per PR. Never fake or deny AI involvement | Commit attribution kept out by hook `plugins/imbue/hooks/vow_no_ai_attribution.py` |
-| 2 | An AI change over 200 changed lines names its spec, ADR, or plan doc in the PR description (lockfiles, fixtures, snapshots excluded) | Size = scrutiny principle; see the unbloat incident under non-negotiables |
+| 2 | An AI change over 200 changed lines names its spec, ADR, or plan doc in the PR description (lockfiles, fixtures, snapshots excluded) | Size = scrutiny principle. See the unbloat incident under non-negotiables |
 | 3 | Iron Law TDD: failing test before implementation for plugin Python. Skills and prose need structural tests (the repo-wide `SKILL.md` tests, plus a plugin test where a skill's contract matters) | Design principle, no single incident |
 | 4 | One identity leak ("As a large language model") in any committed artifact is an automatic revert | Pattern catalog in scribe slop-detector |
 | 5 | Quality claims ("fast", "production-ready") need in-repo evidence or deletion | Design principle |
@@ -48,11 +48,11 @@ names the blood.
 | 7 | New dependencies need justification; 18 months unmaintained is presumed abandoned; verify AI-suggested package names against the registry | Slopsquatting defense; hook `guard_package_hallucination.py` (imbue) |
 | 8 | Docs cost reader-time (audience x frequency x per-read time); writing effort must match | Design principle |
 | 9 | Prefer deletion over rewriting; AI slop is overwhelmingly additive | Design principle |
-| 10 | Errors are not optional: propagate by default, no bare except, safe-to-discard needs an inline "why" comment | Silent-failure sweep `666171c3`; ecosystem bare-except campaign |
+| 10 | Errors are not optional: propagate by default, no bare except, safe-to-discard needs an inline "why" comment | Silent-failure sweep `666171c3` and the ecosystem bare-except campaign |
 
 ## Change classification
 
-Classify before the first commit. The class decides the paperwork.
+Classify before the first commit. The class sets the paperwork.
 
 | Change | Required process |
 |--------|------------------|
@@ -190,7 +190,7 @@ stronger than the incident that settled it.
 
 | Non-negotiable | Rationale | Incident | Evidence |
 |----------------|-----------|----------|----------|
-| Never bypass or weaken a gate | A green gate that skips checks is worse than no gate: it certifies broken code | mirrors-mypy silently disabled 13 error codes; typecheck ran changed-only; bulk ruff ignores hid 73 real violations | CHANGELOG 1.9.12; commit `06b9b1db` |
+| Never bypass or weaken a gate | A green gate that skips checks is worse than no gate: it certifies broken code | mirrors-mypy silently disabled 13 error codes. Typecheck ran changed-only. Bulk ruff ignores hid 73 real violations | CHANGELOG 1.9.12; commit `06b9b1db` |
 | No swallowed errors, ever | catch-and-continue in a scanner drops findings silently and reports clean | Scanners B1-B4 returned clean results on malformed input for months | commit `666171c3` (PR #521, issue #575) |
 | Deletion campaigns need a backup branch and a markdown-reference scan | Python import graphs miss scripts referenced only from skills and commands | Tier-3 unbloat deleted 182 files (66K lines); skill-referenced scripts had to be restored | commits `a3f11323` (delete), `3f280334` (restore); branch `backup/unbloat-20260328` |
 | No DRY consolidation across plugin boundaries | Plugins are independent deployables, and shared code couples their release cycles | tasks_manager consolidated to a shared script, reverted, then differentiated per plugin | commits `054e2679`, `29961cd2`, `d89a55c7` |

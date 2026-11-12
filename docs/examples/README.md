@@ -31,7 +31,7 @@ A complete async/await Python example for concurrent web scraping showing:
 
 ## Using These Examples
 
-These examples serve as:
+These examples are:
 
 1. **Learning Resources** - Understand how patterns are applied in practice
 2. **Implementation References** - Copy and adapt code for your projects

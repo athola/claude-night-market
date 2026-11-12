@@ -37,35 +37,35 @@ while lower layers operate independently of higher-level context.
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `abstract:plugin-validator` | Validate plugin structure before commits | Structure validation only; no business logic analysis. |
-| `abstract:skill-auditor` | Audit skill quality and token efficiency | Quality metrics and token usage; no functional testing. |
+| `abstract:plugin-validator` | Validate plugin structure before commits | Structure validation only. No business logic analysis. |
+| `abstract:skill-auditor` | Audit skill quality and token efficiency | Quality metrics and token usage. No functional testing. |
 
 ### Foundation Layer (Core Workflows)
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `sanctum:pr-agent` | Prepare pull requests and commit messages | Git workflows; no code quality or logic review. |
-| `imbue:review-analyst` | Structured reviews with an evidence trail | Findings with evidence; no code implementation. |
+| `sanctum:pr-agent` | Prepare pull requests and commit messages | Git workflows. No code quality or logic review. |
+| `imbue:review-analyst` | Structured reviews with an evidence trail | Findings with evidence. No code implementation. |
 
 ### Utility Layer (Optimization & Generation)
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `conserve:context-optimizer` | Assess MECW and token usage | Token analysis; no code-level optimization. |
-| `conserve:bloat-auditor` | Detect codebase bloat | Detection of redundant files; no deletion decisions. |
-| `conserve:unbloat-remediator` | Execute bloat removal | Execution of safe deletions; no architectural changes. |
+| `conserve:context-optimizer` | Assess MECW and token usage | Token analysis. No code-level optimization. |
+| `conserve:bloat-auditor` | Detect codebase bloat | Detection of redundant files. No deletion decisions. |
+| `conserve:unbloat-remediator` | Execute bloat removal | Execution of safe deletions. No architectural changes. |
 
 ### Domain Layer (Specialized Tasks)
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `pensive:code-reviewer` | Multi-discipline code review | Analysis of API, architecture, and security; no fixes. |
-| `pensive:architecture-reviewer` | Architecture design review | Pattern analysis; no implementation work. |
-| `pensive:rust-auditor` | Rust-specific code review | Rust idioms and safety; restricted to Rust. |
-| `parseltongue:python-tester` | Python test generation | Test case generation; restricted to Python. |
-| `parseltongue:python-linter` | Strict ruff enforcement | Lint fixes; no per-file-ignores. |
-| `memory-palace:garden-curator` | Knowledge management | Documentation organization; no code changes. |
-| `spec-kit:spec-analyzer` | Check specification consistency | Requirements gathering; no implementation. |
+| `pensive:code-reviewer` | Multi-discipline code review | Analysis of API, architecture, and security. No fixes. |
+| `pensive:architecture-reviewer` | Architecture design review | Pattern analysis. No implementation work. |
+| `pensive:rust-auditor` | Rust-specific code review | Rust idioms and safety. Restricted to Rust. |
+| `parseltongue:python-tester` | Python test generation | Test case generation. Restricted to Python. |
+| `parseltongue:python-linter` | Strict ruff enforcement | Lint fixes. No per-file-ignores. |
+| `memory-palace:garden-curator` | Knowledge management | Documentation organization. No code changes. |
+| `spec-kit:spec-analyzer` | Check specification consistency | Requirements gathering. No implementation. |
 
 ## Delegation Patterns
 

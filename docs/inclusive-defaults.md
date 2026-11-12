@@ -22,7 +22,7 @@ order:
 1. **Does this feature affect the user's workflow when on
    by default?** If yes, would a typical user want it?
    - If they would: default ON, expose `--no-X`
-   - If they would not: rethink the feature; defaults are
+   - If they would not: rethink the feature. Defaults are
      not the place to hide opinions
 2. **Does the feature have a side effect outside Claude
    Code's process?** (writes to GitHub, hits external
@@ -77,7 +77,7 @@ outside the session and is not trivial to undo. Examples:
 
 The feature requires user-supplied configuration that
 cannot be predicted (URLs, API keys, file paths).
-Flipping the default is impossible, not just unwise.
+Flipping the default is impossible.
 
 **Current examples:**
 
@@ -143,7 +143,7 @@ not per-feature.
 
 When a feature processes the whole codebase, opt-in is
 appropriate to control compute. Default to a smaller
-tier; require explicit escalation.
+tier and require explicit escalation.
 
 **Current examples:**
 
@@ -157,17 +157,17 @@ tier; require explicit escalation.
 
 When a feature can warn or block, defaulting to block
 interrupts legitimate workflows. Shadow/warn mode IS the
-inclusive default; block mode is the opt-in.
+inclusive default, and block mode is the opt-in.
 
 **Current examples:**
 
 - Imbue vow hooks: `VOW_SHADOW_MODE=1` (warn) is the
-  inclusive default; set `VOW_SHADOW_MODE=0` to block
+  inclusive default. Set `VOW_SHADOW_MODE=0` to block
 
 ### 9. Frontmatter-controlled prescriptive modes
 
 When a skill has advisory and prescriptive variants, the
-inclusive default is advisory (no setup); prescriptive
+inclusive default is advisory (no setup). Prescriptive
 mode requires per-skill consent via frontmatter.
 
 **Current examples:**

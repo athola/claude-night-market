@@ -20,7 +20,7 @@ Jargon used below:
 - "unbloat": the conserve plugin's dead-code deletion campaign.
 - "Stop hook": a Claude Code hook that runs when a session turn ends.
 - "settled": the fight is over. Re-opening it requires new evidence
-  and a note in the collective memory, not a hunch.
+  and a note in the collective memory.
 
 ## How to use this chronicle
 
@@ -94,7 +94,7 @@ Jargon used below:
 
 - Symptom: hook import chains crash under host Python 3.9 because
   `datetime.UTC` is a 3.11+ alias. On PR #511 this was the sole
-  failing check, with three cascade failures rooted in one
+  failing check, with three cascade failures caused by one
   ImportError.
 - Root cause: ruff's pyupgrade rule UP017 kept auto-rewriting
   `timezone.utc` back to `datetime.UTC`, silently re-breaking the fix.
@@ -209,7 +209,7 @@ Jargon used below:
 - Root cause: hallucinated CLI surface. GitHub Discussions are
   reachable only through the GraphQL API.
 - Evidence: CHANGELOG (minister playbook repair replaced the calls
-  with GraphQL mutations). Working templates live in
+  with GraphQL mutations). Working templates are in
   `plugins/leyline/skills/git-platform/modules/command-mapping.md`
   using `gh api graphql`.
 - Status: settled.
@@ -225,7 +225,7 @@ Jargon used below:
 - Evidence: `4993273b` (2026-06-22).
 - Status: settled.
 - Lesson: in detection loops, collect all findings. An early exit in a
-  scanner is a correctness bug, not an optimization.
+  scanner is a correctness bug.
 
 ### SB14: broken relative paths from the plugin cache directory
 

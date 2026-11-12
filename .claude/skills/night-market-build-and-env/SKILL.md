@@ -33,7 +33,7 @@ automatically. There is no manual install step for those rows.
 | 9 | node + npm | optional | needed for conjure Gemini delegation | `node --version` |
 | 10 | Rust + cargo | optional | rustup (only for `make skrills-build`) | `cargo --version` |
 | 11 | skrills binary | optional | `make skrills-build` or `make skrills-install` | `make skrills-verify` |
-| 12 | mdbook | optional | `cargo install mdbook`; builds `book/` | `mdbook --version` |
+| 12 | mdbook | optional | `cargo install mdbook` (builds `book/`) | `mdbook --version` |
 | 13 | gh CLI | optional | cli.github.com (releases and Discussions) | `gh --version` |
 
 Notes on the optional rows:
