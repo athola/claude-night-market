@@ -243,7 +243,7 @@ def _is_valid_variation(text: str) -> bool:
 
 # A VariationProvider takes (prompt_template, problem) and returns either
 # a varied problem statement string, or None when no variation is available.
-# Returning None signals graceful fallback to the seed problem; raising is
+# Returning None signals graceful fallback to the seed problem. Raising is
 # also acceptable and is caught at the call site.
 VariationProvider = Callable[[str, BankProblem], "str | None"]
 

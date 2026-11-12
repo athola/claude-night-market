@@ -190,7 +190,7 @@ class SpecKitCache:
             self._cache_timestamps.pop(k, None)
 
         # On disk only the category component of a key is readable, so a
-        # prefix is matched by its category; a finer prefix clears the
+        # prefix is matched by its category. A finer prefix clears the
         # whole category's files and leaves the memory cache exact. A
         # prefix with no ":" may end mid-category ("spec" for "specs:x"),
         # so it globs open-ended rather than requiring the "_" separator.

@@ -17,9 +17,9 @@ a deterministic, offline-first defense:
    The registry call is injected (not imported) so the logic is fully
    testable without touching PyPI, npm, or crates.io.
 
-The registry lookup itself (network) lives in the hook wrapper, which
+The registry lookup itself (network) is in the hook wrapper, which
 passes it in. When the registry cannot be reached, the package is
-reported as ``unverified`` rather than ``nonexistent`` -- the guard
+reported as ``unverified`` rather than ``nonexistent``. The guard
 never blocks on a network failure.
 """
 
@@ -123,7 +123,7 @@ _VALUE_FLAGS = {
 # inside "(pip install x)" or "$(pip install x)" heads its own segment.
 _SHELL_SEPARATOR_RE = re.compile(r"&&|\|\||\$\(|[;|&\n()`]")
 # A descriptor duplication ("2>&1", ">&2") holds an "&" that is not a
-# separator; it is removed before the command is split.
+# separator. It is removed before the command is split.
 _FD_DUP_RE = re.compile(r"\d*[<>]&\d*-?")
 # A redirection operator; bare, its target is the next token.
 _REDIRECT_RE = re.compile(r"^\d*(?:>>?|<)")
@@ -306,7 +306,7 @@ def parse_packages(command: str) -> list[tuple[str, str]]:
 
 
 def _parse_install_segment(text: str) -> list[tuple[str, str]]:
-    """Parse one separator-free command; a non-install returns ``[]``."""
+    """Parse one separator-free command. A non-install returns ``[]``."""
     ecosystem = None
     head = None
     for pattern, eco in _INSTALL_HEADS:

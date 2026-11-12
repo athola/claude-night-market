@@ -18,14 +18,14 @@ This is the fundamental principle that unites **TDD (Test-Driven Development)** 
 | **TDD** | Test drives design | RED-GREEN-REFACTOR | Git history shows test commits before implementation |
 | **BDD** | Behavior describes intent | Given-When-Then scenarios | Tests have Feature/Scenario docstrings |
 
-**Both are required.** TDD ensures tests come first; BDD ensures tests describe behavior, not implementation details.
+**Both are required.** TDD ensures tests come first; BDD ensures tests describe behavior.
 
 ### The Fourth Law: Understanding Before Code
 
 The fourth principle addresses **cargo cult programming** - the ritual inclusion of code that "looks right" but nobody can explain. Studies show up to 48% of AI-generated code contains vulnerabilities from unexamined adoption.
 
 **Understanding Verification Questions:**
-- Can I explain WHY this code exists, not just WHAT it does?
+- Can I explain WHY this code exists as well as WHAT it does?
 - What would break if I removed this line?
 - Why this approach over simpler alternatives?
 - When would this fail?
@@ -62,7 +62,7 @@ Before writing the RED test, name the constraint it defends:
 
 If none of the four fits, the honest answer is that this change does
 not need a test first. Say which and say why. That answer is a
-finding about the change, not a gap in the process.
+finding about the change.
 
 ### The test that enforces the wrong constraint
 
@@ -146,7 +146,7 @@ Markdown files under `skills/`, `agents/`, `modules/`, and `commands/` directori
 - **L2 assertions** (code example validity) are required when the file contains JSON, YAML, or code blocks that Claude will copy as templates
 - **L3 assertions** (behavioral contracts) are required when the file defines decision frameworks, version gates, or behavioral guidance that affects user outcomes
 
-The Documentation Exception case study demonstrated that 37 BDD tests were needed for a single skill's content. Content assertion levels provide the framework for knowing WHICH tests to write, not just that tests are needed.
+The Documentation Exception case study demonstrated that 37 BDD tests were needed for a single skill's content. Content assertion levels provide the framework for knowing WHICH tests to write.
 
 ## BDD Test Structure Requirement
 
@@ -348,7 +348,7 @@ plugin (or "all").
 
 ### Level 5: Coverage Gate Enforcement
 
-Require evidence of test quality, not just test existence.
+Require evidence of test quality as well as test existence.
 
 **Three-Pillar Coverage:**
 
@@ -568,7 +568,7 @@ The Iron Law is a system of enforcement, not only a principle:
 2. **Adversarial Verification**: RED/GREEN/REFACTOR subagents
 3. **Git History Analysis**: Post-hoc verification of TDD compliance
 4. **Pre-Commit Hooks**: Prevent violations at commit time
-5. **Coverage Gates**: Ensure test quality, not just existence
+5. **Coverage Gates**: Ensure test quality beyond mere existence
 6. **Self-Improvement**: Learn from violations, strengthen rules
 
 **The goal**: Make it easier to follow the Iron Law than to violate it.

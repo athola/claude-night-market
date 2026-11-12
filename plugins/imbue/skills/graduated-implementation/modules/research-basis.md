@@ -43,7 +43,7 @@ Five high-stakes apprenticeship domains independently resolved
 stalling and without faked readiness":
 
 1. **Per-capability, not global.** Medical EPAs score each task on a
-   1-5 supervision scale; driver licensing restricts by context (no
+   1-5 supervision scale. Driver licensing restricts by context (no
    night driving) rather than one global dial. Map ambition as a
    vector of capability-specific levels, simple capabilities advanced
    first.
@@ -53,7 +53,7 @@ stalling and without faked readiness":
    the universal anti-gaming device: readiness cannot be
    self-attested.
 3. **Clean-record gating beats time-served.** GDL lifts restrictions
-   only after a conviction-free window; one bad merge resets the
+   only after a conviction-free window. One bad merge resets the
    clock and can demote a tier.
 4. **Defeat faked readiness with novelty.** ABRSM sight-reading uses
    an unseen piece; medicine rejected "see one, do one, teach one"

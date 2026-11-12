@@ -69,7 +69,7 @@ def main() -> None:
                 )
                 print(json.dumps(report, indent=2))
                 sys.exit(2)
-        # blast_radius scores a node by the stored flows it sits in. Tracing
+        # blast_radius scores a node by the stored flows that contain it. Tracing
         # without storing left that term at zero for every node.
         flows = trace_flows(graph)
         graph.store_flows(flows)

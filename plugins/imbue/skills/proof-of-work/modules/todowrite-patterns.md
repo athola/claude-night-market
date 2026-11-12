@@ -59,7 +59,7 @@ TaskUpdate now supports deleting tasks. For imbue skills, **keep proof-of-work i
 ### Never Delete
 - `proof:*` items: these are audit evidence
 - `evidence-logging:*` items: these document captured evidence
-- Any items that serve as compliance records
+- Any items that are compliance records
 
 ## Best Practices
 

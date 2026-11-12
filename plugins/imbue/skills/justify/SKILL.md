@@ -380,10 +380,10 @@ When this step settles a decision with real alternatives, record it to
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
   a tradeoff entry (the decision, the options weighed, and what was
-  sacrificed; set `phase` to `review`). Show the draft; append on
-  confirmation.
+  sacrificed, with `phase` set to `review`). Show the draft and append
+  on confirmation.
 - Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
-  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+  ENTRY TEMPLATE, and assign the next `TR-NNN` id.
 
 ## The Wise Counsel
 
@@ -400,7 +400,7 @@ When this step settles a decision with real alternatives, record it to
 - [ ] Iron Law compliance is marked PASS or FAIL, with justification for any
   modified test logic.
 - [ ] Every change carries a verdict (justified, needs_evidence, or
-  unjustified); no `unjustified` verdict survives in the final report.
+  unjustified), and no `unjustified` verdict survives in the final report.
 - [ ] Any detected invariant conflict is surfaced with the chosen option and a
   human-review flag.
 - [ ] A justified non-trivial addition is recorded to `docs/tradeoffs.md` (or

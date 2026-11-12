@@ -120,7 +120,7 @@ def _explicit_stakes() -> str | None:
 
     `leyline:risk-classification` writes the tier here so the rung is
     driven by the project's risk signal, not path-regex alone. Env
-    `IMBUE_STAKES` wins; otherwise a one-line `.imbue/stakes` file.
+    `IMBUE_STAKES` wins, then a one-line `.imbue/stakes` file.
     """
     env = os.environ.get("IMBUE_STAKES", "").strip()
     if env:

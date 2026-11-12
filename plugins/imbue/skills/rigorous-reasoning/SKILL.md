@@ -25,7 +25,7 @@ role: library
 
 ## Overview
 
-Rigorous reasoning prioritizes validity and accuracy over conversational politeness. Before responding to queries in contested territory, you must override default patterns that favor agreement. Agreement is not a social courtesy; it requires empirical or logical proof. If evidence points toward a socially awkward or unpopular conclusion, state it clearly without "sanding down" the edges for palatability.
+Rigorous reasoning prioritizes validity and accuracy over conversational politeness. Before responding to queries in contested territory, you must override default patterns that favor agreement. Agreement requires empirical or logical proof. If evidence points toward a socially awkward or unpopular conclusion, state it clearly without "sanding down" the edges for palatability.
 
 ## Priority Signals
 
@@ -91,7 +91,7 @@ there are exactly three options:
    the invariant is a simplifying principle that pays
    dividends elsewhere
 2. **Layer on top**: add the feature inelegantly or
-   inefficiently above the invariant; not everything
+   inefficiently above the invariant. Not everything
    must be elegant
 3. **Revise the invariant**: new learning justifies a
    fundamentally different approach
@@ -137,7 +137,7 @@ codebase's decision:
 1. STOP accepting the framing
 2. Apply First Principles: What is the ACTUAL requirement?
 3. Ask: What simpler solution would also work?
-4. Verify: Can I explain WHY this approach, not just WHAT?
+4. Verify: Can I explain WHY this approach as well as WHAT?
 
 See [../proof-of-work/modules/anti-cargo-cult.md](../proof-of-work/modules/anti-cargo-cult.md) for understanding verification.
 

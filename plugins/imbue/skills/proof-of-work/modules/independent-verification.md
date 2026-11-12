@@ -17,12 +17,12 @@ and most confident exactly where it is most mistaken.
 Iterative self-refinement does not rescue this. Critical
 vulnerabilities rose 37.6% after five rounds of LLM self-refinement
 (Shukla et al. 2025): asking the same model to check its own work
-again can degrade it, not improve it.
+again can degrade it.
 
 High-stakes domains all forbid sole self-verification for
 consequential steps: nuclear procedures require a separate
 qualified individual to confirm critical actions (independent
-verification, distinct from self-checking); finance separates the
+verification, distinct from self-checking). Finance separates the
 maker from the checker (the four-eyes principle). The rule
 transfers directly.
 

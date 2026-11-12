@@ -1,4 +1,4 @@
-"""curate_problems.py -- Problem bank curation and gap analysis.
+"""curate_problems.py: Problem bank curation and gap analysis.
 
 Read-only analysis tool. Surveys the current YAML problem bank,
 compares coverage against the manifest expected counts, identifies
@@ -73,7 +73,7 @@ def survey_bank_coverage(problems_dir: Path) -> dict[str, int]:
     Reads all *.yaml files in *problems_dir* that do not start with '_'.
     Each file must have a top-level ``category`` key and a ``problems``
     list.  The returned category key is taken from the file-level
-    ``category`` field when present; otherwise from the filename stem.
+    ``category`` field when present, and from the filename stem otherwise.
     """
     counts: dict[str, int] = {}
     for yaml_file in sorted(problems_dir.glob("*.yaml")):

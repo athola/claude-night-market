@@ -44,7 +44,7 @@ active recall and spaced repetition.
    generates a question, and evaluates your answer.
 
 4. **Progress**: every answer is recorded. Difficulty adapts. A
-   streak of correct answers raises the target difficulty; wrong
+   streak of correct answers raises the target difficulty, and wrong
    answers bring it back down.
 
 5. **Curate**: tribal knowledge that cannot be inferred from code

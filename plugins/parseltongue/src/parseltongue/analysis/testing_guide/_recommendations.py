@@ -4,7 +4,7 @@ C9 (PR #470 review, issue #485): like ``_quality``, this module's
 prior shape was a stateless ``TestRecommendationMixin`` class
 composed via multiple inheritance. The methods take only ``code``
 plus optional pre-parsed AST and return dict envelopes, never
-touching ``self``. They are now module-level functions; the skill
+touching ``self``. They are module-level functions, and the skill
 class delegates to them.
 """
 

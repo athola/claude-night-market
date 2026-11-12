@@ -17,7 +17,7 @@ Concurrency: read-modify-write on the counter file is serialised with
 ``fcntl.flock(LOCK_EX)`` so parallel Read calls (Claude Code 2.1.72+
 dispatches them concurrently) cannot lose increments.  On platforms
 without ``fcntl`` (Windows) the hook degrades gracefully to unlocked
-RMW; the resulting small race window is acceptable because the vow
+RMW. The resulting small race window is acceptable because the vow
 remains an advisory signal there.
 """
 
@@ -29,7 +29,7 @@ import sys
 import time
 from pathlib import Path
 
-# D-06: shadow_mode helper lives in shared/vow_utils, which is also the
+# D-06: the shadow_mode helper is in shared/vow_utils, which is also the
 # home of the symlink-safe state primitives (CWE-59 defense).
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
@@ -45,7 +45,7 @@ from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path 
 _counter_path = read_counter_path
 _get_session_id = session_id_from
 
-# fcntl is POSIX-only.  On Windows we fall back to unlocked RMW; the
+# fcntl is POSIX-only.  On Windows we fall back to unlocked RMW. The
 # small race window is acceptable for an advisory vow on non-POSIX
 # hosts.  See issue #418.
 try:
@@ -140,7 +140,7 @@ def _atomic_increment(path: Path, weight: float = 1.0) -> float:  # noqa: PLR091
     lose increments.  On systems without ``fcntl`` (Windows) the lock
     is skipped and the hook degrades to unlocked RMW.
 
-    Returns 0 on any failure -- the hook must never crash the agent.
+    Returns 0 on any failure: the hook must never crash the agent.
     """
     fd = -1
     try:
@@ -260,7 +260,7 @@ def main() -> None:
             # hookSpecificOutput with hookEventName, matching the sibling
             # tdd_bdd_gate and vow_no_emoji_commits hooks. Shadow mode
             # injects advisory text via additionalContext (no permission
-            # change); block mode denies the tool call.
+            # change). Block mode denies the tool call.
             if shadow:
                 output: dict[str, dict[str, str]] = {
                     "hookSpecificOutput": {

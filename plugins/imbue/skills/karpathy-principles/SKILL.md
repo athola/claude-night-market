@@ -48,7 +48,7 @@ role: entrypoint
 A four-principle contract for reducing the most common
 LLM coding pitfalls. Compact entry-point. Each
 principle has a deeper-dive skill in night-market;
-this skill is the index, not the encyclopedia.
+this skill is the index.
 
 Derivation: distilled by Forrest Chang
 (forrestchang/andrej-karpathy-skills, MIT) from
@@ -129,10 +129,10 @@ When this step settles a decision with real alternatives, record it to
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
   a tradeoff entry (the decision, the options weighed, and what was
-  sacrificed; set `phase` to `plan`). Show the draft; append on
-  confirmation.
+  sacrificed, with `phase` set to `plan`). Show the draft and append
+  on confirmation.
 - Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
-  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+  ENTRY TEMPLATE, and assign the next `TR-NNN` id.
 
 ### 3. Surgical Changes
 

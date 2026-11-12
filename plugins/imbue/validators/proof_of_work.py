@@ -67,7 +67,7 @@ def find_evidence_refs(text: str) -> set[str]:
 def _sentences(text: str) -> list[str]:
     """Split *text* into sentences on .!? followed by whitespace.
 
-    Naive splitter -- adequate for prose audit since false-positive
+    Naive splitter, adequate for prose audit since false-positive
     over-segmentation only widens the safety net.
     """
     return [s for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
@@ -78,7 +78,7 @@ def find_unsupported_claims(text: str) -> list[str]:
 
     A claim paired with an evidence ref ([E1]..[En]) in the SAME
     sentence is considered supported and not flagged.  Evidence in a
-    neighbouring sentence does NOT count -- the [Ex] must directly
+    neighbouring sentence does NOT count. The [Ex] must directly
     accompany the claim.
     """
     flagged: list[str] = []

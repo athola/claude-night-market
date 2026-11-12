@@ -2,8 +2,8 @@
 
 The gate decides whether the agent may ramp the next increment's
 ambition a notch. It is the load-bearing part of graduated
-implementation: too lax and ambition outruns understanding (blind
-trust); too strict and the work never advances (over-drilling). The
+implementation. Too lax, and ambition outruns understanding (blind
+trust). Too strict, and the work never advances (over-drilling). The
 design target is the ~85% band.
 
 ## The gate by stakes
@@ -21,7 +21,7 @@ change, not a recap the agent fed the human. This is the
 sight-reading principle from graded music exams and the reason
 medicine rejected "see one, do one, teach one": confidence outran
 competence when the test was a rehearsal. A signal that is cheap to
-fake (completion, a streak, a yes) will be faked; the gate has to
+fake (completion, a streak, a yes) will be faked. The gate has to
 cost what understanding costs.
 
 The tier comes from `leyline:risk-classification`. The hook reads it
@@ -54,7 +54,7 @@ this builds on.
    every slice trivially but the rung never grows, or a single
    stumble ratchets it down and traps the work (the spaced-
    repetition "ease hell" that gets decks abandoned). Guard: ramp
-   faster when the human is clearly above the band; never ratchet
+   faster when the human is clearly above the band. Never ratchet
    the rung down on one miss alone.
 3. **Gaming the metric (Goodhart).** Optimizing the signal instead
    of the skill: padding tests, memorizing the recap, clicking
@@ -79,7 +79,7 @@ each increment to the current rung:
   and never crashes the agent.
 
 The hook enforces the *bound and the ramp*. It does not measure
-understanding; it requires that a demonstration was recorded before
+understanding. It requires that a demonstration was recorded before
 ambition grows. Measuring understanding is the human's job, which
-is the entire point: the gate exists so that judgment is built, not
-bypassed.
+is the entire point: the gate exists so that judgment gets
+built.

@@ -85,7 +85,7 @@ class CodeTransformationSkill:
         edits = [e for e in (_rewrite(n, code) for n in ast.walk(tree)) if e]
         rewritten, kept = _apply_edits(code, edits)
 
-        # Report only edits that reached the output, not nested ones dropped.
+        # Report only the edits that reached the output.
         transforms: list[dict[str, Any]] = []
         seen_types: set[str] = set()
         for edit in kept:
@@ -223,7 +223,7 @@ def _generator_call(node: ast.Call, code: str) -> _Edit | None:
 
 
 def _apply_edits(code: str, edits: list[_Edit]) -> tuple[str, list[_Edit]]:
-    """Apply edits outermost-first; an edit nested in an applied one is dropped.
+    """Apply edits outermost-first. An edit nested in an applied one is dropped.
 
     Returns the rewritten code and the edits that were applied, in source order.
     """

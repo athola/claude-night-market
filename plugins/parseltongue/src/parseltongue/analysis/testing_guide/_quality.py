@@ -4,7 +4,7 @@ C9 (PR #470 review, issue #485): the prior shape was a stateless
 ``TestQualityMixin`` class composed into ``TestingGuideSkill`` via
 multiple inheritance. The methods carried no state, never called
 ``self``, and were interchangeable with module-level functions. They
-are now module-level functions; the skill class delegates to them.
+are module-level functions, and the skill class delegates to them.
 
 Returns are still typed via the ``QualityAspects`` /
 ``QualityAssessment`` / ``QualityEnvelope`` ``TypedDict``s so static

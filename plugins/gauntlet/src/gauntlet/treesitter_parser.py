@@ -271,7 +271,7 @@ def _extract_from_tree(
                 )
 
             # Extract calls from function body, stopping at any nested
-            # definition; those are visited below in their own right.
+            # definition. Those are visited below in their own right.
             _extract_calls(node, file_path, language, qn, edges)
 
             # Recurse with this function as parent, mirroring the class

@@ -25,7 +25,7 @@ from pathlib import Path
 
 # File type classification
 # Only executable code types are gated. Markdown modules/commands are agent
-# instructions validated by abstract:skills-eval, not pytest.
+# instructions, and abstract:skills-eval validates them.
 SKILL_FILE = "skill"
 PYTHON_FILE = "python"
 
@@ -69,7 +69,7 @@ def is_implementation_file(file_path: str) -> tuple[bool, str | None]:
     """
     path = Path(file_path)
 
-    # Skill files (SKILL.md defines core behavior — keep gated)
+    # Skill files (SKILL.md defines core behavior: keep gated)
     if path.name == "SKILL.md":
         return True, SKILL_FILE
 

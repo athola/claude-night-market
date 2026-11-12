@@ -11,7 +11,7 @@ modules/research-basis.md for the evidence base).
 This module holds the pure decision logic so it can be unit-tested
 without hook plumbing or disk. The hook wrapper
 (``guard_scope_ramp.py``) handles stdin, session state, and the
-ramp-token file; everything here is a pure function of its arguments.
+ramp-token file. Everything here is a pure function of its arguments.
 
 The model:
 
@@ -22,8 +22,8 @@ The model:
     minted out-of-band when a demonstration of the prior increment is
     recorded (a tradeoff-ledger entry plus, for high-stakes work, the
     human explaining the diff unaided: the magenta hand-fly check).
-    You cannot ramp by simply writing more; you ramp by proving you
-    understood the last slice. This is the clean-record gate (GDL) and
+    You ramp by proving you understood the last slice. Writing more
+    does not ramp. This is the clean-record gate (GDL) and
     the four-eyes anti-gaming device.
   - High-stakes paths (auth, migrations, payments, infra, crypto) get a
     halved effective rung, so they force a demonstration sooner. This
@@ -49,7 +49,7 @@ __all__ = [
 # read and explain in one sitting. Below the 85%-band intent: small
 # enough that understanding keeps pace with output.
 RUNG_START = 40
-# Ramp one notch per recorded demonstration. 1.5x is a notch, not a leap.
+# Ramp one notch per recorded demonstration. 1.5x is one notch.
 RAMP_FACTOR = 1.5
 # Even a well-understood ladder tops out: a single increment past this is
 # unreviewable regardless of demonstrated competence.
@@ -144,7 +144,7 @@ def assess_ramp(
     so the caller can persist it.
 
     *stakes* is an authoritative risk tier from
-    ``leyline:risk-classification``; when None the tier is derived from
+    ``leyline:risk-classification``. When None, the tier is derived from
     the file path. A ramp token, if present, widens the rung *before* the
     check: the bigger slice is earned by the recorded demonstration that
     minted the token, not by the act of writing more.

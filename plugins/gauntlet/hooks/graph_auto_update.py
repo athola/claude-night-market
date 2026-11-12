@@ -107,7 +107,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
             graph.close()
         duration = round(time.monotonic() - start, 2)
 
-        # An error or skipped report did no work; its counters are zeros
+        # An error or skipped report did no work. Its counters are zeros
         # that would otherwise read as a successful update.
         reason = report.get("error") or report.get("skipped")
         if reason:

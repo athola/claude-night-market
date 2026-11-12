@@ -215,7 +215,7 @@ false, would invalidate parts of this specification.
 
 ## Optional Sections
 
-Include these sections when they add value, not by default.
+Include these sections only when they add value.
 
 ### Success Criteria
 

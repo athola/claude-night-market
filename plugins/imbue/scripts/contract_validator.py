@@ -175,7 +175,7 @@ def _check_evidence(
     if evidence_count >= contract.min_evidence_count:
         return [], False
     # Normal rejects only zero evidence, which validate_findings gates
-    # for every tier; a nonzero shortfall is a warning below strict.
+    # for every tier. A nonzero shortfall is a warning below strict.
     if contract.strictness == "strict":
         return [], True
     return [
@@ -256,7 +256,7 @@ def validate_findings(
 def _load_contract(contract_path: Path) -> OutputContract:
     """Load a contract from a JSON file.
 
-    YAML support is deferred to a follow-up; convert with
+    YAML support is deferred to a follow-up. Convert with
     ``yq -o=json contract.yaml > contract.json`` if needed.
     """
     if contract_path.suffix in {".yaml", ".yml"}:
@@ -326,7 +326,7 @@ def main() -> int:
     result = validate_findings(findings_text, contract)
 
     if args.format == "json":
-        # Convert dataclass to plain dict; contract field needs special handling.
+        # Convert dataclass to plain dict. The contract field needs special handling.
         payload = {
             "passed": result.passed,
             "evidence_count": result.evidence_count,

@@ -20,7 +20,7 @@ import os
 import sys
 from pathlib import Path
 
-# The symlink-safe state primitives live in shared/vow_utils, the same
+# The symlink-safe state primitives are in shared/vow_utils, the same
 # home the increment hook uses, so both compute an identical private
 # counter path and share one audited CWE-59 defense.
 sys.path.insert(0, str(Path(__file__).parent))
@@ -36,7 +36,7 @@ from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path 
 _counter_path = read_counter_path
 _get_session_id = session_id_from
 
-# fcntl is POSIX-only; degrade to unlocked truncate on Windows.
+# fcntl is POSIX-only. Degrade to unlocked truncate on Windows.
 try:
     import fcntl as _fcntl  # type: ignore[import-not-found]  # POSIX-only; Windows takes the except branch
 
@@ -99,7 +99,7 @@ def _atomic_reset(path: Path) -> None:
                 f"[vow-bounded-reads] WARN: counter reset failed: {exc}",
                 file=sys.stderr,
             )
-    # Opening or chmod-ing the counter is the I/O left to fail here; the
+    # Opening or chmod-ing the counter is the I/O left to fail here. The
     # write's own OSError is handled above. Anything else is a bug and
     # reaches main(), whose catch-all keeps the hook from crashing.
     except OSError as exc:

@@ -44,7 +44,7 @@ Create clear, complete, and testable specifications from natural language featur
 
 ## Core Principles
 
-Focus on user value and business needs rather than implementation details. Avoid specifying technology choices in requirement definitions unless strictly necessary. Ensure every requirement is testable and verifiable with measurable criteria. Limit clarification markers; make informed assumptions based on industry standards and document them explicitly.
+Focus on user value and business needs rather than implementation details. Avoid specifying technology choices in requirement definitions unless strictly necessary. Ensure every requirement is testable and verifiable with measurable criteria. Limit clarification markers. Make informed assumptions based on industry standards and document them explicitly.
 
 ## Specification Structure
 

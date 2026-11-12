@@ -25,7 +25,7 @@ _ENTRY_PREFIXES = ("test_", "handle_", "on_", "do_")
 
 _MAX_FLOW_NODES = 1000
 
-# A flow with fewer nodes than this is a single call, not worth storing.
+# A flow with fewer nodes than this is a single call and is not worth storing.
 _MIN_NONTRIVIAL_FLOW_NODES = 2
 
 

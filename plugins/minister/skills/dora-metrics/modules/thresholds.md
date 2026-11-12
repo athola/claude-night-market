@@ -1,7 +1,7 @@
 # DORA Tier Thresholds
 
 Source: DORA's State of DevOps research. The thresholds below match
-the published bands; minor adjustments per release year are common
+the published bands. Minor adjustments per release year are common,
 but the band shape is stable.
 
 ## Deployment Frequency (DF)

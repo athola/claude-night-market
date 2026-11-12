@@ -87,8 +87,8 @@ and say why. Record consequential decisions in the
 [tradeoff ledger](modules/tradeoff-ledger.md) so the reasoning is
 auditable later and the human can challenge it now. This is how
 novices were always trained into experts: by working through the
-positives, negatives, and ramifications of a decision, not by
-copying the conclusion.
+positives, negatives, and ramifications of a decision. Copying the
+conclusion never did it.
 
 ### 3. Choose the mode, and fade it
 
@@ -107,7 +107,7 @@ time on skills the human is building. See
 Default to produce mode for commodity work and explain mode where
 understanding is the point. As the human's competence on a given
 area grows, fade from produce toward explain to manual: permanent
-scaffolding is the failure mode, not the goal.
+scaffolding is the failure mode.
 
 ## When To Use
 
@@ -116,7 +116,7 @@ scaffolding is the failure mode, not the goal.
 - The change touches an unfamiliar subsystem or a high-stakes path
   (auth, migrations, money, concurrency).
 - A design decision has more than one defensible answer.
-- The human is trying to build skill in an area, not just ship.
+- The human is trying to build skill in the area while shipping.
 
 Skip it for trivial, reversible, well-understood edits where the
 reasoning is self-evident: forcing a ledger entry on a typo fix is
@@ -133,7 +133,7 @@ ceremony, and ceremony trains people to ignore the gate.
 - A diff is correct to someone. State why it is correct, or it is a
   guess that happened to pass.
 - On work the human must own, the explanation is the deliverable, so
-  the time it takes is the work, not overhead.
+  the time it takes is part of the work.
 - Name the alternatives dismissed. There is rarely one way to do it,
   and a reader who sees only the winner cannot judge it.
 - Do not defer understanding to the moment it breaks. Automation bias
@@ -143,9 +143,9 @@ ceremony, and ceremony trains people to ignore the gate.
 ## Related Skills
 
 - `imbue:graduated-implementation`: the other direction of the same
-  axis. This skill fades scaffolding; that one ramps the ambition
+  axis. This skill fades scaffolding, and that one ramps the ambition
   of the next increment as understanding is demonstrated.
-- `imbue:proof-of-work`: evidence that the code works; this skill
+- `imbue:proof-of-work`: evidence that the code works. This skill
   adds evidence that the human understands it.
 - `imbue:rigorous-reasoning`: anti-sycophancy when evaluating the
   agent's stated tradeoffs rather than deferring to them.

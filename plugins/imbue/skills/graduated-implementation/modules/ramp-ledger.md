@@ -31,11 +31,12 @@ is the raw trail, not the permanent record.
 The durable home is the project decision journal,
 `leyline:decision-journal`. A ramp entry is a decision with a
 consequence (the wider rung), so it belongs alongside the tradeoff
-entries that minted it, not in a separate store. Promote each
+entries that minted it. Promote each
 `.imbue/ramp-ledger.jsonl` line into the decision journal with the
 `demonstration` text filled in (the hook records the structural fields;
 the human records what was actually asked and answered). The
-`.imbue/ramp-ok` token is ephemeral; the journal entry is permanent.
+`.imbue/ramp-ok` token is ephemeral, and the journal entry is
+permanent.
 
 ## Why the demonstration text is the point
 

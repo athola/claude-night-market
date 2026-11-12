@@ -95,8 +95,8 @@ Useful confidence signals, none of them blocking:
 - Repository stars, recent commit activity, and release cadence on
   the package's source.
 - Download counts and publish history on the registry (a popular
-  name registered yesterday is a red flag; a modest name with years
-  of releases is reassuring).
+  name registered yesterday is a red flag, and a modest name with
+  years of releases is reassuring).
 
 Treat low usage as a prompt to look closer, never as a reason to
 reject on its own. New, niche, internal, and private packages are
@@ -122,7 +122,7 @@ not to gate.
 
 The `guard_package_hallucination.py` hook runs this check
 automatically on every Bash install command. Shadow mode (warn
-only) is the default; set `VOW_SHADOW_MODE=0` to block
+only) is the default. Set `VOW_SHADOW_MODE=0` to block
 typosquat and nonexistent installs. Disable the network lookup
 with `IMBUE_PKG_REGISTRY_CHECK=0` to rely on the offline
 typosquat signal alone. The hook is a backstop, not a substitute:

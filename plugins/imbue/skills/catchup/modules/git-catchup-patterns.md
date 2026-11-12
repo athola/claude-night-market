@@ -60,7 +60,7 @@ sem log <entity-name>
 
 **Key advantages over git diff --stat:**
 
-- Shows which functions/classes changed, not just files
+- Shows which functions and classes changed inside each file
 - Distinguishes additions from modifications from renames
 - `sem log` tracks an entity across renames
 
@@ -92,7 +92,7 @@ git log -p --follow -- path/to/file                 # File history with patches
 
 Then proceed with catchup-specific insight extraction and follow-up identification.
 
-**Sanctum provides the raw data; catchup extracts insights and concrete next steps.**
+**Sanctum provides the raw data, and catchup extracts insights and concrete next steps.**
 
 ## Common Patterns
 

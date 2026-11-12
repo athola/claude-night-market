@@ -7,7 +7,7 @@ test you can apply to your own diff. Naming the rail
 helps recall.
 
 Adapted from observations distilled by Forrest Chang
-from Karpathy's notes; see
+from Karpathy's notes. See
 `references/source-attribution.md` for the citation
 chain. Examples are rewritten in our own prose to
 illustrate the failure shape, not lifted verbatim.
@@ -223,8 +223,8 @@ module already handles.
 
 **Trigger**: "Fix the authentication system." The
 agent responds "I will review the code, identify
-issues, make improvements, and test." That is a plan
-shape, not a verification plan.
+issues, make improvements, and test." That has the
+shape of a plan with no verification in it.
 
 **Bad shape**: a four-step list of verbs (review,
 identify, improve, test) with no checkable signal per

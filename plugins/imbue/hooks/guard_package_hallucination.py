@@ -135,7 +135,7 @@ def main() -> None:
 
         shadow = shadow_mode_active()
         hard = [f for f in findings if f["kind"] in ("typosquat", "nonexistent")]
-        # Hard findings block when blocking is enabled; unverified always warns.
+        # Hard findings block when blocking is enabled, and unverified always warns.
         decision = "block" if (hard and not shadow) else "warn"
 
         output = vow_output(

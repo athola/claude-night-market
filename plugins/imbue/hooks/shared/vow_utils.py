@@ -58,7 +58,7 @@ def secure_state_dir(name: str) -> Path:
     Defaults to ``<tmpdir>/<name>-<uid>`` created mode 0o700 so no other
     user can plant files or symlinks inside it. ``IMBUE_STATE_DIR``
     overrides the base (used by tests for isolation). Falls back to the
-    shared tmpdir root only if the private dir cannot be created; the
+    shared tmpdir root only if the private dir cannot be created. The
     per-file ``O_NOFOLLOW`` guard still applies there.
     """
     override = os.environ.get("IMBUE_STATE_DIR")
@@ -151,7 +151,7 @@ def read_counter_path(session_id: str) -> Path:
     """Return the session-scoped read-budget counter file.
 
     vow_bounded_reads increments it and vow_bounded_reads_reset zeroes it.
-    One definition, so the reset cannot drift to a different file. Lives
+    One definition, so the reset cannot drift to a different file. It is
     in a private per-user dir (mode 0o700) so another user cannot plant a
     symlink at this predictable name.
     """

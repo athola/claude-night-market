@@ -15,7 +15,7 @@ import re
 import sys
 from pathlib import Path
 
-# D-06: shadow_mode + git_commit_offset live in shared/vow_utils.
+# D-06: shadow_mode and git_commit_offset are in shared/vow_utils.
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
     git_commit_offset,

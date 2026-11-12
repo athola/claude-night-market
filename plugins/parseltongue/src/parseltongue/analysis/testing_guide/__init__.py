@@ -4,7 +4,7 @@ Package layout
 --------------
 _structure.py       -- AST parsing, test structure, coverage gaps,
                        mock usage, performance, and the async entry
-                       point. Stateful (uses ``self``); kept as a
+                       point. Stateful (uses ``self``), kept as a
                        mixin.
 _quality.py         -- Stateless test-quality scoring functions
                        (C9, issue #485).
