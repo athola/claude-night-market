@@ -129,7 +129,7 @@ When the target PR is part of a stack of dependent PRs
 rooted at a common base branch, `/fix-pr` can apply the
 fix workflow to every PR in the stack in one invocation.
 Each PR still passes its own Gate 1 (thread resolution)
-and Gate 2 (issue tracking); the root PR additionally
+and Gate 2 (issue tracking), and the root PR additionally
 receives a consolidated stack-level summary.
 
 ```bash
@@ -420,9 +420,9 @@ confirm):
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
   a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`, `action`;
-  set `phase` to `review`). Show the draft; append on confirmation.
+  set `phase` to `review`). Show the draft and append on confirmation.
 - Fallback (leyline absent): append to `docs/lessons-learned.md` using the
-  in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+  in-file ENTRY TEMPLATE and assign the next `LL-NNN` id.
 
 ## See Also
 

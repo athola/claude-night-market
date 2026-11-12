@@ -137,7 +137,7 @@ def make_decision(
 ) -> CacheInterceptDecision:
     """Make decision based on cache results and mode."""
     # _make_decision is declared `-> Any` (it injects the decision type at call
-    # time); pin the result to the real return type before handing it back.
+    # time). Pin the result to the real return type before handing it back.
     decision: CacheInterceptDecision = _make_decision(
         DecisionRequest(
             query=query,

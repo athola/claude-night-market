@@ -50,7 +50,7 @@ cognitive demands of the task to model strengths.
 | QUALITY | update-docs | Standard | Documentation follows implementation |
 | SHIP | prepare-pr | Standard | Summarization and formatting |
 | SHIP | pr-review | Standard | Review against criteria |
-| SHIP | fix-pr | Deep | Addressing nuanced review feedback |
+| SHIP | fix-pr | Deep | Addressing subtle review feedback |
 | SHIP | merge | Lightweight | Mechanical merge operation |
 
 With this routing, roughly half the pipeline runs below

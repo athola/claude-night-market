@@ -40,7 +40,7 @@ def _build_computational_encoding(
 
     Populates defaults for every entity in ``associations``.
     Graph-derived metrics (centrality, cluster_id) remain at
-    defaults unless a graph DB is available; callers that have
+    defaults unless a graph DB is available. Callers that have
     access to PalaceGraphAnalyzer can enrich them separately.
     """
     associations: dict[str, Any] = palace.get("associations") or {}
@@ -169,7 +169,7 @@ class PalaceRepository:
 
         Replaces ``sensory_encoding`` with ``computational_encoding``
         in the persisted data. ``last_modified`` is refreshed on the
-        caller's dict in place; the encoding swap happens on a shallow copy
+        caller's dict in place. The encoding swap happens on a shallow copy
         that is the only thing written.
 
         Args:

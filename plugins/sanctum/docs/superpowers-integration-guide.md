@@ -13,7 +13,7 @@ This guide documents the enhanced command patterns (formerly wrappers) created t
 ### Design Principles
 
 1. **Backward Compatibility**: Original Sanctum commands remain functional
-2. **Progressive Enhancement**: Superpowers capabilities are additive, not replacements
+2. **Progressive Enhancement**: Superpowers capabilities are additive
 3. **Clear Delegation**: Wrappers explicitly delegate to superpowers for code review
 4. **Sanctum Extensions**: Preserve Sanctum's unique GitHub integrations and scope validation
 

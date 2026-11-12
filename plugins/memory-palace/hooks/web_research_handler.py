@@ -150,7 +150,7 @@ def _try_register_graph_entity(
     )
 
 
-# The title shape rules live in the corpus package because the index
+# The title shape rules are in the corpus package because the index
 # promoter needs the same ruling to repair titles this hook stored
 # before the rules were right (#624).
 _looks_like_title = looks_like_title

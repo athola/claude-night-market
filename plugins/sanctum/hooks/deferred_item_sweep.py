@@ -154,7 +154,7 @@ def process_ledger(ledger_path: Path) -> dict:
 
     # The watcher appends to this ledger while the sweep runs (up to the
     # sweep budget). Entries past the original length arrived after the
-    # read above; dropping them would lose a deferral nobody has filed.
+    # read above. Dropping them would lose a deferral nobody has filed.
     # The lock keeps a watcher append from landing between this re-read
     # and the unlink or replace below.
     with ledger_lock(ledger_path):

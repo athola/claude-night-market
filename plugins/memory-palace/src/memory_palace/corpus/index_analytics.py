@@ -245,7 +245,7 @@ def rank_promotion_candidates(
     Uses only structural signals available in the index itself (recency,
     domain authority, and topic-cluster size), so the ranking is
     deterministic and needs no model. The importance/routing decisions
-    that mutate the index live in the promotion engine, not here.
+    that mutate the index are in the promotion engine.
     """
     entries = index.get("entries", {})
     cluster_sizes = {

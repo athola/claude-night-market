@@ -76,7 +76,7 @@ Record a decision whenever the orchestrator:
 
 Do not record trivial operational facts (e.g., "loaded
 manifest successfully").
-The decision log is for choices, not events.
+The decision log records choices only.
 
 ## Examples
 

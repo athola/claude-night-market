@@ -38,7 +38,7 @@ Load this skill when a command accepts a `--stack` flag
 its normal workflow across multiple PRs.
 
 Do NOT load this skill for single-PR workflows. The
-per-PR workflow stays unchanged; stack mode wraps it.
+per-PR workflow stays unchanged and stack mode wraps it.
 
 ## When NOT To Use
 
@@ -304,7 +304,7 @@ Post via `gh pr comment "$ROOT_PR" --body-file <file>`.
 | Base chain loops | Visited set on ascent | Halt, report `stack-mode: cycle detected` |
 | Mid-stack PR failed its Gates | Caller raises | Halt iteration, leave downstream untouched |
 | Strategy B table malformed | Parse fails | Fall through to Strategy C |
-| Auth scope insufficient | `gh` returns 403 | Halt with clear error; caller surfaces to user |
+| Auth scope insufficient | `gh` returns 403 | Halt with clear error for the caller to surface |
 
 ## Notes
 

@@ -68,7 +68,7 @@ def repair_text(text: str) -> str | None:
     block = "\n".join(lines[start:end])
     try:
         if isinstance(yaml.safe_load(block), dict):
-            return None  # Already readable; nothing to do.
+            return None  # Already readable, nothing to do.
     except yaml.YAMLError:
         pass
 

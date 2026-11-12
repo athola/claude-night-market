@@ -28,8 +28,8 @@ from pathlib import PurePosixPath
 #: against the repository-relative path of each changed file.
 #:
 #: - CI and workflow definitions decide what gates the work at all.
-#: - Lockfiles are a supply-chain surface; see
-#:   ``Skill(leyline:supply-chain-advisory)``.
+#: - Lockfiles are a supply-chain surface (see
+#:   ``Skill(leyline:supply-chain-advisory)``).
 #: - The constitution and settings files are the rules the harness runs
 #:   under. A loop that can edit its own constraints has none.
 #: - Hooks execute on every tool call in every future session.
@@ -40,7 +40,7 @@ DENY_PATTERNS = (
     "**/poetry.lock",
     "**/Cargo.lock",
     "**/yarn.lock",
-    # Anchored at any depth, not at the repository root. Claude Code
+    # Matches at any depth below the repository root. Claude Code
     # reads directory-scoped settings and rules, so a nested `.claude/`
     # is a real control surface and this repo already ships one under
     # `plugins/`. The root-anchored spellings denied
@@ -118,7 +118,7 @@ def within(allowed: str, path: str) -> bool:
 
     Comparison is segment-wise, so ``plugins/conjure`` does not authorize
     ``plugins/conjure-extra``. A trailing slash on ``allowed`` is treated
-    the same as its absence; both mean "this path or anything under it".
+    the same as its absence: both mean "this path or anything under it".
     """
     allowed_parts = PurePosixPath(allowed.rstrip("/")).parts
     path_parts = PurePosixPath(path).parts
@@ -136,7 +136,7 @@ def _normalized_allow(allow_paths: Sequence[str]) -> list[str]:
     inside the tree the gate is fencing.
 
     Dropping rather than raising, because an allowlist that cannot be
-    trusted should narrow the scope, not widen it. An item whose every
+    trusted should only ever narrow the scope. An item whose every
     entry is dropped allows nothing, which is the safe reading. A root
     entry is dropped for the same reason: it would allow every path.
     """
@@ -164,7 +164,7 @@ def check(allow_paths: Sequence[str], changed: Sequence[str]) -> ScopeResult:
 
     An empty ``changed`` set is not a violation. A task that produced no
     diff has failed to do its job, which the driver handles as a task
-    failure; it has not breached anything.
+    failure. It has not breached anything.
     """
     denied = [p for p in changed if is_denied(p)]
     if denied:

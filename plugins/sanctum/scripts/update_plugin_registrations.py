@@ -49,7 +49,7 @@ class _ScanningMixin:
             try:
                 parts = path.relative_to(root).parts
             except ValueError:
-                # Path outside the plugins root; fall back to full parts.
+                # Path outside the plugins root: fall back to full parts.
                 parts = path.parts
         return any(exclude in parts for exclude in CACHE_EXCLUDES)
 

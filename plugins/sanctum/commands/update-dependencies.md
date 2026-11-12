@@ -40,7 +40,7 @@ Spawns a `dependency-updater` agent that:
    - package.json (JavaScript) - including monorepo packages
    - go.mod (Go) - including submodules
 
-   > **Important**: Always use recursive glob patterns (`**/pyproject.toml`) or `find` to discover ALL dependency files, not just root-level ones. Monorepos commonly have nested workspace members that need updating together.
+   > **Important**: Always use recursive glob patterns (`**/pyproject.toml`) or `find` to discover ALL dependency files, including nested ones. Monorepos commonly have nested workspace members that need updating together.
 
 2. **Checks** each ecosystem for available updates using native tooling
 

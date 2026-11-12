@@ -16,7 +16,8 @@ babysitter PASS over red evidence becomes FAIL, which is tightening. A
 babysitter FAIL over green evidence becomes PASS with the objection
 recorded as ``dissent``, which is loosening, and is deliberate: a model
 disagreeing with a passing test is a comment on the specification, and
-specifications are a human's call in the morning, not a 3am block.
+specifications wait for a human in the morning instead of blocking at
+3am.
 
 What the babysitter can do alone is BLOCK. Past that arm it selects the
 wording of the reason and whether ``dissent`` is set, and the evidence

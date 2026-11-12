@@ -73,7 +73,7 @@ TaskUpdate now supports deleting tasks. Use deletion to clean up completed workf
 - Temporary tracking items that served their purpose
 
 ### When NOT to Delete
-- Items that serve as audit trails (proof-of-work items)
+- Items that are audit trails (proof-of-work items)
 - Items referenced by other active workflows
 - Items the user may want to review later
 

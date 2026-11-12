@@ -45,7 +45,7 @@ DECAY_CONFIG: dict[str, dict] = {
     },
 }
 
-# Retention bound at write time by unit type, not guessed per item. A status
+# Retention is fixed at write time by unit type. A status
 # update and a durable finding differ in how fast they stop being true, so
 # they cannot share a curve. Mirrors series-level retention in records
 # management: the writer picks a class, never a TTL.
@@ -295,7 +295,7 @@ class DecayModel:
 
         Args:
             entries: List of entry dicts with 'id' and 'maturity' keys. An
-                entry never validated decays from its ISO 'created_at'; with
+                entry never validated decays from its ISO 'created_at'. With
                 neither it counts as validated now and is never stale.
             threshold: Decay threshold below which entries are returned
 

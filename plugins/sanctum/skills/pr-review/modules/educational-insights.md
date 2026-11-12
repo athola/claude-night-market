@@ -103,14 +103,13 @@ they become separate issues with their own context.
 ### Don't: Over-Teach on Trivial Findings
 > [Three paragraphs explaining why a typo matters]
 
-**Do:** Match depth to severity. A typo fix needs one line,
-not a lecture.
+**Do:** Match depth to severity. A typo fix needs one line.
 
 ## Integration with Phase 6 Report
 
 The Phase 6 report template already groups findings by
 classification. Educational insights are embedded inline
-within each finding, not in a separate section. This
+within each finding. This
 keeps the insight next to the code it explains, making
 the review scannable and the lessons immediately visible.
 
@@ -120,4 +119,4 @@ the review scannable and the lessons immediately visible.
 - [ ] Every IN-SCOPE finding has Why + Proof
 - [ ] SUGGESTION findings have Why (Proof if available)
 - [ ] Proof links are to authoritative, stable URLs
-- [ ] Insights explain the principle, not just the symptom
+- [ ] Insights explain the principle as well as the symptom

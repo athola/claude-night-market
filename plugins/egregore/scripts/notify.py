@@ -193,7 +193,7 @@ def _build_ctx(  # noqa: PLR0913, PLR0917 - mirrors AlertContext field order for
 ) -> Any:
     """Build an AlertContext from either an existing ctx or kwargs.
 
-    If *ctx* is provided its fields take precedence; individual
+    If *ctx* is provided its fields take precedence, and individual
     kwargs are used as fallbacks.  Returns a fully-populated
     AlertContext suitable for passing to herald.
     """
@@ -208,7 +208,7 @@ def _build_ctx(  # noqa: PLR0913, PLR0917 - mirrors AlertContext field order for
     )
 
 
-def build_issue_body(  # noqa: PLR0913, PLR0917 - backward-compat wrapper; positional order is the published contract
+def build_issue_body(  # noqa: PLR0913, PLR0917 - backward-compat wrapper: positional order is the published contract
     event: Any,
     ctx: Any | None = None,
     work_item_id: str = "",
@@ -273,7 +273,7 @@ def _build_alert_title(event: Any, ctx: Any, source: str) -> str:
     return title
 
 
-def alert(  # noqa: PLR0913, PLR0917 - backward-compat wrapper; positional order is the published contract
+def alert(  # noqa: PLR0913, PLR0917 - backward-compat wrapper: positional order is the published contract
     event: Any,
     overseer_method: str = "github-repo-owner",
     webhook_url: str | None = None,
@@ -324,7 +324,7 @@ def alert(  # noqa: PLR0913, PLR0917 - backward-compat wrapper; positional order
     return success
 
 
-def config_alert(  # noqa: PLR0913, PLR0917 - config-aware entry point; positional order is the published contract
+def config_alert(  # noqa: PLR0913, PLR0917 - config-aware entry point: positional order is the published contract
     event: Any,
     alerts_cfg: AlertsConfig,
     overseer_cfg: OverseerConfig,

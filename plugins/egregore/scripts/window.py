@@ -153,8 +153,8 @@ def record_reset(
     This mutates the object and does not write it anywhere. The caller
     must persist it, or the watchdog relaunches straight into the same
     rate limit. Persisting is the caller's job because this module
-    knows only the two-field :class:`CooldownState` shape, not
-    ``budget.Budget`` or its path.
+    handles only the two-field :class:`CooldownState` shape and has no
+    access to ``budget.Budget`` or its path.
 
     Returns the instant recorded. When ``reset_at`` is None the fallback
     is ``UNKNOWN_RESET_WAIT_MINUTES`` from now: an unattended run that
@@ -189,7 +189,7 @@ CRON = "cron"
 NOTHING = "nothing"
 
 #: How far ahead a session-only job is worth scheduling, in hours.
-#: This is a judgment, not a documented limit. ``CronCreate`` jobs die
+#: The value is a judgment call. ``CronCreate`` jobs die
 #: with the session, and holding one idle for longer than a day is a bet
 #: rather than a plan. The tool's published 7-day expiry bounds the job,
 #: not the session that carries it.
@@ -249,7 +249,7 @@ def plan_resume(
 ) -> ResumePlan:
     """Name the mechanism that can actually resume work at ``reset_at``.
 
-    The choice is decided by the harness contract, not by preference.
+    The harness contract decides the choice.
     ``CronCreate`` schedules a prompt **inside the running session**: its
     own description says jobs "live only in this Claude session", that
     nothing is written to disk, that ``durable`` "has no effect", and

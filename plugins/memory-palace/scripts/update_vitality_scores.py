@@ -87,7 +87,7 @@ def decay_entries(
 ) -> dict[str, Any]:
     """Apply decay to vitality entries and build tending queue.
 
-    ``recomputed_at`` is the mark stored as ``last_recomputed``; it
+    ``recomputed_at`` is the mark stored as ``last_recomputed``. It
     defaults to the run time.
     """
     entries = data.get("entries", {})
@@ -141,7 +141,7 @@ def main() -> None:
     last_recomputed = metadata.get("last_recomputed")
     now = dt.datetime.now(dt.timezone.utc)
 
-    # Manual --decay overrides the time-based amount; otherwise scale by
+    # Manual --decay overrides the time-based amount. Otherwise scale by
     # elapsed days so bursty same-day commits are a no-op.
     decay = (
         args.decay
@@ -154,8 +154,8 @@ def main() -> None:
     #
     # Elapsed time alone is not a change. With no decayable entries the
     # only field that moves is ``last_recomputed``, and the pre-commit
-    # maintenance hook re-stages any file whose bytes moved -- so that
-    # bump rides into whatever unrelated commit runs first that day
+    # maintenance hook re-stages any file whose bytes moved. That
+    # bump then rides into whatever unrelated commit runs first that day
     # (#605), and resists reverting because the next commit regenerates
     # it (#611).
     bootstrap = last_recomputed is None

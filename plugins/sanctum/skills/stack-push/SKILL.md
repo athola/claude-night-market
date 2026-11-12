@@ -100,7 +100,7 @@ jj git push --all
 ## Step 3: Open or Update PRs (`prs-opened`)
 
 Create one PR per slice, targeting its parent branch.
-For the first slice the parent is `master`; for subsequent
+For the first slice the parent is `master`. For subsequent
 slices the parent is the previous slice's branch.
 
 ```bash

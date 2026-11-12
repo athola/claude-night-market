@@ -140,4 +140,5 @@ For simple queries, parent can execute directly:
 - `git diff --stat` → Parent runs Bash directly
 - "What branch am I on?" → Parent runs `git branch --show-current`
 
-**Use this agent** for thorough workspace analysis, not simple git commands.
+**Use this agent** for thorough workspace analysis. Run simple git
+commands directly.

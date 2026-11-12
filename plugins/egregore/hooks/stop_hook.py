@@ -60,7 +60,7 @@ def max_stalls() -> int:
 
 
 def manifest_fingerprint(manifest_path: Path) -> str:
-    """Hash the manifest bytes; the hash changing is what counts as progress."""
+    """Hash the manifest bytes. A changed hash counts as progress."""
     try:
         return hashlib.sha256(manifest_path.read_bytes()).hexdigest()
     except OSError:
@@ -118,7 +118,7 @@ def orchestrator_running(payload: dict[str, object]) -> bool:
 
     Interactive spawns run in the background by default since CLI 2.1.232,
     so the main session stops while the loop advances. Stop input lists
-    in-flight work in ``background_tasks``; blocking on top of a running
+    in-flight work in ``background_tasks``. Blocking on top of a running
     orchestrator would re-inject the relaunch prompt into a live run.
     """
     tasks = payload.get("background_tasks")

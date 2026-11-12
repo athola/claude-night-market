@@ -1,13 +1,13 @@
 """Shape rules for what counts as a captured page title.
 
-A title names a thing; prose describes one. The capture hook has to
+A title names a thing and prose describes one. The capture hook has to
 make that call on every fetch, and the index promoter has to make the
 same call when repairing titles the hook stored before these rules
 were right. Both need one answer, so the rules live here rather than
 in the hook that happens to have needed them first.
 
-The rules are shape checks, not a phrase blocklist. Model phrasing
-drifts and a phrase list rots; the shape of a bullet does not. Where a
+The rules check shape. Model phrasing
+drifts and a phrase list rots, but the shape of a bullet does not. Where a
 literal list survives (``_PREAMBLE_OPENERS``, ``_GENERIC_HEADINGS``)
 it is kept deliberately short and, for the generics, matched
 whole-line, so a real title that merely contains the word is untouched.

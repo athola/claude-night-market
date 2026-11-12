@@ -328,7 +328,7 @@ def _build_toast_script(title: str, message: str) -> str:
     """Build PowerShell toast notification script.
 
     Escapes title and message for XML, respects CLAUDE_NOTIFICATION_SOUND.
-    The XML sits in a single-quoted here-string, which PowerShell never
+    The XML is in a single-quoted here-string, which PowerShell never
     expands: the message names the working directory, and a double-quoted
     one ran any `$(...)` in that name. html.escape encodes ``'``, so the
     body cannot close the string.

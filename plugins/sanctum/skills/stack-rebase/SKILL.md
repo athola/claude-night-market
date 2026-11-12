@@ -191,7 +191,7 @@ gh pr edit "${NEXT_PR}" --base master
 
 For PRs further down the stack, their bases remain the
 previous slice branch, which `--update-refs` already
-rewrote; no base edit is needed for them.
+rewrote. No base edit is needed for them.
 
 Verify the full stack is consistent:
 

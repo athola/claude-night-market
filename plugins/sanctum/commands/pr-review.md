@@ -154,7 +154,7 @@ When the target PR is part of a stack of dependent PRs
 rooted at a common base branch, `/pr-review` can review
 the entire stack in one invocation. Each PR still gets
 its own review comment, test plan, and PR description
-update; the root PR additionally receives a consolidated
+update, and the root PR additionally receives a consolidated
 stack-level summary.
 
 ```bash
@@ -202,10 +202,10 @@ format used by both `/pr-review --stack` and
 4. **PR Hygiene** - Atomicity, self-review signals, agent curation (MANDATORY)
 5. **Code Analysis** - Deep technical review
 6. **Code Quality** - Duplication, redundancy, test quality analysis
-7. **Formal Review** - Post one review with a verdict via `plugins/sanctum/scripts/post_formal_review.py` on GitHub or GitLab (MANDATORY; or write to local file with `--local`)
-8. **Test Plan** - Post verification checklist to PR (MANDATORY; or include in local file with `--local`)
-9. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY; skipped with `--local`)
-10. **Discussion Insights** - Post review findings as Insights to GitHub Discussions (DEFAULT; opt-out with `--no-insights`)
+7. **Formal Review** - Post one review with a verdict via `plugins/sanctum/scripts/post_formal_review.py` on GitHub or GitLab (MANDATORY, or write to local file with `--local`)
+8. **Test Plan** - Post verification checklist to PR (MANDATORY, or include in local file with `--local`)
+9. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY, skipped with `--local`)
+10. **Discussion Insights** - Post review findings as Insights to GitHub Discussions (DEFAULT, opt-out with `--no-insights`)
 11. **Comprehension Loop** - Socratic probe of the changed code, recorded to gauntlet (OPT-IN with `--interactive`)
 
 **MANDATORY OUTPUTS:** Review comment, Test plan comment, PR description update.
@@ -233,7 +233,7 @@ by `{type|skill|summary}` content hash with 30-day staleness, so
 re-running on the same review is idempotent. The user observed that
 cron-driven Phase 6a Learning posts were the only auto-post path,
 leaving recent iterative review work invisible to the collective
-intelligence layer; this step closes that loop.
+intelligence layer. This step closes that loop.
 
 Skip with `--no-insights` for trivial reviews where the findings
 aren't worth posting (e.g., typo fixes, version bumps).
@@ -290,7 +290,7 @@ gh pr view $PR_NUM --json body --jq '.body | length > 0'
 ```
 
 **If any check returns `false`, the review is INCOMPLETE.** With
-`--concise`, only check 1 applies; checks 2 and 3 return `false` by
+`--concise`, only check 1 applies. Checks 2 and 3 return `false` by
 design.
 
 **Full workflow details**: See [Workflow Details](pr-review/modules/review-workflow.md)

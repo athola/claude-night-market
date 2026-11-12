@@ -7,7 +7,7 @@ to resume the pipeline.
 
 The registration matches ``startup|resume`` only. ``fork`` and
 ``compact`` continue a conversation that already carries this banner,
-so re-injecting it there is noise. ``clear`` is excluded as well; that
+so re-injecting it there is noise. ``clear`` is excluded as well. That
 choice predates the ``fork`` source and is left as found rather than
 revisited without a reason to.
 

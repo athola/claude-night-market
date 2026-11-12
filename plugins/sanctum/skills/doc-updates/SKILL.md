@@ -167,7 +167,7 @@ Edited `.py` files belong in that list. The scorer reads a Python path
 as its comments and docstrings, keeping the line numbers, so a finding
 names the line to open. Notation is not prose: an arrow in a mapping
 table, a plus in a formula, and a character quoted because the code
-matches it are all code that happens to sit in a docstring.
+matches it are all code that happens to appear in a docstring.
 
 ### Audience Fit
 
@@ -356,7 +356,7 @@ When `ENABLE_LSP_TOOL=1` is set, enhance accuracy verification with semantic ana
 
 **Default Strategy**: Documentation updates should **prefer LSP** for all verification tasks. Enable `ENABLE_LSP_TOOL=1` permanently for best results.
 
-**Non-blocking**: Warnings are informational; user decides whether to fix.
+**Non-blocking**: Warnings are informational. The user decides whether to fix.
 
 ## Step 6: Preview Changes (`preview`)
 

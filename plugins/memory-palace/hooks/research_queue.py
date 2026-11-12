@@ -16,7 +16,7 @@ which owns the rubric.
 Registered with ``async: true``. The SessionEnd batch is bounded by
 ``max(1500ms, max timeout declared in settings-level hooks)``, a ceiling
 this plugin's own ``timeout`` does not raise, and interpreter startup
-alone can exceed it. The queue file is the record; nothing this hook
+alone can exceed it. The queue file is the record. Nothing this hook
 prints reaches a session that has already ended.
 """
 
@@ -180,7 +180,7 @@ def _render(
 ) -> str:
     """Build the review stub. Scoring is deliberately left unfilled.
 
-    *prompt* and *topic* arrive redacted; see the call site.
+    *prompt* and *topic* arrive redacted (see the call site).
     """
     frontmatter = render_frontmatter(
         {

@@ -84,7 +84,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         return
 
     # AutonomyStateStore.load raises ValueError for a state file the
-    # operator must repair; a traceback buries the path it names.
+    # operator must repair. A traceback buries the path it names.
     try:
         if args.command == "autonomy":
             _handle_autonomy(args)

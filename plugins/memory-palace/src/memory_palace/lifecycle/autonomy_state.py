@@ -302,7 +302,7 @@ class AutonomyStateStore:
         """Set global or domain-specific level and persist.
 
         Raises:
-            ValueError: ``lock`` is given without ``domain``; locks exist
+            ValueError: ``lock`` is given without ``domain``. Locks exist
                 only on domain controls.
 
         """

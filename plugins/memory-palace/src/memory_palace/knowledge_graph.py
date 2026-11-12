@@ -17,7 +17,7 @@ from typing import Any
 
 try:
     from leyline.sqlite_graph_base import SqliteGraphBase
-except ImportError:  # pragma: no cover -- standalone fallback
+except ImportError:  # pragma: no cover (standalone fallback)
     from memory_palace._vendored_leyline_sqlite_graph_base import (
         SqliteGraphBase,
     )
@@ -193,7 +193,7 @@ class KnowledgeGraph(SqliteGraphBase):
     def get_entities_batch(self, entity_ids: list[str]) -> dict[str, dict[str, Any]]:
         """Fetch multiple entities by ID in a single query.
 
-        Returns a dict keyed by entity_id; missing IDs are absent from
+        Returns a dict keyed by entity_id. Missing IDs are absent from
         the result rather than mapped to None.
         """
         if not entity_ids:

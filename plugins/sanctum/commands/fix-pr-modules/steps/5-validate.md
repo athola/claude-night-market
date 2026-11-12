@@ -170,7 +170,7 @@ evidence for the reviewer.
 HTTP probes, headless browser actions (CDP-based MCP tool or
 Playwright spec), and, as a last resort, desktop GUI
 control. The strategy table in 5.4.2 maps test-item shapes to
-the lightest tool that can answer them; the tier-selection
+the lightest tool that can answer them. The tier-selection
 guide in 5.4.5 covers when to escalate from Tier 1 (MCP CDP)
 to Tier 2 (Playwright) to Tier 3 (Computer Use).
 
@@ -245,7 +245,7 @@ partially automated:
 - **Server lifecycle**: When a manual item assumes "the
   server is running", verify the listener with `curl -sf
   http://localhost:PORT/health` or `nc -z localhost PORT`
-  BEFORE running the actual check; mark INCONCLUSIVE
+  BEFORE running the actual check. Mark INCONCLUSIVE
   with evidence if the server is not reachable
 
 ### 5.4.3 Execute and Capture Evidence
@@ -295,7 +295,7 @@ For each item, execute the strategy and record evidence:
 
 When a manual test item involves the browser/UI, choose the
 lightest tool that can verify it. Heavier tools cost more
-tokens and setup time; reach for them only when the lighter
+tokens and setup time. Reach for them only when the lighter
 option cannot answer the question.
 
 | Tier | Tool | Use when | Cost |

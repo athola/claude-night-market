@@ -15,7 +15,7 @@ operation, and works on files git has never seen.
 
 The tradeoff accepted: reformatting a file changes its digest and will
 raise the signal. Since the signal flags rather than suppresses, a
-false positive costs a verification prompt, not a lost memory.
+false positive costs only a verification prompt.
 """
 
 from __future__ import annotations

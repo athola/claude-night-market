@@ -26,8 +26,8 @@ synapse connectivity, and tier assignments.
 
 > **Status: wired**. Invoke via `/palace diagram <palace-id>
 > [--type map|ascii|entity|heatmap]`, which calls
-> `Skill(memory-palace:palace-diagram)`. The renderer lives in
-> `memory_palace.palace_renderer.PalaceRenderer`; see the Usage
+> `Skill(memory-palace:palace-diagram)`. The renderer is
+> `memory_palace.palace_renderer.PalaceRenderer`. See the Usage
 > section below for direct programmatic access.
 
 ## When To Use

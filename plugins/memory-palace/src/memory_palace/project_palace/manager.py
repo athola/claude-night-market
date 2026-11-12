@@ -125,7 +125,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         """Load a project palace by ID.
 
         Returns None when the palace is absent, corrupt, or unreadable, as
-        ``load_palace`` does; the reason goes to stderr.
+        ``load_palace`` does. The reason goes to stderr.
         """
         palace_file = os.path.join(self.project_palaces_dir, f"{palace_id}.json")
         if os.path.exists(palace_file):

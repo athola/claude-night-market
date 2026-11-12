@@ -102,7 +102,7 @@ Ensure all fixes are correct and quality gates pass.
 - Version validation (if applicable)
 - Execute automated test plan
 - Agent-verify manual test plan via shell, HTTP probes, or
-  headless browser (CDP MCP / Playwright); see Section 5.4
+  headless browser (CDP MCP / Playwright). See Section 5.4
 - Run quality gates
 - Document results
 - **5.7 Diff-derived validation** (`Skill(sanctum:validate-pr)`): area-targeted checks + revert-test. Halts before Step 6 on FAIL. Bypass: `--skip-validate`.

@@ -2,7 +2,7 @@
 """Manage the Memory Palace using a command-line interface.
 
 Provide commands for enabling, disabling, and managing the plugin,
-its skills, and associated palaces. Serve as the primary entrypoint
+its skills, and associated palaces. It is the primary entrypoint
 for administrative tasks.
 """
 
@@ -83,8 +83,8 @@ class _CLIBase:
 
     Declares the attributes set by ``MemoryPalaceCLI.__init__`` and the
     helpers every command group calls, so each mixin type-checks under
-    strict mypy. The concrete implementations live on the coordinator
-    (and ``prune_check`` on the palace mixin); these are forward
+    strict mypy. The concrete implementations are on the coordinator
+    (and ``prune_check`` on the palace mixin). These are forward
     declarations only.
     """
 

@@ -155,7 +155,7 @@ def _parse_skill_name(tool_input: dict) -> str:
 def _coerce_tool_input(value: object) -> dict:
     """Normalize ``tool_input`` to a dict regardless of source.
 
-    Stdin delivers it already parsed; the legacy env var delivers a JSON
+    Stdin delivers it already parsed, and the legacy env var delivers a JSON
     string. A non-object value collapses to an empty dict rather than
     raising, matching the lenient behavior the hooks relied on.
     """

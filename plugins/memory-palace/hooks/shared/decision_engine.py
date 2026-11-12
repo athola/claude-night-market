@@ -17,7 +17,7 @@ from .query_classifier import is_evergreen, needs_freshness
 class DecisionDeps:
     """Type references and tuning state injected to avoid circular imports.
 
-    The hook owns the real enum/model classes; the decision engine takes
+    The hook owns the real enum/model classes. The decision engine takes
     them as data so it never imports back into the hook package.
 
     ``Any`` is deliberate and not replaceable by a ``Protocol`` here: each

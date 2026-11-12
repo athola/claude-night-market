@@ -14,7 +14,7 @@ enabled: true
 
 > Implemented by `research_queue.py` in this directory and registered
 > on `SessionEnd` in `hooks.json`. The sections below describe the
-> contract; the script is the behavior. Thresholds live in
+> contract, and the script is the behavior. Thresholds are defined in
 > `research_queue.py` as `MIN_WEB_SEARCHES` and `QUEUE_DIR`.
 
 ## Purpose

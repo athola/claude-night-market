@@ -10,7 +10,7 @@ turn."
 This module does not remove the dependency. It removes the silence.
 
 The problem stated as a contradiction: the trigger must be inside the
-session, because only the session knows a unit finished the moment it
+session, because only the session can observe a unit finish the moment it
 finishes, and outside the session, because only an external process
 survives the session ending. One parameter pulled toward two opposite
 values, which is a physical contradiction, and compromise is the wrong
@@ -25,7 +25,7 @@ deadline. A turn that does not leaves a baton past its deadline with
 its sequence unmoved.
 
 The property that makes this more than a timeout: **stranded means
-stalled, not old.** A run that keeps advancing is healthy at any age,
+stalled, at any age.** A run that keeps advancing is healthy at any age,
 and a baton written seconds ago is stranded the instant its own
 deadline passes with no successor. An external watcher therefore polls
 on a clock but *acts* on a written fact, so relaunch latency is the
@@ -82,7 +82,7 @@ def read_baton(path: Path | None = None) -> Baton | None:
     """Return the current baton, or None if there is none to read.
 
     A missing file and an unreadable one both answer None. Treating
-    damage as "no claim" errs toward not relaunching; the opposite
+    damage as "no claim" errs toward not relaunching. The opposite
     default would let a truncated write spawn sessions.
     """
     target = Path(path) if path is not None else DEFAULT_BATON_PATH
@@ -128,8 +128,8 @@ def advance_baton(
     """Record that a turn happened, and set the deadline for the next.
 
     This is the call that makes a healthy run distinguishable from a
-    stalled one, so it belongs at the point the session decides it has
-    finished a unit, not on a timer.
+    stalled one, so it is called where the session finishes a unit and
+    never from a timer.
 
     ``now`` is required and separate from ``deadline`` on purpose. An
     earlier version recorded the deadline as the write time, which made

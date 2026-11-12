@@ -250,7 +250,7 @@ For each piece of knowledge, both must be yes:
 | No longer aligned | Release with gratitude |
 | Complements | Create bidirectional links |
 
-**"I might need this someday"** is fear, not joy. Release it.
+**"I might need this someday"** is fear talking. Release it.
 
 ## Marginal Value Filtering and Quality Scoring
 

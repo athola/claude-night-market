@@ -29,7 +29,7 @@ PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 # Hooks run as standalone scripts, so the package is not on the path.
 # Without this the memory_palace imports below fail and every weighting
 # and staleness check silently degrades to neutral. Adding the path is
-# cheap; it is a string operation, not an import.
+# cheap: it is a string operation and imports nothing.
 _SRC = str(PLUGIN_ROOT / "src")
 if _SRC not in sys.path:
     sys.path.insert(0, _SRC)
@@ -57,8 +57,8 @@ def _tokenize(text: str) -> set[str]:
 def _sessions_dir() -> Path:
     """Return the directory holding session records.
 
-    Resolved on call, not at import. PLUGIN_ROOT is version scoped --
-    hooks run from ``cache/<marketplace>/<plugin>/<version>/`` -- so
+    Resolved on each call rather than at import. PLUGIN_ROOT is version
+    scoped (hooks run from ``cache/<marketplace>/<plugin>/<version>/``), so
     session records written under it are stranded by the next update
     (issue #661). The persistent root fixes that, but importing it at
     module level would break the contract this hook is built on: recall
@@ -222,7 +222,7 @@ def _render(
 
     A unit whose dependencies moved is flagged rather than dropped. The
     reader needs to know the topic has history even when the ground
-    under it shifted; suppressing it hides both facts at once.
+    under it shifted. Suppressing it hides both facts at once.
     """
     if not ranked:
         body = (

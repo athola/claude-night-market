@@ -5,7 +5,7 @@ usage: /update-ci [--since <ref>] [--scope hooks|workflows|all] [--dry-run]
 
 # Update CI/CD Configuration
 
-Reconcile pre-commit hooks and GitHub Actions workflows with recent project changes. This command is designed for intermittent use; it inspects the git log to determine what changed since the last run.
+Reconcile pre-commit hooks and GitHub Actions workflows with recent project changes. This command is designed for intermittent use. It inspects the git log to determine what changed since the last run.
 
 ## Arguments
 

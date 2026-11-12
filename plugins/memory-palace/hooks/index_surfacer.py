@@ -93,7 +93,7 @@ def build_session_context(
 def main() -> None:
     """Run the SessionStart hook entry point."""
     try:
-        json.load(sys.stdin)  # Drain the event payload; we key off config + index.
+        json.load(sys.stdin)  # Drain the event payload. We key off config + index.
     except (json.JSONDecodeError, ValueError):
         sys.exit(0)
 

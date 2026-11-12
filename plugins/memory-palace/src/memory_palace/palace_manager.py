@@ -103,7 +103,7 @@ class MemoryPalaceManager:
         os.makedirs(os.path.join(self.palaces_dir, "backups"), exist_ok=True)
 
     # ------------------------------------------------------------------
-    # Palace CRUD — delegate to PalaceRepository
+    # Palace CRUD: delegate to PalaceRepository
     # ------------------------------------------------------------------
 
     def create_palace(
@@ -129,7 +129,7 @@ class MemoryPalaceManager:
         return self._repo.delete_palace(palace_id)
 
     # ------------------------------------------------------------------
-    # Master index — delegate to PalaceRepository
+    # Master index: delegate to PalaceRepository
     # ------------------------------------------------------------------
 
     def update_master_index(self) -> None:
@@ -145,7 +145,7 @@ class MemoryPalaceManager:
         return self._repo.list_palaces()
 
     # ------------------------------------------------------------------
-    # Legacy static helper — kept for subclass compatibility
+    # Legacy static helper: kept for subclass compatibility
     # ------------------------------------------------------------------
 
     @staticmethod
@@ -160,7 +160,7 @@ class MemoryPalaceManager:
         return PalaceRepository._iter_palace_files(directory)
 
     # ------------------------------------------------------------------
-    # Search — delegate to PalaceSearchEngine
+    # Search: delegate to PalaceSearchEngine
     # ------------------------------------------------------------------
 
     def search_palaces(
@@ -170,7 +170,7 @@ class MemoryPalaceManager:
         return self._search.search_palaces(query, search_type)
 
     # ------------------------------------------------------------------
-    # Maintenance — delegate to PalaceMaintenance
+    # Maintenance: delegate to PalaceMaintenance
     # ------------------------------------------------------------------
 
     def sync_from_queue(
@@ -201,7 +201,7 @@ class MemoryPalaceManager:
         return self._maintenance.import_state(source, keep_existing)
 
     # ------------------------------------------------------------------
-    # Knowledge Graph — direct access
+    # Knowledge Graph: direct access
     # ------------------------------------------------------------------
 
     @property

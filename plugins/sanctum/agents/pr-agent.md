@@ -65,7 +65,7 @@ Expert agent for detailed pull request preparation and documentation.
 - Imperative title writing
 - Blast radius identification (internal files, external consumers)
 - Rollout and integration timing (flags, migration windows)
-- Breaking change highlighting
+- Breaking change callouts
 - Migration step documentation
 - Dependency update notes
 

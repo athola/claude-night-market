@@ -93,7 +93,7 @@ the session (draft and confirm):
   `root_cause`, `action`; set `phase` to `execute`). Show the draft;
   append on confirmation.
 - Fallback (leyline absent): append to `docs/lessons-learned.md`
-  using the in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+  using the in-file ENTRY TEMPLATE and assign the next `LL-NNN` id.
 
 ---
 

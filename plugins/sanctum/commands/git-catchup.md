@@ -23,7 +23,7 @@ The `imbue` catchup methodology applies to Git contexts as follows:
 **Delta Capture:**
 - `git diff --stat ${BASE}...HEAD` for change metrics.
 - `git diff --name-only ${BASE}...HEAD` for a file list.
-- Prioritize source, configuration, and documentation files; skip cache and build outputs.
+- Prioritize source, configuration, and documentation files. Skip cache and build outputs.
 
 **Insight Extraction:**
 - For each modified file, summarize the what, why, and any implications.

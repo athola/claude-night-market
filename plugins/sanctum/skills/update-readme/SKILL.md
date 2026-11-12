@@ -60,7 +60,7 @@ See `modules/exemplar-research.md` for search query patterns and evaluation crit
 
 **The README is an index, not a manual.** Lead with what the
 project is, how to install it, and a scannable table of its
-units (plugins, commands, packages); link out for everything
+units (plugins, commands, packages). Link out for everything
 else.
 
 **A README is a `newcomer` document.** Its reader has never seen
@@ -107,7 +107,7 @@ shape, not a section-by-section coverage sweep.
 **Soft budget**: a marketplace or collection root README runs
 roughly 150-400 lines of prose plus any index table. A section
 that grows over time (roadmap, FAQ, changelog) belongs in a
-linked page, not the README.
+linked page.
 
 ## Step 4 - Apply Edits (`update-readme:edits-applied`)
 - Implement the new structure directly in `README.md`
@@ -116,7 +116,7 @@ linked page, not the README.
   wrap prose at 80 chars (prefer sentence/clause boundaries),
   blank lines around headings, ATX headings only, blank line
   before lists, reference-style links for long URLs.
-- Maintain concise, evidence-based prose; avoid marketing fluff.
+- Maintain concise, evidence-based prose and avoid marketing fluff.
 - Prefer deletion and linking over inlining. If a section
   duplicates a docs page, cut it and link the page; if it
   grows over time, move it out of the README entirely.

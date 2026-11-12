@@ -92,7 +92,7 @@ class CorpusUnavailableError(RuntimeError):
 
 # Above this share of entries looking orphaned, the tree is missing the
 # corpus rather than the corpus having rotted. Real rot is incremental:
-# captures are removed a few at a time by curation, not by the hundred.
+# captures are removed by curation a few at a time.
 _MASS_ORPHAN_RATIO = 0.5
 
 

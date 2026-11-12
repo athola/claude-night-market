@@ -191,8 +191,8 @@ def check_content(file_path: str, content: str) -> tuple:
             )
             if best_match[0] is None:
                 best_match = (rule, reminder)
-            # First match in pattern order is highest severity;
-            # stop checking further matches for this pattern
+            # First match in pattern order is highest severity.
+            # Stop checking further matches for this pattern
             break
 
         # Already found highest-severity match; skip remaining patterns

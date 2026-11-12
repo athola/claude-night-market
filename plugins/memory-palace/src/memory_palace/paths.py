@@ -63,7 +63,7 @@ def _leyline_src(plugin_root: Path) -> Path | None:
 
     Without this, the guarded import below would always land in its
     except-branch inside an install, which is precisely where the bug
-    being fixed lives -- the hoist would move code without moving
+    being fixed lives: the hoist would move code without moving
     behavior.
     """
     sibling = plugin_root.parent / "leyline" / "src"

@@ -11,7 +11,7 @@ an approval when nothing needs fixing.
 A pending draft review the reviewer already has on the PR blocks a second
 one on GitHub, and GitLab's bulk publish sends every draft the user holds.
 Either way, finishing the review would publish comments the reviewer has
-not sent. The default is to stop and report the draft (exit 3); rerun with
+not sent. The default is to stop and report the draft (exit 3). Rerun with
 ``--pending join`` to add these findings to it and submit them together.
 
 Findings file: a JSON list of ``{id, severity, path, line, body}``, where
@@ -74,7 +74,7 @@ class Finding:
 
 
 def run_cli(argv: list[str], stdin: str | None = None) -> str:
-    """Run gh or glab and return stdout; a failed call raises."""
+    """Run gh or glab and return stdout. A failed call raises."""
     return subprocess.run(
         argv, input=stdin, capture_output=True, text=True, check=True
     ).stdout
@@ -246,7 +246,7 @@ def _glab(
 
 
 def _glab_pages(run: Runner, path: str) -> list[Any]:
-    """GET every page of a GitLab list; a short page is the last one."""
+    """GET every page of a GitLab list. A short page is the last one."""
     rows: list[Any] = []
     page = 1
     while True:
@@ -340,7 +340,7 @@ def _load_findings(path: str) -> list[Finding]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Post the review; exit 3 when a pending draft needs a decision."""
+    """Post the review. Exit 3 when a pending draft needs a decision."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--platform", choices=("github", "gitlab"), required=True)
     parser.add_argument("--repo", help="GitHub OWNER/REPO")

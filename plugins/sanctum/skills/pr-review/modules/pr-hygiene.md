@@ -102,7 +102,7 @@ fi
 ### Classification
 
 - **BLOCKING**: Never. Splitting a PR is the author's
-  judgment call, not a gate.
+  judgment call.
 - **IN-SCOPE**: When mixed concerns are obvious and the
   split would be straightforward (e.g., a `cargo fmt`
   commit bundled with a feature).
@@ -284,8 +284,8 @@ agent curation catches the engineering.
 
 Tests should break if someone reverts your fix, not
 demonstrate why the fix was needed. Assertion blocks
-showing unrelated functionality are documentation,
-not regression protection.
+showing unrelated functionality document behavior
+and guard against no regression.
 
 ### Detection (during Phase 2.5 and Test Plan)
 
@@ -309,7 +309,7 @@ done
 
 | Signal | What it means | Severity |
 |--------|--------------|----------|
-| Tests only assert pre-existing behavior | Demonstrating the problem, not protecting the fix | IN-SCOPE |
+| Tests only assert pre-existing behavior | Shows the problem but does not protect the fix | IN-SCOPE |
 | No tests touch code changed in this PR | Tests don't protect against regression | IN-SCOPE |
 | Tests pass with the fix reverted | Tests don't actually verify the fix | BLOCKING |
 | Test names describe old behavior, not new | Naming suggests documentation, not verification | SUGGESTION |
@@ -319,8 +319,8 @@ done
 
 The gold standard for test quality: if someone reverts
 the fix, at least one test should fail. If no test
-fails on revert, the tests are documentation, not
-protection.
+fails on revert, the tests document behavior and
+protect nothing.
 
 ```bash
 # Mental model for each test:

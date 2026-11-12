@@ -303,7 +303,7 @@ class QueryTemplateManager:
         if not self.index.get("queries"):
             self.load_index()
 
-        # Extract keywords for the user query once; reuse for all comparisons.
+        # Extract keywords for the user query once and reuse them for all comparisons.
         user_keywords: frozenset[str] = frozenset(self._extract_query_keywords(query))
 
         # Calculate similarity scores for all indexed queries

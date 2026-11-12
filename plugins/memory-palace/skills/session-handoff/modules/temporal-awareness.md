@@ -84,7 +84,7 @@ checkout, and rebase, so it reports change where there was none. Git
 commit time is blind to uncommitted work. Comparing bytes answers the
 question directly.
 
-A moved dependency **flags** the unit; it never removes it. The reader
+A moved dependency **flags** the unit and never removes it. The reader
 still needs to know the topic has history, and hiding a unit would
 conceal both the history and the fact that the ground shifted.
 

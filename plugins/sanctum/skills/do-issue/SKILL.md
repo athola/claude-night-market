@@ -90,7 +90,7 @@ Use the platform detected in session context (`git_platform:`). See `Skill(leyli
 
 ## Agent Teams (Default Execution Mode)
 
-Agent teams is the **default** parallel execution backend for do-issue. Teammates coordinate via filesystem-based messaging, enabling real-time communication when shared files or dependencies are discovered mid-implementation.
+Agent teams is the **default** parallel execution backend for do-issue. Teammates coordinate via filesystem-based messaging and can communicate in real time when shared files or dependencies are discovered mid-implementation.
 
 **Automatic downgrade**: For single issues with `--scope minor`, agent teams is skipped (Task tool or inline execution is used instead). Use `--no-agent-teams` to force Task tool dispatch for any invocation.
 

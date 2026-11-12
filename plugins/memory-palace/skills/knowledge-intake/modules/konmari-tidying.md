@@ -86,13 +86,12 @@ Two questions, both must be yes:
 ## The Curator's Prerogative
 
 The human in the loop is the master curator. Your aspirations, your
-goals, and your vision of the future define relevance, not arbitrary
-metrics.
+goals, and your vision of the future define relevance.
 
 **Only you can answer:**
 - What domains are you growing into?
 - What have you consciously decided to leave behind?
-- What knowledge represents your past self, not your future self?
+- What knowledge belongs to your past self alone?
 
 Claude can prompt these questions. Claude cannot answer them for you.
 
@@ -141,7 +140,7 @@ alignment_check:
 Some knowledge resists tidying for good reason:
 
 - **Hard-won lessons from failure** - Pain teaches; don't repeat it
-- **Foundational principles** - Timeless truths transcend trends
+- **Foundational principles** - Timeless truths outlast trends
 - **Counter-intuitive insights** - Easy to forget, hard to relearn
 - **Context for decisions** - "Why we DON'T do X" has value
 

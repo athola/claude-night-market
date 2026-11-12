@@ -29,7 +29,7 @@ field is better absent than filled with a guess.
 
 `Files` is how a claim states what it depends on. Name a path when the
 claim would stop being true if that file changed, and leave it out
-otherwise. A unit about how a tool behaves usually names nothing; a
+otherwise. A unit about how a tool behaves usually names nothing. A
 unit about how this repository wires something usually names one or
 two files.
 

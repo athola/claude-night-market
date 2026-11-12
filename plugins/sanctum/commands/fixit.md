@@ -72,7 +72,7 @@ NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 
 This command always enforces Iron Law. The only flag that softens it is
 `--quick`, and even that requires the RED test. `--quick` only skips Research
-and lets Triage feed Hypothesize directly; it does not skip the test.
+and lets Triage feed Hypothesize directly. It does not skip the test.
 
 If you find yourself wanting to skip the test, consult
 `Skill(imbue:proof-of-work)` module `iron-law-enforcement.md` and
@@ -208,7 +208,7 @@ If the input is a paste with no command, derive a command from the artifacts
 cannot derive one, ask the user.
 
 **Stop condition**: the failure is reproducible from a captured command. If
-not, do not proceed; ask the user for the missing piece.
+not, do not proceed. Ask the user for the missing piece.
 
 ## Step 3: Research (conditional)
 
@@ -237,7 +237,7 @@ Use `Skill(superpowers:systematic-debugging)`. Produce 2 to 4 hypotheses and
 pick the most-likely one with the smallest blast radius.
 
 Apply `Skill(imbue:rigorous-reasoning)` if any hypothesis pattern-matches a
-"common cause" answer; do not accept the first plausible cause without
+"common cause" answer. Do not accept the first plausible cause without
 evidence from step 2.
 
 ## Step 5: Test (RED) - Iron Law
@@ -250,7 +250,7 @@ The test must:
 - Fail before any fix is applied
 - Fail for the right reason (the bug, not a typo in the test)
 - Use the project's existing test framework (do not introduce a new one)
-- Live in the project's existing test directory layout
+- Follow the project's existing test directory layout
 
 `Skill(superpowers:test-driven-development)` covers framing. The
 `red_test_hint` from triage step 1.3 is the starting point.
@@ -324,9 +324,9 @@ confirm):
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
   a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`, `action`;
-  set `phase` to `execute`). Show the draft; append on confirmation.
+  set `phase` to `execute`). Show the draft and append on confirmation.
 - Fallback (leyline absent): append to `docs/lessons-learned.md` using the
-  in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+  in-file ENTRY TEMPLATE and assign the next `LL-NNN` id.
 
 ## Configuration and Options
 
@@ -379,7 +379,7 @@ formatted resume HTML when called with a valid YAML path"
 ```
 
 Expected flow: triage classifies as `behavior`, scope=`medium`. Reproduce by
-running the described call; capture the empty output as `[E1]`. RED test
+running the described call. Capture the empty output as `[E1]`. RED test
 asserts `render(valid_yaml).startswith('<!DOCTYPE')`.
 
 ### Example 4: do not commit; just plan

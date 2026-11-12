@@ -46,7 +46,7 @@ except ImportError:
 # Index cache
 _index_cache: dict[str, Any] | None = None
 _index_mtime: float = 0
-# True while the cached index stands in for a file that failed to parse.
+# True while the cached index substitutes for a file that failed to parse.
 # update_index reads it to set that file aside before writing.
 _index_load_failed = False
 _warned_no_yaml = False
@@ -74,7 +74,7 @@ def _get_index_path() -> Path:
 
     The ``hooks/`` segment is kept deliberately. Entries record
     ``stored_at`` relative to the root and a wall of consumers resolve
-    the index as ``<root>/hooks/memory-palace-index.yaml`` -- the
+    the index as ``<root>/hooks/memory-palace-index.yaml``: the
     maintenance CLI, the pre-commit drain gate, the promoter. Because
     ``persistent_root`` is the identity in a source checkout, all of
     them keep reading the tracked file they read today.
@@ -330,7 +330,7 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
         routing_type: Application routing (local, meta, both)
         null_capture: Reason a 2xx fetch carried no content
             (redirect notice, empty result set). Set by the fetch
-            hook; the promoter archives rather than promotes these.
+            hook. The promoter archives rather than promotes these.
 
     Note: This does write to disk - use sparingly.
 
@@ -351,7 +351,7 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
     index = _load_index()
     now = datetime.now(timezone.utc).isoformat()
 
-    # The index is content-addressed: one piece of content lives in one
+    # The index is content-addressed: one piece of content is stored in one
     # file. When these bytes are already stored, the entry adopts that
     # canonical location instead of overwriting the mapping with a
     # private copy - the write that used to leave an earlier entry

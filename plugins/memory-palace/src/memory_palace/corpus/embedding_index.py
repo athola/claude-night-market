@@ -116,7 +116,7 @@ class EmbeddingIndex:
             self.raw_store.pop("provider", None)
             return legacy_provider, embeddings
 
-        # No data yet -- honor requested provider for future exports
+        # No data yet: honor requested provider for future exports
         return self.requested_provider, {}
 
     def _load_room_entries(self) -> None:
@@ -294,7 +294,7 @@ class EmbeddingIndex:
     def _dot(a: list[float], b: list[float]) -> float:
         """Compute dot product of two float vectors.
 
-        Uses numpy when available; falls back to pure Python otherwise.
+        Uses numpy when available and falls back to pure Python otherwise.
         Logs a warning if vector dimensions differ (partial dot product).
         """
         if len(a) != len(b):
