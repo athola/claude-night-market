@@ -67,7 +67,7 @@ else.
 this project, so the test for every candidate section is whether
 that reader needs it before they can install and run one thing.
 Rationale, alternatives considered, and internals are `expert`
-material: extract them to `docs/deep-dive/<topic>.md` or the
+material: extract them to `docs/<topic>.md` or the
 `book/`, linked from the README in one line naming who the page
 is for. Never delete them to shorten the README. Tier table and
 cut test: `scribe:slop-detector` module `audience-targeting.md`.
@@ -178,7 +178,7 @@ Agent(scribe:doc-editor) --target README.md
 - [ ] The README serves a `newcomer`, or declares the tier it
   serves instead in its lead.
 - [ ] Content cut for tier fit landed in a linked page, not the
-  bin (`docs/deep-dive/` or `book/`).
+  bin (`docs/` or `book/`).
 - [ ] The README references internal docs and external
   exemplars with citations.
 - [ ] Research notes and command references are captured so

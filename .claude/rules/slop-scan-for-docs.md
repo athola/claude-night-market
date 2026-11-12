@@ -48,7 +48,7 @@ sentences are.
 Check 4 has one move that gets skipped: **extract, do not
 delete**. Content that only serves a higher tier goes to
 `modules/<topic>.md` for a skill or
-`docs/deep-dive/<topic>.md` for a repo doc, linked from
+`docs/<topic>.md` for a repo doc, linked from
 the parent's lead with one line naming who it is for.
 Rationale a newcomer cannot use is rarely weak writing.
 It is answering a question that reader has not asked yet.

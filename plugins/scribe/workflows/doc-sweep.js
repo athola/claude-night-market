@@ -82,7 +82,7 @@ const LAYERS = [
     key: 'audience',
     agentType: 'scribe:doc-editor',
     brief:
-      `Judge who each document is for and whether every section serves that reader. ${tierNote} Tiers are newcomer (has never seen this project), practitioner (knows the domain, not this repository), and expert (already familiar with the material). For each off-tier section, say which tier it actually serves. Name the deep dive it should move to: modules/<topic>.md for a skill, docs/deep-dive/<topic>.md for a repo doc. Report a move, never a deletion. Content a newcomer cannot use is usually answering a question they have not asked yet, not weak writing. Skip creative output entirely: voice profiles, session-to-post narrative, and fiction.`,
+      `Judge who each document is for and whether every section serves that reader. ${tierNote} Tiers are newcomer (has never seen this project), practitioner (knows the domain, not this repository), and expert (already familiar with the material). For each off-tier section, say which tier it actually serves. Name the deep dive it should move to: modules/<topic>.md for a skill, docs/<topic>.md for a repo doc. Report a move, never a deletion. Content a newcomer cannot use is usually answering a question they have not asked yet, not weak writing. Skip creative output entirely: voice profiles, session-to-post narrative, and fiction.`,
   },
   {
     key: 'sentence',

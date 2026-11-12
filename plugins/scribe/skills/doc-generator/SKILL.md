@@ -179,7 +179,7 @@ delete what no tier wants. Extraction is the verdict that
 gets skipped. Content a `newcomer` cannot use is usually not
 weak, it is answering a question they have not asked yet.
 Move it to `modules/<topic>.md` for a skill or
-`docs/deep-dive/<topic>.md` for a repo doc, and link it from
+`docs/<topic>.md` for a repo doc, and link it from
 the parent's lead. Never delete to hit a tier.
 
 ### Step 4: Run Slop Detector
@@ -300,7 +300,7 @@ When editing code comments:
 - [ ] Slop score < 1.5 (clean rating)
 - [ ] Audience tier declared in the request and honored in the draft
 - [ ] Document economy score >= 7/8, audience fit scoring 2/2
-- [ ] Every extraction landed in `modules/` or `docs/deep-dive/`
+- [ ] Every extraction landed in `modules/` or `docs/`
   and is linked from the parent's lead
 - [ ] Quality gate checklist passed
 - [ ] User approval received

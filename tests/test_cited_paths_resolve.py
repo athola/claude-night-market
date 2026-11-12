@@ -147,8 +147,8 @@ ALLOWLIST = {
     # before/after pair, and the log-level worked example in
     # document-economy. Both name where higher-tier rationale *would*
     # go in the reader's own repo; neither is a reference to this one.
-    "docs/deep-dive/hook-timing.md",
-    "docs/deep-dive/log-level-mapping.md",
+    "docs/hook-timing.md",
+    "docs/log-level-mapping.md",
 }
 
 

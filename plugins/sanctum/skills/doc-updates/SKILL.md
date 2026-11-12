@@ -189,7 +189,7 @@ Skill(scribe:slop-detector)   # module: audience-targeting.md
   before they can act, link what they need later, extract what
   only a higher tier wants, delete what no tier wants.
 - Extract rather than delete. Off-tier material moves to
-  `modules/<topic>.md` for a skill or `docs/deep-dive/<topic>.md`
+  `modules/<topic>.md` for a skill or `docs/<topic>.md`
   for a repo doc, linked from the parent's lead with one line
   naming who it is for.
 - An update that adds `expert` detail to a `newcomer` document is
@@ -376,7 +376,7 @@ When `ENABLE_LSP_TOOL=1` is set, enhance accuracy verification with semantic ana
 - [ ] Directory-specific style rules are satisfied.
 - [ ] Each edited document has a declared or stated-inferred audience tier, and
       no section serves a different one.
-- [ ] Off-tier content was extracted to `modules/` or `docs/deep-dive/` and
+- [ ] Off-tier content was extracted to `modules/` or `docs/` and
       linked, never deleted to hit a tier.
 - [ ] Accuracy warnings addressed or acknowledged.
 - [ ] Content does not sound AI-generated.

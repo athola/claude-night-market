@@ -259,15 +259,20 @@ class TestExtractionProtocol:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_repo_docs_extract_to_deep_dive(self, module_text: str) -> None:
+    def test_repo_docs_extract_to_a_tracked_docs_page(self, module_text: str) -> None:
         """
         Scenario: a repo document carries expert-only material
         Given the audience-targeting module
         When the extraction protocol is read
-        Then it extracts to docs/deep-dive/ and is linked from the lead.
+        Then it extracts to docs/<topic>.md and is linked from the lead.
+        docs/deep-dive/ is gitignored, so naming it would send extracted
+        content somewhere it is never committed.
         """
-        assert "docs/deep-dive/" in module_text, (
-            "repo docs must extract to the deep-dive directory"
+        assert "docs/<topic>.md" in module_text, (
+            "repo docs must extract to a page under docs/"
+        )
+        assert "docs/deep-dive/" not in module_text, (
+            "docs/deep-dive/ is gitignored; extraction there is lost"
         )
         assert "linked from the lead" in module_text, (
             "an extracted deep dive must be reachable from the parent lead"
@@ -430,8 +435,11 @@ class TestWiring:
         assert "audience-targeting" in rule, (
             "the repo rule must point at the pattern source"
         )
-        assert "docs/deep-dive/" in rule, (
+        assert "docs/<topic>.md" in rule, (
             "the repo rule must name the extraction destination"
+        )
+        assert "docs/deep-dive/" not in rule, (
+            "docs/deep-dive/ is gitignored; extraction there is lost"
         )
 
     @pytest.mark.bdd

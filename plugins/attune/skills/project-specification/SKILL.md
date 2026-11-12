@@ -50,7 +50,7 @@ brief did not set one, **ask, do not guess**.
 
 Specify the deep-dive destination alongside it, so extraction has
 somewhere to go before the first document is written: `modules/`
-for skills, `docs/deep-dive/<topic>.md` for repo docs. Tier table
+for skills, `docs/<topic>.md` for repo docs. Tier table
 and cut test: `scribe:slop-detector` module
 `audience-targeting.md`.
 
