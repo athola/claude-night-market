@@ -1387,3 +1387,16 @@ class TestLanguageCalibration:
         assert slop_score._language_for(german, "auto") == "de"
         assert slop_score._language_for(german, "fr") == "fr"
         assert slop_score._language_for("The report is ready.", "auto") == "en"
+
+
+def test_a_uv_cache_tree_is_not_scanned(tmp_path) -> None:
+    """GIVEN a directory sweep over a plugin holding a uv cache
+    WHEN the prose files are collected
+    THEN files under .uv-cache are skipped, since they are third-party
+    package sources a plugin directory carries but never tracks.
+    """
+    (tmp_path / ".uv-cache" / "pkg").mkdir(parents=True)
+    (tmp_path / ".uv-cache" / "pkg" / "notes.md").write_text("x\n")
+    (tmp_path / "README.md").write_text("x\n")
+    found = slop_score._iter_markdown([str(tmp_path)])
+    assert [p.name for p in found] == ["README.md"]

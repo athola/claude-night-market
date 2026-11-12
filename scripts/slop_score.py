@@ -395,7 +395,14 @@ def score_text(
     )
 
 
-_SKIP_PARTS = {".git", "worktrees", "node_modules", "__pycache__", ".venv"}
+_SKIP_PARTS = {
+    ".git",
+    "worktrees",
+    "node_modules",
+    "__pycache__",
+    ".venv",
+    ".uv-cache",
+}
 
 
 def _split_roots(roots: list) -> list:
