@@ -9,13 +9,13 @@ estimated_tokens: 600
 
 **AI-generated Rust defaults to manual loops where
 iterators read better, and to allocation where references
-suffice. Both compile; both are slop.**
+suffice. Both compile, and both are slop.**
 
 This module covers two of the highest-frequency AI Rust
 anti-patterns: imperative loops the iterator API expresses
 in one line, and unnecessary allocation that
 borrow-checker capitulation produces. The clippy lints
-catch most of this; the rest is judgment.
+catch most of this, and the rest is judgment.
 
 ## Iterator slop
 
@@ -128,7 +128,7 @@ manual unrolling commonly blocks the vectorizer. Manual SIMD
 provably failed to vectorize, after fixing aliasing, and verified by a
 codegen check (not "I see SIMD in the source").
 
-No single clippy lint covers this; it is judgment. Decision rule and
+No single clippy lint covers this. It is judgment. Decision rule and
 the two benchmark traps: `Skill(leyline:loop-optimization)`.
 
 #### The branchless exception
@@ -283,7 +283,7 @@ use_it(x);
 Heap allocation is justified for:
 - `dyn Trait` objects (`Box<dyn Error>`, `Box<dyn Future>`).
 - Recursive types (`Box<Node>`).
-- Large stack-frame avoidance (uncommon; measure first).
+- Large stack-frame avoidance (uncommon: measure first).
 - Pinning requirements (`Pin<Box<T>>`).
 
 Anywhere else, `Box::new` is unjustified allocation.
@@ -314,7 +314,7 @@ flip, a 4-byte move), the prologue/epilogue and indirect
 jump overhead can represent 40–50% of total runtime.
 
 Note: `&dyn Trait` has the same problem as `Box<dyn Trait>`.
-The issue is dynamic dispatch, not heap allocation.
+The issue is dynamic dispatch rather than heap allocation.
 
 **Fix 1: flip the loop order (batch-first)**: iterate
 all rows for each decoder, not all decoders for each row.
@@ -357,7 +357,7 @@ impl ColDecoder {
 **When to flag**: any `Vec<Box<dyn Trait>>` or `Vec<&dyn Trait>`
 iterated inside an inner loop where the method body is
 inlineable. The Java/JVM analogy is instructive: the JVM
-de-virtualizes and inlines at JIT time; rustc cannot cross
+de-virtualizes and inlines at JIT time, but rustc cannot cross
 the `dyn` boundary. If reviewers come from JVM backgrounds,
 this is the most important Rust performance lesson to surface.
 
@@ -422,7 +422,7 @@ rg "\.clone\(\)" --type rust -n | head -50
 Some `.clone()` calls are correct and should stay:
 
 - **Async / spawn boundaries**: cloning an `Arc<T>` to
-  send into `tokio::spawn` is required, not slop.
+  send into `tokio::spawn` is required.
 - **Genuine ownership transfer**: when two callers each
   need to mutate independently from the same source.
 - **Intentional defensive copy**: in security-sensitive
@@ -431,7 +431,7 @@ Some `.clone()` calls are correct and should stay:
 
 When in doubt, comment the rationale next to the
 `.clone()`. A `.clone()` with a one-line "why" comment
-is documented intent; a `.clone()` with no comment is
+is documented intent. A `.clone()` with no comment is
 slop.
 
 ## Output format

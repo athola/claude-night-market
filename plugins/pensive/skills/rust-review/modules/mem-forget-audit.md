@@ -23,7 +23,7 @@ The analyzer (`analyze_mem_forget`) flags two shapes:
    value is consumed but its destructor never runs.
 2. **`drop(&x)`**: a `drop(...)` call whose argument starts with `&`. It
    drops the borrow, not the value, so the destructor still has not run
-   and the resource lives on.
+   and the resource stays alive.
 
 A method call (`cache.forget(key)`, `guard.drop()`) is left alone: the
 regex requires a non-`.` character before the name. An owning
@@ -40,7 +40,7 @@ why it slips through review.
 
 `drop(&x)` is the mirror-image mistake: `drop` consumes its argument, and
 a shared reference is `Copy`, so dropping the reference compiles and does
-nothing. The author believes the value is gone; it is not.
+nothing. The author believes the value is gone, but it is still alive.
 
 ## The Fix
 
@@ -65,12 +65,12 @@ drop(resource);
 
 Use `ManuallyDrop` when cleanup must be deferred, `Box::into_raw` /
 `into_raw_fd` when handing ownership across a boundary, and plain scope
-exit otherwise. For `drop`, pass the owned value, not a borrow.
+exit otherwise. For `drop`, pass the owned value itself (no leading `&`).
 
 ## Exclusions (Not Flagged)
 
-- **Method calls**: `cache.forget(key)`, `guard.drop()` are user methods,
-  not the std functions.
+- **Method calls**: `cache.forget(key)`, `guard.drop()` are user methods
+  that share the std function names.
 - **Owning drop**: `drop(value)` (no leading `&`) is the correct way to
   end a value early.
 - **Comments**: a `forget` shown in a full-line `//` comment is not code.

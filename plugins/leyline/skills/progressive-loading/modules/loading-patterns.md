@@ -37,7 +37,7 @@ Load modules based on context:
 
 ### 2. Lazy Loading
 
-Load modules on first use, not at skill activation.
+Load each module on first use.
 
 **Pattern:**
 ```python

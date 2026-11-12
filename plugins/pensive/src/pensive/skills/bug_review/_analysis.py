@@ -11,7 +11,7 @@ from ..base import PatternSearch
 
 class AnalysisMixin:
     """Detects resource leaks, logical errors, type confusion, and timing
-    attacks; categorizes severity and analyzes bug patterns.
+    attacks. Categorizes severity and analyzes bug patterns.
     """
 
     if TYPE_CHECKING:

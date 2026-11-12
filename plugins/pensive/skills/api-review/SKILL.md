@@ -56,7 +56,7 @@ Catalog all public APIs by language. Record stability levels, feature flags, and
 
 ### Step 2: Exemplar Research
 
-Identify at least two high-quality API references for the relevant language, such as pandas, requests, or tokio. Document their patterns for namespacing, pagination, error handling, and structure to serve as a baseline for the audit.
+Identify at least two high-quality API references for the relevant language, such as pandas, requests, or tokio. Document their patterns for namespacing, pagination, error handling, and structure as a baseline for the audit.
 
 ### Step 3: Consistency Audit
 
@@ -100,8 +100,8 @@ Each issue must follow this structure:
 - Issue: what is wrong | Fix: remediation | Evidence: [E1]
 ```
 
-The `Anchor` is the exact source text at `Location`; it is what
-`citation_verifier.py` re-reads to prove the finding is real.
+The `Anchor` is the exact source text at `Location`.
+`citation_verifier.py` re-reads it to prove the finding is real.
 
 ## Technical Integration
 

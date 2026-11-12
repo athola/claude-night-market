@@ -19,7 +19,7 @@ class _PerfVisitor(ast.NodeVisitor):
     """Single-pass AST visitor that emits time/space ReviewFindings.
 
     State machine:
-    - `_loop_stack`: stack of for-loop iter Names; nested-loop check
+    - `_loop_stack`: stack of for-loop iter Names. The nested-loop check
       compares the current iter against outer entries.
     - `_str_locals_stack`: per-function frames of variables assigned a
       string literal: used by T4 to scope the `+=` check.
@@ -174,7 +174,7 @@ class _PerfVisitor(ast.NodeVisitor):
     def visit_Compare(self, node: ast.Compare) -> None:
         # T2 suppression rules:
         # - LHS string literal (e.g. `'foo' in s`): always substring
-        #   matching, O(m+n) on string length, not list scan.
+        #   matching, O(m+n) on string length rather than a list scan.
         # - LHS f-string (JoinedStr): same: produces a string at
         #   runtime so the RHS is necessarily a string container.
         # When suppressed, no finding fires regardless of RHS shape.
@@ -280,7 +280,7 @@ class _PerfVisitor(ast.NodeVisitor):
                 )
 
     def _check_append_in_nested_loop(self, node: ast.Call) -> None:
-        """S1: ``.append()`` inside nested loops, not to a local accumulator."""
+        """S1: ``.append()`` in nested loops, excluding local accumulators."""
         if not (
             self._loop_stack
             and isinstance(node.func, ast.Attribute)

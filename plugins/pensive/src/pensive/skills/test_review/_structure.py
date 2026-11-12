@@ -31,7 +31,7 @@ class StructureMixin:
         has_exception_tests = bool(re.search(r"pytest\.raises", content))
         has_good_docs = documentation_ratio > MIN_COVERAGE_RATIO
 
-        # (condition, score weight) — each true condition adds its weight.
+        # (condition, score weight): each true condition adds its weight.
         score = sum(
             weight
             for condition, weight in (

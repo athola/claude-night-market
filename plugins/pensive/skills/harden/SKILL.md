@@ -115,7 +115,7 @@ Load modules based on what the discovery step finds.
 | Any with proposals enabled | `modules/proposal-shape.md` |
 
 The module hub keeps the SKILL.md itself under the
-`estimated_tokens: 1100` budget. Detail lives in the modules.
+`estimated_tokens: 1100` budget. Detail is in the modules.
 
 ## Core Workflow
 
@@ -153,7 +153,7 @@ to "advisory" and not eligible for active proposal.
 ### Phase 3: NIST mapping
 
 Group findings by SSDF practice (PW.4, PW.8, RV.1, etc.) and CWE
-ID. The mapping table lives in `modules/nist-controls.md`. The
+ID. The mapping table is in `modules/nist-controls.md`. The
 report's executive summary references SSDF practice coverage so
 the audit is comparable across runs.
 
@@ -295,7 +295,7 @@ the verifier rejects.
 
 - [ ] Discovery output lists every language and build manifest
       detected in the repo.
-- [ ] Each finding carries a CWE or NIST SSDF citation; the
+- [ ] Each finding carries a CWE or NIST SSDF citation, and the
       report executive summary lists the SSDF practice coverage.
 - [ ] Each finding above the severity threshold has a concrete
       proposal (file, diff or config snippet, blast radius,
@@ -303,7 +303,7 @@ the verifier rejects.
 - [ ] No proposal was applied without explicit user approval
       (or without an `--auto-apply` flag covering its severity).
 - [ ] Each applied proposal is its own commit, reversal-friendly.
-- [ ] After every apply, the project gates were re-run; any
+- [ ] After every apply, the project gates were re-run, and any
       gate failure reverted the commit and downgraded the
       finding.
 - [ ] `reviews/harden-<date>.md` exists and lists every finding

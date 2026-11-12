@@ -118,7 +118,7 @@ or it has moved. Do not paste the document into the ticket, because two copies
 drift apart. Link durable things: an ADR, a spec path, a merge request. Screen
 captures and chat threads do not qualify, so restate what they showed.
 
-Decide in the description, not in comments. When a decision changes, edit the
+Record the decision in the description. When a decision changes, edit the
 first lines and leave the history in comments.
 
 ## Work Type

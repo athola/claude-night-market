@@ -31,7 +31,7 @@ move rather than something the agent has to be talked into.
 | **A1 Assisted** | Drafts scaffolding, narrates reasoning | Writes load-bearing code, approves | RED |
 | **A0 Manual** | Reviews, explains | Writes the change | CRITICAL |
 
-The mapping is a default, not a floor. A human may raise autonomy
+The mapping is a default. A human may raise autonomy
 when they have strong context, and must be able to lower it freely.
 
 ## The Downgrade Trigger
@@ -57,7 +57,7 @@ re-establish what is actually true before proceeding.
 
 Verification gates (see `verification-gates.md`) and automation
 tiers are complementary. The gate says what must pass before the
-change is accepted; the automation tier says who holds the pen
+change is accepted. The automation tier says who holds the pen
 while it is produced. A RED change runs both: A1 assisted authorship
 *and* the RED verification gate, including independent verification
 (see `imbue:proof-of-work` module `independent-verification.md`).

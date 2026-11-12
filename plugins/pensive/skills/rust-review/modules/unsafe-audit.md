@@ -97,7 +97,7 @@ audio or ring-ring buffers when a co-resident large allocation
 (e.g., ML model weights) forces a page eviction. The
 page-fault on next buffer access adds 100–380ms of p99 latency
 that `tokio-console` will not surface, because the task
-scheduling itself is fast; the delay is in the kernel.
+scheduling itself is fast. The delay is in the kernel.
 
 ## Common Unsafe Patterns
 

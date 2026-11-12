@@ -19,7 +19,7 @@ switches to a tolerance.
 The analyzer (`analyze_float_equality`) flags `==` and `!=` where one
 operand is a floating-point literal. A float literal is recognized by a
 decimal point (`1.5`, `0.0`) or a float type suffix (`2f32`, `1.0f64`).
-The literal may sit on either side of the operator:
+The literal may be on either side of the operator:
 
 - `ratio == 1.5`
 - `3.14 == angle`

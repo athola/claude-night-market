@@ -33,7 +33,7 @@ large. The progressive load splits by concern.
 | Idiomatic style | `style-rules.md` | 400 |
 | Performance and allocation | `performance-rules.md` | 500 |
 
-Most reviews exercise two or three concerns, not all seven. The
+Most reviews exercise two or three of the seven concerns. The
 hub selects based on the file content and explicit user signals.
 
 ## Detect Concerns by Source Inspection

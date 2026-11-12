@@ -44,7 +44,7 @@ project root.
 ## The Five Principles
 
 1. **You are a steward, not an owner**: the codebase belongs to
-   the community. Write for the reader, not yourself.
+   the community. Write for the reader.
 2. **Multiply, do not merely preserve**: improve what you touch.
    Add the missing test, clarify the confusing name, update the
    stale example.
@@ -127,13 +127,14 @@ guides when breaking changes are unavoidable.
 You maintain tools contributors interact with daily. Your
 stewardship priority: user experience and low friction.
 If a hook is confusing, contributors disable it. If a rule
-is noisy, contributors ignore it. Tune for signal, not volume.
+is noisy, contributors ignore it. Tune each check so that
+a firing means something.
 
 ### Domain (all others)
 
 You maintain specialized expertise. Your stewardship priority:
 accuracy and accessibility. Domain knowledge is valuable only
-when others can access it. Write examples, not just references.
+when others can access it. Write examples alongside references.
 Keep domain skills current as the underlying domain evolves.
 
 ## Reflection
@@ -154,7 +155,7 @@ a brief self-assessment grounded in the five virtues. See
   `.claude/stewardship/actions.jsonl`
 - [ ] Layer-specific guidance applied: foundation plugins (leyline,
   sanctum, imbue) use additive changes with migration guides for
-  breaking changes; domain plugins include examples, not just
+  breaking changes; domain plugins include examples alongside
   references
 - [ ] Reflection checklist from `modules/reflection.md` completed
   at the pre-commit boundary; output is a brief self-assessment

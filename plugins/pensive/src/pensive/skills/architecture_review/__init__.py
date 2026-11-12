@@ -74,5 +74,5 @@ __all__ = [
     "ArchitectureReviewSkill",
 ]
 # AR-F2: ``logger`` is intentionally not exported. The original
-# single-file module did not export it either; it stays an
+# single-file module did not export it either. It stays an
 # internal binding accessible via the per-mixin imports.

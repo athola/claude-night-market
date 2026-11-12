@@ -199,7 +199,7 @@ another copy.
 
 Four properties matter:
 
-1. The tempfile sits in the target's directory, which makes
+1. The tempfile is in the target's directory, which makes
    `os.replace` a same-filesystem rename. Its name is unique
    per call, and concurrent writers never share it.
 2. `flush()` then `fsync()` run before the rename, and the
@@ -251,7 +251,7 @@ def find_expired_seedlings(root: Path, max_age_days: int = 90) -> list[Path]:
     return out
 ```
 
-Run retention on a schedule, not at write time. Combining the
+Run retention on a schedule, separate from writes. Combining the
 two slows writes and makes the policy harder to audit.
 
 ### Archive vs Delete

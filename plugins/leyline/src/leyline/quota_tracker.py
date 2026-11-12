@@ -184,7 +184,7 @@ class QuotaTracker:
         """Record a request to the service.
 
         Hooks and CLIs share one usage file, so the read, the increment and
-        the write happen under an exclusive lock; an in-memory count from
+        the write happen under an exclusive lock. An in-memory count from
         construction time would overwrite whatever another process wrote
         since.
         """

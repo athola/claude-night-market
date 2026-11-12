@@ -1,7 +1,7 @@
 """Mutable static audit for Rust review.
 
 Flags `static mut` declarations. A mutable static needs `unsafe` to read
-or write and is a primary source of data races; the Rust Reference
+or write and is a primary source of data races. The Rust Reference
 (src/items/static-items.md) calls it "a very large source of race
 conditions or other bugs", and accessing one through a reference is the
 deny-by-default `static_mut_refs` lint in Rust 2024.

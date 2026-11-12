@@ -55,7 +55,7 @@ intent. See the Escalation Protocol below.
 
 ### Class D: Deleted vs. modified
 
-One side deleted a file or function; the other modified it.
+One side deleted a file or function, and the other modified it.
 
 **Resolution**: Escalate to human review. The delete may be
 intentional (the other branch's modification is stale) or

@@ -10,7 +10,7 @@ estimated_tokens: 200
 
 ## Core Principles
 
-1. **Test behavior, not implementation** - Focus on what, not how
+1. **Test behavior** - Assert on observable results
 2. **One concept per test** - Keep tests focused
 3. **Arrange-Act-Assert** - Consistent structure
 4. **BDD language** - Given/When/Then for clarity
@@ -25,7 +25,7 @@ estimated_tokens: 200
 ## Boundaries and Coverage
 
 9. **Mock at boundaries** - Only mock external dependencies
-10. **Measure coverage** - Aim for meaningful, not just high
+10. **Measure coverage** - Aim for coverage that exercises real behavior
 
 ## Fake-Resistance
 

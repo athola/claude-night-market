@@ -94,7 +94,7 @@ provides through the dev group. Without them:
   or no `.gauntlet/graph.db` exists above the file.
 
 Reviews of non-Python source without the extra produce zero
-findings: that is correct behavior, not an error. A non-Python
+findings by design. A non-Python
 file that tree-sitter cannot parse adds a warning to the result.
 Build the graph with
 `python3 plugins/gauntlet/scripts/graph_build.py <root>`.

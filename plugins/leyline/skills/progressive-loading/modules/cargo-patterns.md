@@ -18,7 +18,7 @@ Load this module when the active task touches:
 
 If the task is reviewing Rust source for ownership or unsafe
 code, load `rust-review.md` instead. This module focuses on the
-Cargo tooling layer, not the language semantics.
+Cargo tooling layer.
 
 ## Detect the Cargo Layout First
 
@@ -49,13 +49,13 @@ differ enough that they are in separate modules.
 | Publish checklist | `cargo publish` or release task | 300 |
 | MSRV check | `rust-version` field present | 200 |
 
-The smallest slice (MSRV check) is cheap to keep loaded; the
+The smallest slice (MSRV check) is cheap to keep loaded. The
 publish checklist is rarely needed and should stay deferred
 until the user explicitly asks about a release.
 
 ## Concrete Cargo Commands the Modules Reference
 
-Each loaded module documents its own commands; the hub keeps a
+Each loaded module documents its own commands. The hub keeps a
 small index so users know where to look.
 
 ```bash

@@ -30,7 +30,7 @@ _PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"#\s*noqa\b"), "# noqa"),
     (re.compile(r"#\s*type:\s*ignore"), "# type: ignore"),
     (re.compile(r"#\s*pylint:\s*disable"), "# pylint: disable"),
-    # File-level forms silence the whole file, not one line.
+    # File-level forms silence every line in the file.
     (re.compile(r"#\s*(?:ruff|flake8):\s*noqa\b"), "# ruff/flake8: noqa"),
     (re.compile(r"#\s*pyright:\s*ignore"), "# pyright: ignore"),
     # Rust: outer #[allow] and the crate- or module-wide inner #![allow]
@@ -59,7 +59,7 @@ def check_for_suppressions(text: str) -> list[str]:
 def _coerce_tool_input(value: Any) -> dict[str, Any]:
     """Normalize ``tool_input`` to a dict regardless of source.
 
-    Stdin delivers it already parsed; the legacy env var delivers a JSON
+    Stdin delivers it already parsed. The legacy env var delivers a JSON
     string. A non-object value collapses to an empty dict rather than
     raising, matching the lenient behavior the hooks relied on.
     """

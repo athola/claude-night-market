@@ -110,7 +110,7 @@ def _treesitter_findings(
     try:
         return scan_tree(tree.root_node, language, file_path)
     except RecursionError:
-        # The scanner recurses per AST level; minified or generated code
+        # The scanner recurses per AST level, and minified or generated code
         # can nest deeper than the interpreter stack allows.
         warnings.append(
             f"tree-sitter tree too deep to scan in {file_path}; file skipped"

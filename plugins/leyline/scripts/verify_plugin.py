@@ -186,7 +186,7 @@ def _choose_recommendation(
 
     Args:
         level_scores: Per-level pass-rate data.
-        target_level: The minimum level; records at it or above count.
+        target_level: The minimum level. Records at it or above count.
         min_score: Minimum acceptable pass rate (0.0-1.0).
 
     Returns:

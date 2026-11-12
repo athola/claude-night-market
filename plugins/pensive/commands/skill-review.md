@@ -45,7 +45,7 @@ stability_gap = 1 - min(success rate of each 5-run window)
 
 One failure in a window costs 0.2, so the gap moves in steps of 0.2 and
 the 0.2 - 0.3 band below holds exactly one failure. The gap is 0.0 until a
-skill has 5 runs. The definition lives in
+skill has 5 runs. The definition is in
 `plugins/abstract/hooks/shared/stability.py`.
 
 **Interpretation:**

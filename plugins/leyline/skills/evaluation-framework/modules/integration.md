@@ -9,7 +9,7 @@ prescriptive (opt-in, frontmatter-controlled).
 > [docs/inclusive-defaults.md][inc] (TRUE-exception
 > category 9), advisory IS the inclusive default:
 > prescriptive mode requires per-skill consent because
-> it changes orchestration behavior, not just analysis.
+> it changes orchestration behavior.
 
 [inc]: ../../../../../docs/inclusive-defaults.md
 
@@ -44,7 +44,7 @@ Before taking your next action, evaluate utility:
 ## Prescriptive Mode
 
 Prescriptive mode enforces utility gating via frontmatter keys.
-The skill MUST follow the selected action; overrides are not permitted
+The skill MUST follow the selected action. Overrides are not permitted
 unless `Gain >= 0.7` (document the override and gain value).
 
 **Frontmatter keys:**

@@ -1,16 +1,16 @@
 # Python Hardening Checks
 
 Detectors for Python codebases. Each row is a discrete check the
-skill runs; each carries a CWE citation for the report.
+skill runs, and each carries a CWE citation for the report.
 
 The detection-signal column uses placeholder syntax for patterns
 that the project's pre-commit security hooks block writing
 literally. The hooks exist for a reason: this doc describes the
-rules, but the regexes themselves live in code where the safety
-review treats them as data, not source. If a future contributor
+rules, but the regexes themselves are in code, where the safety
+review treats them as data rather than source. If a future contributor
 needs to inspect the literal patterns, see the corresponding
 detector module under `plugins/pensive/skills/harden/detectors/`
-(future work; not part of the v1 skill).
+(future work outside the v1 skill).
 
 ## Detection ruleset
 
@@ -22,11 +22,11 @@ detector module under `plugins/pensive/skills/harden/detectors/`
 | PY04 | Shell-command injection in a child-process call | CWE-78 | PW.5.1 | bandit B602 / B605: child-process helper invoked with the shell-mode flag and a formatted string |
 | PY05 | SQL injection via string formatting | CWE-89 | PW.5.1 | `cursor.execute(f"...")` or `% ` formatting in a query |
 | PY06 | Path traversal in user-supplied paths | CWE-22 | PW.5.1 | `open(user_input)` without `Path.resolve()` and `is_relative_to()` |
-| PY07 | Insecure RNG used for security purposes | CWE-330 | PW.5.1 | `import random` then a token/secret/key generated from it; should be `secrets` |
+| PY07 | Insecure RNG used for security purposes | CWE-330 | PW.5.1 | `import random` then a token/secret/key generated from it (use `secrets`) |
 | PY08 | TLS verification disabled | CWE-295 | PW.9 | `requests.*(verify=False)`, `ssl.CERT_NONE`, `disable_warnings(InsecureRequestWarning)` |
 | PY09 | Hardcoded credentials | CWE-798 | PW.5.1 | regex match for `api[_-]?key`, `secret`, `token`, `passwd` literals; AWS prefixes (`AKIA...`) |
 | PY10 | Subprocess invocation without timeout | CWE-400 | PW.5.1 | `<child-proc>.run/Popen` without `timeout=` |
-| PY11 | Tarfile extraction without member filter | CWE-22 | PW.9 | `tarfile.*extractall(` without `filter=` (PEP 706; default became safe in 3.12+) |
+| PY11 | Tarfile extraction without member filter | CWE-22 | PW.9 | `tarfile.*extractall(` without `filter=` (PEP 706: default became safe in 3.12+) |
 | PY12 | XML XXE / billion-laughs | CWE-611, CWE-776 | PW.9 | `xml.etree.ElementTree.parse(` (use `defusedxml`) |
 | PY13 | Jinja autoescape off in HTML context | CWE-79 | PW.9 | `Environment(autoescape=False)` or `Markup(user_input)` |
 | PY14 | Logging secrets | CWE-532 | PW.5.1 | `logger.*(token)`, `logger.*(password)`, `logger.*(api_key)` |
@@ -41,7 +41,7 @@ detector module under `plugins/pensive/skills/harden/detectors/`
 | PY23 | Weak hashing for passwords or auth tokens | CWE-327, CWE-328 | PW.5.1 | `hashlib.md5`, `hashlib.sha1` reachable from password / session-token paths |
 | PY24 | Missing TLS 1.2 floor | CWE-326 | PW.9 | `ssl.PROTOCOL_TLSv1`, `PROTOCOL_SSLv23` without `minimum_version` |
 | PY25 | Index pinning missing for PyPI consumption | CWE-829 | PW.4 | no `[[tool.uv.index]]` in `pyproject.toml`; no `--index-url` constraint in `requirements.txt` |
-| PY26 | Hash-unpinned installs | CWE-494, NIST SI-7 | PW.4 | `requirements.txt` without `--hash=` lines; missing `uv.lock`/`poetry.lock` |
+| PY26 | Hash-unpinned installs | CWE-494, NIST SI-7 | PW.4 | `requirements.txt` without `--hash=` lines, or missing `uv.lock`/`poetry.lock` |
 | PY27 | PyPI release without PEP 740 attestation | NIST SSDF PS.2.1 | PS.2 | release workflow uses static API token instead of `pypa/gh-action-pypi-publish@release/v1` (Trusted Publishers) |
 
 ## Library substitution table
@@ -112,5 +112,5 @@ Loaded from `frontier-checks.md` for full coverage. Brief list:
 Each Python finding follows the schema in
 `modules/proposal-shape.md`. The detection-signal text uses safe
 placeholders so the doc itself does not trip secret-scanners or
-the project's security pre-commit hooks; the actual scanner emits
+the project's security pre-commit hooks. The actual scanner emits
 the literal pattern with file:line context in the report.

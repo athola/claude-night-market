@@ -70,7 +70,7 @@ Best for: skill quality, doc quality, code review.
 
 Use when you have measurable inputs (coverage percent,
 benchmark numbers) or need fine differentiation across many
-items. More expensive to calibrate; risks false precision
+items. More expensive to calibrate, and risks false precision
 if anchors are vague.
 
 Best for: large rankings, ML evals, automated scoring.
@@ -184,7 +184,7 @@ range: [1.0, 5.0]
 ## Template 3: Feature Backlog Rubric
 
 For prioritizing backlog items. Compact wrapper around
-RICE+WSJF; details are in the `scoring-framework` module of
+RICE+WSJF. Details are in the `scoring-framework` module of
 the `feature-review` skill (under `plugins/imbue/`).
 
 ```yaml

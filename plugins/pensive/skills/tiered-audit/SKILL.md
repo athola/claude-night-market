@@ -129,8 +129,8 @@ Tier 2 for each area sequentially.
 ## Tier 2: Targeted Area Audit
 
 **Runs only for areas flagged by Tier 1.**
-Each flagged area is audited one at a time, not in
-parallel.
+Each flagged area is audited sequentially, one at a
+time.
 
 ### What Tier 2 Analyzes
 
@@ -156,7 +156,8 @@ Each file follows the output contract for audits
 `modules/escalation-criteria.md` for the gate protocol.
 
 Tier 3 should use dedicated sessions (one per area)
-with file-based coordination, NOT parallel subagents.
+with file-based coordination. Do not dispatch parallel
+subagents for it.
 
 ## Output Contract
 

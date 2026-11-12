@@ -15,8 +15,7 @@ true:
 
 - The skill exceeds the standard 800-1500 token target listed in
   `performance-budgeting.md` and cannot be split.
-- Modules form a directed acyclic graph (DAG) of dependencies,
-  not a flat list.
+- Modules form a directed acyclic graph (DAG) of dependencies.
 - Sessions are long enough that loaded modules outlive their
   usefulness and must be evicted.
 - A module load can fail (missing file, parse error, dependency

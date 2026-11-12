@@ -193,8 +193,8 @@ output_contract:
 Every finding must include `[EN]` evidence tags with
 actual command outputs or file references. Each finding
 must carry a `Location` (file:line) and a verbatim `Anchor`
-(the exact source text at that line); anchors are verified
-by the citation verifier before the report is accepted.
+(the exact source text at that line). The citation verifier
+checks each anchor before the report is accepted.
 Zero-evidence output is unconditionally rejected.
 See `imbue:proof-of-work/modules/output-contracts` for
 the full contract schema.

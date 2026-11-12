@@ -7,7 +7,7 @@ findings, then renders them into the user-facing report.
 This is the v1 detector wiring: AST-based Python detectors only,
 no proposals applied, JSON or text output. The skill's modules
 document the additional pipeline phases (proposal generation,
-approval gate, apply + validate); future versions will extend the
+approval gate, apply + validate). Future versions will extend the
 CLI to drive those phases.
 """
 

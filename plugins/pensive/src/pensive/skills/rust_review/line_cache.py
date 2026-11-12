@@ -24,7 +24,8 @@ class LineCacheMixin:
     # Both default to None (immutable) rather than a shared class-level list:
     # a mutable default would be shared across every instance and subclass,
     # so an in-place mutation would silently leak lines between files. The
-    # None sentinel makes per-instance isolation structural, not conventional.
+    # None sentinel makes per-instance isolation structural rather than
+    # conventional.
     _cached_content: str | None = None
     _cached_lines: list[str] | None = None
 

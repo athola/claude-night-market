@@ -3,8 +3,8 @@
 ## Why Content Assertions Exist
 
 Markdown files under `skills/`, `agents/`, `modules/`, and `commands/`
-are execution markdown: Claude Code interprets them as behavioral
-instructions, not static documentation. When these files contain broken
+are execution markdown: Claude Code executes them as behavioral
+instructions. When these files contain broken
 JSON schemas, stale version references, or manipulative language, Claude
 produces broken outputs or harmful behaviors.
 
@@ -62,7 +62,7 @@ for phrase in forbidden:
     assert phrase not in skill_content
 ```
 
-**Decision framework completeness**: Skills must offer multiple strategies, not force one path.
+**Decision framework completeness**: Skills must offer more than one strategy.
 
 ```python
 strategies = ["/clear", "/catchup", "auto-compact", "continuation"]

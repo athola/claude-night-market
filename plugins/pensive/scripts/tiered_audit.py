@@ -3,7 +3,8 @@
 
 The tiered-audit skill names four signals (churn hotspots, fix-on-fix
 commits, large diffs, new-file clusters) and the thresholds that turn
-each into an escalation flag live in ``pensive.skills.tiered_audit``.
+each into an escalation flag are defined in
+``pensive.skills.tiered_audit``.
 This script runs the git queries, applies those thresholds, and prints
 the flags next to the exact command that produced each one, so the
 findings file can cite them as evidence.
@@ -47,7 +48,7 @@ def _git(args: list[str], cwd: Path | None) -> str:
 
 
 def default_base(cwd: Path | None) -> str:
-    """Pick the first conventional trunk ref the repository knows."""
+    """Pick the first conventional trunk ref that exists in the repository."""
     for candidate in _BASE_CANDIDATES:
         probe = subprocess.run(
             ["git", "rev-parse", "--verify", "--quiet", candidate],

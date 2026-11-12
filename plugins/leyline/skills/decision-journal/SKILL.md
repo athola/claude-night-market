@@ -28,7 +28,7 @@ modules:
 
 - Scaffolding the files at project init (that is `attune:project-init`).
 - Recording a full architecture decision that warrants a numbered ADR in
-  `docs/adr/`; reference its number from a journal entry instead of
+  `docs/adr/`. Reference its number from a journal entry instead of
   duplicating it.
 
 This is a convention and a helper rather than a hard runtime
@@ -47,11 +47,11 @@ nobody mentions. Two append-only logs, co-located with the code, fix that:
 
 ## Files And Discipline
 
-Both files live in `docs/` (co-location is the strongest anti-staleness
+Both files are in `docs/` (co-location is the strongest anti-staleness
 lever). Each is a single append-only running log with a scannable
 `## Active index` at the top and an `## Archive` section at the bottom.
 
-1. Append-only. An accepted entry is never edited or deleted; only its
+1. Append-only. An accepted entry is never edited or deleted. Only its
    `Status` changes.
 2. Supersede, do not overwrite. A reversal adds a new entry, flips the old
    entry's status to `superseded-by: <new-id>`, and links both ways.
@@ -71,10 +71,10 @@ When a workflow reaches a decision or lesson point:
 1. Draft the entry from the live context of the phase (the options weighed,
    what was given up, the failure and its root cause).
 2. Show the draft to the human and let them confirm or edit.
-3. Append it. Tradeoffs start `proposed`; lessons start `open`.
+3. Append it. Tradeoffs start `proposed`, and lessons start `open`.
 
 Do not auto-write without the confirm step. The point is to capture the
-human reasoning, not to generate noise.
+human reasoning.
 
 ## CLI Interface
 
@@ -152,7 +152,7 @@ Must print a rendered entry containing `## TR-001:` and write nothing.
   `## Active index` and an `## Archive` section.
 - [ ] A new entry has a unique `TR-NNN`/`LL-NNN` id and an index row.
 - [ ] Superseding an entry flips the old status to `superseded-by: <id>` and
-  adds bidirectional links; the old entry is not deleted.
+  adds bidirectional links. The old entry is not deleted.
 - [ ] Re-running the same append is a no-op (idempotency holds).
 - [ ] A consumer with leyline absent still produces a correctly shaped entry
   from the in-file ENTRY TEMPLATE.
@@ -161,5 +161,5 @@ The last criterion holds even for consumers that name `leyline` in their
 `dependencies`.
 That field is marketplace metadata; no installer acts on it, so
 `spec-kit` or `imbue` can be installed without leyline present.
-The fallback is the guard at that boundary, not leftover code.
+The fallback guards that boundary. Do not remove it as leftover code.
 See `docs/metadata.md`, "What `dependencies` Does Not Mean".

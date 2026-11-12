@@ -81,7 +81,7 @@ Populate state from available context in this order:
 2. **Task counts**: Pull from TaskList (total, completed, in_progress,
    pending). Compute `completion_ratio = completed / total` (or 0.0
    if total is 0).
-3. **tokens_spent**: Use session token counter if available; otherwise
+3. **tokens_spent**: Use session token counter if available. Otherwise
    estimate from message lengths.
 4. **budget_remaining_ratio**: Compute as
    `(max_steps - step) / max_steps`, clamped to [0.0, 1.0].
@@ -98,8 +98,7 @@ Populate state from available context in this order:
 ## Subagent Constraints
 
 Subagents cannot access the parent's TaskList.
-Task context for subagents comes from the dispatch prompt, not from
-TaskList directly.
+Task context for subagents comes from the dispatch prompt.
 Populate `tasks.total` and `tasks.completed` from explicit counts
 provided in the dispatch instructions.
 If no task counts are provided, leave all task fields at their zero

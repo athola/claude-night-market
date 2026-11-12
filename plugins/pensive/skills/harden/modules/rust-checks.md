@@ -1,7 +1,7 @@
 # Rust Hardening Checks
 
 Detectors for Rust codebases. The Rust ecosystem ships strong
-default safety; the harden skill verifies the discipline is
+default safety. The harden skill verifies the discipline is
 actually applied and the supply chain is curated.
 
 For a deep ownership/unsafe audit, the skill defers to
@@ -13,14 +13,14 @@ side-channel defense) and frontier 2025-2026 practices.
 
 | ID | Check | CWE / RustSec | NIST SSDF | Detection signal |
 |----|-------|---------------|-----------|------------------|
-| RS01 | Crate root lacks `#![forbid(unsafe_code)]` and does not declare audited unsafe | CWE-119 | PW.5 | `lib.rs`/`main.rs` without forbid; no `audit/unsafe.md` |
+| RS01 | Crate root lacks `#![forbid(unsafe_code)]` and does not declare audited unsafe | CWE-119 | PW.5 | `lib.rs`/`main.rs` without forbid and no `audit/unsafe.md` |
 | RS02 | Unsafe block without `// SAFETY:` comment | CWE-119 | PW.7 | `unsafe {` not preceded by `// SAFETY:` line |
 | RS03 | `unwrap()` / `expect()` on caller-supplied data | CWE-754 | PW.5 | `.unwrap()` after `parse()`, `from_str`, `serde::from_*` on external input |
 | RS04 | `panic!` reachable from request handler | CWE-754 | PW.5 | `panic!`, `unimplemented!`, `unreachable!` on user-input branches |
 | RS05 | `cargo audit` not wired to CI | RV.1 | RV.1 | no `cargo audit` step in `.github/workflows/*.yml` |
 | RS06 | `cargo deny` config missing or not enforced | RV.1 | PW.4 | no `deny.toml` or CI step missing |
 | RS07 | `cargo vet` audits stale / missing for new deps | RV.2 | PW.4 | `supply-chain/audits.toml` does not cover new entries in `Cargo.lock` |
-| RS08 | Comparing secrets with `==` | CWE-208 | PW.5 | `==` between `&[u8]` typed as token/secret/digest; should be `subtle::ConstantTimeEq` |
+| RS08 | Comparing secrets with `==` | CWE-208 | PW.5 | `==` between `&[u8]` typed as token/secret/digest (use `subtle::ConstantTimeEq`) |
 | RS09 | Secrets not zeroized on drop | CWE-316 | PW.5 | secret-typed struct without `Zeroize`/`ZeroizeOnDrop` |
 | RS10 | Async cancellation un-safe | CWE-362 | PW.5 | `tokio::select!` arms with non-cancel-safe futures (e.g., `BufReader::read_to_end`) |
 | RS11 | `Mutex::lock().unwrap()` in hot path | CWE-754 | PW.5 | poisoned-lock unwrap reachable from public API |

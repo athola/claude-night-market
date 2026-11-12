@@ -52,7 +52,7 @@ Four levels balance granularity with usability:
 
 The 0-3 scale maps naturally to: Routine/Watch/Elevated/Critical.
 Each level has a clear escalation trigger and distinct required
-controls. The gap between levels is meaningful, not arbitrary.
+controls.
 
 This pattern emerged from observing that teams with simple,
 actionable risk frameworks actually use them, while teams with

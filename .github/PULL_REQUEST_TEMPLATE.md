@@ -12,7 +12,7 @@ or say you used none (CONSTITUTION.md rule 1).
 
 | | |
 |---|---|
-| **Who** | <!-- audience for this change; name a reviewer only for out-of-band routing --> |
+| **Who** | <!-- audience for this change. Name a reviewer only for out-of-band routing --> |
 | **Where** | <!-- internal: module and file count. External: consumers, APIs, wire formats, or `none` --> |
 | **When** | <!-- `on merge`, or the flag / migration window / full-integration date --> |
 

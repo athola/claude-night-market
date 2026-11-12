@@ -58,8 +58,8 @@ impl From<Config> for Settings {
 
 ## Why Not Discard the Conversion Error
 
-`TryFrom` exists to make a fallible conversion's failure a value, not a
-panic. `.try_into().unwrap()` throws that value away:
+`TryFrom` exists to make a fallible conversion's failure a value rather than
+a panic. `.try_into().unwrap()` throws that value away:
 
 ```rust
 // Flag: an over-large value panics instead of being handled
@@ -69,7 +69,7 @@ let port: u16 = raw.try_into()?;
 ```
 
 `.unwrap()` is acceptable only where the value is statically known to
-fit (tests, a checked invariant, a `const`); the reviewer confirms.
+fit (tests, a checked invariant, a `const`). The reviewer confirms.
 
 ## Exclusions (Not Flagged)
 
@@ -81,12 +81,12 @@ fit (tests, a checked invariant, a `const`); the reviewer confirms.
   so `Into` is the only legal direction (rust-clippy #9638, #6607). The
   detector cannot tell whether the target is foreign from one line, so
   the recommendation carries this caveat and the reviewer confirms.
-- **`impl From<..>`**: already the preferred direction; never flagged.
+- **`impl From<..>`**: already the preferred direction and never flagged.
 - **Propagated conversions**: `try_into()?` keeps the error and is not
   flagged.
 - **Comments**: a line in a `//` comment is not code.
 
-The known false-positive class is the foreign-target `impl Into`; the
+The known false-positive class is the foreign-target `impl Into`. The
 recommendation states the orphan-rule exception inline so the reviewer
 can dismiss it without re-deriving the rule.
 

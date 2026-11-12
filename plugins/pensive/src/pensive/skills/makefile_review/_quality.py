@@ -166,7 +166,7 @@ class QualityMixin:
             "insecure_downloads": insecure_downloads[:5],
         }
 
-    # (pattern, re.search flags, score weight) — each present pattern adds its
+    # (pattern, re.search flags, score weight): each present pattern adds its
     # weight to the modernization score out of `_MAX_MODERNIZATION_SCORE`.
     _MODERNIZATION_SCORE_PATTERNS: tuple[tuple[str, int, float], ...] = (
         (r"^\.PHONY:", re.MULTILINE, _SCORE_PHONY),

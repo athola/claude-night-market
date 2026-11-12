@@ -65,7 +65,7 @@ class ReportingMixin:
         removed (B-15).
 
         Args:
-            _context: Skill context (unused; reserved for overrides).
+            _context: Skill context (unused, reserved for overrides).
 
         Returns:
             ``{"status": "ok", "checked": [], "issues": []}``.

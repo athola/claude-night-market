@@ -36,7 +36,7 @@ Or reference from the marketplace:
 | **fpf-review** | Functional/Practical/Foundation architecture review. |
 | **code-refinement** | Analyzes living code for duplication, algorithmic inefficiency, clean code violations, and architectural misfit. |
 | **blast-radius** | Analyzes code change blast radius with risk scoring, affected nodes, and untested functions. |
-| **safety-critical-patterns** | NASA Power of 10 rules adapted for robust, verifiable code with context-appropriate rigor. |
+| **safety-critical-patterns** | NASA Power of 10 rules adapted for verifiable code with context-appropriate rigor. |
 
 ### Commands
 

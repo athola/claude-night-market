@@ -31,7 +31,7 @@ book says it serves.
 
 | Signal | Detection | Verdict |
 |--------|-----------|---------|
-| Passthrough mapper | Every field is a 1:1 copy. No transform, no rename, no filter | Delete the mapper and share the type |
+| Passthrough mapper | Every field is a 1:1 copy with no transform, rename, or filter | Delete the mapper and share the type |
 | Twin types | Two types in different layers, structurally identical field-for-field | Collapse to one until they diverge |
 | Speculative DTO | The DTO mirrors its entity exactly and no external contract pins its shape | Delete it, and reintroduce on divergence |
 | Interface with one implementation | One impl, no test double, no second consumer planned | Inline it (Karpathy AP-3) |
@@ -41,11 +41,11 @@ book says it serves.
 ### Lens 1: Passthrough Mapper
 
 Read the mapper body. If every assignment is `dst.x = src.x` with no
-transform, no rename, no filtering, and no defaulting, the mapper's only
+transform, rename, filtering, or defaulting, the mapper's only
 effect is to convert a type into an identical type.
 
-Ask what the two types are for. If the answer is "layering," that is the
-name of a rule, not a need.
+Ask what the two types are for. If the answer is "layering," the answer
+names a rule and leaves the need unnamed.
 
 ### Lens 2: Twin Types
 

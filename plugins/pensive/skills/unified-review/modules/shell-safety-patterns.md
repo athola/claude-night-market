@@ -89,7 +89,7 @@ rg -n '^\s*cd\s+[^(]' scripts/     # cd not wrapped in (
 ## Source relative to script location
 
 External files must be sourced relative to the script's own
-location, not the caller's working directory.
+location rather than the caller's working directory.
 
 ```sh
 # Bad: breaks when invoked from any other directory

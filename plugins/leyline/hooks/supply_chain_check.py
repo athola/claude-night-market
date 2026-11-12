@@ -3,7 +3,7 @@
 
 Reads the known-bad-versions.json blocklist from the supply-chain-advisory skill
 and scans uv.lock / requirements.txt in the current working directory for matches.
-Lightweight — only runs at session start, exits fast on no findings.
+Lightweight: only runs at session start, exits fast on no findings.
 """
 
 from __future__ import annotations

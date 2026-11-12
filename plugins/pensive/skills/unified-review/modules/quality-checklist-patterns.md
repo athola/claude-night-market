@@ -66,7 +66,7 @@ Execute before finalizing output:
 Execute for each recommendation:
 
 - [ ] Specific and actionable
-- [ ] Addresses root cause, not just symptoms
+- [ ] Addresses the root cause
 - [ ] Feasible within project constraints
 - [ ] Prioritized appropriately
 - [ ] Linked to finding

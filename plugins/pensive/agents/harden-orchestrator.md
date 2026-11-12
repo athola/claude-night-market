@@ -45,8 +45,8 @@ skills rather than re-implementing them.
   expected-passing test.
 - **Approval gate**: Per-finding apply / file / defer / reject.
   Auto-apply ceiling is opt-in.
-- **Apply and validate**: Discrete commit per finding; project
-  gates (test, lint, type-check) re-run after each apply; a
+- **Apply and validate**: Discrete commit per finding. Project
+  gates (test, lint, type-check) re-run after each apply, and a
   gate failure reverts the commit and downgrades the finding.
 
 ## Expertise Areas
@@ -91,16 +91,16 @@ skills rather than re-implementing them.
 4. **Tool integration**: run external scanners (bandit,
    pip-audit, cargo-audit, etc.) and join into the same
    schema.
-5. **NIST mapping**: group findings by SSDF practice; flag
+5. **NIST mapping**: group findings by SSDF practice, and flag
    missing practice coverage as its own finding (RV.1 unmet).
 6. **Proposal generation**: for each finding ≥ severity
    threshold, draft a concrete remediation per
    `proposal-shape.md`.
 7. **Approval gate**: present each proposal via
-   `AskUserQuestion`; apply / file / defer / reject.
-8. **Apply and validate**: discrete commit per approved finding;
-   re-run gates; revert on gate failure.
-9. **Report**: write `reviews/harden-<date>.md`; optionally
+   `AskUserQuestion` with apply / file / defer / reject.
+8. **Apply and validate**: discrete commit per approved finding,
+   re-run gates, revert on gate failure.
+9. **Report**: write `reviews/harden-<date>.md`, and optionally
    post to Discussions via
    `abstract:post_review_insights`.
 

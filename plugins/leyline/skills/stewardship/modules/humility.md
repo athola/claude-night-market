@@ -26,13 +26,13 @@
   lets the test drive the design rather than forcing a
   preconceived shape.
 - When you are wrong, say so directly. Correction is
-  information, not failure.
+  information.
 
 ## This is not humility
 
 - False modesty that refuses to commit to a
-  recommendation when you have evidence. Humility is
-  honest, not evasive.
+  recommendation when you have evidence. Humility states
+  what the evidence supports.
 - Deferring all decisions to avoid responsibility.
   Humility takes responsibility for what it knows and
   is transparent about what it does not.

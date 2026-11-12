@@ -69,7 +69,7 @@ practices for Python and Rust.
 6. **Validation.** After applying, re-runs gates (tests, lint,
    type-check) to confirm no behavior change.
 7. **Report.** Markdown report saved to
-   `reviews/harden-<date>.md`; summary posted to GitHub
+   `reviews/harden-<date>.md`. A summary is posted to GitHub
    Discussions via `abstract:post_review_insights` when run on a
    PR.
 
@@ -99,7 +99,7 @@ practices for Python and Rust.
 - Pending-diff review (use Claude Code built-in `/security-review`).
 - Architecture-level threat modeling (use a war-room session
   via `attune:war-room`).
-- Cryptographic protocol review (specialist work; the skill flags
+- Cryptographic protocol review (specialist work: the skill flags
   but does not propose crypto fixes).
 
 ## Output

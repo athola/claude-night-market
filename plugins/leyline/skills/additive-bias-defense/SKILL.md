@@ -33,7 +33,7 @@ role: library
 > **Note (#444):** Frontmatter declares ``provides.guidance``, not
 > ``provides.contract``. The scrutiny questions are consumed by
 > partner skills (``pensive:code-refinement``, ``conserve:unbloat``,
-> ``imbue:scope-guard``) that voluntarily embed them; no validator or
+> ``imbue:scope-guard``) that voluntarily embed them. No validator or
 > hook in leyline enforces them directly. If a future contributor
 > adds enforcement, restore the ``contract`` label and link the
 > validator path here.

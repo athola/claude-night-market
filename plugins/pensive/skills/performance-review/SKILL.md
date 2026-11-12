@@ -78,11 +78,12 @@ for f in result.issues:
 - General refactoring guidance not focused on hotspots: use
   `Skill(pensive:code-refinement)` whose `algorithm-efficiency`
   module covers broader optimization patterns. This skill
-  detects; that skill teaches.
+  detects, and that skill teaches.
 - Deciding whether a hand-rolled loop transform (unrolling, manual
   SIMD, strength reduction) is worth keeping: use
   `Skill(leyline:loop-optimization)` for the hand-vs-compiler rule.
-  This skill flags hotspot shapes, not transformation choices.
+  This skill flags hotspot shapes and leaves the transform choice
+  to that skill.
 - Architecture-level performance (sharding, caching layers,
   queue placement): use `Skill(pensive:architecture-review)`.
 
@@ -101,7 +102,7 @@ for f in result.issues:
 
 - Identify target files. If invoked with no argument, use
   `git diff --name-only`. If invoked with a path, scope to that.
-- Note language(s) involved. Tier 1 covers Python; non-Python
+- Note language(s) involved. Tier 1 covers Python. Non-Python
   files need the `tiers` extra for Tier 2 coverage.
 
 ### Step 2: Tier 1 AST scan (`perf-review:scan-complete`)
@@ -236,7 +237,7 @@ is the boolean-flag variant of the same shape. See
   (not AST detectors) for unbounded collections fed from
   external sources, hot-path recompute that should be memoized,
   and serial blocking I/O over unbounded sets. Apply by reading
-  the code; the detector-test rule in Testing does not cover
+  the code. The detector-test rule in Testing does not cover
   these because nothing is automated.
 
 ## Verification
@@ -247,9 +248,10 @@ fixing:
 
 1. **Reproduce under a profiler.** Run `cProfile`, `py-spy`, or the
    language-specific equivalent on the hotspot. The findings
-   pinpoint AST shapes; the profiler validates the runtime impact.
+   pinpoint AST shapes, and the profiler validates the runtime impact.
 2. **Re-run the failing benchmark.** If `benches/` exists, the
-   hotspot should show up in numbers, not just AST scans.
+   hotspot should show up in benchmark numbers as well as AST
+   scans.
 3. **Compare numbers before and after the proposed fix.** The fix
    is wrong if numbers do not move. Capture both timings as
    evidence references like `[E1]` (before) and `[E2]` (after).
@@ -260,11 +262,11 @@ fixing:
    when callers short-circuit. Manual sampling catches that.
 
 The `Skill(imbue:proof-of-work)` discipline applies: claims like
-"the hotspot is fixed" require evidence, not assertion.
+"the hotspot is fixed" require measured evidence.
 
 ## Testing
 
-A test file already lives at
+A test file already exists at
 `plugins/pensive/tests/skills/test_performance_review.py` covering
 the AST-shape detectors. Two rules for changes here:
 
@@ -292,12 +294,12 @@ the verifier rejects.
 - [ ] Every finding carries a severity label and a concrete
       suggestion the caller can act on.
 - [ ] Time-complexity (T1-T6) and space-complexity (S1-S3)
-      detectors have been run; tier coverage is reported.
+      detectors have been run, and tier coverage is reported.
 - [ ] Tier 2 (tree-sitter) and Tier 3 (graph store)
       contracts honor the optional-import sentinel: missing
       modules return `[]` rather than raising.
 - [ ] Each new detector ships with a smallest-AST test that
-      fails before the detector exists; each removed false
+      fails before the detector exists, and each removed false
       positive ships with a regression test.
 - [ ] Findings flow into `Skill(pensive:unified-review)` without
       translation when invoked from the unified entry point.

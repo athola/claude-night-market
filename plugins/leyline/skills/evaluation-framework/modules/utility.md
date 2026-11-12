@@ -44,7 +44,7 @@ U(a | s_t) = Gain(a | s_t)
 
 | Parameter | Default | Rationale |
 |-----------|---------|---------------------------------------------------|
-| λ₁ | 1.0 | Cost baseline; all other weights relative to this |
+| λ₁ | 1.0 | Cost baseline, all other weights relative to this |
 | λ₂ | 0.5 | Weak empirical correlation with outcome (r=0.0131) |
 | λ₃ | 0.8 | Redundancy pruning yields ~10% token savings |
 

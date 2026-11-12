@@ -128,7 +128,7 @@ Replace with:
 - **Integration test**: real DB (sqlite or test container),
   real cache (in-memory), real logger (capturing).
 - **Behavior test**: assert against the externally
-  observable result, not against the call sequence.
+  observable result rather than the call sequence.
 
 Detection: count `Mock*` usages per test file:
 
@@ -155,8 +155,8 @@ flaky tests that get suppressed (`#[ignore]`) instead of
 fixed.
 
 Fix: use `BTreeMap` instead of `HashMap` for stable
-iteration; inject a deterministic clock; use a fixed
-UUID for testing; or assert on shape rather than
+iteration, inject a deterministic clock, use a fixed
+UUID for testing, or assert on shape rather than
 literal value.
 
 Detection:
@@ -177,7 +177,7 @@ fn test_full_flow() {
 ```
 
 A failing assertion stops the test, so subsequent
-assertions never run; you only learn one failure per
+assertions never run. You only learn one failure per
 suite execution. Split into focused tests.
 
 Detection:

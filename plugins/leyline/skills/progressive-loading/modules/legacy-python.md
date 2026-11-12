@@ -23,7 +23,8 @@ selection pattern in `selection-strategies.md`).
 ## Detect the Version Floor
 
 The version floor decides which features are available. Read it
-from the project metadata, not from the local interpreter.
+from the project metadata. The local interpreter can be newer than
+the floor.
 
 ```python
 import tomllib

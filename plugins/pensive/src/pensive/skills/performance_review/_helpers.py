@@ -178,7 +178,7 @@ def _iter_yields_string(
 
 
 def _add_name(name: str, target_set: set[str]) -> bool:
-    """Add `name` to `target_set`; return True if it was newly added."""
+    """Add `name` to `target_set` and return True if it was newly added."""
     if name in target_set:
         return False
     target_set.add(name)

@@ -23,7 +23,7 @@ against vendor docs on 2026-10-30. Bitbucket was not checked.
   the default branch. The docs do not list titles.
 - `Related to #5` links the issue without closing it. Use it for partial work.
 - A maintainer can turn auto-close off per project under Settings > Repository.
-- Templates live in `.gitlab/issue_templates/`, with `Default.md` as the
+- Templates are in `.gitlab/issue_templates/`, with `Default.md` as the
   default.
 - Every edit to a merge request or issue description is kept. In GraphQL,
   a `notes` node with `systemNoteMetadata.action` of `description` carries

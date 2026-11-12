@@ -61,8 +61,8 @@ benchmark).
    reduction chain the compiler legally will not reorder.
 5. In Python, the levers are: hoist invariants out of the loop,
    vectorize via NumPy, fuse passes via numexpr/Numba. Do not hand-unroll
-   or hand-strength-reduce: the cost is bytecode dispatch, not loop
-   control.
+   or hand-strength-reduce: the cost is bytecode dispatch, which unrolling does
+   not reduce.
 6. Branch elimination is a separate lever from the five transforms
    above, and the compiler will not apply it for you. Reach for it only
    on a profiled hot loop whose branch outcome depends on unpredictable
@@ -79,7 +79,7 @@ benchmark).
 | Loop fusion | Bandwidth-bound array loops; Python via numexpr/Numba | When it spills registers or mixes strided access; compute-bound bodies; blocks vectorization |
 | Hoisting (LICM) | Python (no compiler does it); C/C++/Rust only when aliasing blocks the proof | `-O2`+ compiled code: redundant and can lengthen live ranges |
 | Strength reduction | Compilers do it; near-useless by hand | `-O2`+ compiled code: blocks the compiler's IV analysis and vectorization |
-| Branch elimination (branchless) | Hot loops whose branch tracks unpredictable data | Predictable branches; selectivity stably skewed toward one side; sorted or clustered input; before profiling |
+| Branch elimination (branchless) | Hot loops whose branch tracks unpredictable data | Predictable branches, selectivity stably skewed toward one side, sorted or clustered input, before profiling |
 
 ## Branch elimination (branchless)
 
@@ -90,7 +90,7 @@ unconditional store plus a conditional index advance changes which
 memory the loop writes, so LLVM cannot apply it as a
 semantics-preserving transformation.
 
-The lever is branch misprediction, not instruction count. A branch
+The lever is branch misprediction rather than instruction count. A branch
 whose outcome tracks unpredictable data costs roughly 15-20 cycles per
 miss. A predictable branch (loop conditions, bounds checks) is close to
 free and needs no treatment at all.
@@ -106,7 +106,7 @@ an Intel i7-10875H.
 | 75% | 2.75 ms | 1.02 ms |
 | 99% | 1.49 ms | 1.11 ms |
 
-Read that table as variance, not speed. Branchless does not make the
+Read that table as variance. Branchless does not make the
 loop faster. It makes the cost independent of the data, winning the 50%
 worst case by about 4x and losing the 1% best case by about 2x. The
 same 50% case on sorted input runs at 0.93 ms under the ordinary
@@ -134,10 +134,10 @@ Source: https://www.greyblake.com/blog/branchless-rust/
    optimizer barriers, or do not claim the win.
 2. Emitted is not executed. Auto-vectorization fails silently. "The
    compiler emitted SIMD" does not mean "SIMD ran." Confirm with codegen
-   or optimization reports, not source inspection.
+   or optimization reports. Source inspection cannot show it.
 
 Both traps tie into `Skill(imbue:proof-of-work)`: a speedup claim needs
-evidence on representative data, not assertion.
+a measurement on representative data.
 
 ## Exit Criteria
 
@@ -149,7 +149,7 @@ evidence on representative data, not assertion.
 - [ ] Any manual SIMD was preceded by an aliasing/loop-shape fix and a
       check that the vectorized path actually executes.
 - [ ] Every speedup claim cites a benchmark on production-distribution
-      data, not synthetic or reused input.
+      data. Synthetic or reused input does not count.
 - [ ] Any branchless rewrite names the branch it removes, shows that
       branch is data-dependent and mispredicting, and reports the
-      selectivity range it was measured across, not a single point.
+      selectivity range (two or more points) it was measured across.

@@ -20,7 +20,7 @@ from ._reporting import ReportingMixin
 __all__ = ["BugReviewSkill"]
 
 # Suppress unused-import warnings: content_parser and PatternSearch are
-# referenced by the mixins via inherited self._detect_patterns; keeping
+# referenced by the mixins via inherited self._detect_patterns. Keeping
 # them here documents the dependency surface.
 _ = (_content_parser, PatternSearch, AnalysisResult)
 

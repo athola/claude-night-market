@@ -26,7 +26,7 @@ The analyzer (`analyze_numeric_cast_safety`) flags three shapes:
    the upper bits, and `u8`/`i8` swaps reinterpret sign
    (`clippy::cast_possible_truncation`).
 3. **Precision loss to `f32`**: any `as f32`. From `f64` it drops
-   mantissa bits; from `i64`/`u64` it loses precision past 2^24
+   mantissa bits. From `i64`/`u64` it loses precision past 2^24
    (`clippy::cast_precision_loss`).
 
 ## Why `as` Hides Bugs
@@ -76,7 +76,7 @@ is the documented intent (e.g. hashing, deliberate `& 0xFF`).
 - **Comments**: a cast shown in a `//` comment is not code.
 
 The known false-positive class is a genuinely lossless `as u8`/`as i8`
-on a value already known to fit; the reviewer confirms intent and the
+on a value already known to fit. The reviewer confirms intent, and the
 recommendation is still the safer `try_from`.
 
 ## Related Clippy Lints

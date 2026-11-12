@@ -2,7 +2,7 @@
 
 Flags catch-all `_ =>` arms that defeat the compiler's exhaustiveness
 check. When the scrutinee is an enum, an explicit-variant match makes a
-newly added variant a compile error; a `_` arm that panics or is empty
+newly added variant a compile error. A `_` arm that panics or is empty
 turns it into a runtime panic or a silently ignored case instead.
 
 Only the panic / empty forms are flagged. A `_ =>` arm returning a real

@@ -1,7 +1,7 @@
 """Mem-forget analysis for Rust review.
 
 Flags `mem::forget(x)` (skips the destructor, leaking the resource) and
-`drop(&x)` (drops a borrow: a no-op, so the owned value lives on). Both
+`drop(&x)` (drops a borrow: a no-op that leaves the owned value alive). Both
 defeat the deterministic cleanup the destructors chapter describes.
 
 Grounded in the Rust Reference destructors chapter (src/destructors.md)

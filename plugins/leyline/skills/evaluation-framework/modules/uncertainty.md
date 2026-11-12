@@ -3,7 +3,7 @@
 The LLM self-estimates whether current evidence is sufficient to act
 confidently.
 This is the weakest signal in the utility function (Pearson r=0.0131
-with final quality) but serves as a useful tiebreaker when gain and
+with final quality) but is a useful tiebreaker when gain and
 cost scores are close.
 
 ## Output
@@ -19,10 +19,10 @@ Low uncertainty pushes toward respond or stop actions.
 
 | Range   | Meaning                                                   |
 |---------|-----------------------------------------------------------|
-| 0.0-0.2 | Evidence is strong; confident in current state            |
+| 0.0-0.2 | Evidence is strong, confident in current state            |
 | 0.3-0.5 | Some gaps exist but reasonable to proceed                 |
-| 0.6-0.8 | Significant unknowns present; more retrieval warranted    |
-| 0.9-1.0 | Very uncertain; should not respond yet                    |
+| 0.6-0.8 | Significant unknowns present, more retrieval warranted    |
+| 0.9-1.0 | Very uncertain, should not respond yet                    |
 
 ## Estimation Prompts
 
@@ -42,7 +42,7 @@ answer holds up under a quick adversarial check.
 The paper found Pearson r=0.0131 between self-estimated uncertainty
 and final quality.
 This is weak correlation.
-Treat this signal as a tiebreaker, not a primary driver.
+Treat this signal as a tiebreaker only.
 It is weighted at lambda_2=0.5 in the combined utility formula
 precisely because over-relying on it degrades decision quality.
 

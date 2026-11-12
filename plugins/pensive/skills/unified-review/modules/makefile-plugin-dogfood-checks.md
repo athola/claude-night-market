@@ -75,7 +75,8 @@ The generation phase creates:
 
 ## Demo Target Philosophy
 
-Demo targets must run ACTUAL functionality, not just echo static information.
+Demo targets must run ACTUAL functionality. Echoing static information does
+not count.
 
 | BAD (Static/Informational) | GOOD (Live/Functional) |
 |-------------------------------|---------------------------|
