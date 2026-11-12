@@ -63,13 +63,14 @@ it. Cleanup inside the lines your change already touches rides
 along. Cleanup anywhere else goes in its own commit, and an
 unrelated refactor goes in its own pull request.
 
-**Origin**: Robert Baden-Powell's farewell message to Scouts:
-"Try and leave this world a little better than you found it."
-Robert C. Martin, in "The Boy Scout Rule" (*97 Things Every
-Programmer Should Know*, 2010), applies the Scouts' campground
-rule to code: check a module in cleaner than you checked it
-out. Also: "Whoever can be trusted with very little
-can also be trusted with much" (Luke 16:10).
+**Origin**: Robert Baden-Powell's farewell message to Scouts,
+published after his death in 1941: "Try and leave this world a
+little better than you found it." Robert C. Martin, in "The Boy
+Scout Rule" (*97 Things Every Programmer Should Know*, 2010),
+applies the Scouts' campground rule to code: check a module in
+cleaner than you checked it out. That is a paraphrase, because the
+chapter could not be fetched to quote. Also: "Whoever can be
+trusted with very little can also be trusted with much" (Luke 16:10).
 
 **In practice**:
 
@@ -87,9 +88,10 @@ time. Prioritize their experience over your convenience. Every
 decision is an act of service or an act of neglect toward the
 people who inherit your work.
 
-**Origin**: Peter Block defines stewardship as "accountability
-for the well-being of the larger organization by operating in
-service, rather than in control, of those around us." His two
+**Origin**: Peter Block, in *Stewardship: Choosing Service over
+Self-Interest*, defines stewardship as "the willingness to be
+accountable for the well-being of the larger organization by
+operating in service, rather than in control, of those around us." His two
 commitments: act in service of the long run, and act in service
 to those with little power.
 
@@ -160,8 +162,8 @@ virtue practice from that file.
 - Plugin-specific stewardship guidance in each plugin's README
 - `Skill(leyline:stewardship)` for layer-specific decision
   heuristics during plugin work
-- [Governance Evidence](docs/deep-dive/governance-evidence.md)
-  for the sources behind each attribution here
+- [ADR-0030](docs/adr/0030-constitution-rules-name-their-check.md)
+  for why the campsite rule is bounded to the lines a change touches
 
 ## The Soul of Stewardship
 

@@ -151,16 +151,29 @@ conflicting skill or hook, each paired with what checks it.
 ## Network and data
 
 Three parts of the marketplace reach off your machine, and each can be
-turned off. Two hooks use your own `gh` credentials: a once-per-session
-star prompt that only reads your star status
-(`CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1` disables it), and a session-stop
-hook that posts a learnings discussion and may open issues
-(`auto_post_learnings: false` in
-`~/.claude/skills/discussions/config.json` disables it). The third,
-delegation through `conjure`, sends prompts and file contents to an
-external model CLI under the credentials you configured for it
-(`CONJURE_DELEGATION=off` for one run). What each sends, and every
-switch, is in [Network and Data](docs/deep-dive/network-and-data.md).
+turned off. Two hooks use your existing GitHub credentials, and both do
+nothing when `gh` is unauthenticated or the network is unavailable.
+
+- **Star prompt** (`leyline`, `hooks/auto-star-repo.sh`). On session
+  start it checks whether you have starred this repository, through
+  `gh` or a `GITHUB_TOKEN` / `GH_TOKEN` variable. It reads star status,
+  asks once per session, and never stars without your consent.
+  `CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1` disables it.
+- **Learnings posting** (`abstract`, `hooks/post_learnings_stop.py`).
+  On session stop, when `~/.claude/skills/LEARNINGS.md` has content, it
+  posts a skill-usage discussion through `gh` and may promote
+  high-severity items to issues. The target is `target_repo` in
+  `~/.claude/skills/discussions/config.json`, else the current repo.
+  It is on by default. `auto_post_learnings: false` in that file
+  disables it.
+- **Delegation** (`conjure`, also reached by `attune` missions and
+  `egregore` steps) sends the prompt and the file contents it carries to
+  the first external model CLI that answers, in the order Gemini, Qwen,
+  MiniMax, GLM, Muse, Codex, OpenCode, under the credentials you
+  configured for it. It runs by default. `CONJURE_DELEGATION=off`
+  declines it for one run, and `"enabled": false` in
+  `~/.claude/hooks/delegation/config.json` declines it on one machine.
+  When no provider answers, the work stays on your machine.
 
 ## Plugin Development
 
@@ -189,7 +202,6 @@ Xcode's make 3.81 reports a green build it did not run.
 - [Plugin Development Guide][dev-guide]
 - [Capabilities Reference](book/src/reference/capabilities-reference.md)
 - [Tutorials](book/src/tutorials/README.md)
-- [Network and Data](docs/deep-dive/network-and-data.md)
 - [Architecture Decision Records](docs/adr/)
 - [CHANGELOG](CHANGELOG.md)
 

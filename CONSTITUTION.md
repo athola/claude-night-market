@@ -13,7 +13,7 @@ files, and it is why each rule below is paired with what checks it.
 Where the only check is a reviewer, the table says so. The file is
 short so that every contributor, human or AI, can hold it in working
 memory. The sources behind the rules are in
-[Governance Evidence](docs/deep-dive/governance-evidence.md).
+[ADR-0030](docs/adr/0030-constitution-rules-name-their-check.md).
 
 ## The rules
 
@@ -170,7 +170,7 @@ There is no separate amendments log.
 - Anti-goals (what not to clean up): `Skill(scribe:slop-detector)`
   module `anti-goals.md`
 - Sources and open-source policy comparison:
-  [Governance Evidence](docs/deep-dive/governance-evidence.md)
+  [ADR-0030](docs/adr/0030-constitution-rules-name-their-check.md)
 
 ## Provenance
 
@@ -179,4 +179,4 @@ Adapted from the
 (vicnaum, 2026) constitution pattern and the empirical baseline in
 `Skill(scribe:slop-detector)` module `empirical-baseline.md`. Rules 1
 and 2 were amended on 2026-11-11 against the open-source AI policies
-compared in [Governance Evidence](docs/deep-dive/governance-evidence.md).
+compared in [ADR-0030](docs/adr/0030-constitution-rules-name-their-check.md).

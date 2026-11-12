@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`docs/deep-dive/` is gone and gitignored.** The governance
+  sources moved to ADR-0030 and the stewardship **Origin** notes, and
+  the network and data detail moved into the README. Skills and rules
+  that extract expert-tier material now send it to `docs/<topic>.md`,
+  because an extract under an ignored directory is never committed.
+
 ## [1.10.2] - 2026-11-11
 
 One entry below is marked Breaking, and this release ships it under a
@@ -144,7 +152,7 @@ capability, and a caller needs only the one-line change its entry describes.
   prompt. An amendment may ride in a larger PR as a commit with the
   `constitution: amend rule N` subject. "Immutable" is gone from the
   lead, because the file has always had an amendment process. Sources
-  are in `docs/deep-dive/governance-evidence.md`.
+  and the reasoning are in ADR-0030.
 
 - **Stewardship's campsite rule stops at the lines a change touches.**
   Cleanup elsewhere goes in its own commit, so a pull request still
