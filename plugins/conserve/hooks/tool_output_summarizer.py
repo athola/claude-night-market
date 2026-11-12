@@ -23,7 +23,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-# D-05: shared resolver lives at hooks/shared/session_file.py.
+# D-05: shared resolver is at hooks/shared/session_file.py.
 sys.path.insert(0, str(Path(__file__).parent))
 from shared._vendored_leyline_atomic_file import write_atomic
 from shared.session_file import (
@@ -396,7 +396,7 @@ def main() -> int:
             context_blocks.append(build_digest(output_text, handle))
             # Opportunistic retention sweep so archives do not grow unbounded
             # across sessions and /clears. Probabilistic to keep the directory
-            # scan off the hot path; over a session's many large outputs it
+            # scan off the hot path. Over a session's many large outputs it
             # runs often enough to bound disk use.
             if random.random() < CCR_CLEANUP_PROBABILITY:  # noqa: S311 - sampling gate, not crypto
                 context_archive_cleanup(Path.cwd() / ARCHIVE_SUBDIR)

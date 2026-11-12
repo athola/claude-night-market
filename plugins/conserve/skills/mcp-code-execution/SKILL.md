@@ -17,7 +17,7 @@ dependencies:
 
 ## Quick Start
 
-This skill is an orchestration hub, not a CLI. It activates
+This skill is an orchestration hub with no CLI. It activates
 inside a Claude Code session when one of the trigger keywords
 below appears, or when invoked explicitly:
 

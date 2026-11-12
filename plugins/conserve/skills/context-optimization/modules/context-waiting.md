@@ -305,7 +305,7 @@ def coordinate_plugin_resources(plugins: List[str]):
 ## Benefits
 
 1. **Eliminates Race Conditions**: No more arbitrary timing guesses
-2. **Responsive Optimization**: React to actual conditions, not timers
+2. **Responsive Optimization**: React to observed conditions
 3. **Resource Efficient**: No wasted polling or unnecessary delays
 4. **Better Error Messages**: Clear indication of what was waited for
 5. **Testable**: Conditions can be mocked and verified

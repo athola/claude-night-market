@@ -387,7 +387,7 @@ When blocked, follow debugging framework:
 **Code Documentation**:
 - Public functions have docstrings
 - Complex logic has inline comments
-- Type hints serve as documentation
+- Type hints document the code
 
 **Change Documentation**:
 - Update README if user-facing changes

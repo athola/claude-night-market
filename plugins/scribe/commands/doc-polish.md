@@ -47,7 +47,7 @@ Clean up AI-generated content and improve documentation quality.
 
 ## Workflow
 
-1. **Scan** for slop markers (audit mode by default; pass
+1. **Scan** for slop markers (audit mode by default, or pass
    `--prevention` for strict mode on freshly generated docs). One
    command locates every finding with a file and a line:
    `uv run --with pyyaml python scripts/slop_score.py --audit <files>`

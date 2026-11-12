@@ -63,7 +63,7 @@ def _coerce_int(value: object, default: int = 0) -> int:
     """Convert a frontmatter value to int, defaulting on failure.
 
     PyYAML may return int, str, bool, list, dict, or None for any
-    field; we only know how to coerce ints and digit-string forms.
+    field. We only know how to coerce ints and digit-string forms.
     """
     if isinstance(value, int) and not isinstance(value, bool):
         return value

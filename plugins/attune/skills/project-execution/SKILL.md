@@ -129,9 +129,9 @@ substantive lesson:
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and follow
   it to append a lesson entry: `what_happened`, `what_didnt_work`,
   `root_cause`, and a concrete `action`. Set `phase` to `execute`. Show the
-  draft; append on confirmation (status starts `open`).
+  draft and append it on confirmation (status starts `open`).
 - Fallback (leyline absent): append to `docs/lessons-learned.md` by hand using
-  the in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+  the in-file ENTRY TEMPLATE. Assign the next `LL-NNN` id.
 
 Trigger this whenever execution involved rework, a failed approach, or a
 blocker that exhausted the two-challenge / 3-attempt limit. A clean run with no
@@ -147,7 +147,7 @@ This is the **final phase** of the attune workflow. No auto-continuation occurs 
 
 Before implementing a task, delegate it.
 `Skill(conjure:delegation-core)` is on by default, so the decision to
-make is whether a Keep Local clause holds, not whether to bother.
+make is whether a Keep Local clause holds.
 
 Keep the task local when it is design or trade-off work, when its
 context carries a secret, when it needs turn-by-turn iteration, or when

@@ -60,7 +60,7 @@ Do not:
   of the window and pay the write cost again.
 - **Verify the cache is actually hitting.** A silent cache miss in a layered
   API stack produced a $38k bill in one reported incident. Instrument
-  cache-read versus cache-write token counts; do not assume.
+  cache-read versus cache-write token counts instead of assuming.
 - **It is redundant where the harness already caches.** Inside Claude Code,
   this is mostly handled for you. Reach for explicit alignment when you
   control the request payload.
@@ -68,7 +68,7 @@ Do not:
 ## Evidence
 
 Provider mechanics and cost figures come from the
-[Anthropic prompt caching docs][apc] (`cache_control` breakpoint; reads at
+[Anthropic prompt caching docs][apc] (`cache_control` breakpoint, reads at
 0.1x, writes at 1.25x for the 5-minute window and 2x for the 1-hour window)
 and [vLLM automatic prefix caching][vllm] (hash-based KV block reuse on a
 shared prefix, reducing prefill time).

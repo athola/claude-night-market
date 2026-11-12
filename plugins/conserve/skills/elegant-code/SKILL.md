@@ -30,8 +30,8 @@ capability. Its value is three things:
 1. A shared **vocabulary** (the rungs, the floor) that review
    skills can point at, so "you skipped rung 2" is a concrete,
    auditable note.
-2. **Consistency**: the ladder is applied every time, not just
-   when the model happens to think of it.
+2. **Consistency**: the ladder is applied every time, whether or
+   not the model happens to think of it.
 3. A **guard**: the negligence floor below is never traded away
    for brevity.
 
@@ -127,7 +127,7 @@ as "extra code":
 - Security-relevant paths (authn, secrets, crypto).
 - Accessibility.
 
-This floor is evidence-backed, not a slogan. The dangerous
+This floor is evidence-backed. The dangerous
 failure mode in generated code is *omission*: roughly 45% of
 AI-generated samples carry a security flaw, with a measured
 ~2.74x vulnerability rate versus human code, driven by missing
@@ -142,12 +142,12 @@ Handle the expected input size and the hot path: avoid accidental
 quadratic loops, N+1 queries, and unbounded memory growth. Do not
 micro-optimize speculatively. Premature, speculative optimization
 is itself incidental complexity, so YAGNI applies to performance
-too. Optimize what the known input size or a profiler justifies,
-not what feels fast.
+too. Optimize only what the known input size or a profiler
+justifies.
 
 ### Edge and negative cases
 
-The negative path is part of the spec, not extra code. Cover
+The negative path is part of the spec. Cover
 empty, `None`, and zero inputs; boundary values; malformed or
 hostile input; partial failure and timeouts; and concurrency
 where it applies. Code that handles only the happy path is not
@@ -155,7 +155,7 @@ minimal. It is unfinished.
 
 ## Elegance, not terseness
 
-Prefer the clearest expression a reader can verify, not the
+Prefer the clearest expression a reader can verify over the
 cleverest or the shortest. Terseness and cleverness raise review
 cost and defect risk: dense one-liners hide edge cases, and
 correctness-only evaluation misses the maintainability they cost
@@ -164,8 +164,8 @@ plus maximal clarity, which is not the same as minimal characters.
 
 ## Why minimal (stated honestly)
 
-The case for less code rests on surfaces you can measure, not on
-a clean "fewer lines means fewer bugs" law. That law is not
+The case for less code depends on surfaces you can measure. The
+clean "fewer lines means fewer bugs" law is not
 empirically settled: studies find weak or absent correlation
 between complexity metrics and defect rate (arXiv 1912.01142,
 1912.04014). Argue instead from:

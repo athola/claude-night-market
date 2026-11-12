@@ -76,8 +76,8 @@ and it is the strongest evidence available short of counsel.
 
 ## The honest limit
 
-This posture rests on a reading of published terms, not on legal
-advice. Own-words restatement of a rule is defensible. Verbatim
+This posture comes from a reading of published terms and is not
+legal advice. Own-words restatement of a rule is defensible. Verbatim
 quotation is prohibited by the terms, and whether fair use would cover
 it is unresolved. This project avoids verbatim text, which keeps the
 question from arising.

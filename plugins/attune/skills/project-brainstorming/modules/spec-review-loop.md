@@ -71,7 +71,7 @@ subagent:
 ## Integration
 
 The main agent (not the human) fixes issues between
-iterations. The subagent only identifies problems; it
+iterations. The subagent only identifies problems and
 does not modify files. If the loop exhausts 3 iterations,
 present remaining issues as a structured list and ask
 the human for guidance.

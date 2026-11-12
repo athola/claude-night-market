@@ -180,7 +180,7 @@ def list_sessions(
 
 
 # Per-tool summary formatters keyed by tool name. Each maps the tool's input
-# dict to a short human-readable line; unknown tools fall through to a default.
+# dict to a short human-readable line. Unknown tools fall through to a default.
 _TOOL_SUMMARIES: dict[str, Callable[[dict[str, Any]], str]] = {
     "Read": lambda d: f"Read {d.get('file_path', 'unknown')}",
     "Write": lambda d: f"Wrote {d.get('file_path', 'unknown')}",

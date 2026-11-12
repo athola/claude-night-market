@@ -252,7 +252,7 @@ class _SearchSyntax:
     pattern_flags: frozenset[str]
     # Short value options that end a `-ie` style cluster.
     value_letters: frozenset[str]
-    # Short pattern options; inside a cluster the rest is the pattern.
+    # Short pattern options. Inside a cluster the rest is the pattern.
     pattern_letters: frozenset[str]
     # Short options whose value counts only when it is a number. Any other
     # word, attached or not, is the search pattern instead.

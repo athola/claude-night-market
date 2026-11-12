@@ -76,7 +76,7 @@ Load `modules/paradigm-selection.md` for the decision matrix
 
 Load `modules/scaffold-generation.md` for the paradigm-specific
 directory layouts (Functional Core / Hexagonal / Microservices
-shown; others delegated to the corresponding
+shown, others delegated to the corresponding
 `archetypes:architecture-paradigm-{name}` skill) and the ADR
 template.
 

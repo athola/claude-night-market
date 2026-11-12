@@ -10,7 +10,7 @@ a literal subset of the log. `gzip -9` on the same fixture saves
 extra tooling.
 
 This module formalizes a three-tier workflow so that compression
-is the last lever pulled, not the first.
+is the last lever pulled.
 
 ## When to Use
 
@@ -59,11 +59,11 @@ Benchmark on the committed fixture
 | `gzip -9` (compress all) | 319 KB | 65.0% |
 
 Every row is reproducible from the committed fixture with stock
-tools; the `tail` row is guarded by
+tools. The `tail` row is guarded by
 `tests/test_log_debugging_hygiene.py::test_filter_first_claim_is_reproducible`.
 The fixture is a deterministic synthetic intake log (high-entropy
 per-line content, so `gzip` cannot collapse it the way it would a
-repetitive log); it replaces an earlier benchmark that pointed at a
+repetitive log). It replaces an earlier benchmark that pointed at a
 mutable runtime artifact. A dedicated log-template compressor
 (logs-tokenizer, external and not bundled, see Tier 3) saved 70.3%
 on the original real-traffic snapshot. Filtering still wins on byte
@@ -116,8 +116,8 @@ log debugging tasks. The literature evidence:
 
 - LLMLingua family (Jiang et al., EMNLP 2023, ACL 2024)
   preserves accuracy at 4-20x compression on QA. The
-  +17-21% accuracy gain reported by LongLLMLingua is on
-  multi-document QA, not log debugging.
+  +17-21% accuracy gain reported by LongLLMLingua comes from
+  multi-document QA, a different task from log debugging.
 - LogFiT and LogLLM (Guan et al., arXiv 2411.08561, 2024)
   argue the opposite direction for logs: preprocessing can
   hurt via cascading parser errors.

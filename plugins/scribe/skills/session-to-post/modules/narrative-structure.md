@@ -65,7 +65,7 @@ screenshots. This is where recordings from scry belong.]
 
 ### Case Study
 
-Best for: marketing, demonstrating tool capability to prospects.
+Best for: marketing and tool demos for prospects.
 
 ```markdown
 # [Outcome]: [How]
@@ -116,7 +116,7 @@ Best for: Twitter/X, Bluesky, LinkedIn.
 2. **One number per section** minimum: ground every claim
 3. **Show, don't summarize**: a GIF of tests passing says more
    than "we wrote comprehensive tests"
-4. **Name the tools**: readers want to know how, not just what
+4. **Name the tools**: readers want to know how as well as what
 5. **Include a pivot**: straight-line success stories aren't
    believable or interesting
 6. **End with honesty**: what's unfinished, what you'd change

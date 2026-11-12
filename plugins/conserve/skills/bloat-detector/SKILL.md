@@ -141,8 +141,8 @@ adding skill-specific value.
 
 Skills loaded into model context gain nothing from HTML-style
 Tables of Contents. Detect `## Table of Contents` followed by
-bulleted anchor-link lists. These waste tokens since
-the model reads sequentially, not via hyperlinks.
+bulleted anchor-link lists. These waste tokens because
+the model reads sequentially and never follows the links.
 
 ### Unregistered Module Subdirectories
 

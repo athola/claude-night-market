@@ -120,7 +120,7 @@ class ArchitectureResearcher:
     HIGH_CONFIDENCE_MARGIN = 1.0
 
     # What the boolean modifiers refer to. The data says "prefer simple"
-    # or "require isolation"; these name the paradigms that means.
+    # or "require isolation". These tuples name the paradigms each means.
     SIMPLE_PARADIGMS = ("layered", "functional-core")
     DISTRIBUTED_PARADIGMS = ("microservices", "event-driven", "cqrs-es")
     ISOLATING_PARADIGMS = ("hexagonal", "clean-architecture", "functional-core")
@@ -158,8 +158,8 @@ class ArchitectureResearcher:
 
         Raises:
             ValueError: When the team size or complexity is not in the
-                matrix. An unknown context is a caller bug, not a reason
-                to guess.
+                matrix. An unknown context is a caller bug, and the
+                method raises before it would guess.
 
         """
         context = context or self.context
@@ -274,7 +274,7 @@ class ArchitectureResearcher:
         """Recommend for the researcher's context with the session's research.
 
         ``research_findings`` carries ``preferred`` and ``avoid`` lists
-        the session wrote after running the Step 2 queries; see
+        the session wrote after running the Step 2 queries. See
         ``load_research_file`` in ``attune_arch_init``.
         """
         return self.recommend(self.context, research_findings)

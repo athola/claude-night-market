@@ -31,7 +31,7 @@ LANGUAGE_CALIBRATION: dict[str, float] = {
 DATA_DIR = Path(__file__).parent.parent.parent / "data" / "languages"
 
 # Common function words per language for detect_language()
-# NOTE: Italian "it" overlaps the English pronoun "it"; short English texts
+# NOTE: Italian "it" overlaps the English pronoun "it". Short English texts
 # can match Italian. detect_language() guards against this by preferring
 # English on ties.
 _LANGUAGE_MARKERS: dict[str, frozenset[str]] = {

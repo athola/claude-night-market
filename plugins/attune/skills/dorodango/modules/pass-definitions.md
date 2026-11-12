@@ -21,7 +21,7 @@ estimated_tokens: 250
 
 **Agent prompt focus**: "Run all tests. For each
 failure, identify the root cause and fix it. Do not
-refactor; focus only on making tests pass."
+refactor. Focus only on making tests pass."
 
 **Tools**: Bash (pytest/test runner), Edit
 

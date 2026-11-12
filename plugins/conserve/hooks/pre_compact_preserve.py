@@ -26,7 +26,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-# D-05: shared resolver lives at hooks/shared/session_file.py.
+# D-05: shared resolver is at hooks/shared/session_file.py.
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.content_blocks import block_text
 from shared.session_file import (

@@ -17,7 +17,7 @@ Before finalizing any documentation:
 - [ ] No tier-1 slop words present
 - [ ] No vapid openers or closers
 - [ ] All claims grounded with specifics
-- [ ] Trade-offs explained, not just conclusions
+- [ ] Trade-offs explained with the reasoning behind each conclusion
 - [ ] Authorial perspective present ("we chose", "our tests showed")
 
 ### Structure Quality

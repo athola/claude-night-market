@@ -20,7 +20,7 @@ module adds only the rules for adapting it.
   repo folded run-and-operate, build tooling, and release steps into
   one `operations` skill because they shared a Makefile.
 - Split when a category is deep enough to exceed one skill's token
-  budget; prefer a hub skill plus modules over two overlapping
+  budget. Prefer a hub skill plus modules over two overlapping
   skills.
 - Add a `collective-memory` category when the project keeps memory in
   discussions, ADRs, or journals: searching memory before

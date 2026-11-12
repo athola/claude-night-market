@@ -318,7 +318,7 @@ Strategeion (draft and confirm):
   Views to `consequences_negative`. Set `phase` to the originating phase (for
   example `plan`). Record the RS in the entry links. Append on confirmation.
 - Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
-  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+  ENTRY TEMPLATE. Assign the next `TR-NNN` id.
 
 If the decision is architectural enough to warrant a numbered ADR in
 `docs/adr/`, write the ADR and reference its number from the tradeoff entry
@@ -373,7 +373,7 @@ User settings and the hook auto-trigger conditions:
 
 ### Overview
 
-When `--agent-teams` is specified (or auto-selected for Full Council / Delphi modes), the War Room uses Claude Code Agent Teams instead of sequential conjure delegation. Each expert runs as a persistent teammate with bidirectional messaging, enabling real-time deliberation instead of batch request/response cycles.
+When `--agent-teams` is specified (or auto-selected for Full Council / Delphi modes), the War Room uses Claude Code Agent Teams instead of sequential conjure delegation. Each expert runs as a persistent teammate with bidirectional messaging. Experts deliberate in real time instead of through batch request/response cycles.
 
 **Requires**: Claude Code 2.1.32+, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, tmux installed.
 
@@ -384,7 +384,7 @@ When `--agent-teams` is specified (or auto-selected for Full Council / Delphi mo
 | Express | Sonnet direct call | N/A (overkill) | None: skip |
 | Lightweight | 3 sequential delegations | N/A (overhead exceeds benefit) | None: skip |
 | Full Council | 7 sequential/parallel delegations | 7 teammates with live inbox messaging | Experts can **react** to each other's COAs in real-time |
-| Delphi | Multiple delegation rounds | Persistent team iterates until convergence | No re-invocation cost per round; state preserved across rounds |
+| Delphi | Multiple delegation rounds | Persistent team iterates until convergence | No re-invocation cost per round, and state persists across rounds |
 
 **Rule of thumb**: Use agent teams only for Full Council and Delphi modes. Lightweight and Express modes don't generate enough inter-expert traffic to justify the coordination overhead.
 
@@ -409,10 +409,10 @@ Note: In agent teams mode, all teammates run as Claude Code instances (Opus/Sonn
 
 1. **Lead creates team** → spawns teammates in tmux panes
 2. **Phase 1 (Intel)**: Lead assigns intel tasks to scout and intel-officer via inbox
-3. **Phase 3 (COA)**: Lead broadcasts situation assessment; teammates develop COAs independently; messaging allows clarifying questions mid-development
-4. **Phase 4 (Red Team)**: Red-team teammate receives all COAs, posts challenges; other teammates can **respond to challenges in real-time**
-5. **Phase 5 (Voting)**: Lead broadcasts ballot; teammates rank via inbox messages
-6. **Phase 6 (Premortem)**: All teammates receive selected COA; can build on each other's failure scenarios
+3. **Phase 3 (COA)**: Lead broadcasts situation assessment. Teammates develop COAs independently, and messaging allows clarifying questions mid-development
+4. **Phase 4 (Red Team)**: Red-team teammate receives all COAs and posts challenges. Other teammates can **respond to challenges in real-time**
+5. **Phase 5 (Voting)**: Lead broadcasts ballot, and teammates rank via inbox messages
+6. **Phase 6 (Premortem)**: All teammates receive selected COA and can build on each other's failure scenarios
 7. **Phase 7 (Synthesis)**: Lead collects all artifacts, produces decision
 8. **Phase 8 (Discussion Publishing)**: After the
    Supreme Commander Decision document is finalized,

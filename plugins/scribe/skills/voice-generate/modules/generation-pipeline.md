@@ -77,7 +77,7 @@ Applied immediately after generation, before review:
 | Auto-fix | Regex/local | No model needed |
 | Prose review | Sonnet | Structured detection prompts |
 | Craft review | Sonnet | Structured evaluation prompts |
-| Learning analysis | Opus | Nuanced pattern comparison |
+| Learning analysis | Opus | Fine-grained pattern comparison |
 
 ## Error Recovery
 

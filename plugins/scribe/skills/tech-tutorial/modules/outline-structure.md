@@ -72,7 +72,7 @@ Each step in the numbered sequence should follow this pattern:
 3. The expected output or result (required for commands)
 4. One optional sentence explaining why, if non-obvious
 
-Keep explanatory prose after the code, not before it.
+Put explanatory prose after the code.
 The reader runs first, then reads why.
 
 ## Troubleshooting Section

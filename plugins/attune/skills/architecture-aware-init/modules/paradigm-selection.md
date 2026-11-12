@@ -73,7 +73,7 @@ scores every paradigm the matrix cell and the modifiers name, and
 confidence read from the margin. Present the top two with their
 scores; a margin under 1 point is a tie, and the requirement that
 would break it is the finding to report. The rows below are the
-workload modifiers the scorer applies; none of them overwrites the
+workload modifiers the scorer applies. None of them overwrites the
 matrix outright.
 
 | Workload                  | Paradigm                     |

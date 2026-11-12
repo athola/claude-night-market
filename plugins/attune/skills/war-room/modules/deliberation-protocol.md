@@ -364,7 +364,7 @@ When `--agent-teams` is active (Full Council / Delphi only), phases execute thro
 
 **Bidirectional messaging** (Phases 3-6): In standard mode, experts produce one-shot responses. In agent teams mode, experts can exchange messages mid-phase: the Red Team can ask a COA author to clarify assumptions, and premortem participants can chain failure scenarios.
 
-**Delphi persistence**: In standard mode, each Delphi round re-invokes all experts from scratch. In agent teams mode, teammates persist across rounds, retaining prior context and positions. This reduces token waste and enables more nuanced position evolution.
+**Delphi persistence**: In standard mode, each Delphi round re-invokes all experts from scratch. In agent teams mode, teammates persist across rounds, retaining prior context and positions. This reduces token waste and lets each expert revise a position against the others' earlier rounds.
 
 **Anonymization**: Agent teams still uses anonymized COA labeling (Response A, B, C) during Phases 3-5. Attribution is revealed in Phase 7 by the lead agent after de-anonymization.
 

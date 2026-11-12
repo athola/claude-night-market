@@ -63,9 +63,9 @@ Read it before changing what the passes ask for.
 4. **Pressure test for specificity**: If extraction output
    sounds generic ("uses varied sentence lengths"), run pass 2
    and force specificity. Good output reads like followable
-   instructions, not a book report.
+   instructions.
 
-5. **Use Opus or larger for extraction**: More nuanced feature
+5. **Use Opus or larger for extraction**: Finer-grained feature
    descriptions, especially for registers where subtle tonal
    shifts matter. When this session runs Sonnet or Haiku, run
    Steps 2-4 as one dispatch:

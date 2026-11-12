@@ -31,7 +31,7 @@ blog post, case study, or social media thread that others can learn from.
 
 The skill extracts the real story from git history, file changes, and
 conversation context, then shapes it into a narrative that shows
-process, not just results.
+process as well as results.
 
 ## When To Use
 
@@ -139,7 +139,7 @@ Gather raw material from what actually happened:
 
 Every session post answers three questions:
 
-1. **What were we trying to do?**: the goal, not the task list
+1. **What were we trying to do?**: the goal behind the task list
 2. **What did we actually do?**: the real path, including pivots
 3. **What came out of it?**: concrete, measurable results
 

@@ -315,4 +315,4 @@ When reviewing code, check:
 - [ ] `wc -l <file>` run on any modified file and result noted if
   the file exceeds 500 lines (god-class threshold)
 - [ ] No new abstraction introduced with only one implementor unless
-  it serves as a mock boundary for testing
+  it is a mock boundary for testing

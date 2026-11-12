@@ -343,7 +343,7 @@ Each continuation agent increments `handoff_count` and adds to `handoff_history`
 
 2. **Include Context**: Don't assume continuation agent knows anything
 
-3. **Document Decisions**: Future agents need to understand WHY, not just WHAT
+3. **Document Decisions**: Future agents need to understand WHY as well as WHAT
 
 4. **Test File Paths**: Ensure all referenced files exist and are readable
 
