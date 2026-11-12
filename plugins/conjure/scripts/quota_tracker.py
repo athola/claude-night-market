@@ -280,7 +280,7 @@ class GeminiQuotaTracker(QuotaTracker):  # ty: ignore[unsupported-base]
                 logger.warning("token estimate skips unreadable %s: %s", path, exc)
                 continue
             # Source text naming a special token (tokenizer code, LLM docs) is
-            # ordinary text here; tiktoken raises on it unless told otherwise.
+            # ordinary text here, and tiktoken raises on it unless told otherwise.
             encoded = encoder.encode(text, disallowed_special=())
             tokens += len(encoded) + FILE_OVERHEAD_TOKENS
 

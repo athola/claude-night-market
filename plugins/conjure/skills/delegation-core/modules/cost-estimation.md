@@ -66,8 +66,8 @@ Delegate if: Benefit > Cost * 3 (safety margin for quality risks)
 ### Cheapest-Capable Model Selection
 
 When dispatching subagents, select the cheapest model
-that can handle the task. This is a recommendation,
-not a mandate; override when judgment dictates.
+that can handle the task. This is a recommendation.
+Override it when judgment dictates.
 
 | Task Type | Has Detailed Plan? | Recommended Model |
 |-----------|-------------------|-------------------|
@@ -92,7 +92,7 @@ output to prevent downstream model downgrade.
 task type is ambiguous, default to sonnet.
 
 **Rationale**: Implementation tasks with detailed plans
-are well-scoped and predictable; haiku handles these
+are well-scoped and predictable. Haiku handles these
 effectively. Planning and security tasks require
 reasoning depth that cheaper models may lack.
 

@@ -130,7 +130,7 @@ def _load_baseline() -> int:
 
 
 def main() -> int:
-    """Run the ratchet guard; exit non-zero on new uncovered skills."""
+    """Run the ratchet guard and exit non-zero on new uncovered skills."""
     current = count_missing(iter_skill_files())
     ok, message = evaluate_drift(current, _load_baseline())
     print(f"[skill-exit-criteria-drift] {message}")

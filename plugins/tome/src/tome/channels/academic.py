@@ -339,7 +339,7 @@ def build_unpaywall_url(doi: str, email: str | None = None) -> str:
 
     Args:
         doi: Digital Object Identifier string.
-        email: Contact email; overrides the environment variable.
+        email: Contact email. Overrides the environment variable.
 
     Returns:
         URL string for the Unpaywall v2 API.

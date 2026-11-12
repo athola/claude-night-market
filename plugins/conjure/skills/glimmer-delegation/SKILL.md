@@ -108,7 +108,7 @@ call.
 Read off `ollama run --help` at 0.13.1: the usage line is `ollama run
 MODEL [PROMPT] [flags]`, so the model is positional and is carried by
 the subcommand. The flag list has no `--model`, which is why this
-service declares `model_flag=None`; passing one exits 1 on an unknown
+service declares `model_flag=None`. Passing one exits 1 on an unknown
 flag. `--format string` is documented there and is the reason
 `output_format_flag` is `--format` rather than the registry default
 `--output-format`, which the same CLI rejects.

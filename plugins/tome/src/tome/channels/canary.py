@@ -65,7 +65,7 @@ class CanaryTarget:
 # used here. It answered 429 during verification, and a canary that
 # fails on rate limits would report a blind channel every time the API
 # throttles, which is a loud false positive on the one signal that is
-# supposed to be trustworthy. arXiv covers the channel; per-source
+# supposed to be trustworthy. arXiv covers the channel. Per-source
 # blindness inside a channel is a known and documented gap.
 CANARY_TARGETS: dict[str, CanaryTarget] = {
     "academic": CanaryTarget(

@@ -31,7 +31,7 @@ _BUDGET: dict[str, int] = {
 def plan(classification: DomainClassification) -> ResearchPlan:
     """Create a ResearchPlan from *classification*.
 
-    The active channel set is determined by TRIZ depth; weights for
+    The active channel set is determined by TRIZ depth. Weights for
     inactive channels are dropped and the remaining weights are
     renormalised to sum to 1.0.
     """
@@ -67,7 +67,7 @@ def replan(
 ) -> ResearchPlan:
     """Adjust channel weights based on partial results.
 
-    Channels that yielded more findings gain weight; channels that
+    Channels that yielded more findings gain weight. Channels that
     searched cleanly and returned nothing lose weight. When no channel
     found anything and none was more informative than another, the
     original weights come back unchanged.
@@ -83,7 +83,7 @@ def replan(
     Args:
         original: The plan from the first research pass.
         partial_results: Channel name to findings list.
-        outcomes: Channel name to derived status. Optional; callers
+        outcomes: Channel name to derived status. Optional. Callers
             written before outcome tracking keep the old behavior.
 
     Returns:

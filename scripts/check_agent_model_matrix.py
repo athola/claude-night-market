@@ -20,8 +20,8 @@ agent:
 It additionally enforces two things the frontmatter alone cannot:
 
 - ``SKILL.md`` files must not pin a dated model ID either. A skill
-  spawns no subagent, so omitting ``model`` is fine there; a dated ID
-  still rots.
+  spawns no subagent, so omitting ``model`` is fine there, but a dated
+  ID still rots.
 - ``docs/agent-model-matrix.md`` must document exactly the agents that
   exist. The guide this matrix replaced rotted precisely because a
   hand-maintained agent list had nothing checking it against reality.
@@ -30,9 +30,9 @@ Unlike the exit-criteria and skill-graph guards, this is a hard gate
 rather than a ratchet. The change that introduced it brought the backlog
 to zero, so the illegal state is unrepresentable rather than capped.
 
-Rationale for each assignment lives in ``docs/agent-model-matrix.md``.
+Rationale for each assignment is in ``docs/agent-model-matrix.md``.
 The frontmatter is the single source of truth for which tier an agent
-sits in; the document carries the reasoning and is checked for roster
+is in. The document carries the reasoning and is checked for roster
 drift, never consulted for the tier itself.
 
 Deterministic, read-only, and idempotent.

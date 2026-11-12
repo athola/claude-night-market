@@ -10,8 +10,8 @@ Treating those 46 as open work is what the 2026-08-02 sweep did, and
 roughly half were already fixed. #512 became moot when the repo moved
 to Python 3.12. #522, #535, #543 and the eight-discussion #559-#566
 cluster were all repaired in the ordinary course of work. Nobody was
-negligent; there is simply no step anywhere in this repo's workflows
-that tells the board a finding is done. A fixed finding and an ignored
+negligent. No step anywhere in this repo's workflows tells the board a
+finding is done. A fixed finding and an ignored
 finding are indistinguishable from the board's side, so every sweep
 re-verifies the same fixed findings by hand. Discussions #271, #222 and
 #302 each asked for this loop to be closed.
@@ -45,7 +45,7 @@ This script joins the two sides:
     is evidence somebody already looked.
 
 ``untriaged``
-    No comment, no commit, no mention. Real backlog.
+    Has no comment, commit or mention. Real backlog.
 
 Bare ``#N`` is deliberately not treated as a reference at all. The board
 and the issue tracker share a number space, so "closes #609" would
@@ -56,7 +56,7 @@ Exit codes follow the house gate convention: ``0`` clean, ``1`` when
 the gate finds work, ``2`` on a usage or environment error. The
 untriaged count is a ratchet, which existed because 41 pre-existing
 findings would have held a hard gate red permanently. Those 41 are
-answered, so the ratchet now sits at zero and behaves as the hard gate
+answered, so the ratchet is now zero and behaves as the hard gate
 it was always meant to become. Pending write-backs are not ratcheted:
 one is a bug, and it is cheap to fix.
 """
@@ -75,12 +75,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 REPO = "athola/claude-night-market"
 
 # Baseline for the untriaged backlog. Lower it in the same change that
-# reduces the backlog; never raise it to make a red gate green.
+# reduces the backlog. Never raise it to make a red gate green.
 #
 # Zero as of 2026-08-06: the backlog this ratchet was invented to
 # tolerate is gone, so it is now a hard gate. That means a newly posted
 # finding turns this red until somebody answers it, which is the
-# intended pressure and not a defect -- the gate runs from a make
+# intended pressure and not a defect. The gate runs from a make
 # target, not from pre-commit or CI, so it blocks no commit and no PR.
 DEFAULT_RATCHET = 0
 
@@ -102,7 +102,7 @@ _NUM = re.compile(r"#(\d+)")
 # Prose cannot carry this signal. Three commits in this repo reference a
 # discussion three different ways: 509bffaf resolves #542, 6b28aa1a
 # *opened* #424 by posting it, and c9a53ab2 cites #614 as precedent. No
-# verb list separates them -- #654's fixing commit opens with "reported"
+# verb list separates them: #654's fixing commit opens with "reported"
 # and #542's says "De-tautologize". Guessing would have the reconciler
 # announce "Addressed" on discussions a commit had just created.
 _TRAILER = re.compile(
@@ -161,7 +161,7 @@ def mention_refs(log_text: str) -> dict[int, list[tuple[str, str]]]:
 
 
 def in_scope(discussion: dict[str, Any]) -> bool:
-    """Daily digests are excluded; every other discussion is reviewable."""
+    """Daily digests are excluded, and every other discussion is reviewable."""
     return not DIGEST_TITLE.match(discussion.get("title", ""))
 
 

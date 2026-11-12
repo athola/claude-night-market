@@ -10,7 +10,7 @@ from typing import Any
 
 from tome.models import Finding
 
-# Computed once at import time; stable for the lifetime of the process.
+# Computed once at import time and stable for the lifetime of the process.
 _CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year
 
 # ---------------------------------------------------------------------------
@@ -108,7 +108,7 @@ def _triangulation_bonuses(findings: list[Finding]) -> dict[int, float]:
 
 
 # Per-source authority bonuses: source -> (metadata key, tiers). Tiers are
-# ordered high-to-low; the first threshold the value exceeds wins.
+# ordered high-to-low, and the first threshold the value exceeds wins.
 _AUTHORITY_TIERS: dict[str, tuple[str, tuple[tuple[int, float], ...]]] = {
     "github": ("stars", ((5000, 0.2), (1000, 0.1))),
     "hn": ("score", ((500, 0.2), (100, 0.1))),

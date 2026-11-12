@@ -138,7 +138,7 @@ class SemanticRetriever:
             is_semantic: Whether ``embedder`` produces semantically
                 meaningful vectors. Left unset, it is read off the
                 embedder's ``requested_provider`` when it publishes one
-                (memory-palace's ``EmbeddingIndex`` does); embedders
+                (memory-palace's ``EmbeddingIndex`` does). Embedders
                 that declare no provider are taken at their word rather
                 than presumed degraded.
         """

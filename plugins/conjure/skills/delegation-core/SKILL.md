@@ -106,7 +106,7 @@ naming what each provider did.
 which providers were tried and why none answered, and then do the task
 yourself.
 Do not treat it as an error to report and stop on: a machine with no CLI
-installed is the ordinary case for this default, not a fault.
+installed is the ordinary case for this default.
 
 When the operator wants providers answering rather than falling back,
 `modules/provider-onboarding.md` carries the per-provider steps and the
@@ -193,7 +193,7 @@ As an alternative to manual OAuth setup, users can configure MCP servers directl
 
 ## Worktree Isolation for File-Modifying Delegations (Claude Code 2.1.49+)
 
-When delegating tasks that modify files to subagents, use `isolation: worktree` in the agent frontmatter to run each agent in a temporary git worktree. This prevents file conflicts when multiple delegated agents operate in parallel on overlapping paths. The worktree is auto-cleaned if no changes are made; preserved with commits if the agent produces changes.
+When delegating tasks that modify files to subagents, use `isolation: worktree` in the agent frontmatter to run each agent in a temporary git worktree. This prevents file conflicts when multiple delegated agents operate in parallel on overlapping paths. The worktree is auto-cleaned if no changes are made. It is preserved with commits if the agent produces changes.
 
 ```yaml
 # Agent frontmatter for isolated delegation

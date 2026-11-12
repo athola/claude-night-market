@@ -3,7 +3,7 @@
 nDCG, MRR, and recall against a gold-relevant set. These are the
 trustworthy, label-based yardstick the research favored over
 LLM-judged scores. Binary relevance: an item is relevant if its ID is
-in the gold set. No dependencies, no network, no model.
+in the gold set. The module uses no dependencies, network or model.
 """
 
 from __future__ import annotations

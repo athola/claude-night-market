@@ -157,7 +157,7 @@ Envelope rules, identical across all four channel agents:
 
 - `errors` entries are objects, never bare strings.
   `kind` is `rate_limit` or `source_error`. A rate limit
-  means "re-run me"; a source error means "investigate".
+  means "re-run me" and a source error means "investigate".
   The two lead a reader to opposite actions, so guessing
   between them is not acceptable.
 - `metadata.queries` carries one entry per query actually

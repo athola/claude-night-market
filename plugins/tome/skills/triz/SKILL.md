@@ -112,7 +112,7 @@ For diverse, category-spanning ideation with rotation, see
   contradiction matrix (matriz.org).
 - AutoTRIZ (arXiv 2403.13002, 2024): LLM-driven TRIZ ideation.
 - TRIZ Agents (arXiv 2506.18783, 2025): multi-agent LLM orchestration
-  across TRIZ steps; companion to AutoTRIZ.
+  across TRIZ steps, a companion to AutoTRIZ.
 - Madrigal, "The Shadows Lurking in the Equations" (gods.art, 2025)
   and the literature the reformulation probes cite: Chinneck,
   Feasibility and Infeasibility in Optimization (2008); Allgower and

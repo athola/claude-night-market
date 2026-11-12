@@ -70,7 +70,7 @@ from scribe.pattern_loader import (  # noqa: E402 - path must be set before impo
 # one or two, 100 leaves six, 150 leaves none.
 #
 # Python only, and deliberately. A one-line module docstring is
-# ordinary; a 14-word README is a finding in itself. The markdown gate
+# ordinary. A 14-word README is a finding in itself. The markdown gate
 # keeps the behavior it had.
 #
 # The same reasoning already governs `scribe.negation`, whose density
@@ -91,8 +91,8 @@ _FENCED_CODE = FENCED_CODE
 # needed the exemption implemented rather than only documented.
 _DOUBLE_DASH = re.compile(r"(?<!\|\s)(?<=\s)--(?=\s)(?!\s*\|)")
 
-# One pattern for the scorer and the scribe checks alike; the reason
-# it has to be RST-aware lives with it in scribe/markdown_spans.py.
+# One pattern for the scorer and the scribe checks alike. The reason
+# it has to be RST-aware is documented in scribe/markdown_spans.py.
 _INLINE_CODE = INLINE_CODE
 
 
@@ -284,9 +284,9 @@ def _audit_rules(language: str = "en") -> list:
 _RAW_TEXT_CATEGORIES = frozenset({"invisible_unicode"})
 
 
-#: Structure, not a defect. A newline inside a match is how the source
-#: was wrapped, and `_collapse` folds it away; naming it would print
-#: `<U+000A>` in place of the space the reader expects.
+#: Structure. A newline inside a match is how the source was wrapped,
+#: and `_collapse` folds it away. Naming it would print `<U+000A>` in
+#: place of the space the reader expects.
 _ASCII_WHITESPACE = frozenset(" \t\n\r\f\v")
 
 
@@ -456,14 +456,14 @@ def _python_prose(source: str) -> str:
     a finding still points at the line that carries it and the text
     scorer needs no change to report a Python file.
 
-    Half of what issue #65961 reports lives in a comment, and every
+    Half of what issue #65961 reports is in a comment, and every
     Tier 5 category this repository has written reached markdown only.
     Projecting a module onto its prose is what brings the existing
     nine negation categories to a docstring.
 
     Doctest lines are dropped. ``>>> assert not stale`` is executable
-    example code, and scoring it would flag the code a docstring is
-    demonstrating.
+    example code, and scoring it would flag the code a docstring
+    demonstrates.
     """
     lines = source.splitlines()
     kept = [""] * len(lines)

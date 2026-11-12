@@ -9,7 +9,7 @@ def deduplicate(findings: list[Finding]) -> list[Finding]:
     """Remove duplicate findings by URL, keeping the higher-relevance one.
 
     Findings with empty or falsy URLs are always kept (no dedup key).
-    Output order follows first URL encounter; dict insertion order is stable
+    Output order follows first URL encounter. Dict insertion order is stable
     in Python 3.7+.
     """
     best: dict[str, Finding] = {}

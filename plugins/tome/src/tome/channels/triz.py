@@ -2,7 +2,7 @@
 
 Provides pure-function utilities for applying Altshuller's TRIZ
 methodology to software research topics.  No HTTP calls are made
-here; this module produces query strings and Finding objects that
+here. This module produces query strings and Finding objects that
 an agent passes to WebSearch/WebFetch tool calls.
 """
 
@@ -261,7 +261,7 @@ def formulate_contradiction(topic: str, domain: str) -> dict[str, str]:
     """The best-supported contradiction for the topic.
 
     Equivalent to ``formulate_contradictions(topic, domain)[0]``. Kept
-    for callers that need one pair; the agent prompt uses the list.
+    for callers that need one pair. The agent prompt uses the list.
 
     Returns:
         Dict with keys: system, improving, worsening, ideal_result,
@@ -793,7 +793,7 @@ def build_cross_domain_search_queries(
 # ---------------------------------------------------------------------------
 
 # Map contradiction keys (normalised) to lists of principle numbers.
-# Keys are (improving_fragment, worsening_fragment) pairs; matching is
+# Keys are (improving_fragment, worsening_fragment) pairs. Matching is
 # done by checking whether the fragment is a substring of the actual
 # improving/worsening strings.
 _PRINCIPLE_MAPPINGS: list[tuple[tuple[str, str], list[int]]] = [

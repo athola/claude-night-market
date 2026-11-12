@@ -90,7 +90,7 @@ def search_academic(
     budget_seconds: float = BUDGET_SECONDS,
     clock: Callable[[], float] = time.monotonic,
 ) -> dict[str, Any]:
-    """Search arXiv, Semantic Scholar and OpenAlex; report each source."""
+    """Search arXiv, Semantic Scholar and OpenAlex and report each source."""
     deadline = clock() + budget_seconds
     sources: list[tuple[str, str, dict[str, str], Parser]] = [
         (

@@ -67,7 +67,7 @@ profile needs no key and no account.
 3. Parse results via `parse_you_mcp_result()` (raises `ValueError` on
    a response shape that is not a you-search envelope) or
    `parse_websearch_result()` (returns `None` for a result with no
-   URL; drop it)
+   URL, which is dropped)
 4. Rank via `rank_web_findings()`
 5. Return Finding objects
 

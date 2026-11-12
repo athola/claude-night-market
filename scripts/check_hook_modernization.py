@@ -10,7 +10,7 @@ Note: Both PreToolUse output forms are valid per the Claude Code SDK:
 - Legacy: {"decision": "block"|"approve", "reason": "..."}
 - Modern: {"hookSpecificOutput": {"hookEventName": "PreToolUse",
           "permissionDecision": "allow"|"deny"|"ask", ...}}
-Neither form is deprecated; the scanner does not flag either. See
+Neither form is deprecated, and the scanner flags neither. See
 issue #517 for the diagnosis history.
 
 Exit codes:
@@ -232,7 +232,7 @@ def check_hooks_json_config(
     carries ``"if": "Bash(zzzznevermatch*)"`` is not spawned, and the
     identical key on the enclosing matcher group is dropped without an
     error, leaving the hook to fire on every matching call. The failure
-    is silent in both directions -- JSON has no schema here, so the
+    is silent in both directions: JSON has no schema here, so the
     config reads as gated while the process count says otherwise.
     """
     findings: list[Finding] = []

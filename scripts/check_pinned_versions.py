@@ -4,19 +4,19 @@
 Companion to ``check_ruff_version.py`` (which covers the PyPI-sourced,
 uv-managed ruff). This hook covers the other half of our pinned tooling:
 
-* CI action pins -- ``uses: owner/repo@ref`` in ``.github/workflows/*``
-* Pre-commit hook pins -- external ``rev:`` pins in
+* CI action pins: ``uses: owner/repo@ref`` in ``.github/workflows/*``
+* Pre-commit hook pins: external ``rev:`` pins in
   ``.pre-commit-config.yaml`` (e.g. pre-commit-hooks, bandit)
 
 For each pin it asks GitHub for the latest release tag and compares at the
 *granularity of the pin*: a major-only pin like ``@v4`` is flagged only
-when a newer major exists; an exact pin like ``v6.0.0`` is flagged on any
+when a newer major exists. An exact pin like ``v6.0.0`` is flagged on any
 newer release. This avoids false positives on actions that pin to a
 floating major tag.
 
 Blocking by design (``OUTDATED_IS_BLOCKING = True``): a confirmed
 behind-upstream pin exits 1 so the bump happens before the commit lands.
-But it never blocks on *inability* to check -- offline, rate-limited, or
+But it never blocks on *inability* to check: offline, rate-limited, or
 unparseable responses skip cleanly (exit 0). A flaky network must never
 wedge a commit.
 
@@ -67,7 +67,7 @@ HELD_BACK = {
     ),
 }
 
-# uses: owner/repo[/subpath]@ref  -- skip ./local and docker:// actions.
+# uses: owner/repo[/subpath]@ref. Skips ./local and docker:// actions.
 _USES_RE = re.compile(
     r"""uses:\s*['"]?
         (?P<owner>[\w.-]+)/(?P<repo>[\w.-]+)   # owner/repo
@@ -102,7 +102,7 @@ def precommit_pins(text: str) -> list[tuple[str, str]]:
 def workflow_action_pins(text: str) -> list[tuple[str, str]]:
     """Return unique (owner/repo, ref) action pins from workflow text.
 
-    Subpaths (``owner/repo/sub@ref``) collapse to ``owner/repo``; local
+    Subpaths (``owner/repo/sub@ref``) collapse to ``owner/repo``. Local
     (``./``) and ``docker://`` actions are skipped by the regex.
     """
     pins: list[tuple[str, str]] = []
@@ -152,7 +152,7 @@ def latest_github_tag(repo: str) -> str | None:
     """Return the latest release tag for ``owner/repo``, or None.
 
     Prefers an authenticated ``gh api`` call (higher rate limit, works in
-    CI); falls back to the unauthenticated REST API. Returns None on any
+    CI) and falls back to the unauthenticated REST API. Returns None on any
     failure so the caller skips cleanly.
     """
     tag = _gh_latest(repo) if shutil.which("gh") else None

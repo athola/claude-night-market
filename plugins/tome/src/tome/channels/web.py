@@ -67,7 +67,7 @@ def expand_web_queries(topic: str, max_variants: int = 5) -> list[str]:
 # ---------------------------------------------------------------------------
 
 # The You.com MCP server's search tool name and endpoint. The free
-# profile needs no API key; the authenticated endpoint accepts a
+# profile needs no API key. The authenticated endpoint accepts a
 # YDC_API_KEY bearer token for higher limits.
 _YOU_MCP_ENDPOINT = "https://api.you.com/mcp"
 # Tool names on the You.com MCP server use hyphens: tools/list on the
@@ -329,7 +329,7 @@ def rank_web_findings(findings: list[Finding]) -> list[Finding]:
 
     Delegates entirely to ``synthesis.ranker.compute_relevance_score``:
     unlike the GitHub channel there is no per-source recency signal to
-    blend in, so the composite score stands on its own.
+    blend in, so the composite score is used unchanged.
 
     Args:
         findings: Unordered list of web Findings.

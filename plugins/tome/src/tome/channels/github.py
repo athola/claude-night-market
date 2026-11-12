@@ -218,7 +218,7 @@ def _parse_updated_at(value: str | None) -> datetime:
     if not value:
         return datetime(1970, 1, 1, tzinfo=timezone.utc)
     try:
-        # GitHub uses Z suffix; fromisoformat requires +00:00 in Python 3.9
+        # GitHub uses a Z suffix. fromisoformat requires +00:00 in Python 3.9
         normalised = value.replace("Z", "+00:00")
         parsed = datetime.fromisoformat(normalised)
     except ValueError:

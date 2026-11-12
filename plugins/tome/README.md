@@ -25,11 +25,11 @@ domain-appropriate reports.
 > domain weights, the TRIZ cross-domain channel, citations and the
 > memory-palace export, which is what tome adds beyond the dispatch.
 > `workflows/research.js` runs tome's own fan-out as a pipeline for
-> callers who want that half alone; it only runs when asked for.
+> callers who want that half alone. It only runs when asked for.
 
 
 **Code archaeology**: GitHub implementations via API and
-WebSearch. Extracts patterns, not just links.
+WebSearch. Extracts code patterns along with links.
 
 **Community discourse**: Hacker News (Algolia API),
 Lobsters, Reddit (JSON API), and tech blogs from curated

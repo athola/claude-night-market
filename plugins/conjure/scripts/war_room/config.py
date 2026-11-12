@@ -37,7 +37,7 @@ MINIMAX_M3 = "MiniMax-M3"
 # Retained for callers that explicitly pin the legacy model.
 MINIMAX_M2_7 = "MiniMax-M2.7"
 
-# Meta Muse models. Muse Spark is served by the muse CLI; the Glimmer
+# Meta Muse models. Muse Spark is served by the muse CLI. The Glimmer
 # weights are Apache 2.0 and run locally, served here through ollama.
 MUSE_SPARK = "muse-spark-1.3"
 MUSE_GLIMMER = "muse-glimmer:30b"

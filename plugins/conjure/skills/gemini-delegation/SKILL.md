@@ -110,5 +110,5 @@ and troubleshooting, see `modules/gemini-specifics.md`.
   and that file exists on disk after the delegation completes.
 - [ ] If `conjure:delegation-core` selected a different provider (Qwen or local), this skill
   is not invoked; Gemini delegation only runs when delegation-core explicitly routes to Gemini.
-- [ ] Tasks requiring > 1M tokens in context are flagged before submission; the skill reports
+- [ ] Tasks requiring > 1M tokens in context are flagged before submission. The skill reports
   the estimated token count and confirms it falls within Gemini's supported window.

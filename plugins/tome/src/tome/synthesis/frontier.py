@@ -80,7 +80,7 @@ COVERED = "COVERED"
 # It counts a reported subset, not a retrieval count. `session.findings`
 # is what the agents chose to report, and their instructions cap it
 # ("at most 10", "top 2-3 posts"). The number of results a query
-# actually returned lives in the query log and drives channel_outcomes
+# actually returned is recorded in the query log and drives channel_outcomes
 # instead. So a threshold tuned against this would move the next time an
 # agent's markdown reworded a cap.
 #
@@ -197,7 +197,7 @@ def frontier_verdict(session: ResearchSession, *, f_thin: int = _F_THIN) -> Verd
 
     - **Vocabulary mismatch.** A field published under other words
       looks exactly like an absent one. Controls prove a channel can
-      see; they cannot prove the query used the field's language.
+      see, but they cannot prove the query used the field's language.
     - **Silent zero-result APIs.** A source answering 200 with an empty
       set for a malformed query is indistinguishable from one with
       nothing to give, unless the agent noticed and said so.
@@ -206,7 +206,7 @@ def frontier_verdict(session: ResearchSession, *, f_thin: int = _F_THIN) -> Verd
       one of its sources is dead.
     - **Transcription.** Counts reach here through an agent's report of
       its own work. Routing agents through tome's query builders raised
-      that bar; it did not remove it.
+      that bar but did not remove it.
     """
     outcomes = channel_outcomes(session)
     controls = canary_outcomes(session)

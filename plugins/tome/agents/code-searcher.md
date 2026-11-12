@@ -129,7 +129,7 @@ Envelope rules, identical across all four channel agents:
 
 - `errors` entries are objects, never bare strings.
   `kind` is `rate_limit` or `source_error`. A rate limit
-  means "re-run me"; a source error means "investigate".
+  means "re-run me" and a source error means "investigate".
   The two lead a reader to opposite actions, so guessing
   between them is not acceptable.
 - `metadata.queries` carries one entry per query actually
@@ -148,7 +148,7 @@ Envelope rules, identical across all four channel agents:
 - Return at most 10 findings
 - Prefer repos with >50 stars
 - Prefer repos updated within the last 2 years
-- Extract actual patterns, not just descriptions
+- Extract actual code patterns alongside descriptions
 - If GitHub API rate limits hit, fall back to WebSearch,
   and record the rate limit in `errors` anyway. A fallback
   that rescues findings makes the channel `degraded`, not

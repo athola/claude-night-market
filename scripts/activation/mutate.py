@@ -91,7 +91,7 @@ def select_swap(clean: dict, *, anchor: set[str], collisions: dict[str, int]) ->
 
 
 def _replace(path: Path, text: str) -> None:
-    """Write a new file; never write through a hard link into the repo."""
+    """Write a new file, leaving any hard link into the repo untouched."""
     path.unlink()
     path.write_text(text, encoding="utf-8")
 

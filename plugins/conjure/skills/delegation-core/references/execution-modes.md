@@ -133,7 +133,7 @@ Mode: subagents (independent analysis, report back to coordinator)
 ### Agent-Team
 
 **How it works**: Claude creates a team of agents that can
-communicate with each other directly, not just through the
+communicate with each other directly as well as through the
 coordinator.
 
 **Characteristics**:

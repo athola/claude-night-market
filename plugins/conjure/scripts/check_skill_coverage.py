@@ -32,7 +32,7 @@ def _registered(manifest: str) -> set[str]:
 
 
 def main() -> int:
-    """Print per-skill status; exit 1 when the manifests and disk disagree."""
+    """Print per-skill status and exit 1 when the manifests and disk disagree."""
     registrations = {name: _registered(name) for name in MANIFESTS}
     on_disk = {p.parent.name for p in PLUGIN_ROOT.glob("skills/*/SKILL.md")}
     every = set(on_disk).union(*registrations.values())
