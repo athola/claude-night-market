@@ -24,12 +24,12 @@ accountability: the master would return and ask for an account.
 - Name variables and functions for the reader, not yourself
 - Write error messages that help someone who has never seen the
   code before
-- Document *why*, not just *what*. The code shows what; only
+- Document *why* as well as *what*. The code shows what. Only
   comments and commit messages preserve why.
 
 ### 2. Multiply, Do Not Merely Preserve
 
-Maintaining the status quo is the minimum, not the goal.
+Maintaining the status quo is the minimum.
 Faithful stewardship means actively growing what has been
 entrusted: improving test coverage, clarifying documentation,
 refactoring tangled logic, adding examples that help the next
@@ -98,7 +98,7 @@ to those with little power.
 **In practice**:
 
 - Write skill descriptions that tell the user *when* to use
-  the skill, not just what it does
+  the skill as well as what it does
 - Include error handling that guides the user toward a fix
 - Keep READMEs current: stale docs are worse than no docs
 - Give every new capability a getting-started path, linked
@@ -109,8 +109,8 @@ to those with little power.
 Before committing a design choice, ask: will the person who
 modifies this in the seventh iteration thank me or curse me?
 Prefer simple, transparent patterns over clever abstractions.
-Avoid premature optimization of structure. Build for
-adaptability, not for prediction.
+Avoid premature optimization of structure. Build so the
+structure can adapt to needs nobody has predicted.
 
 **Origin**: The seven-generations principle, that a decision
 should weigh its effect seven generations into the future, is
@@ -186,7 +186,7 @@ traits to the engineering practices of this framework.
 
 Active attention to those who inherit your work.
 
-Rooted in the disposition toward warmth and genuine
+It draws on the disposition toward warmth and genuine
 helpfulness. Care means writing error messages that guide
 someone who has never seen this code, choosing names that
 serve readers, and documenting the why behind decisions.
@@ -197,7 +197,7 @@ It underpins Principles 1 (steward, not owner) and
 
 Deep understanding before action.
 
-Rooted in intellectual curiosity and respect for complexity.
+It draws on intellectual curiosity and respect for complexity.
 Curiosity means reading code before modifying it, exploring
 the codebase before proposing changes, and brainstorming
 multiple approaches before committing to one. It underpins
@@ -208,7 +208,7 @@ improvements are grounded in understanding.
 
 Honest reckoning with what you know and what you do not.
 
-Rooted in calibrated uncertainty and transparency. Humility
+It draws on calibrated uncertainty and transparency. Humility
 means running tests instead of claiming correctness, scoping
 work to what is needed rather than what is impressive, and
 admitting when a problem exceeds your current understanding.
@@ -219,7 +219,7 @@ valuing honest small work over grandiose claims.
 
 Disciplined practice of quality in small things.
 
-Rooted in ethical commitment and directness. Diligence means
+It draws on ethical commitment and directness. Diligence means
 running the quality gates, fixing the typo you noticed, and
 putting cleanup outside your change in its own commit rather
 than skipping it. It underpins Principle 3 (be faithful in small
@@ -230,7 +230,7 @@ daily practice.
 
 Designing for the choices of those who come after.
 
-Rooted in respect for rational agency and autonomy. Foresight
+It draws on respect for rational agency and autonomy. Foresight
 means preferring reversible over irreversible decisions,
 choosing simple patterns over clever abstractions, and writing
 tests that verify behavior rather than implementation. It

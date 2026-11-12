@@ -59,8 +59,8 @@ for the full pattern catalog.
 
 Any "production-ready", "fast", "secure", "scalable", "battle-tested",
 or equivalent claim in a README, skill description, or doc must point
-to evidence in the same repository. No evidence: delete the claim. The
-bar is evidence, not modesty.
+to evidence in the same repository. No evidence: delete the claim,
+however modestly it is worded.
 
 See `Skill(scribe:slop-detector)` module `evidence-backed-claims.md`
 for the full claim and evidence table.
@@ -78,8 +78,8 @@ Forbidden flags and patterns:
 - `--allow-dirty`, `--allow-empty`, `--allow-no-signature` unless
   documented as required for the workflow
 
-If a hook fails, fix the underlying issue. The hook is the floor, not
-the ceiling.
+If a hook fails, fix the underlying issue. Passing the hooks is the
+least a change must do.
 
 ### 7. No new dependencies without justification
 
@@ -105,7 +105,7 @@ full budgeting framework.
 
 When in doubt about whether material is worth keeping: delete. AI slop
 is overwhelmingly additive. Most "cleanup" PRs that try to "improve"
-rather than "remove" make the slop worse, not better. The cheapest
+rather than "remove" make the slop worse. The cheapest
 correct change is almost always the smallest one.
 
 ### 10. Errors are not optional
