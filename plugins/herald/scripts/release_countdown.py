@@ -5,7 +5,7 @@ Anyone may start a release. The release announces itself, then waits,
 and during the wait anyone with triage access can stop it by opening an
 issue that carries the pause label. After the window the release
 leaves. There is no flag to shorten or skip the window: the floor of
-one minute exists so a zero cannot stand in for a skip.
+one minute exists so a zero cannot substitute for a skip.
 
 GitHub's environment wait timer is not this. Administrators bypass it
 by default, nothing in it lets anyone pause, and on the Free, Pro and

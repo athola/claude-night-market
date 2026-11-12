@@ -81,4 +81,4 @@ diagram context (what type of diagram will be generated).
 ## Output
 
 Return ONLY the JSON structural model as your final
-message. No prose, no explanation, just the JSON.
+message, with no surrounding prose.

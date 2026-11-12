@@ -108,7 +108,7 @@ class TokenUsageTracker:
 
     @functools.cached_property
     def _cached_skill_analysis(self) -> dict[str, Any]:
-        """Cached result of analyze_all_skills; computed once per tracker instance."""
+        """Cached result of analyze_all_skills, computed once per tracker instance."""
         return self.analyze_all_skills()
 
     def calculate_token_efficiency(self) -> dict[str, Any]:

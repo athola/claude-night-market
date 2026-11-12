@@ -153,7 +153,7 @@ All markdown files must pass scribe validation. This includes a slop scan to ens
 
 ## Integration and Best Practices
 
-Individual skills are created using `skill-authoring`, while `modular-skills` handles the architecture of larger structures. `skills-eval` provides ongoing quality assessment. Avoid the common pitfall of writing skills based on theoretical behavior; always use documented failures to guide development. Use progressive disclosure to prevent monolithic files and ensure that each intervention remains focused and token-efficient.
+Individual skills are created using `skill-authoring`, while `modular-skills` handles the architecture of larger structures. `skills-eval` provides ongoing quality assessment. Avoid the common pitfall of writing skills based on theoretical behavior. Always use documented failures to guide development. Use progressive disclosure to prevent monolithic files and ensure that each intervention remains focused and token-efficient.
 ### Companion Skills
 
 - `Skill(superpowers:writing-skills)`: the upstream superpowers take on
@@ -216,4 +216,4 @@ Verify module paths in SKILL.md are correct
   explicit counter to the skill (exception table, red-flag list, or banned excuse list).
 - [ ] `python scripts/abstract_validator.py --check` exits 0 and SKILL.md is under 500 lines.
 - [ ] The hub serves one declared reader tier, and material for a
-  different one lives in `modules/` and is listed in the frontmatter.
+  different one is in `modules/` and is listed in the frontmatter.

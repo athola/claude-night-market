@@ -12,13 +12,13 @@ Claude Code resolves a subagent's model in this order, first match wins:
 again. Before CLI 2.1.251 it came first by default.
 
 An Agent call that omits ``subagent_type`` reaches rung 4 and inherits
-the session model. Subagents used to default to Haiku; since v2.1.198
+the session model. Subagents used to default to Haiku. Since v2.1.198
 Explore, Plan, and general-purpose all inherit instead. A throwaway
 search dispatched from an Opus session is an Opus agent.
 
 This hook denies any dispatch that does not name an agent, and the
 denial states which tier fits which task shape. Rationale and the full
-per-agent roster live in ``docs/agent-model-matrix.md``.
+per-agent roster are in ``docs/agent-model-matrix.md``.
 
 Zero external dependencies: standard library only.
 """

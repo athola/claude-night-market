@@ -49,8 +49,8 @@ adopt the pattern from authorship.
 
 ### Skip pattern: observe-only
 
-Hook records a signal for retrospective analysis; no immediate
-action expected.
+Hook records a signal for retrospective analysis. No immediate
+action is expected.
 
 | Hook | Reason |
 |------|--------|

@@ -16,7 +16,7 @@ Features:
 from __future__ import annotations
 
 import json
-import subprocess  # noqa: F401 - retained for legacy callers; gh now uses git_platform
+import subprocess  # noqa: F401 - retained for legacy callers, gh now uses git_platform
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -54,7 +54,7 @@ except ImportError:
         f"{Path(__file__).name}: requires the leyline plugin, which is not installed"
     )
 
-# Default target repository; config.json's target_repo overrides it.
+# Default target repository. config.json's target_repo overrides it.
 TARGET_REPO = "athola/claude-night-market"
 
 # GitHub counts reactions by ReactionContent enum name. Its eight values

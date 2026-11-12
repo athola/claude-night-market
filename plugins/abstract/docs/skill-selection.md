@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Abstract plugin provides a meta-skills framework for Claude Code, enabling structured skill development, evaluation, and optimization. This documentation describes the capabilities and architecture of each meta-skill.
+The Abstract plugin provides a meta-skills framework for Claude Code for skill development, evaluation, and optimization. This documentation describes the capabilities and architecture of each meta-skill.
 
 ## Meta-Skill Architecture
 

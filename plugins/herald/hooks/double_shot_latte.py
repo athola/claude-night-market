@@ -32,7 +32,7 @@ Hook contract (Claude Code ``Stop`` event):
   - Reads the event JSON from stdin.
   - Prints ``{"decision": "block", "reason": ...}`` to keep working, or
     ``{"decision": "approve", "reason": ...}`` to allow the stop.
-  - Always exits 0; any internal error degrades to "approve" (let it stop).
+  - Always exits 0. Any internal error degrades to "approve" (let it stop).
 """
 
 from __future__ import annotations
@@ -61,14 +61,14 @@ from _vendored_leyline_atomic_file import write_atomic
 MAX_CONTINUATIONS = 10
 
 #: Environment variable that overrides ``MAX_CONTINUATIONS`` at decision time.
-#: Must parse to a positive integer; anything else falls back to the default so
+#: Must parse to a positive integer. Anything else falls back to the default so
 #: a typo can never silently disable the runaway-loop guard.
 MAX_CONTINUATIONS_ENV = "DOUBLE_SHOT_LATTE_MAX_CONTINUATIONS"
 
 #: Inactivity window, in seconds: the CONTINUE count resets once this long
 #: passes with no CONTINUE. It is not a sliding window. A loop continuing every
 #: 120 s would never hold MAX_CONTINUATIONS inside a sliding 300 s window, so
-#: it would never be stopped; counting until a quiet gap does stop it.
+#: it would never be stopped. Counting until a quiet gap does stop it.
 THROTTLE_WINDOW_SECONDS = 300
 
 #: Filename prefix for per-session throttle state in the temp dir. Shared by
@@ -93,7 +93,7 @@ TRANSCRIPT_READ_BYTES = 262_144
 #: timeout registered in ``hooks.json`` (10s): the harness kills the whole hook
 #: at that budget, so a larger value here means the hook is killed mid-call and
 #: emits no decision at all. 8s leaves margin for interpreter startup, transcript
-#: read, and printing the verdict; a guard test keeps it below the hook budget.
+#: read, and printing the verdict. A guard test keeps it below the hook budget.
 LLM_TIMEOUT_SECONDS = 8
 
 #: Recursion guard: when the optional LLM judge spawns ``claude``, this env var
@@ -314,7 +314,7 @@ def _read_throttle(path: Path) -> tuple[int, float]:
 
 
 def _write_throttle(path: Path, count: int, when: float) -> bool:
-    """Persist throttle state atomically; return False if it was not stored.
+    """Persist throttle state atomically. Return False if it was not stored.
 
     Written to a sibling temp file and renamed, because an in-place
     truncating write leaves a window where the file parses as nothing.
@@ -349,7 +349,7 @@ def _llm_second_shot(text: str) -> tuple[bool, str] | None:
     """Consult the ``claude`` CLI as a second opinion, or None if unavailable.
 
     Returns ``(should_continue, reason)`` on success. Returns ``None`` when the
-    feature is disabled, ``claude`` is not installed, or the call fails -- the
+    feature is disabled, ``claude`` is not installed, or the call fails. The
     caller then keeps the deterministic verdict. This keeps every platform's
     default behavior identical and side-effect free.
     """

@@ -70,7 +70,7 @@ paradigm tends to carry. Not dependencies, and not ``tools:`` frontmatter.
 - [ ] An ADR documents function triggers, runtime choices, state externalization strategy,
   cold-start mitigation approach, and cost projections before any function is deployed.
 - [ ] A complete IaC definition (SAM, CDK, Terraform, or equivalent) exists for every function
-  and its supporting infrastructure, enabling repeatable deploys from scratch.
+  and its supporting infrastructure, and a deploy from scratch reproduces it.
 - [ ] Every function handler is idempotent: repeated execution with the same event produces the
   same outcome and no duplicate side effects (verified by unit test with replayed inputs).
 - [ ] Observability dashboards cover function duration, error rate, cold-start frequency, and

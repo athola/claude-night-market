@@ -190,7 +190,7 @@ class ImprovementQueue:
                     self._save()
 
     def _load(self) -> bool:
-        """Load queue from disk; return False when the file is absent.
+        """Load queue from disk. Return False when the file is absent.
 
         Only a parse failure counts as corruption. Any other OSError
         propagates: moving a healthy file aside on a transient read error

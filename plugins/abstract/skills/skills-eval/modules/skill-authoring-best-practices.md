@@ -100,8 +100,7 @@ without them by 20+ points on average. The presence of test
 artifacts predicts:
 
 - The author thought about failure modes before writing.
-- The skill addresses a documented problem, not an imagined
-  one.
+- The skill addresses a documented problem.
 - Future maintainers can re-run the tests after edits.
 
 The auditor does not currently grade test artifacts directly
@@ -313,7 +312,7 @@ python plugins/abstract/scripts/compliance_checker.py \
 
 A score above 85 indicates the practices are mostly applied.
 A score below 70 means at least three of the practices are
-violated; the auditor output names which.
+violated. The auditor output names which.
 
 Cross-reference: the Resources section in `SKILL.md` lists the full
 scoring rubric and the quick-reference form of these practices. See

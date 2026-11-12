@@ -214,6 +214,6 @@ performance tracker for trend correlation.
       `~/.claude/friction/sessions/{date}-{session_id}.json`
       via the `session-capture/1` schema
 - [ ] Patterns with `graduation_score` >= 12.0 generate a Tier 3
-      proposal; skill does not auto-modify CLAUDE.md
+      proposal. The skill does not auto-modify CLAUDE.md
 - [ ] Noise signals (network failures, user exploration) appear in
       "Noise Filtered" and are excluded from graduation scoring

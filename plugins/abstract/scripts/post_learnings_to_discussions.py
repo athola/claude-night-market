@@ -31,8 +31,8 @@ from typing import Any
 _src = Path(__file__).resolve().parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
-# Local script-directory module; co-located in plugins/abstract/scripts/.
-# sys.path is set in production by the entry-point caller; for direct
+# Local script-directory module, co-located in plugins/abstract/scripts/.
+# sys.path is set in production by the entry-point caller. For direct
 # imports during testing the test files prepend the scripts dir.
 from discussion_enrichment import (
     cluster_failure_modes,
@@ -606,7 +606,7 @@ def compose_enriched_body(
     perf_rows = parse_perf_summary(content)
     failure_modes = cluster_failure_modes(errors_by_skill_from_issues(enriched_issues))
 
-    # Lens findings: skip if metrics_by_skill not available; we don't
+    # Lens findings: skip if metrics_by_skill not available. We don't
     # rebuild the SkillLogSummary objects from LEARNINGS.md alone.
     findings: list = []
 

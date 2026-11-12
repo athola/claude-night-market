@@ -40,7 +40,7 @@ print('OK: 0 internal dangling references')
 
 ### Find consolidation candidates
 
-Hubs with >5 inbound references are core API; orchestrators with
+Hubs with >5 inbound references are core API, and orchestrators with
 >5 outbound references are coordination points. The intersection
 (hub AND orchestrator) is the federation backbone.
 
@@ -68,4 +68,4 @@ classified as `external` rather than `bugs`.
 - Self-references (a skill referencing itself) are skipped to avoid
   cycles in counts.
 - Module-level `dependencies:` and `modules:` frontmatter are not
-  yet treated as edges; see backlog item for planned extension.
+  yet treated as edges. See backlog item for planned extension.

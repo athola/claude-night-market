@@ -17,7 +17,7 @@ Opus 4.6 introduces features that affect model selection strategy:
 - **Adaptive Thinking**: `thinking: {type: "adaptive"}` lets Claude decide when and how deeply to think
 - **Effort Controls**: 3 levels (`low` ○, `medium` ◐, `high` ●) trade reasoning depth against speed/cost. `max` removed in 2.1.72. Set via `/effort` command (2.1.76+), `/model` menu, `--effort` CLI flag, or `CLAUDE_CODE_EFFORT_LEVEL` env var
 - **128K Max Output**: Opus 4.6 default 64k tokens (2.1.77+, was 32k), upper bound 128k for both Opus 4.6 and Sonnet 4.6. Override via `CLAUDE_CODE_MAX_OUTPUT_TOKENS`
-- **Server-Side Compaction**: Automatic context summarization on the API side, enabling effectively infinite conversations
+- **Server-Side Compaction**: Automatic context summarization on the API side, which lets a conversation continue past the context limit
 - **1M Context Window (GA, 2.1.75+)**: Default for Opus 4.6 on Max/Team/Enterprise plans with no extra usage required. Opt out with `CLAUDE_CODE_DISABLE_1M_CONTEXT=1`
 
 ### Effort Controls as an Alternative to Model Escalation
@@ -147,7 +147,7 @@ Foundry deployments).
 Bedrock, Vertex, and Microsoft Foundry now default to
 Opus 4.6 (was Opus 4.1). Subagent model aliases
 (`model: opus`/`sonnet`/`haiku`) now resolve correctly
-on all providers; previously they were silently
+on all providers. Previously they were silently
 downgraded to older versions on Bedrock/Vertex/Foundry.
 
 ### `modelOverrides` Setting (2.1.73+)
@@ -324,7 +324,7 @@ These require creative, architectural, or adversarial thinking:
 ### Abstract Plugin
 - `skill-authoring` - Behavioral psychology for effectiveness
 - `hook-authoring` - Security reasoning for hook design
-- `skills-eval` - Nuanced quality assessment
+- `skills-eval` - Judgment-heavy quality assessment
 - `hooks-eval` - Security/performance evaluation
 
 ### Imbue Plugin
@@ -485,7 +485,7 @@ Subagent conversations automatically compact when context approaches the window 
 | Consideration | Guidance |
 |--------------|----------|
 | **Long-running subagents** | Safe - won't crash at context limits |
-| **State preservation** | Write critical state to files, not just conversation |
+| **State preservation** | Write critical state to files as well as the conversation |
 | **Progress tracking** | Use TodoWrite or explicit checkpoints |
 | **Context reliance** | Avoid depending on early conversation context for late decisions |
 
@@ -516,7 +516,7 @@ See `conserve:context-optimization/modules/subagent-coordination` for detailed p
 
 The per-agent roster moved to `docs/agent-model-matrix.md` at the
 repository root. That document is the single source of truth for which
-tier each agent sits in and why.
+tier each agent is in and why.
 
 Do not re-list agents here. A partial copy in a second file is how the
 previous version of this section came to claim that every pensive and

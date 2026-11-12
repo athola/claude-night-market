@@ -38,7 +38,7 @@ def validate_webhook_url(url: str) -> str:
     Returns:
         The address that passed, so the caller can connect to that
         address and not to whatever a second lookup returns. A DNS
-        answer can change between the check and the request; pinning
+        answer can change between the check and the request. Pinning
         the checked address is what makes the check hold.
 
     Raises:
@@ -69,7 +69,7 @@ def validate_webhook_url(url: str) -> str:
     try:
         addr = ipaddress.ip_address(hostname)
     except ValueError:
-        # DNS name -- resolve and validate all addresses
+        # DNS name: resolve and validate all addresses
         try:
             results = socket.getaddrinfo(hostname, None)
         except socket.gaierror:

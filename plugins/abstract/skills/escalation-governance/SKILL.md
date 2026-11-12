@@ -35,7 +35,7 @@ Escalation is never a shortcut. If you haven't understood why the current model 
 
 | Trigger | Description | Example |
 |---------|-------------|---------|
-| Genuine complexity | Task inherently requires nuanced judgment | Security policy trade-offs |
+| Genuine complexity | Task inherently requires judgment across trade-offs | Security policy trade-offs |
 | Reasoning depth | Multiple inference steps with uncertainty | Architecture decisions |
 | Novel patterns | No existing patterns apply | First-of-kind implementation |
 | High stakes | Error cost justifies capability investment | Production deployment |
@@ -184,7 +184,7 @@ Agent starts task at assigned model
 
 | Situation | Action |
 |-----------|--------|
-| Task inherently requires nuanced reasoning | Escalate |
+| Task inherently requires multi-step reasoning | Escalate |
 | Agent uncertain but hasn't investigated | Investigate first |
 | Multiple attempts failed | Question approach, not model |
 | Security/high-stakes decision | Escalate |
@@ -236,7 +236,7 @@ reliably across all deployment configurations.
 Vertex, and Microsoft Foundry now default to Opus 4.6
 (was Opus 4.1). Subagent `model: opus`/`sonnet`/`haiku`
 aliases now resolve to the current version on all
-providers; previously they were silently downgraded to
+providers. Previously they were silently downgraded to
 older versions (e.g., Opus 4.1 instead of 4.6). This
 fix means agent dispatch workflows on third-party
 providers now match first-party API behavior.

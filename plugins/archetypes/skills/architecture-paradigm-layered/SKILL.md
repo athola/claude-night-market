@@ -67,7 +67,7 @@ estimated_tokens: 700
 
 ## Real-World Examples
 
-**Enterprise ERP Systems**: SAP and Oracle ERP use layered architecture to separate user interfaces from business logic and database operations, enabling different frontend applications to share the same business rules.
+**Enterprise ERP Systems**: SAP and Oracle ERP use layered architecture to separate user interfaces from business logic and database operations. Different frontend applications then share the same business rules.
 
 **Banking Applications**: Financial institutions employ layered architecture to maintain strict separation between customer-facing interfaces, transaction processing, and secure data storage for regulatory compliance.
 

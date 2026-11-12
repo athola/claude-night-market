@@ -91,7 +91,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     try:
         # Cross-plugin import resolved at runtime via the sys.path injection
-        # above; mypy cannot follow it statically.
+        # above. mypy cannot follow it statically.
         import gauntlet.communities as _gc  # type: ignore[import-not-found]  # runtime sys.path injection, not statically resolvable
         import gauntlet.graph as _gg  # type: ignore[import-not-found]  # runtime sys.path injection, not statically resolvable
 

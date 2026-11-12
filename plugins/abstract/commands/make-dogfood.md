@@ -146,7 +146,7 @@ The script includes thorough safety checks:
 
 ## CRITICAL: Demo Target Philosophy
 
-**Demo targets must run ACTUAL functionality, not just echo static information.**
+**Demo targets must run ACTUAL functionality. Echoing static information is not a demo.**
 
 | ❌ BAD (Static/Informational) | ✅ GOOD (Live/Functional) |
 |-------------------------------|---------------------------|

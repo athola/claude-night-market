@@ -21,7 +21,7 @@ try:
 except ImportError:
     # Hooks run under the operator's python3, which rarely has PyYAML.
     # Rule frontmatter is then read by _parse_frontmatter_subset below.
-    yaml = None  # type: ignore[assignment]  # None sentinel; the loader branches on `yaml is None`
+    yaml = None  # type: ignore[assignment]  # None sentinel: the loader branches on `yaml is None`
 
 logger = logging.getLogger(__name__)
 
@@ -222,7 +222,7 @@ def get_bundled_rules_dir() -> Path:
     return plugin_dir / "skills" / "rule-catalog" / "rules"
 
 
-# Back-compat alias; callers should prefer get_bundled_rules_dir.
+# Back-compat alias. Callers should prefer get_bundled_rules_dir.
 _get_bundled_rules_dir = get_bundled_rules_dir
 
 
@@ -252,8 +252,8 @@ class ConfigLoader:
             user_rules_dir = Path.cwd() / ".claude"
         self.user_rules_dir = Path(user_rules_dir)
         self.include_bundled = include_bundled
-        # Rules skipped as unreadable, so a caller can say which guards
-        # are not running instead of leaving that in a log.
+        # Rules skipped as unreadable, so a caller can report which guards
+        # are not running. A log line alone would hide that.
         self.load_errors: list[str] = []
         self.bundled_rules_dir = _get_bundled_rules_dir()
 
@@ -358,7 +358,7 @@ class ConfigLoader:
                     for c in frontmatter["conditions"]
                 ]
             except (KeyError, TypeError) as e:
-                # Callers skip a rule on ValueError; a raw KeyError would
+                # Callers skip a rule on ValueError. A raw KeyError would
                 # abort loading every rule after this one.
                 raise ValueError(f"Malformed conditions: {e!r}") from e
 
@@ -457,8 +457,8 @@ class ConfigLoader:
         if self.user_rules_dir.exists():
             pattern = f"{self.RULE_PREFIX}*{self.RULE_SUFFIX}"
             for rule_file in self.user_rules_dir.glob(pattern):
-                # hookify.<name>.local.md: strip both ends, not just the
-                # prefix, or the ".local" tail keeps the name from ever
+                # hookify.<name>.local.md: strip the prefix and the
+                # suffix, or the ".local" tail keeps the name from ever
                 # matching its bundled entry.
                 name = rule_file.name[len(self.RULE_PREFIX) : -len(self.RULE_SUFFIX)]
 

@@ -137,7 +137,7 @@ match on these tool names in `PreToolUse` and
 - Recurring tasks auto-expire after 7 days
 - Tasks fire only while the REPL is idle (not mid-query)
 - Jitter: recurring tasks fire up to 10% of their period
-  late (max 15 min); one-shot tasks at :00/:30 fire up
+  late (max 15 min). One-shot tasks at :00/:30 fire up
   to 90s early. Prefer off-minute scheduling to spread
   API load.
 - Disable entirely with `CLAUDE_CODE_DISABLE_CRON=1`.
@@ -249,7 +249,7 @@ generated visible status line noise. Still visible via
 
 Hooks that relied on visible completion messages for
 debugging should use `--verbose` mode. No per-hook
-`silent` configuration was added; the default behavior
+`silent` configuration was added. The default behavior
 changed globally.
 
 ## Hook Conditional `if` Field (2.1.85+)

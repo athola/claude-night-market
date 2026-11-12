@@ -17,7 +17,7 @@ from pathlib import Path
 # cap, is 326 * (160 + 109) = 87,694 chars. The budget is set to ~9% of
 # 1M (90,000) to cover that ceiling with modest headroom. The real
 # quality gate stays the per-description 160-char cap (DESCRIPTION_MAX),
-# which is the only hard-fail condition; the total is a warning so a
+# which is the only hard-fail condition. The total is a warning so a
 # growing component count never silently blocks unrelated commits.
 # See: https://gist.github.com/alexey-pelykh/faa3c304f731d6a962efc5fa2a43abe1
 # and github.com/anthropics/claude-code #11045.
@@ -239,7 +239,7 @@ def print_budget_report(report: BudgetReport) -> None:
     )
 
     if report.failed:
-        # The hard failure is the per-description cap; an overrun of the
+        # The hard failure is the per-description cap. An overrun of the
         # total is reported only when there is one.
         print(
             f"\n❌ {report.verbose_count} descriptions exceed the "

@@ -1,6 +1,6 @@
 """Write a command's report to stdout or to its ``--output`` file.
 
-Lives in ``src/`` because the wheel ships only ``abstract``: the wrapper
+Is in ``src/`` because the wheel ships only ``abstract``: the wrapper
 scripts and ``cli_framework`` both import it from here.
 """
 

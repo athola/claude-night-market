@@ -53,7 +53,7 @@ class _ModelRegistry:
         cannot tell a feature whose value is genuinely zero from one whose
         name was misspelled. Without it a typo returned HTTP 200 and a
         well-formed score computed on a zero-filled vector, while a missing
-        ``model`` field got a 400. This is a network boundary; a caller
+        ``model`` field got a 400. This is a network boundary. A caller
         cannot see the difference from the outside.
         """
         model = self._models[model_name]
@@ -212,7 +212,7 @@ class InferenceDaemon:
     host:
         Bind address (default ``127.0.0.1``).
     port:
-        TCP port; pass ``0`` to let the OS pick a free port.
+        TCP port. Pass ``0`` to let the OS pick a free port.
     models_dir:
         Directory containing ``*.yaml`` model files.
     port_file:

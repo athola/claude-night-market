@@ -25,8 +25,8 @@ Test skills with fresh subagent instances to prevent priming bias and validate e
 
 ## Overview
 
-**Fresh instances prevent priming:** Each test uses a new Claude conversation to verify
-the skill's impact is measured, not conversation history effects.
+**Fresh instances prevent priming:** Each test uses a new Claude conversation so the
+measurement reflects the skill and excludes conversation history effects.
 
 ## Why Fresh Instances Matter
 

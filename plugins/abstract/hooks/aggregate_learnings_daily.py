@@ -93,7 +93,7 @@ def should_aggregate() -> bool:
         elapsed = time.time() - last_run
         return elapsed >= CADENCE_SECONDS
     except (ValueError, OSError) as exc:
-        # Corrupt or unreadable file — treat as never run
+        # Corrupt or unreadable file: treat as never run
         print(f"[aggregate_learnings_daily] timestamp read: {exc}", file=sys.stderr)
         return True
 
@@ -193,7 +193,7 @@ def run_daily_pipeline() -> None:
         return
 
     # Registered async, so two quick prompts overlap. The run is claimed
-    # with a non-blocking lock and the cadence re-checked inside it; the
+    # with a non-blocking lock and the cadence re-checked inside it. The
     # loser returns at once instead of writing LEARNINGS.md a second time.
     ts_path = get_timestamp_path()
     ts_path.parent.mkdir(parents=True, exist_ok=True)
@@ -210,7 +210,7 @@ def run_daily_pipeline() -> None:
 
 
 def main() -> None:
-    """Hook entry point — reads stdin, runs pipeline, outputs JSON."""
+    """Hook entry point: reads stdin, runs pipeline, outputs JSON."""
     # Read and discard stdin (hook protocol)
     best_effort(_HOOK, "stdin read", sys.stdin.read)
 

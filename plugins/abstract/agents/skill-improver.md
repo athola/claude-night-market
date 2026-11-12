@@ -381,7 +381,7 @@ carries and the system `python3` may not. It does two things:
 It prints the new version. A skill with no execution history,
 or not in the queue, gets the version bump and no evaluation
 window. The script says so. The command runs from a repository
-checkout of this plugin; a marketplace install has no
+checkout of this plugin. A marketplace install has no
 `plugins/abstract` directory to point `--directory` at.
 
 #### D. Validate Changes

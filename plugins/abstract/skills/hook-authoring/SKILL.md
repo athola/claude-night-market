@@ -45,7 +45,7 @@ This skill teaches you how to write effective, secure, and performant hooks for 
 
 ### Key Capabilities
 
-- **PreToolUse**: Validate, filter, or transform tool inputs before execution; inject context (2.1.9+)
+- **PreToolUse**: Validate, filter, or transform tool inputs before execution, or inject context (2.1.9+)
 - **PostToolUse**: Log, analyze, or modify tool outputs after execution
 - **UserPromptSubmit**: Inject context or filter user messages before processing
 - **Stop/SubagentStop**: Cleanup, final reporting, or result aggregation
@@ -138,7 +138,7 @@ The SessionStart hook receives JSON input via stdin with these fields:
 
 Fields: `source` is one of `"startup"`, `"resume"`, `"clear"`, or `"compact"`. `agent_type` is populated when the `--agent` flag is used.
 
-**`agent_type` field**: When Claude Code is launched with `--agent my-agent`, this field contains the agent name, enabling agent-specific initialization:
+**`agent_type` field**: When Claude Code is launched with `--agent my-agent`, this field contains the agent name. Use it for agent-specific initialization:
 
 ```python
 # Python example: Agent-aware SessionStart hook
@@ -222,7 +222,7 @@ hooks:
 
 ### PreToolUse updatedInput (2.1.0 Fix)
 
-PreToolUse hooks can now return `updatedInput` when returning `ask` permission decision, enabling hooks to act as middleware while still requesting user consent:
+PreToolUse hooks can now return `updatedInput` when returning `ask` permission decision. A hook can then act as middleware while still requesting user consent:
 
 ```json
 {
@@ -333,9 +333,9 @@ Keep hooks non-blocking and fail fast. The hook timeout is 10 minutes
 
 ## Scope Selection
 
-Plugin hooks live in `hooks/hooks.json`, which auto-loads when the
+Plugin hooks are in `hooks/hooks.json`, which auto-loads when the
 plugin is enabled. Listing it again in `plugin.json` causes duplicate
-load errors. Project hooks live in `.claude/settings.json` and
+load errors. Project hooks are in `.claude/settings.json` and
 global hooks in `~/.claude/settings.json`. The decision framework is
 `modules/scope-selection.md`, also served as `abstract:hook-scope-guide`.
 

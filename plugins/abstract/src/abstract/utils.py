@@ -29,8 +29,8 @@ from .paths import (
     get_observability_dir,
 )
 
-# Re-exported so existing ``utils.safe_json_load`` callers are unchanged;
-# the helper lives in a stdlib-only module a hook can import without
+# Re-exported so existing ``utils.safe_json_load`` callers are unchanged.
+# The helper is in a stdlib-only module a hook can import without
 # PyYAML.
 from .stdlib_helpers import safe_json_load
 

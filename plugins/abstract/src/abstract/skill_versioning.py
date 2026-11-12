@@ -49,7 +49,7 @@ class SkillVersionManager:
                     {
                         "version": "1.0.0",
                         "timestamp": datetime.now(timezone.utc).isoformat(),
-                        # Nothing was measured before the first bump; zeros
+                        # Nothing was measured before the first bump. Zeros
                         # here would read as a skill that never worked.
                         "baseline_metrics": {},
                     }

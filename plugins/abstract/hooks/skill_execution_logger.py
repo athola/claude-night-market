@@ -247,7 +247,7 @@ def _purge_orphan_states(state_files: list[Path]) -> list[Path]:
 
     A state file is written by the pre hook and removed by the post hook. One
     that outlives any plausible execution means the post hook never ran, so it
-    will sit in the directory forever, making every later completion of that
+    will stay in the directory forever, making every later completion of that
     skill look ambiguous.
 
     Args:
@@ -311,7 +311,7 @@ def create_log_entry(
     #
     # A negative interval is discarded for the same reason. It means the wall
     # clock moved backward between the two hooks, so no execution took that
-    # long; storing it and leaving the report to filter it out kept a
+    # long. Storing it and leaving the report to filter it out kept a
     # non-measurement in the record.
     duration_ms: int | None = None
     if pre_state and "timestamp" in pre_state:
@@ -339,7 +339,7 @@ def create_log_entry(
             skill_ref, success, duration_ms
         )
 
-    # Save minimal context on success to reduce log size; full context on failure
+    # Save minimal context on success to reduce log size, and full context on failure
     if outcome in ["failure", "partial"]:
         context = {
             "session_id": resolved_session_id,

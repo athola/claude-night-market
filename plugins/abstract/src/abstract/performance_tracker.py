@@ -147,7 +147,7 @@ class PerformanceTracker:
         skill_ref: str | None = None,
         domain: str | None = None,
     ) -> dict:
-        """Get comprehensive statistics.
+        """Get summary statistics.
 
         Returns: total_generations, best_score, worst_score,
         average_score, improvement_trend.

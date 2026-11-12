@@ -3,8 +3,8 @@
 ## What ships in bin/
 
 The `skrills` binary is an optional performance accelerator for
-skill validation, analysis, and metrics. It is **never required**
--- all functionality falls back to Python scripts when the binary
+skill validation, analysis, and metrics. It is **never required**:
+all functionality falls back to Python scripts when the binary
 is absent.
 
 ## Build from source (recommended)
@@ -32,7 +32,7 @@ Rust source or download a CI-built release with SLSA attestation.
 | Supply chain attack | Cargo.lock pins all dependencies; `cargo audit` runs in CI |
 | Tampered binary | SHA-256 hash pinned in `.skrills-version`; `make skrills-verify` checks it |
 | Stale binary | Version file tracks build; `make skrills-build` rebuilds from latest source |
-| Pre-2.1.91 users | All bin/ usage has Python fallback; no functionality is lost |
+| Pre-2.1.91 users | All bin/ usage has a Python fallback and loses no functionality |
 
 ## Why a binary?
 

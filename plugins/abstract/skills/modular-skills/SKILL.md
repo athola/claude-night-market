@@ -123,7 +123,7 @@ Detailed guides for implementation and maintenance:
 
 - [ ] Every module file produced is at or under 150 lines, and no SKILL.md
   or module carries a Table of Contents.
-- [ ] No `skills/shared/modules/` directory exists; all modules live under
+- [ ] No `skills/shared/modules/` directory exists. All modules are under
   `skills/<skill-name>/modules/`.
 - [ ] `python scripts/abstract_validator.py --scan` exits 0 with no structural warnings on the
   affected skill directory.

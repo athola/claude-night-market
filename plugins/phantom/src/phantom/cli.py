@@ -199,7 +199,7 @@ def main(argv: list[str] | None = None) -> None:
     """Parse arguments and dispatch."""
     parser = build_parser()
     args = parser.parse_args(argv)
-    # The API refuses budget_tokens >= max_tokens; failing here names the
+    # The API rejects budget_tokens >= max_tokens. Failing here names the
     # two flags instead of returning an API error mid-run.
     if args.thinking_budget is not None and args.thinking_budget >= args.max_tokens:
         parser.error("--thinking-budget must be smaller than --max-tokens")

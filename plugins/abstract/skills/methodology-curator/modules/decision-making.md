@@ -18,7 +18,7 @@ Expert frameworks for making better decisions, avoiding cognitive biases, and de
 
 **Source**: Charlie Munger - "Poor Charlie's Almanack", Berkshire letters
 
-**Core Idea**: Build a latticework of mental models from multiple disciplines; use them in combination.
+**Core Idea**: Build a latticework of mental models from multiple disciplines and use them in combination.
 
 **Key Mental Models**:
 
@@ -86,7 +86,7 @@ Now prevent those things.
 
 **Source**: Gary Klein - "Sources of Power" (1998)
 
-**Core Idea**: Experts don't compare options; they recognize patterns and simulate actions.
+**Core Idea**: Experts don't compare options. They recognize patterns and simulate actions.
 
 **How Experts Decide**:
 ```
@@ -97,7 +97,7 @@ Now prevent those things.
 5. If problems → modify or consider next option
 ```
 
-**Key Insight**: Experts rarely compare options analytically. They satisfice, not optimize.
+**Key Insight**: Experts rarely compare options analytically. They satisfice: they take the first option that works.
 
 **When to Trust Intuition**:
 | Trust intuition when: | Don't trust when: |
@@ -114,7 +114,7 @@ Now prevent those things.
 
 **Source**: Annie Duke - "Thinking in Bets" (2018)
 
-**Core Idea**: Decisions are bets about the future; separate decision quality from outcome quality.
+**Core Idea**: Decisions are bets about the future. Separate decision quality from outcome quality.
 
 **Key Principles**:
 - **Resulting**: Judging decision by outcome is wrong
@@ -153,7 +153,7 @@ How will I feel about this decision:
 
 **Source**: Ray Dalio - "Principles" (2017)
 
-**Core Idea**: Make decisions through explicit principles; radical transparency.
+**Core Idea**: Make decisions through explicit principles and radical transparency.
 
 **The Idea Meritocracy**:
 ```

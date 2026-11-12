@@ -37,7 +37,7 @@ def skill_ref_for(skill_file: Path) -> str | None:
         return None
     plugin_root = skill_dir.parent.parent
     # A marketplace install nests the plugin under its version directory,
-    # so the directory name is the version there; the manifest names it.
+    # so the directory name is the version there. The manifest names it.
     manifest = safe_json_load(plugin_root / ".claude-plugin" / "plugin.json", {})
     plugin = manifest.get("name") if isinstance(manifest, dict) else None
     return f"{plugin or plugin_root.name}:{skill_dir.name}"

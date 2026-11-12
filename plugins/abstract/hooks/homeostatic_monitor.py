@@ -5,7 +5,7 @@ Reads stability gap from execution history and flags degrading
 skills in the improvement queue. When a skill accumulates 3+
 flags, it becomes eligible for auto-improvement. Evaluation windows
 are advanced by skill_execution_logger through ``evaluate_window``,
-because only the logger knows the run it just wrote is in the history.
+because the logger has just written that run to the history.
 
 Part of the self-adapting system. See: docs/adr/0006-self-adapting-skill-health.md
 """
@@ -123,7 +123,7 @@ def _needs_metacognition(claude_home: Path) -> bool:  # noqa: PLR0911 - multi-cr
         mem = ImprovementMemory(mem_file)
         effective = mem.get_effective_strategies()
         failed = mem.get_failed_strategies()
-        # Every recorded outcome is an attempt; small gains and neutral
+        # Every recorded outcome is an attempt. Small gains and neutral
         # results are neither effective nor failed but still count.
         total = sum(len(v) for v in mem.outcomes.values())
         if total == 0:
@@ -164,7 +164,7 @@ def _flag_and_build_output(
 ) -> dict | None:
     """Flag degrading skill in queue and return output dict.
 
-    Reads ``health`` fields directly rather than destructuring; the bundle is
+    Reads ``health`` fields directly rather than destructuring. The bundle is
     constructed once at the call site and never re-exploded here.
     """
     queue_file = get_improvement_queue_path(claude_home)
@@ -407,7 +407,7 @@ def main() -> None:
         tool_input = payload["tool_input"]
         if not tool_input.get("skill", ""):
             sys.exit(0)
-        # The logger keys .history.json this way; a raw name such as
+        # The logger keys .history.json this way. A raw name such as
         # "proof-of-work" is stored as "unknown:proof-of-work".
         plugin, skill = parse_skill_name(tool_input)
         skill_ref = f"{plugin}:{skill}"
@@ -443,7 +443,7 @@ def main() -> None:
             )
             sys.exit(0)
 
-        # Skill is degrading -- flag it in the queue via ImprovementQueue
+        # Skill is degrading: flag it in the queue via ImprovementQueue
         health = SkillHealth(gap, velocity, trend)
         try:
             output = _flag_and_build_output(

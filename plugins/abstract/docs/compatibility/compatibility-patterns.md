@@ -8,7 +8,7 @@ Integration patterns for LSP, session forking, and tool restrictions.
 
 ### Overview
 
-Session forking creates isolated conversation branches from existing sessions, enabling exploration of alternative approaches without affecting the original conversation history.
+Session forking creates isolated conversation branches from existing sessions. A fork explores alternative approaches without affecting the original conversation history.
 
 **Key Concept**: Like git branching for conversations - fork, explore, and optionally merge insights back.
 

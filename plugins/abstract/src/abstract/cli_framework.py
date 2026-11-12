@@ -386,7 +386,7 @@ class AbstractCLI(ABC):
         return self.exit_code(result, args)
 
     def exit_code(self, result: CLIResult, args: argparse.Namespace) -> int:
-        """Map a result to the process exit code; override to gate on content."""
+        """Map a result to the process exit code. Override to gate on content."""
         return 0 if result.success else 1
 
 

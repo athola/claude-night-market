@@ -3,7 +3,7 @@
 Annotated walk-throughs of skills that ship in this repo.
 Each example highlights one or two authoring decisions worth
 copying. Read these after the TDD methodology and progressive
-disclosure modules listed in `SKILL.md`. Citations are to real files; you
+disclosure modules listed in `SKILL.md`. Citations are to real files. You
 can `Read` any path below to see the full source.
 
 ## Example 1: a focused technique skill
@@ -98,7 +98,7 @@ What to copy:
    completion claims to refuse. The positive content (what
    counts as evidence) takes less room than the refusals. This
    matches how Claude actually fails. It rarely fails to do
-   work; it fails to verify the work it did.
+   work. It fails to verify the work it did.
 
 2. **Explicit acceptance criteria template**. The skill
    provides a template the user can paste into any

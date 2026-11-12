@@ -1,7 +1,7 @@
 """Experience library for storing successful skill execution trajectories.
 
 The PostToolUse logger stores each successful Skill call that carried
-args; the PreToolUse hook injects the most recent entries for the same
+args. The PreToolUse hook injects the most recent entries for the same
 skill as additionalContext.
 
 Part of the self-adapting system. See:
@@ -49,7 +49,7 @@ class ExecutionTrajectory:
     task_description: str
     approach_taken: str
     outcome: str
-    # None when the hooks could not time the call (#671); never a fake 0.
+    # None when the hooks could not time the call (#671), never a fake 0.
     duration_ms: int | None
 
 
@@ -71,7 +71,7 @@ class ExperienceLibrary:
         return d
 
     def _task_hash(self, project: str, task_description: str) -> str:
-        """Short hash of project and task; projects never share a file."""
+        """Short hash of project and task, so projects never share a file."""
         key = f"{project}\0{task_description}"
         return hashlib.sha256(key.encode("utf-8", "replace")).hexdigest()[:12]
 

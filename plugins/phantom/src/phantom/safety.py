@@ -52,7 +52,7 @@ class ActionFilter:
             if coord is None:
                 continue
             # The model writes these. One that is not a pair of numbers
-            # cannot be checked against the regions, so it is blocked; a
+            # cannot be checked against the regions, so it is blocked. A
             # TypeError here used to end the run and lose its results.
             if not isinstance(coord, (list, tuple)) or len(coord) != 2:
                 return False
