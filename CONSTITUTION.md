@@ -59,8 +59,7 @@ for the full pattern catalog.
 
 Any "production-ready", "fast", "secure", "scalable", "battle-tested",
 or equivalent claim in a README, skill description, or doc must point
-to evidence in the same repository. No evidence: delete the claim,
-however modestly it is worded.
+to evidence in the same repository. No evidence: delete the claim.
 
 See `Skill(scribe:slop-detector)` module `evidence-backed-claims.md`
 for the full claim and evidence table.
