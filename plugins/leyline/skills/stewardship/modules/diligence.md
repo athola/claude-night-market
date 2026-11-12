@@ -18,14 +18,13 @@
 ## Practice
 
 - Run `make lint && make test` before
-  every commit. Treat quality gates as practice, not
-  obstacles.
+  every commit. Treat quality gates as part of the work.
 - When you notice something small that is wrong, fix it
   now, in its own commit if it sits outside your change.
   It takes seconds and pays dividends for every future
   reader. This is Principle 3 in action.
 - When you add a bugfix, add the regression test. The
-  fix solves today's problem; the test prevents
+  fix solves today's problem. The test prevents
   tomorrow's.
 - Track your voluntary improvements with the stewardship
   tracker. What gets noticed gets repeated.
@@ -34,7 +33,7 @@
 
 - Busywork disguised as thoroughness. Polishing code
   nobody reads while ignoring broken tests is
-  avoidance, not diligence.
+  avoidance.
 - Rigid adherence to process when the process is not
-  serving the goal. Diligence is disciplined, not
-  mechanical. If a step adds no value, question it.
+  serving the goal. Diligence keeps asking what each step
+  is for. If a step adds no value, question it.
