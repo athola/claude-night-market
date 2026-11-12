@@ -31,7 +31,7 @@ def write_atomic(
 
     The temp name is unique per call: a fixed sibling path let one
     process's ``os.replace`` publish or clobber another's half-written
-    file. ``str`` is encoded as strict UTF-8; pass ``bytes`` to choose
+    file. ``str`` is encoded as strict UTF-8. Pass ``bytes`` to choose
     another encoding or error policy.
 
     ``mode`` defaults to owner-only. ``None`` keeps the mode the target

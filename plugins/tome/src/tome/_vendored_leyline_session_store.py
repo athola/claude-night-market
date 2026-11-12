@@ -41,7 +41,7 @@ class SessionStore:
         return self.sessions_dir / f"{session_id}.json"
 
     def save(self, session_id: str, record: Any) -> Path:
-        """Persist a record by session ID; returns the written path."""
+        """Persist a record by session ID and return the written path."""
         if not validate_session_id(session_id):
             raise ValueError(f"Invalid session ID: {session_id!r}")
         path = self._session_path(session_id)
@@ -50,7 +50,7 @@ class SessionStore:
         return path
 
     def load(self, session_id: str) -> Any | None:
-        """Load a record by session ID; returns None if missing or corrupt."""
+        """Load a record by session ID, or None if missing or corrupt."""
         path = self._session_path(session_id)
         if not path.exists():
             return None
