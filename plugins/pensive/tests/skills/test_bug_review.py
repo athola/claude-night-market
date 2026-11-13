@@ -400,6 +400,23 @@ class TestBugReviewSkill:
         bugs = self.skill.detect_resource_leaks(mock_skill_context, "a.py")
         assert not any("thread" in b["issue"].lower() for b in bugs)
 
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "content",
+        [
+            "t = threading.Thread(target=f)\nt.start()\npath = os.path.join(a, b)\n",
+            "threading.Thread(target=f).start()\n",
+        ],
+        ids=["other-join", "unbound-thread"],
+    )
+    def test_an_unjoined_thread_is_a_leak_whatever_else_joins(
+        self, mock_skill_context, content: str
+    ) -> None:
+        """os.path.join is not a thread join; an unbound Thread cannot be joined."""
+        mock_skill_context.get_file_content.return_value = content
+        bugs = self.skill.detect_resource_leaks(mock_skill_context, "a.py")
+        assert any("thread" in b["issue"].lower() for b in bugs)
+
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_logical_errors(self, mock_skill_context) -> None:

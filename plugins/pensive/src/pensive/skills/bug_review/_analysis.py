@@ -11,10 +11,22 @@ from ..base import PatternSearch
 _THREAD_LEAK = "Resource leak: Thread started - potential leak without join()"
 
 
+_THREAD_BINDING = re.compile(r"(\w+)\s*=\s*(?:\w+\.)*Thread\(")
+
+
 def _leaks_a_thread(content: str) -> bool:
-    """Whether the code, comments stripped, starts an unjoined non-daemon Thread."""
+    """Whether the code, comments stripped, starts an unjoined non-daemon Thread.
+
+    A join counts only on a name bound to a Thread: `os.path.join` and
+    `", ".join` are not thread joins, and a Thread never bound to a name
+    cannot be joined at all.
+    """
     code = "\n".join(line.split("#", 1)[0] for line in content.splitlines())
-    return "Thread(" in code and ".join(" not in code and "daemon=True" not in code
+    if "Thread(" not in code or "daemon=True" in code:
+        return False
+    bound = set(_THREAD_BINDING.findall(code))
+    unbound = code.count("Thread(") > len(_THREAD_BINDING.findall(code))
+    return unbound or any(f"{name}.join(" not in code for name in bound)
 
 
 class AnalysisMixin:
