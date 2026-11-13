@@ -69,6 +69,23 @@ class TestStandardEnvelope:
         assert all(log.channel == "code" for log in logs)
 
     @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("error", "kind"), [({}, None), ({"message": "boom"}, "source_error")]
+    )
+    def test_dict_error_without_a_kind(self, error: dict, kind: str | None) -> None:
+        """An empty error dict is no error; one without a kind is a source error."""
+        (log,) = parse_envelope(
+            {
+                "channel": "web",
+                "queries": [
+                    {"source": "s", "query": "q", "result_count": 2, "error": error}
+                ],
+            }
+        )
+        assert log.error == kind
+        assert log.succeeded is (kind is None)
+
+    @pytest.mark.unit
     def test_structured_error_becomes_the_error_kind(self) -> None:
         """Scenario: A structured error names its kind on the log.
 
