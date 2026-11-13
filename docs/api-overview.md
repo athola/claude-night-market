@@ -33,7 +33,7 @@ with public APIs. We also maintain 58 executable hooks.
 | minister | 1.10.3 | 3 | 3 | 0 | Yes | - |
 | oracle | 1.10.3 | 1 | 1 | 0 | Yes | - |
 | parseltongue | 1.10.3 | 3 | 4 | 4 | Yes | parseltongue |
-| pensive | 1.10.3 | 14 | 15 | 6 | Yes | - |
+| pensive | 1.10.3 | 14 | 13 | 6 | Yes | - |
 | phantom | 1.10.3 | 1 | 1 | 1 | Yes | - |
 | sanctum | 1.10.3 | 21 | 18 | 9 | Yes | - |
 | scribe | 1.10.3 | 9 | 11 | 5 | Yes | - |

@@ -89,7 +89,6 @@ resuming [workflow] from saved state.
 |-------|---------------------|------------------------|
 | `hookify:writing-rules` | `Create markdown-based behavioral rules to prevent unwanted actions.` | `Creates behavioral rules in markdown to block dangerous commands or restrict AI behavior. Use when adding safety guardrails or preventing specific commands.` |
 | `hookify:rule-catalog` | `Browse the rule catalog and guide installation.` | `Browse hookify's pre-built rule catalog. Use when installing standard rules or browsing available categories. Do not use when writing custom rules.` |
-| `pensive:makefile-review` | `Audit Makefiles for build correctness and recipe duplication.` | `Audits Makefiles for build correctness and recipe duplication. Use when reviewing a Makefile or before committing Makefile changes.` |
 | `imbue:rigorous-reasoning` | `Anti-sycophancy reasoning checklist.` | `Anti-sycophancy reasoning checklist. Use when analyzing contested claims, resolving disagreements, or detecting sycophantic self-correction patterns.` |
 | `attune:brainstorm` | `Guide project ideation through Socratic questioning...` | `Guides project ideation via Socratic questioning. Use before any creative work (features, components, behavior changes) before writing code.` |
 
