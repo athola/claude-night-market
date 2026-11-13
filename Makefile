@@ -324,14 +324,17 @@ skrills-clean: ## Remove skrills binary from plugin bin/
 	@echo "Cleaned: $(SKRILLS_BIN)"
 
 # Validation with skrills fallback to Python
-validate-skills: ## Validate skills (uses skrills if available, falls back to Python)
+# The former fallback ran check_plugin_hooks.py, which validates no skill,
+# and reported success. Without skrills there is nothing equivalent, so
+# the target fails instead of passing unchecked.
+validate-skills: ## Validate skills with skrills (fails without it; see skrills-build)
 	@if [ -x "$(SKRILLS_BIN)" ]; then \
 		$(SKRILLS_BIN) validate --skill-dir plugins --target claude; \
 	elif command -v skrills >/dev/null 2>&1; then \
 		skrills validate --skill-dir plugins --target claude; \
 	else \
-		echo "skrills not available, using Python fallback"; \
-		uv run python scripts/check_plugin_hooks.py; \
+		echo "skrills not available: run 'make skrills-build' or install skrills" >&2; \
+		exit 1; \
 	fi
 
 analyze-skills: ## Analyze skill token usage and dependencies (skrills or Python)
