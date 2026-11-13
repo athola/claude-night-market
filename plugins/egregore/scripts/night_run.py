@@ -274,7 +274,10 @@ def _git_unquote(name: str) -> str:
 
 def _changed_files(runner: Runner, workdir: Path) -> list[str]:
     """List the tracked files the implementer modified, staged or not."""
-    names = _git_query(runner, workdir, "diff", "HEAD", "--name-only")
+    # --no-renames: a rename lists its source as well as its destination,
+    # so moving a fenced file into an allowed path is judged as the
+    # deletion it is.
+    names = _git_query(runner, workdir, "diff", "HEAD", "--name-only", "--no-renames")
     return [_git_unquote(line.strip()) for line in names.splitlines() if line.strip()]
 
 
@@ -290,6 +293,17 @@ def _touched_files(runner: Runner, workdir: Path) -> list[str]:
     could not see.
     """
     return _changed_files(runner, workdir) + _untracked(runner, workdir)
+
+
+def _command_timeout(handoff: Handoff) -> int:
+    """Seconds an evidence, setup or full-suite command may run.
+
+    Without a bound one hung test run wedges the unattended night: the
+    watchdog relaunches a dead session, not a live hang. Separate from
+    implementer_timeout_s, because a suite slower than an implementer
+    turn would otherwise read as exit 124 and BLOCKED.
+    """
+    return int(handoff.budget.get("command_timeout_s", 3600))
 
 
 def _dispatch_implementer(
@@ -420,7 +434,9 @@ def run_task(
             continue
 
         observed = runner.run(
-            _argv_from_text(str(evidence.get("command", ""))), cwd=workdir
+            _argv_from_text(str(evidence.get("command", ""))),
+            cwd=workdir,
+            timeout=_command_timeout(handoff),
         )
         _raise_if_usage_limited(observed)
         objective = verdict_mod.objective_check(
@@ -789,7 +805,9 @@ def _prepare_worktree(
     if not setup:
         return None
 
-    prepared = runner.run(_argv_from_text(str(setup)), cwd=worktree)
+    prepared = runner.run(
+        _argv_from_text(str(setup)), cwd=worktree, timeout=_command_timeout(handoff)
+    )
     if prepared.returncode != 0:
         return f"{setup} exited {prepared.returncode}: {prepared.output[:200]}"
     return None
@@ -841,7 +859,9 @@ def _final_full_suite(
             None,
         )
 
-    observed = runner.run(_argv_from_text(str(full)), cwd=worktree)
+    observed = runner.run(
+        _argv_from_text(str(full)), cwd=worktree, timeout=_command_timeout(handoff)
+    )
     record = {
         "command": str(full),
         "exit": observed.returncode,
@@ -863,7 +883,8 @@ def _item_worktree(root: Path, item: str, declared: object) -> Path:
     the result is ``git checkout -- .`` and ``git clean -fd``.
     """
     if declared is None or declared == "":
-        return root / f".egregore/worktrees/{item}"
+        # The default runs the same checks: `item` is a handoff field too.
+        declared = f".egregore/worktrees/{item}"
     if not isinstance(declared, str):
         raise ValueError(
             f"handoff worktree must be a string, got {type(declared).__name__}"
