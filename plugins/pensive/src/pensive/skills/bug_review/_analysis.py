@@ -8,6 +8,14 @@ from typing import TYPE_CHECKING, Any
 from ...utils import content_parser
 from ..base import PatternSearch
 
+_THREAD_LEAK = "Resource leak: Thread started - potential leak without join()"
+
+
+def _leaks_a_thread(content: str) -> bool:
+    """Whether the code, comments stripped, starts an unjoined non-daemon Thread."""
+    code = "\n".join(line.split("#", 1)[0] for line in content.splitlines())
+    return "Thread(" in code and ".join(" not in code and "daemon=True" not in code
+
 
 class AnalysisMixin:
     """Detects resource leaks, logical errors, type confusion, and timing
@@ -34,7 +42,9 @@ class AnalysisMixin:
         """Detect potential resource leak bugs."""
         patterns = [
             (
-                r"open\([^)]+\)(?!\s*as\s)",
+                # One level of nested parentheses, so the `)` of
+                # `open(str(p))` is not taken for the end of the call.
+                r"open\((?:[^()]|\([^()]*\))*\)(?!\s*as\s)",
                 "Resource leak: File opened without context manager - potential leak",
             ),
             (
@@ -46,23 +56,27 @@ class AnalysisMixin:
                 "Resource leak: Connection opened - potential file or"
                 " socket leak without close",
             ),
-            (
-                r"\.start\(\)(?!.*\.join)",
-                "Resource leak: Thread started - potential leak without join()",
-            ),
+            (r"\.start\(\)", _THREAD_LEAK),
             (
                 r"\.cursor\(\)",
                 "Resource leak: Cursor created - potential resource leak",
             ),
         ]
 
-        return self._detect_patterns(
+        findings = self._detect_patterns(
             context,
             filename,
             patterns,
             content_parser,
             search=PatternSearch(patterns, "resource_leak", re.MULTILINE),
         )
+        # `.start()` is a thread leak only in a file that creates a Thread
+        # and neither joins nor daemonizes it; the per-line pattern alone
+        # flagged every server.start().
+        content = context.get_file_content(filename)
+        if not _leaks_a_thread(content):
+            findings = [f for f in findings if f["issue"] != _THREAD_LEAK]
+        return findings
 
     def detect_logical_errors(
         self,
@@ -306,7 +320,11 @@ class AnalysisMixin:
             reasoning = "Fix appears to address the issue"
             remaining_risks: list[str] = []
 
-            if "SELECT" in original and "?" in fixed:
+            if not fixed.strip() or fixed == original:
+                valid = False
+                reasoning = "Fix is empty or identical to the original"
+                remaining_risks.append("The original code is unchanged")
+            elif "SELECT" in original and "?" in fixed:
                 reasoning = "Parameterized query correctly used"
             elif "?." in fixed or "??" in fixed:
                 reasoning = "Optional chaining/nullish coalescing added"
