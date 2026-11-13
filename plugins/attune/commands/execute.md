@@ -59,7 +59,7 @@ When superpowers plugin is available:
 
 Without superpowers:
 - Falls back to attune's native execution agent
-- Provides similar checkpoint-based approach
+- Runs attune's own checkpoint validation between phases
 - Validates task completion systematically
 
 ## Workflow
