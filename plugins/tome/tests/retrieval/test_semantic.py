@@ -122,6 +122,24 @@ class TestRetrieverProviderAwareness:
         assert SemanticRetriever(FakeEmbedder()).is_semantic is True
 
     @pytest.mark.unit
+    def test_local_provider_whose_model_did_not_load_is_not_semantic(self) -> None:
+        """A local embedder with no model vectorizes by hash, whatever it asked for."""
+
+        class UnloadedLocal(FakeEmbedder):
+            requested_provider = "local"
+            model = None
+
+        assert SemanticRetriever(UnloadedLocal()).is_semantic is False
+
+    @pytest.mark.unit
+    def test_local_provider_with_a_loaded_model_is_semantic(self) -> None:
+        class LoadedLocal(FakeEmbedder):
+            requested_provider = "local"
+            model = object()
+
+        assert SemanticRetriever(LoadedLocal()).is_semantic is True
+
+    @pytest.mark.unit
     def test_explicit_override_wins(self) -> None:
         assert SemanticRetriever(FakeEmbedder(), is_semantic=False).is_semantic is False
 
@@ -261,5 +279,9 @@ class TestDegradationObservability:
         with warnings.catch_warnings():
             warnings.simplefilter("error", NonSemanticRetrievalWarning)
             embedder = open_embedder(str(tmp_path / "q.yaml"), provider="local")
+        if getattr(embedder, "model", None) is None:
+            # No sentence-transformers model here: the embedder hashes,
+            # and reading it as semantic was the defect this guards.
+            pytest.skip("the local embedding model did not load")
 
         assert SemanticRetriever(embedder).is_semantic is True
