@@ -136,10 +136,6 @@ INSERT OR REPLACE INTO entities_fts(entity_id, name, entity_type)
 VALUES (?, ?, ?);
 """
 
-_FTS_DELETE_SQL = """
-DELETE FROM entities_fts WHERE entity_id = ?;
-"""
-
 
 class KnowledgeGraph(SqliteGraphBase):
     """Persistent knowledge graph backed by SQLite."""

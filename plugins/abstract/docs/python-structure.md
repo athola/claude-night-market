@@ -12,7 +12,6 @@ abstract/
 │   └── abstract/              # Python package for shared modules
 │       ├── __init__.py        # Package initialization
 │       ├── config.py          # Configuration management
-│       ├── errors.py          # Error handling utilities
 │       ├── utils.py           # Common skill processing utilities
 │       ├── py.typed           # Type hints marker (PEP 561)
 │       └── README.md          # Package documentation
@@ -85,13 +84,9 @@ Scripts can import from the package once installed:
 """Script using abstract package."""
 
 from abstract.config import AbstractConfig
-from abstract.errors import ErrorHandler
 
 # Use shared configuration
 config = AbstractConfig.from_yaml("config/abstract_config.yaml")
-
-# Use shared error handling
-errors = ErrorHandler("script-name")
 ```
 
 ### Without Installation
@@ -129,32 +124,6 @@ config = AbstractConfig.from_yaml("config/abstract_config.yaml")
 # Access validation rules
 max_size = config.skill_validation.MAX_SKILL_FILE_SIZE
 required_fields = config.skill_validation.REQUIRED_FRONTMATTER_FIELDS
-```
-
-### abstract.errors
-
-**Purpose**: Consistent error handling across tools
-
-**Classes**:
-- `ErrorHandler`: Centralized error management and logging
-- `ErrorSeverity`: Error severity levels enum
-- `ToolError`: Structured error information dataclass
-
-**Usage**:
-```python
-from abstract.errors import ErrorHandler, ErrorSeverity, ToolError
-
-errors = ErrorHandler("my-tool")
-
-# Report an error
-errors.handle_error(
-    ToolError(
-        severity=ErrorSeverity.HIGH,
-        error_code="VALIDATION_FAILED",
-        message="Skill validation failed",
-        suggestion="Check frontmatter format",
-    )
-)
 ```
 
 ### abstract.utils
@@ -234,7 +203,6 @@ scripts/
 ```
 src/abstract/
 ├── config.py             # OK from abstract.config import ...
-├── errors.py             # OK from abstract.errors import ...
 └── utils.py              # OK Centralized utilities
 
 config/

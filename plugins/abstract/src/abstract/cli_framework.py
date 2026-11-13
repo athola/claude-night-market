@@ -19,7 +19,6 @@ from typing import Any, Generic, TypeVar, cast
 from .base import AbstractScript
 from .cli_output import write_output
 from .config import AbstractConfig
-from .errors import ErrorHandler
 
 T = TypeVar("T")
 
@@ -161,11 +160,6 @@ class AbstractCLI(ABC):
     def config(self, value: AbstractConfig) -> None:
         """Set the configuration."""
         self._script.config = value
-
-    @property
-    def error_handler(self) -> ErrorHandler:
-        """Get the error handler."""
-        return self._script.error_handler
 
     def create_parser(self) -> argparse.ArgumentParser:
         """Create the argument parser with common arguments.
