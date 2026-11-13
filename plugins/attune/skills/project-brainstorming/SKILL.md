@@ -457,8 +457,10 @@ review loop.
 2. Dispatch haiku-model subagent with the spec content
 3. If ISSUES FOUND: fix issues, re-dispatch (max 3
    iterations)
-4. If APPROVED or 3 iterations exhausted: proceed to
-   Phase 6 continuation
+4. If APPROVED or 3 iterations exhausted: sort the last
+   review's builder questions as the module describes,
+   bring the human the ones only they can answer in one
+   message, then proceed to Phase 6 continuation
 
 **Bypass Conditions**:
 - `--standalone` flag was provided

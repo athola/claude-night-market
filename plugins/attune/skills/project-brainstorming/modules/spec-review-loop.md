@@ -47,7 +47,7 @@ and check for:
 7. Read it as the person who will build it: what would
    you still need to ask before you could start?
 
-Respond with EXACTLY one of:
+Start your response with EXACTLY one of:
 
 **APPROVED** - if no issues found
 
@@ -56,7 +56,8 @@ Respond with EXACTLY one of:
        Issue: [description]
        Suggested fix: [specific recommendation]
 
-  then a list headed BUILDER QUESTIONS, one per line.
+Then, whatever the verdict, end with a list headed
+BUILDER QUESTIONS, one question per line, or "none".
 
 Be thorough but fair. Flag real problems, not style
 preferences.
@@ -75,8 +76,10 @@ subagent:
 ## Integration
 
 The main agent (not the human) fixes issues between
-iterations. It sorts the builder questions into three
-piles, following superpowers' builder check (v7.0.0):
+iterations. Builder questions do not drive the loop. Take
+them from the last review and sort them once, after the
+loop ends, into three piles, following superpowers'
+builder check (v7.0.0):
 
 - **Answered already** by the conversation or the
   project: write the answer into the document.

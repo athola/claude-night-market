@@ -457,7 +457,7 @@ The planning skill automatically validates:
 When superpowers is installed, this command automatically:
 - Invokes `Skill(superpowers:writing-plans)` for planning framework
 - Uses dependency analysis patterns
-- Hands the saved plan to you for review before execution starts
+- Self-reviews the plan for proportion and Review Focus coverage
 
 Check if superpowers is available:
 ```bash

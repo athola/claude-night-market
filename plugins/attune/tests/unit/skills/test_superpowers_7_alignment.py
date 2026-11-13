@@ -64,6 +64,18 @@ class TestBuilderCheck:
         assert "Minor" in text
         assert "Theirs" in text
 
+    def test_builder_questions_do_not_depend_on_the_verdict(self) -> None:
+        """An approved brief can still leave a builder with questions."""
+        assert "whatever the verdict" in _prose(SPEC_REVIEW)
+
+    def test_theirs_pile_reaches_the_human_once(self) -> None:
+        """Three review rounds must not become three rounds of questions."""
+        assert "once, after the loop ends" in _prose(SPEC_REVIEW)
+
+    def test_phase_6_5_describes_the_builder_questions(self) -> None:
+        """The SKILL.md procedure is what a session follows; it must match the module."""
+        assert "builder questions" in _prose(BRAINSTORMING)
+
 
 class TestIntentFirstQuestions:
     """brainstorming v6.4.1 and v7.0.2: ask why first, offer options."""
