@@ -67,6 +67,26 @@ def _spent(source: str) -> dict[str, str]:
     return {"kind": "source_error", "source": source, "message": _BUDGET_SPENT}
 
 
+def _query_row(
+    source: str, query: str, result_count: int, error: dict[str, str] | None
+) -> dict[str, Any]:
+    """One query, carrying its own failure.
+
+    Agents copy these rows into their envelope as printed, and
+    ``parse_envelope`` reads a query's error from its row. A failure
+    recorded only in the channel's ``errors`` list made a rate-limited
+    source read as a successful empty search.
+    """
+    row: dict[str, Any] = {
+        "source": source,
+        "query": query,
+        "result_count": result_count,
+    }
+    if error is not None:
+        row["error"] = {"kind": error["kind"], "message": error["message"]}
+    return row
+
+
 def _channel_report(
     channel: str,
     findings: list[dict[str, Any]],
@@ -117,9 +137,10 @@ def search_academic(
     errors: list[dict[str, str]] = []
     for source, url, headers, parse in sources:
         found: list[dict[str, Any]] = []
+        failed_before = len(errors)
         if clock() >= deadline:
             errors.append(_spent(source))
-            queries.append({"source": source, "query": topic, "result_count": 0})
+            queries.append(_query_row(source, topic, 0, errors[-1]))
             continue
         reply = fetch(url, headers=headers, deadline=deadline)
         if reply.status != http.OK:
@@ -136,7 +157,8 @@ def search_academic(
                     }
                 )
         findings.extend(found)
-        queries.append({"source": source, "query": topic, "result_count": len(found)})
+        error = errors[-1] if len(errors) > failed_before else None
+        queries.append(_query_row(source, topic, len(found), error))
     return _channel_report("academic", findings, queries, errors)
 
 
@@ -255,34 +277,25 @@ def search_reddit(  # noqa: PLR0913 - four keyword-only seams (fetch, sleep, bud
             error = _spent("reddit")
             error["message"] = f"r/{subreddit}: {_BUDGET_SPENT}"
             errors.append(error)
-            queries.append(
-                {
-                    "source": "reddit",
-                    "query": f"r/{subreddit} {topic}",
-                    "result_count": 0,
-                }
-            )
+            queries.append(_query_row("reddit", f"r/{subreddit} {topic}", 0, error))
             continue
         if index:
             sleep(REDDIT_SPACING_SECONDS)
         reply = fetch(
             discourse.build_reddit_rss_search_url(topic, subreddit), deadline=deadline
         )
+        failure = None
         if reply.status == http.OK:
             found = [
                 f.to_dict() for f in discourse.parse_reddit_rss(reply.body, subreddit)
             ]
         else:
-            error = _error("reddit", reply)
-            error["message"] = f"r/{subreddit}: {error['message']}"
-            errors.append(error)
+            failure = _error("reddit", reply)
+            failure["message"] = f"r/{subreddit}: {failure['message']}"
+            errors.append(failure)
         findings.extend(found)
         queries.append(
-            {
-                "source": "reddit",
-                "query": f"r/{subreddit} {topic}",
-                "result_count": len(found),
-            }
+            _query_row("reddit", f"r/{subreddit} {topic}", len(found), failure)
         )
     return _channel_report("discourse", findings, queries, errors)
 
