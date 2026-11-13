@@ -301,45 +301,9 @@ claude
 
 ### File Fallback
 
-For Claude Code <2.1.16 or non-Claude environments, falls back to:
-
-## Execution State
-
-Progress is saved to `.attune/execution-state.json`:
-
-```json
-{
-  "plan_file": "docs/implementation-plan.md",
-  "started_at": "2026-01-02T10:00:00Z",
-  "last_checkpoint": "2026-01-02T14:30:22Z",
-  "current_sprint": "Sprint 1",
-  "current_phase": "Phase 1",
-  "tasks": {
-    "T001": {
-      "status": "complete",
-      "started_at": "2026-01-02T10:05:00Z",
-      "completed_at": "2026-01-02T10:50:00Z",
-      "duration_minutes": 45,
-      "acceptance_criteria_met": true,
-      "tests_passing": true
-    },
-    "T002": {
-      "status": "in_progress",
-      "started_at": "2026-01-02T14:00:00Z",
-      "progress_percent": 60,
-      "blocker": null
-    }
-  },
-  "metrics": {
-    "tasks_complete": 15,
-    "tasks_total": 40,
-    "completion_percent": 37.5,
-    "velocity_tasks_per_day": 3.2,
-    "estimated_completion_date": "2026-02-15"
-  },
-  "blockers": []
-}
-```
+For Claude Code <2.1.16 or non-Claude environments, progress is saved to
+`.attune/execution-state.json`. Its schema is in
+`Skill(attune:project-execution)`, under Progress Tracking.
 
 ## Progress Reports
 

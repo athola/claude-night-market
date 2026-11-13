@@ -343,19 +343,10 @@ decisions compound into unsalvageable codebases.
 
 ## Scrutiny Questions (from leyline:additive-bias-defense)
 
-Before justifying any change, apply these questions.
-If the answer to questions 4 and 5 is not concrete
-evidence, the change is unjustified.
-
-1. **Priority alignment**: Is this a deviation from the
-   current priority?
-2. **Criticality**: Is it critical to implement at this
-   juncture?
-3. **Simplicity**: Does a simpler or more elegant
-   solution exist?
-4. **Evidence**: What evidence proves this is needed
-   (not assumed)?
-5. **Consequence**: What breaks if we do not add this?
+Before justifying any change, apply the five scrutiny
+questions in `Skill(leyline:additive-bias-defense)`. If
+the evidence and consequence questions have no concrete
+answer, the change is unjustified.
 
 ## Burden of Proof Inversion
 

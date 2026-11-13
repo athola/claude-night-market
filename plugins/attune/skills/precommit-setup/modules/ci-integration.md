@@ -49,34 +49,8 @@ jobs:
 \`\`\`yaml
 # .pre-commit-config.yaml
 repos:
-  # Layer 1: Fast Global Checks
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-toml
-      - id: check-json
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.2
-    hooks:
-      - id: ruff
-        args: [--fix]
-      - id: ruff-format
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.13.0
-    hooks:
-      - id: mypy
-        args: [--ignore-missing-imports]
-
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.3
-    hooks:
-      - id: bandit
-        args: [-c, pyproject.toml]
+  # Layer 1: the fast global checks from standard-hooks.md
+  # (pre-commit-hooks, ruff, mypy, bandit) go here unchanged
 
   # Layer 2: Component-Specific Checks
   - repo: local

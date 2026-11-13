@@ -186,14 +186,4 @@ Agent(scribe:doc-editor) --target README.md
 
 ## Troubleshooting
 
-### Common Issues
-
-**Documentation out of sync**
-Run `make docs-sync-check` to verify the capabilities docs still
-match the plugin registrations
-
-**Build failures**
-Check that all required dependencies are installed
-
-**Links broken**
-Verify relative paths in documentation files
+See the Troubleshooting section of `Skill(sanctum:doc-updates)`.
