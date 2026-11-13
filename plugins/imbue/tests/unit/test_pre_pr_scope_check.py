@@ -95,3 +95,12 @@ def test_xtrace_flag_traces_and_still_takes_the_base(repo: Path) -> None:
     assert result.returncode == 0, result.stdout + result.stderr
     assert "Base branch: master" in result.stdout
     assert "+ " in result.stderr
+
+
+def test_a_base_branch_named_like_help_is_measured(repo: Path) -> None:
+    """`docs/help` matched the help glob, printed usage and passed the gate."""
+    _git(repo, "branch", "docs/help", "master")
+
+    result = _run(repo, "docs/help")
+
+    assert "Base branch: docs/help" in result.stdout, result.stdout

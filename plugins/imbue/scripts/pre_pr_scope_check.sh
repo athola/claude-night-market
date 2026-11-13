@@ -77,6 +77,23 @@ usage() {
 }
 
 # A pre-push hook's first argument is a remote name, not a branch.
+is_ref() {
+  git rev-parse --verify --quiet "${1}^{commit}" >/dev/null 2>&1
+}
+
+# The first positional argument is the base branch, unless a pre-push
+# hook passed its remote name there.
+take_base() {
+  case "${_main_first}" in
+    1)
+      _main_first=0
+      if ! is_remote "${1}"; then
+        BASE_BRANCH="${1}"
+      fi
+      ;;
+  esac
+}
+
 is_remote() {
   git remote 2>/dev/null | grep -qxF -- "${1}"
 }
@@ -197,21 +214,21 @@ main() {
   _main_first=1
   while [ "${#}" -gt 0 ]; do
     case "${1}" in
-      *[uU][sS][aA][gG][eE] | *[hH][eE][lL][pP] | -h)
+      -h)
         usage
         exit 0
         ;;
       -x | -t) XTRACE=1 ;;
-      *)
-        case "${_main_first}" in
-          1)
-            _main_first=0
-            if ! is_remote "${1}"; then
-              BASE_BRANCH="${1}"
-            fi
-            ;;
-        esac
+      *[uU][sS][aA][gG][eE] | *[hH][eE][lL][pP])
+        # A base branch can end in "help" (feature/help); a ref is a
+        # branch to measure, not a request for usage.
+        if ! is_ref "${1}"; then
+          usage
+          exit 0
+        fi
+        take_base "${1}"
         ;;
+      *) take_base "${1}" ;;
     esac
     shift
   done
