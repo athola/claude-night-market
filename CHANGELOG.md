@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.3] - 2026-11-13
+
 ### Changed
 
 - **spec-kit tracks upstream v1.4.0** (from v0.5.0). The constitution

@@ -455,7 +455,7 @@ wheels = [
 
 [[package]]
 name = "herald-dev"
-version = "1.10.2"
+version = "1.10.3"
 source = { editable = "." }
 
 [package.dev-dependencies]
