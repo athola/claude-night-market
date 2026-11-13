@@ -3,7 +3,7 @@
 # are synced, then removes itself from crontab.
 #
 # Install: crontab -e, add:
-#   0 * * * * /home/alext/claude-night-market/scripts/clawhub-cron.sh
+#   0 * * * * /path/to/claude-night-market/scripts/clawhub-cron.sh
 #
 # Usage: scripts/clawhub-cron.sh [-h] [-x|-t]
 #
