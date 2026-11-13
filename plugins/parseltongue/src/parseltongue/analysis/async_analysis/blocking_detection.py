@@ -45,10 +45,41 @@ def _collect_sync_function_info(
         ):
             sync_func_names.add(node.name)
             for child in ast.walk(node):
-                if isinstance(child, ast.Call) and _is_blocking_sleep(
-                    child, bare_sleep_blocks
-                ):
+                if not isinstance(child, ast.Call):
+                    continue
+                if _is_blocking_sleep(child, bare_sleep_blocks):
                     sync_func_blocking.setdefault(node.name, []).append("time_sleep")
+                elif is_call_to(child, "requests.get") or is_call_to(
+                    child, "requests.post"
+                ):
+                    sync_func_blocking.setdefault(node.name, []).append("requests")
+                elif isinstance(child.func, ast.Name) and child.func.id == "open":
+                    sync_func_blocking.setdefault(node.name, []).append("file_io")
+
+
+_BLOCKING_ADVICE = {
+    "time_sleep": "Replace time.sleep() with asyncio.sleep()",
+    "requests": "Replace requests with aiohttp",
+    "file_io": "Consider using aiofiles for async file I/O",
+}
+
+
+def _loop_body_nodes(func: ast.AsyncFunctionDef) -> list[ast.AST]:
+    """Nodes of an async body that run on the event loop.
+
+    A nested function or lambda runs only when something calls it, which
+    is often a worker thread through run_in_executor; a call to it from
+    this body is checked as a sync function call instead.
+    """
+    nodes: list[ast.AST] = []
+    stack: list[ast.AST] = list(func.body)
+    while stack:
+        node = stack.pop()
+        nodes.append(node)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            continue
+        stack.extend(ast.iter_child_nodes(node))
+    return nodes
 
 
 def _check_time_sleep(
@@ -107,16 +138,16 @@ def _check_sync_function_call(
     ):
         call_name = func.attr
 
-    if call_name and call_name in sync_func_names:
+    # A helper that does no blocking I/O does not block the loop.
+    if call_name and call_name in sync_func_names and call_name in sync_func_blocking:
         blocking_patterns["sync_function_call"] = {
             "function_name": call_name,
             "blocks_event_loop": True,
         }
         recommendations.append(f"Consider making '{call_name}' async")
-        for blocking in sync_func_blocking.get(call_name, []):
-            if blocking == "time_sleep":
-                blocking_patterns["time_sleep"] = {"blocks_event_loop": True}
-                recommendations.append("Replace time.sleep() with asyncio.sleep()")
+        for blocking in sync_func_blocking[call_name]:
+            blocking_patterns[blocking] = {"blocks_event_loop": True}
+            recommendations.append(_BLOCKING_ADVICE[blocking])
 
 
 async def detect_blocking_calls(
@@ -153,7 +184,7 @@ async def detect_blocking_calls(
 
     for node in ast.walk(tree):
         if isinstance(node, ast.AsyncFunctionDef):
-            for child in ast.walk(node):
+            for child in _loop_body_nodes(node):
                 if isinstance(child, ast.Call):
                     _check_time_sleep(
                         child, blocking_patterns, recommendations, bare_sleep_blocks
