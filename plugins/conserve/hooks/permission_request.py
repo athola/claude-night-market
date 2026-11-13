@@ -86,6 +86,9 @@ _CRED_NAME = (
     r"|[._]netrc|\.npmrc|\.pypirc|id_(?:rsa|dsa|ecdsa|ed25519))"
 )
 _CRED_PATH = rf"(?:(?<=\s)|(?<=/)|(?<=['\"<:=])){_CRED_NAME}(?=\s|$|['\"])"
+# `git diff` and `git log -p` print a file named after `--`. Before the
+# `--` a word is a revision or a `--grep` pattern, not a path.
+_GIT_PATHSPEC = r"(?:^|[|;&]\s*)git\s+(?:diff|log)\b[^|;&]*\s--\s[^|;&]*"
 
 # DANGEROUS patterns - always deny these
 # Order matters: more specific patterns should come first
@@ -114,7 +117,8 @@ DANGEROUS_PATTERNS: list[tuple[str, str]] = [
     # anywhere in its arguments, a search word included, which is too
     # broad for grep and rg, whose first operand is a pattern.
     (rf"{_READER_START}{_CRED_PATH}", "Blocked: potential credential exposure"),
-    (rf"{_READER_START}/\.ssh/", "Blocked: SSH key exposure"),
+    (rf"{_GIT_PATHSPEC}{_CRED_PATH}", "Blocked: potential credential exposure"),
+    (rf"{_READER_START}/\.ssh(?=/|\s|$|['\"])", "Blocked: SSH key exposure"),
     # Git dangerous operations
     (r"git\s+push\s+.*--force\s+origin\s+(main|master)", "Blocked: force push to main"),
     (r"git\s+reset\s+--hard\s+origin/", "Blocked: hard reset from remote"),
@@ -126,9 +130,11 @@ SAFE_PATTERNS: list[str] = [
     # File system inspection (read-only)
     r"^ls(\s|$)",
     r"^pwd$",
-    r"^cat\s+(?!.*\.env|.*credentials|.*\.ssh)",
+    # A device file (`/dev/zero`) or follow mode never returns, so it
+    # burns the Bash timeout instead of being approved.
+    r"^cat\s+(?!.*\.env|.*credentials|.*\.ssh|.*/dev/)",
     r"^head\s+",
-    r"^tail\s+",
+    r"^tail\s+(?!(?:.*\s)?(?:-\w*[fF]|--follow))",
     r"^wc\s+",
     # -C/--compile writes a compiled magic file.
     r"^file\s+(?!(?:.*\s)?-\w*C|.*--compile)",
@@ -217,10 +223,11 @@ _CHAIN_CHARS = re.compile(r"[;|&`(\n\r>]|\$\(")
 # Options that make a read-only command write a file or run a program:
 # `git diff --output=FILE` writes, `rg --pre CMD` executes CMD per file,
 # `git diff --ext-diff` runs the external diff the repo configures,
+# `git diff --no-index` reads any two paths outside the repo,
 # `ag --pager CMD` pipes results through CMD, and `rg --hostname-bin CMD`
 # runs CMD to fill in hyperlinks.
 _WRITE_OR_EXEC_OPTIONS = re.compile(
-    r"(^|\s)--(output|pre|ext-diff|pager|hostname-bin)(=|\s|$)"
+    r"(^|\s)--(output|pre|ext-diff|no-index|pager|hostname-bin)(=|\s|$)"
 )
 
 

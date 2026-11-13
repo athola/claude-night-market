@@ -1179,3 +1179,72 @@ class TestEnvironmentDumpsAsk:
         assert decision is None or decision.behavior != PermissionDecision.ALLOW, (
             command
         )
+
+
+class TestCredentialDirectoriesAndGitReaders:
+    """A credential directory or a git reader cannot bypass the deny list."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "grep -r . ~/.ssh",
+            'grep -r "" ~/.ssh',
+            "rg -uu . ~/.ssh",
+            "git diff HEAD -- .env",
+            "git log -p -- .env",
+        ],
+    )
+    def test_recursive_or_git_read_of_credentials_is_denied(self, command: str) -> None:
+        """~/.ssh without a trailing slash and git diff/log of .env are denied."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision.behavior == PermissionDecision.DENY, command
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "git diff --no-index /dev/null ~/.ssh/id_rsa",
+            "git diff --no-index a.txt /etc/hosts",
+        ],
+    )
+    def test_git_diff_no_index_is_not_auto_approved(self, command: str) -> None:
+        """--no-index reads arbitrary paths outside the repo."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is None or decision.behavior != PermissionDecision.ALLOW, (
+            command
+        )
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command", ["grep -r foo ./not.ssh.d", "git log --grep env", "git diff HEAD"]
+    )
+    def test_lookalike_paths_and_plain_git_reads_stay_allowed(
+        self, command: str
+    ) -> None:
+        """Widening the deny keeps ordinary searches and git reads approved."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision.behavior == PermissionDecision.ALLOW, command
+
+
+class TestUnboundedReadsAreNotAutoApproved:
+    """A read that never ends burns the Bash timeout instead of returning."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        ["cat /dev/zero", "cat /dev/urandom", "tail -f app.log", "tail -F app.log"],
+    )
+    def test_device_and_follow_reads_fall_through(self, command: str) -> None:
+        """Device files and follow mode go to the dialog."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is None or decision.behavior != PermissionDecision.ALLOW, (
+            command
+        )
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("command", ["tail -5 app.log", "cat notes.txt"])
+    def test_bounded_reads_stay_allowed(self, command: str) -> None:
+        """Bounded reads keep auto-approval."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision.behavior == PermissionDecision.ALLOW, command
