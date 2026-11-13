@@ -136,3 +136,11 @@ class TestMalformedCoordinates:
     def test_an_action_with_no_coordinate_still_passes(self) -> None:
         f = ActionFilter(blocked_regions=[(0, 0, 10, 10)])
         assert f.is_allowed({"action": "type", "text": "hi"}) is True
+
+
+class TestNonFiniteCoordinates:
+    """json.loads accepts Infinity and NaN, so a model can send them."""
+
+    @pytest.mark.parametrize("value", [float("inf"), float("-inf"), float("nan")])
+    def test_non_finite_coordinate_is_blocked_not_raised(self, value: float) -> None:
+        assert ActionFilter().is_allowed({"coordinate": [value, 1]}) is False
