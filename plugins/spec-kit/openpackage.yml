@@ -28,6 +28,7 @@ commands:
 - commands/speckit-checklist.md
 - commands/speckit-clarify.md
 - commands/speckit-constitution.md
+- commands/speckit-converge.md
 - commands/speckit-implement.md
 - commands/speckit-plan.md
 - commands/speckit-specify.md

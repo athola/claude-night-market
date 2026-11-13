@@ -36,6 +36,12 @@ claude plugins add spec-kit
 | `/speckit-analyze` | Analyze consistency across artifacts |
 | `/speckit-checklist` | Generate quality checklists for requirements |
 | `/speckit-constitution` | Manage project principles |
+| `/speckit-taskstoissues` | Convert tasks.md entries into GitHub issues |
+
+These commands track [github/spec-kit](https://github.com/github/spec-kit)
+v1.4.0. Upstream moved `taskstoissues` out of core into its `github`
+extension in v1.3.0. This plugin keeps it as a command because it ships
+no extension mechanism to move it into.
 
 ## Skills
 
