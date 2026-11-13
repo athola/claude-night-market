@@ -289,9 +289,13 @@ class DecayModel:
     def get_stale_entries(
         self,
         entries: list[dict[str, Any]],
-        threshold: float = STATUS_STALE_THRESHOLD,
+        threshold: float = STATUS_FRESH_THRESHOLD,
     ) -> list[DecayState]:
         """Get entries with decay below threshold.
+
+        The default returns every entry not fresh: "stale" covers
+        [STATUS_STALE_THRESHOLD, STATUS_FRESH_THRESHOLD), so defaulting to
+        the stale threshold returned only critical and archived entries.
 
         Args:
             entries: List of entry dicts with 'id' and 'maturity' keys. An
