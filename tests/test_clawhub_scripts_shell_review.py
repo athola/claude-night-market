@@ -22,6 +22,8 @@ import subprocess
 import time
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ("clawhub-batch-publish.sh", "clawhub-submit.sh", "clawhub-cron.sh")
 
@@ -174,3 +176,47 @@ def test_submit_reports_a_failed_package_publish_as_a_failure(
     assert result.returncode != 0, result.stdout
     assert "Status:  complete" not in result.stdout
     assert "package scope not claimed" in result.stdout + result.stderr
+
+
+@pytest.mark.parametrize("flag", ["--dry-run", "--status"])
+def test_read_only_modes_leave_the_progress_file_alone(
+    tmp_path: Path, flag: str
+) -> None:
+    """--dry-run said "no state changes" yet restarted another release's record."""
+    repo = _sandbox(tmp_path)
+    _skills(repo, 2)
+    progress = repo / ".egregore" / "clawhub-progress.json"
+    progress.parent.mkdir()
+    progress.write_text(
+        json.dumps(
+            {
+                "version": "1.9.0",
+                "total": 2,
+                "published": ["skill-0"],
+                "failed": [],
+                "pending": ["skill-1"],
+                "batches_completed": 1,
+            }
+        )
+    )
+    before = progress.read_bytes()
+    shims = _shims(tmp_path, npx="exit 0")
+
+    result = _run(repo, "clawhub-batch-publish.sh", shims, flag)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert progress.read_bytes() == before
+
+
+def test_a_non_numeric_batch_size_is_refused(tmp_path: Path) -> None:
+    repo = _sandbox(tmp_path)
+    _skills(repo, 2)
+    result = _run(
+        repo,
+        "clawhub-batch-publish.sh",
+        _shims(tmp_path, npx="exit 0"),
+        "--batch-size",
+        "ten",
+    )
+    assert result.returncode != 0
+    assert "Traceback" not in result.stderr

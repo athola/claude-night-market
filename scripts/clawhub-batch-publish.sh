@@ -114,6 +114,12 @@ parse_args() {
         ;;
     esac
   done
+  case "${BATCH_SIZE}" in
+    "" | *[!0-9]* | 0)
+      log 4 "--batch-size must be a positive whole number, got '${BATCH_SIZE}'"
+      exit 1
+      ;;
+  esac
 }
 
 # `env` sets the variables the Python programs read, because the shell
@@ -141,13 +147,18 @@ build_export_if_needed() {
 
 # A finished run for an earlier release leaves pending=[] behind, and
 # reusing it published nothing for the new one.
-init_progress_if_stale() {
-  local semver="${1:?init_progress_if_stale needs a semver}"
-  if ! env PROGRESS_FILE="${PROGRESS_FILE}" SEMVER="${semver}" python3 -c "
+progress_is_current() {
+  local semver="${1:?progress_is_current needs a semver}"
+  env PROGRESS_FILE="${PROGRESS_FILE}" SEMVER="${semver}" python3 -c "
 import json, os, sys
 p = json.load(open(os.environ['PROGRESS_FILE']))
 sys.exit(0 if p.get('version') == os.environ['SEMVER'] else 1)
-" 2>/dev/null; then
+" 2>/dev/null
+}
+
+init_progress_if_stale() {
+  local semver="${1:?init_progress_if_stale needs a semver}"
+  if ! progress_is_current "${semver}"; then
     env SKILLS_DIR="${SKILLS_DIR}" SEMVER="${semver}" PROGRESS_FILE="${PROGRESS_FILE}" python3 -c "
 import json, os
 from pathlib import Path
@@ -309,7 +320,7 @@ print(f'Remaining: {len(progress[\"pending\"])} pending, {len(progress[\"failed\
 }
 
 main() {
-  local semver batch_report
+  local semver
 
   parse_args "$@"
 
@@ -321,16 +332,22 @@ main() {
   detect_version
   semver="${VERSION#v}"
 
-  build_export_if_needed
-  init_progress_if_stale "${semver}"
-
+  # --status and --dry-run change nothing: they read the progress file
+  # and stop before the export is built or a stale record is restarted.
+  case "${STATUS_ONLY}${DRY_RUN}" in
+    *true*)
+      if ! progress_is_current "${semver}"; then
+        log "No progress recorded for ${semver}; a publish run starts one."
+        exit 0
+      fi
+      ;;
+  esac
   case "${STATUS_ONLY}" in
     true)
       show_status
       exit 0
       ;;
   esac
-
   case "${DRY_RUN}" in
     true)
       preview_batch
@@ -338,12 +355,19 @@ main() {
       ;;
   esac
 
-  batch_report=$(publish_batch "${semver}")
-  printf '%s\n' "${batch_report}"
+  build_export_if_needed
+  init_progress_if_stale "${semver}"
+
+  # Streamed as it runs: a batch takes minutes, and a crash must not
+  # discard the OK and FAIL lines already printed.
+  # Global: the EXIT trap runs after main's locals are gone.
+  BATCH_REPORT="$(mktemp)"
+  trap 'rm -f "${BATCH_REPORT}"' EXIT
+  publish_batch "${semver}" | tee "${BATCH_REPORT}"
 
   # Exit with failure if no skills published this batch. Anchored on the
   # batch line: a bare "0 ok" also matched "10 ok".
-  if printf '%s\n' "${batch_report}" | grep -qE '^Batch [0-9]+ \([a-z]+\): 0 ok,'; then
+  if grep -qE '^Batch [0-9]+ \([a-z]+\): 0 ok,' "${BATCH_REPORT}"; then
     log 4 "No skills published in this batch."
     exit 1
   fi
