@@ -976,3 +976,45 @@ class TestWebhookAddressPinning:
         with patch("socket.getaddrinfo", return_value=mixed):
             with pytest.raises(WebhookURLError, match="192.168.1.1"):
                 validate_webhook_url("https://example.com/hook")
+
+
+class TestWebhookFailuresAndSecrets:
+    """HTTP errors fail the send; the secret URL path never leaks."""
+
+    _PUBLIC = [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 0))]
+    _URL = "https://example.com/services/T000/B000/SECRETTOKEN"
+
+    @patch("subprocess.run")
+    def test_curl_fails_on_http_error_status(self, mock_run: MagicMock) -> None:
+        """Without --fail curl exits 0 on a 404 from a revoked webhook."""
+        mock_run.return_value = MagicMock(returncode=0)
+        with patch("socket.getaddrinfo", return_value=self._PUBLIC):
+            send_webhook(url=self._URL, event=AlertEvent.CRASH)
+        assert "--fail" in mock_run.call_args[0][0]
+
+    def test_out_of_range_port_is_a_rejected_url(self) -> None:
+        with pytest.raises(WebhookURLError):
+            validate_webhook_url("https://example.com:99999/hook")
+
+    def test_out_of_range_port_returns_false_from_send(self) -> None:
+        """The documented contract is True/False, not an exception."""
+        with patch("socket.getaddrinfo", return_value=self._PUBLIC):
+            assert (
+                send_webhook("https://example.com:99999/hook", AlertEvent.CRASH)
+                is False
+            )
+
+    @patch("subprocess.run")
+    def test_secret_path_is_not_in_argv_or_logs(
+        self, mock_run: MagicMock, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """The path is the credential; argv is visible to other local users."""
+        mock_run.return_value = MagicMock(returncode=0)
+        with (
+            patch("socket.getaddrinfo", return_value=self._PUBLIC),
+            caplog.at_level("DEBUG"),
+        ):
+            assert send_webhook(url=self._URL, event=AlertEvent.CRASH)
+        assert not any("SECRETTOKEN" in arg for arg in mock_run.call_args[0][0])
+        assert "SECRETTOKEN" in mock_run.call_args[1]["input"]
+        assert "SECRETTOKEN" not in caplog.text

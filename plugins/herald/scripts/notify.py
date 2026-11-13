@@ -55,6 +55,11 @@ def validate_webhook_url(url: str) -> str:
         )
 
     hostname = parsed.hostname or ""
+    # urlparse checks the port's range only when it is read.
+    try:
+        _ = parsed.port
+    except ValueError as exc:
+        raise WebhookURLError(f"Webhook URL has an invalid port: {exc}") from exc
 
     # Reject empty hostname
     if not hostname:
@@ -246,10 +251,17 @@ def _post(url: str, payload: dict[str, str]) -> bool:
         pinned = f"[{pinned}]"
     resolve_pin = f"{parsed.hostname}:{parsed.port or 443}:{pinned}"
 
+    # --fail makes an HTTP error status a nonzero exit: a revoked webhook
+    # answers 404 and curl would otherwise exit 0. The URL goes in on
+    # stdin through --config because its path is the credential, and
+    # argv is visible to every local user.
     cmd: list[str] = [
         "curl",
         "-s",
         "-S",
+        "--fail",
+        "--config",
+        "-",
         "-X",
         "POST",
         "-H",
@@ -258,12 +270,13 @@ def _post(url: str, payload: dict[str, str]) -> bool:
         json.dumps(payload),
         "--resolve",
         resolve_pin,
-        url,
     ]
+    escaped = url.replace("\\", "\\\\").replace('"', '\\"')
 
     try:
         result = subprocess.run(
             cmd,
+            input=f'url = "{escaped}"\n',
             capture_output=True,
             text=True,
             timeout=15,
@@ -276,7 +289,7 @@ def _post(url: str, payload: dict[str, str]) -> bool:
                 result.stderr.strip(),
             )
             return False
-        logger.info("Webhook sent to %s", url)
+        logger.info("Webhook sent to %s", parsed.hostname)
         return True
     except FileNotFoundError:
         logger.error("curl not found. Cannot send webhook.")
