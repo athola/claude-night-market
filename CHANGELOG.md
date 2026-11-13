@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.10.3] - 2026-11-13
 
+### Removed
+
+- **Code nothing called.** abstract's `ErrorHandler`, `ToolError` and
+  `ErrorSeverity`, and the `error_handler` properties on
+  `AbstractScript` and `AbstractCLI`; conserve's
+  `area_agent_registry.py`; memory-palace's `TierManager` with
+  `assign_tier`, `get_tier` and the `tier_assignments` table. Each had
+  tests and no caller.
+
+### Fixed
+
+- **`/reinstall-all-plugins` and `/update-all-plugins` ran scripts at
+  one developer's home path** and failed everywhere else. They use
+  `${CLAUDE_PLUGIN_ROOT}` now, as does the plugin-validator agent.
+- **opkg installs missed 37 skills, commands and agents** that 12
+  plugins registered in `plugin.json` but not `openpackage.yml`. A root
+  test now compares the two for every plugin.
+
 ### Changed
 
 - **spec-kit tracks upstream v1.4.0** (from v0.5.0). The constitution
