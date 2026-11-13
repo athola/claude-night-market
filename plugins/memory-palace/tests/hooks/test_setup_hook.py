@@ -145,3 +145,73 @@ def test_init_creates_the_palace_in_a_git_worktree(tmp_path: Path) -> None:
     (project / ".git").write_text("gitdir: /elsewhere/.git/worktrees/project\n")
     _context(_run("init", tmp_path))
     assert (project / ".claude" / "palace").is_dir()
+
+
+@pytest.mark.unit
+def test_maintenance_trigger_is_read_without_jq(tmp_path: Path) -> None:
+    """Without jq the trigger stayed "init", so --maintenance never ran."""
+    shims = tmp_path / "bin"
+    shims.mkdir()
+    for tool in (
+        "bash",
+        "sed",
+        "find",
+        "wc",
+        "tr",
+        "date",
+        "mkdir",
+        "cat",
+        "dirname",
+        "git",
+        "python3",
+        "printf",
+        "ls",
+        "rm",
+        "mv",
+        "head",
+        "grep",
+        "readlink",
+        "uname",
+        "pwd",
+        "awk",
+        "cut",
+        "sort",
+    ):
+        found = shutil.which(tool)
+        if found:
+            (shims / tool).symlink_to(found)
+    env = os.environ.copy()
+    env.update(
+        HOME=str(tmp_path),
+        CLAUDE_PROJECT_DIR=str(tmp_path / "project"),
+        PATH=str(shims),
+    )
+    env.pop("CLAUDE_ENV_FILE", None)
+    (tmp_path / "project").mkdir()
+    result = subprocess.run(
+        [str(shims / "bash"), str(HOOK_SCRIPT)],
+        input=json.dumps({"trigger": "maintenance"}) + "\n",
+        capture_output=True,
+        text=True,
+        cwd=str(tmp_path / "project"),
+        env=env,
+        timeout=60,
+        check=False,
+    )
+    assert "maintenance" in _context(result).splitlines()[0]
+
+
+@pytest.mark.unit
+def test_an_unreadable_capture_subdirectory_does_not_abort_maintenance(
+    tmp_path: Path,
+) -> None:
+    """Find exits 1 on it, which pipefail turned into a hook with no JSON."""
+    locked = tmp_path / ".claude" / "web-captures" / "locked"
+    locked.mkdir(parents=True)
+    locked.chmod(0)
+    try:
+        result = _run("maintenance", tmp_path)
+    finally:
+        locked.chmod(0o755)
+    assert result.returncode == 0, result.stderr
+    json.loads(result.stdout)

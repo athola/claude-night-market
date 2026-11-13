@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -157,3 +158,38 @@ def test_a_dangling_symlink_under_home_pointing_outside_is_not_followed(
     assert result.returncode == 0, result.stderr
     assert "escapes allowed dirs" in result.stderr
     assert not outside.exists()
+
+
+@pytest.mark.unit
+def test_maintenance_trigger_is_read_without_jq(tmp_path: Path) -> None:
+    """Without jq the trigger stayed "init", so maintenance never ran."""
+    shims = tmp_path / "bin"
+    shims.mkdir()
+    for tool in (
+        "sed",
+        "find",
+        "wc",
+        "tr",
+        "date",
+        "mkdir",
+        "cat",
+        "dirname",
+        "readlink",
+        "pwd",
+        "printf",
+        "ls",
+        "rm",
+        "head",
+        "grep",
+        "uname",
+        "awk",
+        "cut",
+        "sort",
+        "python3",
+    ):
+        found = shutil.which(tool)
+        if found:
+            (shims / tool).symlink_to(found)
+    result = _run("maintenance", tmp_path, path=str(shims))
+    context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
+    assert "maintenance" in context.splitlines()[0]

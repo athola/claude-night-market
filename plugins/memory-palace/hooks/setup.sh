@@ -50,6 +50,10 @@ main() {
   if read -t 1 -r HOOK_INPUT 2>/dev/null || [[ -n "${HOOK_INPUT}" ]]; then
     if command -v jq >/dev/null 2>&1; then
       TRIGGER_TYPE=$(printf '%s\n' "${HOOK_INPUT}" | jq -r '.trigger // "init"' 2>/dev/null || printf '%s\n' "init")
+    else
+      # Without jq, --maintenance used to run the init branch.
+      TRIGGER_TYPE=$(printf '%s\n' "${HOOK_INPUT}" | sed -n 's/.*"trigger"[[:space:]]*:[[:space:]]*"\([A-Za-z_-]*\)".*/\1/p')
+      TRIGGER_TYPE="${TRIGGER_TYPE:-init}"
     fi
   fi
 
@@ -155,12 +159,12 @@ $(printf '  - %s\n' "${init_tasks[@]+"${init_tasks[@]}"}")"
 
       # 1. Clean stale web captures (older than 30 days, pending_review status)
       if [ -d "${WEB_CAPTURES_DIR}" ]; then
-        stale_count=$(find "${WEB_CAPTURES_DIR}" -name "*.md" -type f -mtime +30 2>/dev/null | wc -l | tr -d ' ')
+        stale_count=$({ find "${WEB_CAPTURES_DIR}" -name "*.md" -type f -mtime +30 2>/dev/null || true; } | wc -l | tr -d ' ')
         if [ "${stale_count}" -gt 0 ]; then
           # Move to compost, don't delete
           COMPOST_DIR="${GARDEN_ROOT}/compost/web-captures-$(date +%Y%m%d)"
           mkdir -p "${COMPOST_DIR}"
-          find "${WEB_CAPTURES_DIR}" -name "*.md" -type f -mtime +30 -exec mv {} "${COMPOST_DIR}/" \; 2>/dev/null || true
+          find "${WEB_CAPTURES_DIR}" -name "*.md" -type f -mtime +30 -exec mv -n {} "${COMPOST_DIR}/" \; 2>/dev/null || true
           maint_tasks+=("Composted ${stale_count} stale web captures (>30 days)")
         else
           maint_tasks+=("Web captures: no stale entries")
@@ -169,7 +173,7 @@ $(printf '  - %s\n' "${init_tasks[@]+"${init_tasks[@]}"}")"
 
       # 2. Rotate skill logs (keep last 90 days)
       if [ -d "${SKILL_LOGS_ROOT}" ]; then
-        old_logs=$(find "${SKILL_LOGS_ROOT}" -name "*.jsonl" -type f -mtime +90 2>/dev/null | wc -l | tr -d ' ')
+        old_logs=$({ find "${SKILL_LOGS_ROOT}" -name "*.jsonl" -type f -mtime +90 2>/dev/null || true; } | wc -l | tr -d ' ')
         if [ "${old_logs}" -gt 0 ]; then
           find "${SKILL_LOGS_ROOT}" -name "*.jsonl" -type f -mtime +90 -delete 2>/dev/null || true
           maint_tasks+=("Deleted ${old_logs} skill log files (>90 days)")
@@ -209,7 +213,7 @@ $(printf '  - %s\n' "${init_tasks[@]+"${init_tasks[@]}"}")"
 
       # 4. Check for duplicate web captures
       if [ -d "${WEB_CAPTURES_DIR}" ] && command -v md5sum >/dev/null 2>&1; then
-        dupes=$(find "${WEB_CAPTURES_DIR}" -name "*.md" -type f -exec md5sum {} \; 2>/dev/null |
+        dupes=$({ find "${WEB_CAPTURES_DIR}" -name "*.md" -type f -exec md5sum {} \; 2>/dev/null || true; } |
           awk '{print $1}' | sort | uniq -d | wc -l | tr -d ' ')
         if [ "${dupes}" -gt 0 ]; then
           maint_tasks+=("Found ${dupes} potential duplicate captures (manual review recommended)")

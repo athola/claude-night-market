@@ -34,6 +34,10 @@ main() {
   if read -t 1 -r HOOK_INPUT 2>/dev/null || [[ -n "${HOOK_INPUT}" ]]; then
     if command -v jq >/dev/null 2>&1; then
       TRIGGER_TYPE=$(printf '%s\n' "${HOOK_INPUT}" | jq -r '.trigger // "init"' 2>/dev/null || printf '%s\n' "init")
+    else
+      # Without jq, --maintenance used to run the init branch.
+      TRIGGER_TYPE=$(printf '%s\n' "${HOOK_INPUT}" | sed -n 's/.*"trigger"[[:space:]]*:[[:space:]]*"\([A-Za-z_-]*\)".*/\1/p')
+      TRIGGER_TYPE="${TRIGGER_TYPE:-init}"
     fi
   fi
 
@@ -43,6 +47,9 @@ main() {
 
   # Project directory from environment or current working directory
   PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+  # Resolved like the state path it is compared with, so a symlinked
+  # project (/tmp to /private/tmp) is not rejected.
+  PROJECT_DIR="$(cd "${PROJECT_DIR}" 2>/dev/null && pwd -P || printf '%s\n' "${PROJECT_DIR}")"
 
   # Setup context message
   setup_context=""
@@ -159,7 +166,7 @@ $(printf '  - %s\n' "${setup_tasks[@]}")"
       # 1. Clean up old session state backups
       SESSION_STATE_DIR="${PROJECT_DIR}/.claude"
       if [ -d "${SESSION_STATE_DIR}" ]; then
-        backup_count=$(find "${SESSION_STATE_DIR}" -name "session-state*.bak" -type f 2>/dev/null | wc -l | tr -d ' ')
+        backup_count=$({ find "${SESSION_STATE_DIR}" -name "session-state*.bak" -type f 2>/dev/null || true; } | wc -l | tr -d ' ')
         if [ "${backup_count}" -gt 0 ]; then
           find "${SESSION_STATE_DIR}" -name "session-state*.bak" -type f -mtime +7 -delete 2>/dev/null || true
           maintenance_tasks+=("Cleaned session state backups older than 7 days")
