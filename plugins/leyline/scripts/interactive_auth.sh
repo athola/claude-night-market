@@ -19,12 +19,15 @@ AUTH_SESSION_TTL="${AUTH_SESSION_TTL:-86400}" # 24 hours
 AUTH_INTERACTIVE="${AUTH_INTERACTIVE:-auto}"
 AUTH_MAX_ATTEMPTS="${AUTH_MAX_ATTEMPTS:-3}"
 
-# Associative arrays need bash 4. On bash 3.2 (stock macOS) `declare -A`
-# is a parse error mid-source with no message naming the cause.
-if [ "${BASH_VERSINFO[0]:-0}" -lt 4 ]; then
-  printf 'interactive_auth.sh needs bash 4 or newer (found %s)\n' "${BASH_VERSION:-unknown}" >&2
-  return 1 2>/dev/null || exit 1
-fi
+# Global associative arrays need bash 4.2 (`declare -gA`). On bash 3.2
+# (stock macOS) `declare -A` is a parse error mid-source with no message
+# naming the cause.
+case "${BASH_VERSINFO[0]:-0}.${BASH_VERSINFO[1]:-0}" in
+  [0-3].* | 4.[01])
+    printf 'interactive_auth.sh needs bash 4.2 or newer (found %s)\n' "${BASH_VERSION:-unknown}" >&2
+    return 1 2>/dev/null || exit 1
+    ;;
+esac
 
 # The plugin installs without the repository's scripts/logging.sh, so this
 # stands in for its log() when the caller has loaded neither it nor a log().
@@ -60,16 +63,18 @@ depcheck() {
 depcheck || return 1 2>/dev/null || exit 1
 
 # Service-specific auth commands
-declare -A AUTH_CHECK_COMMANDS=(
+# -g: sourced from inside a caller's function, a plain declare made
+# these local and ensure_auth reported every service unsupported.
+declare -gA AUTH_CHECK_COMMANDS=(
   [github]="gh auth status"
   [gitlab]="glab auth status"
   [aws]="aws sts get-caller-identity"
-  [gcloud]="gcloud auth list --filter=account:* --format=csv"
+  [gcloud]="gcloud auth print-access-token"
   [azure]="az account show"
 )
 
 # Service-specific login commands
-declare -A AUTH_LOGIN_COMMANDS=(
+declare -gA AUTH_LOGIN_COMMANDS=(
   [github]="gh auth login"
   [gitlab]="glab auth login"
   [aws]="aws configure"
