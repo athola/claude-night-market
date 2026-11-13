@@ -343,3 +343,29 @@ class TestIndexRetitleRepairsNonTitles:
 
         assert cli.index_retitle(apply=True) is True
         assert "Nothing to retitle." in capsys.readouterr().out
+
+
+class TestCapturesResolveAgainstTheDataRoot:
+    """In an install, stored_at is relative to the persistent data root."""
+
+    def test_report_finds_captures_under_the_data_root(
+        self,
+        cli,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """GIVEN an install tree with no captures and a data root holding them
+        WHEN index_report runs
+        THEN no entry reads as orphaned
+        """
+        data_root = tmp_path / "data-root"
+        cli.plugin_dir = tmp_path / "install"
+        cli.plugin_dir.mkdir()
+        monkeypatch.setenv("MEMORY_PALACE_DATA_DIR", str(data_root))
+        _write_index(data_root, {"https://example.com/a": _entry("a")})
+        (data_root / "data" / "staging" / "a.md").write_text("x", encoding="utf-8")
+
+        assert cli.index_report(output_format="json") is True
+
+        assert json.loads(capsys.readouterr().out)["orphan_count"] == 0
