@@ -23,6 +23,7 @@ except ImportError:
     yaml = None
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from typing import Any
 
 # hooks/shared/ -> the plugin root's src/. Hooks already put this on the
@@ -34,6 +35,12 @@ if _SRC not in sys.path:
 
 from memory_palace._vendored_leyline_atomic_file import write_atomic
 from memory_palace.paths import persistent_root as _persistent_root
+
+fcntl: ModuleType | None
+try:
+    import fcntl
+except ImportError:  # Windows has no flock: index writes run unlocked there.
+    fcntl = None
 
 # Try to use xxhash for speed, fall back to hashlib
 try:
@@ -348,75 +355,96 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
 
     global _index_cache, _index_mtime, _index_load_failed  # noqa: PLW0603 - invalidate module-level cache after disk write
 
-    index = _load_index()
-    now = datetime.now(timezone.utc).isoformat()
+    with _index_lock():
+        # Another process may have written since this one cached the
+        # index: reload under the lock so its entries are kept.
+        _index_cache = None
+        index = _load_index()
+        now = datetime.now(timezone.utc).isoformat()
 
-    # The index is content-addressed: one piece of content is stored in one
-    # file. When these bytes are already stored, the entry adopts that
-    # canonical location instead of overwriting the mapping with a
-    # private copy - the write that used to leave an earlier entry
-    # pointing at a path `hashes` no longer agreed with.
-    stored_at = index["hashes"].setdefault(content_hash, stored_at)
+        # The index is content-addressed: one piece of content is stored in one
+        # file. When these bytes are already stored, the entry adopts that
+        # canonical location instead of overwriting the mapping with a
+        # private copy - the write that used to leave an earlier entry
+        # pointing at a path `hashes` no longer agreed with.
+        stored_at = index["hashes"].setdefault(content_hash, stored_at)
 
-    entry = {
-        "content_hash": content_hash,
-        "stored_at": stored_at,
-        "importance_score": importance_score,
-        "last_updated": now,
-    }
+        entry = {
+            "content_hash": content_hash,
+            "stored_at": stored_at,
+            "importance_score": importance_score,
+            "last_updated": now,
+        }
 
-    if title:
-        entry["title"] = title
+        if title:
+            entry["title"] = title
 
-    # Align with knowledge-intake evaluation schema
-    if maturity:
-        entry["maturity"] = maturity  # seedling, growing, evergreen
-    if routing_type:
-        entry["routing_type"] = routing_type  # local, meta, both
-    if null_capture:
-        entry["null_capture"] = null_capture
+        # Align with knowledge-intake evaluation schema
+        if maturity:
+            entry["maturity"] = maturity  # seedling, growing, evergreen
+        if routing_type:
+            entry["routing_type"] = routing_type  # local, meta, both
+        if null_capture:
+            entry["null_capture"] = null_capture
 
-    key: str | None = None
-    if url:
-        key = get_url_key(url)
-        entry["url"] = url
-    elif path:
-        key = str(Path(path).resolve())
-        entry["path"] = path
-
-    if key is not None:
-        superseded = index["entries"].get(key, {}).get("content_hash")
+        key: str | None = None
         if url:
-            # An entry kept under the legacy lowercase key moves to the new
-            # key, so the write leaves no orphan twin behind.
-            legacy = index["entries"].pop(_legacy_url_key(url), None)
-            if legacy is not None and key != _legacy_url_key(url):
-                superseded = superseded or legacy.get("content_hash")
-        index["entries"][key] = entry
-        _drop_unreferenced_hash(index, superseded, content_hash)
+            key = get_url_key(url)
+            entry["url"] = url
+        elif path:
+            key = str(Path(path).resolve())
+            entry["path"] = path
 
-    # Atomic write back using tempfile + rename
-    if yaml is None:
-        # Cannot persist without yaml - cache only
-        _warn_no_yaml_once()
+        if key is not None:
+            superseded = index["entries"].get(key, {}).get("content_hash")
+            if url:
+                # An entry kept under the legacy lowercase key moves to the new
+                # key, so the write leaves no orphan twin behind.
+                legacy = index["entries"].pop(_legacy_url_key(url), None)
+                if legacy is not None and key != _legacy_url_key(url):
+                    superseded = superseded or legacy.get("content_hash")
+            index["entries"][key] = entry
+            _drop_unreferenced_hash(index, superseded, content_hash)
+
+        # Atomic write back using tempfile + rename
+        if yaml is None:
+            # Cannot persist without yaml - cache only
+            _warn_no_yaml_once()
+            _index_cache = index
+            return
+
+        index_path = _get_index_path()
+        index_path.parent.mkdir(parents=True, exist_ok=True)
+        if _index_load_failed:
+            _set_aside_corrupt_index(index_path)
+            _index_load_failed = False
+
+        write_atomic(
+            index_path, yaml.safe_dump(index, default_flow_style=False, sort_keys=False)
+        )
+
+        _stage_index(index_path)
+
+        # Update cache
         _index_cache = index
-        return
+        _index_mtime = index_path.stat().st_mtime
 
+
+@contextlib.contextmanager
+def _index_lock() -> Iterator[None]:
+    """Hold an exclusive lock across one load-modify-write of the index.
+
+    Parallel WebFetch calls run one hook process each. ``write_atomic``
+    keeps the file whole but cannot stop the last writer from dropping
+    entries the others added, which left staged captures no index entry
+    points at.
+    """
     index_path = _get_index_path()
     index_path.parent.mkdir(parents=True, exist_ok=True)
-    if _index_load_failed:
-        _set_aside_corrupt_index(index_path)
-        _index_load_failed = False
-
-    write_atomic(
-        index_path, yaml.safe_dump(index, default_flow_style=False, sort_keys=False)
-    )
-
-    _stage_index(index_path)
-
-    # Update cache
-    _index_cache = index
-    _index_mtime = index_path.stat().st_mtime
+    with open(index_path.with_name(index_path.name + ".lock"), "a") as lock_file:
+        if fcntl is not None:
+            fcntl.flock(lock_file, fcntl.LOCK_EX)
+        yield
 
 
 def _stage_index(index_path: Path) -> None:

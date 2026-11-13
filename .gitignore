@@ -43,6 +43,8 @@ wheels/
 # outlive every append. The bare .lock above matches a file named .lock,
 # not this suffix.
 *.md.lock
+# The capture index lock: deduplication.update_index flocks it per write.
+memory-palace-index.yaml.lock
 
 # Mod type declarations: Claude Code writes these beside a mod it loads
 # from --plugin-dir, stamped with its own version, and rewrites them on
