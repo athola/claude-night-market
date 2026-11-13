@@ -178,7 +178,7 @@ have no Discussions equivalent, so skip with a warning there.
 
 ## Decision journal (leyline:decision-journal contract)
 
-The contract lives in
+The contract is in
 `plugins/leyline/skills/decision-journal/SKILL.md`. Two append-only
 logs, co-located with the code:
 

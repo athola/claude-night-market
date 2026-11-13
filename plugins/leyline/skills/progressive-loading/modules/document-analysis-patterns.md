@@ -120,11 +120,10 @@ downstream parsing.
 3. **Re-summarizing on every turn**: If the document has not
    changed, the summary is stable. Cache by file mtime.
 4. **Losing tables to byte-chunking**: Tables and code blocks
-   are atomic units. Chunk by heading boundaries, not by byte
-   count.
+   are atomic units. Chunk by heading boundaries.
 5. **Skipping decision extraction for meeting notes**: Meeting
-   notes without an explicit decision pass produce a recap, not
-   a useful digest. Always load `decision-extraction.md` for
+   notes without an explicit decision pass produce a recap with
+   no decisions in it. Always load `decision-extraction.md` for
    that document type.
 
 ## Cross-Reference

@@ -52,7 +52,7 @@ route.
 - A failure this repository actually hit, is documented, and recurred
 
 The last one carries a burden of proof. "A model might get this wrong"
-is not evidence; a linked issue or journal entry is. Without one, write
+is not evidence. A linked issue or journal entry is. Without one, write
 it as a default and let the model decide.
 
 ### What does not

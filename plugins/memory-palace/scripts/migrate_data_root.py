@@ -12,7 +12,7 @@ The files simply stopped having an address anyone held.
 ``memory_palace.paths`` fixes new writes. It cannot fix the trees already
 written, and it deliberately does not try. Every stranded capture carries
 ``status: pending_review``, so merging one tree into another decides what
-a person will be asked to curate. That is an operator's call, so it lives
+a person will be asked to curate. That is an operator's call, so it belongs
 in a script they run rather than in a hook that runs itself.
 
 Three properties make the merge safe to attempt:
@@ -22,14 +22,14 @@ Three properties make the merge safe to attempt:
   afterwards can be walked back by hand.
 - It never overwrites. A destination file that already exists wins. When
   its bytes match the source the file is counted as already migrated,
-  which keeps a verification re-run quiet; when they differ it is
+  which keeps a verification re-run quiet. When they differ it is
   reported for a person to adjudicate rather than resolved silently.
 
 The capture index is carried under the same never-overwrite rule as
 everything else, because nothing regenerates it. It holds per-entry
 metadata the captures do not: importance scores, routing status,
 ``null_capture`` reasons. ``build_indexes.py`` sounds like the recovery
-path and is not -- it writes ``data/indexes/keyword-index.yaml``, the
+path and is not: it writes ``data/indexes/keyword-index.yaml``, the
 corpus keyword index, which is a different artifact. So the newest
 tree's capture index is copied when the destination has none, older
 ones are reported rather than merged, and the plan says to rebuild the
@@ -64,7 +64,7 @@ DEFAULT_PLUGIN = "memory-palace"
 _CAPTURE_INDEX = Path("hooks") / "memory-palace-index.yaml"
 
 #: Conflicts listed before the report truncates. A plan over the trees on
-#: the machine this was written on reports six; a pathological one should
+#: the machine this was written on reports six. A pathological one should
 #: not bury the rebuild instruction under its own output.
 MAX_LISTED_CONFLICTS = 10
 

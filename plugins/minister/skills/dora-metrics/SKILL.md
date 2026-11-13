@@ -131,7 +131,7 @@ and verify the `bug` (or chosen) label is correct on each.
 
 ## Testing
 
-Unit tests live in
+Unit tests are in
 `plugins/minister/tests/unit/test_dora_metrics.py`. Each tier
 boundary is exercised at the threshold, so future contributors who
 adjust an inequality (`>` vs `>=`) trigger a failure rather than a

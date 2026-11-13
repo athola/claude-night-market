@@ -4,6 +4,9 @@ Title: name what breaks.
 
 The External half of the Where row and the Migration guide are not
 optional in this template.
+
+Outside contributors: name the AI tool you used and how far it went,
+or say you used none (CONSTITUTION.md rule 1).
 -->
 
 | | |

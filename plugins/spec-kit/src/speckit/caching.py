@@ -190,7 +190,7 @@ class SpecKitCache:
             self._cache_timestamps.pop(k, None)
 
         # On disk only the category component of a key is readable, so a
-        # prefix is matched by its category; a finer prefix clears the
+        # prefix is matched by its category. A finer prefix clears the
         # whole category's files and leaves the memory cache exact. A
         # prefix with no ":" may end mid-category ("spec" for "specs:x"),
         # so it globs open-ended rather than requiring the "_" separator.
@@ -241,7 +241,13 @@ def cached(
     Args:
         ttl: Time to live in seconds
         key: Custom cache key (defaults to function name)
-        data_arg: Argument name to include in cache key
+        data_arg: Argument name to include in cache key. When omitted,
+            every positional and keyword argument is part of the key,
+            through its repr. An argument whose repr carries its id, such
+            as a method's ``self``, keys differently in every process, so
+            name a stable argument here for those.
+            Results round-trip through JSON on disk, so a tuple comes
+            back as a list after a restart.
         key_prefix: Prefix applied to the key after the default is
             resolved, so a category reaches entries keyed by function name
 
@@ -257,18 +263,24 @@ def cached(
             if key_prefix:
                 cache_key = f"{key_prefix}:{cache_key}"
 
-            # Include specific argument in key if specified
-            cache_data = None
-            if data_arg:
-                if data_arg in kwargs:
-                    cache_data = kwargs[data_arg]
-                else:
-                    # Try to get from positional args
-                    arg_names = func.__code__.co_varnames
-                    if data_arg in arg_names:
-                        arg_index = arg_names.index(data_arg)
-                        if arg_index < len(args):
-                            cache_data = args[arg_index]
+            # Include specific argument in key if specified. Without one, the
+            # whole call is the key: keying on the function name alone
+            # returned the first call's result for every later argument.
+            # A call with no arguments keeps the bare key, which is what a
+            # caller reading the entry back by key alone expects.
+            cache_data: Any = None
+            if not data_arg:
+                if args or kwargs:
+                    cache_data = repr((args, sorted(kwargs.items())))
+            elif data_arg in kwargs:
+                cache_data = kwargs[data_arg]
+            else:
+                # Try to get from positional args
+                arg_names = func.__code__.co_varnames
+                if data_arg in arg_names:
+                    arg_index = arg_names.index(data_arg)
+                    if arg_index < len(args):
+                        cache_data = args[arg_index]
 
             # Try to get from cache
             cached_result = cache.get(cache_key, cache_data, ttl, default=_MISSING)

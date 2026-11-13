@@ -600,7 +600,7 @@ workflow below.
 
 #### Concise Mode (`--concise`)
 
-Post each finding that sits on a diff line as a suggestion block, on
+Post each finding that targets a diff line as a suggestion block, on
 GitHub through the reviews API below and on GitLab through a
 positioned discussion. Add a sentence beside the block only where the
 change would otherwise puzzle the author. Findings that fit no

@@ -65,7 +65,7 @@ Expert agent for detailed pull request preparation and documentation.
 - Imperative title writing
 - Blast radius identification (internal files, external consumers)
 - Rollout and integration timing (flags, migration windows)
-- Breaking change highlighting
+- Breaking change callouts
 - Migration step documentation
 - Dependency update notes
 
@@ -81,6 +81,10 @@ Expert agent for detailed pull request preparation and documentation.
 ### PR Template
 
 Section names come from `sanctum:pr-prep/modules/pr-template.md`.
+
+Project template first: when the project's merged, human-edited
+descriptions share a shape, use theirs and the rules in that module's
+"Project template first" section. The list below is the default.
 
 - Imperative, self-contained title (doubles as the summary)
 - Facts table: Who, Where (internal and external), When

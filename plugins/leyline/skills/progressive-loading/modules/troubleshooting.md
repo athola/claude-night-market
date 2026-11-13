@@ -154,7 +154,7 @@ The hub picks the tier based on signals from the user.
    bisect will mark commits randomly as good or bad. Stabilize
    the test first or skip bisection for that bug class.
 5. **Reading the wrong error**: Long pipelines (CI, hooks,
-   subagent dispatch) show errors from the wrapper, not the
+   subagent dispatch) show the wrapper's error and hide the
    root cause. Drill to the deepest stack frame before
    forming a hypothesis.
 

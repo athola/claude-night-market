@@ -184,7 +184,7 @@ isolation tests:
 **File size as design signal**: Files exceeding 500 lines
 (Python/Go) or 300 lines (JavaScript/TypeScript) often
 indicate a unit is doing too much. This is a design
-smell, not just a style issue. When flagging large files,
+smell. When flagging large files,
 suggest extracting specific concerns (e.g., "Extract
 validation logic into a separate module to improve
 testability").
@@ -278,10 +278,10 @@ alternatives weighed, and what was given up. Draft and confirm:
   it to append a tradeoff entry. The Phase 5 fields map directly: Selected
   Approach to `decision`, the rationale to a Y-statement, Trade-offs Accepted
   to `consequences_negative`, and Rejected Approaches to `options`. Set
-  `phase` to `brainstorm`. Show the drafted entry; append on user confirmation
-  (status starts `proposed`).
+  `phase` to `brainstorm`. Show the drafted entry and append it on user
+  confirmation (status starts `proposed`).
 - Fallback (leyline absent): append an entry to `docs/tradeoffs.md` by hand
-  using the in-file ENTRY TEMPLATE; assign the next `TR-NNN` id and add an
+  using the in-file ENTRY TEMPLATE. Assign the next `TR-NNN` id and add an
   active-index row.
 
 Skip only when there was genuinely one obvious approach with no meaningful
@@ -434,7 +434,7 @@ Save session to `.attune/brainstorm-session.json`:
 - `docs/project-brief.md` does not exist or is empty (phase failed)
 - User explicitly requests to stop after brainstorming
 
-**Do NOT prompt the user for confirmation**: this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
+**Do NOT prompt the user for confirmation**: this is a lightweight checkpoint that continues without waiting. The user can always interrupt if needed.
 
 
 ### Phase 6.5: Spec Review Gate

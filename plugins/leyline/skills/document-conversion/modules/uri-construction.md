@@ -61,8 +61,8 @@ data:application/pdf;base64,JVBERi0xLjQK...
 
 Format: `data:<mediatype>;base64,<base64-encoded-data>`
 
-This is mainly useful for programmatic integrations,
-not typical skill workflows.
+This is mainly useful for programmatic integrations.
+Typical skill workflows do not need it.
 
 ## Common Patterns
 

@@ -13,7 +13,7 @@ dependencies:
 - memory-palace-architect
 - digital-garden-cultivator
 - leyline:evaluation-framework
-- leyline:storage-templates
+- leyline:decision-journal
 - leyline:document-conversion
 - scribe:slop-detector
 scripts: []
@@ -250,7 +250,7 @@ For each piece of knowledge, both must be yes:
 | No longer aligned | Release with gratitude |
 | Complements | Create bidirectional links |
 
-**"I might need this someday"** is fear, not joy. Release it.
+**"I might need this someday"** is fear talking. Release it.
 
 ## Marginal Value Filtering and Quality Scoring
 
@@ -376,9 +376,9 @@ processed → [Archive] → queue/archive/
 
 ## Hook Integration
 
-Memory-palace hooks (`url_detector`, `web_content_processor`,
-`local_doc_processor`, `research_queue_integration`) add a context
-message when content may need intake. They deduplicate against
+Memory-palace hooks (`user_prompt`, `web_research_handler`,
+`local_doc_processor`, `research_queue`) add a context message when
+content may need intake. They deduplicate against
 `memory-palace-index.yaml` and run safety checks first. Triggers,
 signals and the index schema are in `modules/hook-integration.md`.
 

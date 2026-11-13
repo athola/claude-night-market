@@ -125,19 +125,13 @@ Attune combines capabilities from:
 
 ## Interactive Plan Review
 
-When transitioning from planning to execution, the mission
-orchestrator presents the generated plan for user review.
-The review loop supports three verdicts:
-
-- **approve**: Accept the plan and proceed to execution.
-- **revise**: Provide feedback; the planner regenerates
-  with your revision context injected.
-- **reject**: Abandon the plan and return to an earlier phase.
-
-Plan revisions are versioned with diffs between iterations.
-An iteration governor caps revisions at 3 rounds to prevent
-unbounded cycles. If the cap is reached, the user chooses
-between approving the current version or rejecting outright.
+Before execution, the mission orchestrator challenges the
+plan. It runs `leyline:additive-bias-defense` over each plan
+section and walks you through the findings. Revisions go back
+to `attune:project-planning`. After three rounds you approve
+the plan as-is, abort, or restart from the specification.
+The approved plan then goes to the war room, and concerns or
+a rejection there start another revision round.
 
 ## War Room Integration
 

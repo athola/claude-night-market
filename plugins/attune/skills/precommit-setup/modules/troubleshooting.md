@@ -23,7 +23,7 @@ parent: precommit-setup
    the Layer 2 scripts.
 2. **Parallel execution**: pre-commit runs hooks
    concurrently when possible.
-3. **Caching**: dependencies cached by uv; mypy uses
+3. **Caching**: uv caches dependencies, and mypy uses
    `.mypy_cache/`.
 4. **Incremental mypy**: enable `--incremental` for repeat
    commits in the same session.
@@ -80,7 +80,7 @@ pythonpath = ["src"]
 almost always points at a real bug: a value that
 might be `None`, a return type that doesn't match,
 a function that lies about its signature. Loosening
-the typechecker hides the bug; it does not solve it.
+the typechecker hides the bug and leaves it in place.
 
 Only reach for per-module overrides as a last resort,
 after confirming the error reflects a deliberate

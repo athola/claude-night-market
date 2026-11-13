@@ -95,7 +95,7 @@ def _default_data_file() -> Path:
     the version that happened to write it. In an install the plugin root
     is ``~/.claude/plugins/cache/<marketplace>/minister/<version>/``, and
     a default derived from ``__file__`` alone would be abandoned by the
-    next update -- the defect issue #661 measured in memory-palace, where
+    next update. That is the defect issue #661 measured in memory-palace, where
     1,470 staged entries were stranded across a single upgrade.
 
     leyline holds the resolution rule so plugins cannot drift apart on

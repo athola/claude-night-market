@@ -47,7 +47,7 @@ dependency was never declared in conjure's `pyproject.toml`, and the
 import is not at module level: `scripts/quota_tracker.py` resolves
 leyline by runtime path detection with an ImportError fallback, which
 is the ADR-0001 pattern. The exception this ADR granted itself was
-therefore never exercised; conjure follows ADR-0001 as written.
+therefore never exercised. Conjure follows ADR-0001 as written.
 
 ## Architecture
 

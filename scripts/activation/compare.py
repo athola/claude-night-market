@@ -115,26 +115,33 @@ def _activated(row: dict, field: str) -> bool | None:
 
 def _paired_delta_ci(
     base: dict, new: dict, case_ids: list[str], field: str
-) -> list[float]:
+) -> list[float] | None:
+    """Cluster-bootstrap 95% CI of the rate delta, or None with no usable draw.
+
+    [0, 0] for "nothing measured" rendered as a measured no-change.
+    """
     clusters: dict[str, list[str]] = {}
     for cid in case_ids:
         clusters.setdefault(base["case_meta"][cid]["cluster"], []).append(cid)
     keys = sorted(clusters)
     if not keys:
-        return [0.0, 0.0]
+        return None
     rng = random.Random(0)
     deltas = []
     for _ in range(BOOTSTRAP_B):
         drawn = [cid for _ in keys for cid in clusters[rng.choice(keys)]]
-        rates = []
-        for m in (base, new):
-            n = sum(m["cases"][c]["v"] for c in drawn)
-            rates.append(sum(m["cases"][c][field] for c in drawn) / n if n else 0.0)
+        rates = [_rate(m, drawn, field) for m in (base, new)]
+        # A draw with no valid run in one arm has no rate there. Scoring it
+        # 0.0 imputed a measurement that was never taken.
+        if rates[0] is None or rates[1] is None:
+            continue
         deltas.append(rates[1] - rates[0])
+    if not deltas:
+        return None
     deltas.sort()
     return [
-        round(deltas[int(0.025 * BOOTSTRAP_B)], 6),
-        round(deltas[int(0.975 * BOOTSTRAP_B) - 1], 6),
+        round(deltas[int(0.025 * len(deltas))], 6),
+        round(deltas[max(0, int(0.975 * len(deltas)) - 1)], 6),
     ]
 
 
@@ -218,9 +225,11 @@ def render(out: dict) -> str:
     ]
     for rate in RATES:
         r = out["rates"][rate]
+        ci = r["delta_ci"]
+        interval = "CI n/a" if ci is None else f"{ci[0]:+.3f} to {ci[1]:+.3f}"
         lines.append(
             f"| {rate} | {_fmt(r['base'])} | {_fmt(r['new'])} | {_fmt(r['delta'])} "
-            f"({r['delta_ci'][0]:+.3f} to {r['delta_ci'][1]:+.3f}) | {r['b']} | {r['c']} "
+            f"({interval}) | {r['b']} | {r['c']} "
             f"| {r['p']:.4f} | {r['verdict']} |"
         )
     return "\n".join(lines) + "\n"

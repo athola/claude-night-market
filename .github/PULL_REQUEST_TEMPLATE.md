@@ -5,11 +5,14 @@ Title: imperative and self-contained, so it still reads correctly in
 Variants for other change types:
   ?template=bugfix.md | ?template=feature.md | ?template=breaking-change.md
 Structure and rationale: docs/adr/0021-pr-descriptions-in-two-registers.md
+
+Outside contributors: name the AI tool you used and how far it went,
+or say you used none (CONSTITUTION.md rule 1).
 -->
 
 | | |
 |---|---|
-| **Who** | <!-- audience for this change; name a reviewer only for out-of-band routing --> |
+| **Who** | <!-- audience for this change. Name a reviewer only for out-of-band routing --> |
 | **Where** | <!-- internal: module and file count. External: consumers, APIs, wire formats, or `none` --> |
 | **When** | <!-- `on merge`, or the flag / migration window / full-integration date --> |
 

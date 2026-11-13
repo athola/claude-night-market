@@ -49,7 +49,7 @@ _INT_RE = re.compile(r"\b\d+\b")
 def _shift_int(match: re.Match[str]) -> str:
     """Shift an integer by a deterministic, bounded delta.
 
-    Even-length numbers shift by +2; odd-length by +3. The regex
+    Even-length numbers shift by +2 and odd-length ones by +3. The regex
     matches non-negative integers and the delta is always positive,
     so the result is always >= 2.
     """

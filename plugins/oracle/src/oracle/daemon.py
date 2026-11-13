@@ -53,7 +53,7 @@ class _ModelRegistry:
         cannot tell a feature whose value is genuinely zero from one whose
         name was misspelled. Without it a typo returned HTTP 200 and a
         well-formed score computed on a zero-filled vector, while a missing
-        ``model`` field got a 400. This is a network boundary; a caller
+        ``model`` field got a 400. This is a network boundary. A caller
         cannot see the difference from the outside.
         """
         model = self._models[model_name]
@@ -110,6 +110,10 @@ class _InferenceServer(HTTPServer):
         super().__init__(server_address, _InferenceHandler)
 
 
+#: The largest request body /infer accepts. A feature vector is a few KB.
+MAX_REQUEST_BYTES = 1024 * 1024
+
+
 class _InferenceHandler(BaseHTTPRequestHandler):
     """Handle GET /health and POST /infer."""
 
@@ -145,6 +149,10 @@ class _InferenceHandler(BaseHTTPRequestHandler):
         try:
             length = int(self.headers.get("Content-Length", 0))
         except ValueError:
+            length = -1
+        # read(-1) blocks until the client closes, and this server answers
+        # one request at a time, so a negative length stalled /health too.
+        if not 0 <= length <= MAX_REQUEST_BYTES:
             self._send_json(400, {"error": "Invalid Content-Length"})
             return None
         raw = self.rfile.read(length) if length else b""
@@ -204,7 +212,7 @@ class InferenceDaemon:
     host:
         Bind address (default ``127.0.0.1``).
     port:
-        TCP port; pass ``0`` to let the OS pick a free port.
+        TCP port. Pass ``0`` to let the OS pick a free port.
     models_dir:
         Directory containing ``*.yaml`` model files.
     port_file:

@@ -4,7 +4,7 @@ Routes plugin-side ``gh`` invocations through one tested shim.
 Current callers: ``verify_plugin.py``, ``post_learnings_to_discussions.py``,
 ``promote_discussion_to_issue.py``, and ``sanitize_external_content``
 tests. See ``docs/refinement/2026-05-02/00-synthesis.md`` AR-30 for
-the migration log; additional call sites adopt this wrapper as the
+the migration log. Additional call sites adopt this wrapper as the
 hand-rolled ``argv`` lists are touched.
 """
 
@@ -55,7 +55,7 @@ def gh_api(
 
     Args:
         endpoint: REST endpoint (e.g. ``repos/foo/bar/issues``).
-        method: HTTP method; passed via ``-X`` when not GET.
+        method: HTTP method, passed via ``-X`` when not GET.
         fields: Optional ``-f key=value`` field pairs.
         timeout: Subprocess timeout in seconds.
 

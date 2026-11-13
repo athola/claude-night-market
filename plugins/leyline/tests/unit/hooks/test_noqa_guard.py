@@ -325,3 +325,26 @@ class TestCoerceToolInput:
         self, raw: object, expected: dict
     ) -> None:
         assert _mod._coerce_tool_input(raw) == expected
+
+
+class TestFileLevelAndOtherToolSuppressions:
+    """A file-level directive hides more than a line-level one does."""
+
+    @pytest.mark.parametrize(
+        "line",
+        [
+            "# ruff: noqa",
+            "# ruff: noqa: E501",
+            "# flake8: noqa",
+            "#![allow(dead_code)]",
+            "x = f()  # pyright: ignore",
+            "/* eslint-disable */",
+        ],
+    )
+    def test_directive_is_detected(self, line: str) -> None:
+        """Each of these silenced a linter and passed the guard."""
+        assert _mod.check_for_suppressions(line), line
+
+    def test_prose_mentioning_ruff_is_not_a_directive(self) -> None:
+        """Only the comment form counts."""
+        assert not _mod.check_for_suppressions("Run ruff before committing.")

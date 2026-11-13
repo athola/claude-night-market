@@ -275,8 +275,8 @@ category:
 2. **The conflict**: What this PR does that clashes
 3. **Option A, Preserve**: Don't merge this change;
    the invariant pays dividends elsewhere
-4. **Option B, Layer**: Merge as-is, accepting
-   inelegance; not every feature must be elegant
+4. **Option B, Layer**: Merge as-is and accept
+   the inelegance. Not every feature must be elegant
 5. **Option C, Revise**: The invariant is wrong;
    here's what a redesign would look like
 

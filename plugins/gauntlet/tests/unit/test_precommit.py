@@ -365,6 +365,29 @@ class TestMain:
         assert hso.get("permissionDecision") == "deny"
 
     @pytest.mark.unit
+    def test_denies_a_commit_chained_after_git_add(
+        self, sample_knowledge_base: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Scenario: A chained commit is gated like a plain one
+        Given a .gauntlet dir in gate mode with no valid token
+        When main() is called with `git add -A && git commit`
+        Then it returns a decision of "deny"
+        """
+        gauntlet_dir = sample_knowledge_base.parent
+        config = {"precommit": {"mode": "gate"}}
+        (gauntlet_dir / "config.json").write_text(json.dumps(config))
+
+        hook_input = {"tool_input": {"command": "git add -A && git commit -m t"}}
+        monkeypatch.chdir(gauntlet_dir.parent)
+        with patch("precommit_gate.subprocess.run", side_effect=fake_git(["billing"])):
+            result = main(hook_input)
+
+        assert result is not None
+        hso = result.get("hookSpecificOutput", {})
+        assert hso.get("permissionDecision") == "deny"
+
+    @pytest.mark.unit
     def test_passes_on_git_failure_nudge_mode(
         self, sample_knowledge_base: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:

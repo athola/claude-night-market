@@ -74,10 +74,28 @@ main() {
       SESSION_STATE_FILE="${CONSERVE_SESSION_STATE_PATH:-${SESSION_STATE_DIR}/session-state.md}"
       # Validate SESSION_STATE_FILE stays within allowed directories
       if [ -n "${CONSERVE_SESSION_STATE_PATH:-}" ]; then
-        _resolved_state="$(readlink -f "${SESSION_STATE_FILE}" 2>/dev/null || printf '%s\n' "${SESSION_STATE_FILE}")"
+        # A path readlink cannot resolve is not known to be inside, so it is
+        # treated as outside. The trailing / keeps $HOME-other from passing
+        # as $HOME.
+        # BSD readlink -f fails on a missing file, so a file not yet created
+        # is resolved through its directory. A symlink, dangling or not, is
+        # resolved itself so that its target is what gets checked.
+        if [ -e "${SESSION_STATE_FILE}" ] || [ -L "${SESSION_STATE_FILE}" ]; then
+          _resolved_state="$(readlink -f "${SESSION_STATE_FILE}" 2>/dev/null || printf '%s\n' "/unresolvable")"
+        else
+          case "${SESSION_STATE_FILE}" in
+            */*) _state_parent="${SESSION_STATE_FILE%/*}" ;;
+            *) _state_parent="." ;;
+          esac
+          if _resolved_parent="$(readlink -f "${_state_parent:-/}" 2>/dev/null)"; then
+            _resolved_state="${_resolved_parent%/}/${SESSION_STATE_FILE##*/}"
+          else
+            _resolved_state="/unresolvable"
+          fi
+        fi
         _home_prefix="$(readlink -f "${HOME}" 2>/dev/null || printf '%s\n' "${HOME}")"
         case "${_resolved_state}" in
-          "${_home_prefix}"* | "${PROJECT_DIR}"*) ;;
+          "${_home_prefix}"/* | "${PROJECT_DIR}"/*) ;;
           *)
             printf '%s\n' "[conserve] WARNING: CONSERVE_SESSION_STATE_PATH escapes allowed dirs, using default" >&2
             SESSION_STATE_FILE="${SESSION_STATE_DIR}/session-state.md"

@@ -60,14 +60,14 @@ See `modules/exemplar-research.md` for search query patterns and evaluation crit
 
 **The README is an index, not a manual.** Lead with what the
 project is, how to install it, and a scannable table of its
-units (plugins, commands, packages); link out for everything
+units (plugins, commands, packages). Link out for everything
 else.
 
 **A README is a `newcomer` document.** Its reader has never seen
 this project, so the test for every candidate section is whether
 that reader needs it before they can install and run one thing.
 Rationale, alternatives considered, and internals are `expert`
-material: extract them to `docs/deep-dive/<topic>.md` or the
+material: extract them to `docs/<topic>.md` or the
 `book/`, linked from the README in one line naming who the page
 is for. Never delete them to shorten the README. Tier table and
 cut test: `scribe:slop-detector` module `audience-targeting.md`.
@@ -107,7 +107,7 @@ shape, not a section-by-section coverage sweep.
 **Soft budget**: a marketplace or collection root README runs
 roughly 150-400 lines of prose plus any index table. A section
 that grows over time (roadmap, FAQ, changelog) belongs in a
-linked page, not the README.
+linked page.
 
 ## Step 4 - Apply Edits (`update-readme:edits-applied`)
 - Implement the new structure directly in `README.md`
@@ -116,7 +116,7 @@ linked page, not the README.
   wrap prose at 80 chars (prefer sentence/clause boundaries),
   blank lines around headings, ATX headings only, blank line
   before lists, reference-style links for long URLs.
-- Maintain concise, evidence-based prose; avoid marketing fluff.
+- Maintain concise, evidence-based prose and avoid marketing fluff.
 - Prefer deletion and linking over inlining. If a section
   duplicates a docs page, cut it and link the page; if it
   grows over time, move it out of the README entirely.
@@ -178,7 +178,7 @@ Agent(scribe:doc-editor) --target README.md
 - [ ] The README serves a `newcomer`, or declares the tier it
   serves instead in its lead.
 - [ ] Content cut for tier fit landed in a linked page, not the
-  bin (`docs/deep-dive/` or `book/`).
+  bin (`docs/` or `book/`).
 - [ ] The README references internal docs and external
   exemplars with citations.
 - [ ] Research notes and command references are captured so

@@ -1,7 +1,7 @@
 """Experience library for storing successful skill execution trajectories.
 
 The PostToolUse logger stores each successful Skill call that carried
-args; the PreToolUse hook injects the most recent entries for the same
+args. The PreToolUse hook injects the most recent entries for the same
 skill as additionalContext.
 
 Part of the self-adapting system. See:
@@ -14,7 +14,7 @@ import hashlib
 import json
 import logging
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -49,10 +49,8 @@ class ExecutionTrajectory:
     task_description: str
     approach_taken: str
     outcome: str
-    # None when the hooks could not time the call (#671); never a fake 0.
+    # None when the hooks could not time the call (#671), never a fake 0.
     duration_ms: int | None
-    tools_used: list[str] = field(default_factory=list)
-    key_decisions: list[str] = field(default_factory=list)
 
 
 class ExperienceLibrary:
@@ -73,7 +71,7 @@ class ExperienceLibrary:
         return d
 
     def _task_hash(self, project: str, task_description: str) -> str:
-        """Short hash of project and task; projects never share a file."""
+        """Short hash of project and task, so projects never share a file."""
         key = f"{project}\0{task_description}"
         return hashlib.sha256(key.encode("utf-8", "replace")).hexdigest()[:12]
 
@@ -97,8 +95,6 @@ class ExperienceLibrary:
             "approach_taken": trajectory.approach_taken,
             "outcome": trajectory.outcome,
             "duration_ms": trajectory.duration_ms,
-            "tools_used": trajectory.tools_used,
-            "key_decisions": trajectory.key_decisions,
             "stored_at": datetime.now(timezone.utc).isoformat(),
         }
 
@@ -178,7 +174,5 @@ def format_context(entries: list[dict[str, Any]], max_chars_each: int) -> str:
         lines = [f"- Task: {entry.get('task_description', '')}"]
         if entry.get("approach_taken"):
             lines.append(f"  Approach: {entry['approach_taken']}")
-        if entry.get("tools_used"):
-            lines.append(f"  Tools: {', '.join(entry['tools_used'])}")
         blocks.append("\n".join(lines)[:max_chars_each])
     return "\n".join(blocks)

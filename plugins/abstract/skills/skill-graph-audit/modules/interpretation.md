@@ -56,14 +56,14 @@ The current top-5 hubs (as of 2026-04-25) are:
 
 | Class | Default action |
 |-------|----------------|
-| bugs | Fix in the same PR; do not merge with bugs > 0 |
+| bugs | Fix in the same PR. Do not merge with bugs > 0 |
 | external | Confirm external plugin is documented in plugin.json |
 | placeholders | Annotate with `<!-- template -->` to suppress |
 
 ## Cross-Plugin Coupling
 
 A high count of cross-plugin edges (src plugin != dst plugin) is
-healthy ecosystem behaviour, not a problem. A high count of
+healthy ecosystem behavior. A high count of
 intra-plugin edges (src plugin == dst plugin) suggests a
 plugin-internal federation worth documenting in the plugin's
 README.
@@ -91,7 +91,7 @@ say so instead of reporting a number.
 
 ## Common False Positives
 
-- Skill names in code blocks demonstrating example usage are still
+- Skill names in code blocks that show example usage are still
   parsed. If documenting a hypothetical skill, use `<plugin>:<name>`
   without backticks or surround with `<!-- example -->`.
 - Skill names mentioned in `docs/decisions/` outside SKILL.md files

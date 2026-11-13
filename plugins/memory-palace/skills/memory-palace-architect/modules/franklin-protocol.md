@@ -83,7 +83,7 @@ Lean into discrepancies:
 
 > "Mastery is not about memorization, but about building an internal generative model of a domain."
 
-The Franklin Protocol works because it forces you to internalize patterns, not memorize content. The deliberate delay prevents overfitting to specific examples while the comparison step provides precise error signals for improvement.
+The Franklin Protocol works because it forces you to internalize patterns instead of memorizing content. The deliberate delay prevents overfitting to specific examples while the comparison step provides precise error signals for improvement.
 
 ## Integration
 

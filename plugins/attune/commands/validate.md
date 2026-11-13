@@ -20,7 +20,7 @@ Use this command when you need to:
 
 Avoid this command if:
 - Just initialized project (likely passing all checks)
-- Need to fix issues, not just identify them (use upgrade-project)
+- Need to fix issues: validate only reports them (use upgrade-project)
 - Looking for code quality issues (use linting/testing instead)
 - Validating specific component only (check component directly)
 

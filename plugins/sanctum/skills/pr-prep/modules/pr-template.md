@@ -4,6 +4,47 @@ A description exists to pre-load the model a reviewer would otherwise
 rebuild from the diff. Everything below serves that one job. The
 decision behind this structure, with sources, is ADR-0021.
 
+## Project template first
+
+The structure below is the default. A project whose reviewers edit
+descriptions by hand has its own. Before writing, check for
+`.gitlab/merge_request_templates/` or `.github/PULL_REQUEST_TEMPLATE*`,
+then read three recent merged descriptions a person edited. When they
+share a shape, use it, together with the rules below. They come from
+about 120 reviewer edits to agent descriptions in two private
+repositories. A repository with no shape of its own uses the default
+structure, test counts included.
+
+- Put the closing keyword on the first line: `Closes PROJ-123`. Use
+  "Relates to" only when the change does not finish the ticket.
+- Fix MRs use the ticket's bug shape: Impact, Expected behavior, Actual
+  behavior, Steps to reproduce. What changed goes under `## What`
+  after them. Feature MRs use Summary, Context, Acceptance criteria.
+- When CI runs the suite, link the pipeline in one line and stop. Do
+  not narrate lint, unit, or test counts the pipeline already shows.
+  Keep only evidence CI cannot show, such as a device run, in one
+  short table or line. A gap stays stated in one line: "No device run."
+- Fold a review fix into the section it changes. No dated appendices
+  such as "Review fixes (2026-11-08)" or "Second review".
+- A port or backport gets one provenance line ("Port of
+  `<branch>` `<commit>`"). Drop what was adapted, left out, rebased,
+  or found along the way.
+- Drop sentences about code motion done for a test ("moves into X so a
+  test reaches it"). The diff shows it.
+- Name the baseline in a test table: "Fails on `main` because". In a
+  stack, "its parent" does not tell the reader which MR.
+- Say who is affected and how, in one sentence.
+- Title: the symptom a user sees, with numbers where they exist.
+- Contractions are fine. Use the plain literal verb ("is reported",
+  "was synced") over a figurative one ("lands", "gave way").
+- Delete a ", so" tail outright. Do not swap in ", causing" or
+  ", resulting in", which is the same tail.
+
+To edit a description that already exists, Read the live description
+first and diff it against your last write. If a person changed it,
+patch their text and never regenerate it. In the observed sample, a
+regenerated description overwrote a reviewer's edits seven times.
+
 ## The structure
 
 Six dimensions in two registers. Who, Where, and When are lookups and
@@ -89,7 +130,9 @@ reader cannot tell a missing blast radius from a blast radius of none.
 **Who**: who feels this change. Name the audience, not the author.
 Codeowners handle routine reviewer assignment, so only name a person
 when the change needs routing they would not get automatically
-(security review, a docs owner, a downstream team).
+(security review, a docs owner, a downstream team, or an author
+working outside their lane, which `scripts/review_routing.py`
+reports).
 
 **Where**: two halves, and the second is the one people forget.
 Internal is the module or package plus a file count. External is any

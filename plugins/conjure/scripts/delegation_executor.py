@@ -318,7 +318,7 @@ class Delegator:
                 )
 
     def verify_service(self, service_name: str) -> tuple[bool, list[str]]:
-        """Report whether a named service can take work; see delegation_verify."""
+        """Report whether a named service can take work (see delegation_verify)."""
         if service_name not in self.services:
             return False, [f"Unknown service: {service_name}"]
         return verify_service(self.services[service_name])
@@ -346,7 +346,7 @@ class Delegator:
             options = {"model": service.default_model, **(options or {})}
 
         # Add options. Every flag spelling comes from the service config, so a
-        # CLI that names things differently is a data change, not a new branch.
+        # CLI that names things differently needs only a data change.
         if options:
             if "model" in options and service.model_flag:
                 command.extend([service.model_flag, options["model"]])
@@ -729,8 +729,8 @@ class Delegator:
 
         asserted = [n for n in candidates if requirements.get(f"{n}_available")]
 
-        # Services declaring a requested strength are probed first; everything
-        # else keeps its registry order behind them.
+        # Services declaring a requested strength are probed first, and
+        # everything else keeps its registry order behind them.
         wanted = {key for key, value in requirements.items() if value}
         preferred = [
             n

@@ -74,13 +74,13 @@ leave these alone:
 - **Owned-only method use**: a `&Vec<T>` whose value is `.clone()`d to
   obtain an owned `Vec`, or that uses `Vec`/`String`-specific API
   (`capacity`, `as_mut_vec`), genuinely needs the owned type. This is
-  beyond a single-line check; the reviewer confirms before changing.
+  beyond a single-line check. The reviewer confirms before changing.
 - **Trait-fixed signatures**: a parameter type imposed by a trait
   definition or `impl Trait for T` method is a binding contract and
   cannot be narrowed (rust-clippy #8410). Confirm the signature is
   free before recommending.
 - **Generic / bound positions**: deref coercion does not satisfy a
-  generic type parameter; a value flowing into `T` of `fn f<T:
+  generic type parameter. A value flowing into `T` of `fn f<T:
   Bound>(x: T)` is not coerced. Do not narrow there.
 - **Macro-hidden use, FFI, and `extern` ABI**: a `Vec`-only method may
   live inside a macro the line scan cannot see; `extern "C"` signatures
@@ -88,7 +88,7 @@ leave these alone:
 - **Comments**: a signature shown in a `//` comment is not code.
 
 The known false-positive class is a `&Vec<T>`/`&String` parameter that
-the body needs as the owned type for one of the reasons above; the
+the body needs as the owned type for one of the reasons above. The
 reviewer confirms the borrow is read-only and self-contained before
 applying the change.
 

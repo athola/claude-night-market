@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import functools
 import subprocess  # nosec B404 - Used safely with create_subprocess_exec (no shell)
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -164,7 +165,9 @@ class WarRoomOrchestrator:
 
     def _initialize_session(self, problem: str, mode: str) -> WarRoomSession:
         """Create new session with unique ID."""
-        session_id = f"war-room-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        # The suffix keeps two sessions started in the same second apart.
+        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        session_id = f"war-room-{stamp}-{uuid.uuid4().hex[:6]}"
         return WarRoomSession(
             session_id=session_id,
             problem_statement=problem,
@@ -236,9 +239,10 @@ class WarRoomOrchestrator:
                 proc.kill()
                 await proc.wait()
                 raise
+            # One stray byte from an external CLI is not a failed answer.
             if proc.returncode != 0:
-                return f"[{label} failed: {stderr.decode()[:500]}]"
-            return stdout.decode()
+                return f"[{label} failed: {stderr.decode(errors='replace')[:500]}]"
+            return stdout.decode(errors="replace")
         # Both names: they are distinct classes before Python 3.11.
         except (asyncio.TimeoutError, TimeoutError):
             return f"[{label} timed out after {_SUBPROCESS_TIMEOUT_SECONDS:.0f}s]"
@@ -260,7 +264,7 @@ class WarRoomOrchestrator:
 
         try:
             cmd = get_haiku_command()
-        except Exception as e:
+        except FileNotFoundError as e:
             return f"[{expert.role} (Haiku fallback) error: {e}]"
         cmd.append(full_prompt)
         return await self._run_subprocess(

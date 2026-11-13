@@ -149,7 +149,7 @@ Daily learnings reports observed this agent at ~40%
 success rate over a 30-day window with three prior
 auto-improvement cycles closed without resolving the
 root cause. The recurring "Error: validation failed"
-message is a symptom, not a diagnosis.
+message is only a symptom.
 
 ### Investigation plan (run before further auto-fixes)
 
@@ -179,6 +179,6 @@ the auto-loop is fixing symptoms.
 
 Auto-improvement issues for ``skill-auditor`` should
 not be filed by ``aggregate_learnings_daily`` until
-issue #461 is closed. The gate is a soft block, not
-an enforced filter; respect it manually until a
+issue #461 is closed. The gate is a soft block that
+nothing enforces. Respect it manually until a
 mechanism lands.

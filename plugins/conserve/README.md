@@ -76,7 +76,7 @@ recommends the smallest tier-1 filter (`tail`, `head`, `rg`,
 `jq`, `awk`) that still answers the question. Supports
 `--apply` to execute the recommended filter, `--tokens` to
 measure the `tiktoken` delta, and `--lines N` to override the
-line budget. Stops at tier 1 by design; refers to the
+line budget. Stops at tier 1 by design and refers to the
 `log-debugging-hygiene` module for tier 3 compression options.
 The filter-first thesis is anchored on a reproducible benchmark
 where `tail -n 100` beats logs-tokenizer compression by 25
@@ -141,7 +141,7 @@ or consider a simpler approach instead of retrying further.
 
 ### Documentation Format
 
-Agents read Markdown directly; they do not read HTML.
+Agents read Markdown directly and do not read HTML.
 Markdown has lower syntax overhead and is version-control friendly.
 HTML should only be generated for external documentation sites
 or web-based viewing.

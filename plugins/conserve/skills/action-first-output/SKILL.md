@@ -165,7 +165,7 @@ request."
 Past five, split into "do now" against "later", or "must" against
 "nice to have". Five items ranked beats ten unranked.
 
-### 10. No preamble, no recap, no closing pleasantries
+### 10. Skip preamble, recap, and closing pleasantries
 
 Forbidden openers: "Great question", "Let me...", "I'll...", "Sure!",
 "Looking at your...", "To answer your question..."

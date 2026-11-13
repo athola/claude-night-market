@@ -7,6 +7,590 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`docs/deep-dive/` is gone and gitignored.** The governance
+  sources moved to ADR-0030 and the stewardship **Origin** notes, and
+  the network and data detail moved into the README. Skills and rules
+  that extract expert-tier material now send it to `docs/<topic>.md`,
+  because an extract under an ignored directory is never committed.
+
+## [1.10.2] - 2026-11-11
+
+One entry below is marked Breaking, and this release ships it under a
+patch number as the maintainer's choice of version: the fold removes no
+capability, and a caller needs only the one-line change its entry describes.
+
+### Added
+
+- **Trust-based delivery support, with PRs kept as the human gate
+  (ADR-0029).** `sanctum`'s `review_routing.py` names who should review
+  the directories a PR touches outside its author's lane, from each
+  directory's history and CODEOWNERS, and pr-prep runs it for the Who
+  row and adds a machine review before the PR opens. `herald`'s
+  `release_countdown.py` announces a release and holds it for a window
+  anyone who can label issues may pause, with no skip, failing closed
+  when the announcement or the pause check fails. The publish workflow
+  runs it when `RELEASE_COUNTDOWN_MINUTES` is set. `pensive`'s
+  `parity-sweep` workflow reports features that independently shipped
+  platform clients disagree on, each confirmed against the code.
+
+- **Slop scores apply each language's calibration.**
+  `scripts/slop_score.py --lang <code>` scores a document with that
+  language's patterns and scales the result by its factor (German
+  0.85, French 0.80, and so on), as the language-handling module
+  documented. `--lang auto` detects the language per file. The default
+  stays English, so the CI gate and the ratchet are unchanged. Rule
+  caches are now kept per language: one shared list had served every
+  later language the patterns of whichever was scored first.
+
+- **gauntlet challenges from the problem bank and the code graph.**
+  `challenge_engine.py --source bank` draws a problem from the shipped
+  bank, narrowed by `--category` and `--difficulty` and varied through
+  the in-loop provider inside Claude Code. `--source graph` asks an
+  impact or dependency question about a real call edge in
+  `.gauntlet/graph.db`. Both generators existed with tests and no
+  caller, so neither source had ever reached a developer.
+
+- **Stewardship actions can be recorded.** The stewardship skill asks
+  for a small action when one of its questions triggers, and
+  `/imbue:stewardship-health` reports improvement velocity and virtue
+  practice from `.claude/stewardship/actions.jsonl`, but nothing wrote
+  that file, so both always read "not measured". `stewardship_tracker.py
+  record` now appends an action, and the skill names the command.
+  abstract's homeostatic monitor counts the same file under
+  `CLAUDE_PROJECT_DIR`. It read `$CLAUDE_HOME/stewardship`, which
+  nothing writes.
+
+- **phantom's CLI can cap spend and ask before acting.** The library
+  had a dollar budget and a confirmation gate, but the CLI exposed
+  neither, so every CLI run was unbudgeted and acted without asking.
+  `--budget-usd` and `--confirm` now reach them. Under `--confirm`, a
+  closed stdin rejects the action. A `--thinking-budget`
+  at or above `--max-tokens` is refused up front instead of failing at
+  the API.
+
+- **PR descriptions are checked against the diff.**
+  `plugins/sanctum/scripts/description_paths.py` reads the paths a
+  description names in backticks. It fails on a path that is neither in
+  the diff nor in the tree, and warns on one that exists but is
+  untouched (`--strict` fails on that too). Uncommitted and untracked
+  files count as changed, because a draft comes before the last commit.
+  Branches, addresses, globs, directories, and bare identifiers are
+  skipped. Over 200 real MR descriptions, 5 named files never existed
+  in git, and 3 of those were legitimate device or build paths.
+  A git failure, such as an unknown `--base`, exits 2 and names the
+  base. pr-prep runs it before posting. Descriptions claiming changes the diff
+  lacks merge at 28.3% against 80.0% (arXiv 2601.04886).
+
+- **spec-kit `spec-register` module** for specs of a system that already
+  exists: a terms table, a Planned tag on what is not built, no "will",
+  and normative keywords in capitals only when the spec adopts RFC 8174.
+
+### Changed
+
+- **Shorter skill descriptions in six rarely invoked plugins.** Every
+  registered description is resident in every session, and the skill
+  listing ran over its budget (#778). 25 descriptions in archetypes,
+  conjure, scry, spec-kit, hookify and phantom drop from 3,789 to 2,743
+  characters, about 260 tokens, and keep the terms the router matches
+  on. Trims that created a new rank-1 router collision were rolled back.
+
+- **Breaking: six leyline contract skills are modules of four.** Skill
+  descriptions were 93% of the listing budget, and leyline carried 25
+  skills, many of them short contracts nothing invoked on its own
+  (#781). `deferred-capture` and `storage-templates` are modules of
+  `decision-journal`, `pytest-config` of `testing-quality-standards`,
+  `quota-management` and `usage-logging` of `service-registry`, and
+  `utility` of `evaluation-framework`. Callers in this repository and
+  the activation labels name the new homes. A plugin that calls
+  `Skill(leyline:<old-name>)` must call the skill that now holds it.
+
+- **`attune:mission-orchestrator` is a single-file router.** It was 12
+  modules and two references for "detect the phase, call that phase's
+  skill" (#989). SKILL.md now holds the phase table, the artifact check
+  per phase and the `.attune/mission-state.json` contract. The reflexion
+  buffer, trust tiers and adaptive constraints went with their modules,
+  and nothing outside the skill read them. `/attune:mission` invocations
+  are unchanged.
+
+- **abstract's improvement queue entries are typed.** Each skill's record
+  is a `QueueEntry` dataclass with a `Literal` status, read by attribute
+  across the queue, the homeostatic monitor and the recorder (#1020). An
+  evaluating entry without `eval_start`, or a status outside the four
+  known ones, cannot be built. A queue file holding such an entry is set
+  aside like unparseable JSON. Files written before this change load
+  unchanged, and entries that never began an evaluation are stored
+  without the `eval_*` keys.
+
+- **Tickets and PR descriptions copy the project's own shape first.**
+  About 120 hand edits to agent MR descriptions and 67 edited Jira
+  tickets in two GitLab projects deleted the default `Why:` /
+  `Done when:` labels and the facts table, and rebuilt fix MRs in the
+  team's bug template. `leyline:ticket-writing`,
+  `sanctum:pr-prep`, `/prepare-pr`, and `pr-agent` now sample three
+  recent human-edited items and use their shape. The old shapes apply
+  only where a project has none. ADR-0021 carries the amendment.
+
+- **STE leaves contractions alone in MR, PR, and ticket text a person
+  edits.** The scope tables in the rule file and the scribe skill say so.
+
+- **The slop detector's anti-goals name the replacement tell.** Swapping
+  ", so" for ", causing" or ", resulting in" keeps the same tail.
+
+- **The constitution says what checks each rule, and Rules 1 and 2 are
+  amended.** A table pairs every rule with its hook, test, or reviewer,
+  and names the four that only a reviewer checks. Rule 1 discloses AI
+  involvement at the repository level and asks it per pull request
+  only of outside contributors, which every PR template now says. Rule
+  2 asks an AI change over 200 lines to name its plan, spec, or ADR,
+  in place of a cap no hook enforced. Rule 1 also asks that AI
+  involvement never be denied and holds the submitter accountable.
+  Rule 3 names the repo-wide skill structure tests in place of a
+  per-skill filename only 16 of 201 skills used. Rule 10 states the
+  hook exception: a hook catches broad errors so it cannot block the
+  prompt. An amendment may ride in a larger PR as a commit with the
+  `constitution: amend rule N` subject. "Immutable" is gone from the
+  lead, because the file has always had an amendment process. Sources
+  and the reasoning are in ADR-0030.
+
+- **Stewardship's campsite rule stops at the lines a change touches.**
+  Cleanup elsewhere goes in its own commit, so a pull request still
+  carries one reviewable problem. `STEWARDSHIP.md`,
+  `leyline:stewardship`, and hookify's `campsite-check` agree. The
+  seven-generations origin notes that the words are not in written
+  transcriptions of the Great Law of Peace, and the Martin and Claude
+  constitution attributions now match their sources.
+
+### Deprecated
+
+- **`pensive:makefile-review` is a module of `pensive:unified-review`.**
+  It is the second of the two folds ADR-0014 planned (#616). The audit
+  workflow and its five rule modules moved to
+  `skills/unified-review/modules/makefile-review.md` and `makefile-*.md`.
+  `/makefile-review` still works and routes to unified-review's makefile
+  focus, the same as `/full-review makefile`.
+  `Skill(pensive:makefile-review)` is a redirect stub for one release and
+  will be removed in the release after.
+
+### Removed
+
+- **Seven helpers across five plugins that nothing called:** scribe's
+  `get_all_language_patterns` and `list_supported_languages`,
+  memory-palace's `staleness_report` and `format_session_gap`, leyline's
+  `verify_plugin_offline`, conserve's `find_area_config` and sanctum's
+  `update_ledger_entry`.
+
+- **tome's unwired graph and channel helpers.** The citation-graph
+  writer, the thread finder (`graph/threads.py`), the visualizer
+  (`output/visualizer.py`), the `CitationEdge` model, citation-chaining
+  and page-chunking helpers in the academic channel, TRIZ bridge and
+  canonical-matrix helpers, query expansion for the GitHub and
+  discourse channels, the Reddit parser, `fuzzy_deduplicate` and
+  `embedder_available` had no caller outside their tests, so the
+  features they suggest could not fire. ADR-0018 now records that the
+  graph layer is decided but not wired. `ideation.get_method` is kept:
+  it is the catalog lookup the catalog tests read through.
+
+- **egregore's unused Discussions pipeline and scout.** `scout.py` (no
+  entry point and no importer outside its tests) and everything in
+  `discussions.py` except `DiscussionsConfig` had no production caller,
+  so two Discussions implementations could drift while the dead one
+  read as authoritative. `window.parse_cli_version`, `unattended_env`,
+  `supports` and `RETRY_WATCHDOG_MIN_VERSION` also had no caller.
+  `config.save_config` and `learning.load_patterns` are kept: they are
+  the write and read halves of live formats, and their tests check the
+  live halves through them.
+
+- **Seven abstract helpers nothing called.** `errors.safe_file_read`,
+  `safe_file_write`, `safe_yaml_load` and `validate_path_exists` were a
+  second error-handling convention, each wrapping its call in a broad
+  `except Exception`. `skill_graph.detect_dangling_refs` restated
+  `classify_dangling_refs(...)["bugs"]`. `aggregate_learnings_daily.
+  run_post_learnings` was superseded by the Stop hook that posts
+  learnings, and `run_auto_promote` had no caller.
+
+- **hookify's `utils` package.** Its six helpers had no caller outside
+  their own tests, and `validate_event_type`'s docstring named event
+  types the config loader does not accept.
+
+### Fixed
+
+- **phantom blocks an action with a malformed coordinate instead of
+  crashing.** A model reply with `coordinate: [null, 1]`, `5` or
+  `["a", "b"]` raised out of the run loop and discarded the run's
+  results. The action filter now refuses any coordinate that is not a
+  pair of numbers.
+
+- **parseltongue's checks judge what code actually needs and does.**
+  The compatibility checker called `x: int | None` a 3.10 feature even
+  under `from __future__ import annotations`, and let `tomllib`,
+  `datetime.UTC` and `except*` pass as 3.8-compatible. The async check
+  reported `await sleep(1)` as blocking after `from asyncio import
+  sleep`, and `await client.close()` as a call to a module-level
+  `def close()`. All four now read the code's imports and call shape.
+
+- **conserve's Setup hook keeps its state file inside the allowed
+  directories.** The check matched the `$HOME` prefix with no trailing
+  `/`, so `CONSERVE_SESSION_STATE_PATH=$HOME-other/state.md` passed and
+  was written. A path `readlink -f` could not resolve also fell back to
+  the raw string. Both now fall back to the default location.
+
+- **memory-palace ignores partial reads of tracked docs.** A `Read`
+  with `offset` or `limit` hashed only the slice it returned, so an
+  unchanged document was reported as "changed since last indexing" and
+  the model was told to update its stored entry. Partial reads are now
+  skipped.
+
+- **memory-palace's `+recall` matches the last word of a sentence and
+  survives a pruned session file.** The tokenizer kept edge punctuation,
+  so the query "fix the cache." never matched a stored `cache`. A
+  session file deleted between `glob` and `stat` raised
+  `FileNotFoundError` on the prompt path. Edge punctuation is now
+  stripped, and a vanished file is skipped.
+
+- **memory-palace's web research hook survives a malformed intake queue
+  line.** A line such as `{"query": null}` or `[1]` raised
+  `AttributeError`, and an undecodable file raised `UnicodeDecodeError`,
+  so the hook exited 1 on every later WebFetch and WebSearch until the
+  file was repaired. Such lines are skipped and such a file reads as
+  nothing pending.
+
+- **attune's generated Rust Makefile works on a fresh project.**
+  `make test-integration` ran `cargo test --test '*'`, which errors
+  when there is no `tests/` directory, and `make ci` ran `cargo fmt`,
+  rewriting files where the generated CI workflow runs `--check`. The
+  integration target now skips a project without `tests/`, `ci` runs a
+  new `fmt-check` target, and `CARGO_HOME` defaults to `~/.cargo`, where
+  `cargo install` puts binaries.
+
+- **attune escapes values written into generated TOML and JSON.** Author,
+  description and name went into TOML strings verbatim, so
+  `attune_init.py --author 'A "Q" B'` exited 0 and wrote a Cargo.toml
+  that cargo could not read. A rendered `.toml` file now escapes `\`,
+  `"` and control characters in every substituted value. A rendered
+  `.json` file escapes each value as a JSON string. A quoted
+  description no longer breaks `package.json`.
+
+- **spec-kit's `cached` decorator keys on the call's arguments.**
+  Without `data_arg` the key was the function name alone, so a cached
+  `parse("b.md")` returned `parse("a.md")`'s result for the whole TTL.
+  Positional and keyword arguments are now part of the key, and a call
+  with none keeps the bare key.
+
+- **The activation comparison's bootstrap no longer invents a zero
+  rate.** A resampled draw whose cases had no valid run in one arm
+  scored that arm's rate as 0.0, so a 0.25 point delta came back with a
+  CI of [0.0, 1.0]. Such draws are now skipped, and the percentiles are
+  taken over the draws that remain.
+
+- **minister's DORA report names the open incidents its restore time
+  leaves out.** Time to Restore is a median over resolved incidents, so
+  two incidents open for weeks beside one fixed in 30 minutes reported
+  0.5 hours, Elite, with no sign the others existed. `DORAMetrics` now
+  carries `open_failures`, and the report says how many the median
+  excludes. The median itself is unchanged.
+
+- **abstract declares its memory-palace dependency.** Its insight
+  bridge resolves memory-palace's directory and imports a module from
+  it, but `plugin.json` named only leyline, and the dependency map's
+  scan missed the edge because no import statement names the plugin.
+  The scan now reads `sibling_plugin_dir(..., "<plugin>")` and
+  `add_sibling_src_to_path(..., "<plugin>")` calls as edges.
+
+- **abstract's discussion promotion honors `target_repo` and
+  `promotion_emoji`.** Both were read from `config.json` and then
+  ignored: the queries named `athola/claude-night-market` and counted
+  FIRE reactions, so a fork scanned upstream and filed issues there.
+  The owner and name now go in as GraphQL variables, and the emoji maps
+  to GitHub's reaction enum. GitHub offers no 🔥 reaction. The default
+  is 👍, and an emoji outside the enum stops the run with a warning.
+  A fork still has to point `LEARNINGS_CATEGORY_ID` at its own
+  Learnings category.
+
+- **abstract's tool benchmark measures every discovered tool.** It
+  found tools by path and then measured them by bare name, which reran
+  the first match, so two skills that each ship a `run.sh` reported the
+  first one twice. The benchmark now passes the discovered path, and
+  each result carries it.
+
+- **hookify's `require-tests` example works as written.** It used
+  `not_contains` with `pytest|npm test`, but `not_contains` is a literal
+  substring test, so the rule warned on every stop, tests run or not.
+  The example now uses `regex_match` with an anchored negative
+  lookahead, and a test loads the documented block and checks both
+  outcomes.
+
+- **hookify conditions on a field the event lacks no longer match.** A
+  missing field read as the empty string, so every negated operator was
+  true: a rule with `event: all` and `file_path not_contains /tests/`
+  fired on every Bash command and prompt. Such a condition now does not
+  apply.
+
+- **imbue's no-emoji vow lets plain symbols through.** It blocked all
+  of U+2300-23FF and U+2600-27BF, so `fix: mark ✓ done` and `use ⌘
+  key` were denied when blocking was on. In that range only characters
+  that render as emoji by default, such as ✅ ❌ ⌚, or a symbol with the
+  emoji selector U+FE0F, count as emoji now.
+
+- **imbue's ramp token reads off-values in any case.** `IMBUE_RAMP_OK`
+  counted as set unless it was exactly `0`, `false` or `no`, so `False`,
+  `OFF` and an empty value granted a free jump up the increment ladder.
+  The value is now lowercased, and empty or `off` is off.
+
+- **imbue's TDD gate finds tests in nested test directories.** It looked
+  for `tests/unit/test_X.py`, `tests/test_X.py` and a sibling file only,
+  so a new `hooks/foo.py` whose test already sat at
+  `tests/unit/hooks/test_foo.py` got the "write tests first" reminder
+  and, in headless mode, a deferred write. The search now falls back to
+  any `test_X.py` under `tests/`.
+
+- **imbue's package guard stops probing option values as packages.** It
+  knew six value-taking flags, so `pip install --target build_out x`,
+  `npm install --prefix frontend x`, `uv add --group docs x` and
+  `cargo add x -F full` sent `build_out`, `frontend`, `docs` and `full`
+  to the registry, and a 404 blocked the install when blocking was on.
+  Each ecosystem now has its own value-flag list. Arguments are split
+  the way the shell splits them, so `"requests >= 2"` stays one package.
+
+- **sanctum's code-execution warning skips methods that share the
+  name.** The rule matched any `eval(` or `exec(`, so PyTorch's
+  `model.eval()` and a cursor's `.exec(sql)` drew the "runs arbitrary
+  code" warning. Only the bare builtin call matches now.
+
+- **sanctum's deferred-item watcher reads clean titles from structured
+  output.** A dict `tool_response` was flattened with `json.dumps`,
+  which turns newlines into a backslash and an `n`, so a
+  `[Deferred] Add caching` marker captured the rest of the JSON as its
+  title and the sweep filed an issue under it. The watcher now reads
+  the strings the response holds, one per line.
+
+- **herald files an alert in a repository without its labels.**
+  `gh issue create --label herald,crash` fails outright when either
+  label is missing, and herald never creates labels, so the crash alert
+  was lost. A refusal that names a label is now retried without labels.
+
+- **herald's webhook check refuses shared and multicast addresses.** It
+  rejected private, reserved and loopback IPs, which leaves out the
+  CGNAT block `100.64.0.0/10` (home of `100.100.100.200`, Alibaba
+  Cloud's metadata endpoint) and multicast. It now requires a global,
+  non-multicast address, for literal IPs and resolved names alike.
+
+- **oracle's daemon answers a bad `Content-Length` at once.** A
+  negative length reached `rfile.read(-1)`, which waits for the client
+  to close. The server takes one request at a time, so one such request
+  stalled `/health` too and the client read the daemon as down. Lengths
+  below 0 or above 1 MiB now get a 400. The lifecycle hook no longer
+  launches the daemon when the plugin has no `models/` directory: the
+  daemon refused to start, the hook had already written its pid, and
+  every session paid for a launch that could not succeed.
+
+- **tome survives a source that answers in the wrong shape or at no
+  end.** A Semantic Scholar, OpenAlex or Unpaywall reply that parsed as
+  JSON but was a list or `null` raised `AttributeError`, which the
+  per-source handler did not catch, so the academic search crashed and
+  lost the findings other sources had returned. That is now a
+  `source_error` for the one source. Response bodies are also capped at
+  64 MiB: `read()` kept an endless stream in memory.
+
+- **cartograph's community refresh no longer imports a repository's
+  own gauntlet package uninvited.** The hook fired on any Bash command
+  containing `graph_build.py`, `rg graph_build.py` included, and put
+  the working tree's `src/` first on `sys.path` before importing
+  `gauntlet`. A cloned repository shipping `.gauntlet/graph.db` and
+  `src/gauntlet/` ran its code inside the hook. It now fires only when
+  `graph_build.py` runs, and prefers the project's `src/gauntlet` only
+  when the script that ran is the project's own.
+
+- **The war room keeps an expert's answer that holds a stray byte.**
+  Expert CLI output was decoded strictly, so one non-UTF-8 byte from a
+  CLI that exited 0 became an error note in place of the answer. Output
+  is now decoded with replacement. A Haiku-lookup bug other than a
+  missing CLI is no longer passed off as the expert's reply, and two
+  sessions started in the same second get distinct ids instead of one
+  overwriting the other.
+
+- **conjure's Gemini quota gate reads the usage it saved.** The tracker
+  loaded `gemini_usage.json` from the base class and then switched to
+  `usage.json` without reading it. The bridge hook builds a fresh
+  tracker per process, so usage always started at zero and the gate
+  never tripped. The stub tracker used when leyline is absent also
+  reported `[OK] Healthy` where the real one says `healthy`.
+
+- **leyline's quota tracker forgets a closed minute before it answers.**
+  `can_handle_task` and `get_quota_status` read the counters without
+  resetting a window that had closed, so a tracker kept alive past its
+  minute refused work for requests it no longer counted against.
+
+- **leyline sanitizes more `gh` output.** The external-content hook
+  matched `gh api`, `issue`, `pr`, `run` and `release` by substring
+  with one space, so `gh gist view`, `gh search`, `gh repo view` and
+  `gh  api` returned text anyone can write without sanitizing it. The
+  match is now a word-bounded regex over those subcommands plus `gist`,
+  `search`, `repo` and `discussion`.
+
+- **leyline's suppression guard catches file-level directives.** It
+  matched `# noqa` and `#[allow(` but not `# ruff: noqa`,
+  `# flake8: noqa`, `# pyright: ignore`, Rust's inner `#![allow(` or
+  `/* eslint-disable */`, and the file-level forms silence more than a
+  line-level one.
+
+- **gauntlet's problem-bank survey reports a corrupt bank file.** A
+  YAML syntax error or a non-mapping top level read as an empty
+  category, so the gap report showed zero problems there and hid the
+  damage. The survey now stops with an error naming the file. An empty
+  file is still an empty bank.
+
+- **gauntlet's dependency-map scoring checks precision and ignores
+  case.** It scored recall only and compared names case-sensitively,
+  so `Auth, DB` failed against `auth, db` and a list padded with ten
+  modules passed. The score is now the Jaccard overlap of the
+  lowercased sets, with the same 0.8 and 0.3 thresholds.
+
+- **gauntlet refuses a git ref that git would read as an option.** The
+  ref check rejected shell metacharacters but not a leading `-`, so
+  `--base-ref --output=pwned.txt` made `git diff` write that file.
+
+- **A passed gauntlet challenge releases the commit it gated.** The
+  pre-commit gate consumes a one-time pass token for the staged files,
+  and the challenge skill said to write one, but no command did. A
+  developer who passed the challenge stayed blocked. `answer_evaluator.py
+  --gate` now scores the challenge saved in
+  `.gauntlet/state/pending_challenge.json` and writes the token on a
+  pass. An answer file the caller writes cannot earn one. The skill
+  names the command.
+
+- **egregore's Stop hook writes the continuation baton.** ADR-0023
+  says each stop records a baton so a dropped turn is observable, but
+  nothing outside the tests wrote one, so every run read as "nothing
+  handed off". A stop the hook blocks now advances the baton with the
+  re-injected reason and a five-minute deadline, and a stop with no
+  active work clears it. The watchdog does not read it yet, as the ADR
+  now states.
+
+- **The night-run handoff gate refuses every spelling of the repo
+  root.** It rejected `.`, `./` and `/` by string, so `./.` and `././`
+  passed, and the scope check then read them as an allowlist covering
+  the whole tree. Both now test whether the entry reduces to no path
+  segments.
+
+- **The egregore watchdog keeps the session it relaunches.** The
+  watchdog exits right after starting `claude` in the background.
+  systemd's default `KillMode` for the oneshot unit and launchd's
+  process-group cleanup then killed the new session within
+  milliseconds, so every tick relaunched again. The systemd unit now
+  sets `KillMode=process` and the launchd job `AbandonProcessGroup`.
+  Both record the install-time `PATH`, because neither service PATH
+  holds `~/.local/bin`, so `claude` exited 127 while the log said
+  "Launched". A pid left in the pidfile across a reboot counts as alive
+  only when `ps` names it `claude` or its arguments run `claude`, as
+  under an npm install's node shim. `install_launchd.sh` rejects an
+  interval that is not whole seconds and resolves a relative working
+  directory.
+
+- **egregore finds an installed herald.** It looked for herald's
+  `notify.py` three directories above its own `scripts/`, which is the
+  repository layout. In the plugin cache that resolves to
+  `cache/<market>/egregore/herald/`, which never exists, so overseer
+  notifications stayed off even with herald installed. The lookup now
+  uses the vendored `sibling_plugin_dir`, which also checks the newest
+  installed version. `HERALD_NOTIFY_PATH` still overrides it.
+
+- **The night run reviews files it creates.** Its diff-size cap and the
+  babysitter's review both read `git diff HEAD`, which leaves untracked
+  files out. A 5,000-line file the implementer created counted as 0
+  lines against a cap of 200, the babysitter saw an empty diff, and the
+  task commit then added the file unreviewed. Untracked files are now
+  diffed against `/dev/null` for both.
+
+- **sanctum's Windows toast no longer runs code from a directory name.**
+  The toast XML sat in a double-quoted PowerShell here-string, which
+  expands `$(...)` and `$var`, and its body names the working
+  directory. A directory named `proj$(Start-Process calc)` ran the
+  command on the next notification. The XML now sits in a single-quoted
+  here-string, which PowerShell never expands.
+
+- **Skill evaluations compare like with like.** The baseline a changed
+  skill is judged against was the worst five-run window over its last 20
+  runs, and the evaluation window holds 10. The worst of more windows is
+  lower, so an unchanged skill with a 75% success rate was promoted 54%
+  of the time. `record_skill_improvement.py` now takes the baseline over
+  the last 10 runs. A window whose history was reset under it (a corrupt
+  `.history.json` is set aside and restarted) scored its empty slice as
+  a perfect gap and promoted a skill whose every run failed. Such a
+  window is now abandoned and the skill returns to monitoring.
+
+- **conserve's context warning runs before subagent dispatches.** Its
+  `PreToolUse` matcher listed `Task`, the legacy name of the dispatch
+  tool, but not `Agent`, so the warning never ran before the dispatches
+  that spend the most context. The matcher now names both.
+
+- **conserve's auto-approve no longer reads secrets the shell rewrites.**
+  The permission hook matched the deny list against the text it was
+  given, so `cat .e''nv`, `cat .e?v`, `head -n5 .e*` and
+  `cat ~/.aws/cred*` reached the safe list and were approved without a
+  dialog. The deny list now also runs on the command after shell
+  quoting is removed, and a reader or searcher whose file operand holds
+  a glob, brace or variable falls through to the dialog. `env`,
+  `printenv` and `echo $ANY_KEY` now ask too. Operands are found with
+  each tool's own value flags. `grep -T token .e?v` and
+  `ag -t token .e?v` ask as well. Only `echo` of named
+  non-secret variables such as `$PATH` stays approved.
+
+- **conserve reads list-shaped tool results.** A `tool_result` block
+  usually carries `content` as a list of text items. The PreCompact
+  hook passed that list to a regex and raised `TypeError`, so it exited
+  1 on every compaction and preserved nothing. The context warning
+  counted the list's length, so a 50,000-character result counted as 1
+  and the warning fired late in tool-heavy sessions. Both now read the
+  block through `shared.content_blocks.block_text`.
+
+- **gauntlet gates and graph refreshes see chained commits.** The
+  pre-commit challenge gate and the post-commit graph refresh both
+  checked `command.startswith("git commit")`, so `git add -A && git
+  commit`, `cd repo && git commit` and `git -C repo commit` skipped the
+  gate and left `graph.db` stale. Both hooks now share
+  `gauntlet.git_commands.is_git_commit`, which tests each shell segment,
+  and their `if` gates widen to `Bash(git *commit*)`.
+
+- **Commit vows inspect chained commits.** imbue's no-AI-attribution
+  and no-emoji vows only saw a command that began with `git commit`, so
+  `git add -A && git commit ...`, `git -C repo commit` and
+  `git -c k=v commit` were never checked, even with `VOW_SHADOW_MODE=0`.
+  Detection now tests each shell segment and allows git's global options
+  before `commit`, and the `if` gate widens to `Bash(git *commit*)` to
+  admit the flagged forms.
+
+- **Fewer processes block each prompt.** Five plugins registered
+  `UserPromptSubmit`, run in sequence, and the chain hit its 2000ms limit
+  on about 16% of prompts (#779). memory-palace's URL detector and
+  `+recall` now share one process, `hooks/user_prompt.py`, so a prompt
+  pays one interpreter start-up instead of two. The two modules are now
+  helpers, `_url_detector.py` and `_recall.py`. sanctum's
+  `--clear-state` observer runs `async`, since it returns no context.
+
+- **abstract's evaluation window counts the run that was just logged.**
+  The homeostatic monitor advanced an open window from its own
+  PostToolUse hook, which runs alongside the execution logger, so it
+  could read the history before the run was written and judge the window
+  without it (#1018). The logger now advances the window under its
+  history lock, after the write, and reports the result in
+  `continual_metrics.window_evaluation`. The monitor no longer counts or
+  reports an evaluating skill.
+
+- **abstract's experience records carry only what is written.**
+  `ExecutionTrajectory` declared `tools_used` and `key_decisions`, which
+  `store_experience` never set, so every stored entry held two empty
+  defaults (#1019). Both fields are gone, along with the `Tools:` line
+  `format_context` printed from one of them. Passing either to `store`
+  raises `TypeError`.
+
+- **egregore's webhook tests no longer need DNS.** `send_webhook`
+  resolves the hostname before curl runs, and the tests stubbed only
+  curl, so a slow lookup failed two of them and let three failure-path
+  tests pass before reaching curl (#1021). The resolver is stubbed, and
+  one test pins the unresolvable-host path.
+
 ## [1.10.1] - 2026-11-04
 
 Two entries below are marked Breaking, and this release ships them under

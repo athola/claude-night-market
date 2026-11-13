@@ -96,32 +96,6 @@ def write_ledger_entry(path: Path, entry: dict) -> None:
         path.write_text(json.dumps(entries, indent=2), encoding="utf-8")
 
 
-def update_ledger_entry(
-    path: Path,
-    title: str,
-    filed: bool,
-    issue_number: int | None = None,
-) -> None:
-    """Update an existing ledger entry by normalised *title*.
-
-    Sets ``filed`` and optionally ``issue_number``.  If no matching entry
-    is found the ledger is left unchanged.
-    """
-    normalised = _normalize_title(title)
-    with ledger_lock(path):
-        entries = read_ledger(path)
-        changed = False
-        for entry in entries:
-            if _normalize_title(entry.get("title", "")) == normalised:
-                entry["filed"] = filed
-                if issue_number is not None:
-                    entry["issue_number"] = issue_number
-                changed = True
-        if changed:
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(json.dumps(entries, indent=2), encoding="utf-8")
-
-
 # ---------------------------------------------------------------------------
 # Signal detection
 # ---------------------------------------------------------------------------
@@ -181,7 +155,7 @@ def _parse_skill_name(tool_input: dict) -> str:
 def _coerce_tool_input(value: object) -> dict:
     """Normalize ``tool_input`` to a dict regardless of source.
 
-    Stdin delivers it already parsed; the legacy env var delivers a JSON
+    Stdin delivers it already parsed, and the legacy env var delivers a JSON
     string. A non-object value collapses to an empty dict rather than
     raising, matching the lenient behavior the hooks relied on.
     """
@@ -249,15 +223,26 @@ def read_payload() -> dict:
     }
 
 
-def _response_text(payload: dict) -> str:
-    """Return ``tool_response`` as text (the runtime sends dict or str)."""
-    value = payload.get("tool_response", "")
+def _string_leaves(value: object) -> list[str]:
+    """Every string inside ``value``, depth first, in document order."""
     if isinstance(value, str):
-        return value
-    try:
-        return json.dumps(value)
-    except (TypeError, ValueError):
-        return str(value)
+        return [value]
+    if isinstance(value, dict):
+        return [leaf for item in value.values() for leaf in _string_leaves(item)]
+    if isinstance(value, list):
+        return [leaf for item in value for leaf in _string_leaves(item)]
+    return [] if value is None else [str(value)]
+
+
+def _response_text(payload: dict) -> str:
+    """Return ``tool_response`` as text (the runtime sends dict or str).
+
+    A dict or list is read as the leaves it holds, joined by newlines. A
+    non-string scalar is converted by str() and None is dropped. Serializing
+    it instead would escape each newline, and a marker's title would run on
+    to the end.
+    """
+    return "\n".join(_string_leaves(payload.get("tool_response", "")))
 
 
 def should_process(payload: dict | None = None) -> bool:

@@ -129,15 +129,12 @@ _MEDIUM_SEVERITY = [
     ]
 ]
 
-_EXTERNAL_BASH_PATTERNS = [
-    "gh api",
-    "gh issue",
-    "gh pr",
-    "gh run",
-    "gh release",
-    "curl ",
-    "wget ",
-]
+# gh subcommands that print text other people wrote, plus the raw
+# fetchers. Whitespace is \s+ because `gh  api` runs the same command.
+_EXTERNAL_BASH_RE = re.compile(
+    r"\bgh\s+(?:api|issue|pr|run|release|gist|search|repo|discussion)\b"
+    r"|\b(?:curl|wget)\s"
+)
 
 
 def is_external_tool(tool_name: str, tool_input: dict[str, Any]) -> bool:
@@ -146,7 +143,7 @@ def is_external_tool(tool_name: str, tool_input: dict[str, Any]) -> bool:
         return True
     if tool_name == "Bash":
         cmd = tool_input.get("command", "")
-        return any(pat in cmd for pat in _EXTERNAL_BASH_PATTERNS)
+        return bool(_EXTERNAL_BASH_RE.search(cmd))
     return False
 
 

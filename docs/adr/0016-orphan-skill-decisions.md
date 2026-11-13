@@ -48,7 +48,7 @@ name.
 ### 2. ``memory-palace:palace-diagram``: WIRE
 
 - **Demand signal**: medium. Visual palace inspection has been
-  asked for in two recent maintenance sessions; a slash command
+  asked for in two recent maintenance sessions. A slash command
   surface would lower the bar to use.
 - **Wiring cost**: small. Add ``/palace diagram <id>`` slash
   command that delegates to the existing skill.

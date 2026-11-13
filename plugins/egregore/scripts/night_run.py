@@ -191,10 +191,41 @@ class TaskResult:
     ledger: list[dict[str, Any]] = field(default_factory=list)
 
 
+def _untracked_diff(runner: Runner, workdir: Path, *options: str) -> str:
+    """Diff each untracked file against /dev/null, as if it were added.
+
+    ``git diff HEAD`` leaves untracked files out, so a file the implementer
+    created escaped the line cap and reached the babysitter as nothing.
+    ``--no-index`` exits 1 when the two sides differ, which they always do.
+    It also exits 1 when it cannot read a side. Git lists an untracked
+    nested repository as one entry with a trailing slash, which is
+    skipped rather than diffed. A symlink to a directory has no slash
+    and is still diffed as the link it is.
+    """
+    chunks = []
+    for path in _untracked(runner, workdir):
+        if path.endswith("/"):
+            continue
+        argv = ("diff", "--no-index", *options, "--", "/dev/null", path)
+        observed = _git(runner, workdir, *argv)
+        if observed.returncode not in (0, 1):
+            raise GitFailed(["git", *argv], observed)
+        chunks.append(observed.output)
+    return "".join(chunks)
+
+
+def _review_diff(runner: Runner, workdir: Path) -> str:
+    """Return every change the babysitter judges, new files included."""
+    tracked = _git_query(runner, workdir, "diff", "HEAD", "--unified=0")
+    return tracked + _untracked_diff(runner, workdir, "--unified=0")
+
+
 def _diff_line_count(runner: Runner, workdir: Path) -> int:
-    """Count added and removed lines against HEAD, staged ones included."""
+    """Count added and removed lines against HEAD, staged and untracked included."""
+    numstat = _git_query(runner, workdir, "diff", "HEAD", "--numstat")
+    numstat += _untracked_diff(runner, workdir, "--numstat")
     total = 0
-    for line in _git_query(runner, workdir, "diff", "HEAD", "--numstat").splitlines():
+    for line in numstat.splitlines():
         parts = line.split()
         if len(parts) >= _NUMSTAT_COUNT_FIELDS:
             total += int(parts[0]) if parts[0].isdigit() else 0
@@ -254,9 +285,9 @@ def _touched_files(runner: Runner, workdir: Path) -> list[str]:
     implementer that creates a file produced an empty list and the scope
     fence was handed nothing to judge. The denylist's own headline entry
     is ``.github/**``, named as a path where an unattended overnight edit
-    changes the rules the harness runs under -- and creating a workflow
-    file is precisely that, so the case the fence exists for was the case
-    it could not see.
+    changes the rules the harness runs under. Creating a workflow file is
+    precisely that edit: the case the fence exists for was the case it
+    could not see.
     """
     return _changed_files(runner, workdir) + _untracked(runner, workdir)
 
@@ -406,7 +437,7 @@ def run_task(
         else:
             sitter_verdict, sitter_reason, next_instruction = babysitter(
                 task=task,
-                diff=_git_query(runner, workdir, "diff", "HEAD", "--unified=0"),
+                diff=_review_diff(runner, workdir),
                 test_output=observed.output,
                 test_exit=observed.returncode,
             )
@@ -421,7 +452,7 @@ def run_task(
 
 
 #: Rough characters-per-token divisor used to estimate on-plan spend.
-#: This is an estimate, not a measurement. It exists so the ceiling trips
+#: The divisor is a rough guess. It exists so the ceiling trips
 #: on the right order of magnitude. When the real babysitter reports usage
 #: from ``claude --output-format json``, prefer that number over this.
 CHARS_PER_TOKEN = 4
@@ -737,7 +768,7 @@ def _prepare_worktree(
     Returns ``None`` when the item is ready to walk, or the reason it
     cannot start. Both exit codes used to be discarded, so a branch name
     already in use, or a stale worktree, left the run executing tasks
-    against whatever directory happened to sit at that path -- and a
+    against whatever directory was already at that path, and a
     failed ``uv sync`` left every later test failing for a reason that
     had nothing to do with the task the babysitter was judging.
     """

@@ -24,6 +24,9 @@ to a docstring deletes the reasoning the docstring exists to carry.
 - Commit message bodies
 - The `scribe:voice-*` skills
 - This repository's descriptive documentation, these rules included
+- Merge request, pull request, and ticket descriptions a person edits.
+  Acceptance criteria keep one instruction per bullet, but
+  the author's contractions stay
 
 **The adopted limits:** 20 words per procedural sentence, 25 per
 descriptive sentence, 6 sentences per paragraph, 3 words per noun
@@ -51,9 +54,9 @@ rules are correct about different text: uniform sentence length is a
 machine tell in prose meant to read as thinking, and a feature in a
 procedure someone follows at 3 a.m.
 
-**Checking it:** three checks need counting and live in `scribe.ste`
+**Checking it:** three checks need counting and are in `scribe.ste`
 (`check_sentence_length`, `check_paragraph_length`,
-`find_noun_clusters`). Four are regex and live in the `ste:` section of
+`find_noun_clusters`). Four are regex, in the `ste:` section of
 `plugins/scribe/data/languages/en.yaml`, reachable through
 `get_ste_patterns(patterns, include_optional=True)`. All of them ship
 off by default, because measured across this repository they fire on

@@ -9,7 +9,7 @@ Measures six health dimensions per plugin:
 5. Improvement velocity
 6. Virtue practice
 
-All dimensions return descriptive strings, not numeric scores.
+All dimensions return descriptive strings. None is scored numerically.
 
 Part of the stewardship framework. See: STEWARDSHIP.md
 """

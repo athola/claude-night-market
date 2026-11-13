@@ -78,6 +78,33 @@ class TestParsePackages:
         assert pg.parse_packages(cmd) == [("pypi", "requests")]
 
     @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("command", "expected"),
+        [
+            ("pip install --target build_out requests", [("pypi", "requests")]),
+            ("pip install -t libs requests", [("pypi", "requests")]),
+            ("pip install -i https://x/simple requests", [("pypi", "requests")]),
+            ("npm install --prefix frontend lodash", [("npm", "lodash")]),
+            ("npm install -w app lodash", [("npm", "lodash")]),
+            ("uv add --group docs sphinx", [("pypi", "sphinx")]),
+            ("uv add --optional cli rich", [("pypi", "rich")]),
+            ("poetry add -G dev pytest", [("pypi", "pytest")]),
+            ("cargo add serde --features derive_more", [("crates", "serde")]),
+            ("cargo add tokio -F full", [("crates", "tokio")]),
+            ("cargo add serde -p core", [("crates", "serde")]),
+        ],
+    )
+    def test_an_option_value_is_not_a_package(self, pg, command, expected):
+        """A flag's value was probed as a package and 404s blocked the install."""
+        assert pg.parse_packages(command) == expected
+
+    @pytest.mark.unit
+    def test_a_quoted_specifier_with_spaces_is_one_package(self, pg):
+        """`"requests >= 2"` split on whitespace made `2` a package."""
+        cmd = 'pip install "requests >= 2" urllib3'
+        assert pg.parse_packages(cmd) == [("pypi", "requests"), ("pypi", "urllib3")]
+
+    @pytest.mark.unit
     def test_skips_local_and_vcs_targets(self, pg):
         cmd = "pip install -e . git+https://github.com/x/y.git ./local"
         assert pg.parse_packages(cmd) == []
@@ -375,6 +402,31 @@ def test_parse_packages_does_not_read_a_redirect_or_comment_as_a_package(
 ) -> None:
     """`2>&1` named a package `2`, and a redirect target named a package."""
     assert pg.parse_packages(command) == [("pypi", "requests")]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("command", "expected"),
+    [
+        (
+            "pip install git+https://github.com/x/y.git#egg=y fakepkgzz",
+            [("pypi", "fakepkgzz")],
+        ),
+        (
+            "pip install requests#x fakepkgzz",
+            [("pypi", "requests#x"), ("pypi", "fakepkgzz")],
+        ),
+    ],
+)
+def test_parse_packages_reads_past_a_hash_inside_a_word(
+    pg, command: str, expected: list
+) -> None:
+    """The shell starts a comment only at a `#` that opens a word.
+
+    A mid-word `#` such as a `#egg=` fragment ended parsing, and every
+    package after it was installed unchecked.
+    """
+    assert pg.parse_packages(command) == expected
 
 
 @pytest.mark.unit

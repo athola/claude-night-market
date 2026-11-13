@@ -409,8 +409,8 @@ fixes are omitted. See `~/.claude/release-notes` for the full log.
   - **Action Required**: Done
 
 - ✅ **`sandbox.failIfUnavailable` Setting**: Exit with
-  error when sandbox cannot start instead of running
-  unsandboxed. For managed-settings deployments requiring
+  an error when the sandbox cannot start. Without the setting,
+  Claude Code runs unsandboxed. For managed-settings deployments requiring
   sandbox as a hard gate.
   - **Impact**: Enterprise security
   - **Affected**: None
@@ -790,7 +790,7 @@ mode.
 - ✅ **`/context` Actionable Suggestions**: The `/context`
   command now identifies context-heavy tools, memory bloat,
   and capacity warnings with specific optimization tips.
-  Previously it showed a breakdown; now it recommends
+  Previously it showed a breakdown. Now it recommends
   actions (e.g., "compact to reclaim X tokens", "disable
   unused MCP server Y").
   - **Impact**: Directly supports conserve:context-optimization
@@ -1234,8 +1234,8 @@ mode.
   - **Action Required**: None
 
 - ✅ **CLAUDE_CODE_DISABLE_CRON Mid-Session Stop**: The env var now
-  immediately stops scheduled cron jobs mid-session, not just prevents
-  new ones at startup.
+  immediately stops scheduled cron jobs mid-session as well as
+  preventing new ones at startup.
   - **Impact**: Provides an emergency stop for runaway cron tasks
   - **Affected**: abstract:hook-authoring hook-types module (updated)
   - **Action Required**: Done - hook-types module cron section updated
@@ -1401,8 +1401,8 @@ mode.
   deploy`). Three new built-in tools: `CronCreate`, `CronList`,
   `CronDelete` for scheduled tasks. `CronCreate` accepts `cron`
   (5-field expression in local timezone), `prompt`, `recurring`
-  (default true), and `durable` (default false; true persists to
-  `.claude/scheduled_tasks.json` across restarts). Sessions hold up
+  (default true), and `durable` (default false). A durable task
+  persists to `.claude/scheduled_tasks.json` across restarts. Sessions hold up
   to 50 tasks with 7-day auto-expiry for recurring tasks. Tasks fire
   only while the REPL is idle, with deterministic jitter (recurring:
   up to 10% of period late, max 15 min; one-shot at :00/:30: up to
@@ -1432,7 +1432,7 @@ mode.
   - **Action Required**: Done - all 3 hook reference files updated
 
 - ✅ **Voice Push-to-Talk Keybinding**: `voice:pushToTalk` keybinding
-  rebindable in `keybindings.json` (default: space); modifier+letter
+  rebindable in `keybindings.json` (default: space). Modifier+letter
   combos like `meta+k` have zero typing interference. Voice STT expanded
   to 20 languages.
   - **Impact**: UX improvement for voice users
@@ -2229,7 +2229,7 @@ mode.
 
 **New Features**:
 - ✅ **`claude remote-control` Subcommand**: New subcommand for external
-  builds, enabling local environment serving for all users
+  builds. It serves the local environment for all users
   - **Impact**: Enables external IDEs and tools to connect to a local
     Claude Code session
   - **Affected**: None - new capability, no existing plugins reference
@@ -2467,8 +2467,8 @@ mode.
   workflows
 - Memory leak fixes across 6+ sites plus post-compaction cache clearing
   make this a meaningful quality release for long sessions
-- `CLAUDE_CODE_SIMPLE` now fully disables governance loading; ensure
-  imbue/leyline governance is not expected to run in SIMPLE mode
+- `CLAUDE_CODE_SIMPLE` now fully disables governance loading. Do not
+  expect imbue/leyline governance to run in SIMPLE mode
 
 ### February 2026 (2.1.38-2.1.49)
 

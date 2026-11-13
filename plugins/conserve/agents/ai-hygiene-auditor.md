@@ -58,8 +58,8 @@ data in `empirical-baseline.md` § "Code tells".
 | # | Tell | comment% | Notes |
 |---|------|----------:|-------|
 | 1 | Boilerplate / tutorial-shaped code | 18.6% | #1 by wide margin; 90% precision |
-| 2 | Hallucinated APIs / made-up methods | 11.2% | language-agnostic; bites at runtime |
-| 3 | Over-commenting (every line narrated) | 8.5% | inflated; only 48% of tags confirmed |
+| 2 | Hallucinated APIs / made-up methods | 11.2% | language-agnostic, bites at runtime |
+| 3 | Over-commenting (every line narrated) | 8.5% | inflated: only 48% of tags confirmed |
 | 4 | Over-engineering / needless abstraction | 7.8% | "KISS, YAGNI" in agent instructions fixes it |
 | 5 | Emoji in code / comments / commits | 3.9% | highest precision of any cosmetic tell |
 | 6 | Style mismatch (ignores codebase) | 3.5% | a 50-LoC PR becoming 2000-LoC because conventions ignored |
@@ -72,7 +72,7 @@ data in `empirical-baseline.md` § "Code tells".
   tagged comments were actually mocking AI naming.
 - Reinventing stdlib: mostly misattributed after re-read.
 - Leftover print/console.log debugging: **rejected** as
-  keyword artifact; zero confirmed quotes. Remove if present
+  keyword artifact, with zero confirmed quotes. Remove if present
   in detection logic.
 
 **Detection priority:** tutorial-shape (#1), hallucinated
@@ -381,7 +381,7 @@ hedge patterns. For thorough prose-level scanning
 (identity leaks, hallucinations, document-economy,
 evidence-backed-claims, anti-goals, the multi-pass cleanup
 workflow), delegate to `Skill(scribe:slop-detector)`. This
-agent's role is the audit-time triage; scribe is the
+agent's role is the audit-time triage, and scribe is the
 detailed scanner.
 
 | For this concern | Delegate to scribe module |
@@ -604,7 +604,7 @@ Not all matches indicate AI debt. Skip these intentional patterns:
   primary detection. Keep as a secondary signal only.
 - **Print/console.log left in**: **rejected** as keyword artifact.
   Zero confirmed quotes from 2026 corpus. Remove `log_density`
-  as a standalone finding; keep only when combined with
+  as a standalone finding. Keep it only when combined with
   `happy_path_only` or `tutorial_shape` evidence.
 - **"Reinvents stdlib"**: too often misattributed. Surface only
   when `hallucinated_dependency` or explicit duplication of a
@@ -614,7 +614,7 @@ Not all matches indicate AI debt. Skip these intentional patterns:
 
 - Generic placeholder names (`process_data`, `handle_request`)
   have 100% precision in the Reddit corpus. Treat as HIGH
-  severity, not LOW.
+  severity.
 - Hallucinated APIs (`hallucinated_dependency` category) have
   63% precision and directly cause production failures.
 - Tutorial shape (Category 0) has 90% precision and is the
@@ -738,7 +738,7 @@ verifier did not run.
 1. **Never auto-refactor** - all changes require approval
 2. **Evidence-based** - every finding includes a `location` (file:line)
    and a verbatim `anchor` (exact source text at that line)
-3. **Non-judgmental** - AI assistance is valid; quality matters
+3. **Non-judgmental** - AI assistance is valid. Quality matters
 4. **Actionable** - every finding includes specific recommendation
 
 ## Escalation to Opus

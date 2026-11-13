@@ -43,7 +43,7 @@ for f in $(rg -l "async fn " --type rust); do
 done
 ```
 
-(Heuristic; manual review needed since `.await` may be in
+(Heuristic. Manual review is needed since `.await` may be in
 a helper called by the async fn rather than inline.)
 
 ## Pattern 2: blocking I/O inside an async runtime
@@ -278,7 +278,7 @@ metrics flush in parallel with shutdown`.
 Per `Skill(scribe:slop-detector)` module
 `structured-finding-output.md`. Severity:
 
-- **High**: pattern 6 (MutexGuard across await; deadlock
+- **High**: pattern 6 (MutexGuard across await: deadlock
   risk).
 - **Medium**: patterns 2 (blocking inside async), 3
   (spawn-then-await), 4 (async-trait on sync method).

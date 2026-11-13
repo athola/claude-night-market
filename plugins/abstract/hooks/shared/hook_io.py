@@ -27,7 +27,7 @@ _LEGACY_SESSION_ID = "CLAUDE_SESSION_ID"
 def _coerce_tool_input(value: Any) -> dict[str, Any]:
     """Normalize ``tool_input`` to a dict regardless of source.
 
-    Stdin delivers it already parsed; the legacy env var delivers a JSON
+    Stdin delivers it already parsed. The legacy env var delivers a JSON
     string. A non-object value collapses to an empty dict rather than
     raising, matching the lenient behavior the hooks relied on.
     """
@@ -101,7 +101,7 @@ def read_hook_payload() -> dict[str, Any]:
 def tool_response_text(payload: dict[str, Any]) -> str:
     """Return ``tool_response`` as text for substring outcome checks.
 
-    The runtime sends ``tool_response`` as a dict or a string; callers that
+    The runtime sends ``tool_response`` as a dict or a string. Callers that
     scan for 'error'/'warning' need a string either way.
     """
     value = payload.get("tool_response", "")

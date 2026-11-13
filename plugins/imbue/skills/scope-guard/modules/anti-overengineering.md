@@ -72,7 +72,7 @@ Decision: [Fits/Requires split/Requires drop]
 - Half-done work is re-scored from its current state. What was already
   spent is not a reason to spend more.
 - "Users might want this" is a Business Value of 1 or 2. Evidence of
-  demand raises it; a guess does not.
+  demand raises it, and a guess does not.
 - The right way to do it is the simplest way that works.
 - Refactoring carries Complexity cost like any other change. Score it.
 
@@ -149,7 +149,7 @@ AI agents create unique overengineering risks through psychological dependency p
 | Sign | Indicator | Immediate Action |
 |------|-----------|------------------|
 | **Dopamine-driven coding** | "Just one more feature" at 2am, ignoring fatigue | STOP. Sleep. Review tomorrow with fresh eyes. |
-| **Sunk cost with AI** | "We spent 4 hours on this approach" | Re-evaluate from current state, not invested time. |
+| **Sunk cost with AI** | "We spent 4 hours on this approach" | Re-evaluate from the current state and ignore time already invested. |
 | **Echo chamber validation** | Only showed work to AI users/communities | Get review from someone NOT using AI. |
 | **Defending slop** | "It works, why change it?" for messy code | Apply understanding verification protocol. |
 | **Parasocial attachment** | "Claude and I built this together" | It's one-directional. AI reinforces your direction. |
@@ -160,7 +160,7 @@ AI agents create unique overengineering risks through psychological dependency p
 
 **Reality Check Questions:**
 - "Would a skeptical senior engineer approve this?"
-- "Can I explain WHY, not just WHAT?"
+- "Can I explain WHY as well as WHAT?"
 - "Have I received feedback from someone not using AI?"
 
 ### Vibe Coding Red Flags
@@ -187,7 +187,7 @@ Before claiming any AI-assisted work is complete:
 
 1. **Understanding Gate**: Can you explain every significant line without referencing AI?
 2. **External Review**: Has someone NOT using AI reviewed this?
-3. **Refactoring Balance**: Did you refactor existing code, not just add new?
-4. **Test Depth**: Do tests cover failures, not just success?
+3. **Refactoring Balance**: Did you refactor old code as well as add new?
+4. **Test Depth**: Do tests cover failures as well as success?
 
 See [../../proof-of-work/modules/anti-cargo-cult.md](../../proof-of-work/modules/anti-cargo-cult.md) for full understanding verification protocol.

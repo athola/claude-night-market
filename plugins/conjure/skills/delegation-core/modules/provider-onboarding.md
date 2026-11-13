@@ -99,8 +99,8 @@ path and is the shorter route.
 **A refresh token can be spent.**
 `codex` reports `your refresh token was already used` and retries five
 times before failing.
-`codex logout` then `codex login` is the fix; re-running the delegation
-is not.
+`codex logout` then `codex login` is the fix.
+Re-running the delegation does not help.
 
 **An `opencode` token can be present and wrong.**
 `Could not find the appropriate key in your authentication token`

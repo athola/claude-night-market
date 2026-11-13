@@ -34,7 +34,7 @@ DEFAULT_WINDOW = 2
 
 # Minimum number of non-space characters an anchor must carry to be trusted.
 # A 3-char anchor like "def" is a substring of countless lines and would
-# VERIFY spuriously; requiring >=8 non-space chars keeps the substring match
+# VERIFY spuriously. Requiring >=8 non-space chars keeps the substring match
 # meaningful (issue #569).
 MIN_ANCHOR_CHARS = 8
 
@@ -153,7 +153,7 @@ def _validate_and_read(
     if finding.line < 1 or finding.line > total:
         return [], f"line {finding.line} out of range (file has {total} lines)"
 
-    # A too-short anchor matches too easily to be trusted; reject it before
+    # A too-short anchor matches too easily to be trusted. Reject it before
     # the substring search rather than let it VERIFY spuriously (issue #569).
     anchor_chars = "".join(finding.anchor.split())
     if len(anchor_chars) < MIN_ANCHOR_CHARS:
@@ -202,7 +202,7 @@ def verify_findings(
     strictness: str = "normal",
     window: int = DEFAULT_WINDOW,
 ) -> VerificationReport:
-    """Verify every finding; aggregate into a report.
+    """Verify every finding and aggregate the results into a report.
 
     ``strictness`` mirrors the proof-of-work output-contract vocabulary:
     ``strict``/``normal`` fail on any unresolved citation; ``lenient``

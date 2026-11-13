@@ -10,7 +10,7 @@ reads the admitted documents back through ``load_item``, so the rule
 above is the rule that guards a run.
 
 The gate refuses more often than a person would. That is deliberate. A
-refusal costs a one-line edit the evening before; a bad pass costs the
+refusal costs a one-line edit the evening before. A bad pass costs the
 night.
 
 Exit codes double as the state, worst news first:
@@ -121,7 +121,7 @@ REQUIRED_DOCS = {
 }
 
 #: A diff larger than this needs a resolving spec reference. The number
-#: is the repository's own surgical-edit threshold, not a new one.
+#: reuses the repository's own surgical-edit threshold.
 DEFAULT_DIFF_CAP = 200
 
 #: ``---``, the YAML block, then the body.
@@ -167,7 +167,7 @@ _SHELLS = frozenset({"sh", "bash", "zsh", "dash", "ksh", "fish"})
 
 #: Per interpreter: the short-option letters and the long options that
 #: hand it code as a string. A letter counts inside a bundle (``-Ic``,
-#: ``-pe``). ``ruby -r`` is absent: it loads a library, not a string.
+#: ``-pe``). ``ruby -r`` is absent: its argument names a library.
 _CODE_OPTIONS = {
     "node": ("ep", ("--eval", "--print")),
     "perl": ("eE", ()),
@@ -177,7 +177,7 @@ _CODE_OPTIONS = {
     "bun": ("ep", ("--eval", "--print")),
 }
 
-#: Interpreters that take code through a subcommand, not an option.
+#: Interpreters that take code through a subcommand.
 _CODE_SUBCOMMANDS = {"deno": "eval"}
 
 #: Options that take the next word as their value, per interpreter. The
@@ -224,7 +224,7 @@ def parse_frontmatter(text: str) -> dict[str, Any]:
 
     Raises ``ValueError`` when the document has no frontmatter block or
     the block is not a YAML mapping. The caller turns that into
-    ``MALFORMED``; nothing here guesses at a partial document.
+    ``MALFORMED``. Nothing here guesses at a partial document.
     """
     if not text.startswith("---"):
         raise ValueError("no frontmatter block")
@@ -340,7 +340,7 @@ def _check_unsafe(docs: dict[str, Any]) -> list[str]:
         allow_paths = []
 
     for path in allow_paths:
-        if str(path).strip() in {".", "/", "./"}:
+        if scope.names_root(str(path)):
             problems.append(f"scope.allow_paths contains the repository root: {path!r}")
         elif scope.is_denied(str(path)):
             problems.append(

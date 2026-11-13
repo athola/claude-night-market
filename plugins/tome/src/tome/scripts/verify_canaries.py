@@ -21,7 +21,7 @@ carries no ``-m "not network"`` default, so a network-marked test would
 run in CI and redden the suite on any third-party hiccup.
 
 This is the one module under ``src/tome/`` that performs network I/O.
-That is a deliberate, contained exception: it lives in ``scripts/``,
+That is a deliberate, contained exception: it is in ``scripts/``,
 nothing on the synthesis path imports it, and the classifier it wraps
 is pure and offline-testable.
 """
@@ -107,7 +107,7 @@ def _answered_cleanly(channel: str, body: str) -> bool:
 
 
 def classify_canary_response(channel: str, *, status: int, body: str) -> CanaryOutcome:
-    """Classify one canary fetch. Pure: no network, no clock."""
+    """Classify one canary fetch. Pure: reads neither network nor clock."""
     if status == 429:
         return CanaryOutcome(
             channel,

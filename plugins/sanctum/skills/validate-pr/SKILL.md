@@ -149,7 +149,7 @@ done
 
 ## Step 3: Revert-Test Quality Check
 
-Prove at least one test is a genuine guard, not a dead assertion.
+Prove at least one test is a genuine guard.
 
 **Safety: abort if the working tree has uncommitted changes.**
 

@@ -5,7 +5,7 @@ work. Each agent has a fixed toolset,
 runs on a specific model tier (haiku/sonnet/opus),
 and knows when to escalate to a more capable model.
 The parent session decides whether the task justifies the overhead of spinning
-up an agent; simple tasks should be handled directly.
+up an agent. Simple tasks should be handled directly.
 
 **See also**: [Capabilities Reference][cap-ref] |
 [Commands][cap-cmd] | [Skills][cap-skills] |

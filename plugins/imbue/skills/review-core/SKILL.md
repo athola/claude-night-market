@@ -69,9 +69,9 @@ confirm):
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
   a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`, `action`;
-  set `phase` to `review`). Show the draft; append on confirmation.
+  set `phase` to `review`). Show the draft and append on confirmation.
 - Fallback (leyline absent): append to `docs/lessons-learned.md` using the
-  in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+  in-file ENTRY TEMPLATE, and assign the next `LL-NNN` id.
 
 ## Step 4 – Structure Deliverables (`review-core:deliverables-structured`)
 - Prepare the reporting skeleton shared by all reviews:
@@ -102,11 +102,11 @@ ship.
 
   Exit `0` means every citation resolved; exit `1` lists each finding
   whose path, line, or anchor did not match the source.
-- Drop or label `UNVERIFIED` any finding the verifier failed; only
+- Drop or label `UNVERIFIED` any finding the verifier failed. Only
   verified findings enter the report. Attach the verifier output to the
   evidence appendix.
 - If the script is unavailable, fall back to re-reading each cited
-  `file:line` by hand and confirming the anchor text is present; note the
+  `file:line` by hand and confirming the anchor text is present. Note the
   manual fallback in the contingency section.
 
 ## Step 6 – Contingency Plan (`review-core:contingencies-documented`)

@@ -86,7 +86,7 @@ Patterns that do not translate (skipped at Tier 2):
   builders that handle this, and the cost model differs.
 - T5, S2, S3: no unambiguous cross-language shape.
 
-Parse failures are reported, not swallowed. A grammar that fails to
+Parse failures are reported. A grammar that fails to
 load, or a tree with syntax errors, appends a warning to
 `AnalysisResult.warnings` and yields no Tier 2 findings for that
 file.

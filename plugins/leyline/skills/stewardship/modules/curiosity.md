@@ -29,7 +29,7 @@
 ## This is not curiosity
 
 - Researching endlessly without acting. Curiosity serves
-  action; it does not replace it. Understand enough to
+  action and does not replace it. Understand enough to
   proceed well, then proceed.
 - Demanding complete understanding before making any
   change. Some understanding comes only through doing.

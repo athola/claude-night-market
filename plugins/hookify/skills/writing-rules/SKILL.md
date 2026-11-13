@@ -1,6 +1,6 @@
 ---
 name: writing-rules
-description: Creates behavioral rules in markdown to block dangerous commands or restrict AI behavior. Use when adding safety guardrails or preventing specific commands.
+description: Writes hookify rules in markdown that block dangerous commands or restrict AI behavior. Use when adding guardrails.
 alwaysApply: false
 category: hook-development
 tags:
@@ -188,8 +188,8 @@ event: stop
 action: warn
 conditions:
   - field: transcript
-    operator: not_contains
-    pattern: pytest|npm test
+    operator: regex_match
+    pattern: \A(?![\s\S]*(?:pytest|npm test))
 ---
 
 ⚠️ **Tests not run!**

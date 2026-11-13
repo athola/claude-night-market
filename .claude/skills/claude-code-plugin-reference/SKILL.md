@@ -138,10 +138,10 @@ specified in `Skill(leyline:progressive-loading)`.
   references (the `bugs` category) above
   `scripts/skill_graph_baseline.json`. When your change lowers the count,
   lower the baseline too so the ratchet tightens.
-- CONSTITUTION.md rule 3 exempts skill prose from TDD but requires a
-  structural validation test per new skill (constitution names the pattern
-  `test_skill_<name>.py`; in practice imbue keeps them at
-  `tests/unit/skills/test_<name>.py`, e.g. `test_proof_of_work.py`).
+- CONSTITUTION.md rule 3 exempts skill prose from TDD and asks for
+  structural validation instead: the repo-wide `SKILL.md` tests, plus a
+  plugin test where the skill's contract matters, usually
+  `tests/unit/skills/test_<name>.py` (e.g. imbue's `test_proof_of_work.py`).
 
 ### How Skill() invocation resolves
 

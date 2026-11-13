@@ -149,8 +149,12 @@ class RuleEngine:
         Returns:
             True if condition matches
         """
-        # Get field value from context
-        field_value = context.get(condition.field, "")
+        # A field the event does not carry makes the condition inapplicable.
+        # Defaulting it to "" made every negated operator true, so a rule
+        # on `file_path` matched every Bash and prompt event.
+        if condition.field not in context:
+            return False
+        field_value = context[condition.field]
 
         if not isinstance(field_value, str):
             field_value = str(field_value)

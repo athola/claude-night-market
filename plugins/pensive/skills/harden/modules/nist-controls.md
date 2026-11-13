@@ -15,7 +15,7 @@ Produce Well-Secured Software (PW), Respond to Vulnerabilities
 | PW.4 | Reuse existing well-secured software | dependencies pinned, scanned, attested |
 | PW.5 | Create source code aligned with secure practices | linter enforces auth/crypto/serialization rules |
 | PW.6 | Configure compilation, build processes, links | RUSTFLAGS hardening, Python `-W error`, reproducible builds |
-| PW.7 | Review and analyze human-readable code | SAST run in CI; findings tracked |
+| PW.7 | Review and analyze human-readable code | SAST run in CI, findings tracked |
 | PW.8 | Test executable code | fuzz coverage, mutation tests, property tests |
 | PW.9 | Configure software with secure default settings | yaml SafeLoader, TLS verify on, autoescape on |
 | RV.1 | Identify, confirm vulnerabilities on a continuous basis | dependency scanner runs on every push |
@@ -82,7 +82,7 @@ explain *why* the upgrade is required.
 Each finding's `Citation:` line names:
 
 1. Primary CWE (always)
-2. NIST SSDF practice (always; pick the closest match)
+2. NIST SSDF practice (always: pick the closest match)
 3. Optional: OWASP ASVS section, RustSec ID, PEP number, CVE
 
 Example:

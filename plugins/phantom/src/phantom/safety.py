@@ -49,9 +49,17 @@ class ActionFilter:
         """
         for key in ("coordinate", "start_coordinate"):
             coord = action.get(key)
-            if coord is None or len(coord) != 2:
+            if coord is None:
                 continue
-            x, y = int(coord[0]), int(coord[1])
+            # The model writes these. One that is not a pair of numbers
+            # cannot be checked against the regions, so it is blocked. A
+            # TypeError here used to end the run and lose its results.
+            if not isinstance(coord, (list, tuple)) or len(coord) != 2:
+                return False
+            try:
+                x, y = int(coord[0]), int(coord[1])
+            except (TypeError, ValueError):
+                return False
             for x1, y1, x2, y2 in self.blocked_regions:
                 if x1 <= x <= x2 and y1 <= y <= y2:
                     return False

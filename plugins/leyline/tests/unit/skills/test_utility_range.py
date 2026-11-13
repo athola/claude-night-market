@@ -1,6 +1,6 @@
-"""The utility skill's stated range follows from its component bounds.
+"""The utility module's stated range follows from its component bounds.
 
-SKILL.md states ``Utility range: [-2.3, 1.0]``, which is
+``evaluation-framework/modules/utility.md`` states ``Utility range: [-2.3, 1.0]``, which is
 ``0 - λ1·1 - λ2·1 - λ3·1`` and so assumes every subtracted term lies in
 [0, 1]. Gain, Uncertainty and Redundancy declare that bound; StepCost did
 not, and its dispatch overhead (+0.3) and an unbounded token_ratio pushed
@@ -14,9 +14,10 @@ from pathlib import Path
 
 import pytest
 
-SKILL_DIR = Path(__file__).resolve().parents[3] / "skills" / "utility"
-SKILL_FILE = SKILL_DIR / "SKILL.md"
-MODULES = SKILL_DIR / "modules"
+MODULES = (
+    Path(__file__).resolve().parents[3] / "skills" / "evaluation-framework" / "modules"
+)
+SKILL_FILE = MODULES / "utility.md"
 
 
 def _lambda_defaults(skill_text: str) -> list[float]:

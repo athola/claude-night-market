@@ -73,10 +73,9 @@ Rules that save you an hour:
 - Some plugins force coverage on every run. imbue's pytest `addopts`
   include `--cov=scripts`, `--cov-report=html:htmlcov`, and
   `--cov-report=xml`, so even a single-file run writes `htmlcov/` and
-  `coverage.xml` into `plugins/imbue/`. This is normal, not a mess you
-  made.
+  `coverage.xml` into `plugins/imbue/`. This is expected.
 - Coverage thresholds: root coverage `fail_under = 85`. Per-plugin
-  overrides live in each plugin's `[tool.nightmarket]`
+  overrides are in each plugin's `[tool.nightmarket]`
   `coverage_threshold` (per-plugin values: see
   night-market-validation-and-qa, the designated home for the
   threshold inventory). `run-plugin-tests.sh` reads that value and

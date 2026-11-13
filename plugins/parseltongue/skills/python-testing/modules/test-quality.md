@@ -65,7 +65,7 @@ Guidelines for writing high-quality, maintainable tests.
 
 5. **Use fixtures** - Avoid setup duplication
 6. **Mock at boundaries** - Only mock external dependencies
-7. **Measure coverage** - Aim for meaningful, not just high
+7. **Measure coverage** - Aim for meaningful coverage over a high number
 
 ## Anti-Patterns to Avoid
 

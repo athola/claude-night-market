@@ -1,6 +1,6 @@
 """AST-based Python detectors for the harden skill.
 
-Each detector function takes an `ast.Call` node and a `Context`; it
+Each detector function takes an `ast.Call` node and a `Context`. It
 appends Findings to `ctx.findings` when its pattern matches. The
 dispatcher walks the tree once and applies every detector to each
 call node, so the cost is O(N detectors x N calls), fine for the
@@ -9,7 +9,7 @@ call node, so the cost is O(N detectors x N calls), fine for the
 The patterns are deliberately conservative: they fire on known
 unsafe shapes (e.g. ``yaml.load(`` with no ``Loader=``) and stay
 silent on safe alternatives (e.g. ``yaml.safe_load(``). The goal is
-high precision; recall is improved over time as detectors are added.
+high precision. Recall improves over time as detectors are added.
 
 Citations bind to NIST SP 800-218 SSDF practices and CWE Top 25
 entries per ``modules/nist-controls.md``. A detector without a
@@ -22,7 +22,7 @@ unsafe-stdlib helper names (the unsafe-deserialization family) that
 the project's pre-commit security hooks block when they appear
 literally in source. We construct those names from a base prefix at
 module-import time so this file does not contain the literal call
-sites. The runtime behavior is identical; only the source-level
+sites. The runtime behavior is identical. Only the source-level
 representation changes.
 """
 
@@ -412,8 +412,8 @@ def scan_source(source: str | bytes, *, file: str = "<source>") -> list[Finding]
 
     Bytes are decoded by the parser, which honors a PEP 263 coding cookie.
 
-    Syntax errors are caught and reported as ADVISORY findings; the
-    file is otherwise skipped.
+    Syntax errors are caught and reported as ADVISORY findings, and
+    the file is otherwise skipped.
     """
     ctx = _Context(file=file)
     try:

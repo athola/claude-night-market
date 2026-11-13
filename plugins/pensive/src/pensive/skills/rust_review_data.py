@@ -18,7 +18,7 @@ class Finding(TypedDict):
     Declaring the shape once gives mypy a schema to check the inline dict
     literals against, instead of the record living implicitly across the
     per-concern detector modules (PR #577 finding D2). All four keys are
-    required; the strictness is the point.
+    required. The strictness is the point.
     """
 
     line: int
@@ -270,7 +270,7 @@ ELISION_NEEDLESS_LIFETIME_REC = (
 
 # A `return <expr>;` statement. Requiring `\S` after `return` excludes a
 # bare `return;`. The mixin only flags it when the next non-blank line
-# closes the block, i.e. it is the tail, not an early guard.
+# closes the block, i.e. it is the tail rather than an early guard.
 ELISION_RETURN_STMT_PATTERN = r"^\s*return\s+\S.*;\s*$"
 ELISION_NEEDLESS_RETURN_REC = (
     "drop `return` and the semicolon; the block's tail expression is "
@@ -282,7 +282,7 @@ ELISION_NEEDLESS_RETURN_REC = (
 # Flags `as` casts that lose information. Grounded in the Rust Reference
 # type-cast rules (src/expressions/operator-expr.md): "Casting from a
 # larger integer to a smaller integer (e.g. u32 -> u8) will truncate";
-# float-to-int saturates and `NaN` maps to 0; integer-to-float and
+# float-to-int saturates and `NaN` maps to 0. Integer-to-float and
 # f64->f32 round and may lose precision. clippy::cast_possible_truncation
 # and clippy::cast_precision_loss.
 #
@@ -295,7 +295,7 @@ ELISION_NEEDLESS_RETURN_REC = (
 #   - `as f32` is the precision-loss target for f64/i64/u64 sources.
 
 # A usize-width length/size produced by a method call, narrowed by a
-# cast. The method names are the common usize-returning queries; the
+# cast. The method names are the common usize-returning queries. The
 # target is any fixed-width integer narrower than usize on 64-bit.
 NUMERIC_LEN_TRUNCATION_CAST_PATTERN = (
     r"\.(?:len|count|capacity)\(\)\s+as\s+(?:u8|u16|u32|i8|i16|i32)\b"
@@ -368,7 +368,7 @@ MUTABLE_STATIC_EXCLUSION_PATTERNS: list[str] = [
 # (src/expressions/match-expr.md): match arms must be exhaustive, and a
 # wildcard `_` arm satisfies that by matching everything left over. When
 # the scrutinee is an enum, an explicit-variant match makes a newly added
-# variant a compile error; a `_` arm that panics or is empty turns it
+# variant a compile error. A `_` arm that panics or is empty turns it
 # into a runtime panic or a silently ignored case instead.
 # clippy::wildcard_enum_match_arm, clippy::match_wildcard_for_single_variants.
 #
@@ -433,7 +433,7 @@ TRANSMUTE_REC = (
 )
 
 # `transmute_copy` does not even require the sizes to match and reads
-# from a reference; it is strictly more dangerous than `transmute`.
+# from a reference. It is strictly more dangerous than `transmute`.
 TRANSMUTE_COPY_PATTERN = r"(?<![.\w])transmute_copy\s*\("
 TRANSMUTE_COPY_REC = (
     "`transmute_copy` skips even the size check `transmute` enforces and "
@@ -457,7 +457,7 @@ TRANSMUTE_EXCLUSION_PATTERNS: list[str] = [
 #
 # A float literal is detected by a decimal point (`1.5`, `0.0`) or a
 # float type suffix (`2f32`, `1.0f64`); an integer literal (`5`) has
-# neither and is left alone. The literal may sit on either side of the
+# neither and is left alone. The literal may be on either side of the
 # operator, so two patterns cover both directions. `<=`/`>=` are not
 # `==`/`!=` and ordering comparisons on floats are legitimate, so they
 # do not match.
@@ -479,7 +479,7 @@ FLOAT_CMP_EXCLUSION_PATTERNS: list[str] = [
 # ── Mem-forget patterns (#mem-forget-audit) ──────────────────
 #
 # Flags `mem::forget(x)` (skips the destructor, leaking the resource)
-# and `drop(&x)` (drops a borrow, a no-op, so the owned value lives on).
+# and `drop(&x)` (drops a borrow, a no-op that leaves the owned value alive).
 # The Rust Reference destructors chapter (src/destructors.md) explains
 # that `forget` runs no destructor and that `drop` consumes the owned
 # value. clippy::mem_forget, clippy::drop_ref.
@@ -515,7 +515,7 @@ MEM_FORGET_EXCLUSION_PATTERNS: list[str] = [
 # type-layout chapter (src/type-layout.md) defines the `packed`
 # representation, which drops the padding that keeps fields naturally
 # aligned. Taking a reference to an under-aligned field is undefined
-# behavior; the `unaligned_references` lint makes it a hard error.
+# behavior. The `unaligned_references` lint makes it a hard error.
 #
 # Matches `#[repr(packed)]`, `#[repr(C, packed)]`, and `#[repr(packed(2))]`
 # while leaving `#[repr(C)]` and `#[repr(transparent)]` alone (no
@@ -544,7 +544,7 @@ REPR_PACKED_EXCLUSION_PATTERNS: list[str] = [
 # These compiled forms are imported by the analyzer mixins so
 # patterns are parsed once at module load instead of inside
 # per-line scans. Plain string forms above remain the source of
-# truth; the compiled forms below are derived mechanically.
+# truth. The compiled forms below are derived mechanically.
 
 UNSAFE_BLOCK_RE = re.compile(UNSAFE_BLOCK_PATTERN)
 UNSAFE_FN_RE = re.compile(UNSAFE_FN_PATTERN)
@@ -736,7 +736,7 @@ COERCION_COMMENT_RE = re.compile(COERCION_COMMENT_PATTERN)
 #    so a generic *bound* `T: Into<U>` (which is correct) is never
 #    matched. Group 1 is the target X, group 2 the source Y.
 # 2. `.try_into().unwrap()` / `T::try_from(..).unwrap()` discards the
-#    error `TryFrom` exists to surface; propagate it with `?` instead.
+#    error `TryFrom` exists to return. Propagate it with `?` instead.
 CONVERSION_IMPL_INTO_PATTERN = (
     r"^\s*impl(?:\s*<[^>]*>)?\s+Into\s*<\s*([^>]+?)\s*>\s+for\s+(\w+)"
 )

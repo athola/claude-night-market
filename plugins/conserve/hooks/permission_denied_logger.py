@@ -26,8 +26,8 @@ def log_dir() -> Path:
     A module-level constant freezes the project root at import time,
     which makes the destination untestable and silently wrong for any
     caller that sets ``CLAUDE_PROJECT_DIR`` afterwards. The sibling
-    ``background_agent_notice.py`` documents the same reason; this hook
-    kept the constant.
+    ``background_agent_notice.py`` documents the same reason, but this
+    hook kept the constant.
     """
     root = os.environ.get("CLAUDE_PROJECT_DIR") or os.environ.get("PWD") or "."
     return Path(root) / ".claude" / "logs"

@@ -3,8 +3,8 @@
 Replays recorded agent envelopes through ``frontier_verdict`` as a pure
 function and prints three things: the confusion matrix of human label
 against verdict, the false-THIN rate on the adversarial class, and a
-sweep of the sparsity threshold. No network, no model, no LLM, so the
-numbers are reproducible and trend-able.
+sweep of the sparsity threshold. It calls no network, model or LLM,
+which keeps the numbers reproducible and trend-able.
 
 The middle number is the one that matters. ``covered-obscure`` topics
 are abundantly published under vocabulary the obvious query misses, and

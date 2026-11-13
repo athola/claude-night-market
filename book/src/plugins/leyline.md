@@ -18,23 +18,18 @@ authentication, storage, and testing patterns.
 
 | Skill | Description | When to Use |
 |-------|-------------|-------------|
-| `quota-management` | Rate limiting and quotas | Building services that consume APIs |
-| `usage-logging` | Telemetry tracking | Logging tool usage for analytics |
-| `service-registry` | Service discovery patterns | Managing external tool connections |
+| `service-registry` | Service discovery, rate limiting and quotas, telemetry | Managing external tool connections, consuming rate-limited APIs, logging tool usage |
 | `error-patterns` | Standardized error handling patterns | Production-grade error recovery |
 | `damage-control` | Recovery protocols for broken agent state | Crash recovery, context overflow, merge conflicts |
 | `content-sanitization` | Sanitization for external content | Loading Issues, PRs, Discussions, or WebFetch results |
 | `markdown-formatting` | Line wrapping and style conventions | Generating or editing markdown prose |
 | `authentication-patterns` | Auth flow patterns | Handling API keys and OAuth |
-| `evaluation-framework` | Decision thresholds | Building evaluation criteria |
+| `evaluation-framework` | Decision thresholds and utility-guided action selection | Building evaluation criteria or gating agent dispatch |
 | `progressive-loading` | Dynamic content loading | Lazy loading strategies |
 | `risk-classification` | Inline 4-tier risk classification for agent tasks | Risk-based task routing with war-room escalation |
-| `pytest-config` | Pytest configuration | Standardized test configuration |
-| `storage-templates` | Storage abstraction | File and database patterns |
 | `stewardship` | Cross-cutting stewardship principles with five virtues (Care, Curiosity, Humility, Diligence, Foresight) | Working with project health, codebase improvement, or virtue-aligned development |
-| `testing-quality-standards` | Test quality guidelines | Ensuring high-quality tests |
-| `deferred-capture` | Contract for unified deferred-item capture across plugins | Implementing or testing deferred-capture wrappers |
-| `decision-journal` | Contract for the project decision journal (tradeoffs and lessons-learned logs) | Recording a decision, tradeoff, or lesson, or building a consumer hook |
+| `testing-quality-standards` | Test quality guidelines and pytest configuration | Ensuring high-quality tests and standardized test configuration |
+| `decision-journal` | Contracts for the decision journal, deferred-item capture, and storage templates | Recording a tradeoff or lesson, building a deferred-capture wrapper, or organizing stored knowledge |
 | `git-platform` | Git platform detection and cross-platform commands | Abstracting GitHub/GitLab/Bitbucket differences |
 | `ticket-writing` | Glanceable tickets with the why inline or one link away | Creating or editing Jira, GitLab, or GitHub tickets |
 | `supply-chain-advisory` | Known-bad version detection, lockfile auditing, incident response | After supply chain advisories, dependency audits, or suspected compromise |
@@ -70,7 +65,7 @@ Leyline skills are typically used as dependencies in other plugins:
 # In your skill's SKILL.md frontmatter
 dependencies:
   - leyline:error-patterns
-  - leyline:quota-management
+  - leyline:service-registry  # quota-management module
 ```
 
 ### Error Handling Pattern
@@ -140,7 +135,7 @@ Other plugins should import this instead of reimplementing frontmatter parsing.
 ### Rate Limiting
 
 ```python
-# quota-management pattern
+# service-registry quota-management module
 from leyline.quota_tracker import QuotaTracker
 
 tracker = QuotaTracker(service="my-service")
@@ -153,7 +148,7 @@ if level != "critical":
 ### Telemetry
 
 ```python
-# usage-logging pattern
+# service-registry usage-logging module
 from leyline.usage_logger import UsageEvent, UsageLogger
 
 logger = UsageLogger(service="my-service")
@@ -162,7 +157,7 @@ logger.log_usage(UsageEvent("WebFetch", tokens=500, duration=1.2))
 
 ### Storage Abstraction
 
-The storage-templates skill is guidance with no Python API: it gives
+The decision-journal `storage-templates` module is guidance with no Python API: it gives
 directory layouts and file templates for a plugin to copy, not a class
 to import.
 
@@ -202,8 +197,8 @@ Leyline is used by:
 
 1. **Don't Duplicate**: Use leyline patterns instead of reimplementing
 2. **Compose Patterns**: Combine multiple patterns for complex needs
-3. **Test with Standards**: Use pytest-config for consistent testing
-4. **Log Everything**: Use usage-logging for debugging and analytics
+3. **Test with Standards**: Use the testing-quality-standards pytest-config module for consistent testing
+4. **Log Everything**: Use service-registry usage logging for debugging and analytics
 
 ## Related Plugins
 

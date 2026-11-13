@@ -173,7 +173,7 @@ which asks two anchor questions against the draft state:
 1. **Progress probe**: what is the current task progress: what is
    done, and what state is the task in now?
 2. **Gap probe**: what information is still needed to finish: a
-   bounded list of concrete open items, not generic categories.
+   bounded list of concrete open items.
 
 Gate logic:
 

@@ -31,7 +31,7 @@ LANGUAGE_CALIBRATION: dict[str, float] = {
 DATA_DIR = Path(__file__).parent.parent.parent / "data" / "languages"
 
 # Common function words per language for detect_language()
-# NOTE: Italian "it" overlaps the English pronoun "it"; short English texts
+# NOTE: Italian "it" overlaps the English pronoun "it". Short English texts
 # can match Italian. detect_language() guards against this by preferring
 # English on ties.
 _LANGUAGE_MARKERS: dict[str, frozenset[str]] = {
@@ -410,32 +410,6 @@ def get_ste_patterns(
     return result
 
 
-def get_all_language_patterns(languages: list[str] | None = None) -> dict[str, dict]:
-    """Load patterns for multiple languages at once.
-
-    Args:
-        languages: List of ISO 639-1 language codes to load.
-            Defaults to all supported languages when None.
-
-    Returns:
-        Mapping of language code to its loaded pattern dictionary.
-        Languages whose pattern file is missing are skipped.
-
-    Raises:
-        ValueError: If any requested language is not supported.
-    """
-    if languages is None:
-        languages = sorted(SUPPORTED_LANGUAGES)
-
-    result: dict[str, dict] = {}
-    for lang in languages:
-        try:
-            result[lang] = load_language_patterns(lang)
-        except FileNotFoundError:
-            continue
-    return result
-
-
 LANGUAGE_NAMES: dict[str, str] = {
     "de": "German",
     "en": "English",
@@ -444,11 +418,3 @@ LANGUAGE_NAMES: dict[str, str] = {
     "it": "Italian",
     "pt": "Portuguese",
 }
-
-
-def list_supported_languages() -> list[dict[str, str]]:
-    """List all supported languages with their names."""
-    return [
-        {"code": code, "name": LANGUAGE_NAMES.get(code, code)}
-        for code in sorted(SUPPORTED_LANGUAGES)
-    ]

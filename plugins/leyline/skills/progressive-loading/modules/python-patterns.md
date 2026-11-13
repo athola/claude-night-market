@@ -35,7 +35,7 @@ load splits by idiom family.
 | Async (`asyncio`) | `async-patterns.md` | 600 |
 | Pathlib | `pathlib-patterns.md` | 200 |
 
-Most tasks need one or two families, not all six. The hub picks
+Most tasks need one or two of the six families. The hub picks
 based on the imports and patterns already present in the file
 under review.
 

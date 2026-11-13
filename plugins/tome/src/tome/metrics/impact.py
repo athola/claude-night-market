@@ -9,7 +9,7 @@ memory-palace's analyzer.
 The disruption index is biased by citation inflation, field size, and
 citation-window length (Petersen 2023; QSS 2024). So a raw score is
 never comparable across cohorts: ``assert_comparable`` enforces that in
-code, not just in prose.
+code.
 """
 
 from __future__ import annotations

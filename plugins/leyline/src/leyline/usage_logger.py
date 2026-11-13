@@ -46,7 +46,7 @@ class LogEntry:
 class UsageEvent:
     """Call-time fields for a single ``log_usage`` invocation.
 
-    Session and service context are supplied by the logger; this carries
+    Session and service context are supplied by the logger. This carries
     only the per-operation data.
     """
 

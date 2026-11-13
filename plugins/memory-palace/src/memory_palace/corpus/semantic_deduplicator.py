@@ -107,7 +107,7 @@ class SemanticDeduplicator:
     def add_text(self, _text: str) -> None:
         """No-op; FAISS is the sole backend.
 
-        Kept for API compatibility; use add_vector instead.
+        Kept for API compatibility. Use add_vector instead.
         """
         logger.debug("add_text is a no-op; FAISS is the only supported backend")
 

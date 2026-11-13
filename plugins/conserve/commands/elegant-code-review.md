@@ -55,11 +55,11 @@ review. For whole-codebase cleanup, use `/unbloat`.
 5. Apply the negligence floor before proposing any deletion. Never
    propose removing input validation, authorization, data-loss
    handling, error handling, security paths, or accessibility.
-6. Check completeness, not just excess. Flag a hunk that handles only
+6. Check completeness as well as excess. Flag a hunk that handles only
    the happy path: missing edge cases (empty, `None`, zero, boundary),
    missing negative or failure paths, or an obvious performance trap
    (quadratic loop, N+1 query). Minimal code that omits these is
-   unfinished, not lean.
+   unfinished.
 
 ## Output
 

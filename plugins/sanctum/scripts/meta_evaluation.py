@@ -50,7 +50,6 @@ class MetaEvaluator:
         "leyline": [
             "evaluation-framework",
             "testing-quality-standards",
-            "pytest-config",
         ],
         # Pensive plugin (review skills)
         "pensive": [
@@ -126,7 +125,7 @@ class MetaEvaluator:
         return True
 
     def check_concrete_quick_start(self, content: str, skill_name: str) -> bool:
-        """Check if Quick Start has concrete commands, not abstract descriptions."""
+        """Check if Quick Start has concrete commands."""
         # Look for Quick Start section
         quick_start_match = re.search(
             r"## Quick Start\s+(.*?)(?=##|\Z)", content, re.DOTALL | re.IGNORECASE
@@ -337,7 +336,7 @@ class MetaEvaluator:
         modules_listed: list[str] = frontmatter.get("modules", []) or []
         passed = True
 
-        # Resolve each listed entry; collect the canonical paths that were found.
+        # Resolve each listed entry and collect the canonical paths found.
         resolved_paths: set[Path] = set()
         for module_entry in modules_listed:
             resolved = self._resolve_module_path(skill_path, module_entry)

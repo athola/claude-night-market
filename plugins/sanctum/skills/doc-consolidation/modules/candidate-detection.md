@@ -151,7 +151,7 @@ done
 Files that are partially staged (`MM` or `AM` status) should be flagged for user attention - they may contain mixed committed/uncommitted content.
 
 ### Renamed/moved files
-If git shows a rename (`R` status), check if the destination is a standard location. If moving TO a standard location, not a candidate.
+If git shows a rename (`R` status), check if the destination is a standard location. If moving TO a standard location, skip it.
 
 ## Validation
 

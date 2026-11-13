@@ -36,7 +36,7 @@ different fields. You systematically find these bridges.
    function without itself existing and without the cost.
    Ask "what would make this system unnecessary while the
    function still happens?" Ideality is the ratio of useful
-   functions to harmful functions plus cost; raising it is
+   functions to harmful functions plus cost. Raising it is
    the goal. This framing is the highest-value TRIZ step.
 
    Also identify the evolutionary stage (S-curve position): is
@@ -54,7 +54,7 @@ different fields. You systematically find these bridges.
      candidates, because mapping free text onto contradiction
      parameters runs near three candidates per correct one
      (TRIZ-GPT, arXiv 2408.05897). Search from each candidate
-     that fits; drop the ones that do not and say why.
+     that fits. Drop the ones that do not and say why.
    - Technical contradiction: "Improving X worsens Y"
    - Read `matched` on each record. `fallback` means no
      catalogue row named the topic: use its
@@ -162,7 +162,7 @@ Envelope rules, identical across all four channel agents:
 
 - `errors` entries are objects, never bare strings.
   `kind` is `rate_limit` or `source_error`. A rate limit
-  means "re-run me"; a source error means "investigate".
+  means "re-run me" and a source error means "investigate".
   The two lead a reader to opposite actions, so guessing
   between them is not acceptable.
 - `metadata.queries` carries one entry per query actually
@@ -186,9 +186,3 @@ Envelope rules, identical across all four channel agents:
   relevant, say so
 - For deep/maximum: consult Altshuller's 40 inventive
   principles if a clear contradiction exists
-- The classical contradiction matrix is available as an
-  optional, secondary grounding lookup. It is frozen since
-  1985, sparse, and uses engineering parameters, so treat it
-  as a cross-check, not the primary source. An empty cell
-  means any of the 40 principles may apply, not that no
-  solution exists.

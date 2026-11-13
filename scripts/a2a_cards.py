@@ -62,7 +62,7 @@ def parse_agent_frontmatter(content: str) -> dict[str, Any]:
         except json.JSONDecodeError:
             pass
 
-    # YAML format -- delegate to leyline (handles PyYAML + fallback).
+    # YAML format: delegate to leyline (handles PyYAML + fallback).
     return parse_frontmatter(content) or {}
 
 

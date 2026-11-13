@@ -219,7 +219,7 @@ transcript and validate against it.
 
 The scoring system catches structural and content issues. It
 does not measure whether the skill solves the right problem.
-Empirical TDD is the proof, not the score.
+Empirical TDD is the proof.
 
 ### Skipping validation for "small" changes
 

@@ -110,7 +110,7 @@ def classify_line(line: str, *, in_code_block: bool) -> str:
 def _strip_unwrappable_tokens(line: str) -> str:
     """Remove URLs and inline code spans before measuring length.
 
-    Both are unbreakable -- a line whose excess length comes from a
+    Both are unbreakable: a line whose excess length comes from a
     long URL or a long backtick-quoted token is not a wrap violation.
     """
     no_urls = _URL_PATTERN.sub("", line)
@@ -193,7 +193,7 @@ def validate_files(
 
     When ``enforce_root`` is True, paths are rejected if they resolve
     outside *root* (or the validator root from IMBUE_VALIDATOR_ROOT /
-    cwd). Library callers default to the permissive mode; the stdin
+    cwd). Library callers default to the permissive mode. The stdin
     driver (``main``) opts in to enforcement to defend against
     caller-supplied paths in JSON payloads.
     """

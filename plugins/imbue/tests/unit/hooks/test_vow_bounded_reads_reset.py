@@ -391,3 +391,25 @@ class TestResetEntryPointErrors:
         assert exc.value.code == 0
         assert captured.out == ""
         assert "internal error" in captured.err
+
+
+class TestResetErrorsAreReportedOnce:
+    """An I/O failure is a routine warning; a bug is an internal error."""
+
+    @pytest.mark.unit
+    def test_an_open_failure_is_reported_as_a_reset_failure(
+        self, hook_module, tmp_path, capsys
+    ) -> None:
+        with patch.object(hook_module, "secure_open", side_effect=OSError("ELOOP")):
+            hook_module._atomic_reset(tmp_path / "counter.json")
+
+        assert "counter reset failed: ELOOP" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_a_programming_error_is_not_dressed_as_a_reset_failure(
+        self, hook_module, tmp_path
+    ) -> None:
+        """The middle catch-all reported a TypeError with the I/O wording."""
+        with patch.object(hook_module, "secure_open", side_effect=TypeError("bug")):
+            with pytest.raises(TypeError):
+                hook_module._atomic_reset(tmp_path / "counter.json")

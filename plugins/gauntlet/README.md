@@ -44,7 +44,7 @@ active recall and spaced repetition.
    generates a question, and evaluates your answer.
 
 4. **Progress**: every answer is recorded. Difficulty adapts. A
-   streak of correct answers raises the target difficulty; wrong
+   streak of correct answers raises the target difficulty, and wrong
    answers bring it back down.
 
 5. **Curate**: tribal knowledge that cannot be inferred from code
@@ -159,7 +159,7 @@ seed prompt. Two implementations ship:
   sibling Claude through the API when the parent LLM is
   already in-loop. Imports nothing from `anthropic`.
 
-The challenge skill calls
+The challenge engine calls
 `register_in_loop_provider_if_inside_claude_code()` to
 switch providers based on the runtime. The selection is
 automatic and requires no configuration.

@@ -248,9 +248,9 @@ cases:
   prompt: I'm writing a deferred-capture script for my plugin that files a GitHub
     issue with a [Deferred] prefix. What CLI args and issue body template does it
     need to follow?
-  target: leyline:deferred-capture
+  target: leyline:decision-journal
   competitor: null
-  cluster: leyline:deferred-capture
+  cluster: leyline:decision-journal
   proposers:
   - router
   adjudicated: true
@@ -262,9 +262,9 @@ cases:
   type: positive
   prompt: Check whether my plugin's deferred issue wrapper conforms to the spec, and
     I need to add a new source label for it. What colors and fields are expected?
-  target: leyline:deferred-capture
+  target: leyline:decision-journal
   competitor: null
-  cluster: leyline:deferred-capture
+  cluster: leyline:decision-journal
   proposers:
   - router
   adjudicated: true
@@ -278,9 +278,9 @@ cases:
     take a title, a source and a context string, tag issues with the deferred label,
     and support a dry-run. Can you check my argparse setup and issue body against
     what the other plugins' wrappers do, so they all stay consistent?
-  target: leyline:deferred-capture
+  target: leyline:decision-journal
   competitor: hookify:rule-sweep
-  cluster: leyline:deferred-capture
+  cluster: leyline:decision-journal
   proposers:
   - router
   - judge
@@ -695,9 +695,9 @@ cases:
   prompt: 'Set up pyproject.toml pytest settings for a new plugin: testpaths, strict
     markers, unit/integration/slow markers, and an 80% coverage floor with branch
     coverage.'
-  target: leyline:pytest-config
+  target: leyline:testing-quality-standards
   competitor: null
-  cluster: leyline:pytest-config
+  cluster: leyline:testing-quality-standards
   proposers:
   - router
   - judge
@@ -711,9 +711,9 @@ cases:
   prompt: I need a shared conftest.py with fixtures for a throwaway git repo and mocked
     Bash and TodoWrite tools, plus a GitHub Actions job that runs the tests. What's
     the standard layout?
-  target: leyline:pytest-config
+  target: leyline:testing-quality-standards
   competitor: null
-  cluster: leyline:pytest-config
+  cluster: leyline:testing-quality-standards
   proposers:
   - judge
   adjudicated: false
@@ -727,9 +727,9 @@ cases:
   prompt: Set up pyproject pytest options for our plugin so every plugin in the repo
     shares the same markers, a coverage threshold of 80, and strict markers. Also
     give me a conftest.py layout for the shared fixtures.
-  target: leyline:pytest-config
+  target: leyline:testing-quality-standards
   competitor: leyline:plugin-health
-  cluster: leyline:pytest-config
+  cluster: leyline:testing-quality-standards
   proposers:
   - judge
   adjudicated: true
@@ -745,9 +745,9 @@ cases:
   prompt: My integration with a rate-limited API keeps hitting 429s. I want to track
     requests and tokens per minute and per day, warn at 80%, and defer non-urgent
     work above 95%.
-  target: leyline:quota-management
+  target: leyline:service-registry
   competitor: null
-  cluster: leyline:quota-management
+  cluster: leyline:service-registry
   proposers:
   - judge
   adjudicated: false
@@ -759,9 +759,9 @@ cases:
   type: positive
   prompt: Before kicking off a big batch job, how can I estimate its token cost and
     check whether we have enough quota left, then record actual usage afterward?
-  target: leyline:quota-management
+  target: leyline:service-registry
   competitor: null
-  cluster: leyline:quota-management
+  cluster: leyline:service-registry
   proposers:
   - judge
   adjudicated: false
@@ -774,9 +774,9 @@ cases:
   prompt: My integration calls a rate-limited API and I want it to track cumulative
     token usage across sessions. It should warn at 80%, defer non-urgent work at 95%,
     and switch to a secondary service when the daily limit is nearly gone.
-  target: leyline:quota-management
+  target: leyline:service-registry
   competitor: conserve:token-conservation
-  cluster: leyline:quota-management
+  cluster: leyline:service-registry
   proposers:
   - judge
   adjudicated: false
@@ -918,13 +918,13 @@ cases:
     router: scribe:doc-sweep
     judge: null
 - id: leyline.service-registry.p3
-  type: near_miss
+  type: positive
   prompt: I need a registry in my plugin that tracks several external CLI-backed services,
     each with its own auth env var and quota limits. It should run commands through
     one interface, health-check them, and fail over to another service when one is
     down. What's a good structure?
   target: leyline:service-registry
-  competitor: leyline:quota-management
+  competitor: null
   cluster: leyline:service-registry
   proposers:
   - router
@@ -993,9 +993,9 @@ cases:
   prompt: I'm building a notes system where ideas start as rough drafts, get promoted
     as they prove useful, and eventually get archived. Help me set up markdown templates
     with frontmatter and a file naming scheme for each stage.
-  target: leyline:storage-templates
+  target: leyline:decision-journal
   competitor: null
-  cluster: leyline:storage-templates
+  cluster: leyline:decision-journal
   proposers:
   - writer
   adjudicated: true
@@ -1008,9 +1008,9 @@ cases:
   prompt: What's a good convention for naming knowledge-base files so short-lived
     early ideas are date-prefixed but stable, proven docs just use a topic slug? I
     also want rules for when something graduates to the next stage.
-  target: leyline:storage-templates
+  target: leyline:decision-journal
   competitor: null
-  cluster: leyline:storage-templates
+  cluster: leyline:decision-journal
   proposers:
   - writer
   adjudicated: true
@@ -1023,9 +1023,9 @@ cases:
   prompt: I'm setting up a docs folder where every entry starts as a rough idea and
     gets promoted once it's proven. Give me a frontmatter template and a file naming
     convention for each stage, from first draft through stable to archived.
-  target: leyline:storage-templates
+  target: leyline:decision-journal
   competitor: scribe:doc-sweep
-  cluster: leyline:storage-templates
+  cluster: leyline:decision-journal
   proposers:
   - judge
   adjudicated: false
@@ -1189,9 +1189,9 @@ cases:
   prompt: I want to record every operation my service performs, with token counts,
     duration, and success flag, into a JSONL file grouped by session so I can later
     query the last 24 hours and see recent errors. How do I set that up?
-  target: leyline:usage-logging
+  target: leyline:service-registry
   competitor: null
-  cluster: leyline:usage-logging
+  cluster: leyline:service-registry
   proposers:
   - judge
   adjudicated: false
@@ -1205,9 +1205,9 @@ cases:
   prompt: Need an audit trail of per-call costs across sessions for debugging. Show
     me how to initialize the logger, log an event with metadata, and pull a 7-day
     usage summary with estimated cost.
-  target: leyline:usage-logging
+  target: leyline:service-registry
   competitor: null
-  cluster: leyline:usage-logging
+  cluster: leyline:service-registry
   proposers:
   - router
   - judge
@@ -1221,9 +1221,9 @@ cases:
   prompt: I want every operation in my plugin to write a JSONL line with session ID,
     token count, duration and success flag, so I can later see which skill calls cost
     the most. How do I set that up?
-  target: leyline:usage-logging
+  target: leyline:service-registry
   competitor: conserve:token-conservation
-  cluster: leyline:usage-logging
+  cluster: leyline:service-registry
   proposers:
   - judge
   adjudicated: false
@@ -1239,9 +1239,9 @@ cases:
   prompt: My agent loop keeps making redundant search calls and sometimes stops too
     early. How can I score each candidate action, like retrieve, delegate, verify,
     or stop, so it decides whether another tool call is worth the cost?
-  target: leyline:utility
+  target: leyline:evaluation-framework
   competitor: null
-  cluster: leyline:utility
+  cluster: leyline:evaluation-framework
   proposers:
   - router
   - judge
@@ -1255,9 +1255,9 @@ cases:
   prompt: I need a way to decide whether to spawn a sub-agent or just answer from
     current context, with a step budget and a cutoff when nothing looks worth doing.
     Can you set up a gain-minus-costs scoring approach for it?
-  target: leyline:utility
+  target: leyline:evaluation-framework
   competitor: null
-  cluster: leyline:utility
+  cluster: leyline:evaluation-framework
   proposers:
   - router
   - judge
@@ -1271,9 +1271,9 @@ cases:
   prompt: My agent keeps calling search again and again, or else stops too early.
     How do I score each next step, whether to retrieve, delegate to a sub-agent or
     just answer, by expected gain minus cost, and pick a model tier?
-  target: leyline:utility
+  target: leyline:evaluation-framework
   competitor: conserve:agent-expenditure
-  cluster: leyline:utility
+  cluster: leyline:evaluation-framework
   proposers:
   - router
   - judge

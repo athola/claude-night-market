@@ -238,7 +238,7 @@ def _validate_configuration(usage_logger: GeminiUsageLogger) -> list[str]:
     except OSError as exc:
         problems.append(f"log directory is not writable: {exc}")
 
-    # An absent log is a logger that has not run yet, not a broken one. A log
+    # An absent log means the logger has not run yet. A log
     # that exists but cannot be parsed is corruption, and silently appending to
     # it would compound the damage.
     if usage_logger.usage_log.exists():

@@ -56,5 +56,5 @@ This wrapper preserves the call shape both ways:
 ## Out of Scope
 
 Do not re-implement domain classification, channel routing,
-synthesis, or report formatting here. Those live in the skill
+synthesis, or report formatting here. Those are in the skill
 and its supporting modules under `plugins/tome/src/tome/`.

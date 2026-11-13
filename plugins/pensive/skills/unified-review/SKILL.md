@@ -30,13 +30,18 @@ modules:
 - modules/shell-portability.md
 - modules/shell-safety-patterns.md
 - modules/shell-structure-patterns.md
+- modules/makefile-review.md
+- modules/makefile-dependency-graph.md
+- modules/makefile-deduplication-patterns.md
+- modules/makefile-portability-checks.md
+- modules/makefile-best-practices.md
+- modules/makefile-plugin-dogfood-checks.md
 orchestrates:
 - pensive:rust-review
 - pensive:api-review
 - pensive:architecture-review
 - pensive:bug-review
 - pensive:test-review
-- pensive:makefile-review
 - pensive:math-review
 - imbue:justify
 ---
@@ -85,7 +90,7 @@ Intelligently selects and executes appropriate review skills based on codebase a
 | Rust files (`*.rs`, `Cargo.toml`) | rust-review, bug-review, api-review | Rust project detected |
 | API changes (`openapi.yaml`, `routes/`) | api-review, architecture-review | Public API surfaces |
 | Test files (`test_*.py`, `*_test.go`) | test-review, bug-review | Test infrastructure |
-| Makefile/build system | makefile-review, architecture-review | Build complexity |
+| Makefile/build system | makefile-review module, architecture-review | Build complexity |
 | Shell scripts (`*.sh`, git hooks) | shell-review module | Shell changes |
 | Mathematical algorithms | math-review, bug-review | Numerical computation |
 | Architecture docs/ADRs | architecture-review, api-review | System design |
@@ -110,7 +115,7 @@ if has_api_changes():
 if has_test_files():
     schedule_skill("test-review")
 if has_makefiles():
-    schedule_skill("makefile-review")
+    schedule_module("makefile-review")
 if has_shell_scripts():
     schedule_module("shell-review")
 if has_math_code():
@@ -136,7 +141,7 @@ Use this mapping to resolve skill names to agent types:
 | rust-review | `pensive:rust-auditor` | Rust-specific |
 | code-refinement | `pensive:code-refiner` | Duplication, quality |
 | math-review | `general-purpose` | Prompt: invoke `Skill(pensive:math-review)` |
-| makefile-review | `general-purpose` | Prompt: invoke `Skill(pensive:makefile-review)` |
+| makefile-review | `general-purpose` | Prompt: follow this skill's `modules/makefile-review.md` |
 | shell-review | `general-purpose` | Prompt: follow this skill's `modules/shell-review.md` |
 
 **Sub-agent isolation (required).** One lens must not color how the
@@ -204,6 +209,8 @@ Run specific review domains:
 - `/full-review bugs` → bug-review only
 - `/full-review tests` → test-review only
 - `/full-review shell` → the shell-review module only (also `/shell-review`)
+- `/full-review makefile` → the makefile-review module only (also
+  `/makefile-review`)
 
 ### Full Review Mode
 Run all applicable review skills:
@@ -260,6 +267,9 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 - [Quality checklist patterns](modules/quality-checklist-patterns.md) - pre-review, analysis, evidence, deliverable checklists
 - [Shell review](modules/shell-review.md) - shell script audit, with its
   exit-code, portability, safety and structure modules
+- [Makefile review](modules/makefile-review.md) - Makefile audit, with its
+  dependency-graph, deduplication, portability, best-practice and dogfood
+  modules
 
 ## Troubleshooting
 

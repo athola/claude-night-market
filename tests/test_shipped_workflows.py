@@ -637,6 +637,10 @@ _DEAD_AGENT_CASES: dict[str, tuple[dict, str]] = {
         "no report from lint",
     ),
     "pensive": ({}, "no review from bugs"),
+    "pensive/parity-sweep": (
+        {"platforms": [{"name": "mac", "root": "m"}, {"name": "win", "root": "w"}]},
+        "no inventory for mac, win",
+    ),
     "phantom": ({"surfaces": ["screenshot"]}, "no verdict for screenshot"),
     "sanctum": ({"slice": "s"}, "failed: recreate"),
     "scribe": ({"docs": ["README.md"]}, "no report from critical"),
@@ -651,8 +655,8 @@ _DEAD_AGENT_CASES: dict[str, tuple[dict, str]] = {
 
 def test_every_workflow_has_a_dead_agent_case() -> None:
     """A workflow added without a dead-agent case would go unexercised."""
-    plugins = {script.parent.parent.name for script in _workflow_scripts()}
-    assert plugins == set(_DEAD_AGENT_CASES)
+    keys = {_case_key(script) for script in _workflow_scripts()}
+    assert keys == set(_DEAD_AGENT_CASES)
 
 
 @pytest.mark.parametrize("plugin", sorted(_DEAD_AGENT_CASES))
@@ -668,7 +672,7 @@ def test_a_workflow_whose_agents_all_fail_says_what_it_dropped(plugin: str) -> N
     the only way the branch that reports a dropped agent ever executes.
     """
     args, expected = _DEAD_AGENT_CASES[plugin]
-    (script,) = (PLUGINS / plugin / "workflows").glob("*.js")
+    script = _script(plugin)
 
     out = _run_workflow(script, "return null;", args)
 
@@ -682,9 +686,26 @@ def test_a_workflow_whose_agents_all_fail_says_what_it_dropped(plugin: str) -> N
 # ---------------------------------------------------------------------------
 
 
-def _script(plugin: str) -> Path:
-    (script,) = (PLUGINS / plugin / "workflows").glob("*.js")
+#: The script a plugin's roster and dead-agent tests exercise when the
+#: plugin ships more than one. A second script gets its own case keyed
+#: ``plugin/name``.
+_PRIMARY_SCRIPT = {"pensive": "unified-review"}
+
+
+def _script(key: str) -> Path:
+    plugin, _, name = key.partition("/")
+    scripts = sorted((PLUGINS / plugin / "workflows").glob("*.js"))
+    if name or len(scripts) > 1:
+        wanted = name or _PRIMARY_SCRIPT[plugin]
+        (script,) = [s for s in scripts if s.stem == wanted]
+        return script
+    (script,) = scripts
     return script
+
+
+def _case_key(script: Path) -> str:
+    plugin = script.parent.parent.name
+    return plugin if _script(plugin) == script else f"{plugin}/{script.stem}"
 
 
 _NO_DISPATCH = "throw new Error('agent dispatched for ' + opts.label);"
@@ -1061,3 +1082,60 @@ def test_unified_review_runs_with_one_lens() -> None:
     out = _run_workflow(_script("pensive"), "return { findings: [] };", {"lenses": 1})
     assert out["result"].get("started") is not False
     assert any("1 of 3 lenses" in line for line in out["log"]), out["log"]
+
+
+# ---------------------------------------------------------------------------
+# parity-sweep (ADR-0029): proposals become findings only when verified.
+# ---------------------------------------------------------------------------
+
+_PARITY_PLATFORMS = [
+    {"name": "mac", "root": "apps/mac"},
+    {"name": "win", "root": "apps/win"},
+]
+
+_PARITY_AGENT = """
+if (opts.label.startsWith('inventory:')) {
+  const platform = opts.label.slice('inventory:'.length);
+  const features = [{ key: 'sync', summary: 'syncs', files: ['a'] }];
+  if (platform === 'mac') features.push({ key: 'tabs', summary: 'tabs', files: ['b'] });
+  return { platform, features };
+}
+if (opts.label === 'align') {
+  return { mismatches: [
+    { feature: 'tabs', kind: 'missing', present_on: ['mac'], absent_on: ['win'], detail: 'win lacks tabs' },
+    { feature: 'sync', kind: 'divergent', detail: 'guessed from summaries' },
+  ] };
+}
+return { feature: opts.label.slice('verify:'.length), confirmed: opts.label === 'verify:tabs', evidence: 'x.swift:1' };
+"""
+
+
+def test_parity_sweep_reports_only_mismatches_its_verifiers_confirmed() -> None:
+    """GIVEN alignment proposes two mismatches and verification confirms one
+    WHEN the sweep runs
+    THEN only the confirmed one is a finding, and the other is refuted.
+    """
+    out = _run_workflow(
+        _script("pensive/parity-sweep"), _PARITY_AGENT, {"platforms": _PARITY_PLATFORMS}
+    )
+    result = out["result"]
+    assert [v["feature"] for v in result["confirmed"]] == ["tabs"]
+    assert [v["feature"] for v in result["refuted"]] == ["sync"]
+
+
+@pytest.mark.parametrize(
+    "platforms",
+    [
+        None,
+        [{"name": "mac", "root": "m"}],
+        [{"name": "mac"}, {"name": "win", "root": "w"}],
+    ],
+)
+def test_parity_sweep_refuses_fewer_than_two_complete_platforms(platforms) -> None:
+    """GIVEN no platforms, one platform, or one missing its root
+    WHEN the sweep is started
+    THEN it does not start and dispatches no agent.
+    """
+    args = {} if platforms is None else {"platforms": platforms}
+    out = _run_workflow(_script("pensive/parity-sweep"), _NO_DISPATCH, args)
+    assert out["result"]["started"] is False

@@ -42,7 +42,7 @@ Pass a directory path to limit analysis
 
 ## Design note
 
-Cartograph has no Python `src/` module. All analysis logic lives in
+Cartograph has no Python `src/` module. All analysis logic is in
 the `codebase-explorer` agent and the `cartograph:*` skills. The
 hooks directory provides a single PostToolUse hook that triggers
 diagram generation. No Python package is installed.

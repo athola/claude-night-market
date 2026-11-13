@@ -1,7 +1,7 @@
 # Source Attribution
 
-This skill is a derivation, not original work. Honest
-attribution belongs at the front, not the back.
+This skill derives from other people's work, and
+the attribution comes first.
 
 ## Primary Source: Andrej Karpathy
 
@@ -60,7 +60,7 @@ methodology, not protected expression.
 
 When citing this skill, prefer "derived from
 Karpathy's observations" over "Karpathy's
-principles." Karpathy named the failure modes; the
+principles." Karpathy named the failure modes. The
 four-principle architecture is a community
 distillation. Conflating the two is sloppy citation.
 

@@ -13,7 +13,7 @@ bodies, and PR descriptions. Two contracts apply to all of it.
 
 The word-level slop list (`leverage`, `seamless`, `comprehensive`,
 `delve`, ...) is necessary but not sufficient. The markers that leak
-most often are punctuation, not words. Before writing any commit
+most often are punctuation marks. Before writing any commit
 message or posting any comment, scan the text and replace these:
 
 | Marker | Example in | Replace with |
@@ -47,8 +47,8 @@ printf '%s\n' "$TEXT" | grep -nE '[^`]( -> | → )[^`]' && echo "fix: arrow conn
 printf '%s\n' "$TEXT" | grep -nE '[“”‘’]'      && echo "fix: smart quotes"
 ```
 
-Any match is fixed in the text before posting, not just reported.
-The full prose rule set lives in `Skill(scribe:slop-detector)`.
+Any match is fixed in the text before posting.
+The full prose rule set is in `Skill(scribe:slop-detector)`.
 
 ### Consequence tails (judgment, not a strip)
 

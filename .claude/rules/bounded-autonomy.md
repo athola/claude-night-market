@@ -95,7 +95,7 @@ Do not add these, and remove them when editing a file that has them:
 
 Skills accumulate sediment: people add and never remove. A stale skill
 does not sit inert, it is read, believed, and acted on. Deleting one
-that no longer matches the codebase is maintenance, not lost
+that no longer matches the codebase is maintenance and loses no
 capability.
 
 Before adding a skill, ask whether it carries something a competent

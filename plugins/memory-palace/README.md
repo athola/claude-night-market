@@ -104,8 +104,8 @@ Skill(memory-palace:knowledge-intake)
 |------|-------|-------------|
 | `research_interceptor.py` | PreToolUse | Checks local knowledge cache before web requests. |
 | `local_doc_processor.py` | PostToolUse | Monitors Read operations for indexing suggestions. |
-| `url_detector.py` | UserPromptSubmit | Detects URLs for potential knowledge intake. |
-| `web_content_processor.py` | PostToolUse | Processes web content for knowledge extraction. |
+| `user_prompt.py` | UserPromptSubmit | One process for URL detection (`_url_detector.py`) and `+recall` (`_recall.py`). |
+| `web_research_handler.py` | PostToolUse | Processes web content for knowledge extraction. |
 | `skill_tracker_pre.py` | PreToolUse | Records start time when Skill tool is invoked. |
 | `skill_tracker_post.py` | PostToolUse | Logs completion, calculates metrics, stores memory. |
 
@@ -139,7 +139,7 @@ hook rewrites it. Issue #620 proposed untracking it and set the
 tiebreak: the committed copy stays only if something needs it. Something
 does.
 
-The file is a work queue, not a cache. `web_research_handler` appends a
+The file is a work queue. `web_research_handler` appends a
 capture as `pending`. `scripts/precommit_palace_maintenance.sh` runs the
 `index_promoter` drain on every commit and re-stages what changed. The
 drain promotes an entry into `docs/knowledge-corpus/`, which is itself
@@ -165,8 +165,8 @@ and they check invariants rather than provenance.
 
 What none of this cures is the diff noise #620 was filed about. The file
 still goes dirty mid-session and still conflicts between concurrent
-branches that both ran a hook. The gates make that cost safe to carry,
-not zero.
+branches that both ran a hook. The gates make that cost safe to carry.
+They do not remove it.
 
 ## Requirements
 

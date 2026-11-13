@@ -8,7 +8,7 @@ collapses that pattern to one tested helper. Rollout is incremental:
 remaining sites migrate as they are touched (see
 ``docs/refinement/2026-05-02/04-architecture.md``).
 
-Note: this module cannot bootstrap leyline itself -- callers
+Note: this module cannot bootstrap leyline itself: callers
 that need leyline must still place ``plugins/leyline/src`` on
 sys.path with their own snippet before they can ``from
 leyline.bootstrap import add_plugin_src_to_path``. Once leyline
@@ -68,7 +68,7 @@ def add_plugin_src_to_path(
         # is the caller's frame; .filename is its co_filename.
         caller_file = inspect.stack()[1].filename
         # Synthetic filenames (<stdin>, <string>, <frozen ...>) cannot be
-        # used as a starting point for the upward plugins/ walk; fall
+        # used as a starting point for the upward plugins/ walk. Fall
         # back to cwd in that case.
         if caller_file and not caller_file.startswith("<"):
             caller_path = Path(caller_file)

@@ -36,13 +36,13 @@ modules:
 
 ## Overview
 
-detailed test management system that applies TDD/BDD principles to maintain, generate, and enhance tests across codebases. This skill practices what it preaches - it uses TDD principles for its own development and serves as a living example of best practices.
+detailed test management system that applies TDD/BDD principles to maintain, generate, and enhance tests across codebases. This skill practices what it preaches - it uses TDD principles for its own development and is a living example of best practices.
 
 ### Core Philosophy
 
 - **RED-GREEN-REFACTOR**: Strict adherence to TDD cycle
 - **Behavior-First**: BDD patterns that describe what code should do
-- **Invariant-Encoding**: Tests guard design decisions, not just behavior
+- **Invariant-Encoding**: Tests guard design decisions as well as behavior
 - **Meta Dogfooding**: The skill's own tests demonstrate the principles it teaches
 - **Quality Gates**: detailed validation before considering tests complete
 

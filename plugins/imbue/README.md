@@ -77,7 +77,7 @@ unaided, the aviation "children of the magenta" hand-fly check. The
 `guard_scope_ramp.py` PreToolUse hook holds each Write, Edit, and
 MultiEdit to the current rung (default ~40 added lines), halves it for
 high-stakes paths, and widens it one notch per recorded demonstration
-(`touch .imbue/ramp-ok`). Shadow mode (warn) is the default; set
+(`touch .imbue/ramp-ok`). Shadow mode (warn) is the default. Set
 `VOW_SHADOW_MODE=0` to block over-rung increments. Grounded in the 85%
 optimal-learning rule (Wilson 2019) and competence-based curriculum
 learning (Platanios 2019).
@@ -124,7 +124,7 @@ when a write tool fires.
 > **Why is shadow mode the default rather than blocking?**
 > Per [docs/inclusive-defaults.md][inc] (TRUE-exception
 > category 8), the inclusive default for soft constraints
-> is warn — defaulting to block would interrupt
+> is warn. Defaulting to block would interrupt
 > legitimate workflows on first install. Shadow-default
 > means every user gets the warnings without disruption;
 > blocking is the deliberate opt-in for users who want

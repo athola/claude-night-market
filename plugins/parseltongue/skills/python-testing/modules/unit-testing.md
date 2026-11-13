@@ -30,7 +30,7 @@ def test_user_creation():
 
 ## Basic pytest Tests
 
-Simple test examples demonstrating pytest fundamentals:
+Simple test examples of pytest fundamentals:
 
 ```python
 import pytest

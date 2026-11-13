@@ -12,8 +12,8 @@ that could not work. This module puts each ``plugins/*/src`` on ``sys.path`` so
 the import resolves whichever rootdir pytest picked.
 
 What this does NOT do: apply each plugin's ``addopts``. Coverage flags and the
-85% threshold live in the plugin's own config and are ignored under a
-root-level run. A green root run is an import-and-assertion check, not a gate.
+85% threshold are set in the plugin's own config and are ignored under a
+root-level run. A green root run checks imports and assertions only.
 ``make test`` (``scripts/run-plugin-tests.sh``, one pytest process per plugin)
 remains the gate of record.
 

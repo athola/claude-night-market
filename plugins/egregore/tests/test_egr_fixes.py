@@ -1,6 +1,4 @@
-"""Tests for EGR-003 and EGR-004 -- classify_technique guard and alert title
-extraction.
-"""
+"""Tests for EGR-004: alert title extraction."""
 
 from __future__ import annotations
 
@@ -12,27 +10,6 @@ from notify import (  # type: ignore[import-not-found]  # pytest pythonpath
     _build_alert_title,
     alert,
 )
-from scout import classify_technique
-
-
-class TestEgr003ClassifyTechniqueEmptyGuard:
-    """EGR-003: classify_technique returns None when no keywords match."""
-
-    def test_gibberish_description_returns_none(self) -> None:
-        """Description with no matching keywords returns None (not 'general')."""
-        assert classify_technique("zzz xyzzy qqqq") is None
-
-    def test_empty_description_returns_none(self) -> None:
-        """Empty string has no matching keywords, returns None."""
-        assert classify_technique("") is None
-
-    def test_testing_keywords_match_testing_category(self) -> None:
-        """Description with testing keywords classifies as 'testing'."""
-        assert classify_technique("write pytest tests for coverage") == "testing"
-
-    def test_security_keywords_match_security_category(self) -> None:
-        """Description with security keywords classifies as 'security'."""
-        assert classify_technique("check for vulnerabilities in auth") == "security"
 
 
 class TestEgr004BuildAlertTitle:

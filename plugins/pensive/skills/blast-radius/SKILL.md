@@ -62,7 +62,7 @@ Tell the user: "Run `/gauntlet-graph build` first."
    of filename matching. See `leyline:sem-integration`
    for detection patterns.
 
-   **Fallback tier 2 (no sem, no gauntlet)**: Trace
+   **Fallback tier 2 (sem and gauntlet both absent)**: Trace
    callers of changed functions with rg (or grep):
    ```bash
    # Prefer rg for speed; fall back to grep

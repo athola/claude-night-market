@@ -21,6 +21,7 @@ _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
+from gauntlet.git_commands import is_git_commit
 from gauntlet.knowledge_store import KnowledgeStore
 from gauntlet.progress import ProgressTracker
 
@@ -29,10 +30,10 @@ from gauntlet.progress import ProgressTracker
 # stays a clean no-op for every non-`git commit` Bash invocation and
 # survives missing optional deps. Skills running with an LLM in-loop can
 # call set_variation_provider() to short-circuit through the parent LLM
-# instead of round-tripping to the Anthropic API; that integration is
+# instead of round-tripping to the Anthropic API. That integration is
 # tracked in the issue queue and not wired in this branch.
 
-# Graph-aware analysis (optional -- degrade gracefully)
+# Graph-aware analysis (optional: degrade gracefully)
 try:
     __import__("gauntlet.blast_radius")
     __import__("gauntlet.graph")
@@ -251,8 +252,8 @@ def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
 def _get_staged_files() -> list[str] | None:
     """Return a list of staged file paths, or None on git failure.
 
-    ``gauntlet.incremental`` keeps its own copy, and both stand on
-    purpose. The gate must tell a git failure (None, deny) from an empty
+    ``gauntlet.incremental`` keeps its own copy, and both copies are
+    deliberate. The gate must tell a git failure (None, deny) from an empty
     commit, while the graph's fallback wants an empty list. The gate runs
     under a one-second git budget, and importing ``incremental`` would
     add its graph and parser modules, about 60 ms, to every call.
@@ -418,7 +419,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     tool_input = hook_input.get("tool_input", {})
     command = tool_input.get("command", "")
 
-    if not command.startswith("git commit"):
+    if not is_git_commit(command):
         return None
 
     gauntlet_dir = _get_gauntlet_dir()

@@ -253,5 +253,5 @@ uv pip sync requirements.lock
 
 ## Related Plugins
 
-- **leyline**: Provides pytest-config patterns
+- **leyline**: Provides pytest-config patterns (`testing-quality-standards`)
 - **sanctum**: Test updates integrate with test-updates skill

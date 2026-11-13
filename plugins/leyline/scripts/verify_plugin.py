@@ -186,7 +186,7 @@ def _choose_recommendation(
 
     Args:
         level_scores: Per-level pass-rate data.
-        target_level: The minimum level; records at it or above count.
+        target_level: The minimum level. Records at it or above count.
         min_score: Minimum acceptable pass rate (0.0-1.0).
 
     Returns:
@@ -270,63 +270,6 @@ def verify_plugin(
                 recommendation="untrusted",
                 assertion_history=[],
                 error="No workflow run history found.",
-            )
-        )
-
-    level_scores = _compute_level_scores(records)
-    recommendation = _choose_recommendation(level_scores, level, min_score)
-    meets = recommendation == "trusted"
-
-    return asdict(
-        TrustAssessment(
-            plugin_name=plugin_name,
-            meets_threshold=meets,
-            recommendation=recommendation,
-            level_scores=[level_scores[lv] for lv in VALID_LEVELS],
-            assertion_history=records[-20:],
-        )
-    )
-
-
-def verify_plugin_offline(
-    plugin_name: str,
-    records: list[dict[str, Any]],
-    level: str = "L1",
-    min_score: float = 0.8,
-) -> dict[str, Any]:
-    """Verify trust from pre-fetched records.
-
-    Useful for testing and offline evaluation without network
-    access.
-
-    Args:
-        plugin_name: Name of the plugin.
-        records: Pre-fetched record dicts with level/passed keys.
-        level: Assertion level to check.
-        min_score: Minimum pass rate threshold.
-
-    Returns:
-        Same dict shape as verify_plugin().
-    """
-    level = level.upper()
-    if level not in VALID_LEVELS:
-        return asdict(
-            TrustAssessment(
-                plugin_name=plugin_name,
-                meets_threshold=False,
-                recommendation="unknown",
-                error=f"Invalid level '{level}'. Must be one of {VALID_LEVELS}.",
-            )
-        )
-
-    if not records:
-        return asdict(
-            TrustAssessment(
-                plugin_name=plugin_name,
-                meets_threshold=False,
-                recommendation="untrusted",
-                assertion_history=[],
-                error="No assertion history found for this plugin.",
             )
         )
 

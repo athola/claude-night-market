@@ -108,7 +108,7 @@ def build_body(
 
 
 def ensure_label(label: str, color: str) -> None:
-    """Create GitHub label if it does not exist; log unexpected errors."""
+    """Create GitHub label if it does not exist. Log unexpected errors."""
     try:
         result = subprocess.run(
             ["gh", "label", "create", label, "--color", color],
@@ -174,7 +174,7 @@ def create_issue(title: str, body: str, labels: list[str]) -> dict[str, object]:
     """Create a GitHub issue and return ``{"number", "url"}``.
 
     ``gh issue create`` does not accept ``--json`` (it is a mutation
-    command); on success it prints the new issue's URL to stdout. Parse that
+    command). On success it prints the new issue's URL to stdout. Parse that
     URL to recover the issue number. Earlier code passed ``--json
     number,url``, which gh rejects with "unknown flag: --json".
     """

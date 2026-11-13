@@ -9,7 +9,7 @@ disable-model-invocation: true
 
 Reorganizes GitHub issue labels into a professional taxonomy. Creates distinct labels for issue types (feature, bugfix, test, docs, etc.), priorities, and effort estimates, then re-labels all issues accordingly.
 
-**Custom Labels**: The taxonomy below serves as a foundation. **You should create custom labels** for project-specific needs:
+**Custom Labels**: The taxonomy below is a foundation. **You should create custom labels** for project-specific needs:
 
 **When to Add Custom Labels:**
 - **Component areas** (e.g., `frontend`, `backend`, `api`, `database`)

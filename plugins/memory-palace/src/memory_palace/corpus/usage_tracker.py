@@ -97,7 +97,7 @@ class UsageTracker:
 
         """
         self._events: deque[UsageEvent] = deque(maxlen=max_events)
-        # Per-entry running totals; avoids scanning the deque for scoring.
+        # Per-entry running totals avoid scanning the deque for scoring.
         # Each value: access_count, citation_count, positive_count,
         # negative_count, raw_score, last_access
         self._aggregates: dict[str, dict[str, Any]] = {}

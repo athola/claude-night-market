@@ -7,7 +7,7 @@ SHELL := /bin/bash
 
 # Configuration
 CARGO ?= cargo
-CARGO_HOME ?= .cargo
+CARGO_HOME ?= $(HOME)/.cargo
 BIN := {{PROJECT_NAME}}
 BIN_PATH := target/release/$(BIN)
 
@@ -18,7 +18,7 @@ BLUE := \033[34m
 RESET := \033[0m
 
 # Phony targets
-.PHONY: help fmt lint check test test-unit test-integration build build-release \
+.PHONY: help fmt fmt-check lint check test test-unit test-integration build build-release \
 	clean install run status ci dev-setup
 
 help: ## Show this help message
@@ -32,6 +32,9 @@ help: ## Show this help message
 fmt: ## Format code with rustfmt
 	@echo "$(BLUE)Formatting code...$(RESET)"
 	$(CARGO) fmt --all
+
+fmt-check: ## Fail if code is not formatted (what CI runs)
+	$(CARGO) fmt --all -- --check
 
 lint: ## Run clippy linting
 	@echo "$(BLUE)Running clippy...$(RESET)"
@@ -51,7 +54,11 @@ test-unit: ## Run unit tests only
 
 test-integration: ## Run integration tests
 	@echo "$(BLUE)Running integration tests...$(RESET)"
-	$(CARGO) test --workspace --test '*' --all-features
+	@if [ -d tests ]; then \
+		$(CARGO) test --workspace --test '*' --all-features; \
+	else \
+		echo "No tests/ directory: no integration tests to run"; \
+	fi
 
 build: ## Build in debug mode
 	@echo "$(BLUE)Building (debug)...$(RESET)"
@@ -86,7 +93,7 @@ status: ## Show project status
 	@echo "Binary: $(BIN_PATH) $$(test -f $(BIN_PATH) && echo '(exists)' || echo '(not built)')"
 
 # CI target
-ci: fmt lint test ## Run CI checks
+ci: fmt-check lint test ## Run CI checks, without rewriting files
 	@echo "$(GREEN)[OK] All CI checks passed!$(RESET)"
 
 # Development setup

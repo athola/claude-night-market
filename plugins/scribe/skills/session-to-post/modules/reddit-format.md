@@ -15,7 +15,7 @@ text post that earns upvotes through specificity and honesty.
 Choose Reddit when:
 - You want community engagement (questions, discussion, feedback)
 - The work fits a specific subreddit's current interests
-- The story is worth starting a conversation, not just archiving
+- The story is worth starting a conversation about
 
 Choose blog when:
 - You want permanent, search-indexed content you own
@@ -25,7 +25,7 @@ Choose blog when:
 ## Subreddit Targeting
 
 Match the primary technology or theme to one subreddit. Avoid
-cross-posting within 48 hours; it triggers spam filters and
+cross-posting within 48 hours. It triggers spam filters and
 community backlash.
 
 | Subreddit | When to post |
@@ -63,7 +63,7 @@ surprised you. This is what makes the post worth bookmarking.
 
 **TL;DR** (required): the whole story in 2-3 sentences. Place
 it after a `---` separator at the bottom. Readers who skip to
-the end first are your secondary audience; do not disappoint them.
+the end first are your secondary audience. Do not disappoint them.
 
 ## Title Patterns
 
@@ -84,7 +84,7 @@ Keep under 120 characters. The title must work without the body.
    matters to the story
 2. **No section headers** for posts under 600 words; above that,
    use one level of bold headers only
-3. **One code block maximum** in the body; link the rest to
+3. **One code block maximum** in the body. Link the rest to
    a repo or Gist
 4. **TL;DR is required**: after `---`, at the end
 5. **Under 600 words** for most posts; if longer, reconsider

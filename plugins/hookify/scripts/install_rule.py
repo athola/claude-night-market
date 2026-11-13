@@ -23,7 +23,7 @@ SCRIPT_DIR = Path(__file__).parent
 RULES_DIR = SCRIPT_DIR.parent / "skills" / "rule-catalog" / "rules"
 
 # Curated bundles of rules. Bundle names are user-facing
-# (`--bundle <name>`); each value is a list of `category:rule`
+# (`--bundle <name>`). Each value is a list of `category:rule`
 # specs. Per docs/inclusive-defaults.md, bundles must contain
 # only `action: warn` rules so default-on bundling cannot
 # block legitimate commands. Adding a block-action rule to a
@@ -293,7 +293,7 @@ Examples:
         return 0
 
     # Bulk installers that report an installed count and succeed when >0.
-    # Evaluated in order; the first enabled flag wins.
+    # Evaluated in order. The first enabled flag wins.
     count_installers = (
         (
             args.all,

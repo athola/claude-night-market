@@ -107,7 +107,7 @@ hub in one line. This is what `progressive_loading` already exists
 for, so extraction costs the hub nothing at load time.
 
 **Repo docs and book chapters**: extract to
-`docs/deep-dive/<topic>.md`. It must be **linked from the lead** of
+`docs/<topic>.md`. It must be **linked from the lead** of
 the parent document, with one line naming who it is for. Create the
 directory on first use. Do not scaffold it empty.
 
@@ -123,7 +123,7 @@ Before, the lead ran: install command, then four paragraphs on why
 the hook fires on `PostToolUse` rather than `Stop`, then usage.
 
 After: install command, the one usage path, and a closing line,
-"Why the hook fires on `PostToolUse`: `docs/deep-dive/hook-timing.md`
+"Why the hook fires on `PostToolUse`: `docs/hook-timing.md`
 (for readers already maintaining a hook)."
 
 The rationale was not weak. It was answering a question the newcomer

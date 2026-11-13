@@ -112,7 +112,7 @@ def _handle_pre_tool_use(input_data: dict) -> bool:
 
     session_id = input_data.get("session_id", "unknown")
     source = _infer_source(file_path)
-    # PreToolUse payloads do not carry permission_mode; record explicitly.
+    # PreToolUse payloads do not carry permission_mode. Record it explicitly.
     permission_mode = input_data.get("permission_mode", "n/a")
 
     print(

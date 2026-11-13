@@ -2,7 +2,7 @@
 
 Uses keyword frequency matching against per-domain vocabularies.
 The domain with the highest keyword hit count wins, provided it
-meets a minimum match count and confidence threshold; otherwise
+meets a minimum match count and confidence threshold. Otherwise
 the topic falls back to the "general" domain.
 """
 

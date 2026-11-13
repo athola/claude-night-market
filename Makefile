@@ -25,9 +25,14 @@ PLUGINS_DIR := plugins
 # All plugin directories for iteration (auto-detected)
 PLUGIN_MAKEFILES := $(wildcard $(PLUGINS_DIR)/*/Makefile)
 ALL_PLUGINS := $(patsubst %/Makefile,%,$(PLUGIN_MAKEFILES))
-# GNU coreutils timeout is not on stock macOS. perl is, and alarm bounds the
-# child the same way, so each per-plugin check stays time-limited everywhere.
-TIMEOUT_180 := $(if $(shell command -v timeout 2>/dev/null),timeout 180,perl -e 'alarm shift; exec @ARGV' 180)
+# GNU coreutils timeout is not on stock macOS. perl is. Without a terminal
+# the fallback signals the whole process group, so a hung check's pytest
+# children die with it instead of running on orphaned: perl leads its own
+# group, runs the check in it, and on the alarm sends TERM to every member.
+# On a terminal perl stays in the foreground group, because Ctrl-C signals
+# only that group, and the alarm sends TERM to the check's own process. A
+# check killed by a signal exits 128 plus the signal, as a shell reports it.
+TIMEOUT_180 := $(if $(shell command -v timeout 2>/dev/null),timeout 180,perl -e '$$g=!-t STDIN; $$SIG{ALRM}=sub{$$SIG{TERM}="IGNORE"; kill "TERM", $$g ? -$$$$ : $$p; exit 124}; setpgrp if $$g; alarm shift; defined($$p=fork) or die "fork: $$!"; $$p or exec @ARGV or exit 127; waitpid $$p, 0; exit($$? & 127 ? 128 + ($$? & 127) : $$? >> 8)' 180)
 # GNU coreutils sha256sum is not on stock macOS; shasum -a 256 is everywhere.
 SHA256 := $(if $(shell command -v sha256sum 2>/dev/null),sha256sum,shasum -a 256)
 ALL_PLUGIN_NAMES := $(notdir $(ALL_PLUGINS))

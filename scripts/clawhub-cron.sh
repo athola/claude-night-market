@@ -60,8 +60,12 @@ run_sync() {
   printf '\n' >>"${LOG}"
   printf '=== %s: clawhub-cron run ===\n' "$(date)" >>"${LOG}"
 
-  # Ensure PATH includes node/clawhub
-  export PATH="${HOME}/.local/bin:${HOME}/.nvm/versions/node/v25.2.1/bin:${PATH}"
+  # Ensure PATH includes node/clawhub. cron's PATH holds neither, and a
+  # pinned node version stopped finding clawhub at the first upgrade, so
+  # nvm's default alias is used, then the newest installed version.
+  local node_bin
+  node_bin="$(nvm_node_bin)"
+  export PATH="${HOME}/.local/bin:${node_bin}${PATH}"
 
   # No explicit version -- clawhub-submit.sh auto-detects from
   # plugins/abstract/.claude-plugin/plugin.json so the cron stays
@@ -79,6 +83,45 @@ run_sync() {
       log_line "Partial sync (exit ${exit_code}). Will retry next hour."
       ;;
   esac
+}
+
+# Print "<dir>:" for nvm's node bin directory, or nothing without nvm.
+# The default alias is followed through nvm's alias files (default to
+# lts/* to lts/jod to v22.11.0). A partial version such as `25` takes the
+# newest install of that major. `node`, an unknown alias, or no alias takes
+# the newest install, and so does an alias naming no installed version.
+# Newest is by version number: by name, v9.x sorts after v25.x and brings
+# back the stale node this lookup exists to avoid.
+nvm_node_bin() {
+  _versions="${HOME}/.nvm/versions/node"
+  _alias="default"
+  _hops=0
+  while [ "${_hops}" -lt 5 ] && [ -f "${HOME}/.nvm/alias/${_alias}" ]; do
+    _alias="$(cat "${HOME}/.nvm/alias/${_alias}")"
+    _hops=$((_hops + 1))
+  done
+  _alias="${_alias#v}"
+  case "${_alias}" in
+    [0-9]*)
+      [ -d "${_versions}/v${_alias}/bin" ] && printf '%s:' "${_versions}/v${_alias}/bin" && return 0
+      _glob="v${_alias}."
+      ;;
+    *) _glob="v" ;;
+  esac
+  for _glob in "${_glob}" v; do
+    _newest="$(
+      for _dir in "${_versions}/${_glob}"*/bin; do
+        if [ -d "${_dir}" ]; then
+          _version="${_dir%/bin}"
+          printf '%s %s\n' "${_version##*/v}" "${_dir}"
+        fi
+      done | sort -t. -k1,1n -k2,2n -k3,3n | tail -n 1
+    )"
+    case "${_newest}" in
+      "") ;;
+      *) printf '%s:' "${_newest#* }" && return 0 ;;
+    esac
+  done
 }
 
 main() {

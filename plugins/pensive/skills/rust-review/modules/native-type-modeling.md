@@ -120,7 +120,7 @@ const STATE_MASK: u32 = 1 << 2;
 ```
 
 Use the `bitflags` crate (or an explicit `#[repr]` enum with discrete
-discriminants) when the values combine; reach for a plain enum when
+discriminants) when the values combine. Reach for a plain enum when
 they are mutually exclusive states.
 
 ## 4. Newtype Pattern (Guidance)
@@ -154,9 +154,9 @@ check, so keep the field private and route callers through `new`.
 ## 5. Type-State (Guidance)
 
 Encode lifecycle state in the type so invalid operations do not
-compile. A `Connection<Authenticated>` exposes `request()`; a
+compile. A `Connection<Authenticated>` exposes `request()`, and a
 `Connection<Disconnected>` does not. Strom & Yemini introduced
-typestate in 1986; Cliffle's "The Typestate Pattern in Rust" is the
+typestate in 1986, and Cliffle's "The Typestate Pattern in Rust" is the
 canonical Rust reference.
 
 Reserve type-state for safety-critical or protocol APIs. Multiple
@@ -191,14 +191,14 @@ other can violate the `Hash`/`Eq` contract.
 
 ## Exclusions (Not Flagged)
 
-These guardrails come from cross-source practitioner consensus; a
+These guardrails come from cross-source practitioner consensus. A
 finding that hits one of them is a false positive.
 
 - **Storage and protocol boundaries**: you still parse untyped
   external data (JSON strings, DB integers, CLI args) into the enum
-  once at the edge. The principle governs the internal domain model,
-  not the wire or serialization format. A permissive type at a
-  `serde`/DB boundary is correct, not a defect.
+  once at the edge. The principle governs the internal domain model.
+  The wire and serialization formats stay permissive, and a
+  permissive type at a `serde`/DB boundary is correct.
 - **Empty-string checks** (`s == ""`): an emptiness test, not a
   stringly-typed enum candidate (prefer `.is_empty()` separately).
 - **Single self-evident bool**: one binary local flag does not need
@@ -265,8 +265,8 @@ Rust embedding via affine multiparty session types.
 Evidence gap: no Rust-specific study measures enum-versus-string defect
 rates. The closest quantitative proxy is Gao, Bird and Barr (ICSE 2017),
 [To Type or Not to Type][totype], which found static typing could have
-prevented about 15% of public JavaScript bugs. Treat that as an
-analogue, not a Rust result.
+prevented about 15% of public JavaScript bugs. Treat that as a
+JavaScript analogue rather than a Rust result.
 
 [c-conv]: https://rust-lang.github.io/api-guidelines/interoperability.html
 [tryfrom]: https://doc.rust-lang.org/std/convert/trait.TryFrom.html

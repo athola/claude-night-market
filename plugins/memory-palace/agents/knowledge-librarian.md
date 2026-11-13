@@ -99,7 +99,7 @@ Claude can **suggest** but never act without approval:
   score a resource you could not read.
 - A URL that returns 200 with a consent or paywall shell reads as a
   short, empty resource. Check the fetched length and title before
-  scoring; a score built on a shell is a score of the shell.
+  scoring. A score built on a shell is a score of the shell.
 - WebSearch results are ranked by attention, not correctness. A
   resource is stored on its own content, never on how often it was
   linked.

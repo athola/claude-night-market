@@ -9,8 +9,8 @@ category: audit-scoping
 
 # Escalation Criteria
 
-Audit tiers escalate based on evidence from the
-previous tier, not by default.
+Audit tiers escalate only on evidence from the
+previous tier.
 Each escalation requires documented justification.
 
 ## Tier 1 -> Tier 2 Escalation

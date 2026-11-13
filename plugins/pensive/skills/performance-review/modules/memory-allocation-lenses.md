@@ -48,7 +48,7 @@ with no cap.
 Cap at the source with a named `MAX_*` const. Sort before
 truncating if the source order is unstable, so the retained
 set and any tests are deterministic. Show "N of M" in the UI
-so truncation is visible, not silent.
+so truncation is visible.
 
 ## Lens 2: Hot-Path Recompute of Derived Data
 
@@ -111,9 +111,9 @@ the whole set.
   by a cap). Name which one a finding is. "Capped the memory"
   over-promises on the churn case.
 - A cap has a UX cost (hidden items). Pair it with a visible
-  count; do not silently drop.
-- The win from these lenses is usually by-construction, not
-  measured. Ask for a count or diagnostic the user can read in
+  count. Never drop items silently.
+- The win from these lenses is usually by-construction and
+  unmeasured. Ask for a count or diagnostic the user can read in
   their environment rather than claiming a measured
   improvement.
 

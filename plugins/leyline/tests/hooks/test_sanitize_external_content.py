@@ -413,6 +413,24 @@ class TestIsExternalTool:
             is True
         )
 
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "gh gist view abc123",
+            "gh search issues injection",
+            "gh repo view owner/repo",
+            "gh discussion view 7",
+            "gh  api /repos/x",
+            "cd r && gh issue view 1",
+        ],
+    )
+    def test_other_gh_readers_of_attacker_writable_text(self, command: str) -> None:
+        """Gists, search hits and READMEs are written by anyone."""
+        assert is_external_tool("Bash", {"command": command}) is True
+
+    def test_a_word_ending_in_gh_is_not_the_gh_cli(self) -> None:
+        assert is_external_tool("Bash", {"command": "echo sigh api"}) is False
+
     def test_bash_ls_is_not_external(self) -> None:
         assert is_external_tool("Bash", {"command": "ls -la"}) is False
 

@@ -58,7 +58,7 @@ from abstract.paths import (
 
 # Thresholds for severity tiers
 HIGH_PRIORITY_THRESHOLD = 5.0
-# Low threshold to avoid missing insights — duplication check prevents spam
+# Low threshold to avoid missing insights. The duplication check prevents spam
 MEDIUM_PRIORITY_THRESHOLD = 0.1
 
 # Slow execution reference (10s = threshold from aggregate_skill_logs.py)
@@ -117,9 +117,9 @@ def stale_skip_reason(
     uncertain case:
 
     - the repo root cannot be trusted (``repo_root_is_valid`` is
-      False) -- a wrong root would report every finding missing;
+      False): a wrong root would report every finding missing;
     - the location check raises (e.g. an embedded NUL byte makes
-      ``Path.exists`` raise ``ValueError``) -- one bad finding must
+      ``Path.exists`` raise ``ValueError``): one bad finding must
       not abort the batch and drop the rest.
 
     It returns a rationale string only for the highest-confidence
@@ -234,7 +234,7 @@ def calculate_priority(item: dict[str, Any]) -> float:
     elif issue_type == "excessive_failures":
         impact = EXCESSIVE_FAILURE_IMPACT
     else:
-        # Unknown or healthy — minimal impact
+        # Unknown or healthy: minimal impact
         impact = HEALTHY_IMPACT
 
     # Estimate ease based on severity

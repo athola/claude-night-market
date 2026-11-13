@@ -148,9 +148,9 @@ def compute_garden_metrics(
     now: datetime | None = None,
     queue_path: Path | None = None,
 ) -> dict[str, Any]:
-    """Load a digital garden file; compute its key metrics.
+    """Load a digital garden file and compute its key metrics.
 
-    Read the specified JSON garden file; calculate metrics such as link density
+    Read the JSON garden file and calculate metrics such as link density
     and average days since last tending. Allow overriding the current timestamp
     for reproducible metric calculations.
 

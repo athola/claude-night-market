@@ -8,7 +8,7 @@ Expert frameworks for systematic troubleshooting, root cause analysis, and effic
 |--------|-----------------|----------|
 | Andreas Zeller | Scientific Debugging | Systematic hypothesis testing |
 | David Agans | Nine Rules of Debugging | Universal debugging principles |
-| Diomidis Spinellis | Effective Debugging | Comprehensive toolkit |
+| Diomidis Spinellis | Effective Debugging | Broad toolkit of techniques |
 | Rob Miller | Debugging by Asking | Root cause questioning |
 | John Regehr | Compiler/Systems Debugging | Low-level issues |
 
@@ -30,7 +30,7 @@ Expert frameworks for systematic troubleshooting, root cause analysis, and effic
 6. REPEAT with new hypothesis
 ```
 
-**Key Principle**: Never change code to "see if it fixes it." That's guessing, not debugging.
+**Key Principle**: Never change code to "see if it fixes it." That is guessing.
 
 **Hypothesis Quality**:
 ```
@@ -65,14 +65,14 @@ GOOD: "The query times out because it scans all rows without index"
 | 6 | **Keep an Audit Trail** | Log what you tried and results |
 | 7 | **Check the Plug** | Verify assumptions, environment, obvious things |
 | 8 | **Get a Fresh View** | Rubber duck, ask colleague, sleep on it |
-| 9 | **If You Didn't Fix It, It Ain't Fixed** | Verify root cause, not just symptoms |
+| 9 | **If You Didn't Fix It, It Ain't Fixed** | Verify the root cause is fixed as well as the symptoms |
 
 **Most Violated Rules**:
 - #3: Jumping to hypotheses without reading the actual error
 - #5: Changing multiple things hoping something works
 - #9: Seeing issue disappear and assuming it's fixed
 
-**Use When**: Any debugging situation; these are universal.
+**Use When**: Any debugging situation. These rules are universal.
 
 ---
 

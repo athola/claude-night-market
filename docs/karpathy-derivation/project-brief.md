@@ -15,7 +15,7 @@ catalog).
 | `EXAMPLES.md` | 14789 chars | Concrete diff-level anti-patterns |
 | `skills/karpathy-guidelines/SKILL.md` | 2570 chars | Same 4 principles, packaged as skill |
 | Primary citation | n/a | `https://x.com/karpathy/status/2015883857489522876` |
-| License | n/a | MIT — derivation permitted with attribution |
+| License | n/a | MIT, derivation permitted with attribution |
 
 ## The Four Principles (verbatim source framing)
 
@@ -79,11 +79,11 @@ Plus:
    cross-reference our existing scope-guard / proof-of-work
    skills, leaving users with redundant guidance.
 2. **Anti-pattern catalog**: EXAMPLES.md is not packaged as
-   a skill upstream; it is a flat doc. Repackaging the
+   a skill upstream. It is a flat doc. Repackaging the
    patterns as a structured module is value-add.
 3. **Voice consistency**: night-market has its own writing
    conventions (markdown-formatting, slop-scan, prose
-   wrapping). A derived skill conforms; an upstream plugin
+   wrapping). A derived skill conforms. An upstream plugin
    does not.
 4. **Tradeoff framing**: The honest "for trivial tasks, use
    judgment" framing benefits from being a first-class
@@ -96,7 +96,7 @@ Plus:
 - New skill `imbue:karpathy-principles` is loadable via Skill
   tool with valid frontmatter.
 - All 4 modules render under skill token budget (target:
-  total skill <2000 tokens; modules <500 each).
+  total skill <2000 tokens, modules <500 each).
 - Cross-references in 4 existing skills compile (no broken
   links via skills-eval).
 - Source attribution module cites the Karpathy X/Twitter
@@ -135,10 +135,10 @@ Plus:
 
 | Risk | Mitigation |
 |------|------------|
-| Duplication with existing skills creates noise | Cross-reference deeply; position new skill as compact entry-point, not replacement |
-| Verbatim copying triggers attribution issues | Adapt and paraphrase; cite both Karpathy tweet and forrestchang repo |
+| Duplication with existing skills creates noise | Cross-reference deeply. Position new skill as compact entry-point, not replacement |
+| Verbatim copying triggers attribution issues | Adapt and paraphrase. Cite both Karpathy tweet and forrestchang repo |
 | Skill bloat (token budget) | Hub-and-spoke: SKILL.md is index, modules carry detail |
-| "Yet another scope-control skill" perception | Frame as synthesis layer; existing skills remain authoritative on their respective dimensions |
+| "Yet another scope-control skill" perception | Frame as synthesis layer. Existing skills remain authoritative on their respective dimensions |
 
 ## References
 

@@ -8,7 +8,7 @@ from pathlib import Path
 from ._frontmatter import parse_frontmatter
 from ._results import SkillValidationResult
 
-# AR-F3: helper lives in _shared.py and stays private to the package.
+# AR-F3: helper is in _shared.py and stays private to the package.
 from ._shared import _extract_skill_refs_from_content
 
 __all__ = ["SkillValidator"]

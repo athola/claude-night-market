@@ -258,7 +258,7 @@ def _render_assistant_turn(
 def _render_tool_use(lines: list[str], turn: ToolUse, config: TapeConfig) -> float:
     """Render a tool use summary. Returns duration in ms."""
     type_ms = _scale_ms(100, config.speed)
-    # A summary can carry a multi-line command; a raw newline inside the
+    # A summary can carry a multi-line command. A raw newline inside the
     # quoted Type string ends the tape line early.
     escaped = escape_vhs(f"  {' '.join(turn.summary.split())}")
     lines.append(f'Type@{type_ms}ms "{escaped}"')

@@ -42,7 +42,7 @@ handled? Reach for the invariant first:
 The test: does the guard defend against the *outside
 world*, or against a state your own code already
 guarantees cannot occur? Defend boundaries. Delete guards
-that paper over unclear internal design; fix the design.
+that paper over unclear internal design. Fix the design.
 
 **Detection heuristics (surface, then judge):**
 
@@ -59,7 +59,7 @@ that paper over unclear internal design; fix the design.
 **When this rule does NOT apply:**
 
 - Trust boundaries. Validating untrusted or external input
-  is correct and required; this rule never argues against
+  is correct and required, and this rule never argues against
   it.
 - Safety-critical code. `pensive:safety-critical-patterns`
   (NASA Power of Ten) *requires* defensive checks and
@@ -74,7 +74,7 @@ that paper over unclear internal design; fix the design.
 
 **Why this rule exists:**
 
-Defensive bloat is measurable, not aesthetic. Independent
+Defensive bloat is measurable. Independent
 studies find AI-accelerated codebases rising in cyclomatic
 complexity and duplication while refactoring collapses. Every
 fallback that hides an impossible case is a bug that will
@@ -87,10 +87,10 @@ harness loops most threaten.
 
 | Source | Finding |
 |--------|---------|
-| GitClear 2025 (211M changed lines) | Copy-pasted lines rose 8.3% (2021) to 12.3% (2024); duplicated blocks rose roughly 8x; refactoring fell from 25% of changed lines to under 10%; two-week churn nearly doubled |
+| GitClear 2025 (211M changed lines) | Copy-pasted lines rose 8.3% (2021) to 12.3% (2024). Duplicated blocks rose roughly 8x. Refactoring fell from 25% of changed lines to under 10%. Two-week churn nearly doubled |
 | DORA 2024 | Each 25% increase in AI adoption is associated with a 7.2% drop in delivery stability and a 1.5% drop in throughput, even as perceived productivity rose |
 | METR RCT 2025 (arXiv 2507.09089) | 16 experienced OSS developers, 246 tasks in mature repos: AI tools increased completion time 19% while developers believed they were 20% faster |
-| Cognitive-bias study (arXiv 2601.08045) | 48.8% of observed programmer actions were biased; developer-LLM interaction accounted for 56.4% of those |
+| Cognitive-bias study (arXiv 2601.08045) | 48.8% of observed programmer actions were biased. Developer-LLM interaction accounted for 56.4% of those |
 | Liu et al. 2026 (arXiv 2603.28592, preprint, 302,579 AI-authored commits) | Broad exception handling is the most common issue the commits introduce. It is a static-analysis count of a smell with no human baseline, and measures no hidden bug |
 | Patel et al. 2026 (arXiv 2606.21804, abstract only) | An agent extending agent-written code resolves fewer tasks. Changes to input validation and error handling explain more of the gap than maintainability metrics do |
 | Karpathy, "mortal terror of exceptions" | LLMs add defensive handlers for near-impossible cases because RL punishes exceptions. The primary source for this rule's core claim |

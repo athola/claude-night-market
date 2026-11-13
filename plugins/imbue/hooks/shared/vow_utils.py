@@ -24,13 +24,25 @@ __all__ = [
     "O_NOFOLLOW",
     "_OFF_VALUES",
     "fd_owned_by_us",
+    "git_commit_offset",
     "is_git_commit",
     "secure_open",
     "secure_state_dir",
     "shadow_mode_active",
 ]
 
-_GIT_COMMIT_RE = re.compile(r"git\s+commit\b")
+# git, then any global options (-C <dir>, -c <k=v>, --no-pager, ...),
+# then the commit subcommand. Applied per shell segment, because the
+# harness `if` gate admits `git add . && git commit` segment by segment.
+_GIT_COMMIT_RE = re.compile(
+    r"git(?:\s+(?:-[Cc]\s+\S+|--(?:git-dir|work-tree|namespace)\s+\S+|-\S+))*"
+    r"\s+commit\b"
+)
+# A quoted string is one token, so a separator inside it splits nothing.
+_SHELL_TOKEN_RE = re.compile(
+    r"""'[^']*'?|"(?:\\.|[^"\\])*"?|&&|\|\||[;|\n]|[^'"&|;\n]+|&"""
+)
+_SEPARATORS = ("&&", "||", ";", "|", "\n")
 _OFF_VALUES = ("0", "false", "no")
 
 # O_NOFOLLOW makes open() fail (ELOOP) when the final path component is a
@@ -46,7 +58,7 @@ def secure_state_dir(name: str) -> Path:
     Defaults to ``<tmpdir>/<name>-<uid>`` created mode 0o700 so no other
     user can plant files or symlinks inside it. ``IMBUE_STATE_DIR``
     overrides the base (used by tests for isolation). Falls back to the
-    shared tmpdir root only if the private dir cannot be created; the
+    shared tmpdir root only if the private dir cannot be created. The
     per-file ``O_NOFOLLOW`` guard still applies there.
     """
     override = os.environ.get("IMBUE_STATE_DIR")
@@ -112,16 +124,34 @@ def vow_output(enforce: bool, reason: str) -> dict[str, Any]:
     return {"hookSpecificOutput": hook}
 
 
+def git_commit_offset(command: str) -> int | None:
+    """Return where the first git commit segment starts, or None.
+
+    The commit's message, heredoc included, follows this offset, and an
+    earlier command in the chain precedes it.
+    """
+    start = 0
+    for token in _SHELL_TOKEN_RE.finditer(command + "\n"):
+        if token.group(0) not in _SEPARATORS:
+            continue
+        segment = command[start : token.start()]
+        stripped = segment.lstrip()
+        if _GIT_COMMIT_RE.match(stripped):
+            return start + len(segment) - len(stripped)
+        start = token.end()
+    return None
+
+
 def is_git_commit(command: str) -> bool:
-    """Return True if the Bash command is a git commit invocation."""
-    return bool(_GIT_COMMIT_RE.match(command.strip()))
+    """Return True if any segment of the Bash command runs git commit."""
+    return git_commit_offset(command) is not None
 
 
 def read_counter_path(session_id: str) -> Path:
     """Return the session-scoped read-budget counter file.
 
     vow_bounded_reads increments it and vow_bounded_reads_reset zeroes it.
-    One definition, so the reset cannot drift to a different file. Lives
+    One definition, so the reset cannot drift to a different file. It is
     in a private per-user dir (mode 0o700) so another user cannot plant a
     symlink at this predictable name.
     """

@@ -31,12 +31,12 @@ Or reference from the marketplace:
 | **rust-review** | Audits Rust code for ownership, safety, concurrency, and idiomatic type use (conversion, coercion, elision). |
 | **test-review** | Evaluates test suite coverage and quality. |
 | **math-review** | Reviews mathematical algorithms and numerical stability. |
-| **makefile-review** | Audits and optimizes build systems. |
+| **makefile-review** | Deprecated alias. Makefile review is now unified-review's makefile module. |
 | **shell-review** | Deprecated alias. Shell review is now unified-review's shell module. |
 | **fpf-review** | Functional/Practical/Foundation architecture review. |
 | **code-refinement** | Analyzes living code for duplication, algorithmic inefficiency, clean code violations, and architectural misfit. |
 | **blast-radius** | Analyzes code change blast radius with risk scoring, affected nodes, and untested functions. |
-| **safety-critical-patterns** | NASA Power of 10 rules adapted for robust, verifiable code with context-appropriate rigor. |
+| **safety-critical-patterns** | NASA Power of 10 rules adapted for verifiable code with context-appropriate rigor. |
 
 ### Commands
 
@@ -94,7 +94,7 @@ Unified reviews select skills based on codebase patterns.
 Rust files (`*.rs`, `Cargo.toml`) trigger `rust-review`, `bug-review`,
 and `api-review`. API definitions (`openapi.yaml`) trigger `api-review`
 and `architecture-review`. Test files trigger `test-review`,
-and build scripts trigger `makefile-review` or `shell-review`.
+and build scripts trigger the `makefile-review` or `shell-review` module.
 
 ## Output Standards
 
@@ -108,6 +108,11 @@ block, or approve with actions.
 Reviews identify modified files and apply domain-specific checks.
 Findings are documented with precise location data, severity rankings,
 and specific remediation steps.
+
+For platform clients that ship independently, the `parity-sweep`
+workflow inventories each platform root and reports the features one
+has and another lacks, each confirmed against the code on every
+platform.
 
 ## Progress Tracking
 

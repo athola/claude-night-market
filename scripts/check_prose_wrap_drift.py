@@ -36,7 +36,7 @@ LIMIT = 80
 
 #: How far the baseline may sit above the real count before the test that
 #: guards it complains. Zero would turn every incidental rewrap into a
-#: required baseline edit; a small allowance absorbs that without letting
+#: required baseline edit. A small allowance absorbs that without letting
 #: the number drift into permission nobody granted.
 SLACK = 25
 
@@ -84,7 +84,7 @@ def overlong_prose_lines(text: str) -> list[int]:
 
     Fenced blocks are skipped wholesale, and so is YAML frontmatter, but
     only when the document opens with it. A ``---`` further down is a
-    thematic break; reading it as a fence opener would silence every
+    thematic break. Reading it as a fence opener would silence every
     prose line below the first horizontal rule in the file.
     """
     lines = text.splitlines()
@@ -159,7 +159,7 @@ def overlong_in(path: Path) -> list[int]:
 
     Only a missing file is absorbed. ``git ls-files`` lists tracked
     paths, so one deleted from the working tree is listed and is not
-    there; its prose really is gone and empty is the honest answer.
+    there. Its prose really is gone and empty is the honest answer.
 
     Anything else propagates. A ratchet subtracts every skipped file from
     its own total, so a document that is present and cannot be read has
@@ -218,7 +218,7 @@ def load_baseline() -> int:
 
 
 def main() -> int:
-    """Run the ratchet; exit non-zero when the count rose."""
+    """Run the ratchet and exit non-zero when the count rose."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--warn-only",

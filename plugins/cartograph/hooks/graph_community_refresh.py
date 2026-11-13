@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,18 @@ def _find_graph_db() -> Path | None:
     return None
 
 
+# A run of graph_build.py, not a command that merely names it (rg, cat).
+# Before the script or its interpreter a command may carry, in any order,
+# `NAME=value` assignments, `time`, and `uv run` with its options.
+_RUNS_GRAPH_BUILD = re.compile(
+    r"(?:^|[;&|(])\s*"
+    r"(?:(?:[A-Za-z_]\w*=\S*|time|uv\s+run(?:\s+-\S+(?:\s+[^-\s]\S*)?)*)\s+)*"
+    r"(?:\S*python[\d.]*\s+(?:-\S+\s+)*)?"
+    r"(?P<script>\"[^\"]*graph_build\.py\"|'[^']*graph_build\.py'"
+    r"|\S*graph_build\.py\b)"
+)
+
+
 def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     """Refresh communities after graph_build.py runs."""
     tool_name = hook_input.get("tool_name", "")
@@ -35,7 +48,8 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     command = tool_input.get("command", "")
-    if "graph_build.py" not in command:
+    ran = _RUNS_GRAPH_BUILD.search(command)
+    if ran is None:
         return None
 
     # PostToolUse fires only after a tool completes successfully, so reaching
@@ -48,18 +62,23 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if db_path is None:
         return None
 
-    # Add gauntlet src to path for imports
+    # A project that vendors gauntlet in ./src is preferred only when the
+    # graph_build.py that ran is the project's own: its code has run anyway.
+    # When the plugin's script ran inside some other repository, importing
+    # that repository's src/gauntlet would run code the user never chose to.
+    # The command is unexpanded text, so `${CLAUDE_PLUGIN_ROOT}/...`, `~/...`
+    # and a quoted path all read as relative paths under the project. Only
+    # an absolute path to an existing file inside the project proves it.
     gauntlet_src = None
-    for search in [
-        db_path.parent.parent / "src",  # .gauntlet/../src
-    ]:
-        if (search / "gauntlet").is_dir():
-            gauntlet_src = search
-            break
+    project = db_path.parent.parent.resolve()
+    named = ran.group("script").strip("'\"")
+    local_src = project / "src"
+    if named.startswith("/") and "$" not in named and (local_src / "gauntlet").is_dir():
+        script = Path(named).resolve()
+        if script.is_file() and script.is_relative_to(project):
+            gauntlet_src = local_src
 
     if gauntlet_src is None:
-        # Try finding via plugin directories
-        # Beside this plugin in the repo, or the newest cached install.
         gauntlet = sibling_plugin_dir(__file__, "gauntlet")
         candidate = (
             gauntlet or Path(__file__).resolve().parents[2] / "gauntlet"
@@ -72,7 +91,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     try:
         # Cross-plugin import resolved at runtime via the sys.path injection
-        # above; mypy cannot follow it statically.
+        # above. mypy cannot follow it statically.
         import gauntlet.communities as _gc  # type: ignore[import-not-found]  # runtime sys.path injection, not statically resolvable
         import gauntlet.graph as _gg  # type: ignore[import-not-found]  # runtime sys.path injection, not statically resolvable
 

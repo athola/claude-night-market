@@ -150,7 +150,7 @@ def _try_register_graph_entity(
     )
 
 
-# The title shape rules live in the corpus package because the index
+# The title shape rules are in the corpus package because the index
 # promoter needs the same ruling to repair titles this hook stored
 # before the rules were right (#624).
 _looks_like_title = looks_like_title
@@ -694,11 +694,17 @@ def _recent_intake_pending(query: str) -> bool:
         for line in reversed(lines):
             try:
                 entry = json.loads(line)
-                if entry.get("query", "").lower().strip() == normalized_query:
-                    return True
             except json.JSONDecodeError:
                 continue
-    except OSError:
+            # A line that parses but is not a query entry is skipped like
+            # one that does not parse: it would otherwise crash this hook
+            # on every later WebFetch until someone repaired the file.
+            if not isinstance(entry, dict) or not isinstance(entry.get("query"), str):
+                continue
+            if entry["query"].lower().strip() == normalized_query:
+                return True
+    # ValueError covers UnicodeDecodeError from a file that is not UTF-8.
+    except (OSError, ValueError):
         pass
 
     return False

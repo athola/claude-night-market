@@ -66,7 +66,7 @@ def evaluate_uncalled(current: int, baseline: int) -> tuple[bool, str]:
 
     Returns (ok, message). ``ok`` is False only when the count rose above
     the baseline. A new library skill legitimately starts uncalled, so the
-    escape hatch is to raise the baseline -- which records the 30-day grace
+    escape hatch is to raise the baseline, which records the 30-day grace
     period that ``shared-utility-consumer-rule.md`` already grants.
     """
     if current > baseline:
@@ -119,7 +119,7 @@ SKIP_ENV_VAR = "SKILL_GRAPH_DRIFT_SKIP"
 
 
 def main() -> int:
-    """Run the ratchet guard; exit non-zero on new breakage."""
+    """Run the ratchet guard and exit non-zero on new breakage."""
     try:
         report = _run_skill_graph()
     except (subprocess.CalledProcessError, json.JSONDecodeError) as exc:

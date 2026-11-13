@@ -56,7 +56,7 @@ RICE = (8000 * 1.0 * 0.8) / 2 = 3200
 
 ## Model 2: WSJF
 
-Weighted Shortest Job First. From SAFe; treats
+Weighted Shortest Job First. From SAFe. It treats
 prioritization as a cost-of-delay optimization.
 
 ```
@@ -80,7 +80,7 @@ items where deferral has measurable cost. Common in
 SAFe-aligned organizations.
 
 **Worst for**: small teams without explicit
-cost-of-delay numbers; reduces to "gut feel times Fibonacci".
+cost-of-delay numbers. It reduces to "gut feel times Fibonacci".
 
 **Worked example**:
 
@@ -101,7 +101,7 @@ WSJF surfaces the deadline.
 
 ## Model 3: Kano
 
-Kano classifies features by user reaction, not score.
+Kano classifies features by user reaction.
 
 | Class | If present | If absent |
 |-------|-----------|-----------|
@@ -117,8 +117,8 @@ Must-Be Quality" (1984).
 **Best for**: avoiding the most common backlog mistake:
 shipping a Delighter while a Basic is still missing.
 
-**Worst for**: numeric ranking. Kano gives categories, not
-scores. Pair it with RICE or WSJF for the actual ordering.
+**Worst for**: numeric ranking. Kano gives categories
+only. Pair it with RICE or WSJF for the actual ordering.
 
 **How to classify**: present users with two questions per
 feature:
@@ -229,7 +229,7 @@ the input, change the model.
 
 **Hidden recalibration.** Reweighting Impact from 1.0 to
 3.0 mid-quarter to make a favored project rank higher.
-Track weight history in version control; flag mid-cycle
+Track weight history in version control and flag mid-cycle
 changes.
 
 **Confidence rubber-stamping.** Every item scored at

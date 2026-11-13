@@ -20,7 +20,7 @@ from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Path setup: add the plugin src/ directory so we can import memory_palace.
-# Hooks run as standalone scripts; the package is not installed in sys.path.
+# Hooks run as standalone scripts and the package is not on sys.path.
 # ---------------------------------------------------------------------------
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PLUGIN_ROOT / "src"
@@ -54,7 +54,7 @@ except (ImportError, ModuleNotFoundError) as _import_err:
     )
 
 # ---------------------------------------------------------------------------
-# Graph wiring helpers (Issue #393) — never raise
+# Graph wiring helpers (Issue #393): never raise
 # ---------------------------------------------------------------------------
 
 _CROSS_PALACE_TOOLS = {"WebFetch", "WebSearch", "Read", "Edit"}
@@ -163,7 +163,7 @@ def _read_staged_units(path: Path) -> list[dict] | None:
     """Read the staging file written by session-handoff.
 
     The Stop payload carries no transcript content and the hook has no
-    model, so units cannot be extracted here. The skill stages them; this
+    model, so units cannot be extracted here. The skill stages them and this
     reads them. Returns None when the file cannot be used, which tells the
     caller not to discard it: an unreadable claim stays for a later Stop,
     and one that does not parse is moved to ``*.corrupt`` with a warning
@@ -275,7 +275,7 @@ def _discard_staged_units(path: Path) -> None:
 def _coerce_units(raw: list[dict]) -> list[SessionUnit]:
     """Validate staged dicts into units, dropping any the schema rejects.
 
-    This is the single ingress boundary for the type vocabulary; every
+    This is the single ingress boundary for the type vocabulary. Every
     downstream reader may assume the type is valid.
     """
     units: list[SessionUnit] = []
@@ -291,7 +291,7 @@ def _coerce_units(raw: list[dict]) -> list[SessionUnit]:
 def _fingerprint_dependencies(units: list[SessionUnit]) -> None:
     """Record a content digest for each declared dependency.
 
-    The writer names the files a claim rests on; the machine records
+    The writer names the files a claim depends on, and the machine records
     what they contained. Splitting it this way keeps the model out of
     hashing and keeps the hook out of judging relevance.
     """

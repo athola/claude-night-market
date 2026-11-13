@@ -29,11 +29,24 @@ import hashlib
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 from _manifest_utils import find_manifest, has_active_work, read_stdin_payload
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+from continuation_baton import (  # noqa: E402 - scripts/ joins sys.path above
+    advance_baton,
+    clear_baton,
+)
+
+#: Seconds the next turn has to start once a stop re-injects. The harness
+#: feeds the reason back at once, so a baton still unmoved after this
+#: means the reinjection did not happen (ADR-0023).
+BATON_GRACE_SECONDS = 300
+
 STATE_FILENAME = "stop-hook-state.json"
+BATON_FILENAME = "baton.json"
 DEFAULT_MAX_STALLS = 3
 
 
@@ -47,7 +60,7 @@ def max_stalls() -> int:
 
 
 def manifest_fingerprint(manifest_path: Path) -> str:
-    """Hash the manifest bytes; the hash changing is what counts as progress."""
+    """Hash the manifest bytes. A changed hash counts as progress."""
     try:
         return hashlib.sha256(manifest_path.read_bytes()).hexdigest()
     except OSError:
@@ -105,7 +118,7 @@ def orchestrator_running(payload: dict[str, object]) -> bool:
 
     Interactive spawns run in the background by default since CLI 2.1.232,
     so the main session stops while the loop advances. Stop input lists
-    in-flight work in ``background_tasks``; blocking on top of a running
+    in-flight work in ``background_tasks``. Blocking on top of a running
     orchestrator would re-inject the relaunch prompt into a live run.
     """
     tasks = payload.get("background_tasks")
@@ -132,7 +145,15 @@ def main() -> None:
 
     manifest_path = find_manifest()
 
-    if not has_active_work(manifest_path) or orchestrator_running(payload):
+    if not has_active_work(manifest_path):
+        try:
+            clear_baton(manifest_path.parent / BATON_FILENAME)
+        except OSError:
+            # Same as advance_baton below: the baton only observes the
+            # run, and an unlink error must not stop the session approving.
+            pass
+        approve()
+    if orchestrator_running(payload):
         approve()
 
     state_path = manifest_path.parent / STATE_FILENAME
@@ -169,7 +190,22 @@ def main() -> None:
     if not persisted:
         approve()
 
-    print(json.dumps({"decision": "block", "reason": block_reason(manifest_path)}))
+    reason = block_reason(manifest_path)
+    now = time.time()
+    try:
+        advance_baton(
+            manifest_path.parent / BATON_FILENAME,
+            unit=f"manifest {fingerprint[:12]}",
+            now=now,
+            deadline=now + BATON_GRACE_SECONDS,
+            next_prompt=reason,
+        )
+    except OSError:
+        # The baton only observes the handoff. The stall bound above is
+        # already persisted, so a lost baton must not turn the block
+        # into a traceback that ends the loop.
+        pass
+    print(json.dumps({"decision": "block", "reason": reason}))
     sys.exit(0)
 
 

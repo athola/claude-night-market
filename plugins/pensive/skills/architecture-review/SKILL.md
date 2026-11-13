@@ -178,7 +178,8 @@ and escalate to human judgment:
 **Why this matters:** Bad invariant decisions compound.
 After a few wrong calls the codebase becomes
 unsalvageable. This is a judgment problem rather than a
-context problem: the agent should surface it, not solve it.
+context problem: the agent should report it and leave the decision to a
+human.
 
 ### Step 4: Principle Checks (`arch-review:principle-checks`)
 

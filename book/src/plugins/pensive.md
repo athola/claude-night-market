@@ -25,10 +25,10 @@ selecting the right skills for each codebase.
 | `bug-review` | Bug hunting | Systematic search for logic errors |
 | `rust-review` | Rust-specific checking | Auditing unsafe code, borrow patterns |
 | `test-review` | Test quality review | Ensuring tests verify behavior |
-| `makefile-review` | Makefile best practices | Reviewing Makefile quality |
+| `makefile-review` | Deprecated alias for unified-review's makefile module | Reviewing Makefile quality |
 | `math-review` | Mathematical correctness | Reviewing mathematical logic |
 | `shell-review` | Deprecated alias for unified-review's shell module | Exit codes, portability, safety patterns |
-| `safety-critical-patterns` | NASA Power of 10 rules | Robust, verifiable code with context-appropriate rigor |
+| `safety-critical-patterns` | NASA Power of 10 rules | Verifiable code with context-appropriate rigor |
 | `code-refinement` | Code quality analysis | Duplication, efficiency, clean code violations |
 | `performance-review` | Time and space complexity review | Detecting hotspots via Python AST (Tier 1) with optional gauntlet enrichment |
 | `blast-radius` | Change blast-radius analysis | Risk-scoring affected nodes via the code knowledge graph |

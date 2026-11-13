@@ -110,6 +110,8 @@ docs/plans/
 docs/backlog/
 docs/archive/
 docs/marketing/
+# Expert-tier extracts go to a tracked docs/<topic>.md page or an ADR.
+docs/deep-dive/
 # Research syntheses and brainstorm design drafts are background,
 # never the record. Fold the load-bearing evidence into the rule, ADR,
 # or skill module that relies on it; a tracked doc must never cite a

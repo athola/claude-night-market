@@ -141,7 +141,7 @@ done
 **Confidence:** HIGH (80%) | **Action:** INLINE until 3rd use case
 
 ### 9. Happy Path Bias
-**Definition:** Tests verify success paths only; no error handling tested.
+**Definition:** Tests verify success paths only, with no error handling tested.
 **AI Cause:** AI optimizes for "works" demonstrations.
 
 ```bash

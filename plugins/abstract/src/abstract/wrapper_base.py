@@ -64,7 +64,7 @@ def _detect_breaking_changes(files: list[str]) -> list[dict[str, Any]]:
             continue
 
         if result.returncode != 0:
-            # File is new (no git history) -- no breaking changes
+            # File is new (no git history): no breaking changes
             continue
 
         try:

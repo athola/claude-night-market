@@ -20,7 +20,7 @@ estimated_tokens: 900
 ## When To Use
 Use this skill after running a command or completing a short session slice where execution felt slow, confusing, repetitive, or fragile.
 
-This skill focuses on improving the *workflow assets* (skills, agents, commands, hooks) that were involved, not on feature work itself.
+This skill focuses on improving the *workflow assets* (skills, agents, commands, hooks) that were involved. Feature work itself is out of scope.
 
 ## When NOT To Use
 
@@ -265,9 +265,9 @@ confirm):
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
   a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`, `action`;
-  set `phase` to `review`). Show the draft; append on confirmation.
+  set `phase` to `review`). Show the draft and append on confirmation.
 - Fallback (leyline absent): append to `docs/lessons-learned.md` using the
-  in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+  in-file ENTRY TEMPLATE and assign the next `LL-NNN` id.
 
 ## Supporting Modules
 

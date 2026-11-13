@@ -15,25 +15,33 @@ import re
 import sys
 from pathlib import Path
 
-# D-06: shadow_mode + is_git_commit live in shared/vow_utils.
+# D-06: shadow_mode and git_commit_offset are in shared/vow_utils.
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
-    is_git_commit,
+    git_commit_offset,
     shadow_mode_active,
     vow_output,
 )
 
+# The astral emoji blocks are emoji throughout. U+2300-27BF and the
+# arrows and stars past it are mostly text symbols that commit messages
+# use on purpose (the check mark, the command key, arrows), so only the
+# characters that render as emoji by default (Emoji_Presentation=Yes),
+# or a symbol followed by the emoji selector U+FE0F, count there.
 _EMOJI_RE = re.compile(
     "["
     "\U0001f300-\U0001faff"
-    "\U00002600-\U000027bf"
-    "\U00002300-\U000023ff"
     "\U0001f000-\U0001f02f"
     "\U0001f0a0-\U0001f0ff"
     "\U0001f100-\U0001f1ff"
     "\U0001f200-\U0001f2ff"
-    "\U00003030-\U0000303f"
-    "]",
+    "\u231a\u231b\u23e9-\u23ec\u23f0\u23f3\u25fd\u25fe\u2614\u2615"
+    "\u2648-\u2653\u267f\u2693\u26a1\u26aa\u26ab\u26bd\u26be\u26c4"
+    "\u26c5\u26ce\u26d4\u26ea\u26f2\u26f3\u26f5\u26fa\u26fd\u2705"
+    "\u270a\u270b\u2728\u274c\u274e\u2753-\u2755\u2757\u2795-\u2797"
+    "\u27b0\u27bf\u2b1b\u2b1c\u2b50\u2b55"
+    "]"
+    "|[\u2190-\u2bff\u3030\u303d]\ufe0f",
     re.UNICODE,
 )
 
@@ -57,10 +65,13 @@ def main() -> None:
             sys.exit(0)
 
         command = data.get("tool_input", {}).get("command", "")
-        if not is_git_commit(command):
+        offset = git_commit_offset(command)
+        if offset is None:
             sys.exit(0)
 
-        if not _has_emoji(command):
+        # An emoji in an earlier command ("echo ... && git commit") is not
+        # in the commit message.
+        if not _has_emoji(command[offset:]):
             sys.exit(0)
 
         shadow = shadow_mode_active()

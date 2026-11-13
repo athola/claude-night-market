@@ -55,7 +55,7 @@ PRICING = {
 
 # Priced above every current model but on its way out, so it is excluded
 # when deriving the fallback rate. Opus 4.1 costs 1.5x Fable 5 and
-# retires 2026-08-05; letting it set the floor would overcharge every
+# retires 2026-08-05. Letting it set the floor would overcharge every
 # unrecognized model for a rate nobody can be billed.
 DEPRECATED_MODELS = frozenset({"claude-opus-4-1-20250805"})
 

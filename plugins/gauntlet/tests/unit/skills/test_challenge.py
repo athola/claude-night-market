@@ -16,13 +16,16 @@ def test_skill_md_exists() -> None:
     assert SKILL_FILE.exists()
 
 
-def test_skill_md_documents_in_loop_registration() -> None:
-    """Scenario: SKILL.md tells the model to call the registration helper.
+def test_in_loop_registration_happens_where_the_variation_runs() -> None:
+    """Scenario: the provider is registered in the process that varies problems.
 
-    Given the gauntlet:challenge SKILL.md
-    When I read the body
-    Then it shows the register_in_loop_provider_if_inside_claude_code call.
+    Given the bank variation runs inside challenge_engine.py
+    When the skill is read
+    Then it names the registration helper instead of asking the model to
+    call it in another process, where the registration could never reach
+    the engine. The engine's own call is pinned behaviorally in
+    test_cli_scripts.py.
     """
     text = SKILL_FILE.read_text(encoding="utf-8")
     assert "register_in_loop_provider_if_inside_claude_code" in text
-    assert "from gauntlet.providers.in_loop import" in text
+    assert "from gauntlet.providers.in_loop import" not in text

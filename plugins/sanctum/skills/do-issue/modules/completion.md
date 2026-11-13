@@ -114,9 +114,9 @@ confirm):
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
   a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`, `action`;
-  set `phase` to `execute`). Show the draft; append on confirmation.
+  set `phase` to `execute`). Show the draft and append on confirmation.
 - Fallback (leyline absent): append to `docs/lessons-learned.md` using the
-  in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+  in-file ENTRY TEMPLATE and assign the next `LL-NNN` id.
 
 ## Example Final Output
 

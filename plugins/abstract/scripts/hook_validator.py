@@ -309,7 +309,7 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
         result["valid"] = False
         return result
 
-    # A plugin manifest nests its events under a top-level "hooks" key; a
+    # A plugin manifest nests its events under a top-level "hooks" key. A
     # settings-style fragment is the bare event map. Both reach here, and
     # iterating the wrapper as if its one key were an event name is how this
     # validator spent its life reporting "hooks: must be a list" against

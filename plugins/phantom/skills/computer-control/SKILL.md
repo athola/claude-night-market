@@ -1,6 +1,6 @@
 ---
 name: computer-control
-description: Automates desktop GUI workflows via computer use API with screenshot capture. Use when scripting GUI interactions or recording browser sessions for tutorials.
+description: Automates desktop GUI workflows through the computer use API with screenshots. Use when scripting GUI interactions.
 alwaysApply: false
 ---
 # Computer Control Skill
@@ -72,20 +72,38 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 uv run python -m phantom.cli "Open Firefox and search for Claude AI"
 ```
 
+`--confirm` asks before each action and runs it only on a reply that
+starts with `y` or `Y`. Any other reply, or a closed stdin, rejects it.
+`--budget-usd 0.50` stops the run with `budget_exceeded` once its
+estimated API cost passes that many dollars.
+
 ### Use in Python
 
 ```python
-from phantom.display import DisplayConfig, DisplayToolkit
-from phantom.loop import LoopConfig, run_loop
+from phantom.display import DisplayConfig
+from phantom.loop import LoopConfig, LoopHooks, LoopSetup, run_loop
+
+
+def approve(action: dict) -> bool:
+    try:
+        reply = input(f"Run {action.get('action')}? [y/N] ")
+    except EOFError:  # closed stdin is a no
+        return False
+    return reply.strip().lower().startswith("y")
+
 
 result = run_loop(
     task="Take a screenshot of the desktop",
     api_key="sk-ant-...",
-    loop_config=LoopConfig(
-        model="claude-sonnet-5",
-        max_iterations=10,
+    setup=LoopSetup(
+        loop_config=LoopConfig(
+            model="claude-sonnet-5",
+            max_iterations=10,
+            budget_usd=0.50,
+        ),
+        display_config=DisplayConfig(width=1920, height=1080),
     ),
-    display_config=DisplayConfig(width=1920, height=1080),
+    hooks=LoopHooks(confirm_callback=approve),
 )
 
 print(f"Done in {result.iterations} iterations")
@@ -131,7 +149,9 @@ Computer use carries risks. Follow these guidelines:
 3. **Set iteration caps**: Always use `max_iterations` to
    prevent runaway API costs
 4. **Human approval**: For actions with real-world consequences,
-   add confirmation callbacks via `on_action`
+   pass `confirm_callback` (`--confirm` on the CLI). It returns
+   True to run the action and False to reject it. `on_action` only
+   observes actions, and its return value is ignored
 5. **Close sensitive apps**: Claude sees the full screen via
    screenshots; close anything private before starting
 

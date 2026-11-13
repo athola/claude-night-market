@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import sys
+import tempfile
 from collections.abc import Iterable
 from pathlib import Path
 from types import ModuleType
@@ -23,7 +24,9 @@ MAX_FILES_TO_SCAN = 100
 MAX_CONTEXT_SCAN_DEPTH = 5
 ALLOWED_BASE_PATHS = [
     Path.home(),
-    Path("/tmp"),
+    # The user's own temp directory: /tmp on Linux, the per-user
+    # /var/folders entry on macOS. A literal /tmp is world-writable.
+    Path(tempfile.gettempdir()),
     Path.cwd(),
 ]
 
@@ -466,7 +469,7 @@ if __name__ == "__main__":
                 file=sys.stderr,
             )
 
-            if quota_status not in ["[OK] Healthy"]:
+            if quota_status != "healthy":
                 print(file=sys.stderr)
             print(
                 "Pro Tip: Monitor quota with: `python3 ~/.claude/hooks/gemini/"

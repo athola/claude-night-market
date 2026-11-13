@@ -41,8 +41,8 @@ cause redundant coverage.
 
 ## Avoiding Perverse Incentives
 
-Thoroughness means evidence-backed and prioritized by severity, not
-volume. To prevent inflated issue counts:
+Thoroughness means evidence-backed and prioritized by severity.
+To prevent inflated issue counts:
 
 - Require evidence citations for each finding
 - Weight findings by severity, not count

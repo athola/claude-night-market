@@ -1,5 +1,5 @@
 name: abstract
-version: 1.10.1
+version: 1.10.2
 description: Meta-skills infrastructure for Claude Code plugin ecosystem - skill authoring, hook development, modular design
   patterns, and evaluation frameworks
 keywords:
@@ -29,7 +29,7 @@ dependencies:
     source: gh@athola/claude-night-market
     path: plugins/leyline
     skills:
-    - deferred-capture
+    - decision-journal
 skills:
 - skills/escalation-governance
 - skills/hook-authoring

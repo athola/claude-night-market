@@ -135,6 +135,6 @@ done
 
 1. **Branch coverage** over line coverage when available
 2. **Mutation testing** for critical code (e.g., `cargo mutants`, `mutmut`)
-3. **Coverage trends**: Track over time, not just absolute values
+3. **Coverage trends**: Track the trend over time alongside absolute values
 4. **Exclude generated code**: Focus on hand-written logic
 5. **Integration coverage**: Don't just unit test in isolation

@@ -15,15 +15,16 @@ Check GitHub Discussions for highly-voted learnings and promote them to Issues.
 
 ## Purpose
 
-Part of Issue #69 Phase 6c, this command scans athola/claude-night-market Discussions in the "Learnings" category for items that have received sufficient community votes (fire emoji reactions) and promotes them to GitHub Issues for team triage.
+Part of Issue #69 Phase 6c, this command scans athola/claude-night-market Discussions in the "Learnings" category for items that have received sufficient community votes (thumbs-up reactions) and promotes them to GitHub Issues for team triage.
 
 ## What It Does
 
 1. **Loads config** from `~/.claude/skills/discussions/config.json`
-   - `promotion_threshold`: Minimum fire reactions to promote (default: 3)
-   - `promotion_emoji`: Reaction type to count (default: fire)
+   - `promotion_threshold`: Minimum reactions to promote (default: 3)
+   - `promotion_emoji`: Reaction type to count (default: 👍). GitHub
+     offers 👍 👎 😄 🎉 😕 ❤️ 🚀 👀 only
 2. **Queries Discussions** in the "Learnings" category via `gh api graphql`
-3. **Checks reaction counts** for fire emoji specifically
+3. **Checks reaction counts** for the configured emoji only
 4. **Promotes qualifying items** by creating GitHub Issues with:
    - Title: `[Community Learning] {discussion title}`
    - Body: Link to discussion, vote count, original content summary
@@ -51,7 +52,7 @@ Edit `~/.claude/skills/discussions/config.json`:
 ```json
 {
   "promotion_threshold": 3,
-  "promotion_emoji": "🔥"
+  "promotion_emoji": "👍"
 }
 ```
 

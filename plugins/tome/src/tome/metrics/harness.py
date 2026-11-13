@@ -2,8 +2,9 @@
 
 Loads a committed gold set (topics, each with a ranked result list and a
 relevant set), scores mean nDCG / MRR / recall with the deterministic
-functions in :mod:`tome.metrics.retrieval`, and prints a table. No
-network, no model, no LLM: the numbers are reproducible and trend-able.
+functions in :mod:`tome.metrics.retrieval`, and prints a table. It
+calls no network, model or LLM, which keeps the numbers reproducible and
+trend-able.
 """
 
 from __future__ import annotations

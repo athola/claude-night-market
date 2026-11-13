@@ -3,7 +3,9 @@
 
 Reads stability gap from execution history and flags degrading
 skills in the improvement queue. When a skill accumulates 3+
-flags, it becomes eligible for auto-improvement.
+flags, it becomes eligible for auto-improvement. Evaluation windows
+are advanced by skill_execution_logger through ``evaluate_window``,
+because the logger has just written that run to the history.
 
 Part of the self-adapting system. See: docs/adr/0006-self-adapting-skill-health.md
 """
@@ -35,7 +37,7 @@ from shared.stability import (  # noqa: E402 - import after path setup
 )
 
 try:
-    from abstract.improvement_queue import ImprovementQueue
+    from abstract.improvement_queue import ImprovementQueue, QueueEntry
     from abstract.paths import get_improvement_queue_path
 
     _HAS_QUEUE = True
@@ -121,7 +123,7 @@ def _needs_metacognition(claude_home: Path) -> bool:  # noqa: PLR0911 - multi-cr
         mem = ImprovementMemory(mem_file)
         effective = mem.get_effective_strategies()
         failed = mem.get_failed_strategies()
-        # Every recorded outcome is an attempt; small gains and neutral
+        # Every recorded outcome is an attempt. Small gains and neutral
         # results are neither effective nor failed but still count.
         total = sum(len(v) for v in mem.outcomes.values())
         if total == 0:
@@ -162,7 +164,7 @@ def _flag_and_build_output(
 ) -> dict | None:
     """Flag degrading skill in queue and return output dict.
 
-    Reads ``health`` fields directly rather than destructuring; the bundle is
+    Reads ``health`` fields directly rather than destructuring. The bundle is
     constructed once at the call site and never re-exploded here.
     """
     queue_file = get_improvement_queue_path(claude_home)
@@ -180,7 +182,7 @@ def _flag_and_build_output(
     if trigger:
         metacognitive_needed = _needs_metacognition(claude_home)
         sys.stderr.write(
-            f"HOMEOSTATIC: {skill_ref} flagged {entry['flagged_count']}x "
+            f"HOMEOSTATIC: {skill_ref} flagged {entry.flagged_count}x "
             f"(gap={health.gap:.2f}), improvement eligible"
             f"{' [metacognitive recommended]' if metacognitive_needed else ''}\n"
         )
@@ -191,7 +193,7 @@ def _flag_and_build_output(
         status,
         health.velocity,
         health.trend,
-        flagged_count=entry["flagged_count"],
+        flagged_count=entry.flagged_count,
         improvement_triggered=trigger,
         metacognitive_needed=metacognitive_needed,
     )
@@ -202,7 +204,7 @@ def _mean(outcomes: list[float]) -> float:
 
 
 def _record_window_outcome(
-    claude_home: Path, skill_ref: str, entry: dict[str, Any], accuracies: list[float]
+    claude_home: Path, skill_ref: str, entry: QueueEntry, accuracies: list[float]
 ) -> None:
     """Write the closed window's measured scores to the learning stores.
 
@@ -211,13 +213,13 @@ def _record_window_outcome(
     classifies the change as success, failure or neutral from data. A
     window opened without a history position has no measured "before".
     """
-    start = entry.get("eval_history_start", 0)
+    start = entry.eval_history_start
     before_runs = accuracies[max(0, start - RECENT_RUNS) : start]
     window_runs = accuracies[start:]
     if not before_runs or not window_runs:
         return
     after_score = _mean(window_runs)
-    version = str(entry.get("eval_version", ""))
+    version = entry.eval_version
     if _HAS_MEMORY:
         ImprovementMemory(
             claude_home / "skills" / "improvement_memory.json"
@@ -225,7 +227,7 @@ def _record_window_outcome(
             skill_ref,
             ImprovementOutcome(
                 version=version,
-                change_summary=str(entry.get("eval_change_summary", "")),
+                change_summary=entry.eval_change_summary,
                 before_score=_mean(before_runs),
                 after_score=after_score,
             ),
@@ -236,7 +238,7 @@ def _record_window_outcome(
         ).record_generation(skill_ref, version, after_score)
 
 
-def _advance_evaluation(
+def _advance_evaluation(  # noqa: PLR0911 - one early return per way a window is not advanced
     claude_home: Path, skill_ref: str, accuracies: list[float]
 ) -> dict[str, Any] | None:
     """Count this execution toward an open evaluation window.
@@ -248,18 +250,27 @@ def _advance_evaluation(
 
     Returns:
         Output fields for the hook report, plus ``window_gap``, or None
-        when the skill is not under evaluation. A missing queue file is
-        not created.
+        when the skill is not under evaluation, its window was abandoned,
+        or another process decided it first. A missing queue file is not
+        created.
 
     """
     queue_file = get_improvement_queue_path(claude_home)
     if not queue_file.exists():
         return None
     queue = ImprovementQueue(queue_file)
-    entry = queue.skills.get(skill_ref, {})
-    if entry.get("status") != "evaluating":
+    entry = queue.skills.get(skill_ref)
+    if entry is None or entry.status != "evaluating":
         return None
-    window_gap = stability_gap_since(accuracies, entry.get("eval_history_start", 0))
+    if len(accuracies) <= entry.eval_history_start:
+        # The history was reset under the window (a corrupt file is set
+        # aside and restarted), so no run since the window opened is left
+        # to judge. An empty slice would score as a perfect gap.
+        queue.abandon_evaluation(
+            skill_ref, "history no longer reaches the window's start"
+        )
+        return None
+    window_gap = stability_gap_since(accuracies, entry.eval_history_start)
     if not queue.record_eval_execution(skill_ref, window_gap):
         return None
     if not queue.is_eval_complete(skill_ref):
@@ -267,48 +278,80 @@ def _advance_evaluation(
         return {
             "window_gap": window_gap,
             "evaluation": {
-                "executions": entry["eval_executions"],
-                "target": entry.get("eval_target", queue.EVAL_TARGET),
+                "executions": entry.eval_executions,
+                "target": entry.eval_target,
             },
         }
     decision = queue.evaluate(skill_ref)
+    if decision not in ("promote", "pending_rollback_review"):
+        return None
     sys.stderr.write(f"HOMEOSTATIC: {skill_ref} evaluation finished: {decision}\n")
     _record_window_outcome(claude_home, skill_ref, queue.skills[skill_ref], accuracies)
     return {"window_gap": window_gap, "evaluation_decision": decision}
 
 
-def _evaluation_report(
-    claude_home: Path, skill_ref: str, health: SkillHealth, accuracies: list[float]
+def evaluate_window(
+    claude_home: Path, skill_ref: str, accuracies: list[float]
 ) -> dict | None:
-    """Return the hook output for an evaluating skill, else None."""
+    """Advance an open evaluation window and return its hook report.
+
+    Called by skill_execution_logger after it writes the run, so
+    ``accuracies`` always ends with that run. Run from this hook instead,
+    the read raced the logger's write and could miss the run.
+
+    Returns:
+        The report fields, or None when the skill is not under evaluation
+        or the window could not be recorded.
+
+    """
     if not _HAS_QUEUE:
         return None
     try:
         evaluation = _advance_evaluation(claude_home, skill_ref, accuracies)
-    except OSError as e:
+        if evaluation is None:
+            return None
+        try:
+            trend = _get_improvement_trend(claude_home, skill_ref)
+        except (OSError, ValueError, KeyError) as e:
+            sys.stderr.write(f"homeostatic_monitor: tracker error: {e}\n")
+            trend = None
+    except (OSError, ValueError) as e:
         sys.stderr.write(
             f"homeostatic_monitor: evaluation not recorded for {skill_ref}: {e}\n"
         )
         return None
-    if evaluation is None:
-        return None
     window_gap = evaluation.pop("window_gap")
-    return _build_output(
+    report: dict = _build_output(
         skill_ref,
         window_gap,
         _status(window_gap),
-        health.velocity,
-        health.trend,
+        _stewardship_velocity(_project_dir()),
+        trend,
         **evaluation,
-    )
+    )["hookSpecificOutput"]
+    return report
 
 
 # Stewardship integration: lightweight velocity read
 
 
-def _stewardship_velocity(claude_home: Path) -> int:
-    """Count stewardship actions (0 if tracker absent)."""
-    actions_file = claude_home / "stewardship" / "actions.jsonl"
+def _project_dir() -> Path:
+    """Resolve the project the tracker writes under.
+
+    The harness sets CLAUDE_PROJECT_DIR for every hook. The process cwd
+    follows any cd the session ran, so it is used only when the variable
+    is absent, as when the hook runs by hand.
+    """
+    return Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path.cwd())
+
+
+def _stewardship_velocity(project_dir: Path) -> int:
+    """Count stewardship actions (0 if tracker absent).
+
+    leyline's stewardship_tracker.py records to ``.claude/stewardship``
+    under the project root, which ``_project_dir`` resolves.
+    """
+    actions_file = project_dir / ".claude" / "stewardship" / "actions.jsonl"
     if not actions_file.exists():
         return 0
     try:
@@ -364,7 +407,7 @@ def main() -> None:
         tool_input = payload["tool_input"]
         if not tool_input.get("skill", ""):
             sys.exit(0)
-        # The logger keys .history.json this way; a raw name such as
+        # The logger keys .history.json this way. A raw name such as
         # "proof-of-work" is stored as "unknown:proof-of-work".
         plugin, skill = parse_skill_name(tool_input)
         skill_ref = f"{plugin}:{skill}"
@@ -384,19 +427,7 @@ def main() -> None:
             sys.stderr.write(f"homeostatic_monitor: tracker error: {e}\n")
             trend = None
 
-        velocity = _stewardship_velocity(claude_home)
-
-        # Before the healthy exit: a window exists to watch the executions
-        # that follow an improvement, and those are meant to be healthy.
-        report = _evaluation_report(
-            claude_home,
-            skill_ref,
-            SkillHealth(gap, velocity, trend),
-            skill_history.get("accuracies", []),
-        )
-        if report is not None:
-            print(json.dumps(report))
-            sys.exit(0)
+        velocity = _stewardship_velocity(_project_dir())
 
         if gap <= STABILITY_GAP_THRESHOLD:
             print(json.dumps(_build_output(skill_ref, gap, "healthy", velocity, trend)))
@@ -412,7 +443,7 @@ def main() -> None:
             )
             sys.exit(0)
 
-        # Skill is degrading -- flag it in the queue via ImprovementQueue
+        # Skill is degrading: flag it in the queue via ImprovementQueue
         health = SkillHealth(gap, velocity, trend)
         try:
             output = _flag_and_build_output(

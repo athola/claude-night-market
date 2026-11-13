@@ -86,3 +86,61 @@ def test_fix_reaches_ruff_for_a_makefile_linted_plugin(tmp_path: Path) -> None:
     result = _run(repo, "run-plugin-lint.sh", "--fix", "demo", path_prefix=str(shims))
     assert result.returncode == 0, result.stdout + result.stderr
     assert "--fix" in log.read_text()
+
+
+def test_a_plugin_whose_python_is_all_hooks_is_linted(tmp_path: Path) -> None:
+    """cartograph has only hooks/*.py, and the runner skipped it as sourceless."""
+    repo = _sandbox(tmp_path)
+    plugin = repo / "plugins" / "demo"
+    (plugin / "hooks").mkdir(parents=True)
+    (plugin / "hooks" / "refresh.py").write_text("x = 1\n")
+    (plugin / "Makefile").write_text("lint:\n\t@echo make-lint-ran\n")
+
+    result = _run(repo, "run-plugin-lint.sh", "demo")
+
+    assert "No Python source code" not in result.stdout + result.stderr
+    assert "make-lint-ran" in result.stdout
+
+
+def test_typecheck_probe_ignores_a_catch_all_rule(tmp_path: Path) -> None:
+    """A `%::` rule dry-runs any name, so `make -n typecheck` always passed."""
+    repo = _sandbox(tmp_path)
+    plugin = repo / "plugins" / "demo"
+    (plugin / "src").mkdir(parents=True)
+    (plugin / "Makefile").write_text('%::\n\t@echo "Unknown target $@"\n')
+
+    result = _run(repo, "run-plugin-typecheck.sh", "demo")
+
+    assert "Unknown target typecheck" not in result.stdout + result.stderr
+
+
+def test_typecheck_probe_finds_a_target_from_an_included_mk(tmp_path: Path) -> None:
+    """Under pipefail, `make -pn | grep -q` missed every included target.
+
+    make exits 2 on the probe goal, or dies of SIGPIPE when grep -q closes
+    the pipe early, and either status turned the match into a miss.
+    """
+    repo = _sandbox(tmp_path)
+    plugin = repo / "plugins" / "demo"
+    plugin.mkdir(parents=True)
+    (plugin / "Makefile").write_text("include typecheck.mk\n")
+    (plugin / "typecheck.mk").write_text("typecheck:\n\t@echo typecheck-from-include\n")
+
+    result = _run(repo, "run-plugin-typecheck.sh", "demo")
+
+    assert "typecheck-from-include" in result.stdout, result.stdout + result.stderr
+
+
+def test_shellcheck_run_by_a_bare_name_from_scripts_prints_usage() -> None:
+    """`${0%/*}` of `shellcheck.sh` is the name itself, so logging.sh was missed."""
+    result = subprocess.run(
+        ["sh", "shellcheck.sh", "-h"],
+        cwd=ROOT / "scripts",
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Usage: scripts/shellcheck.sh" in result.stdout + result.stderr

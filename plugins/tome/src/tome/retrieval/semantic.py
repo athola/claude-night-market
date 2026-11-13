@@ -27,8 +27,10 @@ class NonSemanticRetrievalWarning(UserWarning):
     """
 
 
-# memory-palace is an optional, co-installed backend. See the note in
-# graph/palace_adapter.py for why the alias is declared ``Any``.
+# memory-palace is an optional, co-installed backend. The alias is declared
+# ``Any`` so this module type-checks the same whether or not the backend is
+# installed: binding the imported class directly would make the absent
+# branch an invalid assignment once the real types resolve.
 _EmbeddingIndex: Any
 try:
     from memory_palace import EmbeddingIndex as _mp_embedding_index
@@ -70,11 +72,6 @@ Provider = Literal["local", "none"]
 
 _HASH_PROVIDER: Provider = "none"
 _MODEL_PROVIDER: Provider = "local"
-
-
-def embedder_available() -> bool:
-    """Return whether the embedding backend is importable."""
-    return _EmbeddingIndex is not None
 
 
 def best_available_provider() -> Provider:
@@ -141,7 +138,7 @@ class SemanticRetriever:
             is_semantic: Whether ``embedder`` produces semantically
                 meaningful vectors. Left unset, it is read off the
                 embedder's ``requested_provider`` when it publishes one
-                (memory-palace's ``EmbeddingIndex`` does); embedders
+                (memory-palace's ``EmbeddingIndex`` does). Embedders
                 that declare no provider are taken at their word rather
                 than presumed degraded.
         """

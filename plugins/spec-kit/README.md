@@ -77,7 +77,7 @@ Executes implementation tasks according to the task plan.
 5. `/speckit-tasks`: Create a task breakdown.
 6. `/speckit-analyze`: Verify consistency.
 7. `/speckit-implement`: Execute tasks.
-8. `/speckit-converge`: Catch spec-to-code gaps; append remaining work as tasks (re-run `/speckit-implement` if it adds any).
+8. `/speckit-converge`: Catch spec-to-code gaps and append remaining work as tasks (re-run `/speckit-implement` if it adds any).
 9. `/speckit-checklist`: Run a final quality check.
 
 ## Dependencies

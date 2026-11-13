@@ -204,8 +204,8 @@ When the task is complete:
 4. **Clean up** - Note that state file can be archived or deleted
 5. **Report completion** to the user
 
-**Batch Mode Completion**: Only report "complete" when ALL tasks in
-`remaining_tasks` have been processed, not after each individual task.
+**Batch Mode Completion**: Report "complete" only after ALL tasks in
+`remaining_tasks` have been processed.
 
 ## Error Handling
 
@@ -262,6 +262,6 @@ Before finishing, verify:
 2. **Check session-state remaining_tasks** - Any left? KEEP WORKING.
 3. **Run self-validation** - All criteria met? Only THEN report complete.
 
-**The Task tool returning does NOT mean you should stop.** You decide when you're done by completing all work, not by responding once.
+**The Task tool returning does NOT mean you should stop.** You are done when all work is complete. One response does not end the task.
 
 If you find yourself about to say "I've completed X, let me know if you need anything else" - STOP. Check if there's more work. There usually is.

@@ -2,12 +2,12 @@
 """Promote highly-voted GitHub Discussions to Issues.
 
 Checks athola/claude-night-market Discussions for items with sufficient
-fire emoji reactions and promotes them to GitHub Issues for triage.
+thumbs-up reactions and promotes them to GitHub Issues for triage.
 
 Part of Issue #69 Phase 6c: Collective Intelligence Loop
 
 Features:
-- Configurable reaction threshold (default: 3 fire reactions)
+- Configurable reaction threshold (default: 3 thumbs-up reactions)
 - Deduplication via promoted.json tracking
 - Creates Issues with [Community Learning] prefix and labels
 - Graceful failure (warns to stderr, exits 0)
@@ -16,7 +16,7 @@ Features:
 from __future__ import annotations
 
 import json
-import subprocess  # noqa: F401 - retained for legacy callers; gh now uses git_platform
+import subprocess  # noqa: F401 - retained for legacy callers, gh now uses git_platform
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -54,10 +54,31 @@ except ImportError:
         f"{Path(__file__).name}: requires the leyline plugin, which is not installed"
     )
 
-# Hardcoded target repository
+# Default target repository. config.json's target_repo overrides it.
 TARGET_REPO = "athola/claude-night-market"
-TARGET_OWNER = "athola"
-TARGET_NAME = "claude-night-market"
+
+# GitHub counts reactions by ReactionContent enum name. Its eight values
+# are the only reactions a discussion can carry, and it has no fire.
+_REACTION_FOR_EMOJI = {
+    "\U0001f44d": "THUMBS_UP",
+    "\U0001f44e": "THUMBS_DOWN",
+    "\u2764\ufe0f": "HEART",
+    "\u2764": "HEART",
+    "\U0001f680": "ROCKET",
+    "\U0001f389": "HOORAY",
+    "\U0001f440": "EYES",
+    "\U0001f604": "LAUGH",
+    "\U0001f615": "CONFUSED",
+}
+
+
+def _owner_and_name(repo: str) -> dict[str, str]:
+    """Split ``owner/name`` into GraphQL variables."""
+    owner, _, name = repo.partition("/")
+    if not owner or not name or "/" in name:
+        raise ValueError(f"target_repo must be owner/name, got {repo!r}")
+    return {"owner": owner, "name": name}
+
 
 # Discussion category IDs to scan
 LEARNINGS_CATEGORY_ID = "DIC_kwDOQbN88M4C2zJo"
@@ -80,8 +101,18 @@ class PromotionConfig:
     """Configuration for discussion promotion."""
 
     promotion_threshold: int = 3
-    promotion_emoji: str = "\U0001f525"  # fire emoji
+    promotion_emoji: str = "\U0001f44d"  # thumbs up
     target_repo: str = TARGET_REPO
+
+    @property
+    def reaction(self) -> str:
+        """The GitHub reaction enum the emoji names; ValueError if none does."""
+        try:
+            return _REACTION_FOR_EMOJI[self.promotion_emoji]
+        except KeyError:
+            raise ValueError(
+                f"promotion_emoji {self.promotion_emoji!r} is not a GitHub reaction"
+            ) from None
 
     @classmethod
     def load(cls) -> PromotionConfig:
@@ -92,7 +123,7 @@ class PromotionConfig:
                 data = json.loads(config_path.read_text())
                 return cls(
                     promotion_threshold=data.get("promotion_threshold", 3),
-                    promotion_emoji=data.get("promotion_emoji", "\U0001f525"),
+                    promotion_emoji=data.get("promotion_emoji", "\U0001f44d"),
                     target_repo=data.get("target_repo", TARGET_REPO),
                 )
             except (json.JSONDecodeError, OSError) as e:
@@ -157,39 +188,45 @@ def run_gh_graphql(query: str, variables: dict[str, Any] | None = None) -> Any:
         raise RuntimeError(str(exc)) from exc
 
 
-def get_repo_node_id() -> str:
-    """Get the repository node ID.
+def get_repo_node_id(repo: str = TARGET_REPO) -> str:
+    """Get the node ID of ``repo`` (``owner/name``).
 
     Returns:
         Repository node ID string
 
     """
     query = (
-        f'query {{ repository(owner: "{TARGET_OWNER}",'
-        f' name: "{TARGET_NAME}") {{ id }} }}'
+        "query($owner: String!, $name: String!) { "
+        "repository(owner: $owner, name: $name) { id } }"
     )
 
-    response = run_gh_graphql(query)
+    response = run_gh_graphql(query, variables=_owner_and_name(repo))
     return str(response["data"]["repository"]["id"])
 
 
-def fetch_learnings_discussions() -> list[DiscussionItem]:
-    """Fetch recent Discussions from the Learnings category with reactions.
+def fetch_learnings_discussions(
+    repo: str = TARGET_REPO, reaction: str = "THUMBS_UP"
+) -> list[DiscussionItem]:
+    """Fetch recent Learnings Discussions of ``repo`` with ``reaction`` counts.
+
+    ``reaction`` is a GitHub ReactionContent name and comes from
+    PromotionConfig.reaction, which only yields names from the enum.
 
     Returns:
         List of DiscussionItems with reaction counts
 
     """
     query = (
-        f'query {{ repository(owner: "{TARGET_OWNER}", name: "{TARGET_NAME}") {{ '
+        "query($owner: String!, $name: String!) { "
+        "repository(owner: $owner, name: $name) { "
         f'discussions(categoryId: "{LEARNINGS_CATEGORY_ID}", first: 20, '
         "orderBy: {field: CREATED_AT, direction: DESC}) { "
         "nodes { id title url body "
-        "reactions(content: FIRE) { totalCount } } } } }"
+        f"reactions(content: {reaction}) {{ totalCount }} }} }} }} }}"
     )
 
     try:
-        response = run_gh_graphql(query)
+        response = run_gh_graphql(query, variables=_owner_and_name(repo))
         nodes = (
             response.get("data", {})
             .get("repository", {})
@@ -233,11 +270,11 @@ def format_issue_body(item: DiscussionItem) -> str:
     lines.append(
         f"This issue was auto-promoted from a GitHub Discussion "
         f"that received **{item.reaction_count}** "
-        f"\U0001f525 reactions from the community."
+        f"reactions from the community."
     )
     lines.append("")
     lines.append(f"**Source Discussion**: {item.url}")
-    lines.append(f"**Vote Count**: {item.reaction_count} \U0001f525")
+    lines.append(f"**Vote Count**: {item.reaction_count}")
     lines.append("")
     lines.append("## Original Content")
     lines.append("")
@@ -302,7 +339,9 @@ def run_promotion() -> list[str]:
     record = PromotedRecord.load()
 
     # Fetch discussions with reactions
-    discussions = fetch_learnings_discussions()
+    discussions = fetch_learnings_discussions(
+        repo=config.target_repo, reaction=config.reaction
+    )
     if not discussions:
         print("No discussions found to check.", file=sys.stderr)
         return []
@@ -320,7 +359,7 @@ def run_promotion() -> list[str]:
         return []
 
     # Get repo ID for creating issues
-    repo_id = get_repo_node_id()
+    repo_id = get_repo_node_id(config.target_repo)
 
     created_urls: list[str] = []
     for item in promotable:
@@ -349,7 +388,9 @@ def main() -> None:
                 print(f"  {url}")
         else:
             print("No discussions promoted.")
-    except RuntimeError as e:
+    except (RuntimeError, ValueError) as e:
+        # ValueError is a bad config.json value: an emoji GitHub does not
+        # offer, or a target_repo that is not owner/name.
         print(f"Warning: Promotion failed: {e}", file=sys.stderr)
         sys.exit(0)
     except FileNotFoundError:

@@ -13,13 +13,13 @@ estimated_tokens: 500
 
 # Ideation: Diverse Methods With Rotation
 
-**Diversity is a selection problem, not a volume problem.**
+**Diversity comes from selecting different methods.**
 
 Generating ten ideas from one mental frame yields ten variations
 of the same idea. The fix is to ideate from different categories of
 method, then rotate methods across passes so the next round does not
 repeat the last. This is the documented lever against LLM mode
-collapse, not a brainstorming ritual.
+collapse.
 
 ## When NOT To Use
 
@@ -54,8 +54,8 @@ an honest evidence grade (see Sources below):
 | Multiple working hypotheses | hypothesis | mixed |
 
 The grades are deliberately conservative. Individual-method evidence
-is thin; the value is the diverse-selection-plus-rotation pattern, not
-any single method. For the structured analogical form, use
+is thin. The value is in the diverse-selection-plus-rotation pattern.
+For the structured analogical form, use
 `Skill(tome:triz)`. For finding an implied-but-empty cell in a
 concept space, map the field and its hidden optimization axis first,
 then apply generation methods to fill the gap.
@@ -67,13 +67,13 @@ then apply generation methods to fill the gap.
    `select_methods(n)` from `tome.channels.ideation` returns methods
    from different categories by construction.
 3. Apply each method's reasoning prompt to the problem. Generate ideas
-   freely; do not normalize them into a schema yet.
+   freely. Do not normalize them into a schema yet.
 4. On a second pass, rotate: `select_methods(n, exclude=used_ids)` or
    `rotation_plan(passes, n_per_pass)` so no method repeats until the
    catalog is exhausted.
 5. Score the candidates with `score_idea` (weighted criteria per
    `Skill(leyline:evaluation-framework)`). Novelty claimed without
-   evidence is capped, so "novel" must be earned, not asserted.
+   evidence is capped, so "novel" must be earned with evidence.
 6. Report the final set with rationale and scores.
 
 ## Scoring
@@ -88,10 +88,10 @@ found the idea genuinely new.
 ## Anti-goals
 
 - Do not generate many ideas from one method and call it diverse.
-- Do not impose a rigid output schema during generation; it collapses
+- Do not impose a rigid output schema during generation. It collapses
   diversity.
-- Do not present anecdotal-evidence methods as proven; cite the grade.
-- Do not import the full 20-method bundle; the catalog is curated on
+- Do not present anecdotal-evidence methods as proven. Cite the grade.
+- Do not import the full 20-method bundle. The catalog is curated on
   purpose.
 
 ## Sources
@@ -104,7 +104,7 @@ The diversity rationale and method evidence grades draw on:
   generation diversity. This is the basis for the
   reasoning-prompt-not-schema rule above.
 - Barriers to Diversity in LLM-Generated Ideas (arXiv 2602.20408):
-  chain-of-thought reduces fixation; diverse personas restore collective
+  chain-of-thought reduces fixation, and diverse personas restore collective
   diversity.
 - The originality and SCAMPER / morphological-analysis education
   literature underpins the per-method evidence grades.
@@ -132,4 +132,4 @@ Methods surveyed and not catalogued, with grades, are in ADR-0024.
       method repeated before the catalog was exhausted.
 - [ ] Each candidate carries a weighted score from `score_idea`, with
       any uncapped novelty backed by an explicit prior-art check.
-- [ ] The final report structures the output; generation did not.
+- [ ] Only the final report structures the output.

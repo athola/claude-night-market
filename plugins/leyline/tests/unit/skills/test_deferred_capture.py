@@ -1,6 +1,6 @@
-"""Tests for the deferred-capture contract skill structure and content.
+"""Tests for the deferred-capture contract module structure and content.
 
-Validates that the SKILL.md contains all required contract elements:
+Validates that ``decision-journal/modules/deferred-capture.md`` contains all required contract elements:
 CLI interface, issue template, label taxonomy, duplicate detection,
 JSON output spec, and compliance test.
 
@@ -14,11 +14,11 @@ import pytest
 
 MAX_PROSE_LINE_LENGTH = 80
 
-SKILL_DIR = Path(__file__).parents[3] / "skills" / "deferred-capture"
+SKILL_DIR = Path(__file__).parents[3] / "skills" / "decision-journal" / "modules"
 
 
 class TestDeferredCaptureSkillStructure:
-    """Feature: deferred-capture skill defines a complete contract.
+    """Feature: deferred-capture module defines a complete contract.
 
     As a plugin developer
     I want a canonical deferred-capture contract
@@ -27,12 +27,12 @@ class TestDeferredCaptureSkillStructure:
 
     @pytest.fixture
     def skill_path(self) -> Path:
-        """Path to the deferred-capture SKILL.md."""
-        return SKILL_DIR / "SKILL.md"
+        """Path to the deferred-capture module."""
+        return SKILL_DIR / "deferred-capture.md"
 
     @pytest.fixture
     def skill_content(self, skill_path: Path) -> str:
-        """Load the deferred-capture SKILL.md content."""
+        """Load the deferred-capture module content."""
         return skill_path.read_text()
 
     @pytest.mark.bdd
@@ -41,17 +41,17 @@ class TestDeferredCaptureSkillStructure:
         """Scenario: Skill file exists at expected location.
 
         Given the leyline plugin
-        When checking for deferred-capture skill
-        Then SKILL.md should exist at the canonical path
+        When checking for the deferred-capture module
+        Then the module should exist at the canonical path
         """
-        assert skill_path.exists(), f"SKILL.md not found at {skill_path}"
+        assert skill_path.exists(), f"module not found at {skill_path}"
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_skill_has_frontmatter(self, skill_content: str) -> None:
         """Scenario: Skill file has valid YAML frontmatter.
 
-        Given the deferred-capture SKILL.md
+        Given the deferred-capture module
         When reading the file
         Then it should start with YAML frontmatter containing name and
         description fields
@@ -65,7 +65,7 @@ class TestDeferredCaptureSkillStructure:
     def test_skill_defines_cli_interface(self, skill_content: str) -> None:
         """Scenario: Skill documents the required CLI arguments.
 
-        Given the deferred-capture SKILL.md
+        Given the deferred-capture module
         When reading the CLI Interface section
         Then it should document --title, --source, --context,
         and --dry-run arguments
@@ -81,7 +81,7 @@ class TestDeferredCaptureSkillStructure:
     def test_skill_defines_optional_arguments(self, skill_content: str) -> None:
         """Scenario: Skill documents all optional CLI arguments.
 
-        Given the deferred-capture SKILL.md
+        Given the deferred-capture module
         When reading the optional arguments list
         Then it should include --labels, --session-id, --artifact-path,
         and --captured-by
@@ -96,7 +96,7 @@ class TestDeferredCaptureSkillStructure:
     def test_skill_defines_issue_template(self, skill_content: str) -> None:
         """Scenario: Skill specifies a complete issue template.
 
-        Given the deferred-capture SKILL.md
+        Given the deferred-capture module
         When reading the Issue Template section
         Then it should define the [Deferred] title prefix, labels,
         and body structure including Context and Next Steps
@@ -111,7 +111,7 @@ class TestDeferredCaptureSkillStructure:
     def test_skill_defines_label_taxonomy(self, skill_content: str) -> None:
         """Scenario: Skill defines labels for all known sources.
 
-        Given the deferred-capture SKILL.md
+        Given the deferred-capture module
         When reading the Label Taxonomy section
         Then it should define deferred plus all source labels:
         war-room, brainstorm, scope-guard, feature-review,
@@ -132,7 +132,7 @@ class TestDeferredCaptureSkillStructure:
     def test_skill_defines_duplicate_detection(self, skill_content: str) -> None:
         """Scenario: Skill specifies duplicate detection behavior.
 
-        Given the deferred-capture SKILL.md
+        Given the deferred-capture module
         When reading the Duplicate Detection section
         Then it should describe the gh issue list search and
         title-normalization comparison
@@ -145,7 +145,7 @@ class TestDeferredCaptureSkillStructure:
     def test_skill_defines_json_output_contract(self, skill_content: str) -> None:
         """Scenario: Skill specifies all JSON output shapes.
 
-        Given the deferred-capture SKILL.md
+        Given the deferred-capture module
         When reading the Output section
         Then it should define created, duplicate, and error status values
         """
@@ -159,7 +159,7 @@ class TestDeferredCaptureSkillStructure:
     def test_skill_includes_compliance_test(self, skill_content: str) -> None:
         """Scenario: Skill documents a runnable compliance test.
 
-        Given the deferred-capture SKILL.md
+        Given the deferred-capture module
         When reading the Compliance Test section
         Then it should show an invocation with --dry-run and note that
         valid JSON with a status field is required
@@ -173,7 +173,7 @@ class TestDeferredCaptureSkillStructure:
     def test_label_colors_defined(self, skill_content: str) -> None:
         """Scenario: Every label row includes a hex color code.
 
-        Given the deferred-capture SKILL.md label table
+        Given the deferred-capture module label table
         When reading each row
         Then every label should have a hex color in #RRGGBB format
         """
@@ -188,7 +188,7 @@ class TestDeferredCaptureSkillStructure:
     def test_prose_lines_under_80_chars(self, skill_content: str) -> None:
         """Scenario: Prose lines respect 80-char wrapping limit.
 
-        Given the deferred-capture SKILL.md
+        Given the deferred-capture module
         When checking line lengths outside code blocks and tables
         Then all prose lines should be 80 characters or fewer
         """

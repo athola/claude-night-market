@@ -34,7 +34,43 @@ env:
   PYTHON_VERSION: "3.12"
 
 jobs:
+  # Opt-in release window (ADR-0029). It runs only when the
+  # RELEASE_COUNTDOWN_MINUTES repository variable is set, and needs the
+  # RELEASE_WEBHOOK_URL secret for the announcement. Anyone with triage
+  # access pauses by opening an issue labeled `release:pause`. A paused
+  # tag run leaves the tag pushed: close the issue and re-run the
+  # workflow to start a new window. Only variables and the tag name
+  # reach the shell, through env.
+  countdown:
+    if: vars.RELEASE_COUNTDOWN_MINUTES != '' && inputs.dry_run != true
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    permissions:
+      contents: read
+      issues: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: plugins/herald/scripts
+
+      - name: Hold the release for the pause window
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_WEBHOOK_URL: ${{ secrets.RELEASE_WEBHOOK_URL }}
+          MINUTES: ${{ vars.RELEASE_COUNTDOWN_MINUTES }}
+          RELEASE: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: >-
+          python3 plugins/herald/scripts/release_countdown.py
+          --minutes "$MINUTES" --release "$RELEASE" --repo "$REPO"
+
   build-and-release:
+    needs: countdown
+    # A skipped countdown (variable unset, or a dry run) lets the build
+    # run. A paused or failed one stops it.
+    if: >-
+      !cancelled() &&
+      (needs.countdown.result == 'success' || needs.countdown.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: write

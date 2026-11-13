@@ -115,8 +115,8 @@ prevent context accumulation. The subagent receives:
 - Previous pass results (summary only, not full context)
 
 Subagent dispatch is optional for targets under 100
-lines of code; in-session review is sufficient for
-small files.
+lines of code. In-session review is enough for small
+files.
 
 ## Workflow
 
@@ -143,11 +143,11 @@ small files.
 - [ ] Total `pass_count` in the state file is <= 10; if 10 passes complete without full
   convergence, the skill surfaces the unconverged dimensions to the user with a recommendation
   to split the target into smaller units.
-- [ ] The correctness dimension converges only after all tests pass (exit code 0); a
+- [ ] The correctness dimension converges only after all tests pass (exit code 0). A
   correctness pass that finds failing tests never marks the dimension as converged.
 - [ ] Clarity and consistency converge only with the linter and
   formatter exit codes recorded as 0 in the state file beside the
-  reviewer's count; a `0 issues` claim with no exit code does not
+  reviewer's count. A `0 issues` claim with no exit code does not
   converge a dimension.
 - [ ] A regression found in a later pass un-converges its dimension
   in the state file (`converged_dimensions` shrinks), and the

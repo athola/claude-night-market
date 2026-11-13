@@ -16,8 +16,7 @@ import time
 import traceback
 from pathlib import Path
 
-from _ledger_utils import get_ledger_path as _get_ledger_path
-from _ledger_utils import ledger_lock
+from _ledger_utils import get_ledger_path, ledger_lock
 
 logger = logging.getLogger(__name__)
 
@@ -34,11 +33,6 @@ _SWEEP_BUDGET_SECONDS = 4.0
 #: budget are left in the ledger for the next sweep rather than being
 #: attempted and lost when the process is killed mid-call.
 _ITEM_TIMEOUT_SECONDS = 2.0
-
-
-def get_ledger_path() -> Path:
-    """Return the session-scoped ledger path."""
-    return _get_ledger_path()
 
 
 def call_capture_script(
@@ -160,7 +154,7 @@ def process_ledger(ledger_path: Path) -> dict:
 
     # The watcher appends to this ledger while the sweep runs (up to the
     # sweep budget). Entries past the original length arrived after the
-    # read above; dropping them would lose a deferral nobody has filed.
+    # read above. Dropping them would lose a deferral nobody has filed.
     # The lock keeps a watcher append from landing between this re-read
     # and the unlink or replace below.
     with ledger_lock(ledger_path):

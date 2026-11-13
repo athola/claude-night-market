@@ -10,7 +10,7 @@ tags:
 - curation
 - documentation
 dependencies:
-- leyline:storage-templates
+- leyline:decision-journal
 scripts:
 - garden_metrics.py
 usage_patterns:

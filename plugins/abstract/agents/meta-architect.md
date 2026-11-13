@@ -23,7 +23,7 @@ from-scratch design, refactoring, and optimization.
 
 ## Purpose
 
-Serves as the architectural advisor for the skill
+The architectural advisor for the skill
 ecosystem. Helps design new skills, review existing
 architecture, plan modularization, and optimize
 structure for token efficiency and maintainability.

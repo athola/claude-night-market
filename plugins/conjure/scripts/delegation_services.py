@@ -3,7 +3,7 @@
 Split out of ``delegation_executor`` so the data a provider is described
 by, and the checks that read that data without spawning anything, can be
 changed without touching the process that spawns. Imports flow one way:
-this module knows nothing about ``Delegator``.
+this module never imports ``Delegator``.
 """
 
 from __future__ import annotations
@@ -88,7 +88,7 @@ VERIFIED_BINARIES: dict[str, dict[str, str]] = {
 
 
 # Above this, an epoch timestamp is milliseconds rather than seconds. The
-# boundary sits in the year 5138 read as seconds, so no real deadline is
+# boundary is in the year 5138 read as seconds, so no real deadline is
 # ambiguous.
 _EPOCH_MILLISECOND_FLOOR = 100_000_000_000
 
@@ -146,7 +146,7 @@ class ServiceConfig:
     # ``--prompt=-x``. A separator does not protect a flag's value: probed on
     # 2026-08-22, ``gemini -p -- --help`` still printed the help page while
     # ``gemini --prompt=--help`` reached authentication. Positional providers
-    # need no entry here; they take ``--`` instead. The default pairs with
+    # need no entry here and take ``--`` instead. The default pairs with
     # the default ``-p``: both are the Gemini spelling.
     prompt_long_flag: str | None = "--prompt"
     # None where the CLI takes no format value. muse and codex offer only a
@@ -368,7 +368,7 @@ SERVICES: dict[str, ServiceConfig] = {
         quota_limits=DEFAULT_GEMINI_LIMITS,
         prompt_long_flag="--prompt",
         # gemini 0.26.0 documents -p, -m and -o/--output-format and no
-        # temperature flag; passing one exits 1 on "Unknown argument".
+        # temperature flag. Passing one exits 1 on "Unknown argument".
         temperature_flag=None,
         install_hint="npm install -g @google/gemini-cli",
         priority=10,
@@ -391,8 +391,8 @@ SERVICES: dict[str, ServiceConfig] = {
         # prompt "auth status" and billed as a completion. It answered
         # `[API Error: 401 ...]` and exited 0, so it reported success
         # while paying for a rejected call, on every chain walk.
-        # Credentials live in oauth_creds.json, which a `qwen` run
-        # writes; settings.json exists without them, so it is not the
+        # Credentials are in oauth_creds.json, which a `qwen` run
+        # writes. settings.json exists without them and is not the
         # file to test.
         auth_probe=(),
         auth_files=("~/.qwen/oauth_creds.json",),
@@ -412,7 +412,7 @@ SERVICES: dict[str, ServiceConfig] = {
     # The official MiniMax CLI is npm ``mmx-cli``, which installs a
     # binary named ``mmx``. The name ``minimax`` belongs to an unrelated
     # third-party npm package, so it must not be spawned here.
-    # Credentials live in ~/.mmx/config.json via ``mmx auth login``; there
+    # ``mmx auth login`` writes credentials to ~/.mmx/config.json. There
     # is no MINIMAX_API_KEY env var to check, and ``mmx auth status`` is
     # the documented way to verify them.
     "minimax": ServiceConfig(
@@ -440,7 +440,7 @@ SERVICES: dict[str, ServiceConfig] = {
     ),
     # GLM has no CLI of its own. Z.ai serves an Anthropic-compatible
     # endpoint, so the stock claude binary reaches it by environment
-    # alone. ANTHROPIC_AUTH_TOKEN is the documented variable; putting the
+    # alone. ANTHROPIC_AUTH_TOKEN is the documented variable. Putting the
     # key in ANTHROPIC_API_KEY is the most common way to get a 401 here.
     # Model ids from https://docs.z.ai/devpack/latest-model. Z.ai's own
     # Claude Code mapping (docs.z.ai/devpack/tool/claude) puts the Haiku
@@ -454,7 +454,7 @@ SERVICES: dict[str, ServiceConfig] = {
         # `claude --help` documents "claude [options] [prompt]" and
         # "-p, --print", so -p selects non-interactive mode and the
         # prompt is positional. Declaring it as prompt_flag worked by
-        # coincidence and put glm in the wrong escaping group; as a
+        # coincidence and put glm in the wrong escaping group. As a
         # subcommand it takes `--` like the other positional providers.
         subcommand=("-p",),
         prompt_flag=None,
@@ -562,7 +562,7 @@ SERVICES: dict[str, ServiceConfig] = {
         temperature_flag=None,
         # ollama 0.13.1 `run --help`: "ollama run MODEL [PROMPT]", and the
         # flag list carries --format, --think, --verbose and no --model.
-        # The model is the positional above; passing a flag exits 1.
+        # The model is the positional above. Passing a flag exits 1.
         model_flag=None,
         # ollama 0.13.1: "--format string  Response format (e.g. json)".
         # --output-format exits 1 on "unknown flag".
@@ -593,7 +593,7 @@ def credential_issues(service: ServiceConfig) -> list[str]:
     directions.
 
     Shared with ``delegation_setup`` so the doctor's table and the
-    chain's skip decision rest on one answer. A table that disagreed
+    chain's skip decision use one answer. A table that disagreed
     with the thing it describes would be worse than no table.
     """
     issues = credential_file_issues(service)
@@ -695,7 +695,7 @@ def _has_credential_file(service: ServiceConfig) -> bool | None:
 def _smart_delegate_model(service: ServiceConfig, requirement: str) -> str | None:
     """Resolve the model id ``smart_delegate`` selects for a service.
 
-    The ids live on the service config, so registering a provider carries its
+    The ids are fields of the service config, so registering a provider carries its
     own model choices with it. A service that declares none returns None and
     the CLI's own default applies. That is deliberate: the previous
     module-level table raised KeyError for any service registered without a

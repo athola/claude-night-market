@@ -44,7 +44,7 @@ Claude Code v2.1.1+ introduced automatic context compaction for "sidechain" (sub
 1. **Long-running subagents are safe**: They won't crash at context limits
 2. **No manual checkpointing needed**: System handles context overflow
 3. **Design for continuity**: Ensure subagent state survives compaction
-   - Store critical state in files, not just conversation
+   - Store critical state in files as well as conversation
    - Use explicit progress markers (TodoWrite, checkpoints)
    - Avoid relying on early conversation context for late decisions
 
@@ -56,7 +56,7 @@ Background agents now **prompt for tool permissions before launching** into the 
 - Agents won't stall mid-execution waiting for permission approval
 - Multi-agent workflows (e.g., `sanctum:do-issue`) may show permission prompts for each dispatched agent before they begin background work
 
-**Design consideration**: If your workflow dispatches multiple agents in parallel, users will see permission prompts sequentially before agents start. This is expected behavior, not a bug.
+**Design consideration**: If your workflow dispatches multiple agents in parallel, users will see permission prompts sequentially before agents start. This is expected behavior.
 
 ### Session Resume Compaction (Claude Code 2.1.20+)
 
@@ -515,7 +515,7 @@ tools:
 - Enforces pipeline discipline in multi-stage workflows
 - Improves security by limiting agent capabilities
 
-**Recommendation**: Add `Task(agent_type)` restrictions to pipeline agents (e.g., `sanctum/workflow-improvement-*`) and orchestrator agents that should only delegate to specific workers. Agents without `Task` in their tools list cannot spawn sub-agents at all; this is already the case for most ecosystem agents.
+**Recommendation**: Add `Task(agent_type)` restrictions to pipeline agents (e.g., `sanctum/workflow-improvement-*`) and orchestrator agents that should only delegate to specific workers. Agents without `Task` in their tools list cannot spawn sub-agents at all. This is already the case for most ecosystem agents.
 
 #### Background Agent Crash Fix (2.1.45+, improved in 2.1.47)
 
@@ -523,7 +523,7 @@ Backgrounded agents (`run_in_background: true`) no longer crash with a Reference
 
 - **Before**: Background agents could silently crash, requiring retry logic or manual checking
 - **After**: Background agent completion is handled cleanly with proper result delivery
-- **2.1.47**: Background agents now return the **final answer directly** instead of raw transcript data (#26012). Previously, collecting results from background agents required parsing through transcript artifacts to extract the actual answer; this workaround is no longer needed. The `collect_results()` pattern in the coordination examples below now receives clean, usable output.
+- **2.1.47**: Background agents now return the **final answer directly** instead of raw transcript data (#26012). Previously, collecting results from background agents required parsing through transcript artifacts to extract the actual answer. This workaround is no longer needed. The `collect_results()` pattern in the coordination examples below now receives clean, usable output.
 
 #### Subagent Skill Compaction Fix (2.1.45+)
 

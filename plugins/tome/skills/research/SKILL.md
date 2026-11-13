@@ -53,7 +53,7 @@ is exactly what the cross-domain channel is for.
 
 Report the abstention to the user with the candidate list and
 let them override the domain. Do not treat a refined plan as
-a failure; treat it as the classifier declining to guess.
+a failure. It is the classifier declining to guess.
 
 When `candidates` is empty the topic produced no keyword hits
 at all. That stays on the cheap two-channel plan, since there
@@ -263,7 +263,7 @@ Then offer interactive refinement:
 
 ## Exit Criteria
 
-- [ ] Domain classified before agents are dispatched; if confidence
+- [ ] Domain classified before agents are dispatched. If confidence
       < 0.6, user confirmation is requested before proceeding
 - [ ] Every channel in `research_plan.channels` was dispatched, none
       outside it, all in a single parallel message

@@ -118,7 +118,7 @@ task, determine the code's present state:
 - **Unmet**: no code addresses it.
 
 Read only the files the plan and tasks reference plus obviously related
-sources; do not enumerate the entire repository. Infer state from what the
+sources. Do not enumerate the entire repository. Infer state from what the
 code does today, not from git history.
 
 ### 4. Detect Constitution Violations
@@ -147,10 +147,10 @@ spec/plan/tasks. Complete with `/speckit-implement`.
 Rules for the appended section:
 
 - `N` is the next phase number after the highest existing phase (or after
-  the last Convergence phase if one already exists; never reuse a number).
+  the last Convergence phase if one already exists). Never reuse a number.
 - Each task is traceable: include a comment naming the spec requirement,
   success criterion, or plan touch-point it closes.
-- One task per discrete gap; do not bundle unrelated gaps into one task.
+- Write one task per discrete gap. Do not bundle unrelated gaps into one task.
 - Follow the existing task format (checkboxes, IDs, file references).
 - Do not renumber, reorder, or edit any pre-existing task or section.
 
@@ -174,12 +174,12 @@ the session (draft and confirm):
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and
   append a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`,
-  `action`; set `phase` to `execute`). Show the draft; append on
+  `action`; set `phase` to `execute`). Show the draft and append on
   confirmation.
 - Fallback (leyline absent): append to `docs/lessons-learned.md` using the
-  in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+  in-file ENTRY TEMPLATE, and assign the next `LL-NNN` id.
 
 Note: This command assumes `/speckit-implement` has already run on a complete
-`tasks.md`. It assesses present state, not changes; it is not a substitute
-for `/speckit-analyze` (cross-artifact consistency) or `/speckit-checklist`
+`tasks.md`. It assesses present state, not changes. It does not replace
+`/speckit-analyze` (cross-artifact consistency) or `/speckit-checklist`
 (quality verification).

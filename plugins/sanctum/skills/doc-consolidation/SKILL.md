@@ -118,7 +118,7 @@ For each valuable chunk:
   serves one reader, and merging across tiers is how a
   getting-started page acquires an audit table. Report-derived
   findings, metrics, and rationale are `expert` content: route
-  them to `docs/deep-dive/<topic>.md`, an ADR, or a benchmarks
+  them to `docs/<topic>.md`, an ADR, or a benchmarks
   page, then link from the `newcomer` document rather than
   weaving into it. Tier table and cut test:
   `scribe:slop-detector` module `audience-targeting.md`. When
@@ -176,7 +176,7 @@ Phase 2 stays on the main model for careful merge execution.
 |----------|-------------|---------------------|
 | Actionable Items | Tasks, TODOs, next steps | `docs/plans/YYYY-MM-DD-{topic}.md` |
 | Decisions Made | Architecture choices | `docs/adr/NNNN-{date}-{topic}.md` |
-| Findings/Insights | Audit results, analysis | Best-match existing doc **of the same tier**, else `docs/deep-dive/` |
+| Findings/Insights | Audit results, analysis | Best-match existing doc **of the same tier**, else `docs/` |
 | Metrics/Baselines | Before/after comparisons | `docs/benchmarks/` |
 | Migration Guides | Step-by-step procedures | `docs/migration-guide.md` |
 | API Changes | Breaking changes, deprecations | CHANGELOG or api docs |

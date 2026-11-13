@@ -100,7 +100,7 @@ Set `SCRIBE_STRICT=1` to treat warnings as errors."
 
 ## Trade-off Discussions
 
-Include reasoning, not just conclusions:
+Include the reasoning behind conclusions:
 
 ```markdown
 BAD: "We recommend Redis for caching."

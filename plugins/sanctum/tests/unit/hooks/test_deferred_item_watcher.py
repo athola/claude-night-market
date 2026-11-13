@@ -20,7 +20,6 @@ from deferred_item_watcher import (
     read_ledger,
     scan_for_deferrals,
     should_process,
-    update_ledger_entry,
     write_ledger_entry,
 )
 
@@ -494,53 +493,6 @@ class TestLedger:
         ledger_path.write_text("{corrupt json!!!")
         assert read_ledger(ledger_path) == []
 
-    def test_update_ledger_entry_sets_filed(self, tmp_path: Path) -> None:
-        """
-        GIVEN a ledger entry with filed=False written to disk
-        WHEN update_ledger_entry is called with filed=True and issue_number
-        THEN the matching entry has its filed field set to True
-        AND the issue_number field is also recorded on the entry
-        """
-        ledger_path = tmp_path / "deferred-items-session.json"
-        write_ledger_entry(
-            ledger_path,
-            {
-                "title": "Add retry logic",
-                "source": "scope-guard",
-                "filed": False,
-                "timestamp": "2026-03-19T10:00:00",
-            },
-        )
-        update_ledger_entry(
-            ledger_path, title="Add retry logic", filed=True, issue_number=42
-        )
-        entries = read_ledger(ledger_path)
-        assert entries[0]["filed"] is True
-        assert entries[0]["issue_number"] == 42
-
-    def test_update_nonexistent_title_is_noop(self, tmp_path: Path) -> None:
-        """
-        GIVEN a ledger with one entry titled 'Existing item'
-        WHEN update_ledger_entry is called with a non-matching title
-        THEN the existing entry is not modified
-        AND the filed field of the original entry remains False
-        """
-        ledger_path = tmp_path / "deferred-items-session.json"
-        write_ledger_entry(
-            ledger_path,
-            {
-                "title": "Existing item",
-                "source": "war-room",
-                "filed": False,
-                "timestamp": "2026-03-19T10:00:00",
-            },
-        )
-        update_ledger_entry(
-            ledger_path, title="Nonexistent item", filed=True, issue_number=99
-        )
-        entries = read_ledger(ledger_path)
-        assert entries[0]["filed"] is False
-
     def test_write_normalizes_deferred_prefix_from_title(self, tmp_path: Path) -> None:
         """
         GIVEN a ledger entry with a title prefixed by '[Deferred] '
@@ -560,33 +512,6 @@ class TestLedger:
         )
         entries = read_ledger(ledger_path)
         assert entries[0]["title"] == "Some feature"
-
-    def test_update_matches_normalized_title(self, tmp_path: Path) -> None:
-        """
-        GIVEN a ledger entry stored with the normalized title 'Some feature'
-        WHEN update_ledger_entry is called with '[Deferred] Some feature'
-        THEN the entry is matched and its filed field is set to True
-        AND the prefix is stripped from the update title before matching
-        """
-        ledger_path = tmp_path / "deferred-items-session.json"
-        write_ledger_entry(
-            ledger_path,
-            {
-                "title": "Some feature",
-                "source": "war-room",
-                "filed": False,
-                "timestamp": "2026-03-19T10:00:00",
-            },
-        )
-        # Update using prefixed variant: should still match after normalization
-        update_ledger_entry(
-            ledger_path,
-            title="[Deferred] Some feature",
-            filed=True,
-            issue_number=7,
-        )
-        entries = read_ledger(ledger_path)
-        assert entries[0]["filed"] is True
 
 
 # ---------------------------------------------------------------------------
@@ -761,7 +686,7 @@ class TestMainOrchestration:
 
 
 class TestResponseText:
-    """Test _response_text() serialises dict tool_response to JSON."""
+    """Test _response_text() reads a dict tool_response as its strings."""
 
     def test_str_response_returned_unchanged(self) -> None:
         """String tool_response is returned as-is.
@@ -773,16 +698,17 @@ class TestResponseText:
         """
         assert mod._response_text({"tool_response": "plain text"}) == "plain text"
 
-    def test_dict_response_serialized_to_json_string(self) -> None:
-        """Dict tool_response is JSON-encoded.
+    def test_dict_response_is_read_as_the_strings_it_holds(self) -> None:
+        """Dict tool_response is read as its string values, one per line.
 
         GIVEN a payload where tool_response is a dict
         WHEN _response_text is called
-        THEN the dict is returned as a JSON string
-        AND the result is the compact JSON encoding of the dict
+        THEN each string value appears on its own line
+        AND keys and JSON punctuation do not, since a marker title ran on
+        into them when the dict was JSON-encoded
         """
-        encoded = mod._response_text({"tool_response": {"key": "value"}})
-        assert encoded == '{"key": "value"}'
+        text = mod._response_text({"tool_response": {"key": "value", "b": "two"}})
+        assert text == "value\ntwo"
 
     def test_missing_response_returns_empty_string(self) -> None:
         """Absent tool_response key defaults to empty string.
@@ -875,3 +801,21 @@ class TestLedgerLocationAndPayloadShapes:
 
         assert payload["tool_name"] == "Skill"
         assert payload["tool_input"] == {}
+
+
+class TestDictResponsesKeepTheirLines:
+    """A dict tool_response is scanned as the text it holds, line by line."""
+
+    def test_a_marker_in_a_dict_response_yields_only_its_own_line(self) -> None:
+        """json.dumps escaped the newlines, so the title ran to the end of the JSON."""
+        payload = {"tool_response": {"output": "[Deferred] Add caching\n- next item"}}
+
+        text = mod._response_text(payload)
+
+        assert extract_deferred_titles(text) == ["Add caching"]
+
+    def test_nested_values_are_all_read(self) -> None:
+        """Text can sit anywhere in the structure the runtime returns."""
+        payload = {"tool_response": {"content": [{"text": "[Deferred] Fix x"}], "n": 3}}
+
+        assert extract_deferred_titles(mod._response_text(payload)) == ["Fix x"]

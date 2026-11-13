@@ -86,7 +86,7 @@ class ReviewEntry:
 
         Runs at the end of dataclass-generated ``__init__``.
         """
-        # frozen=True forbids ``self.x = y``; use object.__setattr__
+        # frozen=True forbids ``self.x = y``. Use object.__setattr__
         # to canonicalise fields exactly once at construction time.
         coerced_room = _coerce_room_type(self.room_type)
         object.__setattr__(self, "room_type", coerced_room)

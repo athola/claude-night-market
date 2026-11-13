@@ -4,12 +4,12 @@
 
 - You rewrite an error message so someone with no context
   can understand what went wrong and what to do next
-- You choose a variable name that serves the reader, not
-  just the writer
-- You document WHY a decision was made, not just what the
-  code does
+- You choose a variable name for the person who reads it
+  later
+- You document WHY a decision was made, which the code
+  cannot show
 - You write a skill description that tells the user WHEN
-  to use it, not just what it does
+  to use it
 - You add a "Getting Started" section so the next person
   can begin without archaeology
 
@@ -31,8 +31,8 @@
 - Over-commenting obvious code. `x = x + 1  # increment x`
   wastes the reader's time. Care respects intelligence.
 - Excessive hand-holding that hides the real complexity.
-  Care is honest: it makes difficulty visible and
-  navigable, not invisible.
+  Care is honest: it shows the difficulty and how to get
+  through it.
 - Performative documentation written to look thorough
   rather than to help someone. Care is measured by
   whether the next person actually benefits.

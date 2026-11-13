@@ -32,22 +32,32 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from config import AlertsConfig, OverseerConfig
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vendored_leyline_sibling_plugins import (  # noqa: E402 - after sys.path setup
+    sibling_plugin_dir,
+)
+
 logger = logging.getLogger(__name__)
 
 _HERALD_AVAILABLE = False
 
 
-def _find_herald_notify_path() -> Path:
-    """Locate herald's notify.py via env var override or repo-relative default."""
+def _find_herald_notify_path(anchor: Path = Path(__file__)) -> Path:
+    """Locate herald's notify.py: the env override, else the sibling plugin.
+
+    The sibling is looked up both beside this plugin (the repository) and
+    as the newest version in the plugin cache, where three parents up from
+    this file is ``cache/<market>/egregore`` and holds no herald. When
+    herald is absent the repository-layout path is returned; it does not
+    exist, so loading fails and notifications stay off.
+    """
     env_override = os.getenv("HERALD_NOTIFY_PATH")
     if env_override:
         return Path(env_override)
-    return (
-        Path(__file__).resolve().parent.parent.parent
-        / "herald"
-        / "scripts"
-        / "notify.py"
-    )
+    herald = sibling_plugin_dir(anchor, "herald")
+    if herald is None:
+        herald = anchor.resolve().parent.parent.parent / "herald"
+    return herald / "scripts" / "notify.py"
 
 
 # Load herald's notify module from its known file path using
@@ -183,7 +193,7 @@ def _build_ctx(  # noqa: PLR0913, PLR0917 - mirrors AlertContext field order for
 ) -> Any:
     """Build an AlertContext from either an existing ctx or kwargs.
 
-    If *ctx* is provided its fields take precedence; individual
+    If *ctx* is provided its fields take precedence, and individual
     kwargs are used as fallbacks.  Returns a fully-populated
     AlertContext suitable for passing to herald.
     """
@@ -198,7 +208,7 @@ def _build_ctx(  # noqa: PLR0913, PLR0917 - mirrors AlertContext field order for
     )
 
 
-def build_issue_body(  # noqa: PLR0913, PLR0917 - backward-compat wrapper; positional order is the published contract
+def build_issue_body(  # noqa: PLR0913, PLR0917 - backward-compat wrapper: positional order is the published contract
     event: Any,
     ctx: Any | None = None,
     work_item_id: str = "",
@@ -263,7 +273,7 @@ def _build_alert_title(event: Any, ctx: Any, source: str) -> str:
     return title
 
 
-def alert(  # noqa: PLR0913, PLR0917 - backward-compat wrapper; positional order is the published contract
+def alert(  # noqa: PLR0913, PLR0917 - backward-compat wrapper: positional order is the published contract
     event: Any,
     overseer_method: str = "github-repo-owner",
     webhook_url: str | None = None,
@@ -314,7 +324,7 @@ def alert(  # noqa: PLR0913, PLR0917 - backward-compat wrapper; positional order
     return success
 
 
-def config_alert(  # noqa: PLR0913, PLR0917 - config-aware entry point; positional order is the published contract
+def config_alert(  # noqa: PLR0913, PLR0917 - config-aware entry point: positional order is the published contract
     event: Any,
     alerts_cfg: AlertsConfig,
     overseer_cfg: OverseerConfig,

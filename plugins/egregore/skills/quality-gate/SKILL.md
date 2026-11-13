@@ -131,7 +131,7 @@ guarding against it, because a fallback that hides an impossible case
 becomes silent corruption instead of a locatable crash. Armin
 Ronacher, "The Coming Loop" (2026),
 https://lucumr.pocoo.org/2026/6/23/the-coming-loop/. The flag
-is off by default; enabling it is a deliberate choice to keep a
+is off by default. Enabling it is a deliberate choice to keep a
 human as the final judge.
 
 ## PR-Review Workflow

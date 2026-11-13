@@ -22,7 +22,7 @@ _BUDGET_SECONDS = 8.5  # Leave headroom within 10s hook timeout
 _MIN_LENS_SECONDS = 2.0
 
 # ------------------------------------------------------------------
-# Path setup — same pattern as aggregate_learnings_daily.py
+# Path setup: same pattern as aggregate_learnings_daily.py
 # ------------------------------------------------------------------
 _hooks_dir = Path(__file__).resolve().parent
 _candidate_dirs = [

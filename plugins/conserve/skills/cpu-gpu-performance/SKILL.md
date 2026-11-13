@@ -73,7 +73,7 @@ dependencies:
   - Then (optionally) escalate to the next-wider shard
   - Reserve the full suite for the final gate
 - Stagger GPU kernels (smaller batch sizes or gradient accumulation) when memory
-  pressure risks eviction; prefer checkpoint/restore over restarts.
+  pressure risks eviction. Prefer checkpoint/restore over restarts.
 
 ## Step 5: Log Decisions and Next Steps
 

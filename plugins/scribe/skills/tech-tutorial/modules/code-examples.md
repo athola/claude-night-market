@@ -51,7 +51,7 @@ Common language identifiers:
 | JSON output | `json` |
 | Generic output | `text` |
 
-Do not use `sh` as an identifier; use `bash` or `zsh` explicitly.
+Do not use `sh` as an identifier. Use `bash` or `zsh` explicitly.
 
 ## Output Blocks
 

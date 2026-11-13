@@ -23,7 +23,7 @@ static mut COUNTER: u64 = 0;          // flagged
 pub static mut REGISTRY: *mut u8 = core::ptr::null_mut();  // flagged
 ```
 
-A plain `static` (immutable) and a `const` are not flagged; only the
+A plain `static` (immutable) and a `const` are not flagged. Only the
 `mut` form is shared mutable state.
 
 ## Why `static mut` Is Dangerous

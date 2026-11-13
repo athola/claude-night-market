@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).parent))
+from shared.content_blocks import block_text
 from shared.session_file import (
     project_dir_name,  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
 )
@@ -289,7 +290,7 @@ def _write_cached_estimate(session_file: Path, usage: float) -> None:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write(json.dumps({"at": time.time(), "usage": usage}))
     except OSError as e:
-        # A cache we cannot write makes the hook slower, not wrong.
+        # A cache we cannot write slows the hook and leaves its result correct.
         logger.debug("Could not write context estimate cache: %s", e)
 
 
@@ -297,8 +298,8 @@ def estimate_context_from_session() -> float | None:
     """Estimate context usage from current session's JSONL conversation data.
 
     This is a FAST fallback for real-time hooks when CLAUDE_CONTEXT_USAGE
-    is not available. Estimates based on **recent** conversation entries,
-    not total file size. JSONL files contain the full conversation history
+    is not available. Estimates from **recent** conversation entries only.
+    JSONL files contain the full conversation history
     including auto-compressed messages that are no longer in the context
     window.
 
@@ -352,9 +353,7 @@ def _count_content(message_content: object) -> tuple[int, int]:
             if isinstance(block, dict):
                 if block.get("type") == "tool_result":
                     tool_results += 1
-                text = block.get("text", "") or block.get("content", "")
-                if text:
-                    chars += len(text)
+                chars += len(block_text(block))
             elif isinstance(block, str):
                 chars += len(block)
     elif isinstance(message_content, str):

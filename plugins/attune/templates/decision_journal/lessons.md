@@ -21,7 +21,7 @@ so the team replicates what worked and avoids what did not.
 Superseded or deprecated entries sink here; nothing is deleted
 (git keeps history).
 
-<!-- ENTRY TEMPLATE -- copy a block into the Lessons section above the Archive
+<!-- ENTRY TEMPLATE: copy a block into the Lessons section above the Archive
 heading, assign the next LL-NNN id, and fill it in. The journal_append helper
 does this automatically; this block is the fallback for hand-editing.
 
@@ -52,5 +52,5 @@ does this automatically; this block is the fallback for hand-editing.
 
 ### Recommendation / action item
 
-- Action: <specific change> -- Owner: <name> -- Due: <date> -- Status: <...>
+- Action: <specific change>. Owner: <name>. Due: <date>. Status: <...>
 -->

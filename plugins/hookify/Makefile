@@ -7,11 +7,11 @@
         demo-matchers demo-rules plugin-check test
 
 # Plugin-specific variables (must be before include)
-SRC_DIRS := core matchers utils scripts tests
-RUFF_TARGETS := core/ matchers/ utils/ scripts/ tests/
-MYPY_TARGETS := core/ matchers/ utils/ scripts/
-BANDIT_TARGETS := core/ matchers/ utils/ scripts/
-COV_DIRS := core matchers utils
+SRC_DIRS := core matchers scripts tests
+RUFF_TARGETS := core/ matchers/ scripts/ tests/
+MYPY_TARGETS := core/ matchers/ scripts/
+BANDIT_TARGETS := core/ matchers/ scripts/
+COV_DIRS := core matchers
 PYTEST_TARGETS := tests/
 
 # Include shared configuration from abstract plugin
@@ -29,7 +29,7 @@ help: ## Show this help message
 dev-setup: ## Install development dependencies
 	@echo "Installing development dependencies..."
 	$(UV) sync --all-extras
-	$(UV_RUN) pre-commit install || true
+	$(UV_RUN) pre-commit install
 
 # ---------- Maintenance ----------
 clean: ## Clean build artifacts and cache

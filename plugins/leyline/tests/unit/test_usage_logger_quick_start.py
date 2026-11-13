@@ -1,4 +1,4 @@
-"""The usage-logging skill's quick start runs as written."""
+"""The usage-logging module's quick start runs as written."""
 
 from __future__ import annotations
 

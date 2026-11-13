@@ -1,6 +1,10 @@
 """Substitute variables in template files."""
 
+from __future__ import annotations
+
+import json
 import re
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -18,11 +22,15 @@ class TemplateEngine:
         """
         self.variables = variables
 
-    def render(self, template_content: str) -> str:
+    def render(
+        self, template_content: str, escape: Callable[[str], str] | None = None
+    ) -> str:
         """Render template content with variable substitution.
 
         Args:
             template_content: Template string with {{VAR}} placeholders
+            escape: Applied to each substituted value, for output formats
+                whose strings need it (TOML, JSON)
 
         Returns:
             Rendered string with variables substituted
@@ -31,10 +39,12 @@ class TemplateEngine:
         # Pattern to match {{VARIABLE_NAME}}
         pattern = r"\{\{([A-Z_][A-Z0-9_]*)\}\}"
 
-        def replacer(match: re.Match) -> str:
+        def replacer(match: re.Match[str]) -> str:
             var_name = match.group(1)
-            value = self.variables.get(var_name, match.group(0))
-            return str(value)
+            if var_name not in self.variables:
+                return match.group(0)
+            value = str(self.variables[var_name])
+            return escape(value) if escape else value
 
         return re.sub(pattern, replacer, template_content)
 
@@ -47,12 +57,30 @@ class TemplateEngine:
 
         """
         content = template_path.read_text()
-        rendered = self.render(content)
+        # The TOML and JSON templates put every variable inside a string,
+        # where a quote or backslash in an author or description broke the file.
+        escape = {".toml": toml_basic_escape, ".json": json_string_escape}.get(
+            output_path.suffix
+        )
+        rendered = self.render(content, escape)
 
         # Create parent directory if it doesn't exist
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         output_path.write_text(rendered)
+
+
+def toml_basic_escape(value: str) -> str:
+    """Escape ``value`` for use inside a TOML basic (double-quoted) string."""
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+    return re.sub(
+        r"[\x00-\x08\x0a-\x1f\x7f]", lambda m: f"\\u{ord(m.group()):04x}", escaped
+    )
+
+
+def json_string_escape(value: str) -> str:
+    """Escape ``value`` for use inside a JSON string literal."""
+    return json.dumps(value)[1:-1]
 
 
 def python_module_name(project_name: str) -> str:

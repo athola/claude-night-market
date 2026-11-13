@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 
 
 # On one ranked line, a COA label further than this from the rank marker
-# sits in the justification, not in the ranked slot. Unvalidated: never
+# is read as justification text. Unvalidated: never
 # measured against recorded votes.
 _RANK_PROXIMITY_CHARS = 200
 # "1. X", "1) X", "- 1. X" and "**1. X**" are all one ranked line.

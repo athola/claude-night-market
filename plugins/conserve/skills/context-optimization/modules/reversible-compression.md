@@ -51,7 +51,7 @@ handoffs.
 ### Worked example (illustrative)
 
 A 67 KB log dump (2,401 lines) is archived to an `ccr-<hash>.txt` handle.
-The handle below is illustrative, not a real run; yours is the SHA-256
+The handle below is illustrative. Yours is the SHA-256
 prefix of the actual output. The model sees a ~2 KB digest. Later, one
 command pulls back only the line that matters:
 
@@ -86,7 +86,7 @@ Measured reductions, from Headroom's own benchmarks (see Evidence):
 
 Logs and structured tool output compress hard. Dense prose compresses by
 roughly nothing (one practitioner report measured -0.3%), and encrypted or
-high-entropy data not at all. Archive verbose, repetitive output; leave
+high-entropy data not at all. Archive verbose, repetitive output and leave
 prose answers alone.
 
 Two cautions worth stating plainly:
@@ -98,13 +98,13 @@ Two cautions worth stating plainly:
 - **Do not aggressively compress multi-step reasoning.** At roughly 2x
   compression, math and chained reasoning degrade even when surface
   similarity stays high (arXiv 2605.17932, 2602.15843). Code, extraction,
-  and retrieval context tolerate aggressive ratios; arithmetic does not.
+  and retrieval context tolerate aggressive ratios, but arithmetic does not.
 
 ## Prior art
 
 | Project | Technique | Numbers |
 |---------|-----------|---------|
-| [opencode-dynamic-context-pruning](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning) | Reversible: `/dcp decompress <id>` restores originals; tool-call dedup; error purge | ~85% vs ~90% cache hit (small intentional trade) |
+| [opencode-dynamic-context-pruning](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning) | Reversible (`/dcp decompress <id>` restores originals), tool-call dedup, error purge | ~85% vs ~90% cache hit (small intentional trade) |
 | [microsoft/LLMLingua](https://github.com/microsoft/LLMLingua) | Self-information token pruning via a small LM | up to 20x; 2,365 to 211 tokens (11.2x) |
 | [LLMLingua-2](https://arxiv.org/abs/2403.12968) | Distilled keep/drop classifier, task-agnostic | 2x-5x; 3x-6x faster than v1 |
 | [Selective_Context](https://github.com/liyucheng09/Selective_Context) | Self-information span pruning | ~2x content, ~40% memory savings |
@@ -122,7 +122,7 @@ Accuracy-preservation results behind the ratios recommended above:
 |-------|-------|-------------|----------|
 | LLMLingua | 2310.05736 | up to 20x | "little performance loss" (GSM8K, BBH) |
 | LongLLMLingua | 2310.06839 | ~4x | +21.4% over uncompressed on NaturalQuestions |
-| RECOMP | 2310.04408 | 6% retained | "minimal loss"; recoverable from source store |
+| RECOMP | 2310.04408 | 6% retained | "minimal loss", recoverable from source store |
 | ICAE | 2307.06945 | 4x (reversible) | reconstructable memory slots |
 | DynamicKV | 2412.14838 | 1.7% KV retained | ~85% of full-cache performance (LongBench) |
 | Perplexity Paradox | 2602.15843 | code r>=0.6, math lower | 96% quality at 22% cost |

@@ -150,7 +150,7 @@ If a command doesn't exist to show what you need, consider:
 
 ### MCP Tool Demonstrations
 
-When demonstrating MCP (Model Context Protocol) functionality, show how tools are used within the host environment (e.g., Claude Code) rather than calling CLI equivalents:
+When showing MCP (Model Context Protocol) functionality, show how tools are used within the host environment (e.g., Claude Code) rather than calling CLI equivalents:
 
 ```tape
 # POOR: Using CLI instead of MCP

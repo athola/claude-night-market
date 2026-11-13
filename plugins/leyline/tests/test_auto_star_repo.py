@@ -531,3 +531,19 @@ class TestStarFailureIsReported:
         )
 
         assert run.returncode == 0, run.stderr
+
+
+class TestThePromptMatchesWhenItArrives:
+    """An async hook's context reaches Claude on the next turn, not this one."""
+
+    @pytest.mark.unit
+    def test_the_prompt_does_not_claim_to_open_the_first_response(
+        self, tmp_path: Path
+    ) -> None:
+        """The old wording, start of your response, landed mid-conversation."""
+        run = _run_with_shims(tmp_path, {"gh": _GH_NOT_STARRED}, [])
+
+        context = json.loads(run.stdout)["hookSpecificOutput"]["additionalContext"]
+        assert context.startswith("star-prompt:")
+        assert "START of your response" not in context
+        assert "async" in context

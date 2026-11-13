@@ -78,7 +78,7 @@ readonly MYDIR
 - `# shellcheck source=…`: lets shellcheck follow the source
 - `. "${MYDIR%/}/logging.sh"`: loads `log()` and `banner()`
 
-## All functionality in functions; no top-down execution
+## All functionality in functions, no top-down execution
 
 Scripts must never execute logic at top level. Every statement
 belongs inside a named function. The only top-level calls are:
@@ -100,7 +100,7 @@ awk '/^[a-z_][a-z_0-9]*\(\)/{depth++} /^\}/{depth--}
 ## depcheck() for external dependencies
 
 Any script relying on tools beyond POSIX must define `depcheck()`.
-Required tools use `log 5` (critical); optional tools use `log 3`
+Required tools use `log 5` (critical), and optional tools use `log 3`
 (notice). Dependency lists allow the check logic to stay unchanged
 when tools are added.
 

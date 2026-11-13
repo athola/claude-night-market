@@ -193,6 +193,32 @@ class TestValidateWebhookUrl:
         with pytest.raises(WebhookURLError, match="private/reserved"):
             validate_webhook_url(f"https://{ip}/hook")
 
+    @pytest.mark.parametrize(
+        "ip", ["100.100.100.200", "100.64.0.1", "224.0.0.1", "239.1.2.3"]
+    )
+    def test_rejects_shared_and_multicast_ranges(self, ip: str) -> None:
+        """CGNAT space holds cloud metadata endpoints; multicast is not a host.
+
+        100.100.100.200 is Alibaba Cloud's metadata service, and none of
+        is_private, is_reserved or is_loopback covers 100.64.0.0/10.
+        """
+        with pytest.raises(WebhookURLError, match="private/reserved"):
+            validate_webhook_url(f"https://{ip}/hook")
+
+    @pytest.mark.parametrize("ip", ["100.100.100.200", "224.0.0.1"])
+    def test_rejects_a_hostname_resolving_to_shared_or_multicast(self, ip: str) -> None:
+        """The resolved-name path refuses the same ranges a literal does."""
+        with patch(
+            "socket.getaddrinfo",
+            return_value=[(socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, 443))],
+        ):
+            with pytest.raises(WebhookURLError, match="resolves to private/reserved"):
+                validate_webhook_url("https://metadata.example.com/hook")
+
+    def test_a_public_address_is_accepted(self) -> None:
+        """The check must not refuse the internet."""
+        assert validate_webhook_url("https://8.8.8.8/hook") == "8.8.8.8"
+
     def test_rejects_ipv6_loopback(self) -> None:
         """Scenario: IPv6 loopback ::1 is rejected.
 
@@ -458,6 +484,32 @@ class TestCreateGithubAlert:
         assert result is True
         cmd = mock_run.call_args[0][0]
         assert "--label" not in cmd
+
+    @patch("subprocess.run")
+    def test_a_missing_label_does_not_lose_the_alert(self, mock_run: MagicMock) -> None:
+        """The alert is filed even when the repository lacks its labels.
+
+        A repository without `herald` and `crash` labels got no issue at
+        all, so the crash went unreported.
+        """
+        mock_run.side_effect = [
+            MagicMock(returncode=1, stderr="could not add label: 'crash' not found"),
+            MagicMock(returncode=0, stdout="https://github.com/o/r/issues/9"),
+        ]
+        assert create_github_alert(title="T", body="B", labels=["crash"]) is True
+        assert mock_run.call_count == 2
+        assert "--label" not in mock_run.call_args_list[1][0][0]
+
+    @patch("subprocess.run")
+    def test_a_failure_unrelated_to_labels_is_not_retried(
+        self, mock_run: MagicMock
+    ) -> None:
+        """Only a label refusal is worth a second attempt."""
+        mock_run.return_value = MagicMock(
+            returncode=1, stderr="HTTP 401: Bad credentials"
+        )
+        assert create_github_alert(title="T", body="B", labels=["crash"]) is False
+        assert mock_run.call_count == 1
 
     @patch("subprocess.run")
     def test_returns_false_on_nonzero_exit(self, mock_run: MagicMock) -> None:

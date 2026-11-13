@@ -42,8 +42,8 @@ Precedence:
 
 Nothing here moves data. Recovering an already-stranded tree merges
 someone's queue into their live one, which is a decision for the
-operator; memory-palace's ``scripts/migrate_data_root.py`` makes that an
-explicit step.
+operator. The memory-palace script ``scripts/migrate_data_root.py`` makes
+that an explicit step.
 """
 
 from __future__ import annotations
@@ -78,7 +78,7 @@ def plugin_data_dir(plugin_root: Path, *, env_override: str | None = None) -> Pa
             return Path(override)
 
     # An exported-but-empty variable is indistinguishable from an unset
-    # one, and Path("") is the current directory -- a plausible-looking
+    # one, and Path("") is the current directory: a plausible-looking
     # answer that would scatter data wherever the hook happened to run.
     host = os.environ.get(HOST_ENV_VAR)
     if host:

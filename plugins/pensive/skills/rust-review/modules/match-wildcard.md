@@ -25,7 +25,7 @@ shapes:
 2. **`_ => panic!(...)` / `todo!()` / `unimplemented!()`**: the same
    exhaustiveness defeat, hidden behind a deliberate crash.
 3. **`_ => {}`**: an empty arm that silently swallows every unmatched
-   case; a new variant is dropped with no trace.
+   case. A new variant is dropped with no trace.
 
 A `_ =>` arm that returns a real value (`_ => 0`, `_ => Color::Black`)
 is **not** flagged: that is a legitimate default, common and correct

@@ -354,7 +354,7 @@ advancing is healthy at any age.
 What stays open is the primitive itself. Continuation still rides the
 undocumented Stop-hook reinjection, and nothing published gives a loop
 continuation that both survives session end and fires on work
-completion. The baton makes the ride's failure observable; it does not
+completion. The baton makes the ride's failure observable. It does not
 replace the ride. Full record:
 `docs/adr/0023-continuation-baton-makes-a-dropped-turn-observable.md`.
 
@@ -393,7 +393,7 @@ hook-driven baseline from step 1.
 The falsifier is cheap and worth stating: if the supervisor path costs
 more per step, or cannot resume after the session exits, then riding
 the Stop hook is the correct engineering answer for now and the
-reliance recorded in ADR-0022 stands as documented rather than as a
+reliance recorded in ADR-0022 is accepted as documented rather than as a
 problem waiting to be solved.
 
 ## What beyond-SOTA means here

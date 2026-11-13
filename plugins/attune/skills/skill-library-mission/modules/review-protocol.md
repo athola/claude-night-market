@@ -1,7 +1,7 @@
 # Review Protocol
 
 Run only after ALL skills exist. Authoring agents work in isolation
-and cannot see each other's contradictions; the review phase is
+and cannot see each other's contradictions. The review phase is
 where the library becomes one coherent artifact.
 
 ## Reviewers
@@ -12,9 +12,9 @@ and approved (see the repo's dispatch rules if it has them).
 
 | Lens | Checks | Blocking when |
 |------|--------|---------------|
-| FACTUAL | Re-verify flags, paths, commands, and citations against the repo; run each skill's provenance one-liners. | A wrong command, nonexistent path, or invented claim would send an engineer down a wrong path. |
-| DOCTRINE | Contradictions with the project's own rules or between skills; overstated claims; missing gating on anything that changes behavior. | Guidance routes around change control or two skills disagree on the same fact. |
-| USABILITY | Trigger quality of descriptions; duplication (one home per fact, cross-references elsewhere); self-containedness; scannability. | A description would never fire, or a fact's only home is a private path. |
+| FACTUAL | Re-verify flags, paths, commands, and citations against the repo. Run each skill's provenance one-liners. | A wrong command, nonexistent path, or invented claim would send an engineer down a wrong path. |
+| DOCTRINE | Contradictions with the project's own rules or between skills, overstated claims, and missing gating on anything that changes behavior. | Guidance routes around change control or two skills disagree on the same fact. |
+| USABILITY | Trigger quality of descriptions, duplication (one home per fact, cross-references elsewhere), self-containedness, and scannability. | A description would never fire, or a fact's only home is a private path. |
 
 ## Severity Ladder
 
@@ -22,7 +22,7 @@ and approved (see the repo's dispatch rules if it has them).
   fixed before the mission reports done.
 - `important`: misleading, drifted, or overstated. Fixed by the
   fixer in the same pass.
-- `minor`: cosmetic. Recorded, not necessarily fixed.
+- `minor`: cosmetic. Recorded. Fixing it is optional.
 
 ## Reviewer Output Contract
 
@@ -40,7 +40,7 @@ One agent, sequential, after all reviewers return:
 
 - Applies blocking and important findings only.
 - Re-verifies each finding before editing (re-run its evidence
-  command); skips with a recorded reason if it does not reproduce.
+  command), and skips it with a recorded reason if it does not reproduce.
 - Same write fence as authoring: edits only inside
   `.claude/skills/`, no mutating git commands.
 - Preserves each skill's voice, frontmatter validity, and the

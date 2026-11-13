@@ -8,7 +8,7 @@ If you notice a strong immediate reaction, especially regarding technology, AI, 
 
 > "My initial reaction is [X] because [cultural pattern/anxiety]."
 
-Then set it aside. Initial reactions are bias to be filtered, not evidence to be weighed.
+Then set it aside. Initial reactions are bias to filter out before weighing evidence.
 
 **Example:**
 > "My initial reaction is discomfort with this scenario because it involves [sensitive topic]. Setting this aside to analyze the actual conduct described."

@@ -9,7 +9,7 @@ from pathlib import Path
 
 try:
     import fcntl
-except ImportError:  # Windows has no flock; ledger writes run unlocked there.
+except ImportError:  # Windows has no flock: ledger writes run unlocked there.
     fcntl = None  # type: ignore[assignment]  # None marks the platform without flock
 
 

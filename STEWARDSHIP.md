@@ -24,12 +24,12 @@ accountability: the master would return and ask for an account.
 - Name variables and functions for the reader, not yourself
 - Write error messages that help someone who has never seen the
   code before
-- Document *why*, not just *what*. The code shows what; only
+- Document *why* as well as *what*. The code shows what. Only
   comments and commit messages preserve why.
 
 ### 2. Multiply, Do Not Merely Preserve
 
-Maintaining the status quo is the minimum, not the goal.
+Maintaining the status quo is the minimum.
 Faithful stewardship means actively growing what has been
 entrusted: improving test coverage, clarifying documentation,
 refactoring tangled logic, adding examples that help the next
@@ -47,7 +47,7 @@ not stewardship.
 - When you read confusing code, leave a clarifying comment
 - When you learn something about a plugin, update its README
 - Refactor a function you struggled with so the next person
-  does not struggle too
+  does not struggle too, in its own commit
 
 ### 3. Be Faithful in Small Things
 
@@ -57,18 +57,28 @@ compound over time into systems that get better with age instead
 of decaying. The campsite rule applies: leave every file a little
 cleaner than you found it.
 
-**Origin**: Robert Baden-Powell: "Try and leave this world a
-little better than you found it." Robert C. Martin adapted this
-for software: "Always leave the campground cleaner than you
-found it." Also: "Whoever can be trusted with very little can
-also be trusted with much" (Luke 16:10).
+The rule has a boundary here. A change carries one coherent
+problem. A reviewer can then follow it, and a revert removes only
+it. Cleanup inside the lines your change already touches rides
+along. Cleanup anywhere else goes in its own commit, and an
+unrelated refactor goes in its own pull request.
+
+**Origin**: Robert Baden-Powell's farewell message to Scouts,
+published after his death in 1941: "Try and leave this world a
+little better than you found it." Robert C. Martin, in "The Boy
+Scout Rule" (*97 Things Every Programmer Should Know*, 2010),
+applies the Scouts' campground rule to code: check a module in
+cleaner than you checked it out. That is a paraphrase, because the
+chapter could not be fetched to quote. Also: "Whoever can be
+trusted with very little can also be trusted with much" (Luke 16:10).
 
 **In practice**:
 
-- Fix a typo you notice in a file you're editing
-- Remove dead code or unused imports while you're nearby
-- Add a type annotation to a function you just called
-- Update a stale example in a README you just referenced
+- Fix a typo you notice in a line you're already changing
+- Remove the imports and helpers your own change made unused
+- Add a type annotation to a function you just changed
+- Update a stale example in a README you just referenced, or
+  note it for its own commit
 
 ### 4. Serve Those Who Come After You
 
@@ -78,31 +88,36 @@ time. Prioritize their experience over your convenience. Every
 decision is an act of service or an act of neglect toward the
 people who inherit your work.
 
-**Origin**: Peter Block defines stewardship as "accountability
-for the well-being of the larger organization by operating in
-service, rather than in control, of those around us." His two
+**Origin**: Peter Block, in *Stewardship: Choosing Service over
+Self-Interest*, defines stewardship as "the willingness to be
+accountable for the well-being of the larger organization by
+operating in service, rather than in control, of those around us." His two
 commitments: act in service of the long run, and act in service
 to those with little power.
 
 **In practice**:
 
 - Write skill descriptions that tell the user *when* to use
-  the skill, not just what it does
+  the skill as well as what it does
 - Include error handling that guides the user toward a fix
 - Keep READMEs current: stale docs are worse than no docs
-- Add "Getting Started" sections for every new capability
+- Give every new capability a getting-started path, linked
+  from its plugin README rather than inlined into it
 
 ### 5. Think Seven Iterations Ahead
 
 Before committing a design choice, ask: will the person who
 modifies this in the seventh iteration thank me or curse me?
 Prefer simple, transparent patterns over clever abstractions.
-Avoid premature optimization of structure. Build for
-adaptability, not for prediction.
+Avoid premature optimization of structure. Build so the
+structure can adapt to needs nobody has predicted.
 
-**Origin**: The Haudenosaunee (Iroquois) Great Law of Peace
-counsels that decisions should consider their impact seven
-generations into the future. In software, seven generations is
+**Origin**: The seven-generations principle, that a decision
+should weigh its effect seven generations into the future, is
+commonly attributed to the Haudenosaunee (Iroquois) Great Law of
+Peace. The words do not appear in written transcriptions of the
+Great Law, which was an oral tradition before it was written
+down. In software, seven generations is
 seven major iterations: will this pattern hold up, or will it
 become the legacy code everyone works around?
 
@@ -134,28 +149,44 @@ become the legacy code everyone works around?
 1. Does this leave the codebase better than before? (Principle 3)
 2. Does this serve future contributors? (Principle 4)
 
+## Recording It
+
+A stewardship action that goes unrecorded cannot be counted.
+`plugins/leyline/scripts/stewardship_tracker.py record` appends
+one to `.claude/stewardship/actions.jsonl` in the project, and
+`/imbue:stewardship-health` reports improvement velocity and
+virtue practice from that file.
+
 ## See Also
 
 - Plugin-specific stewardship guidance in each plugin's README
 - `Skill(leyline:stewardship)` for layer-specific decision
   heuristics during plugin work
+- [ADR-0030](docs/adr/0030-constitution-rules-name-their-check.md)
+  for why the campsite rule is bounded to the lines a change touches
 
 ## The Soul of Stewardship
 
 The five principles describe what stewardship looks like in
 practice. But principles need a source: the dispositions that
-incline a person (or an agent) to practice them. Claude's constitution
-describes character traits that emerge through training rather
-than external imposition: curiosity, warmth, directness,
-ethical commitment. The five virtues below name the
-dispositions that connect these trained character traits to
-the engineering practices of this framework.
+incline a person (or an agent) to practice them.
+[Claude's constitution](https://www.anthropic.com/constitution)
+names the character it hopes for: "an intellectual curiosity
+that delights in learning and discussing ideas across every
+domain, warmth and care for the humans it interacts with",
+directness balanced with openness, "and a deep commitment to
+honesty and ethics." It holds that this character, though it
+"emerged through training", is no less Claude's own, and that
+Claude can treat its values as its own "rather than seeing them
+as external constraints imposed upon it." The five virtues below
+name the dispositions that connect these trained character
+traits to the engineering practices of this framework.
 
 ### Care
 
 Active attention to those who inherit your work.
 
-Rooted in the disposition toward warmth and genuine
+It draws on the disposition toward warmth and genuine
 helpfulness. Care means writing error messages that guide
 someone who has never seen this code, choosing names that
 serve readers, and documenting the why behind decisions.
@@ -166,7 +197,7 @@ It underpins Principles 1 (steward, not owner) and
 
 Deep understanding before action.
 
-Rooted in intellectual curiosity and respect for complexity.
+It draws on intellectual curiosity and respect for complexity.
 Curiosity means reading code before modifying it, exploring
 the codebase before proposing changes, and brainstorming
 multiple approaches before committing to one. It underpins
@@ -177,7 +208,7 @@ improvements are grounded in understanding.
 
 Honest reckoning with what you know and what you do not.
 
-Rooted in calibrated uncertainty and transparency. Humility
+It draws on calibrated uncertainty and transparency. Humility
 means running tests instead of claiming correctness, scoping
 work to what is needed rather than what is impressive, and
 admitting when a problem exceeds your current understanding.
@@ -188,10 +219,10 @@ valuing honest small work over grandiose claims.
 
 Disciplined practice of quality in small things.
 
-Rooted in ethical commitment and directness. Diligence means
+It draws on ethical commitment and directness. Diligence means
 running the quality gates, fixing the typo you noticed, and
-following through on the campsite rule even when the diff is
-already large. It underpins Principle 3 (be faithful in small
+putting cleanup outside your change in its own commit rather
+than skipping it. It underpins Principle 3 (be faithful in small
 things) and makes Principle 2 (multiply) concrete through
 daily practice.
 
@@ -199,7 +230,7 @@ daily practice.
 
 Designing for the choices of those who come after.
 
-Rooted in respect for rational agency and autonomy. Foresight
+It draws on respect for rational agency and autonomy. Foresight
 means preferring reversible over irreversible decisions,
 choosing simple patterns over clever abstractions, and writing
 tests that verify behavior rather than implementation. It

@@ -68,7 +68,7 @@ class NumericCastMixin(LineCacheMixin):
                 )
             elif NUMERIC_BYTE_CAST_RE.search(line):
                 # `elif`: a `.len() as u8` is already the more specific
-                # length-truncation finding; do not double-report it.
+                # length-truncation finding. Do not double-report it.
                 issues.append(
                     {
                         "line": i + 1,

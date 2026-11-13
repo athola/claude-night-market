@@ -78,10 +78,19 @@ interruption and records user directives:
 {
   "mission_id": "skill-library-YYYY-MM-DD",
   "type": "custom",
-  "phases": ["discover", "author", "review", "report"],
-  "artifacts": { "library_root": ".claude/skills/" }
+  "phases": [
+    { "name": "discover", "status": "pending", "artifact": null },
+    { "name": "author", "status": "pending", "artifact": ".claude/skills/" },
+    { "name": "review", "status": "pending", "artifact": null },
+    { "name": "report", "status": "pending", "artifact": null }
+  ],
+  "current_phase": "discover"
 }
 ```
+
+The field names match the state file `Skill(attune:mission-orchestrator)`
+writes. Its routing table has no `discover` or `author` phase. Resume
+with `/attune:skill-library --resume`, which re-invokes this skill.
 
 Save this to `.attune/mission-state.json`, advance `current_phase` at
 each gate, and record every user decision and override in

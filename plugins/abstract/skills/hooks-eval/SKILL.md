@@ -179,7 +179,7 @@ Check hook file permissions and ownership
   Maintainability (10).
 - [ ] Any hook scoring below 60 on the Security category is flagged as a blocking issue before
   the evaluation report is returned.
-- [ ] Shell commands referenced in `hooks.json` are verified to exist and be executable; missing
+- [ ] Shell commands referenced in `hooks.json` are verified to exist and be executable. Missing
   scripts are listed as FAIL findings.
 - [ ] The evaluation report distinguishes between JSON hooks (Claude Code) and Python SDK hooks
   and applies the correct signature expectations for each type.

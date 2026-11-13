@@ -13,35 +13,7 @@ import re
 from typing import Any
 from urllib.parse import quote, quote_plus
 
-from tome.channels import deduplicate_queries
 from tome.models import Finding
-
-# ---------------------------------------------------------------------------
-# Query Expansion
-# ---------------------------------------------------------------------------
-
-
-def expand_discourse_queries(topic: str, max_variants: int = 4) -> list[str]:
-    """Generate diverse community search query variants.
-
-    Produces variants aimed at discussion forums and tech blogs.
-
-    Args:
-        topic: Free-text research topic.
-        max_variants: Maximum total queries to return (default 4).
-
-    Returns:
-        List of distinct query strings.
-    """
-    queries: list[str] = [
-        topic,
-        f"{topic} best practices",
-        f"{topic} experience production",
-        f"{topic} comparison alternatives",
-    ]
-
-    return deduplicate_queries(queries, max_variants)
-
 
 _LOBSTERS_BASE_RELEVANCE = 0.6
 _BLOG_BASE_RELEVANCE = 0.65
@@ -266,95 +238,6 @@ def suggest_subreddits(topic: str, domain: str) -> list[str]:
         back to the general list for unknown domains.
     """
     return list(_REDDIT_SUBREDDITS.get(domain, _REDDIT_GENERAL))
-
-
-def parse_reddit_response(
-    data: dict[str, Any],
-    min_score: int = 10,
-) -> list[Finding]:
-    """Parse a Reddit JSON search response into Findings.
-
-    Posts with ``score`` strictly below ``min_score`` are excluded.
-
-    Expected shape::
-
-        {
-            "data": {
-                "children": [
-                    {
-                        "data": {
-                            "title": "...",
-                            "url": "https://...",
-                            "score": 500,
-                            "selftext": "...",
-                            "permalink": "/r/.../comments/..."
-                        }
-                    },
-                    ...
-                ]
-            }
-        }
-
-    Args:
-        data: Parsed JSON response from the Reddit API.
-        min_score: Minimum score threshold (inclusive). Default 10.
-
-    Returns:
-        List of Findings with ``source="reddit"`` and
-        ``channel="discourse"``.
-    """
-    findings: list[Finding] = []
-
-    try:
-        children = data["data"]["children"]
-    except (KeyError, TypeError):
-        return findings
-
-    if not isinstance(children, list):
-        return findings
-
-    for child in children:
-        if not isinstance(child, dict):
-            continue
-        post = child.get("data", {})
-        if not isinstance(post, dict):
-            continue
-
-        score: int = post.get("score", 0) or 0
-        if score < min_score:
-            continue
-
-        title: str = post.get("title", "")
-        permalink: str = post.get("permalink", "")
-        external_url: str = post.get("url", "")
-
-        # Prefer external URL; fall back to reddit permalink
-        if external_url and not external_url.startswith(
-            ("https://www.reddit.com", "https://old.reddit.com", "/r/")
-        ):
-            url = external_url
-        elif permalink:
-            url = f"https://www.reddit.com{permalink}"
-        else:
-            url = external_url
-
-        selftext: str = post.get("selftext", "") or ""
-        relevance = round(min(0.3 + score / 2_000, 0.95), 4)
-        summary = selftext[:200].strip() if selftext else f"{score} upvotes"
-
-        findings.append(
-            Finding(
-                source="reddit",
-                channel="discourse",
-                title=title or url,
-                url=url,
-                relevance=relevance,
-                summary=summary,
-                metadata={"score": score, "permalink": permalink},
-            )
-        )
-
-    return findings
 
 
 # The RSS feed carries no score, so a feed hit ranks as neutral evidence.

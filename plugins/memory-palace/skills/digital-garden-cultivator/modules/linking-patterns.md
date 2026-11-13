@@ -26,7 +26,7 @@ Links embedded within explanatory sentences.
 
 ### Hub Links
 Central nodes that connect many related topics.
-- **Use when**: Topic serves as organizing principle
+- **Use when**: Topic is an organizing principle
 - **Example**: "API Design" as hub for REST, GraphQL, RPC topics
 
 ### Bridge Links

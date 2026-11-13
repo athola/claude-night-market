@@ -1,6 +1,6 @@
 ---
 name: gemini-delegation
-description: Delegates tasks to Gemini CLI implementing delegation-core for Google's models. Use when delegation-core selects Gemini or 1M+ token context is needed.
+description: Delegates to the Gemini CLI. Use when delegation-core selects Gemini or 1M+ token context is needed.
 alwaysApply: false
 category: delegation-implementation
 tags:
@@ -24,8 +24,7 @@ modules:
 - modules/gemini-specifics.md
 references:
 - delegation-core/../../leyline/skills/authentication-patterns/SKILL.md
-- delegation-core/../../leyline/skills/quota-management/SKILL.md
-- delegation-core/../../leyline/skills/usage-logging/SKILL.md
+- delegation-core/../../leyline/skills/service-registry/SKILL.md
 - delegation-core/../../leyline/skills/error-patterns/SKILL.md
 ---
 
@@ -111,5 +110,5 @@ and troubleshooting, see `modules/gemini-specifics.md`.
   and that file exists on disk after the delegation completes.
 - [ ] If `conjure:delegation-core` selected a different provider (Qwen or local), this skill
   is not invoked; Gemini delegation only runs when delegation-core explicitly routes to Gemini.
-- [ ] Tasks requiring > 1M tokens in context are flagged before submission; the skill reports
+- [ ] Tasks requiring > 1M tokens in context are flagged before submission. The skill reports
   the estimated token count and confirms it falls within Gemini's supported window.

@@ -22,18 +22,18 @@
 - When choosing between two approaches, prefer the one that
   is easier to change later. Reversibility preserves the
   freedom of future contributors.
-- Write tests that describe what the code does, not how it
-  does it. Implementation-coupled tests become obstacles
-  when the code needs to evolve.
+- Write tests that describe observable behavior.
+  Implementation-coupled tests become obstacles when the
+  code needs to evolve.
 - Name things for what they mean in the domain, not for
   their current technical role. Domain names survive
-  refactors; technical names become lies.
+  refactors, but technical names become lies.
 
 ## This is not foresight
 
 - Premature optimization or over-engineering for
   requirements nobody has stated. Foresight protects future
-  choices; it does not make them in advance.
+  choices and does not make them in advance.
 - Analysis paralysis from imagining too many futures.
   Foresight makes the present decision reversible, then
   acts. It does not wait for certainty.

@@ -19,7 +19,7 @@ expected observations and branch instructions.
 |------|---------|
 | Autonomous loop | A session that keeps working without a human turn: egregore's orchestrator (`/egregore:summon`), the externally installed ralph-wiggum loop, herald's auto-continue Stop hook |
 | Stop hook | A Claude Code hook fired when the agent tries to end its turn. It prints `{"decision": "approve"}` (allow stop) or `{"decision": "block", "reason": ...}` (keep working) |
-| Completion integrity | The property that a loop's "done" signal is bound to a verifier the agent does not control, instead of the agent's own say-so |
+| Completion integrity | The property that a loop's "done" signal is bound to a verifier outside the agent's control |
 | False stop | The loop halts while verifiable work remains, or accepts a claimed completion that a check would have rejected |
 | False continue | The loop keeps working (blocks the stop) on a turn that was genuinely finished |
 | Verdict | The egregore quality-gate outcome: `pass`, `pass-with-warnings`, or `fix-required` (computed after a 3-attempt auto-fix loop) |
@@ -37,7 +37,7 @@ unfakeable gate:
 
 The load-bearing weakness, verified by reading commit 83281337: the
 `completion_integrity` flag is real code with a tested load path, but
-its enforcement lives in agent instructions
+its enforcement is in agent instructions
 (`plugins/egregore/agents/orchestrator.md`, the `egregore:quality-gate`
 skill, and `skills/summon/modules/pipeline.md`). No Python code path
 blocks a pipeline transition. The manifest that records item status
@@ -47,7 +47,7 @@ supposed to bind. The campaign exists to close that gap with evidence.
 ## Evidence bar
 
 Success is measured, never judged by eye. The standing rules are
-drawn from two 2026-07-01 research passes, whose evidence now lives
+drawn from two 2026-07-01 research passes, whose evidence is now
 in `.claude/rules/prefer-invariants-over-fallbacks.md` (harness-loop
 findings) and
 `plugins/imbue/skills/proof-of-work/modules/verifier-integrity.md`

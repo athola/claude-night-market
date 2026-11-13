@@ -43,7 +43,7 @@ Task complete
 
 **War-room-checkpoint**: Produces a Reversibility Score (RS) confirming the risk assessment. If RS is lower than expected, the task may be downgraded.
 
-**Full test suite**: All tests must pass, not just those related to changed files.
+**Full test suite**: All tests must pass, including those unrelated to changed files.
 
 **Code review**: Lead agent reviews changes for correctness, security implications, and architectural alignment. For tasks touching auth/security, human review is strongly recommended.
 

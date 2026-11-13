@@ -145,6 +145,58 @@ class TestChangedSelection:
         assert "No plugin changes detected" in _run_changed(repo)
 
 
+def _run_named(repo: Path, plugin: str) -> str:
+    outcome = subprocess.run(
+        [str(WRAPPER), str(repo / "scripts" / "run-plugin-typecheck.sh"), plugin],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return outcome.stdout + outcome.stderr
+
+
+@needs_uv_and_make
+class TestMakefileTargetProbe:
+    """The probe reads make's rule database, so an included target counts.
+
+    A name listed only in .PHONY also prints as ``typecheck:`` there, with
+    no prerequisites and no recipe. Behind a catch-all it would then pass
+    while checking nothing.
+    """
+
+    def _plugin_with_include(self, tmp_path: Path, included: str) -> Path:
+        repo = _fake_repo(tmp_path, ("alpha",))
+        plugin = repo / "plugins" / "alpha"
+        (plugin / "Makefile").write_text("include extra.mk\n", encoding="utf-8")
+        (plugin / "extra.mk").write_text(included, encoding="utf-8")
+        return repo
+
+    @pytest.mark.unit
+    def test_target_named_only_in_phony_is_not_a_typecheck_target(
+        self, tmp_path: Path
+    ) -> None:
+        repo = self._plugin_with_include(tmp_path, ".PHONY: typecheck\n%:\n\t@true\n")
+        assert "No type checking configuration" in _run_named(repo, "alpha")
+
+    @pytest.mark.unit
+    def test_included_target_with_a_recipe_is_run(self, tmp_path: Path) -> None:
+        repo = self._plugin_with_include(
+            tmp_path, ".PHONY: typecheck\ntypecheck:\n\t@echo ran-typecheck\n"
+        )
+        assert "ran-typecheck" in _run_named(repo, "alpha")
+
+    @pytest.mark.unit
+    def test_included_target_with_only_prerequisites_is_run(
+        self, tmp_path: Path
+    ) -> None:
+        repo = self._plugin_with_include(
+            tmp_path,
+            ".PHONY: typecheck types\ntypecheck: types\ntypes:\n\t@echo ran-types\n",
+        )
+        assert "ran-types" in _run_named(repo, "alpha")
+
+
 def test_precommit_typecheck_hook_runs_changed_plugins() -> None:
     """The per-commit hook selects; typecheck.yml gates the full set on PRs."""
     config = yaml.safe_load(

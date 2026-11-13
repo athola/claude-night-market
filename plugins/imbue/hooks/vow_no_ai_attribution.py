@@ -17,7 +17,7 @@ import re
 import sys
 from pathlib import Path
 
-# D-06: shadow_mode + is_git_commit live in shared/vow_utils.
+# D-06: shadow_mode and is_git_commit are in shared/vow_utils.
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
     is_git_commit,
@@ -52,7 +52,7 @@ _STRONG_ATTRIBUTION_PREFIX = (
 
 # Patterns that indicate AI attribution in a commit message.
 #
-# Every pattern requires an ATTRIBUTION CONTEXT -- a trailer keyword, an
+# Every pattern requires an ATTRIBUTION CONTEXT: a trailer keyword, an
 # attribution verb, or an explicit marker. Bare tool names and URLs
 # ("chore: bump anthropic>=0.40", "docs: link to anthropic.com", "fix:
 # cursor positioning") do NOT match, which is the false-positive class
@@ -66,7 +66,7 @@ _AI_ATTRIBUTION_PATTERNS = [
     # same line. Domains are attribution-unambiguous even with weak
     # verbs: "by claude.ai", "from anthropic.com".
     rf"\b(?:by|from|via)\b[^\n]*?\b(?:{_TOOL_DOMAIN_GROUP})\b",
-    # GitHub Copilot bot trailer -- the "[bot]" suffix is explicit.
+    # GitHub Copilot bot trailer. The "[bot]" suffix is explicit.
     r"\bgithub-copilot\[bot\]",
     # Generic attribution markers.
     r"\bAI-assisted\b",

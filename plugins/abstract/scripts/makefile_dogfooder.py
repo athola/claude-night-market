@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Makefile Dogfooder - Comprehensive QA for Documentation Coverage.
+"""Makefile Dogfooder - QA for Documentation Coverage.
 
 This script ensures that every command documented in READMEs and docs has
 a corresponding make target that executes it, acting as first-line QA defense.
@@ -9,7 +9,7 @@ Core Philosophy:
 - Make targets provide consistent, version-controlled execution
 - Dogfooding catches edge cases static analysis misses
 
-This file is a thin CLI wrapper. All logic lives in the dogfooder/ package:
+This file is a thin CLI wrapper. All logic is in the dogfooder/ package:
     dogfooder/parser.py    - Makefile parsing and target analysis
     dogfooder/validator.py - Recipe validation and Makefile generation
     dogfooder/reporter.py  - Report generation and main orchestration

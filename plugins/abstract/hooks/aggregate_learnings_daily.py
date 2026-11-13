@@ -5,8 +5,8 @@ Runs aggregate_skill_logs.py on a daily cadence (once per 24h) to generate
 LEARNINGS.md.
 
 It does not chain to auto_promote_learnings.py. ``run_daily_pipeline``
-stops after aggregation, and line 194 of this file records that the Stop
-hook owns promotion. The docstring said otherwise, which left a reader
+stops after aggregation, and its docstring records that the Stop hook
+owns promotion. The docstring said otherwise, which left a reader
 looking for a call that is not here.
 
 Must complete in <2s with no user-visible output.
@@ -58,10 +58,6 @@ try:
         get_learnings_path,
         get_log_directory,
     )
-    from auto_promote_learnings import run_auto_promote as _promote
-    from post_learnings_to_discussions import (
-        post_learnings as _post_learnings,
-    )
 
     _HAS_SCRIPTS = True
 except ImportError as _imp_err:
@@ -97,7 +93,7 @@ def should_aggregate() -> bool:
         elapsed = time.time() - last_run
         return elapsed >= CADENCE_SECONDS
     except (ValueError, OSError) as exc:
-        # Corrupt or unreadable file — treat as never run
+        # Corrupt or unreadable file: treat as never run
         print(f"[aggregate_learnings_daily] timestamp read: {exc}", file=sys.stderr)
         return True
 
@@ -185,20 +181,6 @@ def run_aggregation() -> bool:
     return bool(best_effort(_HOOK, "aggregation", _aggregate))
 
 
-def run_auto_promote() -> None:
-    """Chain to auto-promotion after successful aggregation."""
-    if not _HAS_SCRIPTS:
-        return
-    best_effort(_HOOK, "auto-promote", _promote)
-
-
-def run_post_learnings() -> None:
-    """Chain to learnings Discussion posting after aggregation."""
-    if not _HAS_SCRIPTS:
-        return
-    best_effort(_HOOK, "post-learnings", _post_learnings)
-
-
 def run_daily_pipeline() -> None:
     """Main pipeline: check cadence → aggregate.
 
@@ -211,7 +193,7 @@ def run_daily_pipeline() -> None:
         return
 
     # Registered async, so two quick prompts overlap. The run is claimed
-    # with a non-blocking lock and the cadence re-checked inside it; the
+    # with a non-blocking lock and the cadence re-checked inside it. The
     # loser returns at once instead of writing LEARNINGS.md a second time.
     ts_path = get_timestamp_path()
     ts_path.parent.mkdir(parents=True, exist_ok=True)
@@ -228,7 +210,7 @@ def run_daily_pipeline() -> None:
 
 
 def main() -> None:
-    """Hook entry point — reads stdin, runs pipeline, outputs JSON."""
+    """Hook entry point: reads stdin, runs pipeline, outputs JSON."""
     # Read and discard stdin (hook protocol)
     best_effort(_HOOK, "stdin read", sys.stdin.read)
 

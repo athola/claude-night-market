@@ -90,8 +90,8 @@ blast radius, the [advancement gate](modules/advancement-gate.md):
 
 Recording the demonstration mints a ramp token (`touch
 .imbue/ramp-ok`), which the hook consumes to widen the rung one
-notch. You ramp by proving you understood the last slice, not by
-writing more. Each notch is appended to the
+notch. You ramp by proving you understood the last slice. Each
+notch is appended to the
 [ramp ledger](modules/ramp-ledger.md) so a reviewer can later audit
 that the demonstration was real, not rubber-stamped.
 
@@ -113,7 +113,7 @@ Advancing too fast is one failure; never advancing is the other.
 - An agent is building a feature across more than one increment and
   the human will maintain or be accountable for it.
 - The work touches an unfamiliar subsystem or a high-stakes path.
-- The human is building skill in an area, not just shipping a
+- The human is building skill in the area, and the work is not a
   throwaway.
 
 Skip it for a single bounded edit, a trivial reversible change, or
@@ -130,7 +130,8 @@ ceremony, and ceremony trains people to ignore the gate.
 
 - Start with one slice. A whole thing built at once cannot be reviewed
   by someone who did not watch it get built.
-- Passing tests are completion, not understanding. A cheap signal
+- Passing tests show completion. They do not show understanding.
+  A cheap signal
   decouples from skill, as a Duolingo streak does from fluency.
 - The producer does not grade its own readiness. Understanding is
   demonstrated and recorded, not self-certified.
@@ -144,8 +145,8 @@ ceremony, and ceremony trains people to ignore the gate.
 - `imbue:assisted-mastery`: fades scaffolding as competence grows;
   this skill ramps challenge. Two directions, one axis.
 - `imbue:proof-of-work`: the evidence half of the low-stakes gate.
-- `imbue:scope-guard`: bounds the branch; this bounds the
-  increment within it.
+- `imbue:scope-guard`: bounds the branch, and this skill bounds
+  the increment within it.
 - `leyline:risk-classification`: the stakes tier that selects which
   gate (evidence vs explanation) applies.
 - `leyline:decision-journal`: the durable home for the recorded
@@ -158,7 +159,7 @@ cross-domain gate design is preserved in
 ## Exit Criteria
 
 - [ ] The first increment of the feature was bounded to roughly the
-      start rung, not the whole design.
+      start rung.
 - [ ] Each ramp to a more ambitious increment was preceded by a
       recorded demonstration of the prior increment (a tradeoff
       entry; for high-stakes paths, the human explaining the diff

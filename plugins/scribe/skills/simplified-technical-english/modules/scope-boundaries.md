@@ -28,6 +28,14 @@ executing:
   individual author's voice
 - This repository's own descriptive documentation, including these
   skill files
+- Merge request and pull request descriptions, and ticket prose, where
+  a person edits what the agent drafted
+
+Acceptance criteria inside a ticket stay in scope for one instruction
+per bullet and simple tenses, but the author's contractions stay. In
+two observed merge requests a reviewer wrote "didn't" and "aren't",
+and a later pass expanded them back. Rewriting a person's words to a
+register they did not choose undoes their edit.
 
 ## Why the second list exists
 

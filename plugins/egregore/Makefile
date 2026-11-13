@@ -92,7 +92,7 @@ demo-loop: ## Demo egregore loop lifecycle (LIVE)
 	@echo "Use /egregore:summon for autonomous operation."
 
 test-egregore: ## Test egregore core functionality
-	$(PYTEST) $(PYTEST_TARGETS) -v -k "manifest or scout" --tb=short
+	$(PYTEST) $(PYTEST_TARGETS) -v -k "manifest" --tb=short
 
 test-loop: ## Test egregore loop and parallel execution
 	$(PYTEST) tests/test_parallel.py tests/test_manifest.py -v --tb=short

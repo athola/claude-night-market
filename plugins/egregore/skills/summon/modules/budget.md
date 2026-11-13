@@ -115,7 +115,7 @@ loop resumes with the full conversation context intact.
 
 ### Fallback: Exit and Watchdog
 
-This is the default path, not a degraded one. Use it
+This is the default path. Use it
 whenever the session will not survive the wait, whenever
 the reset is more than a day out, and whenever the run is
 unattended:
@@ -168,8 +168,8 @@ The orchestrator uses these heuristics:
   normally, adjust the estimate based on actual conversation
   length (word count * 1.3 as a rough token multiplier).
 
-These estimates are for observability and alerting, not for
-hard enforcement.
+These estimates feed observability and alerting. Nothing
+enforces them as hard limits.
 
 ### `rate_limits` Statusline Field (2.1.80+)
 

@@ -12,7 +12,7 @@ Load this module when the skill needs to reference content that:
 
 - Exceeds 2000 tokens in its complete form.
 - Splits cleanly into self-contained sections.
-- Is read in small slices per task, not whole.
+- Is read in small slices per task.
 - Updates rarely enough that a stable index is reasonable.
 
 For dynamic content that changes frequently, this pattern is the
@@ -59,7 +59,7 @@ load.
 ```
 
 The index never describes implementation detail. It is a routing
-table, not a tutorial.
+table.
 
 ## Section Loader
 

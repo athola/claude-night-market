@@ -119,7 +119,7 @@ def get_improvement_queue_path(claude_home: Path | None = None) -> Path:
     """Get the improvement queue file the monitor and the recorder share.
 
     Args:
-        claude_home: Root to resolve under; defaults to ``CLAUDE_HOME``
+        claude_home: Root to resolve under. Defaults to ``CLAUDE_HOME``
             or ``~/.claude``.
 
     Returns:

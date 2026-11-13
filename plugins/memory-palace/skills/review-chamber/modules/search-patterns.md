@@ -8,7 +8,7 @@ The review chamber supports multiple search approaches, building on knowledge-lo
 
 ### 1. Semantic Search
 
-Find entries by meaning, not just keywords.
+Find entries by meaning as well as keywords.
 
 ```bash
 # Find decisions about authentication

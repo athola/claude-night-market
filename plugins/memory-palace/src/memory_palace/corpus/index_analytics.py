@@ -7,11 +7,8 @@ vast majority of entries sit inert at their capture defaults
 (``routing_type: pending``, ``maturity: seedling``,
 ``importance_score: 50``).
 
-This module turns that write-only buffer into observable metrics. It
-reuses the existing :class:`~memory_palace.corpus.decay_model.DecayModel`
-for staleness so the analysis layer stays consistent with the rest of
-the corpus tooling. Every function here is read-only: nothing in this
-module writes to disk.
+This module turns that write-only buffer into observable metrics. Every
+function here is read-only: nothing in this module writes to disk.
 """
 
 from __future__ import annotations
@@ -20,7 +17,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from urllib.parse import urlparse
 
 try:
@@ -28,10 +25,6 @@ try:
 except ImportError:  # pragma: no cover - yaml is a hard runtime dep
     yaml = None  # type: ignore[assignment]  # optional-import fallback sentinel
 
-from memory_palace.corpus.decay_model import DecayModel
-
-if TYPE_CHECKING:
-    from memory_palace.corpus.decay_model import DecayState
 
 logger = logging.getLogger(__name__)
 
@@ -229,30 +222,6 @@ def cluster_by_domain(index: dict[str, Any]) -> dict[str, list[str]]:
     return clusters
 
 
-def staleness_report(index: dict[str, Any]) -> list[DecayState]:
-    """Compute decay state for every entry, worst (most decayed) first.
-
-    Delegates to :class:`DecayModel` so staleness here matches the
-    maturity-aware half-lives used elsewhere in the corpus tooling.
-    """
-    model = DecayModel()
-    states: list[DecayState] = []
-    for key, entry in index.get("entries", {}).items():
-        last_updated = _parse_timestamp(entry.get("last_updated"))
-        maturity = entry.get("maturity", "growing")
-        score = int(entry.get("importance_score", 0))
-        states.append(
-            model.calculate_decay(
-                entry_id=key,
-                maturity=maturity,
-                last_validated=last_updated,
-                importance_score=score,
-            )
-        )
-    states.sort(key=lambda state: state.decay_factor)
-    return states
-
-
 def _recency_credit(last_updated: datetime) -> float:
     """Linear recency credit in [0, 1]; newer captures score higher."""
     days = max(0.0, (datetime.now(timezone.utc) - last_updated).days)
@@ -276,7 +245,7 @@ def rank_promotion_candidates(
     Uses only structural signals available in the index itself (recency,
     domain authority, and topic-cluster size), so the ranking is
     deterministic and needs no model. The importance/routing decisions
-    that mutate the index live in the promotion engine, not here.
+    that mutate the index are in the promotion engine.
     """
     entries = index.get("entries", {})
     cluster_sizes = {

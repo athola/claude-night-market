@@ -11,7 +11,7 @@ role: library
 ---
 ## Delegation
 
-For detailed task planning workflows, this skill delegates to `spec-kit:task-planning` as the canonical implementation. Use this skill for quick planning needs; use spec-kit for thorough project plans.
+For detailed task planning workflows, this skill delegates to `spec-kit:task-planning` as the canonical implementation. Use this skill for quick planning needs and spec-kit for thorough project plans.
 
 ## When To Use
 
@@ -63,10 +63,11 @@ chosen, the dependency accepted, the work deferred. Record each decision that
 had real alternatives to `docs/tradeoffs.md` (draft and confirm):
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
-  a tradeoff entry (the decision, the options weighed, and what was
-  sacrificed; set `phase` to `plan`). Show the draft; append on confirmation.
+  a tradeoff entry with the decision, the options weighed, and what was
+  sacrificed. Set `phase` to `plan`. Show the draft and append it on
+  confirmation.
 - Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
-  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+  ENTRY TEMPLATE. Assign the next `TR-NNN` id.
 
 ## Post-Completion: Workflow Continuation (REQUIRED)
 
@@ -89,7 +90,7 @@ had real alternatives to `docs/tradeoffs.md` (draft and confirm):
 - `docs/implementation-plan.md` does not exist or is empty (phase failed)
 - User explicitly requests to stop after planning
 
-**Do NOT prompt the user for confirmation**: this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
+**Do NOT prompt the user for confirmation**: this is a lightweight checkpoint that continues without waiting. The user can always interrupt if needed.
 
 ## Exit Criteria
 

@@ -48,6 +48,6 @@ Read it before choosing. Agent-aware SessionStart hooks are covered in
 - [ ] The selected scope's file location (`hooks/hooks.json`, `.claude/settings.json`, or
   `~/.claude/settings.json`) is confirmed to exist or is created at the correct path.
 - [ ] Plugin hooks do not add `"hooks": "./hooks/hooks.json"` to `plugin.json` (duplicate-load
-  guard); this absence is verified before the hook is deployed.
+  guard). This absence is verified before the hook is deployed.
 - [ ] Global hooks are flagged with a security note confirming they apply to all Claude sessions
   on this machine.

@@ -9,11 +9,11 @@ is where confident, green, wrong work ships.
 A passing verifier can mislead in two independent ways:
 
 1. **The spec is wrong.** The check confirms the code does what the
-   spec says; it cannot confirm the spec says what you meant. A
+   spec says. It cannot confirm the spec says what you meant. A
    machine-checked proof "adheres to a formal specification but not
    necessarily to original human intent." Autoformalization research
    finds its dominant failure is a syntactically valid, type-correct
-   statement that means the wrong thing; property-based-testing studies
+   statement that means the wrong thing. Property-based-testing studies
    found roughly 10% of specs in strong verified-code benchmarks were
    underspecified.
 2. **The check is hollow.** A test that passes no matter what the code
@@ -23,8 +23,8 @@ A passing verifier can mislead in two independent ways:
 
 Independent verification (`modules/independent-verification.md`) answers
 a different question: *who* verifies. This module answers *whether the
-verification is real at all.* Both are required; neither substitutes for
-the other.
+verification is real at all.* Both are required, and neither substitutes
+for the other.
 
 ## Guard 1: validate the spec separately from the code
 
@@ -51,11 +51,11 @@ breaks. Demonstrate it, do not assume it.
   fix, flip a condition, return a wrong constant) and confirm the check
   fails. If it stays green, the check does not test what you think.
   `sanctum:validate-pr` applies exactly this to prove a regression test
-  is a genuine guard; the Iron Law coverage gate
+  is a genuine guard. The Iron Law coverage gate
   (`modules/iron-law-enforcement.md`) tracks mutation coverage for the
   same reason.
-- A single mutation that survives is a hole in the gate, not a rounding
-  error. Close it or document why it is acceptable.
+- A single mutation that survives is a hole in the gate. Close it or
+  document why it is acceptable.
 
 ## Guard 3: prefer executable checks over an LLM judge
 
@@ -83,15 +83,15 @@ same move at compile time.
 
 ## Guard 5: repair from the verifier's localized feedback
 
-When a real check fails, the error is high-value context, not just a
-red light. Feed the specific failure (location, expected-versus-actual,
-remaining goal) back and repair the failing fragment, rather than
-regenerating the whole artifact and hoping. Cap the repair attempts;
+When a real check fails, the error is high-value context. Feed the
+specific failure (location, expected-versus-actual, remaining goal)
+back and repair the failing fragment, rather than regenerating the
+whole artifact and hoping. Cap the repair attempts;
 after the cap, surface the failure instead of forcing a green.
 
 ## Guard 6: match verifier strength to blast radius
 
-Verification effort should scale with cost-of-error, not prestige. A
+Verification effort should scale with cost-of-error. A
 throwaway augmentation or a data-munging script does not need a property
 suite; an automation that runs without a human in the loop and whose
 failure is expensive (auth, money, migrations, concurrency) earns the
@@ -112,10 +112,10 @@ red-on-break is far stronger evidence than a green run alone.
 ## When This Does Not Apply
 
 Low-stakes, reversible, easily-isolated changes do not need spec
-cross-validation or mutation proofs; standard proof-of-work evidence is
+cross-validation or mutation proofs. Standard proof-of-work evidence is
 enough. Reserve the full integrity check for changes where a
 convincing-but-wrong green check would be expensive to trust. The point
-is not more ceremony; it is real evidence exactly where it pays.
+is real evidence exactly where it pays.
 
 ## Evidence Format
 
@@ -138,8 +138,8 @@ ordinary agentic coding loop:
 | Error-driven targeted repair | Baldur (arXiv 2303.04910), APOLLO | Feed the checker's localized error back; repair only the failing fragment; cap attempts |
 | Mutation / revert-test | anti-cargo-cult, `sanctum:validate-pr` | Prove the check goes red when behavior breaks; a check that never fails is not a check |
 | Property-based verifier gate | Anthropic PBT, arXiv 2506.18315 | Infer invariants, fuzz inputs, use as the completion gate for non-math code |
-| Autoformalize-then-check | Draft-Sketch-Prove (arXiv 2210.12283) | Freeze a checkable skeleton (signatures, contracts, tests), fill and verify the gaps; review the spec, not just the code |
-| Best-of-N with external verifier | arXiv 2506.18203, 2402.08115 | Accept only what a sound external verifier passes; never self-judge |
+| Autoformalize-then-check | Draft-Sketch-Prove (arXiv 2210.12283) | Freeze a checkable skeleton (signatures, contracts, tests), fill and verify the gaps; review the spec as well as the code |
+| Best-of-N with external verifier | arXiv 2506.18203, 2402.08115 | Accept only what a sound external verifier passes, and never self-judge |
 
 Two findings bound how far this goes. First, the generator must never
 be its own judge: LLM self-verification is unreliable, models are

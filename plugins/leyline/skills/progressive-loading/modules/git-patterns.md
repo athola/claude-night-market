@@ -3,7 +3,7 @@
 This module covers progressive-loading for skills that work with
 git repositories: workspace inspection, branch operations, commit
 analysis, and history rewrites. The driving question is which
-git tooling modules to load based on the operation, not on the
+git tooling modules to load based on the operation rather than the
 file extension.
 
 ## When This Module Applies
@@ -121,8 +121,7 @@ slower. Use the pickaxe by default.
    `--force-with-lease` as the default, not `--force`.
 5. **Reading raw plumbing output as content**: `git cat-file`
    returns blob content with no path context. Load the plumbing
-   module only when the task is debugging git internals, not
-   reading source.
+   module only when the task is debugging git internals.
 
 ## Cross-Reference
 

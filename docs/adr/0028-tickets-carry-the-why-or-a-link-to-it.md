@@ -30,8 +30,8 @@ ticket must say what was decided and why. The why stays inline unless options
 were weighed, the choice outlives the work, or the reasoning already exists.
 Then the ticket carries one sentence and a link, and never the pasted document.
 
-The rule lives in leyline next to `decision-journal`, not in `git-platform`,
-because `git-platform` maps commands and this governs content. Tracker facts sit
+The rule is in leyline next to `decision-journal`, not in `git-platform`,
+because `git-platform` maps commands and this governs content. Tracker facts are
 in one module, since the general rule does not vary by tracker.
 
 Rejected: a line limit. Nothing measured supports a number, and a bug's
@@ -44,3 +44,22 @@ reproduction steps must not be cut to meet one.
 - Deferred: `sanctum` fix-pr issue creation, `sanctum` auto-issue creation,
   `imbue` workflow-monitor templates, and `spec-kit` tasks-to-issues keep their
   longer bodies.
+
+## Amendment 2026-11-10: Project template first
+
+The shape above is the default for a project with no shape of its own.
+In one private Jira project, reviewers edited 67 agent-written
+tickets. The labels deleted most were `Why:` and `Done when:`, and 42
+of the 67
+ended in one of two team templates: Impact, Expected behavior, Actual
+behavior, Steps to reproduce, Environment, Workarounds, Other
+information for bugs, and Summary, Context, Acceptance criteria, Other
+information for tasks. A rewrite tool produced some of those headings,
+and a person fixed the wording by hand. The team kept the shape either
+way.
+
+`leyline:ticket-writing` now samples three recent human-edited tickets
+of the same type and copies their headings and markup. The three-heading
+shape applies only when no such shape exists. The glance test still
+holds: the first screen says what was decided and why. ADR-0021 carries
+the same amendment for merge request descriptions.

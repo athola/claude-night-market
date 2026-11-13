@@ -76,7 +76,7 @@ async def analyze_testing_patterns(
 
 def _is_loop_close(call: ast.Call) -> bool:
     """Match ``<loop>.close()`` where the receiver is named like a loop or is a
-    ``get_event_loop()``-style call; a file handle's close() does not count.
+    ``get_event_loop()``-style call. A file handle's close() does not count.
     """
     func = call.func
     if not (isinstance(func, ast.Attribute) and func.attr == "close"):

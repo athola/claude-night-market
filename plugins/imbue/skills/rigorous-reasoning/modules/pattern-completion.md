@@ -54,7 +54,7 @@ If valid cases exist at depth N, check whether valid cases exist at depth N+1.
 
 A claim that no cases exist at depth N+1 requires **visible evidence of the search process**.
 
-**Critical rule:** The verification method must appear in the response, not merely its conclusion.
+**Critical rule:** The verification method must appear in the response beside its conclusion.
 
 **Invalid:**
 > "I verified this thoroughly." (no visible work)

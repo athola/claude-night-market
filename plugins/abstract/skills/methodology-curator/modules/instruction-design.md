@@ -43,7 +43,7 @@ GOOD: "Given a failing test, implement minimal code to pass within 3 iterations"
 
 **Source**: Benjamin Bloom et al., revised by Anderson & Krathwohl (2001)
 
-**Core Idea**: Learning has hierarchical levels; target the right cognitive level.
+**Core Idea**: Learning has hierarchical levels. Target the right cognitive level.
 
 **Levels (lowest to highest)**:
 1. **Remember**: Recall facts → Reference skills, checklists
@@ -104,7 +104,7 @@ Real-world scenarios       → 9. Enhance retention
 
 **Source**: John Sweller - "Cognitive Load Theory" (1988)
 
-**Core Idea**: Working memory is limited; reduce unnecessary load.
+**Core Idea**: Working memory is limited. Reduce unnecessary load.
 
 **Three Types of Load**:
 - **Intrinsic**: Complexity inherent to the material (can't reduce)
@@ -128,7 +128,7 @@ Real-world scenarios       → 9. Enhance retention
 
 **Source**: Ruth Clark - "Evidence-Based Training Methods" (2019)
 
-**Core Idea**: Use research-proven methods, not intuition.
+**Core Idea**: Prefer research-proven methods to intuition.
 
 **Key Findings**:
 - **Examples beat descriptions**: Show, don't tell

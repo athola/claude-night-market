@@ -9,7 +9,7 @@ information the name does not already convey.
 Skip rules:
 - Dunder methods (``__init__`` etc.): Python convention permits stub
   docstrings.
-- Private helpers (``_name``): implementation detail; full docstrings
+- Private helpers (``_name``): implementation detail. Full docstrings
   are encouraged but minimal ones are acceptable.
 - Empty docstrings: not in scope for this rule.
 

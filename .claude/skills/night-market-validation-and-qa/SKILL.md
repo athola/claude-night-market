@@ -58,8 +58,9 @@ first. Scope:
 - Applies to every code change in plugin Python sources
   (`plugins/*/src/`, `plugins/*/scripts/`, `plugins/*/hooks/`).
 - Skill files, agent files, and prose docs are exempt. Their analogue
-  is a structural validation test: every new skill needs a
-  `test_skill_<name>.py` proving the structure.
+  is structural validation: the repo-wide `SKILL.md` tests, plus a
+  plugin test, usually `tests/unit/skills/test_<name>.py`, where the
+  skill's contract matters.
 
 A structural validation test asserts observable content in the skill
 file: required sections exist, the referenced modules exist on disk,
@@ -107,7 +108,7 @@ The counter-discipline is the revert test, executed by
    clean first, or the step is skipped as unsafe).
 3. Run the test that supposedly guards the fix.
 4. The test must FAIL against the reverted code. If it stays green,
-   the test is a dead assertion, not a guard.
+   the test is a dead assertion and guards nothing.
 5. Restore the fix.
 
 When writing a new test, apply the same standard preemptively: write
@@ -182,7 +183,8 @@ are legal. Registered in root `pyproject.toml`: `unit`, `integration`,
   `integration/` accordingly.
 - [ ] Plugin suite passes locally with its coverage flag:
   `uv run python -m pytest tests/ --cov-fail-under=<threshold>`.
-- [ ] New skill files have a `test_skill_<name>.py` structural test.
+- [ ] New skill files pass the repo-wide `SKILL.md` tests, and a skill
+  whose contract matters has its own structural test.
 
 ## Failure-mode detection: silent failure in scanners
 
@@ -225,8 +227,8 @@ Any hit that discards an error without emitting a finding or an inline
 - History of why a guard exists (incident narratives, reverts): use
   `night-market-failure-archaeology`.
 - Setting up pytest config or fixtures for a new plugin:
-  `Skill(leyline:pytest-config)` has the templates, and
-  `Skill(leyline:testing-quality-standards)` the anti-pattern catalog.
+  `Skill(leyline:testing-quality-standards)` has the templates (module
+  `pytest-config`) and the anti-pattern catalog.
 
 ## Exit Criteria
 
@@ -238,8 +240,8 @@ Any hit that discards an error without emitting a finding or an inline
 - [ ] New plugin Python code landed with a test observed failing
   first, and the plugin suite passes at or above its
   `[tool.nightmarket]` coverage_threshold.
-- [ ] Any new skill file has a passing `test_skill_<name>.py`
-  structural test.
+- [ ] Any new skill file passes the repo-wide `SKILL.md` tests, and
+  one whose contract matters has a passing structural test.
 - [ ] No scanner code added or reviewed in the session contains an
   except-continue that drops input without an ADVISORY finding or a
   stated reason.

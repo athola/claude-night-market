@@ -108,7 +108,7 @@ Stages 2 to 4 below are three agents in a fixed order with structured
 handoffs, which is a script's shape. `/sanctum:fix-workflow-analysis`
 (`workflows/fix-workflow-analysis.js`) runs them as one pipeline and
 returns a plan. Use it when the slice is already captured and the
-roster does not need to adapt; use the agents directly otherwise. It
+roster does not need to adapt. Use the agents directly otherwise. It
 only runs when asked for: a workflow never starts unasked.
 
 It deliberately stops before step 5. A workflow's subagents take the

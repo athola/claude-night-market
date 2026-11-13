@@ -20,7 +20,8 @@ An agent that consumes tokens without producing actionable output.
   file paths)
 
 **Exception**: Zero-finding results from low-risk scans
-(e.g., security audit of already-linted code) are valid, not waste.
+(e.g., security audit of already-linted code) are valid and do not
+count as waste.
 
 ## 2. Redundant Reader
 

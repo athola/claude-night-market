@@ -44,12 +44,14 @@ project root.
 ## The Five Principles
 
 1. **You are a steward, not an owner**: the codebase belongs to
-   the community. Write for the reader, not yourself.
+   the community. Write for the reader.
 2. **Multiply, do not merely preserve**: improve what you touch.
    Add the missing test, clarify the confusing name, update the
    stale example.
-3. **Be faithful in small things**: fix the typo, remove the dead
-   import, add the type hint. Small acts compound.
+3. **Be faithful in small things**: fix the typo, remove the
+   import your change made dead, add the type hint. Small acts
+   compound. Cleanup outside the lines you touch goes in its own
+   commit.
 4. **Serve those who come after you**: write for the contributor
    who arrives with no context. Prioritize their experience.
 5. **Think seven iterations ahead**: prefer simple, transparent
@@ -90,7 +92,18 @@ Ask yourself these questions when working in a plugin:
 that way.
 
 **If any question triggers**: take the small action. It costs
-seconds and pays dividends for every future reader.
+seconds and pays dividends for every future reader. Then record it,
+so `/imbue:stewardship-health` counts it toward the plugin's
+improvement velocity and virtue practice:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/stewardship_tracker.py record \
+  --plugin <plugin> --type <doc-update|typo-fix|comment|...> \
+  --file <path> --description "<what changed>" [--virtue care]
+```
+
+`--virtue` takes one of the five below. The action is appended to
+`.claude/stewardship/actions.jsonl` in the project.
 
 ## Layer-Specific Guidance
 
@@ -114,13 +127,14 @@ guides when breaking changes are unavoidable.
 You maintain tools contributors interact with daily. Your
 stewardship priority: user experience and low friction.
 If a hook is confusing, contributors disable it. If a rule
-is noisy, contributors ignore it. Tune for signal, not volume.
+is noisy, contributors ignore it. Tune each check so that
+a firing means something.
 
 ### Domain (all others)
 
 You maintain specialized expertise. Your stewardship priority:
 accuracy and accessibility. Domain knowledge is valuable only
-when others can access it. Write examples, not just references.
+when others can access it. Write examples alongside references.
 Keep domain skills current as the underlying domain evolves.
 
 ## Reflection
@@ -136,9 +150,12 @@ a brief self-assessment grounded in the five virtues. See
   before completing work on any plugin; any triggered question
   results in the corresponding small action (comment, README
   update, typo fix, abstraction reconsidered)
+- [ ] Each small action taken is recorded with
+  `stewardship_tracker.py record` and appears in
+  `.claude/stewardship/actions.jsonl`
 - [ ] Layer-specific guidance applied: foundation plugins (leyline,
   sanctum, imbue) use additive changes with migration guides for
-  breaking changes; domain plugins include examples, not just
+  breaking changes; domain plugins include examples alongside
   references
 - [ ] Reflection checklist from `modules/reflection.md` completed
   at the pre-commit boundary; output is a brief self-assessment

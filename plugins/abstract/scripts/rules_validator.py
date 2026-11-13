@@ -68,7 +68,7 @@ def _parse_frontmatter(content: str) -> tuple[dict[str, Any] | None, str, str | 
         error_message is None if no error.
 
     ``abstract.frontmatter.FrontmatterProcessor`` is the plugin's parser,
-    and this copy stands on purpose. Here an unclosed fence means no
+    and this copy is deliberate. Here an unclosed fence means no
     frontmatter rather than an error, and the error strings are what
     ``/abstract:rules-eval`` prints, so switching would change its output.
 
@@ -317,7 +317,7 @@ def check_retired_patterns(md_file: Path) -> list[str]:
 
 
 def evaluate_rules_directory(rules_dir: Path) -> dict[str, Any]:  # noqa: PLR0915 - evaluation collects many metrics in a single pass
-    """Run a comprehensive evaluation of a rules directory.
+    """Run a full evaluation of a rules directory.
 
     Args:
         rules_dir: Path to the .claude/rules/ directory.
@@ -475,7 +475,7 @@ if __name__ == "__main__":
             print(f"    Content: {fr['content_score']}/25")
             print(f"    Tokens: ~{fr['token_count']}")
 
-    # Errors are the validator's verdict; warnings are advice. Printing errors
+    # Errors are the validator's verdict and warnings are advice. Printing errors
     # and exiting 0 made every caller that checked the exit code read a
     # constant, which is the whole reason this script exists.
     if result["errors"]:

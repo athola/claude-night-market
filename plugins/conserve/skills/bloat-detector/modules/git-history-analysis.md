@@ -95,7 +95,7 @@ Worked example: `rigorous-reasoning/SKILL.md` showed 12 commits in 30
 days. After filtering for substantive body changes (`>5` line net),
 only 1 commit remained. The rest were repo-wide frontmatter sweeps
 (version bumps, tag adds, description tweaks). This file is NOT a
-thrashing hotspot; the signal was a false positive from cleanup-churn.
+thrashing hotspot. The signal was a false positive from cleanup-churn.
 
 **Hotspot Detection:**
 ```python

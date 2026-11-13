@@ -54,7 +54,7 @@ def list_sources(root: Path) -> list[Path]:
 
 
 def scan_directory(root: Path) -> list[Finding]:
-    """Recursively scan ``root`` for Python sources; return all findings."""
+    """Recursively scan ``root`` for Python sources and return all findings."""
     findings: list[Finding] = []
     for py_file in list_sources(root):
         try:

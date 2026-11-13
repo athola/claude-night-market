@@ -487,4 +487,4 @@ TDD for skills means:
 2. **GREEN**: Fix it with minimal intervention
 3. **REFACTOR**: Make it bulletproof against gaming
 
-Without empirical testing, you're writing documentation, not creating behavioral interventions.
+Without empirical testing, you are writing documentation that nobody has shown to change behavior.

@@ -138,7 +138,9 @@ The generated PR description includes:
 
 Section names come from
 `sanctum:pr-prep/modules/pr-template.md`, which is the source of
-record. Keep this block in sync with it. The pytest contract in
+record. Project template first: a project whose human-edited
+descriptions share a shape uses that shape, per the template module.
+Keep this block in sync with it. The pytest contract in
 `plugins/sanctum/tests/test_pr_template_contract.py` fails if they
 drift.
 

@@ -2,7 +2,7 @@
 
 Flags `==`/`!=` comparisons against a floating-point literal. IEEE-754
 arithmetic rounds, so values that are mathematically equal often differ
-in their last bits; an exact equality test then silently misbehaves.
+in their last bits. An exact equality test then silently misbehaves.
 
 Grounded in the Rust Reference numeric types (src/types/numeric.md) and
 clippy::float_cmp. See modules/float-equality.md.
@@ -49,8 +49,8 @@ class FloatEqualityMixin(LineCacheMixin):
             if any(rx.search(line) for rx in FLOAT_CMP_EXCLUSION_PATTERNS_RE):
                 continue
 
-            # The literal may sit on either side; one finding per line is
-            # enough, so report on the first direction that matches.
+            # The literal may be on either side. One finding per line is
+            # enough: report on the first direction that matches.
             if FLOAT_CMP_RHS_RE.search(line) or FLOAT_CMP_LHS_RE.search(line):
                 issues.append(
                     {

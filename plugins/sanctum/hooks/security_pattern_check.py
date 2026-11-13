@@ -34,18 +34,21 @@ def get_security_patterns() -> list[dict[str, Any]]:
     # Build pattern strings dynamically
     ev = "ev" + "al"
     ex = "ex" + "ec"
+    # A method that shares the builtin's name (a PyTorch model's) is not
+    # the builtin, but the builtin reached through window or globalThis is.
+    builtin = r"(?:(?<![.\w])|\b(?:window|globalThis|global|builtins)\.)"
 
     return [
         {
             "ruleName": "dynamic_code_evaluation",
-            "pattern": rf"\b{ev}\s*\(",
+            "pattern": rf"{builtin}{ev}\s*\(",
             "file_types": [".py", ".js", ".ts"],
             "reminder": f"Security Warning: {ev}() runs arbitrary code. "
             "Use JSON.parse() or ast.literal_eval() instead.",
         },
         {
             "ruleName": "dynamic_code_execution",
-            "pattern": rf"\b{ex}\s*\(",
+            "pattern": rf"{builtin}{ex}\s*\(",
             "file_types": [".py"],
             "reminder": f"Security Warning: {ex}() is a major security risk. "
             "Consider safer alternatives.",
@@ -188,8 +191,8 @@ def check_content(file_path: str, content: str) -> tuple:
             )
             if best_match[0] is None:
                 best_match = (rule, reminder)
-            # First match in pattern order is highest severity;
-            # stop checking further matches for this pattern
+            # First match in pattern order is highest severity.
+            # Stop checking further matches for this pattern
             break
 
         # Already found highest-severity match; skip remaining patterns

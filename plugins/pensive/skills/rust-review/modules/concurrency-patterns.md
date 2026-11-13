@@ -51,7 +51,7 @@ Fix: `libc::mlock` on the buffer pages. See
 (RLIMIT_MEMLOCK, page alignment, ENOMEM fallback).
 
 **Key insight**: Performance is dominated by atomic
-instruction count, not total instruction count. An
+instruction count rather than total instruction count. An
 algorithm with 9x more total instructions but the
 same number of atomics performs identically.
 
@@ -168,8 +168,8 @@ unbounded channel with `select!`'s natural backpressure.
 
 - Only suggest the rewrite when the branch futures are
   cancel-safe. `StreamExt::next`, `Interval::tick`, and
-  `mpsc::Receiver::recv` are; a `MutexGuard` held across
-  `.await` is not. Non-cancel-safe `.send().await`s belong in
+  `mpsc::Receiver::recv` are cancel-safe. A `MutexGuard`
+  held across `.await` is not. Non-cancel-safe `.send().await`s belong in
   branch bodies, which run to completion.
 - `select!` head-of-line-blocks sibling branches while one
   branch body awaits. Acceptable when a stalled peer would

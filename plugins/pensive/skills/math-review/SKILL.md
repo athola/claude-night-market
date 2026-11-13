@@ -136,8 +136,8 @@ Condition number | Precision | Risks
 ## Recommendation
 Approve / Approve with actions / Block
 ```
-Every issue's `Anchor` is the exact source text at `Location`; it is what
-`citation_verifier.py` re-reads to prove the finding is real.
+Every issue's `Anchor` is the exact source text at `Location`.
+`citation_verifier.py` re-reads it to prove the finding is real.
 **Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria

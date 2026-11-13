@@ -39,7 +39,7 @@ proof-of-work and audit items should be preserved.
 
 **Skill Description Budget (2.1.32+)**:
 Skill character budgets now scale at 2% of context window instead of a fixed
-limit. On 200K context this yields ~4K chars; on 1M context ~20K chars.
+limit. On 200K context this yields ~4K chars, and on 1M context ~20K chars.
 Skills from `--add-dir` directories are also auto-discovered (2.1.32+).
 Skills without additional permissions
 or hooks are auto-approved without user confirmation (2.1.19+).

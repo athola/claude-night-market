@@ -22,7 +22,7 @@ Expert frameworks for capturing, organizing, connecting, and retrieving knowledg
 
 **Key Principles**:
 - **Atomicity**: One idea per note
-- **Linking**: Notes connect to other notes, not just categories
+- **Linking**: Notes connect to other notes as well as categories
 - **Own words**: Rewrite in your understanding, never copy
 - **Unique identifiers**: Every note has permanent address
 - **Emergence**: Structure emerges from links, not imposed hierarchy
@@ -52,7 +52,7 @@ Expert frameworks for capturing, organizing, connecting, and retrieving knowledg
 
 **Source**: Sönke Ahrens - "How to Take Smart Notes" (2017)
 
-**Core Idea**: Writing is thinking; note-taking should support writing output.
+**Core Idea**: Writing is thinking. Note-taking should support writing output.
 
 **Key Principles**:
 - **Writing as thinking**: You don't write up ideas, you think through writing
@@ -68,7 +68,7 @@ Reading → Fleeting Notes → Literature Notes → Permanent Notes → Writing
 **Quality Criteria for Permanent Notes**:
 - Could someone else understand it without context?
 - Is it written in complete sentences?
-- Does it stand on its own?
+- Is it self-contained?
 - Does it connect to existing notes?
 
 **Writing Process**:
@@ -85,7 +85,7 @@ Reading → Fleeting Notes → Literature Notes → Permanent Notes → Writing
 
 **Source**: Vannevar Bush - "As We May Think" (1945)
 
-**Core Idea**: Human mind works by association; tools should support trails of thought.
+**Core Idea**: Human mind works by association. Tools should support trails of thought.
 
 **Key Concepts**:
 - **Associative indexing**: Link by meaning, not alphabet

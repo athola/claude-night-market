@@ -273,7 +273,7 @@ class AbstractConfig:
         }
         for key, sub_cls in _SUB_CONFIGS.items():
             if key in config_data:
-                # Files hold tuple fields as lists; restore the declared type.
+                # Files hold tuple fields as lists. Restore the declared type.
                 defaults = sub_cls()
                 section = {
                     name: (
@@ -315,8 +315,8 @@ class AbstractConfig:
             # Falling back to PRODUCTION is the safe direction, but doing
             # it in silence meant a typo in ABSTRACT_ENV ("prodution",
             # "dev" where "development" was meant) looked identical to not
-            # setting the variable at all. The fallback stands; the
-            # silence does not.
+            # setting the variable at all. The fallback stays, but
+            # the silence does not.
             print(
                 f"[WARN] ABSTRACT_ENV={env_str!r} is not one of "
                 f"{[member.value for member in Environment]}; "

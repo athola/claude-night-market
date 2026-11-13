@@ -23,7 +23,7 @@ When two documents conflict, the higher one wins.
 
 | Rank | Source | Contents |
 |------|--------|----------|
-| 1 | `CONSTITUTION.md` | 10 immutable rules, override and amendment process |
+| 1 | `CONSTITUTION.md` | 10 rules with what checks each, override and amendment process |
 | 2 | `.claude/rules/` | 8 project rules (markdown style, read budgets, slop gates, invariants) |
 | 3 | `docs/adr/` | 17 numbered decision records (0001 to 0017) |
 | 4 | Guides in `docs/` | quality-gates, testing-guide, plugin-development-guide |
@@ -39,28 +39,28 @@ names the blood.
 
 | # | Rule | Motivating incident |
 |---|------|---------------------|
-| 1 | Disclose AI involvement in every PR; never strip real or add fake AI attribution | Enforced by hook `plugins/imbue/hooks/vow_no_ai_attribution.py` |
-| 2 | AI commits over 200 changed lines need a spec, ADR, or plan doc first (lockfiles, fixtures, snapshots excluded) | Size = scrutiny principle; see the unbloat incident under non-negotiables |
-| 3 | Iron Law TDD: failing test before implementation for plugin Python. Skills and prose need structural tests (`test_skill_<name>.py`) | Design principle, no single incident |
+| 1 | The README discloses AI development for maintainer work. Outside contributors name their AI tool per PR. Never fake or deny AI involvement | Commit attribution kept out by hook `plugins/imbue/hooks/vow_no_ai_attribution.py` |
+| 2 | An AI change over 200 changed lines names its spec, ADR, or plan doc in the PR description (lockfiles, fixtures, snapshots excluded) | Size = scrutiny principle. See the unbloat incident under non-negotiables |
+| 3 | Iron Law TDD: failing test before implementation for plugin Python. Skills and prose need structural tests (the repo-wide `SKILL.md` tests, plus a plugin test where a skill's contract matters) | Design principle, no single incident |
 | 4 | One identity leak ("As a large language model") in any committed artifact is an automatic revert | Pattern catalog in scribe slop-detector |
 | 5 | Quality claims ("fast", "production-ready") need in-repo evidence or deletion | Design principle |
 | 6 | No bypassing gates: no `--no-verify`, no `SKIP=hook`, no unauthorized force push, no bare suppression comments without a stated reason | Neutered-mypy incident (CHANGELOG 1.9.12); bulk-ignore revert `06b9b1db` |
 | 7 | New dependencies need justification; 18 months unmaintained is presumed abandoned; verify AI-suggested package names against the registry | Slopsquatting defense; hook `guard_package_hallucination.py` (imbue) |
 | 8 | Docs cost reader-time (audience x frequency x per-read time); writing effort must match | Design principle |
 | 9 | Prefer deletion over rewriting; AI slop is overwhelmingly additive | Design principle |
-| 10 | Errors are not optional: propagate by default, no bare except, safe-to-discard needs an inline "why" comment | Silent-failure sweep `666171c3`; ecosystem bare-except campaign |
+| 10 | Errors are not optional: propagate by default, no bare except, safe-to-discard needs an inline "why" comment | Silent-failure sweep `666171c3` and the ecosystem bare-except campaign |
 
 ## Change classification
 
-Classify before the first commit. The class decides the paperwork.
+Classify before the first commit. The class sets the paperwork.
 
 | Change | Required process |
 |--------|------------------|
 | AI-generated diff, 200 changed lines or fewer | Plain PR through the standard gates |
-| AI-generated diff over 200 changed lines | Spec, ADR, or planning doc BEFORE the code (rule 2) |
+| AI-generated diff over 200 changed lines | Spec, ADR, or planning doc, named in the PR description (rule 2) |
 | Load-bearing design decision | Numbered ADR in `docs/adr/` (next number after 0017) |
 | New project-wide rule | New file in `.claude/rules/` via plain PR; existing rules cite an origin issue or discussion (#454, #457) |
-| Constitution amendment | PR titled `constitution: amend rule N`, a summary of what changes and why, sign-off from the repo owner |
+| Constitution amendment | PR titled `constitution: amend rule N` (or a commit with that subject inside a larger PR), a summary of what changes and why, sign-off from the repo owner |
 | Release | Version bump, changelog section, v-prefixed tag (lifecycle below) |
 
 ## The change lifecycle
@@ -190,7 +190,7 @@ stronger than the incident that settled it.
 
 | Non-negotiable | Rationale | Incident | Evidence |
 |----------------|-----------|----------|----------|
-| Never bypass or weaken a gate | A green gate that skips checks is worse than no gate: it certifies broken code | mirrors-mypy silently disabled 13 error codes; typecheck ran changed-only; bulk ruff ignores hid 73 real violations | CHANGELOG 1.9.12; commit `06b9b1db` |
+| Never bypass or weaken a gate | A green gate that skips checks is worse than no gate: it certifies broken code | mirrors-mypy silently disabled 13 error codes. Typecheck ran changed-only. Bulk ruff ignores hid 73 real violations | CHANGELOG 1.9.12; commit `06b9b1db` |
 | No swallowed errors, ever | catch-and-continue in a scanner drops findings silently and reports clean | Scanners B1-B4 returned clean results on malformed input for months | commit `666171c3` (PR #521, issue #575) |
 | Deletion campaigns need a backup branch and a markdown-reference scan | Python import graphs miss scripts referenced only from skills and commands | Tier-3 unbloat deleted 182 files (66K lines); skill-referenced scripts had to be restored | commits `a3f11323` (delete), `3f280334` (restore); branch `backup/unbloat-20260328` |
 | No DRY consolidation across plugin boundaries | Plugins are independent deployables, and shared code couples their release cycles | tasks_manager consolidated to a shared script, reverted, then differentiated per plugin | commits `054e2679`, `29961cd2`, `d89a55c7` |
@@ -215,8 +215,8 @@ stronger than the incident that settled it.
 ## Exit Criteria
 
 - [ ] The change is classified against the classification table, and
-      any over-200-line AI diff has a spec, ADR, or plan doc committed
-      before the implementation.
+      any over-200-line AI diff names its spec, ADR, or plan doc in the
+      PR description.
 - [ ] `make lint`, `make typecheck`, and `make test` pass locally, and
       no bypass flag (`--no-verify`, `SKIP=`, force push) appears in
       the branch history.

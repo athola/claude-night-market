@@ -56,7 +56,7 @@ rule, because the author believes access was granted.
 
 | Version | Removed |
 |---------|---------|
-| 2.1.205 | `/agents` wizard; edit `.claude/agents/` directly |
+| 2.1.205 | `/agents` wizard. Edit `.claude/agents/` directly |
 | 2.1.183 | `TeamCreate` and `TeamDelete` tools |
 
 ## Additions worth knowing about
@@ -66,7 +66,7 @@ rule, because the author believes access was granted.
 | 2.1.220 | `DirectoryAdded` hook, fires on `/add-dir` mid-session |
 | 2.1.218 | `Notification` hook for background agent events |
 | 2.1.220 | Subagents nest to depth 3 by default, was 1 |
-| 2.1.217 | Skills with `context: fork` run in background; opt out with `background: false` |
+| 2.1.217 | Skills with `context: fork` run in background. Opt out with `background: false` |
 | 2.1.217 | Frontmatter booleans accept `yes`/`no`/`on`/`off`/`1`/`0` |
 | 2.1.186 | Frontmatter keys accept kebab-case, snake_case, and camelCase |
 | 2.1.183 | `Tool(param:value)` permission syntax, e.g. `Agent(model:opus)` |

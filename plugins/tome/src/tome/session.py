@@ -67,7 +67,7 @@ class SessionManager:
         return session
 
     def save(self, session: ResearchSession) -> Path:
-        """Serialize session to JSON and write to disk; returns the file path."""
+        """Serialize session to JSON, write it to disk and return the file path."""
         return self._store.save(session.id, session)
 
     def _read(self, path: Path) -> ResearchSession:

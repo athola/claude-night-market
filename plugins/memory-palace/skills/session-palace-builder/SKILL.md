@@ -118,7 +118,7 @@ A session palace decays silently: each `Populate` step can add
 ambiguity that only surfaces at `Export`, when it is too late to
 recover the lost state. MMPO (arXiv:2605.30159, Section 3) frames
 this as a case for sub-trajectory dense rewards: check intermediate
-quality at each transition, not just the final outcome.
+quality at each transition as well as the final outcome.
 
 At every `Checkpoint` arrow in the lifecycle above (and before any
 `Export/Archive`), run the dual-probe gate against the current
@@ -138,12 +138,12 @@ and a `Recommendation`:
 | Regenerate | Flag the session as ambiguous: the progress probe hedges, so reconstruct the current-state room before more work lands on it |
 
 Flagging at the checkpoint, not at export, is the point: an
-ambiguous palace caught early costs one room rebuild; caught at
+ambiguous palace caught early costs one room rebuild. Caught at
 export it costs the session.
 
 When `memory-clarity-probe` is not installed, ask the two anchor
 questions inline (progress: what is done and what state is the task
-in; gap: what concrete items remain) and apply the same table.
+in, and gap: what concrete items remain) and apply the same table.
 
 ## Detailed Resources
 

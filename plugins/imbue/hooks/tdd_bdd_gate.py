@@ -25,7 +25,7 @@ from pathlib import Path
 
 # File type classification
 # Only executable code types are gated. Markdown modules/commands are agent
-# instructions validated by abstract:skills-eval, not pytest.
+# instructions, and abstract:skills-eval validates them.
 SKILL_FILE = "skill"
 PYTHON_FILE = "python"
 
@@ -69,7 +69,7 @@ def is_implementation_file(file_path: str) -> tuple[bool, str | None]:
     """
     path = Path(file_path)
 
-    # Skill files (SKILL.md defines core behavior — keep gated)
+    # Skill files (SKILL.md defines core behavior: keep gated)
     if path.name == "SKILL.md":
         return True, SKILL_FILE
 
@@ -99,7 +99,18 @@ def _find_python_test(path: Path, tests_dir: Path) -> Path:
         path.parent / f"test_{impl_name}.py",
         tests_dir / f"test_{impl_name}.py",
     ]
-    return next((t for t in candidates if t.exists()), candidates[0])
+    found = next((t for t in candidates if t.exists()), None)
+    if found is not None:
+        return found
+    # Tests grouped by subsystem (tests/unit/hooks/, tests/unit/validators/)
+    # are a test for this file all the same. The test's directory must name
+    # one of the file's directories below the plugin root:
+    # tests/skills/test_base.py is no test of review/base.py.
+    impl_dirs = path.parent.relative_to(tests_dir.parent).parts
+    nested = sorted(
+        t for t in tests_dir.rglob(f"test_{impl_name}.py") if t.parent.name in impl_dirs
+    )
+    return nested[0] if nested else candidates[0]
 
 
 def find_test_file(impl_path: str, impl_type: str) -> Path | None:

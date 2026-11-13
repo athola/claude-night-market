@@ -70,5 +70,4 @@ Return a single JSON object:
 - Do not invoke skills or perform development work.
 - Do not spawn continuation agents. That is the
   orchestrator's responsibility.
-- Return quickly. This agent should complete in seconds,
-  not minutes.
+- Return quickly. This agent should complete in seconds.

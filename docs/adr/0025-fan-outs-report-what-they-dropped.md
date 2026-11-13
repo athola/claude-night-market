@@ -16,7 +16,7 @@ the repository the same defects live. Their findings, each checked
 against the file before anything was changed:
 
 - Seventeen of the twenty-three workflows called `.filter(Boolean)` on
-  their agent results (the survey counted ten; the repo guard written
+  their agent results (the survey counted ten, and the repo guard written
   afterward found the rest). A subagent that dies returns null. A
   crashed reviewer and a reviewer that found nothing were the same
   thing. In herald's judge panel, where the majority was computed over
@@ -68,9 +68,9 @@ against the file before anything was changed:
    `tests/fixtures/duplication/`, abstract
    `tests/fixtures/skill_graph/`. Where the defect was an exit code,
    the scanner now fails on a scan of nothing: harden returns 3 when
-   zero files were read and reports `files_scanned`; `detect_duplicates`
-   returns 2; `graph_build.py` returns 2 on a full build that created
-   no nodes; the memory-palace CLI says "No palaces indexed" and
+   zero files were read and reports `files_scanned`. `detect_duplicates`
+   returns 2. `graph_build.py` returns 2 on a full build that created
+   no nodes. The memory-palace CLI says "No palaces indexed" and
    returns false instead of "No matches found".
 5. **The paradigm recommender ranks.** `ArchitectureResearcher.rank()`
    scores every paradigm the matrix cell and the modifiers name, using
@@ -90,15 +90,16 @@ against the file before anything was changed:
    prose reads success from `verdict.py`. Drift tests pin the pensive,
    attune and conserve text.
 7. **Routers rank.** abstract methodology-curator loads the top two
-   domain modules by term overlap; attune's paradigm-selection module
+   domain modules by term overlap, and attune's paradigm-selection module
    describes the scorer instead of an override table.
 
 ## What was measured, and what was not
 
 The workflow changes are text-tested and syntax-checked (each script
 parsed inside an async wrapper, which caught one duplicate declaration
-in leyline's plugin-health); the scripts were not executed. A dropped agent's new `missing` entry
-has not been observed in a live run. The positive controls were run:
+in leyline's plugin-health). The scripts were not executed. A dropped
+agent's new `missing` entry has not been observed in a live run. The
+positive controls were run:
 the planted slop file scores 38.24 against a threshold of 3.0, the
 harden fixture fails `--strict` with exit 2, the duplicate pair is
 found at default settings, the skill-graph fixture returns its known
@@ -138,7 +139,7 @@ its only history was an import-order fix.
   the test.
 - Four fixtures are committed slop, security findings, duplication and
   a broken skill reference on purpose. The slop ratchet excludes
-  `tests/fixtures/slop/`; the others live under `tests/fixtures/` and
+  `tests/fixtures/slop/`. The others are under `tests/fixtures/` and
   are not scanned by CI's docs gate.
 - `harden --strict` on a path with no Python now fails CI where it
   used to pass. That is the intended change.

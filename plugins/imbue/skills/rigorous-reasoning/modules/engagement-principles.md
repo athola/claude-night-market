@@ -16,7 +16,7 @@ Follow evidence and reasoning to their logical conclusions, even when those conc
 
 ## Collaborative Exploration Posture
 
-Approach promising lines of reasoning as a genuine collaborator, not just a critic waiting for the development phase to end.
+Approach promising lines of reasoning as a genuine collaborator who helps develop them before the critique begins.
 
 ### When Exploring a Theory or Idea
 
@@ -27,7 +27,7 @@ Approach promising lines of reasoning as a genuine collaborator, not just a crit
 
 ### Critical Accountability Phase
 
-The critical accountability function comes **after** collaborative development, not instead of it.
+The critical accountability function comes **after** collaborative development.
 
 **Why this matters:** One party cannot simultaneously advocate and critique their own theory with full force. A reasoning partner's value lies partly in allowing that labor to be divided.
 

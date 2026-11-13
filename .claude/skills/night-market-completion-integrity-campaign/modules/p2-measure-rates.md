@@ -44,7 +44,7 @@ Gate P2 branches:
 - Numbers met: proceed to P3.
 - Herald false-continue rate blows the gate: inspect which
   `_CONTINUE_PATTERNS` regex fired on finished turns and tighten it.
-  That is deterministic gate expansion, solution (a); re-run the same
+  That is deterministic gate expansion, solution (a). Re-run the same
   labeled set after the change.
 - Egregore false completions are nonzero: enforcement is not binding.
   Do not tune thresholds to pass. Go to P3 and then to solution (a) or

@@ -28,7 +28,7 @@ Line and branch coverage from a coverage tool.
 | Experimental (spikes) | >= 60% | tracked | Informational |
 
 **Why these numbers**: Google's testing guide reports
-diminishing returns above 90%; below 60% bug regression
+diminishing returns above 90%. Below 60%, bug regression
 risk doubles in tracked studies. See "How Google Tests
 Software" (Whittaker, Arbon, Carollo).
 
@@ -85,10 +85,10 @@ Ratio of test code lines to non-test code lines.
 
 | Ratio | Interpretation |
 |-------|----------------|
-| < 0.5 | Under-tested; add tests before extending |
+| < 0.5 | Under-tested: add tests before extending |
 | 0.5-1.5 | Healthy range for most apps |
-| 1.5-3.0 | Test-heavy; expected for libraries / safety-critical |
-| > 3.0 | Possible test bloat; check for redundant cases |
+| 1.5-3.0 | Test-heavy, expected for libraries / safety-critical |
+| > 3.0 | Possible test bloat: check for redundant cases |
 
 **Measure**:
 
@@ -150,8 +150,8 @@ Lines of prose docs per 100 lines of code.
 |-------|----------------|
 | < 5 | Under-documented |
 | 5-25 | Healthy for most apps |
-| 25-50 | Doc-heavy; expected for libraries |
-| > 50 | Possible doc bloat; consolidate |
+| 25-50 | Doc-heavy, expected for libraries |
+| > 50 | Possible doc bloat: consolidate |
 
 ### Slop Indicators
 
@@ -283,7 +283,7 @@ Metrics drift. Re-measure quarterly.
 1. Compute the distribution of each metric across the
    current population.
 2. Set thresholds at the 25th / 50th / 75th percentile of
-   the current healthy-set, not at vendor defaults.
+   the current healthy-set rather than at vendor defaults.
 3. Track the trend: if median complexity rose by 20% in a
    quarter, the threshold may already be too lenient.
 
@@ -294,7 +294,7 @@ branch coverage hides every conditional. Track both.
 
 **Complexity averaged over a file.** A file with one
 80-cyclo function and ten 2-cyclo functions has an average
-of 9 and looks fine. Track the maximum, not the mean.
+of 9 and looks fine. Track the maximum.
 
 **Ratios without absolute floors.** A 1.5 test-to-code
 ratio on a 200-line codebase says nothing. Pair every ratio
@@ -303,14 +303,14 @@ cases for any ratio claim to count).
 
 **Doc-coverage gaming.** Single-line docstrings on every
 public symbol pass the gate and teach nothing. Spot-check
-samples for content, not just presence.
+samples for content.
 
 **Slop indicators applied to generated content.** Stack
 traces and machine-generated tables will trip prose
 metrics. Exclude generated paths from the slop scan.
 
 **Thresholds copied without context.** A safety-critical
-control system needs 100% MC/DC coverage; a marketing site
+control system needs 100% MC/DC coverage, and a marketing site
 does not. Tier your thresholds by criticality before
 applying.
 

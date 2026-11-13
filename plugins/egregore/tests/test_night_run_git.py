@@ -178,6 +178,48 @@ class TestStagedChangesAreFenced:
 
         assert night_run._diff_line_count(runner, repo) == 2
 
+    def test_untracked_lines_count_toward_the_cap(self, tmp_path: Path) -> None:
+        """A file the implementer created is not in `git diff HEAD`."""
+        repo = self._repo(tmp_path)
+        runner = night_run.SubprocessRunner()
+        (repo / "new.py").write_text("x = 1\n" * 500)
+
+        assert night_run._diff_line_count(runner, repo) == 500
+
+    def test_the_review_diff_shows_an_untracked_file(self, tmp_path: Path) -> None:
+        """The babysitter must see a new file, or it reviews an empty diff."""
+        repo = self._repo(tmp_path)
+        runner = night_run.SubprocessRunner()
+        (repo / "a.txt").write_text("one\nchanged\n")
+        (repo / "new.py").write_text("print('hi')\n")
+
+        diff = night_run._review_diff(runner, repo)
+
+        assert "+changed" in diff
+        assert "new.py" in diff
+        assert "+print('hi')" in diff
+
+    def test_an_untracked_nested_repo_adds_no_git_error_to_the_diff(
+        self, tmp_path: Path
+    ) -> None:
+        """Git lists a nested repository as one directory entry.
+
+        ``git diff --no-index`` on a directory exits 1 with "Could not
+        access", the same code as a real difference, so the error text
+        reached the babysitter as if it were a diff.
+        """
+        repo = self._repo(tmp_path)
+        runner = night_run.SubprocessRunner()
+        (repo / "sub").mkdir()
+        self._repo(repo / "sub")
+        (repo / "new.py").write_text("print('hi')\n")
+
+        diff = night_run._review_diff(runner, repo)
+
+        assert "error:" not in diff
+        assert "+print('hi')" in diff
+        assert night_run._diff_line_count(runner, repo) == 1
+
     def test_the_task_commit_leaves_a_staged_stray_out(self, tmp_path: Path) -> None:
         repo = self._repo(tmp_path)
         runner = night_run.SubprocessRunner()

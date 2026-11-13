@@ -72,7 +72,7 @@ next: read it and do it.
 **No elaborate status output.**
 Do not generate status tables, feasibility assessments,
 timeline impact analyses, or any other formatted summary
-between work items. These are rationalization artifacts --
+between work items. These are rationalization artifacts:
 they feel productive but they are just a prelude to
 stopping. Status is tracked in the manifest. If you want
 to log something, write it to the manifest's `history`
@@ -258,7 +258,7 @@ For each active work item, execute this loop:
    today and keep running indefinitely. The default stays off
    until the completion-integrity campaign
    (`.claude/skills/night-market-completion-integrity-campaign`)
-   has measured the gate's false-fail rate; an unmeasured gate
+   has measured the gate's false-fail rate. An unmeasured gate
    turned on by default would stall the loop on its own errors.
 
 6. **On failure**: increment `attempts` on the work item.
@@ -466,8 +466,8 @@ sends a message during your session. When you see it:
 3. **Resume the orchestration loop** from where you left
    off. Do NOT emit `end_turn` after handling the request.
 
-User prompts are interrupts, not exits. They do not change
-your mission. Treat them like a brief detour: handle, then
+User prompts are interrupts. They do not end the loop or
+change your mission. Treat them like a brief detour: handle, then
 return to the pipeline.
 
 ## Self-Healing Heartbeat

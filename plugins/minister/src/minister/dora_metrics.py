@@ -41,7 +41,7 @@ DEFAULT_WINDOW_DAYS = 30
 Tier = Literal["Low", "Medium", "High", "Elite", "N/A"]
 
 # Tier names ordered weakest -> strongest for ranking.
-# N/A is intentionally not in this map; rankers must skip N/A entries.
+# N/A is intentionally not in this map. Rankers must skip N/A entries.
 _TIER_RANK: dict[Tier, int] = {"Low": 0, "Medium": 1, "High": 2, "Elite": 3}
 
 # DORA tier thresholds (State of DevOps research). Named so a reviewer
@@ -87,7 +87,7 @@ def _require_aware(name: str, dt: datetime) -> None:
     """Issue #529: reject naive datetimes at construction.
 
     A naive datetime silently breaks the window-comparison arithmetic
-    in compute_metrics; callers that pass datetime.now() (instead of
+    in compute_metrics. Callers that pass datetime.now() (instead of
     datetime.now(timezone.utc)) would discover this deep inside the
     metric calculation. Catching at the boundary makes the bug
     reachable from a single line of test scaffolding.
@@ -238,6 +238,10 @@ class DORAMetrics:
     lead_time_hours: float | None  # median commit -> deploy hours
     change_failure_rate: float | None  # 0.0 - 1.0
     time_to_restore_hours: float | None  # median resolve - open hours
+    # Failures opened in the window and still open. TRS is a median over
+    # resolved ones, so long-running incidents drop out of it. The count
+    # says how many it leaves out.
+    open_failures: int = 0
 
     def tier(self) -> dict[str, Tier]:
         """Return per-metric tier classification."""
@@ -255,7 +259,7 @@ class DORAMetrics:
     def bottleneck(self) -> str:
         """Return the tier key of the weakest computable metric.
 
-        N/A entries are excluded from the comparison; they have no
+        N/A entries are excluded from the comparison because they have no
         signal to rank against. If every metric is N/A, returns
         "insufficient_data" so the caller can see that the window
         contained no signal at all.
@@ -318,8 +322,8 @@ def compute_metrics(
     stays a float because "zero deploys per day" is well-defined.
 
     Args:
-        deployments: Deployment events; events outside the window are filtered.
-        failures: Failure events; only those opened in the window count.
+        deployments: Deployment events. Events outside the window are filtered.
+        failures: Failure events. Only those opened in the window count.
         window_days: Width of the measurement window.
         window_end: Right edge of the window (defaults to now in UTC).
     """
@@ -364,6 +368,7 @@ def compute_metrics(
         lead_time_hours=lt,
         change_failure_rate=cfr,
         time_to_restore_hours=trs,
+        open_failures=sum(1 for f in in_window_failures if f.resolved_at is None),
     )
 
 
@@ -428,6 +433,12 @@ def format_report(m: DORAMetrics, window_days: int) -> str:
         marker = "  <- bottleneck" if key == bottleneck else ""
         lines.append(f"{label:<26} {value:>14} {tier:<7}{marker}")
 
+    if m.open_failures:
+        lines.append(
+            f"Time to Restore excludes {m.open_failures} open incident(s) "
+            "still unresolved."
+        )
+
     lines.append("")
     lines.append(f"Overall Tier: {m.overall_tier()} (bottleneck: {bottleneck})")
     return "\n".join(lines)
@@ -466,9 +477,12 @@ def collect_deployments_from_git(
     """Treat each commit on ``branch`` as a deployment event.
 
     This is the simplest mapping that works for trunk-based and merge-PR
-    workflows; teams with explicit deploy events should override this with a
-    custom collector. ``commit_at`` and ``deployed_at`` collapse to the same
-    timestamp here, giving lead time = 0; pass real deploy data for accuracy.
+    workflows. Teams with explicit deploy events should override this with a
+    custom collector. ``commit_at`` is the author date and ``deployed_at``
+    the committer date, so lead time is the time from writing a change to
+    landing it on ``branch``. A rebase or cherry-pick moves the committer
+    date and lengthens it. A commit whose author date is later than its
+    committer date is left out by the ``deployed_at >= commit_at`` filter.
 
     Returns a CollectionResult so the CLI can distinguish between "no
     deploys in window" and "collector failed." Malformed timestamps are
@@ -633,7 +647,7 @@ def collect_failures_from_gh(
 def _positive_int(value: str) -> int:
     """Argparse type-checker: window must be a positive integer (issue #526).
 
-    Zero produces a zero-by-zero classification trap; negative produces a
+    Zero produces a zero-by-zero classification trap. Negative produces a
     future-dated window that includes commits ahead of the head.
     """
     try:
@@ -697,7 +711,7 @@ def run_cli(argv: list[str] | None = None) -> int:
 
     Returns 2 when `--strict` is set and either collector reported partial
     data (issue #525), so CI can refuse a silent Elite-tier report from a
-    broken collector; otherwise returns 0.
+    broken collector. Otherwise returns 0.
     """
     args = build_parser().parse_args(argv)
     deploy_result = collect_deployments_from_git(
@@ -725,6 +739,7 @@ def run_cli(argv: list[str] | None = None) -> int:
                     "lead_time_hours": metrics.lead_time_hours,
                     "change_failure_rate": metrics.change_failure_rate,
                     "time_to_restore_hours": metrics.time_to_restore_hours,
+                    "open_failures": metrics.open_failures,
                 },
                 "tiers": metrics.tier(),
                 "overall_tier": metrics.overall_tier(),

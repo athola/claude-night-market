@@ -38,7 +38,7 @@ def validate_webhook_url(url: str) -> str:
     Returns:
         The address that passed, so the caller can connect to that
         address and not to whatever a second lookup returns. A DNS
-        answer can change between the check and the request; pinning
+        answer can change between the check and the request. Pinning
         the checked address is what makes the check hold.
 
     Raises:
@@ -69,7 +69,7 @@ def validate_webhook_url(url: str) -> str:
     try:
         addr = ipaddress.ip_address(hostname)
     except ValueError:
-        # DNS name -- resolve and validate all addresses
+        # DNS name: resolve and validate all addresses
         try:
             results = socket.getaddrinfo(hostname, None)
         except socket.gaierror:
@@ -78,18 +78,29 @@ def validate_webhook_url(url: str) -> str:
             ) from None
         for _family, _type, _proto, _canon, sockaddr in results:
             resolved = ipaddress.ip_address(sockaddr[0])
-            if resolved.is_private or resolved.is_reserved or resolved.is_loopback:
+            if _not_a_public_host(resolved):
                 raise WebhookURLError(
                     f"Webhook URL hostname {hostname!r} resolves to "
                     f"private/reserved IP ({sockaddr[0]})"
                 ) from None
         return str(results[0][4][0])
 
-    if addr.is_private or addr.is_reserved or addr.is_loopback:
+    if _not_a_public_host(addr):
         raise WebhookURLError(
             f"Webhook URL must not target private/reserved IP ({hostname})"
         )
     return str(addr)
+
+
+def _not_a_public_host(addr: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+    """Return whether a webhook must not reach this address.
+
+    ``is_global`` covers the private, loopback, link-local and reserved
+    ranges plus the CGNAT block 100.64.0.0/10, where some cloud metadata
+    endpoints sit. Multicast is added because ``is_global`` calls parts of
+    it global, and a multicast group is not a webhook host.
+    """
+    return not addr.is_global or addr.is_multicast
 
 
 class AlertEvent(enum.Enum):
@@ -186,14 +197,22 @@ def create_github_alert(
     if labels:
         cmd.extend(["--label", ",".join(labels)])
 
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=30,
-            check=False,
+    def _gh(argv: list[str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            argv, capture_output=True, text=True, timeout=30, check=False
         )
+
+    try:
+        result = _gh(cmd)
+        if result.returncode != 0 and labels and "label" in result.stderr.lower():
+            # A repository without these labels refuses the whole issue.
+            # The alert matters more than its labels, so file it bare.
+            logger.warning(
+                "gh refused labels %s (%s); filing the alert without them",
+                labels,
+                result.stderr.strip(),
+            )
+            result = _gh(cmd[: cmd.index("--label")])
         if result.returncode != 0:
             logger.error(
                 "gh issue create failed (rc=%d): %s",
@@ -211,26 +230,8 @@ def create_github_alert(
         return False
 
 
-def send_webhook(
-    url: str,
-    event: AlertEvent,
-    detail: str = "",
-    webhook_format: str = "generic",
-    source: str = "herald",
-) -> bool:
-    """Send a webhook notification via curl.
-
-    Args:
-        url: Webhook URL to POST to.
-        event: The alert event type.
-        detail: Human-readable description of what happened.
-        webhook_format: One of "slack", "discord", or "generic".
-        source: Label prefix for the notification (default "herald").
-
-    Returns:
-        True if the webhook was sent successfully, False otherwise.
-
-    """
+def _post(url: str, payload: dict[str, str]) -> bool:
+    """POST ``payload`` as JSON to a validated, address-pinned webhook."""
     try:
         pinned = validate_webhook_url(url)
     except WebhookURLError as exc:
@@ -245,22 +246,6 @@ def send_webhook(
         pinned = f"[{pinned}]"
     resolve_pin = f"{parsed.hostname}:{parsed.port or 443}:{pinned}"
 
-    prefix = f"[{source}] {event.value}"
-    if webhook_format == "slack":
-        message = f"{prefix}: {detail}" if detail else prefix
-        payload = {"text": message}
-    elif webhook_format == "discord":
-        message = f"{prefix}: {detail}" if detail else prefix
-        payload = {"content": message}
-    else:
-        payload = {
-            "event": event.value,
-            "detail": detail,
-            "source": source,
-        }
-
-    payload_json = json.dumps(payload)
-
     cmd: list[str] = [
         "curl",
         "-s",
@@ -270,7 +255,7 @@ def send_webhook(
         "-H",
         "Content-Type: application/json",
         "-d",
-        payload_json,
+        json.dumps(payload),
         "--resolve",
         resolve_pin,
         url,
@@ -299,6 +284,62 @@ def send_webhook(
     except subprocess.TimeoutExpired:
         logger.error("Webhook POST timed out after 15s.")
         return False
+
+
+def send_webhook(
+    url: str,
+    event: AlertEvent,
+    detail: str = "",
+    webhook_format: str = "generic",
+    source: str = "herald",
+) -> bool:
+    """Send a webhook notification via curl.
+
+    Args:
+        url: Webhook URL to POST to.
+        event: The alert event type.
+        detail: Human-readable description of what happened.
+        webhook_format: One of "slack", "discord", or "generic".
+        source: Label prefix for the notification (default "herald").
+
+    Returns:
+        True if the webhook was sent successfully, False otherwise.
+
+    """
+    prefix = f"[{source}] {event.value}"
+    message = f"{prefix}: {detail}" if detail else prefix
+    if webhook_format == "slack":
+        payload = {"text": message}
+    elif webhook_format == "discord":
+        payload = {"content": message}
+    else:
+        payload = {
+            "event": event.value,
+            "detail": detail,
+            "source": source,
+        }
+    return _post(url, payload)
+
+
+def send_text(
+    url: str,
+    message: str,
+    webhook_format: str = "slack",
+    source: str = "herald",
+) -> bool:
+    """Send a plain message that is not one of the alert events.
+
+    The alert events are pinned to egregore's alert flags, so a message
+    such as a release countdown goes through here instead of adding one.
+    """
+    text = f"[{source}] {message}"
+    if webhook_format == "slack":
+        payload = {"text": text}
+    elif webhook_format == "discord":
+        payload = {"content": text}
+    else:
+        payload = {"detail": message, "source": source}
+    return _post(url, payload)
 
 
 def alert(

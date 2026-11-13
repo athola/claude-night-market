@@ -75,7 +75,7 @@ def _pid_is_daemon(pid: int) -> bool:
     pid-file cleanup, the number in daemon.pid can belong to an unrelated
     process of the same user, and ``os.kill(pid, 0)`` says only that
     something is there. The signal-0 probe is kept as the cheap first
-    step; the command line is what keeps the Stop hook from killing that
+    step. The command line is what keeps the Stop hook from killing that
     something.
 
     ``-ww`` is required on Linux: procps cuts the command column to 80
@@ -126,7 +126,14 @@ def _start_daemon() -> None:
         if f.exists():
             f.unlink()
 
-    log_fh = open(str(data_dir / "daemon.log"), "a")  # noqa: SIM115 - fd duped into subprocess; closed on the parent side after Popen returns
+    # The daemon refuses to start without its models, so launching it
+    # would write a pid for a process that is already gone.
+    if not models_dir.is_dir():
+        with open(data_dir / "daemon.log", "a") as log:
+            log.write(f"oracle: not starting, models directory missing: {models_dir}\n")
+        return
+
+    log_fh = open(str(data_dir / "daemon.log"), "a")  # noqa: SIM115 - fd duped into subprocess, closed on the parent side after Popen returns
     try:
         try:
             proc = subprocess.Popen(
@@ -149,7 +156,7 @@ def _start_daemon() -> None:
         except OSError:
             return
     finally:
-        # Popen dup'd the fd into the subprocess; close the parent-side
+        # Popen dup'd the fd into the subprocess. Close the parent-side
         # handle so it doesn't leak.
         log_fh.close()
 

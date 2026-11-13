@@ -5,7 +5,7 @@ parent_skill: conjure:delegation-core
 category: delegation-framework
 estimated_tokens: 200
 dependencies:
-  - leyline:quota-management
+  - leyline:service-registry
 ---
 
 # Task Assessment for Delegation
@@ -17,7 +17,7 @@ dependencies:
 - Design decisions
 - Trade-off evaluation
 - Strategic recommendations
-- Nuanced code review
+- Judgment-heavy code review
 - Creative problem solving
 
 **Low Intelligence (Delegate):**
@@ -40,8 +40,7 @@ dependencies:
 
 ## Decision Matrix
 
-Delegation is the default. This matrix says what overrides it, not what
-earns it.
+Delegation is the default. This matrix lists what overrides it.
 
 | Intelligence | Context | Recommendation |
 |-------------|---------|----------------|
@@ -49,7 +48,7 @@ earns it.
 | Low | Large | Delegate |
 | Low | Small | Delegate |
 
-The "Low, Small: either" row used to sit at the bottom, and "either" in
+The "Low, Small: either" row used to be at the bottom, and "either" in
 practice meant local, because local was what happened when nobody
 decided. Under the default-on posture the row resolves to delegate.
 

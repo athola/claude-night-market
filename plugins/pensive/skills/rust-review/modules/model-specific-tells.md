@@ -91,7 +91,7 @@ Audit weighting:
   surrounding idioms verbatim. Read commit messages
   skeptically.
 - **Medium**: safety-caveat-heavy doc comments on
-  innocuous functions. Strip the caveats; keep the
+  innocuous functions. Strip the caveats, and keep the
   `# Safety` block only when actual unsafety exists.
 
 Detection commands:
@@ -120,7 +120,7 @@ incorrect match arms, monolithic functions.
 Audit weighting:
 
 - **High**: branch correctness in any function over ~50
-  lines. Read every branch top-to-bottom; check for the
+  lines. Read every branch top-to-bottom and check for the
   early-return that should have been there.
 - **High**: off-by-one in any loop with manual indexing
   (`for i in 0..n` vs. `for x in slice`). See
@@ -133,7 +133,7 @@ Audit weighting:
 
 **Verbosity scales with reasoning depth.** The Sonar
 leaderboard plot puts bubble size = verbosity, x-axis =
-pass rate; both grow together. Reasoning-mode output
+pass rate. Both grow together. Reasoning-mode output
 needs *aggressive* trimming by default. The reasoning
 surfaces in:
 
@@ -148,8 +148,7 @@ output as a *first draft*, not as production code.
 
 Detection: run `cargo clippy --all-targets -- -W
 clippy::cognitive_complexity -W clippy::too_many_lines`
-and treat the resulting warnings as load-bearing, not
-cosmetic.
+and treat the resulting warnings as load-bearing.
 
 ## When you cannot tell which model
 
@@ -164,10 +163,10 @@ just sometimes redundant.
 | `unreachable!()` without SAFETY comment, sparse tests | Claude-family from a refactoring prompt |
 | 150-line function with 7 sequential `if let` and lots of mut | Gemini-family from a "implement this from spec" prompt |
 | 200-character lifetime annotations and `impl Trait` chains | Any model in reasoning mode |
-| "As a large language model" leaks | Bug, regardless of model — escalate to scribe:slop-detector |
+| "As a large language model" leaks | Bug, regardless of model: escalate to scribe:slop-detector |
 
 These are heuristics rather than proofs. Use them to *weight*
-the audit, not to attribute authorship.
+the audit. They cannot attribute authorship.
 
 ## Currency note
 

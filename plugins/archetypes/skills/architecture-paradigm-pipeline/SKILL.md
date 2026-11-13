@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-pipeline
-description: Applies pipes-and-filters for sequential data transformations. Use when data flows through discrete stages like ETL, streaming analytics, or CI/CD pipelines.
+description: Pipes-and-filters architecture. Use when data flows through discrete stages such as ETL, streaming, or CI/CD.
 alwaysApply: false
 category: architectural-pattern
 tags:
@@ -66,7 +66,7 @@ paradigm tends to carry. Not dependencies, and not ``tools:`` frontmatter.
 - [ ] An ADR documents every filter in the pipeline, the chosen pipe technology, the
   error-handling strategy (DLQ, retry count, dead-letter routing), and the data replay
   mechanism.
-- [ ] Each filter has a contract test covering its input and output schema; schema drift between
+- [ ] Each filter has a contract test covering its input and output schema. Schema drift between
   adjacent filters is caught by a CI compatibility check.
 - [ ] Observability dashboards are configured showing per-stage latency, throughput, and error
   rate before the pipeline is promoted to production.

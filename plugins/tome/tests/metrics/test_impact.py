@@ -13,7 +13,6 @@ from typing import Any
 
 import pytest
 
-from tome.graph.palace_adapter import CitationGraphWriter
 from tome.metrics.impact import (
     Cohort,
     DisruptionScore,
@@ -21,7 +20,6 @@ from tome.metrics.impact import (
     disruption_index,
     rank_by_centrality,
 )
-from tome.models import CitationEdge
 
 
 class TestDisruptionIndex:
@@ -98,9 +96,10 @@ class TestCentralityContract:
     def test_pagerank_feeds_centrality(self, tmp_path: Any) -> None:
         mp = pytest.importorskip("memory_palace")
         graph = mp.KnowledgeGraph(str(tmp_path / "g.db"))
-        CitationGraphWriter(graph).write_edges(
-            [CitationEdge("P1", "P2"), CitationEdge("P3", "P2")]
-        )
+        for paper in ("P1", "P2", "P3"):
+            graph.upsert_entity(paper, "paper", paper)
+        graph.create_synapse("P1", "P2", 1.0)
+        graph.create_synapse("P3", "P2", 1.0)
         analyzer = mp.PalaceGraphAnalyzer(graph)
         ranked = rank_by_centrality(analyzer.pagerank())
 

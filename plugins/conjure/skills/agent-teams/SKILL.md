@@ -1,6 +1,6 @@
 ---
 name: agent-teams
-description: Coordinates Claude agent teams via filesystem protocol. Use when orchestrating parallel agents with task dependencies. Do not use for single-agent tasks.
+description: Coordinates Claude agent teams over a filesystem protocol. Use for parallel agents with task dependencies.
 alwaysApply: false
 category: delegation-framework
 tags:
@@ -88,7 +88,7 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 - **Filesystem is the database**: JSON files, atomic writes via `tempfile` + `os.replace`
 - **fcntl locking**: Prevents concurrent read/write corruption on inboxes and tasks
 - **Numbered tasks**: Auto-incrementing IDs with sequential file naming
-- **Loose coupling**: Agents poll their own inbox; no push notifications
+- **Loose coupling**: Agents poll their own inbox (no push notifications)
 
 ## Quick Start
 
@@ -209,7 +209,7 @@ Agent Teams extends the conjure delegation model:
 Use `Skill(conjure:delegation-core)` first to determine if the task benefits from multi-agent coordination vs. single-service delegation.
 
 Delegation is on by default there, so the question a team formation
-answers is which shape of delegation fits, not whether to delegate.
+answers is which shape of delegation fits.
 A teammate holding execution work delegates it the same way a single
 session would. A teammate holding design work keeps it, under the same
 Keep Local clauses.

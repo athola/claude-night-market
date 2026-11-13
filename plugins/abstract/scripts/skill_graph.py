@@ -25,7 +25,7 @@ from typing import Any
 try:
     import yaml as _yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs in dev deps
 except ImportError:  # pragma: no cover - PyYAML is in dev deps
-    _yaml = None  # type: ignore[assignment]  # None sentinel; callers branch on `_yaml is None`
+    _yaml = None  # type: ignore[assignment]  # None sentinel: callers branch on `_yaml is None`
 
 # Matches Skill(plugin:name) and Skill(name) anywhere in text.
 _SKILL_REF_RE = re.compile(r"Skill\(\s*([a-zA-Z0-9_-]+)(?::([a-zA-Z0-9_-]+))?\s*\)")
@@ -49,7 +49,7 @@ _BARE_SKILL_NAME_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 # `orchestrates:` is the hub spelling of the same claim: tome:research
 # and pensive:unified-review list the skills they dispatch under it
 # rather than under `dependencies:`. Both declare "this skill loads that
-# one"; only the verb differs. Reading one and not the other left every
+# one", and only the verb differs. Reading one and not the other left every
 # skill a hub drives counted as an uncalled library.
 _FRONTMATTER_DEP_FIELDS: tuple[tuple[str, bool], ...] = (
     ("dependencies", True),
@@ -72,7 +72,7 @@ class SkillNode:
     `role` reflects the taxonomy in
     docs/skill-integration-guide.md#skill-role-taxonomy:
     `entrypoint` (user-invoked), `library` (loaded by other skills),
-    or `hook-target` (invoked by hooks). Empty string means unset --
+    or `hook-target` (invoked by hooks). Empty string means unset:
     legacy skills that predate the role: convention.
     """
 
@@ -99,11 +99,11 @@ class SkillGraph:
     appears in ``nodes``, every ``(a, b)`` in ``edges`` corresponds
     to ``b in outbound[a]`` and ``a in inbound[b]``. I14 (PR #470
     review): prefer the ``add_node`` / ``add_edge`` mutators below
-    over direct collection mutation -- they update all four fields in
+    over direct collection mutation. They update all four fields in
     lockstep so a misplaced ``.add()`` cannot desynchronise the
     invariant. Direct attribute access is preserved for read-only
     consumers (``hubs``, ``isolates``, ``dangling`` walks) and for
-    legacy call sites; new code should use the mutators.
+    legacy call sites. New code should use the mutators.
     """
 
     nodes: dict[str, SkillNode] = field(default_factory=dict)
@@ -137,7 +137,7 @@ def extract_skill_references(skill_md: Path) -> set[tuple[str | None, str]]:
 
     Returns a set of (plugin, name) tuples. plugin is None for unqualified refs.
     Self-references (a skill referencing itself in examples) are not filtered
-    here; the caller decides.
+    here. The caller decides.
     """
     return _refs_from_text(skill_md.read_text(encoding="utf-8", errors="replace"))
 
@@ -164,11 +164,11 @@ def _parse_frontmatter(text: str) -> dict[str, Any]:
 
     Returns {} on missing or malformed frontmatter so callers can treat
     absence and parse failure uniformly. PyYAML is required (declared in
-    plugins/abstract/scripts deps); the import-time fallback path keeps
+    plugins/abstract/scripts deps). The import-time fallback path keeps
     the script importable in environments without it.
 
     ``abstract.frontmatter.FrontmatterProcessor`` is the plugin's parser,
-    and this copy stands on purpose: pre-commit runs this script through
+    and this copy is deliberate: pre-commit runs this script through
     ``scripts/check_skill_graph_drift.py`` under the system ``python3``,
     which may lack PyYAML, and ``abstract.frontmatter`` imports it
     unconditionally.
@@ -192,7 +192,7 @@ def _parse_frontmatter(text: str) -> dict[str, Any]:
 def _is_local_module_path(item: str) -> bool:
     """True if a frontmatter list entry is a local file path, not a skill ref.
 
-    `modules:` entries like `modules/usage.md` are local files; they must
+    `modules:` entries like `modules/usage.md` are local files and must
     not produce phantom edges. Anything containing a path separator or a
     file extension qualifies.
     """
@@ -209,8 +209,8 @@ def _resolve_dep_to_skill_ref(
     coerces gracefully rather than raising.
 
     `allow_bare` distinguishes how to interpret bare-name entries:
-    - True (used for `dependencies:`): bare name -> (default_plugin, name)
-      -- the canonical sibling-skill declaration.
+    - True (used for `dependencies:`): bare name -> (default_plugin, name),
+      the canonical sibling-skill declaration.
     - False (used for `modules:`): bare names refer to local module files,
       not skills. Only fully-qualified `plugin:name` entries count.
 
@@ -312,10 +312,10 @@ def build_graph(plugins_root: Path) -> SkillGraph:
         src_key = str(node)
         # Inline Skill() refs, from the text _discover_skills already read.
         inline_refs = _refs_from_text(node.text)
-        # Frontmatter declarative deps; bare names resolve to same-plugin.
+        # Frontmatter declarative deps. Bare names resolve to same-plugin.
         fm_refs = _fm_refs_from_text(node.text, default_plugin=node.plugin)
         # Merge: inline refs may have None plugin (unqualified, ignored
-        # below); frontmatter refs always have a concrete plugin.
+        # below). Frontmatter refs always have a concrete plugin.
         all_refs: set[tuple[str | None, str]] = set(inline_refs)
         all_refs.update(fm_refs)
         for plugin, name in all_refs:
@@ -364,7 +364,7 @@ def detect_uncalled_libraries(graph: SkillGraph) -> list[str]:
     """Return library skills (`role: library`) with zero inbound edges.
 
     A library exists to be loaded by other skills. Zero inbound is a
-    legitimate smell signal -- either the library is genuinely dead,
+    legitimate smell signal: either the library is genuinely dead,
     or its callers load it through a path the audit cannot see (in
     which case the caller should declare the dep in frontmatter).
 
@@ -552,15 +552,6 @@ def classify_dangling_refs(
         else:
             bugs.append((src, dst))
     return {"bugs": bugs, "external": external, "placeholders": placeholders}
-
-
-def detect_dangling_refs(graph: SkillGraph) -> list[tuple[str, str]]:
-    """Return only true bug-class dangling refs (typos / retired skills).
-
-    External plugin references and template placeholders are excluded.
-    For the full classification, use ``classify_dangling_refs``.
-    """
-    return classify_dangling_refs(graph)["bugs"]
 
 
 def generate_report(plugins_root: Path, top_n: int = 10) -> dict:

@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigms
-description: Selects and routes to the right architecture paradigm. Use when choosing patterns for a new system or comparing trade-offs before making architecture decisions.
+description: Routes to the right architecture paradigm. Use when choosing patterns for a new system or comparing architecture trade-offs.
 alwaysApply: false
 category: architecture-decision
 tags:
@@ -103,7 +103,7 @@ Based on your needs from Step 1, review these options:
 **For Rich Business Rules**
 - Load `architecture-paradigm-domain-driven` - Models the business in its
   own language. Pair it with whichever structural paradigm you picked
-  above; it does not replace one. Skip it when the domain is CRUD over a
+  above. It does not replace one. Skip it when the domain is CRUD over a
   form, where the model would just be the schema under a new name.
 
 **For Real-time Event Processing**

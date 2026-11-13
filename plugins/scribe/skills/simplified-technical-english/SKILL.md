@@ -76,9 +76,10 @@ docstrings and ADRs exist to carry.
 | Command and skill instructions | Commit message bodies |
 | Checklists | This repository's own prose docs |
 | Workflow prompts and log lines | Workflow header comments |
+| | Contractions in MR, PR, and ticket bodies a person edits |
 
 The last row is the one that bites. These skill files are descriptive
-repo prose, so the house rules govern them, not STE. Full reasoning and
+repo prose, so the house rules govern them instead of STE. Full reasoning and
 worked before-and-after pairs: `modules/scope-boundaries.md`.
 
 ## The adopted rules
@@ -111,7 +112,7 @@ are advisory and the noun-cluster rule must never gate a merge. Pass
 `--no-noun-clusters` to see only the two counting rules, which is the
 usual way to read a file that has never been checked before.
 
-Four more are regex and live in the language pack, gated off so a
+Four more are regex and are in the language pack, gated off so a
 routine slop sweep never runs them:
 
 ```bash
@@ -172,7 +173,7 @@ first of them is a noun whatever the verb lexicon says. A procedural
 reading is withdrawn when it arrived through such a label. `Fix:` and
 `Action:` name one thing and are followed by a real instruction often
 enough to prove nothing, so they keep their reading. Across the corpus
-215 sentences carry a plural label, and one of them sits in the band
+215 sentences carry a plural label, and one of them falls in the band
 where the register decides whether it reports.
 
 For every other label the reading is right about five times in six, so

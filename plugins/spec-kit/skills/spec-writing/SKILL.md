@@ -23,6 +23,7 @@ modules:
 - modules/success-criteria-patterns.md
 - modules/specification-structure.md
 - modules/checklist-dimensions.md
+- modules/spec-register.md
 ---
 # Spec Writing
 
@@ -43,7 +44,7 @@ Create clear, complete, and testable specifications from natural language featur
 
 ## Core Principles
 
-Focus on user value and business needs rather than implementation details. Avoid specifying technology choices in requirement definitions unless strictly necessary. Ensure every requirement is testable and verifiable with measurable criteria. Limit clarification markers; make informed assumptions based on industry standards and document them explicitly.
+Focus on user value and business needs rather than implementation details. Avoid specifying technology choices in requirement definitions unless strictly necessary. Ensure every requirement is testable and verifiable with measurable criteria. Limit clarification markers. Make informed assumptions based on industry standards and document them explicitly.
 
 ## Specification Structure
 
@@ -104,6 +105,10 @@ on user behavior.
 - [ ] All success criteria are user-focused and measurable (e.g. "Users
       complete checkout in under 3 minutes") not implementation metrics
       (e.g. "API response under 200ms")
+- [ ] For a spec of a system that already exists, statements follow
+      `modules/spec-register.md`: no "will", status tagged on planned
+      behavior, and normative keyword case matches whether the spec
+      adopts RFC 8174
 - [ ] Quality checklist passes: no implementation details present,
       requirements unambiguous, edge cases identified, scope bounded
 - [ ] No technology choices appear in requirements unless the spec

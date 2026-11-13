@@ -3,9 +3,8 @@
 The capture index (``hooks/memory-palace-index.yaml``) is a URL-keyed
 log of auto-captured web content. These tests pin the analysis layer
 that turns that write-only buffer into observable metrics: corpus
-statistics, inert-entry detection, orphan detection, topic clustering,
-staleness (via the existing DecayModel), and promotion-candidate
-ranking.
+statistics, inert-entry and null-capture counts, orphan detection,
+domain clustering and authority tiers, and promotion-candidate ranking.
 
 The analysis layer mutates nothing.
 """
@@ -26,7 +25,6 @@ from memory_palace.corpus.index_analytics import (
     corpus_stats,
     load_capture_index,
     rank_promotion_candidates,
-    staleness_report,
 )
 
 
@@ -208,61 +206,6 @@ class TestClusterByDomain:
         }
         clusters = cluster_by_domain(index)
         assert clusters["(local)"] == ["local:note"]
-
-
-class TestTimestampResilience:
-    """``_parse_timestamp`` tolerates non-ISO and non-string inputs.
-
-    Reached through ``staleness_report``, which parses ``last_updated``
-    on every entry. The deliberate design is to default a bad timestamp
-    to *now* (UTC) rather than raise, so one malformed entry cannot abort
-    a whole report. Pinning it here makes any future "fail loud" change a
-    conscious decision.
-    """
-
-    def test_unparsable_timestamp_does_not_raise(self) -> None:
-        """A garbage ``last_updated`` string yields a report, not an error."""
-        index = {
-            "entries": {
-                "https://x.test": {
-                    "importance_score": 50,
-                    "maturity": "seedling",
-                    "last_updated": "not-a-timestamp",
-                    "url": "https://x.test",
-                }
-            },
-            "hashes": {},
-        }
-        report = {s.entry_id: s for s in staleness_report(index)}
-        assert "https://x.test" in report
-
-    def test_naive_datetime_is_treated_as_utc(self) -> None:
-        """A tz-naive ``datetime`` is accepted and assumed UTC, not rejected."""
-        index = {
-            "entries": {
-                "https://y.test": {
-                    "importance_score": 50,
-                    "maturity": "seedling",
-                    "last_updated": datetime(2026, 1, 1, 12, 0, 0),  # noqa: DTZ001 - intentional naive datetime under test
-                    "url": "https://y.test",
-                }
-            },
-            "hashes": {},
-        }
-        report = {s.entry_id: s for s in staleness_report(index)}
-        assert "https://y.test" in report
-
-
-class TestStalenessReport:
-    """Staleness via the existing DecayModel."""
-
-    def test_old_seedling_is_not_fresh(self, sample_index: dict) -> None:
-        """A 60-day-old seedling (14d half-life) is past fresh."""
-        report = {s.entry_id: s for s in staleness_report(sample_index)}
-        old = report["https://github.com/bevyengine/bevy"]
-        assert old.status != "fresh"
-        fresh = report["https://github.com/not-fl3/macroquad"]
-        assert fresh.status == "fresh"
 
 
 class TestDomainAuthority:

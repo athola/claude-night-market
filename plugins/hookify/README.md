@@ -104,7 +104,7 @@ Detects languages, frameworks, and tooling to recommend appropriate rules.
 
 | Dependency | Purpose | Fallback |
 |------------|---------|----------|
-| abstract plugin | `hook-scope-guide` skill for advanced hook patterns | Hookify works fully without it; skill unavailable |
+| abstract plugin | `hook-scope-guide` skill for advanced hook patterns | Hookify works fully without it, minus the skill |
 
 Hookify is fully functional without optional dependencies.
 The abstract plugin provides additional guidance for advanced hook development

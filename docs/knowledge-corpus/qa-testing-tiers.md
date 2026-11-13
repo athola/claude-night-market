@@ -77,7 +77,7 @@ line, branch, mutation.
 | Multi-stack | Playwright component | real browser, between unit and E2E |
 
 Pattern: assert on user-observable behavior, not on instance
-state. Snapshot/visual checks supplement DOM assertions; they
+state. Snapshot/visual checks supplement DOM assertions and
 do not replace them.
 
 ### Integration (wiring of real modules)
@@ -122,8 +122,7 @@ safety: create, run, clean up.
 Property catalog: round-trip, commutativity, idempotence,
 oracle/model equivalence, metamorphic relations. Stateful
 tests are the default for any system with mutable state.
-Fuzzing is property testing with a coverage-guided generator,
-not a separate discipline.
+Fuzzing is property testing with a coverage-guided generator.
 
 ### Mutation (test-suite quality)
 
@@ -158,9 +157,9 @@ justifications. Do not chase 100%.
 Honest scope: open-source HIL is thin. Proprietary stacks
 (NI VeriStand, dSPACE) own real-time signal-level simulation.
 Reliability-style fault injection (sensor spoofing, dropped
-packets, clock skew) has no consolidated framework; it is
+packets, clock skew) has no consolidated framework and is
 hand-rolled per project. Calibration uncertainty is uncovered
-in OSS; cite ISO/IEC 17025 and NIST traceability for
+in OSS. Cite ISO/IEC 17025 and NIST traceability for
 traceable rigs.
 
 ## Decision tree (which tier?)
@@ -178,12 +177,12 @@ Question to verify:
 
 ## Cross-tier patterns
 
-- **Test pyramid is one shape, not the only one.** Honeycomb
+- **Test pyramid is one shape of several.** Honeycomb
   (heavy on integration) and trophy (heavy on integration plus
   E2E) are alternatives that fit microservices and frontends
   better than the classic pyramid.
 - **Mutation testing exposes assertion-free tests.** Coverage
-  proves a line ran; mutation proves the test would fail if
+  proves a line ran. Mutation proves the test would fail if
   the line were wrong. They measure different things.
 - **Property tests find shrinkable counterexamples.** When a
   property fails, the framework shrinks to a minimal failing
@@ -197,15 +196,15 @@ Question to verify:
 ## Open questions
 
 - Which tier owns contract testing? Pact-style consumer-driven
-  contracts sit between integration and E2E, closer to
+  contracts fall between integration and E2E, closer to
   integration in cost but closer to E2E in semantics.
 - Mutation testing is mature on JVM, JS, Python, Rust. C/C++
   is still bumpy (mull works but has fewer adopters than the
   others). Embedded mutation testing (mutmut on micropython,
   pitest on Java ME) is mostly unexplored.
 - Hardware testing's "hand-rolled per project" status is a
-  durable gap. A consolidating OSS framework would unlock the
-  tier; meanwhile, the labgrid, pytest, and custom-fixtures
+  durable gap. A consolidating OSS framework would close the
+  gap. Meanwhile, the labgrid, pytest, and custom-fixtures
   stack is the working pattern.
 
 ## Application
@@ -224,5 +223,5 @@ python-testing/ for the precedent pattern.
 Synthesized 2026-05-09 from eight parallel research agents
 (seven tome:code-searcher runs plus one architectural-precedent
 scout) for issue #519. Sources are listed in the frontmatter
-`sources` field; full per-tier evidence references live in
+`sources` field. Full per-tier evidence references are in
 issue #519.

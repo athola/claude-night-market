@@ -57,7 +57,8 @@ def classify(spec_path: Path) -> ApiSlice:
 
 The output of `classify` selects which detail modules to load.
 A REST API with bearer auth needs the REST conventions module
-and the OAuth/bearer module, not the gRPC streaming module.
+and the OAuth/bearer module. The gRPC streaming module stays
+unloaded.
 
 ## Loading Map
 
@@ -102,8 +103,8 @@ review work.
 ## Pitfalls
 
 1. **Loading by file extension alone**: A `.proto` file might be
-   a vendored copy in a REST project. Read the file content for
-   classification, not just the suffix.
+   a vendored copy in a REST project. Classify by the file content
+   as well as the suffix.
 2. **Treating "API" as one module**: Authors who put REST,
    GraphQL, gRPC, and SDK guidance in one file force every API
    review to load all of it. Split by style first.

@@ -112,7 +112,7 @@ wants, delete what no tier wants.
 Extraction is the verdict that gets skipped. Rationale a
 `newcomer` cannot use is not weak content, it is content
 answering a question that reader has not asked yet. It moves
-to `modules/` for a skill or `docs/deep-dive/<topic>.md` for
+to `modules/` for a skill or `docs/<topic>.md` for
 a repo document, linked from the parent's lead.
 
 Full tier table, the Socratic set for eliciting a tier, the
@@ -226,7 +226,7 @@ Problems:
 > the process should die but rarely does.
 >
 > Why the level names do not map to syslog severities:
-> `docs/deep-dive/log-level-mapping.md` (for readers
+> `docs/log-level-mapping.md` (for readers
 > already operating the aggregator).
 > [...]
 

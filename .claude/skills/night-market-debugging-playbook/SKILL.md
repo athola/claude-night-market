@@ -295,7 +295,7 @@ Plugins execute from Claude Code's cache directory rather than the
 repo checkout, so a CWD-relative path in a hook resolves to nothing. The
 conserve session-start hook broke exactly this way and was fixed by
 inlining its JSON utilities (CHANGELOG 1.4.1; the inlined-copy sync
-notice lives in `scripts/shared/json_utils.sh`). Rule: hooks resolve
+notice is in `scripts/shared/json_utils.sh`). Rule: hooks resolve
 paths from `${CLAUDE_PLUGIN_ROOT}` or relative to their own script
 file, never from the working directory.
 

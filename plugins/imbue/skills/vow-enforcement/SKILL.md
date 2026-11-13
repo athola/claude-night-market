@@ -35,7 +35,7 @@ role: hook-target
 ODCV-Bench found that agents break self-imposed
 constraints 30-50% of the time when goals conflict.
 Practitioner consensus confirms: past 150 soft rules,
-compliance drops for ALL rules, not just the new ones.
+compliance drops for ALL rules, old ones included.
 
 The core insight: "settings.json is a firewall;
 CLAUDE.md is an employee handbook." Handbooks work for
@@ -215,7 +215,7 @@ The user can override any Nen Court verdict:
 - **`imbue:scope-guard`**: Soft vow layer. Worthiness
   scoring is a judgment call that belongs in skills.
 - **`imbue:proof-of-work`**: Mixed enforcement.
-  Evidence rules are soft; evidence content can be
+  Evidence rules are soft. Evidence content can be
   verified by a Nen Court validator.
 - **`imbue:justify`**: Post-hoc Nen Court audit.
   Already functions as a validator agent for additive

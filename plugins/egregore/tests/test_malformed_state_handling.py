@@ -8,18 +8,15 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
 import sys
 from io import StringIO
 from pathlib import Path
-from unittest.mock import patch
 
 import night_run
 import pytest
 from _manifest_utils import get_items, has_active_work
 from manifest import Manifest, load_manifest, save_manifest
 from rate_limit_hook import main as rate_limit_main
-from scout import post_discussion
 
 
 def _manifest_path(tmp_path: Path, payload: object) -> Path:
@@ -155,30 +152,6 @@ class TestRateLimitHookBadConfig:
         assert exit_info.value.code == 0
         recorded = json.loads((egregore_dir / "budget.json").read_text())
         assert recorded["cooldown_until"] is not None
-
-
-class TestScoutPostDiscussionBadResponse:
-    """post_discussion promises None plus a stderr reason, never a raise."""
-
-    @patch("subprocess.run")
-    def test_non_json_response_returns_none(self, mock_run):
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout="<html>bad gateway</html>", stderr=""
-        )
-
-        url = post_discussion("title", "body", "DIC_x", "owner", "repo")
-
-        assert url is None
-
-    @patch("subprocess.run")
-    def test_null_data_in_response_returns_none(self, mock_run):
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout='{"data": null}', stderr=""
-        )
-
-        url = post_discussion("title", "body", "DIC_x", "owner", "repo")
-
-        assert url is None
 
 
 class TestSaveManifestKeepsLastGoodCopy:

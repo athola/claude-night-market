@@ -73,7 +73,7 @@ Each `pending` entry is classified into one action:
   importance score, a routing type, and maturity `seedling -> growing`.
 - **archive**: orphaned or older than the archive horizon and never
   revisited. Marked `archived` rather than promoted, following the
-  principle that unused captures should drain, not accumulate.
+  principle that unused captures should drain away.
 - **hold**: everything else stays `pending` with no change.
 
 Applying is idempotent: promoted and archived entries are no longer
@@ -84,7 +84,7 @@ Running these by hand is the exception. `--apply` runs on every commit
 from `scripts/precommit_palace_maintenance.sh`, so the backlog drains
 continuously rather than in occasional sweeps. Reach for the commands
 above when a commit is blocked, or when you want the dry-run diff before
-the hook decides for you.
+the hook acts for you.
 
 ### 3. Committed state must be drained
 

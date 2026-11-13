@@ -3,7 +3,11 @@
 # Usage: scripts/shellcheck.sh [-h] [-x|-t] [-s SHELL] [-S SEVERITY]
 set -eu
 
-MYDIR="${0%/*}"
+# A bare $0 (sh shellcheck.sh from scripts/) has no directory part.
+case "${0}" in
+  */*) MYDIR="${0%/*}" ;;
+  *) MYDIR="." ;;
+esac
 readonly MYDIR
 
 # shellcheck source=scripts/logging.sh

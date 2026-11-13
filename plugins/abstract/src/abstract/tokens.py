@@ -67,7 +67,7 @@ def estimate_text_tokens(text: str) -> int:
     """
     if not text:
         return 0
-    # estimate_tokens accepts (files, prompt); pass the text as the prompt
+    # estimate_tokens accepts (files, prompt). Pass the text as the prompt
     # with no files for a pure-text estimate.
     return int(_leyline_estimate_tokens([], text))
 

@@ -96,7 +96,7 @@ of 2.1.69+.
 | 2.1.73 | SessionStart no longer double-fires on `--resume`/`--continue` |
 | 2.1.73 | JSON-output hooks no longer inject spurious system-reminder messages |
 | 2.1.74 | SessionEnd hooks timeout now configurable via `CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS` |
-| 2.1.75 | Hook source displayed in permission prompts; async hook messages suppressed by default |
+| 2.1.75 | Hook source displayed in permission prompts, and async hook messages suppressed by default |
 | 2.1.76 | `Elicitation` and `ElicitationResult` events for MCP servers |
 | 2.1.76 | `PostCompact` event fires after context compaction |
 | 2.1.77 | PreToolUse "allow" no longer bypasses deny rules (security fix) |

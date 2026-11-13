@@ -151,6 +151,32 @@ def _imported_top_levels(tree: ast.AST) -> list[str]:
     return names
 
 
+_SIBLING_RESOLVERS = frozenset({"sibling_plugin_dir", "add_sibling_src_to_path"})
+
+
+def _sibling_plugin_names(tree: ast.AST) -> list[str]:
+    """Plugin named by each ``sibling_plugin_dir(x, "name")`` call in *tree*.
+
+    These resolve a sibling's directory and then import its modules by
+    bare name (``from deduplication import ...``), so no import statement
+    names the plugin. The resolver call is the only record of the edge.
+    """
+    names = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or len(node.args) < 2:
+            continue
+        func = node.func
+        called = func.id if isinstance(func, ast.Name) else getattr(func, "attr", "")
+        target = node.args[1]
+        if (
+            called in _SIBLING_RESOLVERS
+            and isinstance(target, ast.Constant)
+            and isinstance(target.value, str)
+        ):
+            names.append(target.value)
+    return names
+
+
 def scan_python_imports(
     plugin_dir: Path,
     plugin_name: str,
@@ -177,8 +203,10 @@ def scan_python_imports(
                 continue
             # Parsed, not matched line by line: a docstring saying "cannot
             # import leyline" gave every vendored copy a phantom edge.
-            for imp_name in _imported_top_levels(ast.parse(content, str(py_file))):
-                orig_name = import_names.get(imp_name)
+            tree = ast.parse(content, str(py_file))
+            named = _imported_top_levels(tree) + _sibling_plugin_names(tree)
+            for imp_name in named:
+                orig_name = import_names.get(imp_name.replace("-", "_"))
                 if orig_name is None or orig_name == plugin_name or orig_name in seen:
                     continue
                 seen.add(orig_name)

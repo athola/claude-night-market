@@ -177,8 +177,8 @@ echo "=== All Quality Checks Passed ==="
 
 ## Hook Execution Order
 
-Pre-commit hooks run in this fixed order; all must pass for
-the commit to succeed:
+Pre-commit hooks run in this fixed order, and all must pass
+for the commit to succeed:
 
 1. File validation (whitespace, EOF, YAML/TOML/JSON syntax)
 2. Security scanning (bandit)

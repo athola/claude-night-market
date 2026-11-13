@@ -600,9 +600,8 @@ class TestQualityChecker:
                 return {"passed": 1, "failures": 0, "errors": 0, "skipped": 0}
             if fallback_returncode == 1:
                 return {"passed": 0, "failures": 1, "errors": 0, "skipped": 0}
-            # Exit >= 2 -- interrupted (2), internal error (3), usage error
-            # (4), or no tests collected (5) -- means the run could not be
-            # measured. It is not a test failure (failures/errors stay 0, so
+            # Exit >= 2 (interrupted 2, internal error 3, usage error 4, or no
+            # tests collected 5) means the run could not be measured. It is not a test failure (failures/errors stay 0, so
             # the "real failures" predicate is unaffected), but the explicit
             # inconclusive flag stops a crashed or uncollectable suite from
             # scoring clean with no warning.
@@ -698,7 +697,7 @@ class TestQualityChecker:
         place: a nonzero pytest exit code alone never qualifies (a coverage
         gate can fail an all-passing run), but recorded failures or errors do.
         An inconclusive run (pytest exit >= 2) is handled separately via the
-        ``inconclusive`` flag, not here.
+        ``inconclusive`` flag.
         """
         return bool(dynamic["failures"] or dynamic["errors"])
 
@@ -752,7 +751,7 @@ class TestQualityChecker:
         # Consider test execution. A nonzero pytest exit code alone does not
         # mean tests failed (a coverage threshold can fail the run while every
         # test passes), so penalize on real failures/errors or on a run that
-        # could not be measured (inconclusive); never on exit code alone.
+        # could not be measured (inconclusive), never on exit code alone.
         dynamic = results["dynamic_validation"]
         breakdown["execution"] = 0
         if self._has_real_failures(dynamic) or dynamic.get("inconclusive"):
@@ -886,7 +885,7 @@ def main() -> None:
     # reading the status rather than parsing the JSON.
     try:
         if args.coverage:
-            # Accepted by the parser but never implemented here; falling
+            # Accepted by the parser but never implemented here. Falling
             # through to the help text exited 0 as if a check had run.
             output_error(
                 "--coverage is not implemented in quality_checker.py; "

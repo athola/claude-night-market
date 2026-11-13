@@ -19,9 +19,6 @@ dependencies:
 - leyline:risk-classification
 - leyline:damage-control
 - leyline:additive-bias-defense
-- imbue:justify
-- imbue:vow-enforcement
-- abstract:friction-detector
 tools: []
 provides:
   workflow:
@@ -29,32 +26,12 @@ provides:
   - state-detection
   - phase-routing
   - session-recovery
-  - reflexion-buffer
-  - trust-tier
-  - adaptive-constraints
 usage_patterns:
 - full-cycle-development
 - mission-resume
 - phase-routing
 complexity: advanced
-estimated_tokens: 600
-progressive_loading: true
-modules:
-- modules/mission-types.md
-- modules/state-detection.md
-- modules/phase-routing.md
-- modules/mission-state.md
-- modules/plan-review.md
-- modules/plan-versioner.md
-- modules/feedback-collector.md
-- modules/context-injector.md
-- modules/iteration-governor.md
-- modules/reflexion-buffer.md
-- modules/trust-tier.md
-- modules/adaptive-constraints.md
-references:
-- references/mission-charter.md
-- references/progress-report.md
+estimated_tokens: 1700
 role: entrypoint
 ---
 
@@ -62,7 +39,10 @@ role: entrypoint
 
 ## Overview
 
-Wraps the entire attune development lifecycle (brainstorm → specify → plan → execute) into a single mission with automatic state detection, type selection, and phase routing. Follows the "persistent presence lens" pattern from `spec-kit:speckit-orchestrator`: delegates entirely to existing skills via `Skill()` calls, never re-implements phase logic.
+A router. Detect which phase the project is in, then call that phase's
+skill with `Skill()`. Each phase skill runs its own workflow. The
+orchestrator only picks the type, sequences the phases, checks each
+phase's artifact, and records state so a later session can resume.
 
 ## When To Use
 
@@ -70,75 +50,88 @@ Wraps the entire attune development lifecycle (brainstorm → specify → plan �
 - Resuming an interrupted project workflow
 - Running a focused tactical implementation from existing specs
 - Quick-fixing from an existing implementation plan
+- Auditing or dogfooding existing software (`review`)
 
 ## When NOT To Use
 
-- Running a single phase directly (use `/attune:brainstorm`, `/attune:specify`, etc.)
-- Non-project work (code review, debugging, research)
-- When you need fine-grained control over phase transitions
+- Running a single phase directly (use `/attune:brainstorm`,
+  `/attune:specify`, `/attune:blueprint`, `/attune:execute`)
+- Non-project work such as debugging or research
 
-## Mission Lifecycle
+## 1. Detect the Mission Type
 
-```
-1. State Detection
-   Scan for existing artifacts (project-brief.md, specification.md, etc.)
-       |
-2. Mission Type Selection
-   Auto-detect type based on artifacts, or accept user override
-       |
-3. Phase Routing Loop
-   For each phase in the mission type:
-       a. Pre-phase validation (check prerequisites)
-       b. Invoke Skill(attune:{phase-skill})
-       c. Post-phase artifact check (verify output exists)
-       d. Post-phase backlog triage (create GitHub issues
-          for out-of-scope items after brainstorm/specify)
-       e. Update mission state
-       f. User checkpoint (skippable with --auto)
-       g. Error handling via leyline:damage-control
-       |
-4. Completion
-   All phases complete, final state saved
-```
+Check the rows top to bottom and take the first match. `--type` and
+`--phases` override detection.
 
-## Mission Types
-
-| Type | Phases | Auto-detected When |
-|------|--------|--------------------|
-| `full` | brainstorm → specify → plan → execute | No artifacts exist |
-| `standard` | specify → plan → execute | `docs/project-brief.md` exists |
-| `tactical` | plan → execute | `docs/specification.md` exists |
+| Type | Phases | Selected when |
+|------|--------|---------------|
+| `review` | scope, investigate, verify, report | The request asks to review, audit, dogfood, or assess existing software |
 | `quickfix` | execute | `docs/implementation-plan.md` exists |
-| `review` | scope → investigate → verify → report | the request names existing software to audit, dogfood, or review |
+| `tactical` | plan, execute | `docs/specification.md` exists |
+| `standard` | specify, plan, execute | `docs/project-brief.md` exists |
+| `full` | brainstorm, specify, plan, execute | No artifact exists |
 
-`review` is the one type selected from request intent rather than from
-artifacts, because a tree of build artifacts looks the same whether the
-ask is "ship this" or "audit this". Its check runs first. It produces
-`reports/<topic>-<YYYY-MM-DD>.md` and never enters the war-room gate,
-which guards a plan-to-execute transition a review mission does not have.
+`review` is selected from request intent and is checked first, because
+a tree of build artifacts looks the same whether the ask is "ship this"
+or "audit this". When the wording is ambiguous, show both candidates
+and ask. An artifact counts only when it is non-empty and has no
+frontmatter `status` of `draft` or `in-progress`. The same names at the
+repository root also count.
 
-See `modules/mission-types.md` for full type definitions and custom type support.
+State the detected type, the reason, and the phases, then confirm
+unless `--auto` is set. A `--phases` list must keep phase order, and a
+mission either builds or reviews: the two phase sets do not mix.
 
-## Phase-to-Skill Mapping
+## 2. Route Each Phase
 
 | Phase | Skill Invoked | Artifact Produced |
 |-------|--------------|-------------------|
 | brainstorm | `Skill(attune:project-brainstorming)` | `docs/project-brief.md` |
 | specify | `Skill(attune:project-specification)` | `docs/specification.md` |
 | plan | `Skill(attune:project-planning)` | `docs/implementation-plan.md` |
-| execute | `Skill(attune:project-execution)` | Implemented code and tests |
-
-Review missions route to the existing review skills rather than to
-attune phase skills:
-
-| Phase | Skill Invoked | Artifact Produced |
-|-------|--------------|-------------------|
+| execute | `Skill(attune:project-execution)` | Code, tests, `.attune/execution-state.json` |
 | scope | `Skill(pensive:tiered-audit)` | Tier selection and bounded scope |
 | investigate | `Skill(imbue:feature-review)` plus the `pensive:*` domain lenses | Raw findings |
 | verify | `Skill(imbue:proof-of-work)` | Evidence references per finding |
 | report | `Skill(imbue:structured-output)` | `reports/<topic>-<YYYY-MM-DD>.md` |
 
-The orchestrator **never** re-implements phase logic. Each phase is a complete `Skill()` invocation that handles its own workflow.
+For each phase in the sequence:
+
+1. Confirm the prior phase's artifact exists. If it does not, stop and
+   report the gap. Do not skip ahead.
+2. Invoke the phase skill. Never re-implement its logic here.
+3. Confirm the phase's artifact now exists. A missing artifact is a
+   failed phase.
+4. Update `.attune/mission-state.json`.
+5. Checkpoint with the user (continue, pause, abort, re-run) unless
+   `--auto` is set or a directive override applies.
+
+After brainstorm and specify, open a GitHub issue for each "Out of
+Scope" item that has no issue reference yet, and add the number to the
+artifact. Confirm the list with the user first: opening an issue is an
+external-facing action.
+
+On a failed phase, use `Skill(leyline:damage-control)` to classify it.
+Retry a transient failure up to twice. Otherwise give the user the
+choice to retry, skip (when safe), or abort.
+
+## 3. Gate Plan to Execute
+
+Before the execute phase, challenge the plan:
+
+1. Run `Skill(leyline:additive-bias-defense)` over each plan section,
+   then walk the user through the sections with the findings.
+2. Send revisions back to `Skill(attune:project-planning)`. After three
+   rounds, the user must approve as-is, abort, or restart from the
+   specification.
+3. Run `Skill(attune:war-room)` on the approved plan. Approval is
+   required. Concerns or a rejection start another revision round.
+4. Classify every task with `Skill(leyline:risk-classification)` and
+   record the tier counts. RED and CRITICAL tasks go through
+   `Skill(attune:war-room-checkpoint)` when execution reaches them.
+
+A `review` mission never enters the war-room gate, because it has no
+plan-to-execute transition.
 
 ## Delegation During a Mission
 
@@ -177,199 +170,59 @@ Two outcomes need handling rather than reporting:
 To run a whole mission without external models, set
 `CONJURE_DELEGATION=off` before invoking it.
 
-## Session Recovery
-
-Missions persist state to `.attune/mission-state.json`. On resume:
-
-1. Load mission state file
-2. Validate referenced artifacts still exist on disk
-3. Identify last completed phase
-4. Continue from next phase in sequence
-
-See `modules/mission-state.md` for the state schema and recovery protocol.
-
-## Interactive Plan Review
-
-The plan-to-execute transition uses an interactive
-review loop instead of a simple checkpoint. Plans are
-reviewed section by section, revised based on feedback,
-and must pass a mandatory war-room gate before execution.
-
-**Key capabilities:**
-
-- Section-by-section terminal review (architecture
-  first, then phases)
-- Approve/revise/reject verdicts with rationale
-- Plan version tracking with diff summaries
-- Context improvement from structured feedback
-- Additive bias scanning before user review
-- Maximum 3 revision rounds before forced decision
-- Mandatory war-room approval with Prosecution Counsel
-
-See `modules/plan-review.md` for the full protocol.
-
-### Review Modules
-
-- **plan-review.md**: Main orchestrator for the review loop
-- **plan-versioner.md**: Version tracking and diff generation
-- **feedback-collector.md**: Verdict capture and JSON output
-- **context-injector.md**: Revision prompt construction
-- **iteration-governor.md**: Round tracking and escalation
-
 ## User Directive Overrides
 
-The orchestrator parses the user's command-args and
-free-text at mission start for natural-language trust
-signals. Phrases like "ignore scope guard", "ultrathink",
-"don't keep asking", and "be autonomous" are recognized
-as directive overrides that adjust the constraint
-profile without requiring an explicit
-`--constraints=` flag.
+Read the command arguments and free text at mission start for trust
+signals. "ignore scope guard", "ultrathink", "stop asking", and
+"be autonomous" lower the checkpoint load. "supervised" and "ask before
+each step" raise it. When several match, the most restrictive wins.
+Acknowledge a matched directive once, record it, and stop asking for
+the checkpoints it waives.
 
-Directive overrides win over mission-type defaults but
-never bypass the Safety Floor (pre-commit hooks,
-proof-of-work evidence, destructive-operation
-confirmation, external-facing actions). When a directive
-is detected, the orchestrator acknowledges it once at
-mission start and stops asking for the corresponding
-checkpoints. Repeated approval-seeking after a directive
-override is itself a workflow bug.
+No directive waives the safety floor: pre-commit hooks, proof-of-work
+evidence, confirmation before destructive operations, and confirmation
+before external-facing actions.
 
-See `modules/adaptive-constraints.md` "User Directive
-Override" section for the parsing table.
+## Mission State
 
-## Mission Charter
+`.attune/mission-state.json` is the resume contract. `/attune:mission`
+and `Skill(attune:skill-library-mission)` both write it. Keep these
+field names:
 
-Define mission boundaries using the structured template from
-`references/mission-charter.md`. A Mission Charter specifies:
+| Field | Holds |
+|-------|-------|
+| `mission_id` | A stable id such as `mission-YYYYMMDD-HHMMSS` |
+| `type` | The mission type, or `custom` for a `--phases` list |
+| `phases` | The ordered phase list, each with a status and artifact path |
+| `current_phase` | The phase to run next |
+| `decisions` | Each checkpoint choice, with a timestamp |
+| `directive_overrides` | Each matched directive and what it waived |
+| `risk_summary` | Task counts per risk tier, written after the plan gate |
 
-- **Outcome**: What success looks like
-- **Success metric**: Measurable completion criteria
-- **Deadline**: Time boundary (session, date, or duration)
-- **Constraints**: Token/time budgets, forbidden actions
-- **Scope**: In-scope and out-of-scope areas
-- **Stop criteria**: Conditions that halt the mission
-
-See `references/mission-charter.md` for the full template and
-examples.
-
-## Progress Reports
-
-Track progress with structured checkpoints using
-`references/progress-report.md`. Generate reports at:
-
-- Phase boundaries (between brainstorm→specify→plan→execute)
-- Blocker identification
-- Risk escalation
-- Budget thresholds (50%, 75%, 90%)
-
-See `references/progress-report.md` for the template and
-checkpoint rhythm guidance.
-
-## Module Reference
-
-### Core modules (always loaded)
-
-- **mission-types.md**: Type definitions, auto-detection logic,
-  custom types
-- **state-detection.md**: Artifact existence checks, quality
-  validation, staleness
-- **phase-routing.md**: Phase execution protocol, transition
-  hooks, error handling
-- **mission-state.md**: State schema, persistence, recovery
-  protocol
-
-### Plan-review modules (load when plan phase runs)
-
-- **plan-review.md**: Interactive section-by-section review
-  with bias scanning
-- **plan-versioner.md**: Version tracking and diff summaries
-- **feedback-collector.md**: Verdict capture and feedback files
-- **context-injector.md**: Revision prompt construction from
-  feedback
-- **iteration-governor.md**: Round tracking, cap enforcement,
-  escalation
-
-### Conditional modules (load only when triggered)
-
-- **reflexion-buffer.md**: Cross-session learning buffer; load
-  when iteration count > 1 or after a failed revision round.
-- **trust-tier.md**: Constraint-profile classifier; load when
-  a user directive override is detected at mission start.
-- **adaptive-constraints.md**: Constraint adaptation rules;
-  load alongside `trust-tier.md` when directive overrides are
-  active.
-
-## Module Loading by Mission Type
-
-This skill declares `progressive_loading: true`. To keep the
-orchestrator's resident token cost minimal, load only the
-subset of modules each mission type actually needs. The
-orchestrator itself loads only the four core modules at
-mission start; the rest are loaded on-demand when their
-phase runs.
-
-| Mission type | Core | Plan-review | Reflexion | Trust and adaptive |
-|--------------|------|-------------|-----------|------------------|
-| `quickfix` (execute only) | yes | -- | -- | if directive |
-| `tactical` (plan -> execute) | yes | yes | if revising | if directive |
-| `standard` (specify -> plan -> execute) | yes | yes | if revising | if directive |
-| `full` (brainstorm -> specify -> plan -> execute) | yes | yes | yes | if directive |
-| `review` (scope -> investigate -> verify -> report) | yes | -- | if revising | if directive |
-
-Token cost (approximate, computed from `wc -w` on hub +
-loaded modules and converted at ~1.3 tokens per word):
-
-| Mission type | Loaded modules | Approx tokens |
-|--------------|----------------|---------------|
-| `quickfix`   | hub and core (4) | ~4,100 |
-| `tactical`   | hub, core, and plan-review (9) | ~6,900 |
-| `standard`   | same as tactical (9) | ~6,900 |
-| `full`       | hub, core, plan-review, and reflexion (10) | ~7,900 |
-
-The previous load-all pattern brought in roughly 10,100
-tokens for every mission, including `quickfix` runs that
-only need the execute phase. With per-type loading, quickfix
-is ~60% lighter and the standard / tactical / full paths
-save 22-32%.
-
-When a directive override fires, the trust-tier +
-adaptive-constraints pair adds ~2,200 tokens on top of the
-mission-type baseline.
-
-## Reference Modules
-
-- **mission-charter.md**: Structured mission definition
-  template (load only when defining a charter)
-- **progress-report.md**: Checkpoint status report template
-  (load only when emitting a progress report)
-
-## Related Skills
-
-- `Skill(attune:project-brainstorming)` - Brainstorm phase
-- `Skill(attune:project-specification)` - Specify phase
-- `Skill(attune:project-planning)` - Plan phase
-- `Skill(attune:project-execution)` - Execute phase
-- `Skill(attune:war-room-checkpoint)` - Risk assessment for RED/CRITICAL tasks
-- `Skill(leyline:risk-classification)` - Task risk classification
-- `Skill(leyline:damage-control)` - Error recovery during phases
-- `Skill(conjure:delegation-core)` - Default-on delegation of execution work
+To resume (`--resume`), load the file, confirm each recorded artifact
+still exists, and continue from `current_phase`. `--resume --force`
+resets a failed phase and retries it. With no state file, start fresh.
 
 ## Related Commands
 
-- `/attune:mission` - Invoke this skill
-- `/attune:mission --resume` - Resume from saved state
-- `/attune:mission --type tactical` - Override mission type
+- `/attune:mission` invokes this skill
+- `/attune:mission --resume` resumes from saved state
+- `/attune:mission --type tactical` overrides the detected type
 
 ## Exit Criteria
 
-- [ ] All phases in mission type completed successfully
-- [ ] Artifacts exist for each completed phase
-- [ ] Mission state saved to `.attune/mission-state.json`
-- [ ] Risk summary generated (tier counts across all tasks)
+- [ ] Every phase in the mission type has status `completed` in
+  `.attune/mission-state.json`
+- [ ] The artifact listed for each completed phase exists on disk
+- [ ] A build mission's state records a risk summary with tier counts
+  across all tasks
+- [ ] A build mission reached execute only after a war-room approval,
+  recorded in `decisions`
+- [ ] A review mission wrote `reports/<topic>-<YYYY-MM-DD>.md`
 - [ ] Execute-phase work either delegated or held back by a named Keep
   Local clause, never skipped for want of a delegation decision
 - [ ] Any `providers_exhausted` result completed by a session-model
   subagent, or inline when the harness has no subagent tool, and
   reported with the providers it tried
-- [ ] No unresolved errors or blockers
+- [ ] Any failed phase is recorded with its recovery outcome, and none
+  is left unresolved

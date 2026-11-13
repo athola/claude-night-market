@@ -57,7 +57,7 @@ promote it to an ADR or a decision journal entry before the next cycle.
 
 ## House prose style
 
-Full rules live in `.claude/rules/markdown-formatting.md` and
+Full rules are in `.claude/rules/markdown-formatting.md` and
 `.claude/rules/slop-scan-for-docs.md`, with the detection catalog in
 `Skill(scribe:slop-detector)` modules. The load-bearing subset:
 
@@ -146,7 +146,7 @@ If the budget is near zero, do not write the doc. Full framework:
 ## ADR conventions
 
 An ADR (Architecture Decision Record) captures a decision that is
-expensive to reverse. They live in `docs/adr/` as
+expensive to reverse. They are in `docs/adr/` as
 `NNNN-kebab-slug.md` with zero-padded sequential numbers (0001-0017
 as of 2026-07-02).
 
@@ -193,7 +193,7 @@ skill night-market-collective-memory.
 
 `CHANGELOG.md` follows Keep a Changelog 1.1.0 and SemVer:
 
-- `## [Unreleased]` stays at the top; new entries land there and get
+- `## [Unreleased]` stays at the top. New entries land there and get
   moved under a `## [X.Y.Z] - YYYY-MM-DD` heading at release.
 - Standard subsections: `### Added`, `### Fixed`, `### Changed`.
 - Never retroactively de-slop or reword historical entries. The
@@ -223,7 +223,7 @@ python3 scripts/fix_descriptions.py --check
 warns when the ecosystem total approaches its budget (default 90,000
 chars, override via `SLASH_COMMAND_TOOL_CHAR_BUDGET`). Note:
 `docs/skill-description-guide.md` still cites an older 60,000-char
-ceiling; the script value is current (the script is the enforcer).
+ceiling. The script value is current (the script is the enforcer).
 
 ## The book (mdBook)
 

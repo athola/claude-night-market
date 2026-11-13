@@ -138,7 +138,7 @@ if alert.severity == ContextSeverity.OK:
 
 URL detection uses pre-compiled patterns:
 ```python
-# memory-palace/hooks/url_detector.py
+# memory-palace/hooks/_url_detector.py
 _URL_QUICK_PATTERN = re.compile(r'https?://[^\s<>"\')\]]+', re.IGNORECASE)
 
 def extract_urls(text: str) -> list[str]:

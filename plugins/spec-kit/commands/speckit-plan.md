@@ -85,10 +85,10 @@ When this step settles a decision with real alternatives, record it to
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
   a tradeoff entry (the decision, the options weighed, and what was
-  sacrificed; set `phase` to `plan`). Show the draft; append on
-  confirmation.
+  sacrificed, with `phase` set to `plan`). Show the draft and append
+  on confirmation.
 - Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
-  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+  ENTRY TEMPLATE, and assign the next `TR-NNN` id.
 
 ## Key rules
 

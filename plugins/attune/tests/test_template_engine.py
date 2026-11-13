@@ -3,9 +3,18 @@
 Following BDD principles with Given/When/Then structure.
 """
 
+import json
+import subprocess
+from pathlib import Path
+
 import pytest
 
-from template_engine import TemplateEngine, get_default_variables
+from template_engine import TemplateEngine, get_default_variables, toml_basic_escape
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python < 3.11; pytest depends on tomli there
+    import tomli as tomllib
 
 
 @pytest.mark.unit
@@ -514,3 +523,106 @@ requires-python = ">=3.{{PYTHON_VERSION}}"
             assert output_file.exists()
             content = output_file.read_text()
             assert "multi-project" in content
+
+
+class TestTomlOutputIsEscaped:
+    """A quote or backslash in a value must not break a generated TOML file."""
+
+    def test_cargo_toml_with_quotes_and_backslashes_parses(self, tmp_path):
+        """`--author 'A "Q" B'` wrote `authors = ["A "Q" B <...>"]`."""
+        template = (
+            Path(__file__).parents[1] / "templates" / "rust" / "Cargo.toml.template"
+        )
+        engine = TemplateEngine(
+            {
+                "PROJECT_NAME": "demo",
+                "RUST_EDITION": "2021",
+                "AUTHOR": 'A "Q" B',
+                "EMAIL": "a@b.c",
+                "PROJECT_DESCRIPTION": 'Say "hi" \\d',
+                "LICENSE": "MIT",
+                "REPOSITORY": "https://x",
+            }
+        )
+        out = tmp_path / "Cargo.toml"
+
+        engine.render_file(template, out)
+
+        lines = out.read_text().splitlines()
+        assert 'authors = ["A \\"Q\\" B <a@b.c>"]' in lines
+        assert 'description = "Say \\"hi\\" \\\\d"' in lines
+        cargo = tomllib.loads(out.read_text())
+        assert cargo["package"]["authors"] == ['A "Q" B <a@b.c>']
+        assert cargo["package"]["description"] == 'Say "hi" \\d'
+
+    def test_control_characters_become_unicode_escapes(self):
+        """A newline or DEL in a value cannot end or corrupt the TOML string."""
+        escaped = toml_basic_escape("a\nb\x7fc\td")
+
+        assert escaped == "a\\u000ab\\u007fc\td"
+        assert tomllib.loads(f'k = "{escaped}"')["k"] == "a\nb\x7fc\td"
+
+    def test_non_toml_output_is_left_as_written(self, tmp_path):
+        """A Makefile or README gets the value verbatim."""
+        template = tmp_path / "README.md.template"
+        template.write_text("# {{PROJECT_NAME}}\n")
+        out = tmp_path / "README.md"
+
+        TemplateEngine({"PROJECT_NAME": 'say "hi"'}).render_file(template, out)
+
+        assert out.read_text() == '# say "hi"\n'
+
+
+class TestJsonOutputIsEscaped:
+    """A quote or backslash in a value must not break a generated JSON file."""
+
+    def test_package_json_with_quotes_and_backslashes_parses(self, tmp_path):
+        """`Say "hi"` as a description wrote `"description": "Say "hi""`."""
+        template = (
+            Path(__file__).parents[1]
+            / "templates"
+            / "typescript"
+            / "package.json.template"
+        )
+        engine = TemplateEngine(
+            get_default_variables(
+                "demo",
+                language="typescript",
+                author="Dom\\User",
+                description='Say "hi"',
+            )
+        )
+        out = tmp_path / "package.json"
+
+        engine.render_file(template, out)
+
+        package = json.loads(out.read_text())
+        assert package["description"] == 'Say "hi"'
+        assert package["author"].startswith("Dom\\User <")
+
+
+class TestRustMakefileTemplate:
+    """The generated Makefile works on a fresh project and mirrors CI."""
+
+    _TEMPLATE = Path(__file__).parents[1] / "templates" / "rust" / "Makefile.template"
+
+    def _make_n(self, tmp_path: Path, target: str) -> str:
+        engine = TemplateEngine({"PROJECT_NAME": "demo"})
+        engine.render_file(self._TEMPLATE, tmp_path / "Makefile")
+        return subprocess.run(
+            ["make", "-n", target],
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout
+
+    def test_ci_checks_formatting_instead_of_rewriting(self, tmp_path):
+        """`make ci` ran `cargo fmt`, passing locally where CI's --check failed."""
+        plan = self._make_n(tmp_path, "ci")
+        assert "fmt --all -- --check" in plan
+
+    def test_integration_tests_are_skipped_without_a_tests_directory(self, tmp_path):
+        """`--test '*'` errors when a fresh project has no tests/."""
+        plan = self._make_n(tmp_path, "test-integration")
+        assert "[ -d tests ]" in plan

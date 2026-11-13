@@ -78,7 +78,7 @@ Socratic set.
 A `newcomer` tutorial keeps the one path that works, end to
 end. Alternatives, internals, and the reasons the obvious
 approach fails are `expert` material. They go to
-`docs/deep-dive/<topic>.md`, linked from the lead in one line
+`docs/<topic>.md`, linked from the lead in one line
 that names who the deep dive is for. Never delete them to hit
 the tier. A tutorial that pauses to compare three approaches
 has stopped moving the reader from cannot to can.

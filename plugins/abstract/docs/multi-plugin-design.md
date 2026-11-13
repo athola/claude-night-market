@@ -1,6 +1,6 @@
 # Multi-Plugin Composition Design
 
-This document describes how Abstract serves as a base component library for the claude-night-market plugin ecosystem. Plugins compose from Abstract's building blocks rather than inheriting from it.
+This document describes how Abstract is a base component library for the claude-night-market plugin ecosystem. Plugins compose from Abstract's building blocks rather than inheriting from it.
 
 ## Philosophy: Composition Over Inheritance
 

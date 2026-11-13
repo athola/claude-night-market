@@ -83,7 +83,7 @@ revoked vs scope mismatch) the user needs to fix the problem.
 
 ## Bearer tokens and API keys
 
-When a skill calls a custom API that needs a key, the key lives
+When a skill calls a custom API that needs a key, the key is
 in an environment variable or a file the user controls. The
 skill must:
 
@@ -110,7 +110,7 @@ key into the conversation. If `EXAMPLE_API_KEY` is unset, the
 script exits with code 2 and prints a remediation message.
 ```
 
-The "do not paste" line is enforcement, not politeness. Pasted
+The "do not paste" line is enforcement. Pasted
 keys end up in session transcripts, screenshots, and bug reports.
 
 ## Delegating to authenticated subagents
@@ -173,7 +173,7 @@ ways the skill can leak.
 
 A skill that runs for 30 minutes may outlive the auth session
 that started it. For long-running skills, re-verify auth at
-phase boundaries, not just at the start.
+phase boundaries as well as at the start.
 
 ## Anti-patterns
 

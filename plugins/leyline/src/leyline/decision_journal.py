@@ -7,7 +7,7 @@ Owns the single source of truth for two append-only, in-repo logs:
 
 Discipline (grounded in ADR/MADR + PMI/SRE practice):
 
-- Append-only. Accepted entries are never edited or deleted; only ``Status``
+- Append-only. Accepted entries are never edited or deleted. Only ``Status``
   changes.
 - Supersede, do not overwrite: a reversal adds a new entry, flips the old
   one's status, and links the two bidirectionally.
@@ -448,7 +448,7 @@ def _journal_lock(path: Path) -> Iterator[None]:
     and ``write_text`` replaces the file entire, so two concurrent appends
     lose an entry outright rather than merely colliding on an id. This
     repository runs autonomous sessions that each record lessons, so
-    concurrent appends are the expected case, not a rare one.
+    concurrent appends are the expected case.
 
     The lock lives beside the journal rather than on it, so it survives
     the atomic replace below.

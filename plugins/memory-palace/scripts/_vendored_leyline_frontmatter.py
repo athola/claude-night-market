@@ -61,7 +61,7 @@ def parse_frontmatter_with_body(content: str) -> tuple[dict[str, Any], str]:
     Returns ``({}, content)`` if no valid frontmatter is found, or
     if the YAML payload is unparseable. Body is the remainder of
     ``content`` after the closing ``---`` line, including any
-    trailing whitespace -- byte-equivalent to
+    trailing whitespace. It is byte-equivalent to
     ``content[FRONTMATTER_RE.match(content).end():]``.
     """
     match = FRONTMATTER_RE.match(content)

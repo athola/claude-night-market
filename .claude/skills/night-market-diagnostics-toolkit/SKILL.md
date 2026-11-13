@@ -34,7 +34,7 @@ baseline JSON file, and:
   (locking in the win so the debt cannot silently return).
 
 The goal is a baseline that only shrinks, eventually to zero. The
-two ratchet baselines live at `scripts/skill_graph_baseline.json`
+two ratchet baselines are at `scripts/skill_graph_baseline.json`
 (keys `max_dangling_bugs`, `max_uncalled_libraries`) and
 `scripts/skill_exit_criteria_baseline.json`
 (key `max_missing_exit_criteria`). When a ratchet prints a
@@ -85,7 +85,7 @@ library-role skill no other skill invokes (the risk targeted by
   in `scripts/skill_graph_baseline.json`) instructs you to raise
   `max_uncalled_libraries` to record the 30-day consumer grace
   period that `.claude/rules/shared-utility-consumer-rule.md`
-  grants (the rule grants the grace period; the script defines the
+  grants (the rule grants the grace period, and the script defines the
   baseline mechanics). night-market-architecture-contract records
   the same exception in its ratchet invariants.
 - **Mutation exit codes are the contract.** CI

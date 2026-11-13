@@ -97,7 +97,7 @@ uv run python plugins/attune/scripts/attune_arch_init.py \
 beside project type, scalability and security, and every point it
 adds carries a rule that says "research", so the recommendation shows
 what came from reading and what came from the matrix. A key outside
-`preferred` and `avoid` is an error, not an ignored field. Without the
+`preferred` and `avoid` is rejected as an error. Without the
 file the script says so and recommends from the matrix alone; it
 cannot search by itself.
 

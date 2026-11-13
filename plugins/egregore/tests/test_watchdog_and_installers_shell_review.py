@@ -142,3 +142,74 @@ def test_systemd_unit_escapes_percent_in_the_working_directory(
     unit = (home / ".config/systemd/user/egregore-watchdog.service").read_text()
     work_line = next(x for x in unit.splitlines() if x.startswith("WorkingDirectory="))
     assert work_line == "WorkingDirectory=" + str(workdir).replace("%", "%%")
+
+
+def test_launchd_job_leaves_the_relaunched_session_running(tmp_path: Path) -> None:
+    """Launchd kills a job's process group when the job exits.
+
+    The watchdog exits right after `nohup claude &`, so without
+    AbandonProcessGroup the session it started died with it. The job's
+    PATH is launchd's default, which has no ~/.local/bin, so the install
+    records the PATH that found claude.
+    """
+    shim_dir, _calls = _shims(tmp_path, "launchctl", "claude")
+    workdir = tmp_path / "w"
+    workdir.mkdir()
+    result, home = _install(tmp_path, "install_launchd.sh", shim_dir, workdir)
+    assert result.returncode == 0, result.stderr
+    plist = home / "Library" / "LaunchAgents" / "com.egregore.watchdog.plist"
+    parsed = plistlib.loads(plist.read_bytes())
+    assert parsed["AbandonProcessGroup"] is True
+    assert str(shim_dir) in parsed["EnvironmentVariables"]["PATH"].split(":")
+
+
+def test_systemd_unit_leaves_the_relaunched_session_running(tmp_path: Path) -> None:
+    """A oneshot unit's default KillMode kills the session the tick started."""
+    shim_dir, _calls = _shims(tmp_path, "systemctl", "claude")
+    workdir = tmp_path / "w"
+    workdir.mkdir()
+    result, home = _install(tmp_path, "install_systemd.sh", shim_dir, workdir)
+    assert result.returncode == 0, result.stderr
+    unit = (home / ".config/systemd/user/egregore-watchdog.service").read_text()
+    lines = unit.splitlines()
+    assert "KillMode=process" in lines
+    env_line = next(x for x in lines if x.startswith("Environment="))
+    assert str(shim_dir) in env_line
+
+
+@pytest.mark.parametrize(
+    ("interval", "workdir_arg"), [("5m", None), ("300", "relative-dir")]
+)
+def test_launchd_install_rejects_a_bad_interval_or_relative_workdir(
+    tmp_path: Path, interval: str, workdir_arg: str | None
+) -> None:
+    """A unit in the interval broke bootstrap; a relative dir ran elsewhere."""
+    shim_dir, _calls = _shims(tmp_path, "launchctl")
+    (tmp_path / "relative-dir").mkdir()
+    home = tmp_path / "home"
+    (home / "Library" / "LaunchAgents").mkdir(parents=True)
+    result = subprocess.run(
+        [
+            "/bin/bash",
+            str(SCRIPTS / "install_launchd.sh"),
+            interval,
+            workdir_arg or str(tmp_path),
+        ],
+        env={
+            **os.environ,
+            "HOME": str(home),
+            "PATH": f"{shim_dir}:{os.environ['PATH']}",
+        },
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    plist = home / "Library" / "LaunchAgents" / "com.egregore.watchdog.plist"
+    if interval != "300":
+        assert result.returncode != 0
+        assert not plist.exists()
+    else:
+        assert result.returncode == 0, result.stderr
+        parsed = plistlib.loads(plist.read_bytes())
+        assert parsed["WorkingDirectory"] == str(tmp_path / "relative-dir")

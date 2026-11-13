@@ -398,9 +398,9 @@ def _ledger_path(ledger: dict, path: tuple[str, ...]) -> list[str]:
 def detect_vocabulary_drift(ledger: dict, gate_source: str) -> list[Drift]:
     """Report ledger values a gate's frozen set cannot express.
 
-    The ledger is a floor, not a ceiling. A gate accepting more than the
-    ledger records is not drift; only values the ledger knows about and
-    the gate rejects are.
+    The ledger is a floor. A gate accepting more than the ledger records
+    is not drift. Only values the ledger knows about and the gate rejects
+    are drift.
     """
     drifts: list[Drift] = []
 

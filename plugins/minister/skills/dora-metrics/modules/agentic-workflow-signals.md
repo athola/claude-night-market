@@ -19,7 +19,7 @@ If AI-authored CFR exceeds human-authored CFR by more than five
 percentage points, treat it as a signal that review is too lenient
 on AI output, not that AI is unsafe in general. The right response
 is usually adding a hookify rule or imbue gate at the friction
-point, not banning AI assistance.
+point. AI assistance stays in use.
 
 ### Lead Time, before vs after agent adoption
 

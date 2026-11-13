@@ -44,9 +44,10 @@ BUDGET_SECONDS = 90.0
 _BUDGET_SPENT = "skipped, time budget spent"
 
 
-# json.JSONDecodeError is a ValueError. KeyError and TypeError cover a
-# well-formed body that is not the shape the service documents.
-_UNPARSEABLE = (ValueError, KeyError, TypeError)
+# json.JSONDecodeError is a ValueError. KeyError, TypeError and
+# AttributeError cover a well-formed body that is not the shape the
+# service documents: `.get` on a list or on None raises the last.
+_UNPARSEABLE = (ValueError, KeyError, TypeError, AttributeError)
 
 
 def _error(source: str, reply: http.Response) -> dict[str, str]:
@@ -89,7 +90,7 @@ def search_academic(
     budget_seconds: float = BUDGET_SECONDS,
     clock: Callable[[], float] = time.monotonic,
 ) -> dict[str, Any]:
-    """Search arXiv, Semantic Scholar and OpenAlex; report each source."""
+    """Search arXiv, Semantic Scholar and OpenAlex and report each source."""
     deadline = clock() + budget_seconds
     sources: list[tuple[str, str, dict[str, str], Parser]] = [
         (

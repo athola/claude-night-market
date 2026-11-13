@@ -74,6 +74,13 @@ class TestValidateRef:
             _validate_ref("HEAD; rm -rf /")
 
     @pytest.mark.unit
+    @pytest.mark.parametrize("ref", ["--output=pwned.txt", "-p", " --stat"])
+    def test_rejects_a_ref_git_would_read_as_an_option(self, ref: str) -> None:
+        """`git diff --output=FILE` writes FILE; a ref is never an option."""
+        with pytest.raises(ValueError, match="unsafe"):
+            _validate_ref(ref)
+
+    @pytest.mark.unit
     def test_rejects_at_brace(self) -> None:
         with pytest.raises(ValueError, match="unsafe"):
             _validate_ref("HEAD@{0}")

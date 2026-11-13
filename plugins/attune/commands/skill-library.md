@@ -70,7 +70,7 @@ Avoid this command if:
 ## Related Commands
 
 - `/attune:mission` - General lifecycle orchestration with the same
-  state and resume machinery
+  state file
 - `/abstract:create-skill` - Author one skill with TDD methodology
 - `/abstract:skills-eval` - Audit existing skill quality
 

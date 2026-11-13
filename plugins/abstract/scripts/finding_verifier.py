@@ -12,16 +12,16 @@ still exist at the current HEAD.
 
 Scope boundary (deliberate): this verifies *location existence*,
 not *concern resolution*. File existence is a high-precision,
-low-recall signal -- a missing file is strong evidence the area
-was refactored away; a present file proves nothing about whether
+low-recall signal. A missing file is strong evidence the area
+was refactored away, and a present file proves nothing about whether
 the concern was addressed. Concern resolution requires reading
 content and stays a human / ``/do-issue`` decision. The promotion
 gate therefore skips only the clearest case (every referenced
 location gone) and never auto-closes anything.
 
 Consumers:
-- ``auto_promote_learnings.py`` -- promotion gate (skip stale).
-- ``/do-issue`` Step 1.4 -- documents the same verify-before-act
+- ``auto_promote_learnings.py``: promotion gate (skip stale).
+- ``/do-issue`` Step 1.4: documents the same verify-before-act
   pattern for the interactive workflow.
 """
 
@@ -45,11 +45,11 @@ Confidence = Literal["high", "medium", "low"]
 _EXTENSION_RE = re.compile(r"\.[A-Za-z0-9]{1,6}$")
 _ALNUM_RE = re.compile(r"[A-Za-z0-9]")
 
-# `path/to/file.md:20-22` -- embedded colon line range.
+# `path/to/file.md:20-22`: embedded colon line range.
 _COLON_RANGE_RE = re.compile(
     r"^(?P<path>[\w./-]+\.[A-Za-z0-9]{1,6}):(?P<start>\d+)(?:-(?P<end>\d+))?$"
 )
-# `L37-47` or `L45` -- an L-prefixed line marker.
+# `L37-47` or `L45`: an L-prefixed line marker.
 _L_MARKER_RE = re.compile(r"^L(?P<start>\d+)(?:-(?P<end>\d+))?$")
 
 
@@ -148,14 +148,14 @@ def resolve_skill_refs(skill: str, repo_root: Path) -> list[FileRef]:
 
     Returns an empty list for a bare name with no plugin prefix
     (nothing reliable to resolve). Existence is checked later by
-    ``verify_refs``; this only builds the candidate path.
+    ``verify_refs``. This only builds the candidate path.
     """
     if ":" not in skill:
         return []
     plugin, _, name = skill.partition(":")
     if not plugin or not name:
         return []
-    # A finding's "skill" may actually be a command or agent; probe
+    # A finding's "skill" may actually be a command or agent. Probe
     # each conventional location and return the one that exists.
     candidates = [
         f"plugins/{plugin}/skills/{name}",
@@ -167,7 +167,7 @@ def resolve_skill_refs(skill: str, repo_root: Path) -> list[FileRef]:
             return [FileRef(rel)]
     # No conventional location resolved: the id may be renamed or use a
     # non-standard path. Return nothing (-> ``no_refs``, non-skipping)
-    # rather than fabricating a missing path -- "unresolvable" must not
+    # rather than fabricating a missing path: "unresolvable" must not
     # masquerade as "removed" and silently skip a live finding.
     return []
 
@@ -245,7 +245,7 @@ def should_skip_promotion(result: VerificationResult) -> bool:
     """Promotion gate: skip only when every location is gone.
 
     Weaker signals (``stale_lines``, ``no_refs``, ``present``) never
-    block promotion -- they are surfaced for human review instead.
+    block promotion. They are surfaced for human review instead.
     Partial-missing (``medium``) also never blocks: a finding whose
     surviving files still exist may still apply.
     """
@@ -257,9 +257,9 @@ def repo_root_is_valid(root: Path) -> bool:
 
     The gate's correctness hinges on resolving locations against the
     real tree. A wrong root (relocated, symlinked, or installed copy)
-    would report every finding ``missing`` and skip them all. Callers
-    use this to disable the gate and promote normally when the root
-    cannot be trusted, rather than failing silently.
+    would report every finding ``missing`` and skip them all. When the
+    root cannot be trusted, callers use this to disable the gate and
+    promote normally.
     """
     return (root / ".git").exists() or (root / "plugins" / "abstract").exists()
 

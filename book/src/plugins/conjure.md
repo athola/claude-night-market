@@ -184,7 +184,7 @@ Conjure uses leyline for infrastructure:
 conjure
     |
     v
-leyline (quota-management, service-registry)
+leyline (service-registry, with its quota-management module)
 ```
 
 ## Best Practices

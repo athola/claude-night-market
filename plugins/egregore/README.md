@@ -118,7 +118,7 @@ or any URL.
 > **Why opt-in?** Per [docs/inclusive-defaults.md][inc],
 > webhooks send session data to external services using
 > user-supplied URLs. There is no reasonable default URL,
-> so flipping is impossible, not merely unwise.
+> so flipping is impossible.
 
 [inc]: ../../docs/inclusive-defaults.md
 
@@ -272,7 +272,5 @@ These behaviors are documented on the [book page][book]:
   `max_concurrent_worktrees`, and the two quality-stage waves
 - **Cross-item learning**: pattern categories and how a
   briefing is generated
-- **GitHub Discussions publishing**: content types, rate
-  limiting and deduplication
 
 [book]: ../../book/src/plugins/egregore.md

@@ -19,6 +19,8 @@ _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
+from gauntlet.git_commands import is_git_commit
+
 
 def _get_gauntlet_dir() -> Path | None:
     cwd = Path(os.getcwd())
@@ -62,7 +64,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     command = tool_input.get("command", "")
-    if not command.startswith("git commit"):
+    if not is_git_commit(command):
         return None
 
     # PostToolUse fires only after a tool completes successfully, so there is
@@ -105,7 +107,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
             graph.close()
         duration = round(time.monotonic() - start, 2)
 
-        # An error or skipped report did no work; its counters are zeros
+        # An error or skipped report did no work. Its counters are zeros
         # that would otherwise read as a successful update.
         reason = report.get("error") or report.get("skipped")
         if reason:

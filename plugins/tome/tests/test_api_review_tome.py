@@ -16,7 +16,6 @@ from tome.channels import academic, discourse, fetch, github, http, triz, web
 from tome.metrics.retrieval import ndcg_at_k, recall_at_k
 from tome.models import (
     Citation,
-    CitationEdge,
     DomainClassification,
     QueryLog,
     ResearchPlan,
@@ -262,9 +261,7 @@ class TestCountValidation:
     @pytest.mark.parametrize(
         "expand",
         [
-            github.expand_github_queries,
             web.expand_web_queries,
-            discourse.expand_discourse_queries,
             academic.expand_academic_queries,
         ],
     )
@@ -327,7 +324,6 @@ class TestFromDictMissingKey:
     @pytest.mark.parametrize(
         "model",
         [
-            CitationEdge,
             DomainClassification,
             SessionSummary,
             Citation,

@@ -552,6 +552,30 @@ class TestEdgeCasePaths:
         assert body["error"] == "Invalid Content-Length"
 
     @pytest.mark.integration
+    @pytest.mark.parametrize("length", ["-1", "99999999999"])
+    def test_a_negative_or_huge_content_length_returns_400(
+        self, daemon_instance: InferenceDaemon, length: str
+    ):
+        """
+        Scenario: POST /infer with a Content-Length the daemon must not trust
+        Given the daemon is running
+        When the header is negative, read(-1) waits for the client to close
+        Then the response is 400 at once, and /health still answers
+        """
+        conn = http.client.HTTPConnection("127.0.0.1", daemon_instance.port, timeout=5)
+        try:
+            conn.putrequest("POST", "/infer")
+            conn.putheader("Content-Length", length)
+            conn.endheaders()
+            resp = conn.getresponse()
+            body = json.loads(resp.read())
+        finally:
+            conn.close()
+
+        assert resp.status == 400
+        assert body["error"] == "Invalid Content-Length"
+
+    @pytest.mark.integration
     def test_features_that_are_not_an_object_return_400(
         self, daemon_instance: InferenceDaemon
     ):

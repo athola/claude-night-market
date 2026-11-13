@@ -106,10 +106,22 @@ run_plugin_typecheck() {
   log "Type checking ${plugin_name}..."
 
   # Primary source check: prefer a Makefile typecheck target (custom layouts),
-  # then fall back to running mypy on src/ or scripts/ directly.
+  # then fall back to running mypy on src/ or scripts/ directly. The target
+  # may come from an included .mk, so make's own rule database is read:
+  # `make -n typecheck` succeeded for any plugin including base.mk, whose
+  # `%::` catch-all dry-runs every name. A here-string, not a pipe: under
+  # pipefail, make's exit 2 on the probe goal or its SIGPIPE when grep -q
+  # stops reading would turn a match into a miss. A name listed only in
+  # .PHONY prints there as a bare `typecheck:` with no prerequisites and no
+  # recipe, so the entry counts only when it carries one of the two. GNU
+  # make 3.81 heads a recipe `#  commands to execute`, 4.x `#  recipe to
+  # execute`.
   if [ -f "${plugin_dir}/Makefile" ] &&
     (grep -qE "^(typecheck|type-check):" "${plugin_dir}/Makefile" 2>/dev/null ||
-      (cd "${plugin_dir}" && make -n typecheck >/dev/null 2>&1)); then
+      awk '/^(typecheck|type-check):/ { entry = 1; if ($0 ~ /:[ \t]*[^ \t]/) found = 1; next }
+        entry && /^#  (commands|recipe) to execute/ { found = 1 }
+        /^$/ { entry = 0 }
+        END { exit !found }' <<<"$(cd "${plugin_dir}" && make -pn __typecheck_probe__ 2>/dev/null)"); then
     # Prefer explicit target in Makefile, fall back to typecheck
     local target
     target=$(grep -oE "^(typecheck|type-check):" "${plugin_dir}/Makefile" 2>/dev/null | head -1 | tr -d ':')

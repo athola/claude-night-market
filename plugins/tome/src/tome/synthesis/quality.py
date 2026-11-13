@@ -76,7 +76,7 @@ CANARY_OUTCOMES = frozenset({CANARY_PASSED, CANARY_FAILED, CANARY_ABSENT})
 # Controls share the log list so one record covers everything the run
 # did, and stay distinguishable so a control's hit never inflates the
 # topic count it exists to qualify. Consumed by
-# tome.synthesis.frontier; defined here because channel_outcomes must
+# tome.synthesis.frontier. It is defined here because channel_outcomes must
 # filter on it and the dependency runs that way.
 CANARY_SOURCE = "canary"
 

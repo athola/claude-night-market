@@ -1,5 +1,5 @@
 name: memory-palace
-version: 1.10.1
+version: 1.10.2
 description: Spatial knowledge organization using memory palace techniques - build, navigate, and maintain virtual memory
   structures for enhanced recall and information management. Includes PR Review Room for capturing review knowledge.
 keywords:
@@ -23,7 +23,7 @@ dependencies:
     path: plugins/leyline
     skills:
     - evaluation-framework
-    - storage-templates
+    - decision-journal
 skills:
 - skills/memory-palace-architect
 - skills/knowledge-locator

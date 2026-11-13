@@ -34,7 +34,7 @@ _VENDORED_DIRS = frozenset(
 def _is_vendored(path: Path, root: Path) -> bool:
     """Return True when a segment below *root* is a vendored or cache directory.
 
-    Segments above the root are where the codebase happens to live, not
+    Segments above the root locate the codebase and say nothing about
     what it contains.
     """
     return any(part in _VENDORED_DIRS for part in path.relative_to(root).parts)

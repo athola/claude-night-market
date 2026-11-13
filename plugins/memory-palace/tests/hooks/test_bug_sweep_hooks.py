@@ -20,10 +20,10 @@ HOOKS_DIR = Path(__file__).resolve().parents[2] / "hooks"
 if str(HOOKS_DIR) not in sys.path:
     sys.path.insert(0, str(HOOKS_DIR))
 
-import recall  # noqa: E402 - import after sys.path setup
+import _recall as recall  # noqa: E402 - import after sys.path setup
+import _url_detector as url_detector  # noqa: E402 - import after sys.path setup
 import research_queue  # noqa: E402 - import after sys.path setup
 import session_lifecycle as lc  # noqa: E402 - import after sys.path setup
-import url_detector  # noqa: E402 - import after sys.path setup
 
 import shared.config as config_module  # noqa: E402 - import after sys.path setup
 from memory_palace.session_history import (  # noqa: E402 - import after sys.path setup
@@ -592,3 +592,37 @@ class TestStopWithUnsafeSessionId:
         assert not (data / "x.json").exists()
         assert not (tmp_path / "x.json").exists()
         assert any("Invalid session" in r.getMessage() for r in caplog.records)
+
+
+class TestRecallTokensAndRaces:
+    """+recall matches words, and a session file can vanish mid-scan."""
+
+    def test_a_sentence_final_word_loses_its_period(self) -> None:
+        """`cache.` never matched a stored `cache`."""
+        assert recall._tokenize("fix the cache.") == {"fix", "cache"}
+
+    def test_a_dotted_name_inside_a_word_is_kept(self) -> None:
+        """Only edge punctuation goes; `config.yaml` stays one token."""
+        assert "config.yaml" in recall._tokenize("edit config.yaml now")
+
+    def test_a_session_file_deleted_during_the_scan_is_skipped(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """stat() on a pruned file raised FileNotFoundError on the prompt path."""
+        sessions = tmp_path / "sessions"
+        sessions.mkdir()
+        kept = sessions / "kept.json"
+        kept.write_text("{}")
+        gone = sessions / "gone.json"
+        gone.write_text("{}")
+        monkeypatch.setattr(recall, "_sessions_dir", lambda: sessions)
+        real_glob = Path.glob
+
+        def glob_then_prune(self: Path, pattern: str):
+            found = list(real_glob(self, pattern))
+            gone.unlink(missing_ok=True)
+            return iter(found)
+
+        monkeypatch.setattr(Path, "glob", glob_then_prune)
+
+        assert recall._recent_session_files() == [kept]

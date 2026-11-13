@@ -318,82 +318,36 @@ class TestAutoPromoteChaining:
     UserPromptSubmit timeout.
     """
 
-    def test_does_not_call_auto_promote(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Given: Aggregation completed successfully
-        When: run_daily_pipeline() is called
-        Then: auto_promote is NOT triggered (moved to Stop hook)
-        """
-        monkeypatch.setattr(
-            hook_module, "run_aggregation", MagicMock(return_value=True)
-        )
-        mock_promote = MagicMock()
-        monkeypatch.setattr(hook_module, "run_auto_promote", mock_promote)
-        monkeypatch.setattr(hook_module, "run_post_learnings", MagicMock())
-        monkeypatch.setattr(
-            hook_module, "should_aggregate", MagicMock(return_value=True)
-        )
-        monkeypatch.setattr(
-            hook_module, "has_logs_to_aggregate", MagicMock(return_value=True)
-        )
-
-        hook_module.run_daily_pipeline()
-        mock_promote.assert_not_called()
-
-    def test_does_not_call_post_learnings(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Given: Aggregation completed successfully
-        When: run_daily_pipeline() is called
-        Then: post_learnings is NOT triggered (moved to Stop hook)
-        """
-        monkeypatch.setattr(
-            hook_module, "run_aggregation", MagicMock(return_value=True)
-        )
-        monkeypatch.setattr(hook_module, "run_auto_promote", MagicMock())
-        mock_post = MagicMock()
-        monkeypatch.setattr(hook_module, "run_post_learnings", mock_post)
-        monkeypatch.setattr(
-            hook_module, "should_aggregate", MagicMock(return_value=True)
-        )
-        monkeypatch.setattr(
-            hook_module, "has_logs_to_aggregate", MagicMock(return_value=True)
-        )
-
-        hook_module.run_daily_pipeline()
-        mock_post.assert_not_called()
+    def test_hook_has_no_auto_promote_stage(self, hook_module) -> None:
+        """The Stop hook owns promotion; a second copy here had no caller."""
+        assert not hasattr(hook_module, "run_auto_promote")
+        assert not hasattr(hook_module, "_promote")
 
     def test_skips_everything_when_not_due(
         self, hook_module, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Given: Aggregation is not due (<24h since last run)
         When: run_daily_pipeline() is called
-        Then: Neither aggregation nor promotion runs
+        Then: Aggregation does not run
         """
         mock_agg = MagicMock()
-        mock_promote = MagicMock()
         monkeypatch.setattr(hook_module, "run_aggregation", mock_agg)
-        monkeypatch.setattr(hook_module, "run_auto_promote", mock_promote)
         monkeypatch.setattr(
             hook_module, "should_aggregate", MagicMock(return_value=False)
         )
 
         hook_module.run_daily_pipeline()
         mock_agg.assert_not_called()
-        mock_promote.assert_not_called()
 
     def test_skips_when_no_logs_to_aggregate(
         self, hook_module, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Given: Aggregation is due but no log files exist
         When: run_daily_pipeline() is called
-        Then: Neither aggregation nor promotion runs
+        Then: Aggregation does not run
         """
         mock_agg = MagicMock()
-        mock_promote = MagicMock()
         monkeypatch.setattr(hook_module, "run_aggregation", mock_agg)
-        monkeypatch.setattr(hook_module, "run_auto_promote", mock_promote)
         monkeypatch.setattr(
             hook_module, "should_aggregate", MagicMock(return_value=True)
         )
@@ -403,7 +357,6 @@ class TestAutoPromoteChaining:
 
         hook_module.run_daily_pipeline()
         mock_agg.assert_not_called()
-        mock_promote.assert_not_called()
 
     def test_updates_timestamp_only_on_success(
         self, hook_module, timestamp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -421,8 +374,6 @@ class TestAutoPromoteChaining:
         monkeypatch.setattr(
             hook_module, "run_aggregation", MagicMock(return_value=True)
         )
-        monkeypatch.setattr(hook_module, "run_auto_promote", MagicMock())
-        monkeypatch.setattr(hook_module, "run_post_learnings", MagicMock())
 
         hook_module.run_daily_pipeline()
         assert timestamp_path.exists()
@@ -446,69 +397,6 @@ class TestAutoPromoteChaining:
 
         hook_module.run_daily_pipeline()
         assert not timestamp_path.exists()
-
-
-# ---------------------------------------------------------------------------
-# Auto-promote error isolation tests
-# ---------------------------------------------------------------------------
-
-
-class TestAutoPromoteErrorIsolation:
-    """Test that auto-promote errors don't affect the hook."""
-
-    def test_auto_promote_exception_is_reported_and_not_raised(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch, capsys
-    ) -> None:
-        """Given: _promote raises an exception
-        When: run_auto_promote() is called
-        Then: _promote was reached, the failure is named on stderr, and
-        the hook returns instead of raising
-
-        A bare "should not raise" passed for any early return too, which
-        is the failure mode this guards: the call has to happen and the
-        swallow has to leave a trace.
-        """
-        # Ensure the scripts-available flag is set so run_auto_promote
-        # actually calls _promote rather than returning early.
-        monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", True)
-        calls = []
-
-        def boom():
-            calls.append("promote")
-            raise RuntimeError("boom")
-
-        monkeypatch.setattr(hook_module, "_promote", boom)
-
-        assert hook_module.run_auto_promote() is None
-
-        assert calls == ["promote"], "_promote was never reached"
-        stderr = capsys.readouterr().err
-        assert "auto-promote" in stderr
-        assert "RuntimeError: boom" in stderr
-
-    def test_post_learnings_exception_is_reported_and_not_raised(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch, capsys
-    ) -> None:
-        """Given: _post_learnings raises an exception
-        When: run_post_learnings() is called
-        Then: _post_learnings was reached and the failure is named on
-        stderr rather than propagating
-        """
-        monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", True)
-        calls = []
-
-        def boom():
-            calls.append("post")
-            raise RuntimeError("post boom")
-
-        monkeypatch.setattr(hook_module, "_post_learnings", boom)
-
-        assert hook_module.run_post_learnings() is None
-
-        assert calls == ["post"], "_post_learnings was never reached"
-        stderr = capsys.readouterr().err
-        assert "post-learnings" in stderr
-        assert "RuntimeError: post boom" in stderr
 
 
 # ---------------------------------------------------------------------------
@@ -755,26 +643,6 @@ class TestScriptsUnavailable:
         monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", False)
 
         assert hook_module.has_logs_to_aggregate() is False
-
-    @pytest.mark.parametrize(
-        ("runner", "target"),
-        [("run_auto_promote", "_promote"), ("run_post_learnings", "_post_learnings")],
-        ids=["auto-promote", "post-learnings"],
-    )
-    def test_chained_stage_is_skipped_when_scripts_failed_to_import(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch, runner: str, target: str
-    ) -> None:
-        """Given: the posting scripts could not be imported
-        When: the chained stage runs
-        Then: the stage's script entry point is never called
-        """
-        calls: list[str] = []
-        monkeypatch.setattr(hook_module, target, lambda: calls.append(target))
-        monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", False)
-
-        assert getattr(hook_module, runner)() is None
-
-        assert calls == []
 
 
 _YAML_BLOCKED_PROBE = """

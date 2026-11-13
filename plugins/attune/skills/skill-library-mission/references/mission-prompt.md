@@ -156,5 +156,5 @@ spot-check, and what remains uncertain.
   hyphenation typo fixed in "hypothesis-predicts-numbers".
 - Session-specific directives from the original run (scope-guard
   override, branch choice) are intentionally NOT part of the
-  template; record such directives in the mission state's
+  template. Record such directives in the mission state's
   `directive_overrides` instead.

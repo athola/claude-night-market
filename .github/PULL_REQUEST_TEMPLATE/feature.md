@@ -1,11 +1,14 @@
 <!--
 Title: imperative, naming the capability.
 "Add symmetric to_pdf and read_yaml I/O methods".
+
+Outside contributors: name the AI tool you used and how far it went,
+or say you used none (CONSTITUTION.md rule 1).
 -->
 
 | | |
 |---|---|
-| **Who** | <!-- audience for the capability; out-of-band reviewer if any --> |
+| **Who** | <!-- audience for the capability. Out-of-band reviewer if any --> |
 | **Where** | <!-- internal: module and file count. External: new or changed public surface, or `none` --> |
 | **When** | <!-- `on merge`, or the flag and the date it is fully rolled out --> |
 

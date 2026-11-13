@@ -374,14 +374,14 @@ carries and the system `python3` may not. It does two things:
   baseline. Other frontmatter lines stay byte-identical.
 - Marks the skill `evaluating` in
   `~/.claude/skills/improvement-queue.json`. The
-  homeostatic monitor hook then counts the next 10
+  skill execution logger hook then counts the next 10
   executions and reports `promote` or
   `pending_rollback_review`.
 
 It prints the new version. A skill with no execution history,
 or not in the queue, gets the version bump and no evaluation
 window. The script says so. The command runs from a repository
-checkout of this plugin; a marketplace install has no
+checkout of this plugin. A marketplace install has no
 `plugins/abstract` directory to point `--directory` at.
 
 #### D. Validate Changes
@@ -424,8 +424,8 @@ Data source: ~/.claude/skills/LEARNINGS.md"
 
 **Record insights in ImprovementMemory** so future improvement
 cycles can learn from what worked. Do not record the outcome by
-hand: the homeostatic monitor writes it when the evaluation window
-closes, with the success rate before the window as `before_score`
+hand: the skill execution logger hook writes it when the evaluation
+window closes, with the success rate before the window as `before_score`
 and the rate inside it as `after_score`.
 
 ```python

@@ -44,7 +44,7 @@ def test_record_eval_execution_keeps_a_flag_written_after_it_loaded(
 
     on_disk = ImprovementQueue(queue_file)
     assert "abstract:alpha" in on_disk.skills
-    assert on_disk.skills["abstract:beta"]["eval_executions"] == 1
+    assert on_disk.skills["abstract:beta"].eval_executions == 1
 
 
 def test_start_evaluation_keeps_a_flag_written_after_it_loaded(
@@ -59,7 +59,7 @@ def test_start_evaluation_keeps_a_flag_written_after_it_loaded(
 
     on_disk = ImprovementQueue(queue_file)
     assert "abstract:alpha" in on_disk.skills
-    assert on_disk.skills["abstract:beta"]["status"] == "evaluating"
+    assert on_disk.skills["abstract:beta"].status == "evaluating"
 
 
 def test_evaluate_keeps_a_flag_written_after_it_loaded(tmp_path: Path) -> None:
@@ -72,7 +72,7 @@ def test_evaluate_keeps_a_flag_written_after_it_loaded(tmp_path: Path) -> None:
 
     on_disk = ImprovementQueue(queue_file)
     assert "abstract:alpha" in on_disk.skills
-    assert on_disk.skills["abstract:beta"]["status"] != "evaluating"
+    assert on_disk.skills["abstract:beta"].status != "evaluating"
 
 
 def test_save_does_not_depend_on_a_fixed_shared_temp_path(tmp_path: Path) -> None:
@@ -176,8 +176,8 @@ def test_flag_skill_skips_a_skill_another_process_put_under_evaluation(
 
     entry = ImprovementQueue(queue_file).skills["abstract:beta"]
     assert flagged is False
-    assert entry["flagged_count"] == 0
-    assert entry["execution_ids"] == []
+    assert entry.flagged_count == 0
+    assert entry.execution_ids == []
 
 
 @pytest.mark.skipif(os.geteuid() == 0, reason="root ignores directory write permission")
@@ -212,14 +212,14 @@ def test_a_second_evaluation_window_starts_with_no_gaps(tmp_path: Path) -> None:
 
     queue.start_evaluation("abstract:alpha", baseline_gap=0.5)
 
-    assert queue.skills["abstract:alpha"]["eval_gaps"] == []
+    assert queue.skills["abstract:alpha"].eval_gaps == []
 
 
 def test_execution_ids_stay_bounded(tmp_path: Path) -> None:
     queue = ImprovementQueue(tmp_path / "q.json")
     for run in range(500):
         queue.flag_skill("abstract:alpha", 0.5, f"s{run}")
-    ids = queue.skills["abstract:alpha"]["execution_ids"]
+    ids = queue.skills["abstract:alpha"].execution_ids
     assert len(ids) == ImprovementQueue.MAX_EXECUTION_IDS
     assert ids[-1] == "s499"
 

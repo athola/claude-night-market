@@ -1816,3 +1816,37 @@ class TestTheStagingQueueBoundsItself:
 
         assert "900" in notice
         assert "palace-index-curator" in notice
+
+
+class TestQueueLinesInAnUnexpectedShape:
+    """One malformed queue line must not crash every later WebFetch hook."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "line", ['{"query": null}', "[1]", '"text"', '{"query": 3}']
+    )
+    def test_a_line_that_is_not_a_query_entry_is_skipped(
+        self, tmp_path: Path, line: str
+    ) -> None:
+        """`.lower()` on null and `.get` on a list raised AttributeError."""
+        queue_file = tmp_path / "data" / "intake_queue.jsonl"
+        queue_file.parent.mkdir(parents=True)
+        queue_file.write_text(
+            json.dumps({"query": "python asyncio"}) + "\n" + line + "\n",
+            encoding="utf-8",
+        )
+
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
+            assert _recent_intake_pending("python asyncio")
+
+    @pytest.mark.unit
+    def test_an_undecodable_queue_file_reads_as_no_pending_intake(
+        self, tmp_path: Path
+    ) -> None:
+        """UnicodeDecodeError is a ValueError, not an OSError."""
+        queue_file = tmp_path / "data" / "intake_queue.jsonl"
+        queue_file.parent.mkdir(parents=True)
+        queue_file.write_bytes(b"\xff\xfe not utf-8\n")
+
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
+            assert not _recent_intake_pending("python asyncio")

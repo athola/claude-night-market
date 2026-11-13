@@ -29,7 +29,7 @@ PR #417 review finding NB6 surfaced three resolutions:
 1. **Shared schema, separate files.** Define a common envelope and
    have both skills emit JSONL into one file per session.
 2. **Producer/consumer split.** friction-detector becomes the
-   producer (raw signals); metacognitive-self-mod becomes the
+   producer (raw signals), and metacognitive-self-mod becomes the
    consumer (structured analysis). Single storage path.
 3. **Merge.** Consolidate into one skill with two output modes.
 
@@ -63,12 +63,12 @@ Fields:
 - ``timestamp`` (RFC 3339 UTC, required): emit time of the envelope
   itself (not the underlying event).
 - ``source`` (string, required): producer name. Permitted values
-  ``friction-detector`` and ``trace-capture`` for v1; future
+  ``friction-detector`` and ``trace-capture`` for v1. Future
   producers extend this enum and bump ``schema_version`` if the
   envelope itself changes.
 - ``payload`` (object, required): producer-specific content.
   friction-detector keeps its existing signal shape under
-  ``payload``; trace-capture keeps its existing trace shape under
+  ``payload``, and trace-capture keeps its existing trace shape under
   ``payload``.
 
 ### Storage paths
@@ -104,8 +104,8 @@ unified view glob both directories and decode the envelope.
 
 - Two more required fields per emitted file (small overhead,
   ~120 bytes).
-- Two skills must stay in sync on the envelope contract; mitigated
-  by extracting a shared helper later.
+- Two skills must stay in sync on the envelope contract. Extracting
+  a shared helper later mitigates this.
 
 ### Neutral
 

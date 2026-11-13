@@ -100,7 +100,7 @@ Search across all your palaces:
 /navigate search "rate limiting" --type semantic
 ```
 
-This searches by meaning, not just keywords. It returns matches with:
+This searches by meaning as well as keywords. It returns matches with:
 
 - Which palace and district contains the result
 - Relevance score

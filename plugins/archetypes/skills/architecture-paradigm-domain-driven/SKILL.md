@@ -197,12 +197,12 @@ need for more appears.
     whose fields are all 1:1 copies is a mapper with no job.
 - **Anemic model**:
   - **Mitigation**: If the domain objects carry no behavior and every rule
-    lives in a service, the model is a schema with a new name. Move the
+    is in a service, the model is a schema with a new name. Move the
     rules onto the objects that own them, or accept that this domain does
     not need DDD.
 - **Silent field leak across a boundary**:
-  - **Mitigation**: The IO boundary rule above. Treat shared base classes
-    as a leak risk, not just a duplication fix.
+  - **Mitigation**: The IO boundary rule above. Treat a shared base class
+    as a leak risk even when it removes duplication.
 
 ## Concrete Components
 

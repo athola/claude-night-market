@@ -90,7 +90,7 @@ When the approval gate fires, the user gets:
    close out the finding.
 3. **defer**: log to `.harden/backlog.md` for future runs to
    surface again.
-4. **reject**: record a rejection with optional rationale; the
+4. **reject**: record a rejection with optional rationale. The
    finding will not surface again unless code changes invalidate
    the rejection.
 

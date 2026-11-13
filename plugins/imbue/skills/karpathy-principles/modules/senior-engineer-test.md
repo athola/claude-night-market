@@ -1,7 +1,7 @@
 # The Senior Engineer Test
 
 A three-question battery to apply to your own code
-before claiming it is done. The questions stand in
+before claiming it is done. The questions substitute
 for the senior engineer who is not in the room.
 
 Adapted from a self-check Karpathy calls out for
@@ -76,7 +76,7 @@ If three Yes -> ship
 If any No   -> rework that dimension first
 ```
 
-A No answer is not a failure of the agent; it is the
+A No answer is the
 agent doing its job. Catching the violation before
 the senior engineer catches it is the entire point.
 

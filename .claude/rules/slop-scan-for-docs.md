@@ -48,7 +48,7 @@ sentences are.
 Check 4 has one move that gets skipped: **extract, do not
 delete**. Content that only serves a higher tier goes to
 `modules/<topic>.md` for a skill or
-`docs/deep-dive/<topic>.md` for a repo doc, linked from
+`docs/<topic>.md` for a repo doc, linked from
 the parent's lead with one line naming who it is for.
 Rationale a newcomer cannot use is rarely weak writing.
 It is answering a question that reader has not asked yet.
@@ -117,8 +117,8 @@ under test, which is the rationale register and correct.
 Notation is the shape to leave alone, and it is code that happens to
 sit in prose: an arrow in a mapping table
 (`memory_palace/corpus/integration_policy.py:28`), a plus in a formula
-(`scribe/tape_generator.py:220`), and a character quoted because the
-code matches it (`scribe/negation.py:37`). Code marked the RST way,
+(`scribe/tape_generator.py:236`), and a character quoted because the
+code matches it (`scribe/negation.py:39`). Code marked the RST way,
 with two backticks, is stripped before scoring.
 
 `scripts/slop_score.py --threshold 3.0 docs book/src` is the

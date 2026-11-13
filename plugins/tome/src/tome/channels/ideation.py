@@ -9,7 +9,7 @@ value is the meta-pattern, not the method bundle:
   single pass spans distinct reasoning modes.
 - :func:`rotation_plan` schedules methods across passes so none repeats
   until the catalogue is exhausted. Code-backed rotation is the gap no
-  prior art fills; everyone else enforces it by prompt alone.
+  prior art fills. Everyone else enforces it by prompt alone.
 - :func:`score_idea` applies weighted scoring (per
   ``leyline:evaluation-framework``) with an anti-inflation rule: a high
   novelty claim without supporting evidence is capped.
@@ -43,7 +43,7 @@ IDEATION_CRITERIA: Mapping[str, float] = MappingProxyType(
     }
 )
 # The weighted_total contract depends on the weights summing to 1.0; guard
-# the invariant at import so an edit that breaks it fails loudly, not silently.
+# the invariant at import so an edit that breaks it fails loudly at import.
 assert abs(sum(IDEATION_CRITERIA.values()) - 1.0) < 1e-9, (
     "criteria weights must sum to 1.0"
 )

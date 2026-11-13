@@ -52,7 +52,7 @@ If UNACCOUNTED > 0, STOP and address before proceeding.
 
 ## 6.0.1 Issue Creation Enforcement (AUTOMATIC - BEFORE 6.1)
 
-**CRITICAL: Issues MUST be created IMMEDIATELY after reconciliation, not deferred.**
+**CRITICAL: Issues MUST be created IMMEDIATELY after reconciliation.**
 
 When the reconciliation table contains items with disposition "Issue #NN" or category "Suggestion"/"Deferred":
 

@@ -222,7 +222,7 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Load context data -- let FileNotFoundError and JSONDecodeError propagate
+    # Load context data. FileNotFoundError and JSONDecodeError propagate.
     with open(args.context_file) as f:
         context_data = json.load(f)
 

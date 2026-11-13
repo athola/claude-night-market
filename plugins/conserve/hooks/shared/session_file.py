@@ -16,8 +16,8 @@ __all__ = ["project_dir_name", "resolve_session_file"]
 def project_dir_name(cwd: Path) -> str:
     """Return the ``~/.claude/projects`` directory name Claude Code uses.
 
-    Claude Code maps every non-alphanumeric character to "-", not just
-    path separators: "/Users/a.b/my_repo" is "-Users-a-b-my-repo".
+    Claude Code maps every non-alphanumeric character to "-", path
+    separators included: "/Users/a.b/my_repo" is "-Users-a-b-my-repo".
     """
     name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
     return name if name.startswith("-") else "-" + name

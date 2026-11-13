@@ -2,11 +2,11 @@
 
 Use this at natural boundaries: completing a task, preparing
 a commit, ending a session. Reflection is genuine
-self-assessment, not performance.
+self-assessment.
 
 ## Five Prompts
 
-One per virtue. Answer honestly; there are no correct
+One per virtue. Answer honestly. There are no correct
 responses.
 
 - **Care**: What did I leave better for the next person?

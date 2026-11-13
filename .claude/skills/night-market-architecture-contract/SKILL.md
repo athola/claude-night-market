@@ -28,8 +28,8 @@ plugins import at runtime (ADR-0001, Accepted). Plugins detect each
 other at runtime via filesystem checks and must degrade gracefully when
 a sibling is absent.
 
-Cross-plugin DRY is an anti-pattern here, and that is settled by
-experiment, not taste. Commit `054e2679` consolidated 1164 lines of
+Cross-plugin DRY is an anti-pattern here, and an experiment settled
+it. Commit `054e2679` consolidated 1164 lines of
 duplicated `tasks_manager.py` from attune, sanctum, and spec-kit into a
 shared root script. It broke plugin self-containment and was reverted
 in `29961cd2`. The durable fix, `d89a55c7`, made the copies
@@ -166,8 +166,8 @@ grants. See night-market-change-control.
 
 ## Known weak points
 
-Stated plainly so nobody rediscovers them the hard way. These are open
-by decision or by neglect, not secrets.
+Stated plainly so nobody rediscovers them the hard way. These are known
+and open, by decision or by neglect.
 
 1. Skill-discovery overflow is silent. If total description overhead
    exceeds the context budget, skills vanish with no error (ADR-0004).
@@ -229,7 +229,7 @@ by decision or by neglect, not secrets.
 
 ## ADR digest
 
-All 23 records live in `docs/adr/`. Statuses for 0001 to 0017 were
+All 23 records are in `docs/adr/`. Statuses for 0001 to 0017 were
 read from the files on 2026-07-02, and 0018 to 0022 on 2026-08-23.
 
 | ADR | Title | Status | One-line takeaway |

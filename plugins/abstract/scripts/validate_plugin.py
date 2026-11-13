@@ -518,7 +518,7 @@ class PluginValidator:
             return
 
         # Only comments and blank lines may precede it. The runtime tolerates a
-        # leading comment block; it does not tolerate a statement.
+        # leading comment block but not a statement.
         preamble = content[: match.start()]
         for line in preamble.splitlines():
             stripped = line.strip()

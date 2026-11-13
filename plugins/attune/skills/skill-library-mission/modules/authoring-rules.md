@@ -1,14 +1,14 @@
 # Authoring Rules
 
 Bake every rule below into every authoring agent's prompt. These are
-the non-negotiables that made the first run trustworthy; an agent
+the non-negotiables that made the first run trustworthy. An agent
 that skips one produces a skill that is worse than no skill.
 
 ## The Rules
 
 1. **Audience**: a zero-context mid-level engineer or Sonnet-class
-   model. Imperative runbook voice; copy-pasteable commands; every
-   jargon term defined once; tables and checklists over prose. Each
+   model. Imperative runbook voice, copy-pasteable commands, every
+   jargon term defined once, and tables and checklists over prose. Each
    skill says when NOT to use it and which sibling to use instead.
 
 2. **Format**: `.claude/skills/<name>/SKILL.md` with YAML
@@ -17,8 +17,8 @@ that skips one produces a skill that is worse than no skill.
 
 3. **Ground truth only**: verify every command, flag, path, and
    claim against the repo before stating it. Wrong runbooks are
-   worse than none. An unverified claim is a finding for the review
-   phase, not a sentence in a skill.
+   worse than none. An unverified claim goes to the review phase as a
+   finding and stays out of the skill.
 
 4. **Embed knowledge**: do not reference private or user-specific
    paths as load-bearing sources. The skill must work for a reader
@@ -65,5 +65,5 @@ Every authoring agent must return, in structure or prose:
 - `scripts_shipped`: any executables placed in the skill's
   `scripts/` dir
 
-Agents without this contract get no output validation; treat a
+Agents without this contract get no output validation. Treat a
 missing contract as a review finding.

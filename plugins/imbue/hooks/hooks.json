@@ -29,7 +29,7 @@
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_ai_attribution.py\"",
             "timeout": 2,
-            "if": "Bash(git commit*)"
+            "if": "Bash(git *commit*)"
           }
         ]
       },
@@ -40,7 +40,7 @@
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_emoji_commits.py\"",
             "timeout": 2,
-            "if": "Bash(git commit*)"
+            "if": "Bash(git *commit*)"
           }
         ]
       },

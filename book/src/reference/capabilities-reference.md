@@ -31,6 +31,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `knowledge-extract` | [gauntlet](../plugins/gauntlet.md) | Extract and enrich the gauntlet knowledge base one subsystem per agent, then merge into a single corpus |
 | `palace-sweep` | [memory-palace](../plugins/memory-palace.md) | Ask one question of every memory palace in parallel and rank the answers, including the ones filed under an unexpected domain |
 | `paradigm-panel` | [archetypes](../plugins/archetypes.md) | Score candidate architecture paradigms independently against one requirement set and return a ranked comparison |
+| `parity-sweep` | [pensive](../plugins/pensive.md) | Find features that one platform client has and another lacks, or that behave differently, and confirm each with file evidence |
 | `plugin-health` | [leyline](../plugins/leyline.md) | Check every plugin against the shared leyline contracts in parallel, then report contracts that no plugin satisfies |
 | `provider-sweep` | [conjure](../plugins/conjure.md) | Ask every delegation provider in parallel whether this machine can call it, and separate a missing binary from a rejected credential |
 | `python-sweep` | [parseltongue](../plugins/parseltongue.md) | Run the lint, type, performance and test specialists over the same Python in parallel and merge their findings |
@@ -94,9 +95,8 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `curate` | [gauntlet](../plugins/gauntlet.md) | Add or edit knowledge annotations with tribal context |
 | `damage-control` | [leyline](../plugins/leyline.md) | Agent crash recovery and state reconciliation |
 | `data-flow` | [cartograph](../plugins/cartograph.md) | Data movement diagrams |
-| `decision-journal` | [leyline](../plugins/leyline.md) | Contract for the project decision journal (tradeoffs and lessons-learned logs) |
+| `decision-journal` | [leyline](../plugins/leyline.md) | Contracts for the decision journal, deferred-item capture, and storage templates |
 | `decisive-action` | [conserve](../plugins/conserve.md) | Decisive action patterns for efficient workflows |
-| `deferred-capture` | [leyline](../plugins/leyline.md) | Contract for unified deferred-item capture across plugins |
 | `delegation-core` | [conjure](../plugins/conjure.md) | Framework for delegation decisions |
 | `dependency-graph` | [cartograph](../plugins/cartograph.md) | Import and dependency diagrams |
 | `dependency-verification` | [imbue](../plugins/imbue.md) | Package-hallucination and slopsquat defense: verifies a package exists before install |
@@ -114,7 +114,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `elegant-code` | [conserve](../plugins/conserve.md) | Minimal-code decision ladder with full safety, edge, and negative-case coverage |
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
-| `evaluation-framework` | [leyline](../plugins/leyline.md) | Decision thresholds |
+| `evaluation-framework` | [leyline](../plugins/leyline.md) | Decision thresholds and utility-guided action selection |
 | `export` | [tome](../plugins/tome.md) | Export research findings for knowledge-intake |
 | `extract` | [gauntlet](../plugins/gauntlet.md) | Analyze codebase and build a knowledge base |
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring and optional research enrichment via tome (`--research`) |
@@ -142,7 +142,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `latent-space-engineering` | [imbue](../plugins/imbue.md) | Agent behavior shaping through instruction framing |
 | `loop-optimization` | [leyline](../plugins/leyline.md) | Hand-vs-compiler decision rule for loop transforms |
 | `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
-| `makefile-review` | [pensive](../plugins/pensive.md) | Makefile best practices |
+| `makefile-review` | [pensive](../plugins/pensive.md) | Deprecated alias for unified-review's makefile module |
 | `markdown-formatting` | [leyline](../plugins/leyline.md) | Line wrapping and style conventions |
 | `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
 | `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |
@@ -165,7 +165,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
 | `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
-| `problem-bank` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank; surveys coverage gaps and proposes YAML-valid entries |
+| `problem-bank` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank. Surveys coverage gaps and proposes YAML-valid entries |
 | `progressive-loading` | [leyline](../plugins/leyline.md) | Dynamic content loading |
 | `project-brainstorming` | [attune](../plugins/attune.md) | Socratic ideation workflow |
 | `project-execution` | [attune](../plugins/attune.md) | Systematic implementation |
@@ -174,13 +174,11 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `project-specification` | [attune](../plugins/attune.md) | Spec creation from brainstorm |
 | `proof-of-work` | [imbue](../plugins/imbue.md) | Evidence-based work validation |
 | `provider-setup` | [conjure](../plugins/conjure.md) | Reports, installs and records which delegation CLIs this machine can call |
-| `pytest-config` | [leyline](../plugins/leyline.md) | Pytest configuration patterns |
 | `python-async` | [parseltongue](../plugins/parseltongue.md) | Async patterns |
 | `python-packaging` | [parseltongue](../plugins/parseltongue.md) | Packaging with uv |
 | `python-performance` | [parseltongue](../plugins/parseltongue.md) | Profiling and optimization |
 | `python-testing` | [parseltongue](../plugins/parseltongue.md) | Pytest/TDD workflows |
 | `quality-gate` | [egregore](../plugins/egregore.md) | Pre-merge quality validation for autonomous sessions |
-| `quota-management` | [leyline](../plugins/leyline.md) | Rate limiting and quotas |
 | `qwen-delegation` | [conjure](../plugins/conjure.md) | Qwen MCP integration |
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
 | `research` | [tome](../plugins/tome.md) | Multi-source research orchestration |
@@ -192,10 +190,10 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `rule-catalog` | [hookify](../plugins/hookify.md) | Pre-built behavioral rule templates |
 | `rules-eval` | [abstract](../plugins/abstract.md) | Evaluate and validate Claude Code rules in `.claude/rules/` directories |
 | `rust-review` | [pensive](../plugins/pensive.md) | Rust-specific checking |
-| `safety-critical-patterns` | [pensive](../plugins/pensive.md) | NASA Power of 10 rules for robust code |
+| `safety-critical-patterns` | [pensive](../plugins/pensive.md) | NASA Power of 10 rules for verifiable code |
 | `scope-guard` | [imbue](../plugins/imbue.md) | Anti-overengineering |
 | `sem-integration` | [leyline](../plugins/leyline.md) | Semantic diff CLI detection and fallback |
-| `service-registry` | [leyline](../plugins/leyline.md) | Service discovery patterns |
+| `service-registry` | [leyline](../plugins/leyline.md) | Service discovery, quotas, and usage logging |
 | `session-handoff` | [memory-palace](../plugins/memory-palace.md) | Typed session handoff units and on-demand recall |
 | `session-management` | [sanctum](../plugins/sanctum.md) | Session naming, checkpointing, and resume strategies |
 | `session-palace-builder` | [memory-palace](../plugins/memory-palace.md) | Session-specific palaces |
@@ -216,7 +214,6 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `stack-push` | [sanctum](../plugins/sanctum.md) | Push stack branches and open or update dependent PRs |
 | `stack-rebase` | [sanctum](../plugins/sanctum.md) | Cascading rebase after a base PR merges |
 | `stewardship` | [leyline](../plugins/leyline.md) | Cross-cutting stewardship principles with layer-specific guidance |
-| `storage-templates` | [leyline](../plugins/leyline.md) | Storage abstraction patterns |
 | `structured-output` | [imbue](../plugins/imbue.md) | Formatting patterns |
 | `style-learner` | [scribe](../plugins/scribe.md) | Extract writing style from exemplar text |
 | `subagent-testing` | [abstract](../plugins/abstract.md) | Testing patterns for subagent interactions |
@@ -227,7 +224,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `tech-tutorial` | [scribe](../plugins/scribe.md) | Plan, draft, and refine technical tutorials |
 | `test-review` | [pensive](../plugins/pensive.md) | Test quality review |
 | `test-updates` | [sanctum](../plugins/sanctum.md) | Test maintenance |
-| `testing-quality-standards` | [leyline](../plugins/leyline.md) | Test quality guidelines |
+| `testing-quality-standards` | [leyline](../plugins/leyline.md) | Test quality guidelines and pytest configuration |
 | `ticket-writing` | [leyline](../plugins/leyline.md) | Glanceable tickets with the why inline or one link away |
 | `tiered-audit` | [pensive](../plugins/pensive.md) | Three-tier escalation audit (git history, targeted, full) |
 | `token-conservation` | [conserve](../plugins/conserve.md) | Token usage strategies |
@@ -236,8 +233,6 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `unified-review` | [pensive](../plugins/pensive.md) | Review orchestration |
 | `uninstall-watchdog` | [egregore](../plugins/egregore.md) | Remove crash-recovery watchdog |
 | `update-readme` | [sanctum](../plugins/sanctum.md) | README maintenance and updates |
-| `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
-| `utility` | [leyline](../plugins/leyline.md) | Utility-guided action selection for orchestration |
 | `validate-pr` | [sanctum](../plugins/sanctum.md) | Diff-derived PR test plan with revert-test quality checks |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
@@ -460,7 +455,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 
 | Hook | Plugin | Type | Description |
 |------|--------|------|-------------|
-| `aggregate_learnings_daily.py` | abstract | UserPromptSubmit | Daily learning aggregation (24h cadence) with severity-based issue creation |
+| `aggregate_learnings_daily.py` | abstract | UserPromptSubmit | Daily learning aggregation (24h cadence) into LEARNINGS.md |
 | `auto-star-repo.sh` | leyline | SessionStart | Ask Claude to offer a repo star when not starred (async) |
 | `config_change_audit.py` | sanctum | ConfigChange | Audit configuration changes |
 | `context_warning.py` | conserve | PreToolUse | Context utilization monitoring |
@@ -498,8 +493,8 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `task_created_tracker.py` | sanctum | TaskCreated | Track task creation for workflow completeness monitoring |
 | `tdd_bdd_gate.py` | imbue | PreToolUse | Iron Law enforcement at write-time |
 | `tool_output_summarizer.py` | conserve | PostToolUse | Monitor and warn about tool output bloat |
-| `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
+| `user_prompt.py` | memory-palace | UserPromptSubmit | URL detection and `+recall` |
 | `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
 | `verify_workflow_complete.py` | sanctum | Stop | Post-implementation checklist after a turn that edited files |
 | `vow_bounded_reads.py` | imbue | PreToolUse | Warns when discovery read budget (15 reads) is exceeded per session |

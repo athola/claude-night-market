@@ -1,6 +1,6 @@
 ---
 name: testing-quality-standards
-description: Defines testing quality metrics, coverage thresholds, and anti-patterns. Use when establishing test gates or validating a test suite's coverage targets.
+description: Defines test quality metrics, coverage thresholds, anti-patterns, and pytest config. Use when setting test gates, a suite's coverage target, or pytest fixtures.
 globs: "**/test_*.py"
 alwaysApply: false
 category: infrastructure
@@ -21,6 +21,11 @@ modules:
 - modules/anti-patterns.md
 - modules/best-practices.md
 - modules/content-assertion-levels.md
+- modules/pytest-config.md
+- modules/conftest-patterns.md
+- modules/git-testing-fixtures.md
+- modules/mock-fixtures.md
+- modules/ci-integration.md
 ---
 # Testing Quality Standards
 
@@ -79,6 +84,16 @@ For implementation patterns and examples:
 - **[Anti-Patterns](modules/anti-patterns.md)** - Common testing mistakes with before/after examples
 - **[Best Practices](modules/best-practices.md)** - Core testing principles and exit criteria
 - **[Content Assertion Levels](modules/content-assertion-levels.md)** - L1/L2/L3 taxonomy for testing LLM-interpreted markdown files
+- **[Pytest Config](modules/pytest-config.md)** - Load when setting up or
+  auditing a Python plugin's pytest and coverage configuration
+- **[Conftest Patterns](modules/conftest-patterns.md)** - Load when writing
+  conftest.py fixtures and test markers
+- **[Git Testing Fixtures](modules/git-testing-fixtures.md)** - Load when a
+  test needs a throwaway git repository
+- **[Mock Fixtures](modules/mock-fixtures.md)** - Load when mocking Bash,
+  TodoWrite, or other Claude Code tools
+- **[CI Integration](modules/ci-integration.md)** - Load when wiring pytest
+  into GitHub Actions
 
 ## Integration with Plugin Testing
 

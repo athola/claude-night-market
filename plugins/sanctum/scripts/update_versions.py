@@ -34,7 +34,7 @@ _TOML_VERSION_TABLES = frozenset(
 def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
     """Find all version files, excluding venvs and build dirs unless explicitly asked.
 
-    Scaffolding templates are excluded unconditionally; see SCAFFOLD_EXCLUDES.
+    Scaffolding templates are excluded unconditionally (see SCAFFOLD_EXCLUDES).
 
     Args:
         root: Root directory to search

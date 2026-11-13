@@ -78,7 +78,7 @@ def unreferenced_versions(plugins_root: Path) -> list[Path]:
 
     Raises when the manifest names installs but none of them land under
     this cache. That is the signature of a mismatched root, and the
-    reading it would otherwise produce -- that everything is stale -- is
+    reading it would otherwise produce (that everything is stale) is
     the most destructive one available.
 
     A manifest that names no installs at all is a different event: it is

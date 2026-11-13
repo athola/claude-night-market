@@ -61,7 +61,8 @@ def test_format_insight_body_has_footer():
     f = _make_finding()
     body = format_insight_body(f)
     assert "Insight Engine" in body
-    assert "fire" in body.lower() or "\U0001f525" in body
+    assert "\U0001f44d" in body
+    assert "\U0001f525" not in body
 
 
 def test_format_insight_body_with_related_files():

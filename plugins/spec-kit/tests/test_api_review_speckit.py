@@ -92,3 +92,22 @@ def test_invalidate_category_rejects_unknown_category() -> None:
     """A typo'd category fails instead of invalidating nothing."""
     with pytest.raises(ValueError, match="typo_cat"):
         CacheManager.invalidate_category("typo_cat")
+
+
+def test_calls_with_different_arguments_are_cached_apart(
+    isolated_cache: SpecKitCache,
+) -> None:
+    """With no data_arg the key was the function name, so parse("b.md")
+    returned parse("a.md")'s result for the whole TTL.
+    """
+    calls: list[str] = []
+
+    @cached(key="parse-fn")
+    def parse(path: str) -> str:
+        calls.append(path)
+        return f"parsed {path}"
+
+    assert parse("a.md") == "parsed a.md"
+    assert parse("b.md") == "parsed b.md"
+    assert parse("a.md") == "parsed a.md"
+    assert calls == ["a.md", "b.md"]

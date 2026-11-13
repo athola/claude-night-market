@@ -20,7 +20,7 @@ Use this module when:
 
 For pure design exploration with no existing surface to audit,
 load `api-patterns.md` instead. That module covers slicing API
-content; this one covers running the review.
+content. This one covers running the review.
 
 ## Three-Phase Loading
 

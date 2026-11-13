@@ -2,8 +2,8 @@
 
 Split out of ``delegation_executor``: everything here turns a prompt and
 a list of paths into the text and argv a CLI receives, and none of it
-spawns a process. Imports flow one way: this module knows the service
-contract and nothing about ``Delegator``.
+spawns a process. Imports flow one way: this module imports the service
+contract and never imports ``Delegator``.
 """
 
 from __future__ import annotations

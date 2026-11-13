@@ -379,7 +379,7 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Load analysis results — propagate errors so callers can handle them
+    # Load analysis results. Errors propagate so callers can handle them.
     with open(args.analysis_file) as f:
         analysis_results = json.load(f)
 

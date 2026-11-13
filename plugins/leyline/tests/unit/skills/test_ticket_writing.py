@@ -75,6 +75,51 @@ class TestGlanceRule:
         assert "No study found measures" in _read(SKILL)
 
 
+class TestProjectTemplateFirst:
+    """Feature: A project's own ticket shape wins over the default.
+
+    In one private Jira project, reviewers rewrote every agent ticket from
+    the default shape (Why:, Done when:, Repro:) into the team's h3
+    template, and once restored one after the agent overwrote it.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "required_phrase",
+        [
+            "Project template first",
+            "recent tickets of the same type",
+            "### Impact",
+            "### Expected behavior",
+            "### Actual behavior",
+            "### Steps to reproduce",
+            "### Acceptance criteria",
+            "should",
+            "Contractions are fine",
+        ],
+    )
+    def test_skill_states_the_template_rule(self, required_phrase: str) -> None:
+        assert required_phrase in _read(SKILL)
+
+    @pytest.mark.unit
+    def test_skill_keeps_the_change_out_of_the_ticket(self) -> None:
+        assert "belongs in the merge request" in _read(SKILL)
+
+    @pytest.mark.unit
+    def test_skill_patches_the_live_description(self) -> None:
+        skill = _read(SKILL)
+        assert "Read the live description" in skill
+        assert "never regenerate" in skill
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "markup",
+        ["{{code}}", "[text|url]", "h3.", "descriptionVersion"],
+    )
+    def test_module_states_jira_markup(self, markup: str) -> None:
+        assert markup in _read(MODULE)
+
+
 class TestTrackerMechanics:
     """Feature: Each tracker's linking facts are stated, not implied."""
 

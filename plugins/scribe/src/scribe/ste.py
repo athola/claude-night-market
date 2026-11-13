@@ -1,7 +1,7 @@
 """STE-derived structural checks: sentence length, paragraphs, noun clusters.
 
 These three checks are the ones that cannot be expressed as regexes and
-therefore cannot live in ``data/languages/en.yaml`` alongside the slop
+therefore cannot go in ``data/languages/en.yaml`` alongside the slop
 patterns. Each needs either word-count normalization or noun detection:
 
 - :func:`check_sentence_length` enforces the two limits ASD-STE100 sets
@@ -37,10 +37,11 @@ than by whitespace, but those conventions are not published outside the
 specification, which is copyright ASD and not redistributable. What we
 implement here (a hyphenated compound, a parenthetical span, a quoted
 placard, a number with its unit, and an inline code span each count as
-one word) is a reasonable reading, not a transcription. No rule numbers
-are cited for it because none could be verified. Rule 8.1, the ban on
+one word) is a reasonable reading of the specification and does not
+transcribe it. No rule numbers are cited for it because none could be
+verified. Rule 8.1, the ban on
 semicolons, is the only rule number this project cites, and that check
-lives in ``en.yaml`` because it is a regex property.
+is in ``en.yaml`` because it is a regex property.
 
 This module is an STE-derived authoring aid. It does not implement
 ASD-STE100 and nothing here should be described as STE compliance. ASD
@@ -143,7 +144,7 @@ _BARE_DOMAIN = re.compile(
 # this, "/home/alext/claude/projects" reads as a four-word noun cluster.
 # The rule also merges "and/or", which counts as one word either way.
 _PATH = re.compile(r"(?<!\S)/?[\w.-]+(?:/[\w.-]+)+")
-# Inline markup, not prose. Replaced with a space rather than the mask
+# Inline markup carries no prose. Replaced with a space rather than the mask
 # because a tag is not a word: "The <b>release</b> is ready" holds four.
 _HTML_TAG = re.compile(r"</?[a-zA-Z][^>]*>")
 # A bare filename or path is one thing. Without this, "config.yml"
@@ -189,7 +190,7 @@ _ABBREVIATIONS = (
 )
 
 # A sentence may end inside markdown emphasis: "**Bump the version.**".
-# The closing markers are allowed to sit between the punctuation and
+# The closing markers are allowed to come between the punctuation and
 # the whitespace, or the two sentences merge into one.
 _SENTENCE_END = re.compile(r"[.!?]+[*_`]*(?=\s|$)")
 _HEADING = re.compile(r"^\s{0,3}#{1,6}\s")
@@ -214,7 +215,7 @@ _WORD = re.compile(r"[A-Za-z][A-Za-z0-9'-]*")
 _PUNCTUATION_BREAK = re.compile(r"[,;:()\[\]{}]|\s[-\u2013\u2014]\s")
 
 # A short label introducing a list item: "**Scope**:", "Note:". The
-# label names the item; the instruction or statement follows it. Capped
+# label names the item, and the instruction or statement follows it. Capped
 # at four words and 40 characters so a real clause ending in a colon is
 # never mistaken for a label.
 _LABEL_PREFIX = re.compile(r"^\s*(?:\*\*|__)?\s*([^:*_`]{1,40}?)\s*(?:\*\*|__)?:\s+")
@@ -331,7 +332,7 @@ def _mask_spans(text: str) -> str:
 
 
 def count_words(sentence: str) -> int:
-    """Count words the way STE counts them, not the way ``split`` does.
+    """Count words the way STE counts them, which differs from ``split``.
 
     A hyphenated compound, a parenthetical, a quoted placard, a number
     with its unit, and a code span each count as one word. See the
@@ -435,7 +436,7 @@ def _names_a_set(label: str) -> bool:
     which is why only the plural form is evidence.
 
     Measured over this repository's 6324 markdown files: 215 sentences
-    carry such a label, and one of them sits in the 21-to-25-word band
+    carry such a label, and one of them falls in the 21-to-25-word band
     where the register decides whether it reports at all. The failure
     mode is bounded by the same measurement. A label like ``Steps:`` in
     front of a genuine instruction gets the 25-word descriptive limit
@@ -452,7 +453,7 @@ def _is_finite_verb(word: str, verbs: set) -> bool:
     A copula or modal qualifies outright. So does an inflected form of
     a listed verb, because ``-s`` marks a third-person present verb.
     The bare form is deliberately excluded: in ``Use return
-    dictionaries`` the second word is an object, not a predicate.
+    dictionaries`` the second word is an object rather than a predicate.
     """
     if word in _FINITE_FORMS:
         return True
@@ -477,7 +478,7 @@ def classify_sentence(text: str, *, in_ordered_list: bool = False) -> tuple:
     lex = _sets()
     body, label = _strip_label(text)
     # A label hides the sentence's real opening, so a register read
-    # through one rests on less than a register read from the sentence
+    # through one has less to go on than a register read from the sentence
     # itself. Measured over the corpus, the reading is right about five
     # times in six, which is worth reporting and not worth asserting.
     through_label = body != text
@@ -513,7 +514,7 @@ def _register_from_body(
     # front of its verb. The adverb alone proves nothing, so the verb
     # after it has to be present, and the reading is weaker evidence
     # than a bare imperative. This is tested before the descriptive
-    # starters because several openers ("then", "once", "only") sit in
+    # starters because several openers ("then", "once", "only") appear in
     # both lists, and an adverb followed by a verb is the stronger
     # signal of the two.
     if (
@@ -551,11 +552,11 @@ def _iter_blocks(text: str) -> list:
     is_ordered = False
     lines = text.splitlines()
 
-    # YAML frontmatter is metadata, not prose. Every SKILL.md in this
+    # YAML frontmatter is metadata. Every SKILL.md in this
     # repository opens with one, and counting `name:`/`description:` as
     # prose made frontmatter the largest single source of sentences the
     # classifier could not place. Only a `---` on the very first line
-    # opens frontmatter; anywhere else it is a horizontal rule.
+    # opens frontmatter. Anywhere else it is a horizontal rule.
     start_index = 0
     if lines and lines[0].strip() == "---":
         for offset, line in enumerate(lines[1:], start=1):
@@ -618,7 +619,7 @@ def _iter_blocks(text: str) -> list:
 
 
 def _finding_confidence(actual: int, register_confidence: float) -> str:
-    """How far a sentence_length finding rests on the register.
+    """How far a sentence_length finding depends on the register.
 
     Past the descriptive limit the sentence is over both limits, so the
     count settles it and the register is irrelevant. Below that the

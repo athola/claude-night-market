@@ -14,7 +14,7 @@ bar chart makes regressions and wins immediately visible.
 
 [kuva](https://github.com/Psy-Fer/kuva) is a Rust scientific
 plotting library (and CLI binary) that renders directly from TSV/CSV
-input to SVG, PNG, or the terminal. Install once; pipe benchmark
+input to SVG, PNG, or the terminal. Install once, then pipe benchmark
 data in without modifying project source.
 
 ## Install
@@ -124,4 +124,4 @@ Minimum evidence bar:
 - The hotspot is trivial (single function, clear before/after number
   in a two-column table). Charts are for 3+ data points.
 - CI environment has no Rust toolchain and adding one is not
-  worth it; fall back to a numeric table in the PR comment.
+  worth it. Fall back to a numeric table in the PR comment.

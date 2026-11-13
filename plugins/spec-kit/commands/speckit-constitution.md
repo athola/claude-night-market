@@ -51,10 +51,10 @@ When this step settles a decision with real alternatives, record it to
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
   a tradeoff entry (the decision, the options weighed, and what was
-  sacrificed; set `phase` to `plan`). Show the draft; append on
-  confirmation.
+  sacrificed, with `phase` set to `plan`). Show the draft and append
+  on confirmation.
 - Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
-  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+  ENTRY TEMPLATE, and assign the next `TR-NNN` id.
 
 5. Produce a Sync Impact Report (prepend as an HTML comment at top of the constitution file after update):
    - Version change: old → new
@@ -88,4 +88,4 @@ If the user supplies partial updates (e.g., only one principle revision), still 
 
 If critical info missing (e.g., ratification date truly unknown), insert `TODO(<FIELD_NAME>): explanation` and include in the Sync Impact Report under deferred items.
 
-Do not create a new template; always operate on the existing `.specify/memory/constitution.md` file.
+Always operate on the existing `.specify/memory/constitution.md` file. Do not create a new template.

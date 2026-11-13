@@ -115,7 +115,7 @@ grep -rL "assert.*Error\|assert.*Exception\|pytest.raises\|with self.assertRaise
 
 **Confidence**: HIGH (90%)
 **Action**: AUGMENT_TESTS before adding more code
-**Rationale**: AI generates happy path; errors require human insight
+**Rationale**: AI generates the happy path. Error cases require human insight
 
 ### 5. Premature Abstraction
 

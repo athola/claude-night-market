@@ -129,7 +129,7 @@ _BASE_CANDIDATES = (
 
 #: Budget for every git call in one measurement together. The SessionStart
 #: cap in hooks.json must cover this plus interpreter start-up, which the
-#: test suite checks. measure_branch makes up to five calls in sequence; a
+#: test suite checks. measure_branch makes up to five calls in sequence. A
 #: per-call budget let a slow git spend 4.0s, and the hook is killed at the
 #: cap holding an answer it can never report.
 _GIT_BUDGET_SECONDS = 0.8

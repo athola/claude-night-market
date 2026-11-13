@@ -1,6 +1,6 @@
 ---
 name: provider-setup
-description: Reports which delegation CLIs are installed and authenticated, installs missing ones, and stores the result. Use before delegating or when a provider errors.
+description: Reports which delegation CLIs are installed and authenticated, and installs missing ones. Use before delegating.
 alwaysApply: false
 category: delegation-infrastructure
 tags:
@@ -93,7 +93,7 @@ Routing still probes live. `Delegator.verify_service` spawns the
 version and auth probes on the delegation path as it always did, and
 the ledger does not short-circuit it.
 
-That is a deliberate boundary, not an unfinished edge. Reading a cached
+That boundary is deliberate. Reading a cached
 success into the router would send work to a provider whose token
 expired since the probe, and reading a cached failure into the router
 would disable a provider for the rest of the TTL after one transient

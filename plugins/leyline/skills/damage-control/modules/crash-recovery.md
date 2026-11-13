@@ -54,7 +54,7 @@ Check the task list for the crashed task:
   Determine its last known completed step before deciding to
   resume or restart.
 - If `pending`: the task had not yet started. No recovery
-  needed; assign normally.
+  needed. Assign normally.
 - If `completed`: the task completed before the crash. No
   action required.
 

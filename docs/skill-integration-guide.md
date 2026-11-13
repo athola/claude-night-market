@@ -6,7 +6,7 @@ This guide details patterns for chaining skills into functional workflows.
 
 Skills are invoked in prose with the `Skill(plugin:name)` syntax, not as
 imported Python objects. The examples below name skills that exist in this
-marketplace; verify any name against `plugins/<plugin>/skills/<name>/`.
+marketplace. Verify any name against `plugins/<plugin>/skills/<name>/`.
 
 ## Workflow Chaining
 
@@ -127,7 +127,7 @@ A 2026-04-25 audit found that 85 of 195 skills (~43%) had
 until you separate two distinct populations:
 
 1. Skills users invoke directly via slash commands or
-   agent prompts; they SHOULD have low Skill() inbound
+   agent prompts. They SHOULD have low Skill() inbound
    counts because the user is the caller.
 2. Skills that exist solely to be loaded by other skills
    should have high Skill() inbound counts because
@@ -149,7 +149,7 @@ classify skills the audit flagged.
 
 Invoked directly by users (via `/<plugin>:<skill>` slash
 commands or by agents acting on user prompts). Their
-value is end-to-end orchestration; they typically call
+value is end-to-end orchestration. They typically call
 several library skills internally.
 
 Signature: corresponds to a `commands/<name>.md` file,
@@ -157,15 +157,15 @@ registered in `plugin.json` under `commands` (not just
 `skills`), description follows the "Verb and domain. Use
 when..." trigger pattern, often a long SKILL.md with
 multiple modules. Examples:
-`attune:mission-orchestrator` (12 modules, user-invoked
-via `/attune:mission`), `sanctum:do-issue`,
+`attune:mission-orchestrator` (a single-file router,
+user-invoked via `/attune:mission`), `sanctum:do-issue`,
 `spec-kit:speckit-orchestrator`, `egregore:summon`.
 
 #### Library skills
 
 Loaded by other skills via `Skill(<plugin>:<name>)`
 during execution. Their value is reusable building
-blocks; they do not ship a slash command of their own.
+blocks. They do not ship a slash command of their own.
 
 Signature: no corresponding `commands/<name>.md`,
 registered in `plugin.json` only under `skills`,
@@ -183,7 +183,7 @@ preflight for commit / PR / review),
 
 Invoked by hooks (PreToolUse / PostToolUse /
 SessionStart / Stop) rather than by other skills or
-users. Their value is enforcement; the hook system
+users. Their value is enforcement. The hook system
 reads the SKILL.md to shape its own behavior.
 
 Signature: plugin has hooks registered in
@@ -229,7 +229,7 @@ or command loads `conserve:agent-expenditure`, and
 `/cartograph:visualize` did not route `call-chain` until
 2026-08-16. Both are agent- or command-invoked and
 now declare `role: entrypoint`. A library is a skill some
-other skill loads; naming a caller does not create one.
+other skill loads. Naming a caller does not create one.
 
 This is a measurement bug in the audit rather than a
 coverage problem in the marketplace. The taxonomy is now the
@@ -255,7 +255,7 @@ role: entrypoint  # or library, or hook-target
 
 Field semantics in the audit (`plugins/abstract/scripts/skill_graph.py`):
 
-- `role: entrypoint` skills are user-invoked; zero inbound
+- `role: entrypoint` skills are user-invoked. Zero inbound
   is the normal case and never flags as an isolate.
 - `role: library` skills exist to be loaded by other
   skills. Zero inbound is reported in a separate
@@ -271,9 +271,9 @@ Field semantics in the audit (`plugins/abstract/scripts/skill_graph.py`):
 The audit also recognises `dependencies:` arrays as a
 valid entry path. Bare names resolve to same-plugin
 sibling skills (the canonical hub-loads-paradigm
-pattern); fully-qualified `plugin:name` entries cross
+pattern). Fully-qualified `plugin:name` entries cross
 plugin boundaries. `modules:` arrays are NOT treated
-as skill references for bare names; those refer to
+as skill references for bare names. Those refer to
 local module files within the skill's own directory.
 
 ### Audit impact

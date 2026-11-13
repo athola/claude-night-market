@@ -31,7 +31,7 @@ attribute and is skipped.
 
 The Rust Reference type-layout chapter (`src/type-layout.md`) defines the
 `packed` representation: it lowers the struct alignment to the given value
-(default `1`) and drops inter-field padding. A field can then sit at an
+(default `1`) and drops inter-field padding. A field can then be at an
 address that does not satisfy its own alignment. Creating a reference to
 such a field (`&s.field`, or implicitly when calling a `&self` method on
 it, or via `println!("{}", s.field)`) is instant undefined behavior, and

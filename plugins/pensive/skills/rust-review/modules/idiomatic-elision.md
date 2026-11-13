@@ -98,20 +98,20 @@ This is the return-type analogue of elision: just as the compiler
 infers an output lifetime, it infers the unit return. Type-inference
 elision extends the same idea to bindings: a redundant turbofish or
 annotation (`let v: Vec<u8> = Vec::<u8>::new();`) repeats a type the
-compiler already fixes from the other side; prefer one or the other.
+compiler already fixes from the other side. Prefer one or the other.
 
 ## Exclusions (Not Flagged)
 
 - **Load-bearing lifetimes**: two input references tied to the same
   lifetime (`fn longest<'a>(x: &'a str, y: &'a str) -> &'a str`) cannot
-  be elided; elision would give the inputs *distinct* lifetimes. The
+  be elided, because elision would give the inputs *distinct* lifetimes. The
   annotation carries meaning, so it is left alone.
 - **Type parameters present**: a signature like `fn f<'a, T>(...)` is
   skipped; trait bounds can require the explicit lifetime, so this is
   the conservative case.
 - **Early/guard returns**: a `return` followed by more code is control
   flow, not a tail expression, and is never flagged.
-- **Bare `return;`**: only `return <expr>;` is flagged; an early bare
+- **Bare `return;`**: only `return <expr>;` is flagged. An early bare
   `return;` is left to other lints.
 
 ## Related Clippy Lints

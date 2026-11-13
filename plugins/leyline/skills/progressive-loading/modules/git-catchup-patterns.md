@@ -18,7 +18,7 @@ Load this module when the task is:
 
 For deep diff analysis with risk scoring, load the
 `imbue:diff-analysis` skill instead. This module is about
-catchup loading, not full diff review.
+catchup loading.
 
 ## Three Loading Tiers by Diff Size
 
@@ -65,7 +65,7 @@ git diff --stat "$BASE"...HEAD
 ```
 
 The quick module formats this into a short markdown summary.
-No grouping, no per-file analysis. Token cost stays under 500.
+It skips grouping and per-file analysis. Token cost stays under 500.
 
 ## Standard Tier: Grouped by Subsystem
 

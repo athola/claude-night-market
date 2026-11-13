@@ -177,7 +177,7 @@ def _write_or_preview(
     return True
 
 
-# Decision-journal templates live in templates/decision_journal/. The canonical
+# Decision-journal templates are in templates/decision_journal/. The canonical
 # source is leyline:decision-journal; init prefers it when importable and falls
 # back to these files so project-init never hard-depends on leyline being installed.
 _JOURNAL_TEMPLATES_DIR = _TEMPLATES_DIR / "decision_journal"

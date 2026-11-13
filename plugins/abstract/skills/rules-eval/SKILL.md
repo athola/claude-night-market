@@ -108,4 +108,4 @@ Key validations: YAML syntax errors, unquoted glob patterns, Cursor-specific fie
 - [ ] Rules using Cursor-specific fields (`alwaysApply`, `globs`) are flagged as
   non-compliant with the expected Claude Code schema.
 - [ ] Any rule scoring below 26 (Critical tier) is reported with at least one concrete
-  corrective action, not just a score.
+  corrective action alongside the score.

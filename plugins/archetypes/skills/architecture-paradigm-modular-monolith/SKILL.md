@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-modular-monolith
-description: Applies modular monolith with enforced internal boundaries. Use when teams want service-level autonomy without distributed system overhead.
+description: Modular monolith with enforced internal boundaries. Use for service-level autonomy without a distributed system.
 alwaysApply: false
 category: architectural-pattern
 tags:
@@ -79,7 +79,7 @@ paradigm tends to carry. Not dependencies, and not ``tools:`` frontmatter.
 
 - [ ] An ADR maps module boundaries to business capabilities, defines rules for shared code, and
   states the conditions under which a module would be extracted into a separate service.
-- [ ] Each module exposes functionality only through documented facades, APIs, or events; direct
+- [ ] Each module exposes functionality only through documented facades, APIs, or events. Direct
   database table access between modules is absent (verified by schema ownership review).
 - [ ] Automated dependency checks fail the CI build on any forbidden cross-module import, and at
   least one such violation test case is documented.

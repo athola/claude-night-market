@@ -6,7 +6,7 @@ model id differs from every arm's. Labeling fails closed when a model
 was not resolved. Prompts are drafted from item bodies, never from
 descriptions, and the judge reads body excerpts of the router's
 shortlist, so neither proposer copies the text the model routes on.
-Body wording often repeats the description anyway; reports state that
+Body wording often repeats the description anyway. Reports state that
 echo risk rather than claim it is gone.
 
 Usage (uv run python -m scripts.activation.<command>):
@@ -340,7 +340,7 @@ def judge_batch(root: Path, router: Router, by_id: dict, ask, prompts: list) -> 
 
 
 def judge_all(root, router, by_id, ask, prompts: list) -> tuple[list, str | None]:
-    """Judge in batches; on budget exhaustion keep what was judged.
+    """Judge in batches and keep what was judged on budget exhaustion.
 
     Unjudged prompts come back as "unjudged" and land in the
     adjudication queue, so a budget stop costs review time, not labels.

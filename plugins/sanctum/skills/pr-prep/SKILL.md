@@ -87,9 +87,18 @@ git diff --cached --name-only | xargs grep -nE \
 git diff --cached | grep -c '^+.*//.*[a-zA-Z]' || true
 
 # Check for formatting-only commits mixed with feature work
-git log --oneline $(git merge-base HEAD origin/master)..HEAD | \
+base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+git log --oneline "$(git merge-base HEAD "$base")"..HEAD | \
   grep -iE '(fmt|format|lint|style|whitespace)' || true
 ```
+
+**Machine review:**
+
+Run a machine review of the diff before the PR opens. The human
+reviewer then spends their time on what a machine cannot judge. Use
+`Skill(pensive:unified-review)` for a change that spans several
+dimensions, or `/code-review` for a smaller one. Fix or answer each
+finding before posting.
 
 **Additive bias audit:**
 
@@ -107,6 +116,7 @@ proceeding. If RED or STOP, rethink the approach.
 - [ ] No formatting changes mixed with logic changes
 - [ ] No fixup commits that should be squashed
 - [ ] Additive bias score is GREEN or justified YELLOW
+- [ ] Each machine-review finding is fixed or answered
 - [ ] Iron Law compliance: PASS (no test tampering)
 
 If issues are found, fix them before proceeding.
@@ -116,8 +126,14 @@ If issues are found, fix them before proceeding.
 Start from the analyzer rather than from a fresh reading of the diff:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pr_prep_analyze.py" --base origin/main
+base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pr_prep_analyze.py" --base "${base}"
 ```
+
+The base is the remote's default branch, because a repository may use
+`master`, `main` or another name. When `origin/HEAD` is not set, the
+first command fails. Run `git remote set-head origin --auto` once, or
+set `base` to the branch the PR targets.
 
 It reads the branch's changed files and commits, sorts the files into
 feature, test, docs and other, flags any `!` breaking-change marker in
@@ -156,6 +172,31 @@ without an expected result is a step the reviewer cannot fail. Format
 and examples are in `modules/pr-template.md`.
 
 ## Step 5: Draft the PR (`pr-drafted`)
+
+Project template first: when the project's merged, human-edited
+descriptions share a shape, write that shape and apply the rules in
+the "Project template first" section of `modules/pr-template.md`.
+Otherwise populate the default.
+
+Before posting, check that every file the description names is in the
+diff. A description claiming changes the diff lacks merges far less
+often (arXiv 2601.04886):
+
+```bash
+base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/description_paths.py" --base "${base}" pr_description.md
+```
+
+It exits 1 on a named file that does not exist, and 2 when git cannot
+resolve the base.
+
+Find who should review the parts of the change outside the author's
+lane. The script reads each touched directory's history up to the
+base, honors CODEOWNERS first, and prints names for the Who row:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/review_routing.py" --base "${base}"
+```
 
 Populate the template with the facts table (Who, Where, When), then
 the Why and What-and-how sections, then Test plan and Checklist. Write
@@ -221,7 +262,15 @@ If project-specific commands like `make` or `npm` are unavailable, verify the en
 - [ ] PR description file written to the specified path and its
       contents displayed for confirmation
 - [ ] Facts table present with all three rows (Who, Where, When)
-      filled, including the `External:` half of Where
+      filled, including the `External:` half of Where, or the
+      project's own shape used instead (Project template first)
+- [ ] `review_routing.py` ran, and each directory it reports as
+      outside the author's lane names its suggested reviewer in the
+      Who row, or the description says why none is needed
+- [ ] `description_paths.py` ran on the description file. Each
+      `phantom` line is fixed, or is a device or build path outside
+      git. Each `not in diff` line names a file the description means
+      to mention unchanged
 - [ ] Why section grounded in an issue, a number, or an incident
       rather than a general claim
 - [ ] Manual test plan attached whenever one of the four triggers in

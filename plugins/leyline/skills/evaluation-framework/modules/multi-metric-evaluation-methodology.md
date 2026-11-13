@@ -167,7 +167,7 @@ C is dominated by B (B beats C on both axes).
 ```
 
 The front size grows roughly with the square root of n
-candidates; useful as a shortlist filter, not a final pick.
+candidates. Use it as a shortlist filter ahead of a final pick.
 
 ## Method 5: TOPSIS
 
@@ -278,7 +278,7 @@ milliseconds and a cost in dollars cannot share weights
 until both are scaled to the same range. Normalize first.
 
 **Equal weights as a default.** Equal weights are a strong
-prior, not a neutral one. State the choice and justify it
+prior, even though they look neutral. State the choice and justify it
 or derive weights from AHP / expert elicitation.
 
 **Aggregating away the trade-off.** A single number hides
@@ -286,7 +286,7 @@ the shape of the candidate. Always report the per-metric
 vector alongside the aggregate.
 
 **Skipping sensitivity.** A ranking that flips when one
-weight moves 10% is not a finding; it is a coin flip
+weight moves 10% is a coin flip
 dressed up in arithmetic.
 
 **Lexicographic on noisy metrics.** If m_1 is measured with

@@ -41,7 +41,48 @@ ticket, without scrolling or opening a comment, they can answer two questions:
 what was decided, and why. If the why is too long for that screen, they find
 one link to the document that holds it. A ticket failing this test is not done.
 
-## Shape
+## Project template first
+
+A team that edits tickets by hand has already settled on a shape. Before
+writing, read three recent tickets of the same type in the same project,
+written or edited by a person, and copy their headings, heading level, and
+markup. A tracker template (see tracker mechanics) counts as the same signal.
+Keep every heading that shape uses. Where the samples put `N/A` under an
+empty heading, do the same.
+
+This rule comes from one private Jira project. The labels reviewers deleted
+most were `Why:` and `Done when:` from the default shape below, plus `Repro:`
+and `h2.` headings. Of 67 tickets with description edits, 42 end in one of
+these two shapes:
+
+```markdown
+### Impact                 ### Summary
+### Expected behavior      ### Context
+### Actual behavior        ### Acceptance criteria
+### Steps to reproduce     ### Other information
+### Environment
+### Workarounds
+### Other information
+```
+
+A rewrite tool produced some of these headings. The team kept them, and
+that is the signal: copy the shape a project keeps, whatever wrote it
+first. The wording fixes reviewers made by hand:
+
+- Title: component prefix if the project uses one, then the symptom a user
+  sees ("Cancelled download not shown in the downloads list"), not the
+  mechanism.
+- Expected behavior and acceptance criteria use "should". Actual behavior
+  uses the present tense.
+- A ticket states the problem and how to tell it is fixed. How the code
+  changes belongs in the merge request.
+- One action per step, one criterion per bullet.
+- Contractions are fine. Prefer the common word over the clipped one:
+  "synced" over "landed", "immediately" over "at once".
+
+## Default shape
+
+Use this only when the project shows no shape of its own.
 
 ```markdown
 <What changes, or what was decided. One or two sentences.>
@@ -53,6 +94,14 @@ Links: <merge request, ADR, spec, parent>
 
 The title names the outcome. Use at most three headings. Delete any heading a
 template supplies when it has nothing under it.
+
+## Editing a ticket you wrote
+
+Read the live description before every edit, diff it against what you last
+wrote, and change only the sentence that needs it. If a person changed it,
+patch their text and never regenerate it from your draft. In the observed
+project, one ticket lost a reviewer's restructure that way and had to be
+restored from the changelog.
 
 ## Inline Or Link
 
@@ -69,7 +118,7 @@ or it has moved. Do not paste the document into the ticket, because two copies
 drift apart. Link durable things: an ADR, a spec path, a merge request. Screen
 captures and chat threads do not qualify, so restate what they showed.
 
-Decide in the description, not in comments. When a decision changes, edit the
+Record the decision in the description. When a decision changes, edit the
 first lines and leave the history in comments.
 
 ## Work Type
@@ -111,6 +160,9 @@ ADR-0028 for the decision.
 
 ## Exit Criteria
 
+- [ ] Headings match three sampled tickets of the same type, or the default
+  shape is used because the project has none
+- [ ] An edit to an existing ticket changed only the live text it targeted
 - [ ] First screen answers what and why, or links to why
 - [ ] Merge request and ticket reference each other
 - [ ] No empty headings, restated diff, or pasted document

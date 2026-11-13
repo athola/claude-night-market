@@ -12,7 +12,7 @@ Use this framework for analytical discussions involving truth claims.
 
 **Anti-pattern:** Asking "What do you mean by X?" for every term.
 
-**Correct pattern:** Proceed with standard definition; note if the user's usage diverges.
+**Correct pattern:** Proceed with standard definition, and note if the user's usage diverges.
 
 ---
 

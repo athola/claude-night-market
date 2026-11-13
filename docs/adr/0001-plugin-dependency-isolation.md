@@ -56,8 +56,13 @@ Consumer: egregore.
 The same rules as leyline and abstract apply: imports must be guarded
 with try/except (or equivalent dynamic loading) and the consumer must
 degrade gracefully when herald is absent.
-Herald declares no skills, commands, agents, or hooks in its plugin.json;
-it functions purely as a Python library plugin.
+Herald declares no skills, commands or agents, and is used as a
+Python library. It does register one hook: `hooks/double_shot_latte.py`
+on Stop, which can return `{"decision": "block"}` to keep a session
+working when its last message states an intent to continue. It defaults
+to stopping, and allows at most `MAX_CONTINUATIONS` (10) blocks in a
+300-second window. Installing herald for its notifications installs
+that hook as well.
 
 ### Exception: gauntlet (recorded 2026-09-03)
 

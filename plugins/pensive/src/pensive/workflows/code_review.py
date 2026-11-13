@@ -43,7 +43,7 @@ class CodeReviewWorkflow:
 
         Only a result whose ``info`` carries a ``findings`` list counts as a
         review. When no skill returned one, the summary says the code was
-        not reviewed instead of reporting it clean.
+        not reviewed. It never reports unreviewed code as clean.
         """
         repo_path = Path(repo_path)
         self._errors = []
@@ -158,7 +158,7 @@ class CodeReviewWorkflow:
     def _determine_skills(self, repo_path: Path, files: list[str]) -> list[str]:
         """Determine skills to run based on content.
 
-        UnifiedReviewSkill.select_review_skills owns the heuristic; its
+        UnifiedReviewSkill.select_review_skills owns the heuristic. Its
         general "code-reviewer" entry maps to this workflow's unified-review.
         """
         context = _ReviewContext(repo_path, files)
@@ -253,7 +253,7 @@ class _ReviewContext:
         self._files = files
         # Memoize file contents by filename for the life of this context.
         # A review pass runs roughly twenty analyze_* mixins over the same
-        # files; without this each mixin re-reads the file from disk. The
+        # files. Without this, each mixin re-reads the file from disk. The
         # repo is a static snapshot during one review, so caching is safe.
         self._content_cache: dict[str, str] = {}
 
@@ -262,7 +262,7 @@ class _ReviewContext:
         return self._files
 
     def get_file_content(self, filename: str = "") -> str:
-        """Return file content; an empty name selects the first listed file."""
+        """Return file content. An empty name selects the first listed file."""
         if not filename:
             if not self._files:
                 return ""

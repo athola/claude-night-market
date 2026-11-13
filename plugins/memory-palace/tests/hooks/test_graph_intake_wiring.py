@@ -304,3 +304,31 @@ class TestOneGraphRegistration:
             try_register_graph_entity(tmp_path, "e1", "Name", "doc", source="probe")
 
         assert "probe: link predictions: [('a', 'b', 0.9)]" in capsys.readouterr().err
+
+
+class TestPartialReadsAreNotIndexed:
+    """A Read with offset or limit holds a slice, not the document."""
+
+    @pytest.mark.parametrize("window", [{"limit": 40}, {"offset": 100}])
+    def test_a_partial_read_is_never_judged_as_a_changed_document(
+        self, window: dict, capsys: pytest.CaptureFixture
+    ) -> None:
+        """Hashing the slice told the model an unchanged doc had changed."""
+        payload = {
+            "tool_name": "Read",
+            "tool_input": {"file_path": "/docs/guide.md", **window},
+            "tool_response": "x" * 200,
+        }
+
+        def must_not_run() -> dict:
+            raise AssertionError("a partial read reached the change check")
+
+        with (
+            patch("sys.stdin", StringIO(json.dumps(payload))),
+            patch.object(local_doc_processor, "get_config", must_not_run),
+            pytest.raises(SystemExit) as stopped,
+        ):
+            local_doc_processor.main()
+
+        assert stopped.value.code == 0
+        assert capsys.readouterr().out == ""

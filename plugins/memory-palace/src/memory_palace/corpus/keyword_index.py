@@ -75,7 +75,7 @@ class KeywordIndexer:
                     keywords.update(tag.lower() for tag in metadata["tags"])
 
                 # Extract from the name fields. Hand-authored notes carry
-                # `title`; the web-capture hooks carry `topic`. Reading
+                # `title`, and the web-capture hooks carry `topic`. Reading
                 # only one of them leaves the captured corpus searchable
                 # by body headings alone.
                 for name_field in ("title", "topic"):
@@ -207,7 +207,7 @@ class KeywordIndexer:
             # walks recursively, so the first nested file makes it reachable.
             entry_id = relative_str.removesuffix(".md").replace("/", "--")
 
-            # Read file once; pass content to both keyword extraction and
+            # Read file once and pass content to both keyword extraction and
             # frontmatter parsing to avoid a second disk read.
             file_content = md_file.read_text(encoding="utf-8")
             keywords = self.extract_keywords(md_file, content=file_content)

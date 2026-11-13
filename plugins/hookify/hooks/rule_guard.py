@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from core.rule_engine import RuleEngine, RuleResult
 
 # How much of the transcript a stop rule sees. The whole file can run to
-# megabytes; the rules in the catalog look for what the session just did.
+# megabytes. The rules in the catalog look for what the session just did.
 _TRANSCRIPT_TAIL_BYTES = 65_536
 
 _FILE_TOOLS = {"Write", "Edit", "MultiEdit"}
@@ -93,7 +93,7 @@ def classify(payload: dict[str, Any]) -> tuple[str, dict[str, Any]] | None:
         return "prompt", {"user_prompt": str(payload.get("prompt", ""))}
     if event == "Stop":
         if payload.get("stop_hook_active"):
-            # Already continued once on our say-so; a second block loops.
+            # Already continued once on our say-so. A second block loops.
             return None
         return "stop", {
             "transcript": _transcript_tail(str(payload.get("transcript_path", "")))

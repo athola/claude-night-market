@@ -18,7 +18,7 @@ Usage::
                                          [--archive-dir DIR]
 
 With no slice flag the full original is printed. Slice flags are mutually
-exclusive in effect; precedence is ``--lines`` > ``--head`` > ``--tail``.
+exclusive in effect. Precedence is ``--lines`` > ``--head`` > ``--tail``.
 ``--grep`` filters to matching lines (applied after any slice).
 """
 

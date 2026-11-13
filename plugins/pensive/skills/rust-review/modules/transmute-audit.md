@@ -67,8 +67,8 @@ Keep `transmute` only where no safe operation exists, and pair it with a
 
 ## Exclusions (Not Flagged)
 
-- **Method calls**: `value.transmute(...)` is a user method, not the std
-  function.
+- **Method calls**: `value.transmute(...)` is a user method that shares
+  the std function's name.
 - **Longer identifiers**: `transmuter(...)`, `transmute_foo(...)` are not
   the `transmute` call (the name is not followed by a call or turbofish).
 - **Comments**: a `transmute` shown in a `//` comment is not code.

@@ -70,7 +70,7 @@ techniques.
 | Large | >1 GB | `sampled.md` (head, tail, time windows) |
 
 The strategy module loads after the format module, so the
-parser knows whether to expect a fully loaded file or a stream.
+parser is set up for either a fully loaded file or a stream.
 
 ## Streaming Pattern
 
@@ -125,8 +125,8 @@ rather than parse in-process.
 2. **Aborting on malformed lines**: Logs are streaming data.
    Partial writes at the tail are normal. Skip and continue.
 3. **One regex for all plain-text**: Plain-text logs vary by
-   application. Use per-application parsers, not a single
-   universal regex.
+   application. Use a parser per
+   application.
 4. **Ignoring multi-line entries**: Stack traces and SQL
    queries span multiple lines. Single-line parsers split them
    incorrectly. Detect and load the multi-line parser when

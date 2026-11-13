@@ -19,7 +19,7 @@ Asking three clarifying questions before fixing a
 typo in a comment is a parody of caution. For diffs
 under five lines with obvious intent, ship and move
 on. Principle 1 (Think Before Coding) is for
-ambiguous requests, not unambiguous ones.
+ambiguous requests.
 
 ### Exploratory Spikes and Throwaway Scripts
 
@@ -72,15 +72,15 @@ makes the throwaway-prototype boundary explicit.
 misses") argues code simplicity does not equal scope
 simplicity. A 50-line solution to the wrong problem
 is still waste. The principles help with how to
-build; they do not help with what to build. For
+build. They do not help with what to build. For
 "what," see `Skill(imbue:scope-guard)` and
 `Skill(imbue:feature-review)`.
 
 **NMN.gl** ("Vibe Coding Considered Harmful," March
 2025) warns that vibed black boxes compound. This is
-adjacent support for the principles, not pushback,
-but it names the real cost of skipping them at scale:
-each black box you accept becomes a future debugging
+adjacent support for the principles, and it names
+the real cost of skipping them at scale: each black
+box you accept becomes a future debugging
 expense.
 
 ## The Honest Bottom Line

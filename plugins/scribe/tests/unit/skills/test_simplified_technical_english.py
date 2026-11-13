@@ -179,6 +179,27 @@ class TestScopeBoundary:
             assert excluded in text, f"scope module never mentions {excluded}"
 
     @pytest.mark.unit
+    def test_scope_module_leaves_contractions_in_reviewer_text_alone(self) -> None:
+        """Agent sweeps expanded a reviewer's contractions in MR bodies.
+
+        In two observed merge requests a reviewer wrote "didn't" and
+        "aren't", and a later STE-style pass changed them back.
+        """
+        text = _read(MODULES["scope"])
+        assert "Merge request and pull request descriptions" in text
+        assert "the author's contractions stay" in text
+
+    @pytest.mark.unit
+    def test_rule_file_leaves_contractions_in_reviewer_text_alone(self) -> None:
+        rule = (
+            Path(__file__).parents[5]
+            / ".claude"
+            / "rules"
+            / "ste-for-operator-and-procedures.md"
+        )
+        assert "the author's contractions stay" in rule.read_text(encoding="utf-8")
+
+    @pytest.mark.unit
     def test_reconciliation_names_the_sentence_length_collision(self) -> None:
         """The slop detector and STE genuinely disagree here."""
         text = _read(MODULES["reconciliation"])

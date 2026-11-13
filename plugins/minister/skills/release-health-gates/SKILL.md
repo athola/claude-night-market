@@ -52,7 +52,7 @@ Standardize release approvals by expressing gates as GitHub-aware checklists. En
 1. Load skill to access gate modules.
 2. Attach Release Gate section to deployment PR.
 3. Use tracker data to auto-fill blockers and highlight overdue tasks.
-4. Update comment as gates turn green; require approvals for any waivers.
+4. Update comment as gates turn green. Require approvals for any waivers.
 
 ## Outputs
 

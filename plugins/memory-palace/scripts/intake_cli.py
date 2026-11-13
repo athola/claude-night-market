@@ -17,6 +17,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -88,10 +89,13 @@ class Candidate:
 def slugify(value: str) -> str:
     """Convert a string to a filesystem-safe slug.
 
-    Delegates to the shared implementation with a fallback default
-    appropriate for intake entries.
+    The shared slugify answers "untitled" for a title with nothing to
+    keep, which cannot be told apart from a title that says Untitled.
+    Intake checks for that case itself so its fallback is reachable.
     """
-    return _slugify(value) or "intake-entry"
+    if not re.search(r"[a-z0-9]", value.lower()):
+        return "intake-entry"
+    return _slugify(value)
 
 
 def load_candidate(path: Path) -> Candidate:

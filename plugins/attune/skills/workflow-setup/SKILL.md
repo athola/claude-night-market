@@ -186,6 +186,6 @@ To update workflows to latest versions:
 - [ ] `gh workflow list` returns each created workflow file as an entry, confirming GitHub
   recognizes the workflow definitions.
 - [ ] Any inline shell script in a workflow uses `set -eo pipefail` or explicit exit-code
-  capture; pipeline-masked failures (`cmd | grep`) without pipefail are flagged as errors.
+  capture. Pipeline-masked failures (`cmd | grep`) without pipefail are flagged as errors.
 - [ ] If the project uses a CI platform other than GitHub Actions (GitLab CI, CircleCI), the
   skill reports this incompatibility and stops rather than generating GitHub-specific files.

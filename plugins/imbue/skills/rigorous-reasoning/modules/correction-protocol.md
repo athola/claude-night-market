@@ -134,7 +134,7 @@ If you've corrected this before in the same conversation:
 | Is this actually what they claimed? | Ask for clarification | Proceed |
 | Would this change their conclusion? | Skip correction | Proceed |
 | Would I defend this correction under scrutiny? | Skip (nitpicking) | Proceed |
-| Is this substantive, not pedantic? | Skip | Proceed |
+| Is this substantive? | Skip | Proceed |
 
 **All four must be "Yes" to warrant correction.**
 

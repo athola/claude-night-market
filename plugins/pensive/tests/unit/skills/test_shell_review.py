@@ -25,6 +25,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.unit.skills._skill_text import read_frontmatter, read_or_fail
+
 REPO_ROOT = Path(__file__).resolve().parents[5]
 PENSIVE = REPO_ROOT / "plugins" / "pensive"
 UNIFIED_DIR = PENSIVE / "skills" / "unified-review"
@@ -35,21 +37,6 @@ STUB_FILE = PENSIVE / "skills" / "shell-review" / "SKILL.md"
 COMMAND_FILE = PENSIVE / "commands" / "shell-review.md"
 
 
-def _read(path: Path) -> str:
-    if not path.exists():
-        pytest.fail(f"missing: {path}")
-    return path.read_text(encoding="utf-8")
-
-
-def _read_frontmatter(content: str) -> str:
-    if not content.startswith("---\n"):
-        pytest.fail("SKILL.md must begin with `---` YAML frontmatter")
-    end = content.find("\n---\n", 4)
-    if end == -1:
-        pytest.fail("SKILL.md frontmatter has no closing `---`")
-    return content[4:end]
-
-
 class TestUnifiedReviewOwnsShellReview:
     """unified-review lists the module and dispatches shell review to it."""
 
@@ -57,7 +44,7 @@ class TestUnifiedReviewOwnsShellReview:
     @pytest.mark.unit
     def test_frontmatter_lists_the_shell_modules(self) -> None:
         """Given unified-review's frontmatter, every shell module is listed."""
-        fm = _read_frontmatter(_read(UNIFIED_FILE))
+        fm = read_frontmatter(read_or_fail(UNIFIED_FILE))
         for name in (
             "shell-review.md",
             "shell-exit-codes.md",
@@ -71,7 +58,7 @@ class TestUnifiedReviewOwnsShellReview:
     @pytest.mark.unit
     def test_dispatch_loads_the_module_not_the_old_skill(self) -> None:
         """Shell review is dispatched to the module, not Skill(pensive:shell-review)."""
-        body = _read(UNIFIED_FILE)
+        body = read_or_fail(UNIFIED_FILE)
         assert "Skill(pensive:shell-review)" not in body
         assert "modules/shell-review.md" in body
 
@@ -79,15 +66,17 @@ class TestUnifiedReviewOwnsShellReview:
     @pytest.mark.unit
     def test_shell_focus_is_selectable(self) -> None:
         """Focused mode offers a shell selector for the /shell-review alias."""
-        assert "/full-review shell" in _read(UNIFIED_FILE)
-        assert "/full-review shell" in _read(PENSIVE / "commands" / "full-review.md")
+        assert "/full-review shell" in read_or_fail(UNIFIED_FILE)
+        assert "/full-review shell" in read_or_fail(
+            PENSIVE / "commands" / "full-review.md"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_declares_the_dependency_the_module_invokes(self) -> None:
         """The module runs review-core's citation verifier, so it is declared."""
-        assert "Skill(imbue:review-core)" in _read(MODULE_FILE)
-        assert "- imbue:review-core" in _read_frontmatter(_read(UNIFIED_FILE))
+        assert "Skill(imbue:review-core)" in read_or_fail(MODULE_FILE)
+        assert "- imbue:review-core" in read_frontmatter(read_or_fail(UNIFIED_FILE))
 
 
 class TestOldNamesRedirect:
@@ -97,7 +86,7 @@ class TestOldNamesRedirect:
     @pytest.mark.unit
     def test_stub_is_marked_deprecated_and_redirects(self) -> None:
         """Given the old skill, it names its replacement and carries no workflow."""
-        text = _read(STUB_FILE)
+        text = read_or_fail(STUB_FILE)
         assert "Deprecated" in text
         assert "Skill(pensive:unified-review)" in text
         assert "modules/shell-review.md" in text
@@ -108,7 +97,7 @@ class TestOldNamesRedirect:
     @pytest.mark.unit
     def test_stub_keeps_exit_criteria(self) -> None:
         """Every SKILL.md needs Exit Criteria, the stub included."""
-        text = _read(STUB_FILE)
+        text = read_or_fail(STUB_FILE)
         assert "## Exit Criteria" in text
         assert "- [ ]" in text[text.index("## Exit Criteria") :]
 
@@ -116,7 +105,7 @@ class TestOldNamesRedirect:
     @pytest.mark.unit
     def test_command_routes_to_unified_review(self) -> None:
         """/shell-review invokes unified-review's shell focus."""
-        text = _read(COMMAND_FILE)
+        text = read_or_fail(COMMAND_FILE)
         assert "Skill(pensive:unified-review)" in text
         assert "Skill(pensive:shell-review)" not in text
         assert "modules/shell-review.md" in text
@@ -235,7 +224,7 @@ class TestShellReviewModuleContract:
     @pytest.mark.unit
     def test_required_sections_present(self) -> None:
         """The module must include all required workflow sections."""
-        body = _read(MODULE_FILE)
+        body = read_or_fail(MODULE_FILE)
         for heading in (
             "## When To Use",
             "## When NOT To Use",
@@ -250,7 +239,7 @@ class TestShellReviewModuleContract:
     @pytest.mark.unit
     def test_structure_step_wired_in_workflow(self) -> None:
         """Workflow must include a structure/preamble check step."""
-        body = _read(MODULE_FILE).lower()
+        body = read_or_fail(MODULE_FILE).lower()
         assert "structure" in body or "preamble" in body, (
             "Workflow must include a structure check step for the new ruleset"
         )
@@ -259,7 +248,7 @@ class TestShellReviewModuleContract:
     @pytest.mark.unit
     def test_exit_criteria_are_concrete(self) -> None:
         """Exit Criteria section must list checkboxes."""
-        body = _read(MODULE_FILE)
+        body = read_or_fail(MODULE_FILE)
         idx = body.find("## Exit Criteria")
         assert idx != -1
         section = body[idx:]

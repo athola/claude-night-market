@@ -1,7 +1,7 @@
 """Active security hardening: Python detector MVP.
 
 This package backs the /harden command. The `pensive:harden` skill
-documents the contract; this module implements a starter set of
+documents the contract. This module implements a starter set of
 AST-based detectors that emit Findings the skill can render into
 its report.
 

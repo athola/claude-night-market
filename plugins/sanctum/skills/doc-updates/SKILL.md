@@ -167,7 +167,7 @@ Edited `.py` files belong in that list. The scorer reads a Python path
 as its comments and docstrings, keeping the line numbers, so a finding
 names the line to open. Notation is not prose: an arrow in a mapping
 table, a plus in a formula, and a character quoted because the code
-matches it are all code that happens to sit in a docstring.
+matches it are all code that happens to appear in a docstring.
 
 ### Audience Fit
 
@@ -189,7 +189,7 @@ Skill(scribe:slop-detector)   # module: audience-targeting.md
   before they can act, link what they need later, extract what
   only a higher tier wants, delete what no tier wants.
 - Extract rather than delete. Off-tier material moves to
-  `modules/<topic>.md` for a skill or `docs/deep-dive/<topic>.md`
+  `modules/<topic>.md` for a skill or `docs/<topic>.md`
   for a repo doc, linked from the parent's lead with one line
   naming who it is for.
 - An update that adds `expert` detail to a `newcomer` document is
@@ -356,7 +356,7 @@ When `ENABLE_LSP_TOOL=1` is set, enhance accuracy verification with semantic ana
 
 **Default Strategy**: Documentation updates should **prefer LSP** for all verification tasks. Enable `ENABLE_LSP_TOOL=1` permanently for best results.
 
-**Non-blocking**: Warnings are informational; user decides whether to fix.
+**Non-blocking**: Warnings are informational. The user decides whether to fix.
 
 ## Step 6: Preview Changes (`preview`)
 
@@ -376,7 +376,7 @@ When `ENABLE_LSP_TOOL=1` is set, enhance accuracy verification with semantic ana
 - [ ] Directory-specific style rules are satisfied.
 - [ ] Each edited document has a declared or stated-inferred audience tier, and
       no section serves a different one.
-- [ ] Off-tier content was extracted to `modules/` or `docs/deep-dive/` and
+- [ ] Off-tier content was extracted to `modules/` or `docs/` and
       linked, never deleted to hit a tier.
 - [ ] Accuracy warnings addressed or acknowledged.
 - [ ] Content does not sound AI-generated.

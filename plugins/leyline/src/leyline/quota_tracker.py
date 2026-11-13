@@ -184,7 +184,7 @@ class QuotaTracker:
         """Record a request to the service.
 
         Hooks and CLIs share one usage file, so the read, the increment and
-        the write happen under an exclusive lock; an in-memory count from
+        the write happen under an exclusive lock. An in-memory count from
         construction time would overwrite whatever another process wrote
         since.
         """
@@ -214,6 +214,7 @@ class QuotaTracker:
             Status levels: "healthy", "warning", "critical"
 
         """
+        self._cleanup_old_data()
         warnings = []
 
         # Calculate usage percentages (guard against zero config limits)
@@ -279,6 +280,7 @@ class QuotaTracker:
             Tuple of (can_proceed, list of issues)
 
         """
+        self._cleanup_old_data()
         issues = []
 
         # Check if tokens would exceed limits

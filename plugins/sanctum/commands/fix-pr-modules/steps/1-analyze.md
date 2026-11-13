@@ -240,7 +240,7 @@ A thread with `subjectType: FILE` is about the whole file and has `line: null`.
 The cited line, when there is one, is in the comment body as `(line N, outside
 the diff)`.
 
-Findings in files the PR does not touch have no thread. They sit in the
+Findings in files the PR does not touch have no thread. They are in the
 review body under `### Findings outside the changed files`. Triage each one
 like a thread, and record its disposition in the Step 6 summary comment,
 since there is no thread to resolve.

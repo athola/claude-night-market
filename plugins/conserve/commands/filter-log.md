@@ -125,7 +125,7 @@ Avoid the following:
 - [ ] Step 1 probes were run and the file was classified into
       one of the four shapes.
 - [ ] The recommended filter is a literal subset of the source
-      log when `--apply` runs (no paraphrase, no reordering).
+      log when `--apply` runs (verbatim lines in source order).
 - [ ] When `--tokens` is set, the report cites tokens before
       and after using `tiktoken` (not just bytes).
 - [ ] No tier 3 compressor was invoked from this command path.
@@ -139,5 +139,4 @@ Avoid the following:
 - `plugins/conserve/tests/test_log_debugging_hygiene.py` for
   the reproducible filter-first claim.
 - `Skill(conserve:context-optimization)` for the discovery budget
-  this command stays within: read the file you are fixing, not the
-  module around it.
+  this command stays within: read only the file you are fixing.

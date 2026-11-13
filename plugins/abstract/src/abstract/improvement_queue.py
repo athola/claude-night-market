@@ -12,9 +12,10 @@ import fcntl
 import json
 import os
 from collections.abc import Iterator
+from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, get_args
 
 from ._vendored_leyline_atomic_file import write_atomic
 from .stdlib_helpers import emit_warn
@@ -25,12 +26,161 @@ def _warn(message: str) -> None:
     emit_warn("improvement_queue", message)
 
 
+QueueStatus = Literal["monitoring", "evaluating", "pending_rollback_review", "promoted"]
+
+# A skill in either status is not re-flagged: one is being measured, the
+# other is waiting for a person.
+_HELD_STATUSES = ("evaluating", "pending_rollback_review")
+
+_DEFAULT_EVAL_TARGET = 10
+
+_NUMBER = (int, float)
+_OPTIONAL_STR = (str, type(None))
+
+# The stored type of each field, checked when an entry is read back: a
+# hand-edited value of the wrong type would otherwise load and fail later,
+# in whichever method first used it.
+_FIELD_TYPES: dict[str, Any] = {
+    "skill_name": str,
+    "stability_gap": _NUMBER,
+    "flagged_count": int,
+    "last_flagged": str,
+    "execution_ids": list,
+    "status": str,
+    "eval_start": _OPTIONAL_STR,
+    "eval_executions": int,
+    "eval_gaps": list,
+    "eval_target": int,
+    "eval_history_start": int,
+    "eval_version": str,
+    "eval_change_summary": str,
+    "baseline_gap": _NUMBER,
+    "regression_detected": _OPTIONAL_STR,
+    "current_gap": (int, float, type(None)),
+}
+_ITEM_TYPES: dict[str, Any] = {"execution_ids": str, "eval_gaps": _NUMBER}
+
+
+@dataclass
+class QueueEntry:
+    """One skill's queue record, as stored under ``skills`` in the JSON file.
+
+    An entry that is evaluating always has ``eval_start``: the constructor
+    refuses the combination, and ``begin_evaluation`` sets both together.
+    The ``eval_*`` fields and ``baseline_gap`` are written to disk only
+    once an evaluation has begun, which keeps files from before this
+    class loadable and unchanged for skills that never reached one.
+    """
+
+    skill_name: str
+    stability_gap: float = 0.0
+    flagged_count: int = 0
+    last_flagged: str = ""
+    execution_ids: list[str] = field(default_factory=list)
+    status: QueueStatus = "monitoring"
+    eval_start: str | None = None
+    eval_executions: int = 0
+    eval_gaps: list[float] = field(default_factory=list)
+    eval_target: int = _DEFAULT_EVAL_TARGET
+    eval_history_start: int = 0
+    eval_version: str = ""
+    eval_change_summary: str = ""
+    baseline_gap: float = 0.0
+    regression_detected: str | None = None
+    current_gap: float | None = None
+
+    _EVAL_FIELDS = (
+        "eval_start",
+        "eval_executions",
+        "eval_gaps",
+        "eval_target",
+        "eval_history_start",
+        "eval_version",
+        "eval_change_summary",
+        "baseline_gap",
+    )
+
+    def __post_init__(self) -> None:
+        """Refuse a status outside the Literal or an evaluating entry with no start."""
+        if self.status not in get_args(QueueStatus):
+            raise ValueError(f"unknown queue status {self.status!r}")
+        if self.status == "evaluating" and self.eval_start is None:
+            raise ValueError(f"{self.skill_name!r} is evaluating without eval_start")
+
+    @classmethod
+    def from_dict(cls, skill_ref: str, raw: object) -> QueueEntry:
+        """Build an entry from its stored form; ValueError when it is invalid.
+
+        Keys this class does not declare are ignored. ``skill_name`` falls
+        back to the key the entry was stored under.
+        """
+        if not isinstance(raw, dict):
+            raise ValueError(f"queue entry for {skill_ref!r} is not an object")
+        known = {f.name for f in fields(cls)}
+        kwargs = {key: value for key, value in raw.items() if key in known}
+        kwargs.setdefault("skill_name", skill_ref)
+        for name, value in kwargs.items():
+            item_type = _ITEM_TYPES.get(name)
+            if not isinstance(value, _FIELD_TYPES[name]) or (
+                item_type is not None
+                and not all(isinstance(item, item_type) for item in value)
+            ):
+                raise ValueError(
+                    f"queue entry for {skill_ref!r} has an invalid {name}: {value!r}"
+                )
+        return cls(**kwargs)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return the stored form: unset optional fields are left out."""
+        stored = asdict(self)
+        if self.eval_start is None:
+            for name in self._EVAL_FIELDS:
+                del stored[name]
+        for name in ("regression_detected", "current_gap"):
+            if stored[name] is None:
+                del stored[name]
+        return stored
+
+    def begin_evaluation(
+        self,
+        baseline_gap: float,
+        eval_target: int,
+        history_position: int,
+        version: str,
+        change_summary: str,
+    ) -> None:
+        """Open an evaluation window with a clean flag count."""
+        self.status = "evaluating"
+        self.eval_start = datetime.now(timezone.utc).isoformat()
+        self.eval_executions = 0
+        self.eval_gaps = []
+        self.eval_target = eval_target
+        self.eval_history_start = history_position
+        self.eval_version = version
+        self.eval_change_summary = change_summary
+        self.baseline_gap = baseline_gap
+        self.regression_detected = None
+        self.current_gap = None
+        self.flagged_count = 0
+        self.execution_ids = []
+
+    def abandon_evaluation(self) -> None:
+        """Close an open window without a decision and resume monitoring."""
+        self.status = "monitoring"
+        fresh = QueueEntry(skill_name=self.skill_name)
+        for name in self._EVAL_FIELDS:
+            setattr(self, name, getattr(fresh, name))
+
+
 class ImprovementQueue:
     """Manages the skill improvement queue."""
 
     def __init__(self, queue_file: Path) -> None:
         self.queue_file = queue_file
-        self.skills: dict[str, dict[str, Any]] = {}
+        self.skills: dict[str, QueueEntry] = {}
+        # Stored entries that could not be built, kept as read until the
+        # next save moves them to a backup file.
+        self._invalid: dict[str, object] = {}
         if not self._load():
             # Create under the lock: another process may have written the
             # queue since the unlocked read missed it, and an empty save
@@ -40,12 +190,14 @@ class ImprovementQueue:
                     self._save()
 
     def _load(self) -> bool:
-        """Load queue from disk; return False when the file is absent.
+        """Load queue from disk. Return False when the file is absent.
 
         Only a parse failure counts as corruption. Any other OSError
         propagates: moving a healthy file aside on a transient read error
-        would empty the queue.
+        would empty the queue. An entry that cannot be built is left out
+        of ``skills`` and held in ``_invalid``, so its siblings still load.
         """
+        self._invalid = {}
         try:
             text = self.queue_file.read_text(encoding="utf-8")
         except FileNotFoundError:
@@ -56,11 +208,18 @@ class ImprovementQueue:
             data = json.loads(text)
         except ValueError:
             data = None
-        if not isinstance(data, dict):
+        stored = data.get("skills", {}) if isinstance(data, dict) else None
+        if not isinstance(stored, dict):
             self._set_aside_corrupt()
             self.skills = {}
-        else:
-            self.skills = data.get("skills", {})
+            return True
+        self.skills = {}
+        for ref, raw in stored.items():
+            try:
+                self.skills[ref] = QueueEntry.from_dict(ref, raw)
+            except ValueError as e:
+                _warn(f"invalid entry in {self.queue_file}: {e}")
+                self._invalid[ref] = raw
         return True
 
     def _set_aside_corrupt(self) -> None:
@@ -78,6 +237,19 @@ class ImprovementQueue:
             return  # another process already moved it aside
         _warn(f"corrupt queue file {self.queue_file}; moved to {backup}")
 
+    def _set_aside_invalid_entries(self) -> None:
+        """Write the entries _load could not build to a backup file.
+
+        Called from _save, which runs under the lock and drops them from
+        the queue file. The backup is written once, by the save that
+        removes them.
+        """
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+        backup = self.queue_file.with_name(f"{self.queue_file.name}.corrupt-{stamp}")
+        write_atomic(backup, json.dumps({"skills": self._invalid}, indent=2))
+        _warn(f"invalid entries {sorted(self._invalid)} moved to {backup}")
+        self._invalid = {}
+
     def _save(self) -> None:
         """Persist queue to disk using atomic write.
 
@@ -86,13 +258,16 @@ class ImprovementQueue:
         """
         self.queue_file.parent.mkdir(parents=True, exist_ok=True)
         try:
-            write_atomic(self.queue_file, json.dumps({"skills": self.skills}, indent=2))
+            if self._invalid:
+                self._set_aside_invalid_entries()
+            stored = {ref: entry.to_dict() for ref, entry in self.skills.items()}
+            write_atomic(self.queue_file, json.dumps({"skills": stored}, indent=2))
         except OSError as e:
             _warn(f"failed to save queue to {self.queue_file}: {e}")
             raise
 
     TRIGGER_THRESHOLD = 3
-    EVAL_TARGET = 10
+    EVAL_TARGET = _DEFAULT_EVAL_TARGET
 
     # Every flag appends an id and the file is rewritten on each run, so
     # an unbounded list grows the queue file for the life of the skill.
@@ -122,45 +297,34 @@ class ImprovementQueue:
         the lock so another process's start_evaluation is not missed.
         """
         with self._locked_reload():
-            if self.skills.get(skill_ref, {}).get("status") in (
-                "evaluating",
-                "pending_rollback_review",
-            ):
+            entry = self.skills.get(skill_ref)
+            if entry is not None and entry.status in _HELD_STATUSES:
                 return False
-            if skill_ref not in self.skills:
-                self.skills[skill_ref] = {
-                    "skill_name": skill_ref,
-                    "stability_gap": stability_gap,
-                    "flagged_count": 0,
-                    "last_flagged": "",
-                    "execution_ids": [],
-                    "status": "monitoring",
-                }
-            entry = self.skills[skill_ref]
-            entry["flagged_count"] += 1
-            entry["stability_gap"] = stability_gap
-            entry["last_flagged"] = datetime.now(timezone.utc).isoformat()
-            entry["execution_ids"].append(execution_id)
-            del entry["execution_ids"][: -self.MAX_EXECUTION_IDS]
+            if entry is None:
+                entry = QueueEntry(skill_name=skill_ref)
+                self.skills[skill_ref] = entry
+            entry.flagged_count += 1
+            entry.stability_gap = stability_gap
+            entry.last_flagged = datetime.now(timezone.utc).isoformat()
+            entry.execution_ids.append(execution_id)
+            del entry.execution_ids[: -self.MAX_EXECUTION_IDS]
             self._save()
             return True
 
     def needs_improvement(self, skill_ref: str) -> bool:
         """Check if a skill has enough flags to trigger improvement."""
         entry = self.skills.get(skill_ref)
-        if not entry:
+        if entry is None or entry.status in _HELD_STATUSES:
             return False
-        if entry.get("status") in ("evaluating", "pending_rollback_review"):
-            return False
-        return bool(entry["flagged_count"] >= self.TRIGGER_THRESHOLD)
+        return entry.flagged_count >= self.TRIGGER_THRESHOLD
 
     def get_improvable_skills(self) -> list[str]:
         """Return skill refs that are ready for improvement."""
         return [
             ref
             for ref, entry in self.skills.items()
-            if entry.get("status") not in ("evaluating", "pending_rollback_review")
-            and entry.get("flagged_count", 0) >= self.TRIGGER_THRESHOLD
+            if entry.status not in _HELD_STATUSES
+            and entry.flagged_count >= self.TRIGGER_THRESHOLD
         ]
 
     def start_evaluation(
@@ -190,20 +354,32 @@ class ImprovementQueue:
         """
         with self._locked_reload():
             entry = self.skills.get(skill_ref)
-            if not entry:
+            if entry is None:
                 _warn(f"start_evaluation called for unknown skill {skill_ref!r}")
                 return False
-            entry["status"] = "evaluating"
-            entry["eval_start"] = datetime.now(timezone.utc).isoformat()
-            entry["eval_executions"] = 0
-            entry["eval_gaps"] = []
-            entry["eval_target"] = self.EVAL_TARGET
-            entry["eval_history_start"] = history_position
-            entry["eval_version"] = version
-            entry["eval_change_summary"] = change_summary
-            entry["baseline_gap"] = baseline_gap
-            entry["flagged_count"] = 0
-            entry["execution_ids"] = []
+            if entry.status == "evaluating":
+                _warn(
+                    f"restarting the open evaluation of {skill_ref!r}:"
+                    f" {entry.eval_executions} recorded executions are discarded"
+                )
+            entry.begin_evaluation(
+                baseline_gap,
+                self.EVAL_TARGET,
+                history_position,
+                version,
+                change_summary,
+            )
+            self._save()
+            return True
+
+    def abandon_evaluation(self, skill_ref: str, reason: str) -> bool:
+        """Close an evaluating skill's window undecided; False if not evaluating."""
+        with self._locked_reload():
+            entry = self.skills.get(skill_ref)
+            if entry is None or entry.status != "evaluating":
+                return False
+            _warn(f"abandoning evaluation of {skill_ref!r}: {reason}")
+            entry.abandon_evaluation()
             self._save()
             return True
 
@@ -217,60 +393,65 @@ class ImprovementQueue:
         """
         with self._locked_reload():
             entry = self.skills.get(skill_ref)
-            if not entry:
+            if entry is None:
                 _warn(f"record_eval_execution called for unknown skill {skill_ref!r}")
                 return False
-            if entry.get("status") != "evaluating":
+            if entry.status != "evaluating":
                 _warn(
                     f"record_eval_execution called for"
                     f" skill {skill_ref!r} with status"
-                    f" {entry.get('status')!r}, expected 'evaluating'"
+                    f" {entry.status!r}, expected 'evaluating'"
                 )
                 return False
-            entry["eval_executions"] = entry.get("eval_executions", 0) + 1
-            entry["stability_gap"] = stability_gap
-            eval_gaps: list[float] = entry.setdefault("eval_gaps", [])
-            eval_gaps.append(stability_gap)
+            entry.eval_executions += 1
+            entry.stability_gap = stability_gap
+            entry.eval_gaps.append(stability_gap)
             self._save()
             return True
 
     def is_eval_complete(self, skill_ref: str) -> bool:
         """Check if evaluation window is complete."""
         entry = self.skills.get(skill_ref)
-        if not entry or entry.get("status") != "evaluating":
+        if entry is None or entry.status != "evaluating":
             return False
-        return bool(
-            entry.get("eval_executions", 0)
-            >= entry.get("eval_target", self.EVAL_TARGET)
-        )
+        return entry.eval_executions >= entry.eval_target
 
     def evaluate(self, skill_ref: str) -> str:
         """Make promotion/rollback decision after evaluation completes.
 
+        The status is read under the lock, so of two processes that both
+        saw the window complete, only the first decides it.
+
         Returns:
-            "promote" if improved, "pending_rollback_review" otherwise.
+            "promote" if improved, "pending_rollback_review" otherwise,
+            "unknown" for a skill not in the queue, and "not_evaluating"
+            for one with no open window.
 
         """
         with self._locked_reload():
             entry = self.skills.get(skill_ref)
-            if not entry:
+            if entry is None:
                 _warn(f"evaluate called for unknown skill {skill_ref!r}")
                 return "unknown"
+            if entry.status != "evaluating":
+                _warn(
+                    f"evaluate called for {skill_ref!r}, which is not evaluating"
+                    f" (status {entry.status!r})"
+                )
+                return "not_evaluating"
 
-            baseline = entry.get("baseline_gap", 0)
-            eval_gaps: list[float] = entry.get("eval_gaps", [])
             # Each recorded gap already covers every run since the window
             # opened, so the last one is the window's. Averaging them would
             # count the early, short slices as if they were full windows.
-            window_gap = eval_gaps[-1] if eval_gaps else entry.get("stability_gap", 0)
+            window_gap = entry.eval_gaps[-1] if entry.eval_gaps else entry.stability_gap
 
-            if window_gap < baseline:
-                entry["status"] = "promoted"
+            if window_gap < entry.baseline_gap:
+                entry.status = "promoted"
                 decision = "promote"
             else:
-                entry["status"] = "pending_rollback_review"
-                entry["regression_detected"] = datetime.now(timezone.utc).isoformat()
-                entry["current_gap"] = window_gap
+                entry.status = "pending_rollback_review"
+                entry.regression_detected = datetime.now(timezone.utc).isoformat()
+                entry.current_gap = window_gap
                 decision = "pending_rollback_review"
 
             self._save()

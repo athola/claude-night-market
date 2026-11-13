@@ -139,8 +139,8 @@ for detection heuristics and classification tables.
 ### The Revert Test (Test Quality)
 
 The gold standard: if someone reverts the fix, at least
-one test should fail. Tests that pass on revert are
-documentation, not regression protection. These are
+one test should fail. Tests that pass on revert
+document behavior and guard nothing. These are
 classified as BLOCKING when no other test covers the
 changed code path, or IN-SCOPE when coverage exists
 but is incomplete.

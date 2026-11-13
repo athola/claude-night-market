@@ -98,7 +98,7 @@ def test_commit_workflow_with_staged_file():
 1. **Add descriptive test name**: Describe behavior, not implementation
 2. **Add BDD docstring**: Include Given/When/Then clauses
 3. **Structure test with AAA**: Arrange-Act-Assert
-4. **Add specific assertions**: Test behavior, not just truthiness
+4. **Add specific assertions**: Assert specific behavior beyond truthiness
 
 ---
 

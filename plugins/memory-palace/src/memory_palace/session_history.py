@@ -27,7 +27,7 @@ try:
         SessionStore,
         validate_session_id,
     )
-except ImportError:  # pragma: no cover — standalone fallback
+except ImportError:  # pragma: no cover (standalone fallback)
     from memory_palace._vendored_leyline_session_store import (
         SessionStore,
         validate_session_id,
@@ -49,7 +49,7 @@ class SessionUnit:
     """One thread of work from a session, typed by how fast it ages.
 
     The type is what lets a durable finding and the transient action that
-    produced it live on separate decay curves. A unit whose ``open`` field
+    produced it follow separate decay curves. A unit whose ``open`` field
     is non-empty carries the state of thinking rather than a binary marker.
     """
 
@@ -60,7 +60,7 @@ class SessionUnit:
     why: str = ""
     open: str = ""
     ref: str = ""
-    # Paths this claim rests on, declared by the writer. The reader
+    # Paths this claim depends on, declared by the writer. The reader
     # cannot infer them, which is why they are stated at capture time.
     files: list[str] = field(default_factory=list)
     # Content fingerprints of those paths, filled in by the capture

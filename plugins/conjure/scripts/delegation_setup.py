@@ -192,11 +192,11 @@ def render_status(states: Sequence[ProviderState]) -> str:
 def _auth_cell(state: ProviderState) -> str:
     """Render one provider's authentication cell.
 
-    Three states, not two. A provider that is not installed reports "-"
+    The cell has three states. A provider that is not installed reports "-"
     rather than "missing": its credentials are not the thing to fix yet. A
     provider whose CLI owns its credentials reports "unknown", because this
     table never runs that CLI's auth probe and so holds no evidence either
-    way. Only "ok" and "missing" are claims, and both rest on a check that
+    way. Only "ok" and "missing" are claims, and both come from a check that
     actually ran.
     """
     if not state.installed:
@@ -390,7 +390,7 @@ def install_every_missing(states: Sequence[ProviderState]) -> int:
             # no VERIFIED_BINARIES entry, and this loop let the exception
             # out: the run died mid-sweep on a traceback, after installing
             # some providers and before offering the rest. Refusing to
-            # invent an install command is correct; taking the whole sweep
+            # invent an install command is correct, but taking the whole sweep
             # down with it is not.
             print(f"{state.name}: no install command ({exc})", file=sys.stderr)
             outcomes[state.name] = FAILED

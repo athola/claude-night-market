@@ -207,8 +207,8 @@ omitted the output file path. This made it difficult
 for parent agents (including team leads) to recover
 agent results after context compaction. Fixed in 2.1.71:
 completion notifications now include the output file
-path, enabling reliable result retrieval even after
-the parent's context has been compacted.
+path. The parent can retrieve results even after its
+context has been compacted.
 
 ## `--print` Team Agent Fix (2.1.71+)
 

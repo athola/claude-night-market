@@ -102,14 +102,26 @@ check_cooldown() {
   fi
 }
 
-# Exits 0 when the recorded session is still alive.
+# Exits 0 when the recorded session is still alive. A pidfile survives a
+# reboot, and by then its pid may name any process, so a live pid counts
+# only when ps names it claude. An npm install runs claude as
+# `node /path/to/claude`, where ps names node and the arguments name claude.
 check_running() {
   [ -f "${PIDFILE}" ] || return 0
   pid=$(cat "${PIDFILE}")
   if kill -0 "${pid}" 2>/dev/null; then
-    exit 0 # session alive
+    comm="$(ps -p "${pid}" -o comm= 2>/dev/null)"
+    case "${comm##*/}" in
+      claude*) exit 0 ;; # session alive
+    esac
+    args="$(ps -p "${pid}" -o args= 2>/dev/null)"
+    case " ${args} " in
+      *" claude "* | *"/claude "*) exit 0 ;; # session alive behind a shim
+    esac
+    wlog "pid ${pid} is alive but is '${comm}', not claude: the pid was reused. Cleaning up."
+  else
+    wlog "Stale pid ${pid} detected (crash). Cleaning up."
   fi
-  wlog "Stale pid ${pid} detected (crash). Cleaning up."
   rm -f "${PIDFILE}"
 }
 

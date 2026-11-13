@@ -244,6 +244,8 @@ class TestQueueFlagging:
             "execution_ids": [],
             "status": held,
         }
+        if held == "evaluating":
+            entry["eval_start"] = "2026-01-01T00:00:00+00:00"
         queue_file.write_text(json.dumps({"skills": {SKILL: entry}}))
 
         code, out, _ = _run_main(monkeypatch, capsys, tmp_path, _skill_payload())
@@ -251,9 +253,6 @@ class TestQueueFlagging:
         assert code == 0
         stored = json.loads(queue_file.read_text())["skills"][SKILL]
         assert stored["flagged_count"] == 0
-        if held == "evaluating":
-            # Counted toward the evaluation window instead of flagged
-            # (tests/hooks/test_self_adapting_loop.py covers the window).
-            assert "evaluation" in json.loads(out)["hookSpecificOutput"]
-        else:
-            assert out == ""
+        # The logger counts the run toward the window (#1018); the monitor
+        # neither flags nor reports an evaluating skill.
+        assert out == ""
