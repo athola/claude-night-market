@@ -122,3 +122,35 @@ class TestManifestsAgree:
         )
         shipped = {path.removeprefix("./") for path in manifest["commands"]}
         assert shipped == set(package["commands"])
+
+
+class TestChecklistOwnership:
+    """Upstream #4028: a reviewer owns checklist checkboxes."""
+
+    def test_generated_items_are_left_unchecked(self) -> None:
+        text = prose("commands/speckit-checklist.md")
+        assert "MUST NOT mark generated items `[x]`" in text
+
+    def test_checklist_loads_constitution(self) -> None:
+        assert ".specify/memory/constitution.md" in read(
+            "commands/speckit-checklist.md"
+        )
+
+
+class TestSpecifyLoadsConstitution:
+    """Upstream 1.2.6 (#5187) composed specify around the constitution read."""
+
+    def test_specify_loads_constitution(self) -> None:
+        assert ".specify/memory/constitution.md" in read("commands/speckit-specify.md")
+
+
+class TestPlanQuickstartIsAValidationGuide:
+    """Upstream #2805: quickstart.md proves the feature runs; it holds no implementation."""
+
+    def test_plan_has_a_step_that_writes_quickstart(self) -> None:
+        text = prose("commands/speckit-plan.md")
+        assert "quickstart validation guide" in text
+
+    def test_quickstart_excludes_implementation_code(self) -> None:
+        text = prose("commands/speckit-plan.md")
+        assert "Do not include full implementation code" in text
