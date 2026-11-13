@@ -233,6 +233,18 @@ PreToolUse hooks can now return `updatedInput` when returning `ask` permission d
 }
 ```
 
+Since 2.1.300 the harness validates `updatedInput` the way it validates
+Claude's own input. Unknown keys are dropped and invalid input denies
+the call. Return only the tool's real parameters.
+
+### Failing Closed (2.1.295)
+
+A command or HTTP hook that fails to start, times out, or exits
+unexpectedly lets the action through by default. Set
+`"onFailure": "block"` on the hook entry, beside `command`, to block
+the action instead. Use it for guards whose silence would be unsafe.
+On the matcher group the key is ignored and the hook fails open.
+
 ## Claude Code vs SDK
 
 ### JSON Hooks (Claude Code)
