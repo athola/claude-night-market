@@ -83,7 +83,7 @@ demo-loop: ## Demo egregore loop lifecycle (LIVE)
 	path = '.egregore/manifest.json'; \
 	exists = os.path.exists(path); \
 	print(f'  Manifest: {\"found\" if exists else \"not found (expected in projects)\"}'); \
-	" 2>/dev/null || echo "  Manifest check: skipped (no Python env)"
+	"
 	@echo ""
 	@echo "Test infrastructure:"
 	@echo "  Tests: $$(find tests/ -name 'test_*.py' | wc -l) files"
