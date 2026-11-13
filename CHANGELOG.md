@@ -16,7 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and re-validates the spec quality checklist. Implement treats
   checklists as a read-only gate, tasks quote data-model constraints
   verbatim, and converge assesses every task whatever its checkbox.
+  Checklist items stay unchecked for the reviewer, and plan writes
+  `quickstart.md` as a validation guide with no implementation code.
   `taskstoissues` stays, although upstream moved it to an extension.
+  Features that need the `specify` CLI (extensions, presets, workflows)
+  are not ported.
 - **superpowers docs track upstream v7.0.2** (from v5.0.7). Seven
   install snippets that paired `marketplace add obra/superpowers` with
   `superpowers@superpowers-marketplace`, which never resolved, now use
