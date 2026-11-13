@@ -126,7 +126,7 @@ each plugin owns its publishing and retrieval logic.
 ## References
 
 - Implementation branch: `discussions-1.4.4`
-- Project brief: `docs/project-brief.md`
+- Project brief: removed from the repo in 15c76207c
 - [GitHub Discussions GraphQL API](https://docs.github.com/en/graphql/guides/using-the-graphql-api-for-discussions)
 - [Discussion Category Forms Syntax](https://docs.github.com/en/discussions/managing-discussions-for-your-community/syntax-for-discussion-category-forms)
 - [Memory in the Age of AI Agents (arXiv:2512.13564)](https://arxiv.org/abs/2512.13564)
