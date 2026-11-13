@@ -63,12 +63,15 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
 
     for pattern in patterns:
         for file in root.rglob(pattern):
+            # Only the parts below root are matched: a checkout under a
+            # directory named build/ or worktrees/ must still find its files.
+            rel_parts = file.relative_to(root).parts
             # Scaffolding is never this repo's version, whatever the flags say.
-            if any(part in SCAFFOLD_EXCLUDES for part in file.parts):
+            if any(part in SCAFFOLD_EXCLUDES for part in rel_parts):
                 continue
             # Skip exclusions unless --include-cache is specified
             if not include_cache:
-                if any(exclude in file.parts for exclude in excludes):
+                if any(exclude in rel_parts for exclude in excludes):
                     continue
             # Only include __init__.py files that contain __version__
             if file.name == "__init__.py":
@@ -144,33 +147,57 @@ def update_openpackage_version(content: str, new_version: str) -> str:
 def update_version_file(
     file_path: Path, new_version: str, dry_run: bool = True
 ) -> bool:
-    """Update version in a single file."""
-    try:
-        content = file_path.read_text(encoding="utf-8")
-        original = content
+    """Update version in a single file.
 
-        if file_path.name == "pyproject.toml":
-            content = update_pyproject_version(content, new_version)
-        elif file_path.name == "Cargo.toml":
-            content = update_pyproject_version(content, new_version)
-        elif file_path.name == "package.json":
-            content = update_package_json_version(content, new_version)
-        elif file_path.name in ("plugin.json", "metadata.json", "marketplace.json"):
-            content = update_package_json_version(content, new_version)
-        elif file_path.name == "__init__.py":
-            content = update_init_py_version(content, new_version)
-        elif file_path.name == "openpackage.yml":
-            content = update_openpackage_version(content, new_version)
+    Raises:
+        OSError, UnicodeDecodeError: the file could not be read or
+            written. ``main`` reports it and exits nonzero, so a partial
+            bump never reads as "no change".
 
-        if content != original:
-            if not dry_run:
-                file_path.write_text(content, encoding="utf-8")
-            return True
-        return False
+    """
+    content = file_path.read_text(encoding="utf-8")
+    original = content
 
-    except Exception as e:
-        print(f"ERROR updating {file_path}: {e}", file=sys.stderr)
-        return False
+    if file_path.name == "pyproject.toml":
+        content = update_pyproject_version(content, new_version)
+    elif file_path.name == "Cargo.toml":
+        content = update_pyproject_version(content, new_version)
+    elif file_path.name == "package.json":
+        content = update_package_json_version(content, new_version)
+    elif file_path.name in ("plugin.json", "metadata.json", "marketplace.json"):
+        content = update_package_json_version(content, new_version)
+    elif file_path.name == "__init__.py":
+        content = update_init_py_version(content, new_version)
+    elif file_path.name == "openpackage.yml":
+        content = update_openpackage_version(content, new_version)
+
+    if content != original:
+        if not dry_run:
+            file_path.write_text(content, encoding="utf-8")
+        return True
+    return False
+
+
+def _apply(
+    version_files: list[Path], root: Path, new_version: str, dry_run: bool
+) -> tuple[int, int]:
+    """Update each file, printing its outcome; return (updated, failed)."""
+    updated = 0
+    failed = 0
+    for file in version_files:
+        try:
+            changed = update_version_file(file, new_version, dry_run=dry_run)
+        except (OSError, UnicodeDecodeError) as e:
+            print(f"ERROR updating {file.relative_to(root)}: {e}", file=sys.stderr)
+            failed += 1
+            continue
+        if changed:
+            status = "[DRY RUN] Would update" if dry_run else "✓ Updated"
+            print(f"  {status}: {file.relative_to(root)}")
+            updated += 1
+        else:
+            print(f"  - No change: {file.relative_to(root)}")
+    return updated, failed
 
 
 def main():
@@ -241,19 +268,16 @@ def main():
     else:
         print(f"\nUpdating to version: {args.version}")
 
-    updated = 0
-    for file in version_files:
-        if update_version_file(file, args.version, dry_run=args.dry_run):
-            status = "[DRY RUN] Would update" if args.dry_run else "✓ Updated"
-            print(f"  {status}: {file.relative_to(root)}")
-            updated += 1
-        else:
-            print(f"  - No change: {file.relative_to(root)}")
+    updated, failed = _apply(version_files, root, args.version, args.dry_run)
 
     print(
         f"\n{'Would update' if args.dry_run else 'Updated'}"
         f" {updated}/{len(version_files)} file(s)"
     )
+
+    if failed:
+        print(f"{failed} file(s) could not be updated.", file=sys.stderr)
+        return 1
 
     if args.dry_run:
         print("\nRun without --dry-run to apply changes.")
