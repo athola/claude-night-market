@@ -26,7 +26,7 @@ readonly MYDIR
 # shellcheck source=scripts/logging.sh
 . "${MYDIR%/}/../../scripts/logging.sh"
 
-REQUIRED_DEPENDENCIES="ffmpeg mktemp du cut"
+REQUIRED_DEPENDENCIES="ffmpeg mktemp du cut cksum"
 readonly REQUIRED_DEPENDENCIES
 
 # SUBTITLE_FONT names a font file directly. Otherwise take the first
@@ -59,8 +59,9 @@ SUBS=(
 readonly SUBS
 
 XTRACE=0
-INPUT="assets/gifs/skills-showcase.gif"
-OUTPUT="assets/gifs/skills-showcase.gif"
+# Beside this script, not the caller's working directory.
+INPUT="${MYDIR%/}/../gifs/skills-showcase.gif"
+OUTPUT="${MYDIR%/}/../gifs/skills-showcase.gif"
 WORK_DIR=""
 
 usage() {
@@ -156,6 +157,7 @@ burn_subtitles() {
   ffmpeg -y -hide_banner -loglevel error -i "${INPUT}" -vf "${vf}" -loop 0 "${tmp_gif}"
 
   mv "${tmp_gif}" "${OUTPUT}"
+  cksum <"${OUTPUT}" >"${OUTPUT}.captioned"
   size="$(du -h "${OUTPUT}" | cut -f1)"
   log "Wrote ${OUTPUT} (${size})"
 }
@@ -182,6 +184,15 @@ main() {
   esac
 
   depcheck || exit 1
+  # The default reads and writes one file, so a second run without a
+  # fresh VHS record burned every caption twice. The sidecar holds the
+  # checksum of the last captioned output.
+  case "$(cat "${INPUT}.captioned" 2>/dev/null)" in
+    "$(cksum <"${INPUT}")")
+      log 4 "${INPUT} already carries the captions; re-record it with VHS first"
+      exit 1
+      ;;
+  esac
   burn_subtitles
 }
 

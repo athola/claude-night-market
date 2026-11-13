@@ -45,6 +45,8 @@ wheels/
 *.md.lock
 # The capture index lock: deduplication.update_index flocks it per write.
 memory-palace-index.yaml.lock
+# Checksum sidecar add-subtitles.sh writes beside a captioned GIF.
+*.gif.captioned
 
 # Mod type declarations: Claude Code writes these beside a mod it loads
 # from --plugin-dir, stamped with its own version, and rewrites them on
