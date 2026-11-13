@@ -42,6 +42,9 @@ skills:
 - skills/subagent-testing
 - skills/plugin-review
 - skills/metacognitive-self-mod
+- skills/friction-detector
+- skills/hook-scope-guide
+- skills/skill-graph-audit
 commands:
 - commands/aggregate-logs.md
 - commands/analyze-skill.md
@@ -66,3 +69,4 @@ agents:
 - agents/skill-auditor.md
 - agents/skill-evaluator.md
 - agents/skill-improver.md
+- agents/insight-engine.md

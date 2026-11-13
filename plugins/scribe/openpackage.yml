@@ -37,6 +37,7 @@ skills:
 - skills/voice-generate
 - skills/voice-review
 - skills/voice-learn
+- skills/simplified-technical-english
 commands:
 - commands/doc-generate.md
 - commands/doc-polish.md

@@ -42,6 +42,8 @@ skills:
 - skills/test-review
 - skills/unified-review
 - skills/tiered-audit
+- skills/harden
+- skills/performance-review
 commands:
 - commands/api-review.md
 - commands/architecture-review.md
@@ -55,9 +57,12 @@ commands:
 - commands/skill-history.md
 - commands/skill-review.md
 - commands/test-review.md
+- commands/harden.md
+- commands/performance-review.md
 agents:
 - agents/blast-radius-reviewer.md
 - agents/code-reviewer.md
 - agents/architecture-reviewer.md
 - agents/rust-auditor.md
 - agents/code-refiner.md
+- agents/harden-orchestrator.md

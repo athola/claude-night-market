@@ -32,6 +32,9 @@ skills:
 - skills/knowledge-intake
 - skills/review-chamber
 - skills/palace-diagram
+- skills/memory-clarity-probe
+- skills/palace-index-curator
+- skills/session-handoff
 commands:
 - commands/garden.md
 - commands/navigate.md

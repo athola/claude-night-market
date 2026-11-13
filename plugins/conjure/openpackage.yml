@@ -28,3 +28,10 @@ skills:
 - skills/gemini-delegation
 - skills/qwen-delegation
 - skills/agent-teams
+- skills/minimax-delegation
+- skills/glm-delegation
+- skills/muse-delegation
+- skills/codex-delegation
+- skills/opencode-delegation
+- skills/glimmer-delegation
+- skills/provider-setup

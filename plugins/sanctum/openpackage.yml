@@ -43,6 +43,7 @@ skills:
 - skills/stack-push
 - skills/stack-rebase
 - skills/workflow-improvement
+- skills/validate-pr
 commands:
 - commands/commit-msg.md
 - commands/create-tag.md
@@ -63,6 +64,8 @@ commands:
 - commands/acp.md
 - commands/sync-capabilities.md
 - commands/update-version.md
+- commands/fixit.md
+- commands/validate-pr.md
 agents:
 - agents/git-workspace-agent.md
 - agents/commit-agent.md
