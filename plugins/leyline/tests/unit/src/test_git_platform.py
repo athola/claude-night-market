@@ -273,6 +273,15 @@ class TestArgvConstruction:
         assert argv == ["gh", "api", "repos/o/r/labels", "-X", "POST", "-f", "name=bug"]
 
     @pytest.mark.unit
+    def test_gh_api_get_with_fields_stays_a_get(self):
+        """A GET with fields carries -X GET, or gh sends it as POST."""
+        with patch("subprocess.run") as run:
+            run.return_value = _make_completed(0, stdout="{}")
+            gh_api("repos/o/r/issues", fields={"state": "open"})
+        argv = run.call_args.args[0]
+        assert argv[argv.index("-X") + 1] == "GET"
+
+    @pytest.mark.unit
     def test_gh_graphql_rejects_unsupported_variable_type(self):
         with patch("subprocess.run") as run:
             with pytest.raises(

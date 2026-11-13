@@ -1,6 +1,7 @@
 """Tests for quota tracking utilities."""
 
 import json
+import os
 import time
 from pathlib import Path
 
@@ -601,3 +602,18 @@ class TestAClosedMinuteWindowStopsCounting:
         tracker = self._full_minute(tmp_path)
 
         assert tracker.get_quota_status() == ("healthy", [])
+
+
+def test_usage_file_is_replaced_atomically(tmp_path: Path, monkeypatch) -> None:
+    """Readers take no lock, so a truncating write let them read an empty file."""
+    tracker = QuotaTracker(service="svc", storage_dir=tmp_path)
+    replaced: list[str] = []
+    real_replace = os.replace
+
+    def spy(src, dst):
+        replaced.append(Path(dst).name)
+        return real_replace(src, dst)
+
+    monkeypatch.setattr(os, "replace", spy)
+    tracker.record_request(tokens=1)
+    assert tracker.usage_file.name in replaced

@@ -1210,7 +1210,7 @@ def test_record_session_keeps_a_row_another_manager_wrote_after_its_load(
 
 
 def test_rebuild_index_skips_an_undecodable_session_file(
-    tmp_path: Path, caplog: pytest.LogCaptureFixture
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     manager = SessionHistoryManager(data_dir=tmp_path)
     manager.record_session(_make_record("good"))
@@ -1220,7 +1220,7 @@ def test_rebuild_index_skips_an_undecodable_session_file(
     found = manager.query_sessions(SessionQuery())
 
     assert [rec.session_id for rec in found] == ["good"]
-    assert "skipping unreadable session bad" in caplog.text
+    assert "corrupt session bad" in capsys.readouterr().err
 
 
 def test_rebuild_index_skips_a_session_file_that_fails_to_deserialize(

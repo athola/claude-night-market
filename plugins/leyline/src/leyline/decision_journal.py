@@ -490,5 +490,6 @@ def apply_append(
             else new_file_content(kind)
         )
         new_content = append_entry(content, kind, fields, supersedes)
-        write_atomic(path, new_content)
+        # mode=None: the journals are committed docs, readable by the team.
+        write_atomic(path, new_content, mode=None)
     return new_content
