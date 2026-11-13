@@ -220,3 +220,19 @@ def test_a_non_numeric_batch_size_is_refused(tmp_path: Path) -> None:
     )
     assert result.returncode != 0
     assert "Traceback" not in result.stderr
+
+
+def test_cron_never_writes_an_empty_table_when_crontab_l_fails(tmp_path: Path) -> None:
+    """A transient `crontab -l` failure piped nothing into `crontab -`."""
+    repo = _sandbox(tmp_path)
+    (repo / "scripts" / "clawhub-submit.sh").write_text("exit 0\n")
+    calls = tmp_path / "crontab.calls"
+    shims = _shims(
+        tmp_path,
+        crontab=f'echo "$*" >> "{calls}"; case "$1" in -l) exit 1 ;; esac; exit 0',
+    )
+    result = _run(
+        repo, "clawhub-cron.sh", shims, CLAWHUB_SYNC_LOG=str(tmp_path / "s.log")
+    )
+    assert result.returncode == 0, result.stderr
+    assert calls.read_text().split() == ["-l"]

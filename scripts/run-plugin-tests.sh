@@ -127,7 +127,17 @@ run_plugin_tests() {
   # has to mean.
   local cov_flag=()
   local fail_under=""
-  if [ -n "${cov_threshold}" ] && [ "${cov_threshold}" -gt 0 ] 2>/dev/null; then
+  # A malformed value ("90", 85.5, 90 # min) used to disable enforcement
+  # silently: the numeric test failed and read as "no threshold".
+  case "${cov_threshold}" in
+    "" | [0-9] | [0-9][0-9] | 100) ;;
+    *)
+      log 5 "${plugin_name}: coverage_threshold '${cov_threshold}' is not a whole number 0-100"
+      FAILED_PLUGINS+=("${plugin_name}")
+      return 1
+      ;;
+  esac
+  if [ -n "${cov_threshold}" ] && [ "${cov_threshold}" -gt 0 ]; then
     cov_flag=(--cov-fail-under="${cov_threshold}")
     fail_under="${cov_threshold}"
   fi
