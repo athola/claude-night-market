@@ -112,7 +112,7 @@ demo-initiatives: ## Demo initiative management
 	@echo ""
 	@echo "Step 2: Data directory"
 	@out=$$(ls data/ 2>/dev/null) || out=""; \
-	if [ -n "$$out" ]; then printf '%s\n' "$$out" | head -5; \
+	if [ -n "$$out" ]; then printf '%s\n' "$$out" | sed -n '1,5p'; \
 	else echo "  (no data files)"; fi
 	@echo ""
 	@echo "Initiatives demo complete."
@@ -121,9 +121,9 @@ demo-skills: ## Validate minister skill structure
 	@echo "=== Minister Skills Demo ==="
 	@echo "Project management skills:"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
-	done 2>/dev/null || echo "  (no skills found)"
+	done
 	@echo ""
 	@echo "Commands:"
 	@find commands/ -maxdepth 1 -name "*.md" 2>/dev/null | wc -l | xargs -I{} echo "  {} commands defined"

@@ -120,9 +120,9 @@ demo-skills: ## Validate leyline skill structure
 	@echo "=== Leyline Skills Demo ==="
 	@echo "Infrastructure skills:"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
-	done 2>/dev/null || echo "  (no skills found)"
+	done
 	@echo ""
 	@echo "Commands:"
 	@find commands/ -maxdepth 1 -name "*.md" 2>/dev/null | wc -l | xargs -I{} echo "  {} commands defined"
@@ -174,10 +174,12 @@ demo-verify-plugin: ## Demo verify-plugin attestation check (LIVE)
 	@echo "=== Leyline Verify Plugin Demo (LIVE) ==="
 	@echo ""
 	@echo "Verifying leyline plugin structure..."
-	@test -f openpackage.yml && echo "  openpackage.yml: OK" || echo "  openpackage.yml: MISSING"
-	@test -d skills && echo "  skills/: OK ($$(find skills/ -name 'SKILL.md' | wc -l) skills)" || echo "  skills/: MISSING"
-	@test -d src && echo "  src/: OK ($$(find src/ -name '*.py' | wc -l) files)" || echo "  src/: MISSING"
-	@test -d tests && echo "  tests/: OK ($$(find tests/ -name 'test_*.py' | wc -l) tests)" || echo "  tests/: MISSING"
+	@fail=0; \
+	if [ -f openpackage.yml ]; then echo "  openpackage.yml: OK"; else echo "  openpackage.yml: MISSING"; fail=1; fi; \
+	if [ -d skills ]; then echo "  skills/: OK ($$(find skills/ -name 'SKILL.md' | wc -l) skills)"; else echo "  skills/: MISSING"; fail=1; fi; \
+	if [ -d src ]; then echo "  src/: OK ($$(find src/ -name '*.py' | wc -l) files)"; else echo "  src/: MISSING"; fail=1; fi; \
+	if [ -d tests ]; then echo "  tests/: OK ($$(find tests/ -name 'test_*.py' | wc -l) tests)"; else echo "  tests/: MISSING"; fail=1; fi; \
+	exit $$fail
 	@echo ""
 	@echo "Use /leyline:verify-plugin for full attestation verification."
 

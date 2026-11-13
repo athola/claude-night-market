@@ -167,7 +167,7 @@ verify-install: ## Verify installation works correctly
 	@echo "Verifying installation..."
 	@$(UV_RUN_PYTHON) -c "import abstract; print('[OK] Abstract module imports successfully')"
 	@$(UV_RUN_PYTHON) -c "from abstract.cli_framework import AbstractCLI; print('[OK] CLI framework imports successfully')"
-	@$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --version 2>/dev/null && echo "[OK] CLI tools work correctly" || echo "[WARNING] CLI tools may need adjustment"
+	@$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --version && echo "[OK] CLI tools work correctly"
 	@echo "[OK] Installation verification complete"
 
 mutation-test: ## Run mutation testing
@@ -192,7 +192,7 @@ demo-analyzer: ## Demonstrate skill analyzer (LIVE)
 demo-skills: ## List available skills
 	@echo "=== Abstract Skills ==="
 	@for skill in $(SKILLS_DIR)/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
 	done
 

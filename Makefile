@@ -433,7 +433,7 @@ demo: ## Demonstrate Claude Night Market capabilities
 	@echo "Installed Plugins:"
 	@for plugin in $(ALL_PLUGINS); do \
 		name=$$(basename $$plugin); \
-		desc=$$(head -5 $$plugin/.claude-plugin/plugin.json 2>/dev/null | grep '"description"' | cut -d'"' -f4 | head -c 50); \
+		desc=$$(head -5 $$plugin/.claude-plugin/plugin.json 2>/dev/null | { grep '"description"' || true; } | cut -d'"' -f4 | head -c 50); \
 		echo "  - $$name: $$desc..."; \
 	done
 	@echo ""

@@ -112,7 +112,7 @@ demo-skills: ## Validate spec-kit skill structure
 	@echo "=== Spec-Kit Skills Demo ==="
 	@echo "Specification skills:"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
 	done
 	@echo ""

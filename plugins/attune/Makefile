@@ -73,7 +73,7 @@ demo-init: ## Demo project initialization workflow
 	@for module in skills/project-init/modules/*.md; do \
 		name=$$(basename "$$module" .md); \
 		echo "  - $$name"; \
-	done 2>/dev/null || echo "  (no modules found)"
+	done
 	@echo ""
 	@echo "Step 3: Commands available"
 	@echo "  /attune:project-init      - Initialize new project"
@@ -96,7 +96,7 @@ demo-brainstorm: ## Demo brainstorming workflow
 	@for agent in agents/*.md; do \
 		name=$$(basename "$$agent" .md); \
 		echo "  - $$name"; \
-	done 2>/dev/null || echo "  (no agents found)"
+	done
 	@echo ""
 	@echo "Step 3: Integration with other skills"
 	@echo "  -> project-specification (output)"
@@ -109,9 +109,9 @@ demo-skills: ## Validate attune skill structure
 	@echo "=== Attune Skills Demo ==="
 	@echo "Project workflow skills:"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
-	done 2>/dev/null || echo "  (no skills found)"
+	done
 	@echo ""
 	@echo "Skill coverage:"
 	@fail=0; for skill in project-init project-brainstorming project-specification project-planning project-execution architecture-aware-init makefile-generation precommit-setup workflow-setup; do \

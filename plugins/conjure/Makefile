@@ -191,11 +191,16 @@ delegate-test: ## Test all delegation services
 	@echo "Testing delegation services..."
 	@# Iterates the registry so a newly registered provider is exercised
 	@# here without editing this target.
-	@for svc in $$(uv run python scripts/delegation_executor.py --list-services | awk -F: '{print $$1}'); do \
+	@# --verify separates a provider that is not installed from one that
+	@# is installed and failed; only the second fails the target.
+	@fail=0; for svc in $$(uv run python scripts/delegation_executor.py --list-services | awk -F: '{print $$1}'); do \
 		echo "Testing $$svc..."; \
-		uv run python scripts/delegation_executor.py $$svc "Respond with 'OK'" \
-			|| echo "$$svc not available"; \
-	done
+		if ! uv run python scripts/delegation_executor.py --verify "$$svc" >/dev/null 2>&1; then \
+			echo "$$svc not available"; \
+		elif ! uv run python scripts/delegation_executor.py "$$svc" "Respond with 'OK'"; then \
+			echo "$$svc FAILED"; fail=1; \
+		fi; \
+	done; exit $$fail
 	@echo "Showing usage..."
 	uv run python scripts/delegation_executor.py --usage
 
@@ -220,7 +225,7 @@ benchmark: ## Run performance benchmarks (API delegation latency)
 	fi
 
 memory-profile: ## Profile memory usage
-	@if python3 -c "import memory_profiler" 2>/dev/null; then \
+	@if $(UV_RUN) python -c "import memory_profiler" 2>/dev/null; then \
 		$(UV_RUN) python3 -m memory_profiler scripts/*.py; \
 	else \
 		echo "Install memory_profiler: pip install memory_profiler"; \
@@ -246,7 +251,7 @@ demo-skills: ## Validate conjure skill structure
 	@echo "=== Conjure Skills Demo ==="
 	@echo "Delegation skills:"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
 	done
 	@echo ""

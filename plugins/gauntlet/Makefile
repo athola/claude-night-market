@@ -68,7 +68,7 @@ demo-gauntlet-curate: ## Demo: read-only survey of the bundled problem bank (LIV
 	@out=$$($(UV_RUN) python scripts/curate_problems.py --verbose 2>&1) \
 		|| { printf '%s\n' "$$out" | head -30; \
 		     echo "  [FAIL] curate_problems.py exited non-zero"; exit 1; }; \
-	printf '%s\n' "$$out" | head -30
+	printf '%s\n' "$$out" | sed -n '1,30p'
 
 demo-gauntlet-graph: ## Demo: show graph_query CLI surface and supported actions (LIVE)
 	@echo "=== gauntlet-graph Demo: graph_query CLI surface (LIVE) ==="
