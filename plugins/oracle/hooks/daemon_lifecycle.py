@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Oracle daemon lifecycle hook.
 
-Handles SessionStart and Stop events to start and stop the ONNX
-inference daemon.  The daemon only runs when the opt-in sentinel
-file ``${CLAUDE_PLUGIN_DATA}/.oracle-enabled`` is present, making
+Handles SessionStart and SessionEnd events to start and stop the
+ONNX inference daemon. Stop fires after every assistant turn, so it
+would kill the daemon the session started after its first reply.
+The daemon only runs when the opt-in sentinel file
+``${CLAUDE_PLUGIN_DATA}/.oracle-enabled`` is present, making
 activation explicit rather than automatic.
 
 Designed for the 5-second hook timeout budget: the start path
@@ -75,7 +77,7 @@ def _pid_is_daemon(pid: int) -> bool:
     pid-file cleanup, the number in daemon.pid can belong to an unrelated
     process of the same user, and ``os.kill(pid, 0)`` says only that
     something is there. The signal-0 probe is kept as the cheap first
-    step. The command line is what keeps the Stop hook from killing that
+    step. The command line is what keeps the SessionEnd hook from killing that
     something.
 
     ``-ww`` is required on Linux: procps cuts the command column to 80
@@ -196,7 +198,7 @@ def _stop_daemon() -> None:
 
 
 def main() -> None:
-    """Dispatch on SessionStart / Stop events."""
+    """Dispatch on SessionStart / SessionEnd events."""
     event = _get_event()
     sentinel = _get_sentinel()
     venv = get_venv_path()
@@ -208,7 +210,7 @@ def main() -> None:
             return
         _start_daemon()
 
-    elif event == "Stop":
+    elif event == "SessionEnd":
         _stop_daemon()
 
 

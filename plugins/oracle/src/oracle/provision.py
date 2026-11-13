@@ -63,7 +63,8 @@ def provision_venv(venv_path: Path) -> ProvisionResult:
 
         python = str(get_python_path(venv_path))
         result = subprocess.run(
-            ["uv", "pip", "install", "--python", python, "onnxruntime"],
+            # daemon.py imports yaml; onnxruntime does not depend on it.
+            ["uv", "pip", "install", "--python", python, "onnxruntime", "pyyaml"],
             capture_output=True,
             text=True,
             timeout=300,

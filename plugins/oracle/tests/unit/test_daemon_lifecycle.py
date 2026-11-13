@@ -196,7 +196,9 @@ class TestStopBehavior:
         )
         try:
             (tmp_path / "daemon.pid").write_text(str(bystander.pid))
-            with patch("sys.stdin", StringIO(json.dumps({"hook_event_name": "Stop"}))):
+            with patch(
+                "sys.stdin", StringIO(json.dumps({"hook_event_name": "SessionEnd"}))
+            ):
                 main()
             assert bystander.poll() is None, (
                 "Stop killed a process that is not the daemon"
@@ -209,13 +211,13 @@ class TestStopBehavior:
     @pytest.mark.unit
     def test_stop_exits_cleanly(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         """
-        Scenario: Stop event fires over state left by a dead daemon
+        Scenario: SessionEnd fires over state left by a dead daemon
         GIVEN a pid file naming a process that is not the oracle daemon
             and a port file beside it
-        WHEN main is called with a Stop event
+        WHEN main is called with a SessionEnd event
         THEN both files are gone
 
-        Stop's whole job is reaching _stop_daemon; routing the event
+        SessionEnd's whole job is reaching _stop_daemon; routing the event
         anywhere else leaves the stale pair on disk, and the next
         SessionStart reads a port nothing is listening on.
         """
@@ -226,7 +228,7 @@ class TestStopBehavior:
         # daemon, so _pid_is_daemon declines to signal it.
         pid_file.write_text("1")
         port_file.write_text("9000")
-        payload = json.dumps({"hook_event_name": "Stop"})
+        payload = json.dumps({"hook_event_name": "SessionEnd"})
 
         with patch("sys.stdin", StringIO(payload)):
             main()
@@ -751,3 +753,32 @@ class TestLifecycleErrorPaths:
         assert popen.call_args_list == []
         assert (tmp_path / "daemon.pid").read_text() == "1"
         assert (tmp_path / "daemon.port").read_text() == "9000"
+
+
+class TestStopWaitsForSessionEnd:
+    """Stop fires after every assistant turn; the daemon lives for the session."""
+
+    @pytest.mark.unit
+    def test_turn_level_stop_leaves_the_daemon_running(self) -> None:
+        with (
+            patch("sys.stdin", StringIO(json.dumps({"hook_event_name": "Stop"}))),
+            patch("daemon_lifecycle._stop_daemon") as stop,
+        ):
+            main()
+        stop.assert_not_called()
+
+    @pytest.mark.unit
+    def test_session_end_stops_the_daemon(self) -> None:
+        payload = json.dumps({"hook_event_name": "SessionEnd"})
+        with (
+            patch("sys.stdin", StringIO(payload)),
+            patch("daemon_lifecycle._stop_daemon") as stop,
+        ):
+            main()
+        stop.assert_called_once()
+
+    @pytest.mark.unit
+    def test_manifest_registers_session_end_not_stop(self) -> None:
+        manifest = Path(__file__).resolve().parents[2] / "hooks" / "hooks.json"
+        events = set(json.loads(manifest.read_text())["hooks"])
+        assert events == {"SessionStart", "SessionEnd"}
