@@ -483,3 +483,17 @@ class TestNonRegistryTokens:
     )
     def test_a_local_archive_is_not_looked_up(self, pg, token):
         assert pg.parse_packages(f"pip install {token}") == []
+
+
+class TestWorkspaceFlagPerInstaller:
+    """`-w` takes a value for npm and is a bare switch for pnpm."""
+
+    @pytest.mark.unit
+    def test_pnpm_workspace_root_switch_does_not_hide_the_package(self, pg) -> None:
+        """`pnpm add -w pkgx` installs pkgx at the workspace root."""
+        assert pg.parse_packages("pnpm add -w pkgx") == [("npm", "pkgx")]
+
+    @pytest.mark.unit
+    def test_npm_workspace_flag_still_consumes_its_value(self, pg) -> None:
+        """`npm i -w ws pkgx` names workspace ws, then installs pkgx."""
+        assert pg.parse_packages("npm i -w ws pkgx") == [("npm", "pkgx")]
