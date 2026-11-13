@@ -70,8 +70,7 @@ Optional enhancements:
 - Install superpowers for rigorous methodology loops:
 
 ```bash
-/plugin marketplace add obra/superpowers
-/plugin install superpowers@superpowers-marketplace
+/plugin install superpowers@claude-plugins-official
 ```
 
 ### Alternative: Brainstorming Workflow

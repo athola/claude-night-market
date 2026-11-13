@@ -491,8 +491,7 @@ Check if superpowers is available:
 
 Install superpowers:
 ```bash
-/plugin marketplace add obra/superpowers
-/plugin install superpowers@superpowers-marketplace
+/plugin install superpowers@claude-plugins-official
 ```
 
 ## Troubleshooting
