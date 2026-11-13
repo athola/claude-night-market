@@ -25,12 +25,10 @@
     "./skills/bug-review",
     "./skills/code-refinement",
     "./skills/harden",
-    "./skills/makefile-review",
     "./skills/math-review",
     "./skills/performance-review",
     "./skills/rust-review",
     "./skills/safety-critical-patterns",
-    "./skills/shell-review",
     "./skills/test-review",
     "./skills/tiered-audit",
     "./skills/unified-review"

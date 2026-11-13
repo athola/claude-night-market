@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `area_agent_registry.py`; memory-palace's `TierManager` with
   `assign_tier`, `get_tier` and the `tier_assignments` table. Each had
   tests and no caller.
+- **The `pensive:shell-review` and `pensive:makefile-review` skill
+  stubs**, deprecated in 1.10.1 and 1.10.2 under ADR-0014. Invoke
+  `Skill(pensive:unified-review)` with the shell or makefile focus.
+  The `/shell-review` and `/makefile-review` commands remain.
 
 ### Fixed
 

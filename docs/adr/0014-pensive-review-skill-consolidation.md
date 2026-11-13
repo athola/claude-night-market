@@ -3,7 +3,8 @@
 **Date**: 2026-05-06
 **Status**: Accepted 2026-05-06 as sequencing. PR-A (shell-review)
 landed 2026-10-27 (#615). PR-B (makefile-review) landed 2026-11-05
-(#616). Stub removal waits one release. The premise has moved: pensive
+(#616). Both skill stubs removed in 1.10.3; the slash commands stay
+as aliases. The premise has moved: pensive
 has 10 review-named skills, not 9.
 **Deciders**: Claude Night Market maintainers
 **Source**: Issue #453, Discussion #449 Wave-3 backlog item 1
@@ -75,7 +76,7 @@ Any remaining external references convert to
 - [x] PR-B: makefile-review folded into
   ``unified-review/modules/makefile-review.md``, alias stub in place,
   CHANGELOG entry under deprecations (#616)
-- [ ] One release elapses; deprecation removal PR queued
+- [x] One release elapses; skill stubs removed in 1.10.3
 
 ## Source
 

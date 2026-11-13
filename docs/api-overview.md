@@ -11,7 +11,7 @@ details follow in the next section.
 
 ## API Inventory
 
-The ecosystem includes 134 CLI commands, 201 modular
+The ecosystem includes 134 CLI commands, 199 modular
 skills, 57 specialized agents, and 13 Python packages
 with public APIs. We also maintain 58 executable hooks.
 
