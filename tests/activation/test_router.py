@@ -151,3 +151,11 @@ def test_cli_baseline_refuses_labels_naming_a_missing_target(suite, capsys):
     (suite / "plugins/alpha/commands/ship.md").unlink()
     assert main(["baseline", "--root", str(suite)]) == 1
     assert not (suite / "evals/activation/router-baseline.json").exists()
+
+
+def test_a_tied_target_ranks_the_same_whatever_its_id():
+    """A prompt matching nothing ties every item; the id must not pick a winner."""
+    first = evaluate(Router(ITEMS), [_pos("t.1", "nothing matches", "p:commit-push")])
+    last = evaluate(Router(ITEMS), [_pos("t.2", "nothing matches", "p:shell-check")])
+    assert first["mrr"] == last["mrr"] == 0.5
+    assert first["top1"] == last["top1"] == 0.0
