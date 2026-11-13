@@ -49,7 +49,7 @@ dependencies: [leyline:evaluation-framework]
 This framework is designed to be consumed by:
 
 - `memory-palace/skills/knowledge-intake/modules/evaluation-rubric.md`
-- `abstract/skills/skills-eval/modules/quality-metrics.md`
+- `abstract:skills-eval`, its evaluation-criteria module
 - Any plugin needing systematic evaluation with weighted criteria
 
 ## Token Budget

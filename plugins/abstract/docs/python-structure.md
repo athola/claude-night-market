@@ -220,7 +220,6 @@ The centralized package structure eliminated significant code duplication:
 ### Scripts Refactored
 
 **Main Scripts**:
-- `.pre-commit/validate_abstract.py`: 178 → 98 lines (-45%)
 - `scripts/context_optimizer.py`: 241 → 193 lines (-20%)
 
 **Nested Scripts**:
