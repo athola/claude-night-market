@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **spec-kit tracks upstream v1.4.0** (from v0.5.0). The constitution
+  is read at runtime by clarify, tasks and implement, and
+  `/speckit-constitution` no longer rewrites templates and refuses
+  feature work. Clarify asks real questions with a why-it-matters line
+  and re-validates the spec quality checklist. Implement treats
+  checklists as a read-only gate, tasks quote data-model constraints
+  verbatim, and converge assesses every task whatever its checkbox.
+  `taskstoissues` stays, although upstream moved it to an extension.
+- **superpowers docs track upstream v7.0.2** (from v5.0.7). Seven
+  install snippets that paired `marketplace add obra/superpowers` with
+  `superpowers@superpowers-marketplace`, which never resolved, now use
+  `/plugin install superpowers@claude-plugins-official`.
+- **attune adopts superpowers v7 planning and brainstorming.** Plans
+  carry Global Constraints, per-task Interfaces and a Review Focus
+  section and record decisions rather than code. Brainstorming asks why
+  first, and the spec review loop sorts a builder's questions so only
+  the ones that change what gets built reach you.
+- **Harness ledger at Claude Code 2.1.323 and Fable 5.2.** phantom
+  prices Fable 5.2 at $8/$40, the hook validator says where `onFailure`
+  belongs, and `tests/test_skill_survives_compaction.py` keeps every
+  plugin SKILL.md inside the 5,000-token window Claude Code re-attaches
+  after compaction.
 - **`docs/deep-dive/` is gone and gitignored.** The governance
   sources moved to ADR-0030 and the stewardship **Origin** notes, and
   the network and data detail moved into the README. Skills and rules
