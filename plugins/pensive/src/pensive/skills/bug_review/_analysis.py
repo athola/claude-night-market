@@ -10,23 +10,29 @@ from ..base import PatternSearch
 
 _THREAD_LEAK = "Resource leak: Thread started - potential leak without join()"
 
-
-_THREAD_BINDING = re.compile(r"(\w+)\s*=\s*(?:\w+\.)*Thread\(")
+# `t = Thread(`, `t: Thread = Thread(`, `(t := Thread(`.
+_THREAD_BINDING = re.compile(r"\b(\w+)\s*(?::\s*[\w.]+\s*=|:=|=(?!=))\s*[\w.]*Thread\(")
+# Started where built, so nothing can join it. `=` excludes the walrus.
+_STARTED_UNBOUND = re.compile(r"(?<!=\s)(?<!=)(?:\w+\.)*Thread\(.*?\)\.start\(")
+# A join on a name or subscript: how a thread held in a collection is joined.
+_RECEIVER_JOIN = re.compile(r"(\w+|[\])])\.join\(")
 
 
 def _leaks_a_thread(content: str) -> bool:
     """Whether the code, comments stripped, starts an unjoined non-daemon Thread.
 
-    A join counts only on a name bound to a Thread: `os.path.join` and
-    `", ".join` are not thread joins, and a Thread never bound to a name
-    cannot be joined at all.
+    A bound Thread must be joined on its own name (`foot.join` is not `t`'s).
+    One in a collection has no name: any join not on a string or `path` counts.
     """
     code = "\n".join(line.split("#", 1)[0] for line in content.splitlines())
     if "Thread(" not in code or "daemon=True" in code:
         return False
-    bound = set(_THREAD_BINDING.findall(code))
-    unbound = code.count("Thread(") > len(_THREAD_BINDING.findall(code))
-    return unbound or any(f"{name}.join(" not in code for name in bound)
+    names = _THREAD_BINDING.findall(code)
+    unjoined = (n for n in set(names) if not re.search(rf"\b{n}\.join\(", code))
+    if any(unjoined) or _STARTED_UNBOUND.search(code):
+        return True
+    in_collection = code.count("Thread(") > len(names)
+    return in_collection and not set(_RECEIVER_JOIN.findall(code)) - {"path"}
 
 
 class AnalysisMixin:

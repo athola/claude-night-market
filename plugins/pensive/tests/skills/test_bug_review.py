@@ -390,8 +390,22 @@ class TestBugReviewSkill:
             "server.start()\n",
             "t = threading.Thread(target=f)\nt.start()\nt.join()\n",
             "t = threading.Thread(target=f, daemon=True)\nt.start()\n",
+            "ts = [Thread(target=f) for _ in r]\nfor t in ts:\n    t.start()\nfor t in ts:\n    t.join()\n",
+            "ws.append(Thread(target=f))\nws[0].start()\nfor x in ws:\n    x.join()\n",
+            "d['a'] = Thread(target=f)\nd['a'].start()\nd['a'].join()\n",
+            "t: Thread = Thread(target=f)\nt.start()\nt.join()\n",
+            "(t := Thread(target=f)).start()\nt.join()\n",
         ],
-        ids=["not-a-thread", "joined", "daemon"],
+        ids=[
+            "not-a-thread",
+            "joined",
+            "daemon",
+            "list-joined-in-loop",
+            "appended-joined-in-loop",
+            "dict-entry-joined",
+            "annotated",
+            "walrus",
+        ],
     )
     def test_start_is_a_thread_leak_only_for_an_unjoined_thread(
         self, mock_skill_context, content: str
@@ -406,8 +420,9 @@ class TestBugReviewSkill:
         [
             "t = threading.Thread(target=f)\nt.start()\npath = os.path.join(a, b)\n",
             "threading.Thread(target=f).start()\n",
+            "t = Thread(target=f)\nt.start()\nfoot.join(1)\n",
         ],
-        ids=["other-join", "unbound-thread"],
+        ids=["other-join", "unbound-thread", "other-name-ending-in-t"],
     )
     def test_an_unjoined_thread_is_a_leak_whatever_else_joins(
         self, mock_skill_context, content: str
