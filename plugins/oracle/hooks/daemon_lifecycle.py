@@ -52,15 +52,17 @@ def _get_models_dir() -> Path:
     return PLUGIN_ROOT / "models"
 
 
-def _get_event() -> str:
+def _read_payload() -> dict:
     try:
         payload = json.load(sys.stdin)
     except (ValueError, OSError):
         # ValueError covers JSONDecodeError and UnicodeDecodeError.
-        return ""
-    if not isinstance(payload, dict):
-        return ""
-    return str(payload.get("hook_event_name", ""))
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _get_event() -> str:
+    return str(_read_payload().get("hook_event_name", ""))
 
 
 # What the daemon's command line must contain for a PID to count as ours.
@@ -199,7 +201,8 @@ def _stop_daemon() -> None:
 
 def main() -> None:
     """Dispatch on SessionStart / SessionEnd events."""
-    event = _get_event()
+    payload = _read_payload()
+    event = str(payload.get("hook_event_name", ""))
     sentinel = _get_sentinel()
     venv = get_venv_path()
 
@@ -210,7 +213,10 @@ def main() -> None:
             return
         _start_daemon()
 
-    elif event == "SessionEnd":
+    # /clear ends a session and starts the next one in the same process.
+    # The stop runs async, so it could land after the new SessionStart
+    # and kill the daemon that session keeps; the next one reuses it.
+    elif event == "SessionEnd" and payload.get("reason") != "clear":
         _stop_daemon()
 
 

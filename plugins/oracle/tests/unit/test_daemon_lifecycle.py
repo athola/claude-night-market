@@ -782,3 +782,29 @@ class TestStopWaitsForSessionEnd:
         manifest = Path(__file__).resolve().parents[2] / "hooks" / "hooks.json"
         events = set(json.loads(manifest.read_text())["hooks"])
         assert events == {"SessionStart", "SessionEnd"}
+
+
+class TestClearKeepsTheDaemon:
+    """/clear ends one session and starts the next in the same process."""
+
+    @pytest.mark.unit
+    def test_session_end_for_clear_leaves_the_daemon_running(self) -> None:
+        """The async stop could land after the new SessionStart and kill it."""
+        payload = json.dumps({"hook_event_name": "SessionEnd", "reason": "clear"})
+        with (
+            patch("sys.stdin", StringIO(payload)),
+            patch("daemon_lifecycle._stop_daemon") as stop,
+        ):
+            main()
+        stop.assert_not_called()
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("reason", ["logout", "prompt_input_exit", "other"])
+    def test_session_end_for_an_exit_stops_the_daemon(self, reason: str) -> None:
+        payload = json.dumps({"hook_event_name": "SessionEnd", "reason": reason})
+        with (
+            patch("sys.stdin", StringIO(payload)),
+            patch("daemon_lifecycle._stop_daemon") as stop,
+        ):
+            main()
+        stop.assert_called_once()
