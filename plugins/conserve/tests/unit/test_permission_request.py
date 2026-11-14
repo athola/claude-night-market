@@ -1193,6 +1193,9 @@ class TestCredentialDirectoriesAndGitReaders:
             "rg -uu . ~/.ssh",
             "git diff HEAD -- .env",
             "git log -p -- .env",
+            "git diff HEAD .env",
+            "git log -p .env",
+            "git diff --cached id_rsa",
         ],
     )
     def test_recursive_or_git_read_of_credentials_is_denied(self, command: str) -> None:
@@ -1217,7 +1220,15 @@ class TestCredentialDirectoriesAndGitReaders:
 
     @pytest.mark.unit
     @pytest.mark.parametrize(
-        "command", ["grep -r foo ./not.ssh.d", "git log --grep env", "git diff HEAD"]
+        "command",
+        [
+            "grep -r foo ./not.ssh.d",
+            "git log --grep env",
+            "git log --grep credentials",
+            "git log --grep=credentials",
+            "git log -S credentials",
+            "git diff HEAD",
+        ],
     )
     def test_lookalike_paths_and_plain_git_reads_stay_allowed(
         self, command: str

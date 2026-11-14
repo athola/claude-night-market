@@ -86,9 +86,13 @@ _CRED_NAME = (
     r"|[._]netrc|\.npmrc|\.pypirc|id_(?:rsa|dsa|ecdsa|ed25519))"
 )
 _CRED_PATH = rf"(?:(?<=\s)|(?<=/)|(?<=['\"<:=])){_CRED_NAME}(?=\s|$|['\"])"
-# `git diff` and `git log -p` print a file named after `--`. Before the
-# `--` a word is a revision or a `--grep` pattern, not a path.
-_GIT_PATHSPEC = r"(?:^|[|;&]\s*)git\s+(?:diff|log)\b[^|;&]*\s--\s[^|;&]*"
+# `git diff` and `git log -p` print a file named as a pathspec, with or
+# without a `--` before it. The value of a search option (`--grep`, `-S`,
+# `-G`) is a pattern, not a path, so it is excluded.
+_GIT_PATHSPEC = (
+    r"(?:^|[|;&]\s*)git\s+(?:diff|log)\b[^|;&]*"
+    r"(?<!--grep )(?<!--grep=)(?<!-S )(?<!-G )"
+)
 
 # DANGEROUS patterns - always deny these
 # Order matters: more specific patterns should come first
