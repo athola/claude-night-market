@@ -262,26 +262,42 @@ class TestDegradationObservability:
         with pytest.warns(NonSemanticRetrievalWarning, match="not semantic"):
             open_embedder(str(tmp_path / "w.yaml"), provider="none")
 
-    @pytest.mark.integration
-    def test_real_provider_does_not_warn(self, tmp_path: Any) -> None:
-        """
-        GIVEN the semantic provider
-        WHEN an embedder is opened
-        THEN no degradation warning fires and the embedder it returns
-            is one a retriever reads as semantic
+    @pytest.mark.unit
+    def test_local_provider_whose_model_did_not_load_warns(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Any
+    ) -> None:
+        """Asking for local vectors and getting hashes is the #642 degradation."""
 
-        Without the second assertion this passes for an embedder that
-        silently fell back to hashing and forgot to publish it, which
-        is the shape of the defect #642 was filed about.
+        class UnloadedIndex:
+            def __init__(self, path: str, provider: str) -> None:
+                self.requested_provider = provider
+                self.model = None
+
+        monkeypatch.setattr(semantic_module, "_EmbeddingIndex", UnloadedIndex)
+        with pytest.warns(NonSemanticRetrievalWarning, match="did not load"):
+            open_embedder(str(tmp_path / "u.yaml"), provider="local")
+
+    @pytest.mark.integration
+    def test_local_provider_warns_exactly_when_it_is_not_semantic(
+        self, tmp_path: Any
+    ) -> None:
+        """
+        GIVEN the real backend and a request for local vectors
+        WHEN an embedder is opened
+        THEN it warns if and only if a retriever reads it as non-semantic
+
+        Whether sentence-transformers loads depends on the machine, so the
+        contract is the agreement: silent and semantic, or warned and not.
+        A silent hash fallback read as semantic is the defect #642 was
+        filed about.
         """
         pytest.importorskip("memory_palace")
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("error", NonSemanticRetrievalWarning)
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", NonSemanticRetrievalWarning)
             embedder = open_embedder(str(tmp_path / "q.yaml"), provider="local")
-        if getattr(embedder, "model", None) is None:
-            # No sentence-transformers model here: the embedder hashes,
-            # and reading it as semantic was the defect this guards.
-            pytest.skip("the local embedding model did not load")
+        warned = any(
+            issubclass(w.category, NonSemanticRetrievalWarning) for w in caught
+        )
 
-        assert SemanticRetriever(embedder).is_semantic is True
+        assert SemanticRetriever(embedder).is_semantic is not warned

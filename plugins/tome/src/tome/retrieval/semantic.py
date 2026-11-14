@@ -117,6 +117,13 @@ def open_embedder(
             stacklevel=2,
         )
     embedder: Embedder = _EmbeddingIndex(embeddings_path, provider=provider)
+    if provider != _HASH_PROVIDER and getattr(embedder, "model", None) is None:
+        warnings.warn(
+            f"The {provider!r} embedding model did not load, so ranking falls "
+            "back to the SHA-256 hash and is not semantic.",
+            NonSemanticRetrievalWarning,
+            stacklevel=2,
+        )
     return embedder
 
 
