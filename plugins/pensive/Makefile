@@ -118,7 +118,7 @@ status: ## Show project overview
 # ---------- Demo/Dogfood Targets ----------
 demo-makefile-review: ## Demo Makefile review on this plugin's Makefile
 	@echo "=== Pensive Makefile Review Demo ==="
-	@echo "Demonstrating makefile-review skill on this Makefile..."
+	@echo "Demonstrating the makefile-review command on this Makefile..."
 	@echo ""
 	@echo "Step 1: Structure Check"
 	@echo "Targets defined: $$(grep -cE '^[a-zA-Z_-]+:' Makefile)"
@@ -376,8 +376,8 @@ test-math-review: ## Test math-review command (runs math review tests)
 test-makefile-review: ## Test makefile-review command (runs Makefile review tests)
 	$(PYTEST) tests/skills/test_makefile_review.py -v
 
-test-shell-review: ## Test shell-review command (not applicable: skill-only, no unit tests)
-	@echo "Not applicable: shell-review is a skill-only command with no unit tests"
+test-shell-review: ## Test shell-review command (not applicable: routes to unified-review, no unit tests)
+	@echo "Not applicable: shell-review routes to unified-review and has no unit tests"
 
 test-fpf-review: ## Test fpf-review command (not applicable: skill-only, no unit tests)
 	@echo "Not applicable: fpf-review is a skill-only command with no unit tests"

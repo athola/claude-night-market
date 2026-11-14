@@ -51,7 +51,7 @@ demo-matchers: ## Demo pattern matcher functionality
 	@echo "Available matchers:"
 	@for f in matchers/*.py; do \
 		name=$$(basename "$$f" .py); \
-		[ "$$name" != "__init__" ] && echo "  - $$name"; \
+		if [ "$$name" != "__init__" ]; then echo "  - $$name"; fi; \
 	done
 
 demo-rules: ## Demo rule engine functionality
@@ -59,7 +59,7 @@ demo-rules: ## Demo rule engine functionality
 	@echo "Core modules:"
 	@for f in core/*.py; do \
 		name=$$(basename "$$f" .py); \
-		[ "$$name" != "__init__" ] && echo "  - $$name"; \
+		if [ "$$name" != "__init__" ]; then echo "  - $$name"; fi; \
 	done
 
 plugin-check: demo-matchers demo-rules status ## Run all demo workflows
