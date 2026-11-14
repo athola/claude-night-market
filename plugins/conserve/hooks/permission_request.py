@@ -88,7 +88,9 @@ _CRED_NAME = (
 _CRED_PATH = rf"(?:(?<=\s)|(?<=/)|(?<=['\"<:=])){_CRED_NAME}(?=\s|$|['\"])"
 # `git diff` and `git log -p` print a file named as a pathspec, with or
 # without a `--` before it. The value of a search option (`--grep`, `-S`,
-# `-G`) is a pattern, not a path, so it is excluded.
+# `-G`) is a pattern, not a path, so a bare value is excluded. A quoted
+# or clustered value (`--grep '.env'`, `-pG .env`) is still denied:
+# telling it from a pathspec takes a real argv parse.
 _GIT_PATHSPEC = (
     r"(?:^|[|;&]\s*)git\s+(?:diff|log)\b[^|;&]*"
     r"(?<!--grep )(?<!--grep=)(?<!-S )(?<!-G )"
