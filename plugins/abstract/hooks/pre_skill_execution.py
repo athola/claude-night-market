@@ -87,8 +87,14 @@ def main() -> None:
         plugin, skill = parse_skill_name(tool_input)
         skill_ref = f"{plugin}:{skill}"
 
-        # Create unique invocation ID
-        invocation_id = f"{skill_ref}:{datetime.now(timezone.utc).timestamp()}"
+        # Create unique invocation ID. Claude Code sends the same
+        # tool_use_id to PreToolUse and PostToolUse, so naming the state
+        # after it lets the completion claim exactly its own start.
+        tool_use_id = payload.get("tool_use_id")
+        if isinstance(tool_use_id, str) and tool_use_id:
+            invocation_id = f"{skill_ref}:id-{tool_use_id}"
+        else:
+            invocation_id = f"{skill_ref}:{datetime.now(timezone.utc).timestamp()}"
 
         # Create state for PostToolUse to read
         state = {

@@ -214,19 +214,40 @@ def test_update_version_file_no_change_returns_false():
         assert p.read_text() == original
 
 
-def test_update_version_file_handles_read_error(capsys):
-    """Errors reading a file are caught and surfaced on stderr."""
+def test_update_version_file_raises_on_unreadable_file():
+    """A file that cannot be read is an error, not "no change"."""
     bogus = Path("/nonexistent/sanctum/bogus_pyproject.toml")
-    bogus_named = Path("/tmp/sanctum-pyproject.toml")  # noqa: S108 - test fixture path, not user input
-    # Use a path that won't exist as the path object's .name
-    # but read_text will fail.
-    result = update_versions.update_version_file(bogus, "2.0.0", dry_run=True)
-    assert result is False
+    try:
+        update_versions.update_version_file(bogus, "2.0.0", dry_run=True)
+    except OSError:
+        return
+    raise AssertionError("expected OSError")
+
+
+def test_main_exits_1_and_names_the_file_it_could_not_update(
+    monkeypatch, capsys, tmp_path
+):
+    """A partial bump must not report success to the shell or CI."""
+    (tmp_path / "pyproject.toml").write_bytes(b'version = "1.0.0"\n\xff\n')
+    (tmp_path / "package.json").write_text('{"version": "1.0.0"}\n')
+    monkeypatch.setattr(
+        sys, "argv", ["update_versions.py", "2.0.0", "--root", str(tmp_path)]
+    )
+
+    assert update_versions.main() == 1
     err = capsys.readouterr().err
-    assert "ERROR updating" in err
-    # Sanity: ensure we didn't crash on the named-tmp path either
-    if bogus_named.exists():
-        bogus_named.unlink()
+    assert "pyproject.toml" in err
+    assert (tmp_path / "package.json").read_text() == '{"version": "2.0.0"}\n'
+
+
+def test_excluded_names_above_the_root_do_not_hide_its_files(tmp_path):
+    """Only path parts below --root are matched against the exclusions."""
+    for ancestor in ("build", "templates", "worktrees"):
+        root = tmp_path / ancestor / "repo"
+        root.mkdir(parents=True)
+        (root / "pyproject.toml").write_text('version = "1.0.0"\n')
+        files = update_versions.find_version_files(root, include_cache=False)
+        assert root / "pyproject.toml" in files, ancestor
 
 
 def test_main_invalid_version_returns_1(monkeypatch, capsys):

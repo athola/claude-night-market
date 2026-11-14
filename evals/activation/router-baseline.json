@@ -6,7 +6,7 @@
    "top1": "cartograph:architecture-diagram"
   },
   "abstract.aggregate-logs.p2": {
-   "rank": 36,
+   "rank": 35,
    "target": "abstract:aggregate-logs",
    "top1": "attune:skill-library"
   },
@@ -21,12 +21,12 @@
    "top1": "conjure:provider-sweep"
   },
   "abstract.analyze-skill.p2": {
-   "rank": 75,
+   "rank": 77,
    "target": "abstract:analyze-skill",
    "top1": "conserve:bloat-sweep"
   },
   "abstract.analyze-skill.p3": {
-   "rank": 64,
+   "rank": 63,
    "target": "abstract:analyze-skill",
    "top1": "abstract:modular-skills"
   },
@@ -61,7 +61,7 @@
    "top1": "leyline:plugin-health"
   },
   "abstract.create-hook.p1": {
-   "rank": 28,
+   "rank": 29,
    "target": "abstract:create-hook",
    "top1": "archetypes:architecture-paradigm-functional-core"
   },
@@ -86,12 +86,12 @@
    "top1": "parseltongue:python-async"
   },
   "abstract.create-skill.p3": {
-   "rank": 81,
+   "rank": 82,
    "target": "abstract:create-skill",
    "top1": "parseltongue:python-async"
   },
   "abstract.escalation-governance.p1": {
-   "rank": 106,
+   "rank": 108,
    "target": "abstract:escalation-governance",
    "top1": "oracle:setup"
   },
@@ -101,27 +101,27 @@
    "top1": "archetypes:paradigm-panel"
   },
   "abstract.escalation-governance.p3": {
-   "rank": 169,
+   "rank": 172,
    "target": "abstract:escalation-governance",
    "top1": "parseltongue:python-async"
   },
   "abstract.evaluate-skill.p1": {
-   "rank": 9,
+   "rank": 8,
    "target": "abstract:evaluate-skill",
    "top1": "conserve:filter-log"
   },
   "abstract.evaluate-skill.p2": {
-   "rank": 57,
+   "rank": 56,
    "target": "abstract:evaluate-skill",
    "top1": "attune:skill-library"
   },
   "abstract.evaluate-skill.p3": {
-   "rank": 19,
+   "rank": 18,
    "target": "abstract:evaluate-skill",
    "top1": "hookify:rule-sweep"
   },
   "abstract.friction-detector.p1": {
-   "rank": 44,
+   "rank": 42,
    "target": "abstract:friction-detector",
    "top1": "conjure:provider-sweep"
   },
@@ -131,7 +131,7 @@
    "top1": "imbue:workflow-monitor"
   },
   "abstract.friction-detector.p3": {
-   "rank": 19,
+   "rank": 18,
    "target": "abstract:friction-detector",
    "top1": "parseltongue:python-sweep"
   },
@@ -141,7 +141,7 @@
    "top1": "herald:judge-panel"
   },
   "abstract.hook-authoring.p2": {
-   "rank": 89,
+   "rank": 90,
    "target": "abstract:hook-authoring",
    "top1": "egregore:gate-audit"
   },
@@ -156,7 +156,7 @@
    "top1": "sanctum:update-plugins"
   },
   "abstract.hook-scope-guide.p2": {
-   "rank": 21,
+   "rank": 20,
    "target": "abstract:hook-scope-guide",
    "top1": "conjure:provider-sweep"
   },
@@ -181,9 +181,9 @@
    "top1": "egregore:gate-audit"
   },
   "abstract.improve-skills.p1": {
-   "rank": 76,
+   "rank": 74,
    "target": "abstract:improve-skills",
-   "top1": "scry:capture-set"
+   "top1": "abstract:aggregate-logs"
   },
   "abstract.improve-skills.p2": {
    "rank": 2,
@@ -201,7 +201,7 @@
    "top1": "attune:makefile-generation"
   },
   "abstract.make-dogfood.p2": {
-   "rank": 208,
+   "rank": 212,
    "target": "abstract:make-dogfood",
    "top1": "leyline:plugin-health"
   },
@@ -231,7 +231,7 @@
    "top1": "parseltongue:python-async"
   },
   "abstract.methodology-curator.p2": {
-   "rank": 295,
+   "rank": 318,
    "target": "abstract:methodology-curator",
    "top1": "parseltongue:python-async"
   },
@@ -241,7 +241,7 @@
    "top1": "parseltongue:python-async"
   },
   "abstract.modular-skills.p1": {
-   "rank": 60,
+   "rank": 62,
    "target": "abstract:modular-skills",
    "top1": "abstract:aggregate-logs"
   },
@@ -251,9 +251,9 @@
    "top1": "oracle:quality-bench"
   },
   "abstract.modular-skills.p3": {
-   "rank": 13,
+   "rank": 14,
    "target": "abstract:modular-skills",
-   "top1": "abstract:analyze-skill"
+   "top1": "pensive:parity-sweep"
   },
   "abstract.plugin-review.p1": {
    "rank": 7,
@@ -306,7 +306,7 @@
    "top1": "abstract:skill-audit"
   },
   "abstract.skill-audit.p2": {
-   "rank": 39,
+   "rank": 40,
    "target": "abstract:skill-audit",
    "top1": "abstract:escalation-governance"
   },
@@ -316,12 +316,12 @@
    "top1": "oracle:quality-bench"
   },
   "abstract.skill-authoring.p1": {
-   "rank": 24,
+   "rank": 23,
    "target": "abstract:skill-authoring",
    "top1": "conjure:provider-sweep"
   },
   "abstract.skill-authoring.p2": {
-   "rank": 15,
+   "rank": 13,
    "target": "abstract:skill-authoring",
    "top1": "oracle:quality-bench"
   },
@@ -341,7 +341,7 @@
    "top1": "conjure:provider-setup"
   },
   "abstract.skill-graph-audit.p3": {
-   "rank": 13,
+   "rank": 12,
    "target": "abstract:skill-graph-audit",
    "top1": "conserve:bloat-sweep"
   },
@@ -351,7 +351,7 @@
    "top1": "abstract:rules-eval"
   },
   "abstract.skills-eval.p2": {
-   "rank": 92,
+   "rank": 93,
    "target": "abstract:skills-eval",
    "top1": "sanctum:fix-workflow-analysis"
   },
@@ -361,7 +361,7 @@
    "top1": "abstract:skills-eval"
   },
   "abstract.subagent-testing.p1": {
-   "rank": 83,
+   "rank": 84,
    "target": "abstract:subagent-testing",
    "top1": "hookify:rule-sweep"
   },
@@ -371,7 +371,7 @@
    "top1": "tome:export"
   },
   "abstract.subagent-testing.p3": {
-   "rank": 102,
+   "rank": 103,
    "target": "abstract:subagent-testing",
    "top1": "conjure:provider-sweep"
   },
@@ -386,12 +386,12 @@
    "top1": "abstract:test-skill"
   },
   "abstract.test-skill.p3": {
-   "rank": 123,
+   "rank": 126,
    "target": "abstract:test-skill",
    "top1": "parseltongue:python-async"
   },
   "abstract.validate-hook.p1": {
-   "rank": 31,
+   "rank": 29,
    "target": "abstract:validate-hook",
    "top1": "sanctum:update-ci"
   },
@@ -401,7 +401,7 @@
    "top1": "abstract:validate-hook"
   },
   "abstract.validate-hook.p3": {
-   "rank": 40,
+   "rank": 42,
    "target": "abstract:validate-hook",
    "top1": "egregore:gate-audit"
   },
@@ -411,7 +411,7 @@
    "top1": "sanctum:sync-capabilities"
   },
   "abstract.validate-plugin.p2": {
-   "rank": 213,
+   "rank": 214,
    "target": "abstract:validate-plugin",
    "top1": "sanctum:update-plugins"
   },
@@ -451,12 +451,12 @@
    "top1": "gauntlet:gauntlet-extract"
   },
   "archetypes.architecture-paradigm-domain-driven.p1": {
-   "rank": 241,
+   "rank": 242,
    "target": "archetypes:architecture-paradigm-domain-driven",
    "top1": "hookify:rule-sweep"
   },
   "archetypes.architecture-paradigm-domain-driven.p2": {
-   "rank": 98,
+   "rank": 99,
    "target": "archetypes:architecture-paradigm-domain-driven",
    "top1": "imbue:evidence-sweep"
   },
@@ -536,12 +536,12 @@
    "top1": "leyline:plugin-health"
   },
   "archetypes.architecture-paradigm-microkernel.p3": {
-   "rank": 7,
+   "rank": 8,
    "target": "archetypes:architecture-paradigm-microkernel",
    "top1": "parseltongue:python-async"
   },
   "archetypes.architecture-paradigm-microservices.p1": {
-   "rank": 2,
+   "rank": 3,
    "target": "archetypes:architecture-paradigm-microservices",
    "top1": "archetypes:architecture-paradigm-domain-driven"
   },
@@ -566,12 +566,12 @@
    "top1": "egregore:dismiss"
   },
   "archetypes.architecture-paradigm-modular-monolith.p3": {
-   "rank": 183,
+   "rank": 184,
    "target": "archetypes:architecture-paradigm-modular-monolith",
    "top1": "archetypes:architecture-paradigm-space-based"
   },
   "archetypes.architecture-paradigm-pipeline.p1": {
-   "rank": 6,
+   "rank": 7,
    "target": "archetypes:architecture-paradigm-pipeline",
    "top1": "parseltongue:python-async"
   },
@@ -581,7 +581,7 @@
    "top1": "archetypes:architecture-paradigm-pipeline"
   },
   "archetypes.architecture-paradigm-pipeline.p3": {
-   "rank": 291,
+   "rank": 293,
    "target": "archetypes:architecture-paradigm-pipeline",
    "top1": "scry:browser-recording"
   },
@@ -606,7 +606,7 @@
    "top1": "archetypes:architecture-paradigm-service-based"
   },
   "archetypes.architecture-paradigm-service-based.p2": {
-   "rank": 220,
+   "rank": 223,
    "target": "archetypes:architecture-paradigm-service-based",
    "top1": "gauntlet:knowledge-extract"
   },
@@ -636,7 +636,7 @@
    "top1": "archetypes:architecture-paradigm-modular-monolith"
   },
   "archetypes.architecture-paradigms.p2": {
-   "rank": 14,
+   "rank": 15,
    "target": "archetypes:architecture-paradigms",
    "top1": "archetypes:architecture-paradigm-domain-driven"
   },
@@ -736,7 +736,7 @@
    "top1": "attune:dorodango"
   },
   "attune.execute.p1": {
-   "rank": 26,
+   "rank": 25,
    "target": "attune:execute",
    "top1": "spec-kit:speckit-implement"
   },
@@ -746,7 +746,7 @@
    "top1": "spec-kit:task-planning"
   },
   "attune.execute.p3": {
-   "rank": 17,
+   "rank": 15,
    "target": "attune:execute",
    "top1": "phantom:control-desktop"
   },
@@ -766,7 +766,7 @@
    "top1": "parseltongue:python-sweep"
   },
   "attune.mission-orchestrator.p1": {
-   "rank": 46,
+   "rank": 47,
    "target": "attune:mission-orchestrator",
    "top1": "attune:project-planning"
   },
@@ -776,17 +776,17 @@
    "top1": "attune:mission-orchestrator"
   },
   "attune.mission-orchestrator.p3": {
-   "rank": 14,
+   "rank": 13,
    "target": "attune:mission-orchestrator",
    "top1": "attune:skill-library"
   },
   "attune.mission.p1": {
-   "rank": 185,
+   "rank": 186,
    "target": "attune:mission",
    "top1": "spec-kit:speckit-plan"
   },
   "attune.mission.p2": {
-   "rank": 123,
+   "rank": 124,
    "target": "attune:mission",
    "top1": "pensive:harden"
   },
@@ -806,7 +806,7 @@
    "top1": "attune:project-init"
   },
   "attune.precommit-setup.p3": {
-   "rank": 32,
+   "rank": 34,
    "target": "attune:precommit-setup",
    "top1": "abstract:create-hook"
   },
@@ -861,7 +861,7 @@
    "top1": "attune:blueprint"
   },
   "attune.project-planning.p2": {
-   "rank": 84,
+   "rank": 82,
    "target": "attune:project-planning",
    "top1": "attune:specify"
   },
@@ -876,7 +876,7 @@
    "top1": "attune:specify"
   },
   "attune.project-specification.p2": {
-   "rank": 92,
+   "rank": 89,
    "target": "attune:project-specification",
    "top1": "attune:project-brainstorming"
   },
@@ -931,7 +931,7 @@
    "top1": "attune:project-specification"
   },
   "attune.upgrade-project.p1": {
-   "rank": 289,
+   "rank": 318,
    "target": "attune:upgrade-project",
    "top1": "conjure:provider-sweep"
   },
@@ -951,7 +951,7 @@
    "top1": "attune:project-init"
   },
   "attune.validate.p2": {
-   "rank": 123,
+   "rank": 124,
    "target": "attune:validate",
    "top1": "conjure:provider-sweep"
   },
@@ -961,7 +961,7 @@
    "top1": "pensive:makefile-review"
   },
   "attune.war-room-checkpoint.p1": {
-   "rank": 26,
+   "rank": 27,
    "target": "attune:war-room-checkpoint",
    "top1": "egregore:gate-audit"
   },
@@ -981,7 +981,7 @@
    "top1": "conjure:provider-sweep"
   },
   "attune.war-room.p2": {
-   "rank": 54,
+   "rank": 55,
    "target": "attune:war-room",
    "top1": "spec-kit:spec-review"
   },
@@ -1081,7 +1081,7 @@
    "top1": "conjure:provider-setup"
   },
   "cartograph.data-flow.p1": {
-   "rank": 13,
+   "rank": 12,
    "target": "cartograph:data-flow",
    "top1": "memory-palace:palace-sweep"
   },
@@ -1121,12 +1121,12 @@
    "top1": "cartograph:atlas"
   },
   "cartograph.visualize.p3": {
-   "rank": 51,
+   "rank": 52,
    "target": "cartograph:visualize",
-   "top1": "cartograph:atlas"
+   "top1": "cartograph:data-flow"
   },
   "cartograph.workflow-diagram.p1": {
-   "rank": 191,
+   "rank": 195,
    "target": "cartograph:workflow-diagram",
    "top1": "cartograph:call-chain"
   },
@@ -1141,9 +1141,9 @@
    "top1": "attune:mission-orchestrator"
   },
   "conjure.agent-teams.p1": {
-   "rank": 38,
+   "rank": 39,
    "target": "conjure:agent-teams",
-   "top1": "leyline:plugin-health"
+   "top1": "gauntlet:knowledge-extract"
   },
   "conjure.agent-teams.p2": {
    "rank": 1,
@@ -1281,7 +1281,7 @@
    "top1": "conjure:provider-setup"
   },
   "conjure.provider-setup.p2": {
-   "rank": 112,
+   "rank": 114,
    "target": "conjure:provider-setup",
    "top1": "conjure:provider-sweep"
   },
@@ -1296,7 +1296,7 @@
    "top1": "conjure:provider-sweep"
   },
   "conjure.provider-sweep.p2": {
-   "rank": 28,
+   "rank": 30,
    "target": "conjure:provider-sweep",
    "top1": "conjure:delegation-core"
   },
@@ -1331,9 +1331,9 @@
    "top1": "tome:research"
   },
   "conserve.agent-expenditure.p3": {
-   "rank": 40,
+   "rank": 41,
    "target": "conserve:agent-expenditure",
-   "top1": "cartograph:atlas"
+   "top1": "parseltongue:python-async"
   },
   "conserve.ai-hygiene-audit.p1": {
    "rank": 1,
@@ -1346,22 +1346,22 @@
    "top1": "conserve:bloat-scan"
   },
   "conserve.ai-hygiene-audit.p3": {
-   "rank": 296,
+   "rank": 318,
    "target": "conserve:ai-hygiene-audit",
    "top1": "oracle:quality-bench"
   },
   "conserve.bloat-detector.p1": {
-   "rank": 20,
+   "rank": 21,
    "target": "conserve:bloat-detector",
    "top1": "conserve:bloat-scan"
   },
   "conserve.bloat-detector.p2": {
-   "rank": 284,
+   "rank": 290,
    "target": "conserve:bloat-detector",
    "top1": "abstract:hooks-eval"
   },
   "conserve.bloat-detector.p3": {
-   "rank": 71,
+   "rank": 72,
    "target": "conserve:bloat-detector",
    "top1": "conserve:unbloat"
   },
@@ -1371,12 +1371,12 @@
    "top1": "conserve:bloat-scan"
   },
   "conserve.bloat-scan.p2": {
-   "rank": 47,
+   "rank": 46,
    "target": "conserve:bloat-scan",
    "top1": "conserve:bloat-sweep"
   },
   "conserve.bloat-scan.p3": {
-   "rank": 153,
+   "rank": 157,
    "target": "conserve:bloat-scan",
    "top1": "parseltongue:python-sweep"
   },
@@ -1386,7 +1386,7 @@
    "top1": "conserve:bloat-sweep"
   },
   "conserve.bloat-sweep.p2": {
-   "rank": 7,
+   "rank": 8,
    "target": "conserve:bloat-sweep",
    "top1": "gauntlet:knowledge-extract"
   },
@@ -1461,7 +1461,7 @@
    "top1": "imbue:graduated-implementation"
   },
   "conserve.decisive-action.p2": {
-   "rank": 139,
+   "rank": 141,
    "target": "conserve:decisive-action",
    "top1": "imbue:graduated-implementation"
   },
@@ -1471,7 +1471,7 @@
    "top1": "imbue:graduated-implementation"
   },
   "conserve.elegant-code-review.p1": {
-   "rank": 23,
+   "rank": 24,
    "target": "conserve:elegant-code-review",
    "top1": "parseltongue:python-packaging"
   },
@@ -1486,7 +1486,7 @@
    "top1": "minister:initiative-pulse"
   },
   "conserve.elegant-code.p1": {
-   "rank": 133,
+   "rank": 134,
    "target": "conserve:elegant-code",
    "top1": "parseltongue:python-async"
   },
@@ -1496,7 +1496,7 @@
    "top1": "parseltongue:python-async"
   },
   "conserve.elegant-code.p3": {
-   "rank": 59,
+   "rank": 60,
    "target": "conserve:elegant-code",
    "top1": "spec-kit:spec-review"
   },
@@ -1551,7 +1551,7 @@
    "top1": "scribe:doc-polish"
   },
   "conserve.response-compression.p2": {
-   "rank": 20,
+   "rank": 21,
    "target": "conserve:response-compression",
    "top1": "phantom:surface-check"
   },
@@ -1566,7 +1566,7 @@
    "top1": "parseltongue:python-async"
   },
   "conserve.token-conservation.p2": {
-   "rank": 290,
+   "rank": 293,
    "target": "conserve:token-conservation",
    "top1": "conserve:clear-context"
   },
@@ -1581,7 +1581,7 @@
    "top1": "conserve:unbloat"
   },
   "conserve.unbloat.p2": {
-   "rank": 57,
+   "rank": 58,
    "target": "conserve:unbloat",
    "top1": "conserve:bloat-sweep"
   },
@@ -1596,7 +1596,7 @@
    "top1": "conjure:provider-sweep"
   },
   "egregore.dismiss.p2": {
-   "rank": 62,
+   "rank": 64,
    "target": "egregore:dismiss",
    "top1": "oracle:quality-bench"
   },
@@ -1611,9 +1611,9 @@
    "top1": "egregore:gate-audit"
   },
   "egregore.gate-audit.p2": {
-   "rank": 1,
+   "rank": 2,
    "target": "egregore:gate-audit",
-   "top1": "egregore:gate-audit"
+   "top1": "parseltongue:run-profiler"
   },
   "egregore.gate-audit.p3": {
    "rank": 1,
@@ -1651,22 +1651,22 @@
    "top1": "pensive:unified-review"
   },
   "egregore.status.p1": {
-   "rank": 47,
+   "rank": 48,
    "target": "egregore:status",
    "top1": "spec-kit:spec-review"
   },
   "egregore.status.p2": {
-   "rank": 201,
+   "rank": 203,
    "target": "egregore:status",
    "top1": "egregore:install-watchdog"
   },
   "egregore.status.p3": {
-   "rank": 45,
+   "rank": 46,
    "target": "egregore:status",
    "top1": "conjure:provider-setup"
   },
   "egregore.summon.p1": {
-   "rank": 74,
+   "rank": 77,
    "target": "egregore:summon",
    "top1": "conserve:agent-expenditure"
   },
@@ -1676,7 +1676,7 @@
    "top1": "parseltongue:python-async"
   },
   "egregore.summon.p3": {
-   "rank": 117,
+   "rank": 120,
    "target": "egregore:summon",
    "top1": "sanctum:do-issue"
   },
@@ -1701,7 +1701,7 @@
    "top1": "gauntlet:gauntlet-extract"
   },
   "gauntlet.challenge.p2": {
-   "rank": 92,
+   "rank": 94,
    "target": "gauntlet:challenge",
    "top1": "imbue:karpathy-principles"
   },
@@ -1711,17 +1711,17 @@
    "top1": "archetypes:architecture-paradigm-functional-core"
   },
   "gauntlet.curate.p1": {
-   "rank": 28,
+   "rank": 30,
    "target": "gauntlet:curate",
    "top1": "hookify:rule-sweep"
   },
   "gauntlet.curate.p2": {
-   "rank": 14,
+   "rank": 15,
    "target": "gauntlet:curate",
    "top1": "hookify:rule-sweep"
   },
   "gauntlet.curate.p3": {
-   "rank": 78,
+   "rank": 80,
    "target": "gauntlet:curate",
    "top1": "hookify:rule-sweep"
   },
@@ -1736,7 +1736,7 @@
    "top1": "gauntlet:problem-bank"
   },
   "gauntlet.extract.p3": {
-   "rank": 9,
+   "rank": 8,
    "target": "gauntlet:extract",
    "top1": "gauntlet:gauntlet-extract"
   },
@@ -1846,7 +1846,7 @@
    "top1": "gauntlet:gauntlet-graph"
   },
   "gauntlet.graph-search.p1": {
-   "rank": 3,
+   "rank": 4,
    "target": "gauntlet:graph-search",
    "top1": "gauntlet:gauntlet-graph"
   },
@@ -1856,9 +1856,9 @@
    "top1": "gauntlet:graph-build"
   },
   "gauntlet.graph-search.p3": {
-   "rank": 13,
+   "rank": 14,
    "target": "gauntlet:graph-search",
-   "top1": "cartograph:atlas"
+   "top1": "pensive:parity-sweep"
   },
   "gauntlet.knowledge-extract.p1": {
    "rank": 1,
@@ -1916,22 +1916,22 @@
    "top1": "herald:judge-panel"
   },
   "herald.judge-panel.p3": {
-   "rank": 9,
+   "rank": 8,
    "target": "herald:judge-panel",
    "top1": "leyline:evaluation-framework"
   },
   "hookify.configure.p1": {
-   "rank": 298,
+   "rank": 318,
    "target": "hookify:configure",
    "top1": "hookify:rule-sweep"
   },
   "hookify.configure.p2": {
-   "rank": 79,
+   "rank": 82,
    "target": "hookify:configure",
    "top1": "spec-kit:spec-review"
   },
   "hookify.configure.p3": {
-   "rank": 48,
+   "rank": 50,
    "target": "hookify:configure",
    "top1": "hookify:list"
   },
@@ -1951,22 +1951,22 @@
    "top1": "parseltongue:python-async"
   },
   "hookify.help.p1": {
-   "rank": 227,
+   "rank": 230,
    "target": "hookify:help",
    "top1": "hookify:rule-sweep"
   },
   "hookify.help.p2": {
-   "rank": 134,
+   "rank": 136,
    "target": "hookify:help",
-   "top1": "cartograph:atlas"
+   "top1": "hookify:rule-catalog"
   },
   "hookify.help.p3": {
-   "rank": 184,
+   "rank": 186,
    "target": "hookify:help",
    "top1": "hookify:rule-catalog"
   },
   "hookify.hookify.p1": {
-   "rank": 73,
+   "rank": 74,
    "target": "hookify:hookify",
    "top1": "hookify:rule-sweep"
   },
@@ -1976,7 +1976,7 @@
    "top1": "abstract:rules-eval"
   },
   "hookify.hookify.p3": {
-   "rank": 78,
+   "rank": 81,
    "target": "hookify:hookify",
    "top1": "hookify:rule-sweep"
   },
@@ -1986,7 +1986,7 @@
    "top1": "hookify:install"
   },
   "hookify.install.p2": {
-   "rank": 95,
+   "rank": 97,
    "target": "hookify:install",
    "top1": "abstract:rules-eval"
   },
@@ -1996,7 +1996,7 @@
    "top1": "hookify:install"
   },
   "hookify.list.p1": {
-   "rank": 44,
+   "rank": 45,
    "target": "hookify:list",
    "top1": "imbue:evidence-sweep"
   },
@@ -2046,17 +2046,17 @@
    "top1": "abstract:rules-eval"
   },
   "hookify.writing-rules.p2": {
-   "rank": 20,
+   "rank": 23,
    "target": "hookify:writing-rules",
    "top1": "conserve:filter-log"
   },
   "hookify.writing-rules.p3": {
    "rank": 7,
    "target": "hookify:writing-rules",
-   "top1": "hookify:rule-sweep"
+   "top1": "sanctum:acp"
   },
   "imbue.assisted-mastery.p1": {
-   "rank": 262,
+   "rank": 266,
    "target": "imbue:assisted-mastery",
    "top1": "imbue:graduated-implementation"
   },
@@ -2071,7 +2071,7 @@
    "top1": "parseltongue:python-async"
   },
   "imbue.catchup.p1": {
-   "rank": 274,
+   "rank": 318,
    "target": "imbue:catchup",
    "top1": "sanctum:git-catchup"
   },
@@ -2081,7 +2081,7 @@
    "top1": "minister:initiative-pulse"
   },
   "imbue.catchup.p3": {
-   "rank": 254,
+   "rank": 257,
    "target": "imbue:catchup",
    "top1": "sanctum:git-catchup"
   },
@@ -2091,7 +2091,7 @@
    "top1": "imbue:dependency-verification"
   },
   "imbue.dependency-verification.p2": {
-   "rank": 10,
+   "rank": 11,
    "target": "imbue:dependency-verification",
    "top1": "hookify:rule-sweep"
   },
@@ -2106,7 +2106,7 @@
    "top1": "imbue:diff-analysis"
   },
   "imbue.diff-analysis.p2": {
-   "rank": 142,
+   "rank": 145,
    "target": "imbue:diff-analysis",
    "top1": "pensive:blast-radius"
   },
@@ -2116,9 +2116,9 @@
    "top1": "pensive:full-review"
   },
   "imbue.evidence-sweep.p1": {
-   "rank": 2,
+   "rank": 3,
    "target": "imbue:evidence-sweep",
-   "top1": "sanctum:stack-mode"
+   "top1": "pensive:parity-sweep"
   },
   "imbue.evidence-sweep.p2": {
    "rank": 1,
@@ -2166,12 +2166,12 @@
    "top1": "imbue:graduated-implementation"
   },
   "imbue.justify.p2": {
-   "rank": 248,
+   "rank": 250,
    "target": "imbue:justify",
    "top1": "parseltongue:python-async"
   },
   "imbue.justify.p3": {
-   "rank": 69,
+   "rank": 70,
    "target": "imbue:justify",
    "top1": "abstract:skill-audit"
   },
@@ -2181,7 +2181,7 @@
    "top1": "imbue:karpathy-check"
   },
   "imbue.karpathy-check.p2": {
-   "rank": 126,
+   "rank": 124,
    "target": "imbue:karpathy-check",
    "top1": "attune:dorodango"
   },
@@ -2191,7 +2191,7 @@
    "top1": "parseltongue:python-async"
   },
   "imbue.karpathy-principles.p1": {
-   "rank": 60,
+   "rank": 61,
    "target": "imbue:karpathy-principles",
    "top1": "memory-palace:palace-sweep"
   },
@@ -2211,7 +2211,7 @@
    "top1": "imbue:latent-space-engineering"
   },
   "imbue.latent-space-engineering.p2": {
-   "rank": 42,
+   "rank": 43,
    "target": "imbue:latent-space-engineering",
    "top1": "conserve:filter-log"
   },
@@ -2231,7 +2231,7 @@
    "top1": "sanctum:fixit"
   },
   "imbue.proof-of-work.p3": {
-   "rank": 29,
+   "rank": 30,
    "target": "imbue:proof-of-work",
    "top1": "spec-kit:spec-review"
   },
@@ -2251,17 +2251,17 @@
    "top1": "imbue:review-core"
   },
   "imbue.rigorous-reasoning.p1": {
-   "rank": 289,
+   "rank": 318,
    "target": "imbue:rigorous-reasoning",
    "top1": "parseltongue:python-async"
   },
   "imbue.rigorous-reasoning.p2": {
-   "rank": 283,
+   "rank": 318,
    "target": "imbue:rigorous-reasoning",
    "top1": "egregore:gate-audit"
   },
   "imbue.rigorous-reasoning.p3": {
-   "rank": 44,
+   "rank": 43,
    "target": "imbue:rigorous-reasoning",
    "top1": "abstract:escalation-governance"
   },
@@ -2281,7 +2281,7 @@
    "top1": "hookify:rule-sweep"
   },
   "imbue.stewardship-health.p1": {
-   "rank": 18,
+   "rank": 19,
    "target": "imbue:stewardship-health",
    "top1": "parseltongue:python-async"
   },
@@ -2291,22 +2291,22 @@
    "top1": "leyline:plugin-health"
   },
   "imbue.stewardship-health.p3": {
-   "rank": 296,
+   "rank": 318,
    "target": "imbue:stewardship-health",
    "top1": "cartograph:data-flow"
   },
   "imbue.structured-output.p1": {
-   "rank": 50,
+   "rank": 51,
    "target": "imbue:structured-output",
    "top1": "pensive:harden"
   },
   "imbue.structured-output.p2": {
-   "rank": 153,
+   "rank": 155,
    "target": "imbue:structured-output",
    "top1": "tome:cite"
   },
   "imbue.structured-output.p3": {
-   "rank": 259,
+   "rank": 261,
    "target": "imbue:structured-output",
    "top1": "oracle:quality-bench"
   },
@@ -2316,7 +2316,7 @@
    "top1": "imbue:scope-guard"
   },
   "imbue.structured-review.p2": {
-   "rank": 10,
+   "rank": 11,
    "target": "imbue:structured-review",
    "top1": "imbue:feature-review"
   },
@@ -2326,7 +2326,7 @@
    "top1": "imbue:scope-guard"
   },
   "imbue.vow-enforcement.p1": {
-   "rank": 254,
+   "rank": 259,
    "target": "imbue:vow-enforcement",
    "top1": "hookify:rule-sweep"
   },
@@ -2336,22 +2336,22 @@
    "top1": "scry:capture-set"
   },
   "imbue.vow-enforcement.p3": {
-   "rank": 223,
+   "rank": 228,
    "target": "imbue:vow-enforcement",
    "top1": "hookify:rule-sweep"
   },
   "imbue.workflow-monitor.p1": {
-   "rank": 57,
+   "rank": 58,
    "target": "imbue:workflow-monitor",
    "top1": "leyline:git-platform"
   },
   "imbue.workflow-monitor.p2": {
-   "rank": 4,
+   "rank": 5,
    "target": "imbue:workflow-monitor",
    "top1": "leyline:plugin-health"
   },
   "imbue.workflow-monitor.p3": {
-   "rank": 10,
+   "rank": 9,
    "target": "imbue:workflow-monitor",
    "top1": "spec-kit:speckit-startup"
   },
@@ -2363,7 +2363,7 @@
   "leyline.additive-bias-defense.p2": {
    "rank": 6,
    "target": "leyline:additive-bias-defense",
-   "top1": "egregore:gate-audit"
+   "top1": "spec-kit:speckit-checklist"
   },
   "leyline.additive-bias-defense.p3": {
    "rank": 3,
@@ -2376,7 +2376,7 @@
    "top1": "leyline:authentication-patterns"
   },
   "leyline.authentication-patterns.p2": {
-   "rank": 95,
+   "rank": 96,
    "target": "leyline:authentication-patterns",
    "top1": "phantom:surface-check"
   },
@@ -2396,17 +2396,17 @@
    "top1": "leyline:content-sanitization"
   },
   "leyline.content-sanitization.p3": {
-   "rank": 85,
+   "rank": 86,
    "target": "leyline:content-sanitization",
    "top1": "minister:create-issue"
   },
   "leyline.damage-control.p1": {
-   "rank": 39,
+   "rank": 37,
    "target": "leyline:damage-control",
    "top1": "oracle:quality-bench"
   },
   "leyline.damage-control.p2": {
-   "rank": 125,
+   "rank": 126,
    "target": "leyline:damage-control",
    "top1": "sanctum:git-workspace-review"
   },
@@ -2426,7 +2426,7 @@
    "top1": "leyline:decision-journal"
   },
   "leyline.decision-journal.p3": {
-   "rank": 229,
+   "rank": 231,
    "target": "leyline:decision-journal",
    "top1": "pensive:unified-review"
   },
@@ -2471,7 +2471,7 @@
    "top1": "leyline:error-patterns"
   },
   "leyline.error-patterns.p3": {
-   "rank": 24,
+   "rank": 23,
    "target": "leyline:error-patterns",
    "top1": "egregore:dismiss"
   },
@@ -2521,14 +2521,14 @@
    "top1": "leyline:loop-optimization"
   },
   "leyline.markdown-formatting.p1": {
-   "rank": 52,
+   "rank": 51,
    "target": "leyline:markdown-formatting",
    "top1": "gauntlet:graph-build"
   },
   "leyline.markdown-formatting.p2": {
-   "rank": 44,
+   "rank": 47,
    "target": "leyline:markdown-formatting",
-   "top1": "conjure:provider-sweep"
+   "top1": "pensive:parity-sweep"
   },
   "leyline.markdown-formatting.p3": {
    "rank": 46,
@@ -2571,7 +2571,7 @@
    "top1": "leyline:testing-quality-standards"
   },
   "leyline.pytest-config.p2": {
-   "rank": 15,
+   "rank": 13,
    "target": "leyline:testing-quality-standards",
    "top1": "leyline:plugin-health"
   },
@@ -2596,12 +2596,12 @@
    "top1": "conserve:clear-context"
   },
   "leyline.risk-classification.p1": {
-   "rank": 40,
+   "rank": 41,
    "target": "leyline:risk-classification",
    "top1": "imbue:evidence-sweep"
   },
   "leyline.risk-classification.p2": {
-   "rank": 19,
+   "rank": 20,
    "target": "leyline:risk-classification",
    "top1": "egregore:dismiss"
   },
@@ -2641,27 +2641,27 @@
    "top1": "leyline:service-registry"
   },
   "leyline.stewardship.p1": {
-   "rank": 67,
+   "rank": 68,
    "target": "leyline:stewardship",
    "top1": "parseltongue:python-async"
   },
   "leyline.stewardship.p2": {
-   "rank": 115,
+   "rank": 117,
    "target": "leyline:stewardship",
    "top1": "leyline:plugin-health"
   },
   "leyline.stewardship.p3": {
-   "rank": 91,
+   "rank": 90,
    "target": "leyline:stewardship",
    "top1": "parseltongue:python-async"
   },
   "leyline.storage-templates.p1": {
-   "rank": 47,
+   "rank": 43,
    "target": "leyline:decision-journal",
-   "top1": "attune:mission"
+   "top1": "pensive:parity-sweep"
   },
   "leyline.storage-templates.p2": {
-   "rank": 163,
+   "rank": 162,
    "target": "leyline:decision-journal",
    "top1": "tome:web-search"
   },
@@ -2671,7 +2671,7 @@
    "top1": "parseltongue:python-packaging"
   },
   "leyline.supply-chain-advisory.p1": {
-   "rank": 12,
+   "rank": 11,
    "target": "leyline:supply-chain-advisory",
    "top1": "sanctum:version-updates"
   },
@@ -2706,7 +2706,7 @@
    "top1": "leyline:ticket-writing"
   },
   "leyline.ticket-writing.p2": {
-   "rank": 45,
+   "rank": 46,
    "target": "leyline:ticket-writing",
    "top1": "spec-kit:spec-review"
   },
@@ -2716,7 +2716,7 @@
    "top1": "leyline:ticket-writing"
   },
   "leyline.usage-logging.p1": {
-   "rank": 43,
+   "rank": 44,
    "target": "leyline:service-registry",
    "top1": "parseltongue:python-async"
   },
@@ -2726,7 +2726,7 @@
    "top1": "leyline:service-registry"
   },
   "leyline.usage-logging.p3": {
-   "rank": 48,
+   "rank": 47,
    "target": "leyline:service-registry",
    "top1": "parseltongue:python-async"
   },
@@ -2751,7 +2751,7 @@
    "top1": "parseltongue:python-async"
   },
   "leyline.verify-plugin.p2": {
-   "rank": 91,
+   "rank": 90,
    "target": "leyline:verify-plugin",
    "top1": "leyline:plugin-health"
   },
@@ -2781,7 +2781,7 @@
    "top1": "memory-palace:garden"
   },
   "memory-palace.garden.p2": {
-   "rank": 32,
+   "rank": 33,
    "target": "memory-palace:garden",
    "top1": "leyline:authentication-patterns"
   },
@@ -2791,17 +2791,17 @@
    "top1": "memory-palace:digital-garden-cultivator"
   },
   "memory-palace.knowledge-intake.p1": {
-   "rank": 56,
+   "rank": 57,
    "target": "memory-palace:knowledge-intake",
    "top1": "scribe:session-to-post"
   },
   "memory-palace.knowledge-intake.p2": {
-   "rank": 6,
+   "rank": 7,
    "target": "memory-palace:knowledge-intake",
    "top1": "pensive:harden"
   },
   "memory-palace.knowledge-intake.p3": {
-   "rank": 50,
+   "rank": 51,
    "target": "memory-palace:knowledge-intake",
    "top1": "leyline:evaluation-framework"
   },
@@ -2821,7 +2821,7 @@
    "top1": "archetypes:architecture-paradigm-functional-core"
   },
   "memory-palace.memory-clarity-probe.p1": {
-   "rank": 5,
+   "rank": 4,
    "target": "memory-palace:memory-clarity-probe",
    "top1": "conjure:provider-sweep"
   },
@@ -2851,7 +2851,7 @@
    "top1": "parseltongue:python-async"
   },
   "memory-palace.navigate.p1": {
-   "rank": 2,
+   "rank": 3,
    "target": "memory-palace:navigate",
    "top1": "memory-palace:palace-sweep"
   },
@@ -2926,7 +2926,7 @@
    "top1": "memory-palace:palace-sweep"
   },
   "memory-palace.review-chamber.p1": {
-   "rank": 13,
+   "rank": 14,
    "target": "memory-palace:review-chamber",
    "top1": "imbue:assisted-mastery"
   },
@@ -2936,7 +2936,7 @@
    "top1": "memory-palace:review-chamber"
   },
   "memory-palace.review-chamber.p3": {
-   "rank": 23,
+   "rank": 21,
    "target": "memory-palace:review-chamber",
    "top1": "memory-palace:palace-sweep"
   },
@@ -2956,7 +2956,7 @@
    "top1": "memory-palace:review-room"
   },
   "memory-palace.session-handoff.p1": {
-   "rank": 97,
+   "rank": 96,
    "target": "memory-palace:session-handoff",
    "top1": "scribe:session-to-post"
   },
@@ -2986,7 +2986,7 @@
    "top1": "memory-palace:palace-sweep"
   },
   "memory-palace.skill-logs.p1": {
-   "rank": 233,
+   "rank": 318,
    "target": "memory-palace:skill-logs",
    "top1": "scry:capture-set"
   },
@@ -3011,7 +3011,7 @@
    "top1": "minister:github-initiative-pulse"
   },
   "minister.create-issue.p2": {
-   "rank": 174,
+   "rank": 176,
    "target": "minister:create-issue",
    "top1": "minister:initiative-pulse"
   },
@@ -3021,7 +3021,7 @@
    "top1": "minister:initiative-pulse"
   },
   "minister.create-issue.p3": {
-   "rank": 27,
+   "rank": 28,
    "target": "minister:create-issue",
    "top1": "hookify:rule-sweep"
   },
@@ -3036,7 +3036,7 @@
    "top1": "minister:dora-metrics"
   },
   "minister.dora-metrics.p3": {
-   "rank": 254,
+   "rank": 259,
    "target": "minister:dora-metrics",
    "top1": "cartograph:architecture-diagram"
   },
@@ -3136,7 +3136,7 @@
    "top1": "archetypes:architecture-paradigm-functional-core"
   },
   "parseltongue.analyze-tests.p2": {
-   "rank": 23,
+   "rank": 24,
    "target": "parseltongue:analyze-tests",
    "top1": "abstract:skill-audit"
   },
@@ -3191,7 +3191,7 @@
    "top1": "parseltongue:python-packaging"
   },
   "parseltongue.python-performance.p1": {
-   "rank": 87,
+   "rank": 88,
    "target": "parseltongue:python-performance",
    "top1": "cartograph:call-chain"
   },
@@ -3206,7 +3206,7 @@
    "top1": "cartograph:call-chain"
   },
   "parseltongue.python-sweep.p1": {
-   "rank": 50,
+   "rank": 51,
    "target": "parseltongue:python-sweep",
    "top1": "pensive:full-review"
   },
@@ -3281,12 +3281,12 @@
    "top1": "cartograph:code-communities"
   },
   "pensive.blast-radius.p1": {
-   "rank": 16,
+   "rank": 15,
    "target": "pensive:blast-radius",
    "top1": "pensive:full-review"
   },
   "pensive.blast-radius.p2": {
-   "rank": 6,
+   "rank": 7,
    "target": "pensive:blast-radius",
    "top1": "parseltongue:python-async"
   },
@@ -3301,7 +3301,7 @@
    "top1": "pensive:bug-review"
   },
   "pensive.bug-review.p2": {
-   "rank": 273,
+   "rank": 318,
    "target": "pensive:bug-review",
    "top1": "archetypes:architecture-paradigm-functional-core"
   },
@@ -3371,7 +3371,7 @@
    "top1": "pensive:makefile-review"
   },
   "pensive.math-review.p1": {
-   "rank": 229,
+   "rank": 232,
    "target": "pensive:math-review",
    "top1": "imbue:graduated-implementation"
   },
@@ -3401,17 +3401,17 @@
    "top1": "parseltongue:python-sweep"
   },
   "pensive.refine-code.p1": {
-   "rank": 256,
+   "rank": 258,
    "target": "pensive:refine-code",
    "top1": "parseltongue:python-async"
   },
   "pensive.refine-code.p2": {
-   "rank": 73,
+   "rank": 74,
    "target": "pensive:refine-code",
    "top1": "egregore:quality-gate"
   },
   "pensive.refine-code.p3": {
-   "rank": 23,
+   "rank": 24,
    "target": "pensive:refine-code",
    "top1": "hookify:rule-sweep"
   },
@@ -3421,7 +3421,7 @@
    "top1": "pensive:rust-review"
   },
   "pensive.rust-review.p2": {
-   "rank": 106,
+   "rank": 108,
    "target": "pensive:rust-review",
    "top1": "conjure:provider-sweep"
   },
@@ -3456,27 +3456,27 @@
    "top1": "pensive:shell-review"
   },
   "pensive.shell-review.p3": {
-   "rank": 114,
+   "rank": 115,
    "target": "pensive:shell-review",
    "top1": "egregore:gate-audit"
   },
   "pensive.skill-history.p1": {
-   "rank": 21,
+   "rank": 22,
    "target": "pensive:skill-history",
    "top1": "scry:capture-set"
   },
   "pensive.skill-history.p2": {
-   "rank": 12,
+   "rank": 11,
    "target": "pensive:skill-history",
    "top1": "parseltongue:python-async"
   },
   "pensive.skill-history.p3": {
-   "rank": 15,
+   "rank": 14,
    "target": "pensive:skill-history",
    "top1": "memory-palace:palace-sweep"
   },
   "pensive.skill-review.p1": {
-   "rank": 97,
+   "rank": 99,
    "target": "pensive:skill-review",
    "top1": "conjure:provider-setup"
   },
@@ -3511,12 +3511,12 @@
    "top1": "sanctum:git-catchup"
   },
   "pensive.tiered-audit.p2": {
-   "rank": 294,
+   "rank": 318,
    "target": "pensive:tiered-audit",
    "top1": "memory-palace:palace-sweep"
   },
   "pensive.tiered-audit.p3": {
-   "rank": 47,
+   "rank": 45,
    "target": "pensive:tiered-audit",
    "top1": "imbue:scope-guard"
   },
@@ -3563,7 +3563,7 @@
   "phantom.control-desktop.p3": {
    "rank": 4,
    "target": "phantom:control-desktop",
-   "top1": "leyline:plugin-health"
+   "top1": "archetypes:paradigm-panel"
   },
   "phantom.surface-check.p1": {
    "rank": 3,
@@ -3646,7 +3646,7 @@
    "top1": "sanctum:do-issue"
   },
   "sanctum.do-issue.p2": {
-   "rank": 115,
+   "rank": 113,
    "target": "sanctum:do-issue",
    "top1": "abstract:promote-discussions"
   },
@@ -3671,17 +3671,17 @@
    "top1": "spec-kit:speckit-analyze"
   },
   "sanctum.doc-updates.p1": {
-   "rank": 240,
+   "rank": 242,
    "target": "sanctum:doc-updates",
    "top1": "sanctum:update-version"
   },
   "sanctum.doc-updates.p2": {
-   "rank": 237,
+   "rank": 241,
    "target": "sanctum:doc-updates",
    "top1": "sanctum:sync-capabilities"
   },
   "sanctum.doc-updates.p3": {
-   "rank": 226,
+   "rank": 229,
    "target": "sanctum:doc-updates",
    "top1": "sanctum:update-readme"
   },
@@ -3726,7 +3726,7 @@
    "top1": "sanctum:fix-workflow-analysis"
   },
   "sanctum.fix-workflow.p3": {
-   "rank": 153,
+   "rank": 155,
    "target": "sanctum:fix-workflow",
    "top1": "parseltongue:python-sweep"
   },
@@ -3766,7 +3766,7 @@
    "top1": "imbue:evidence-sweep"
   },
   "sanctum.git-workspace-review.p2": {
-   "rank": 11,
+   "rank": 13,
    "target": "sanctum:git-workspace-review",
    "top1": "parseltongue:python-async"
   },
@@ -3781,12 +3781,12 @@
    "top1": "sanctum:doc-consolidation"
   },
   "sanctum.merge-docs.p2": {
-   "rank": 21,
+   "rank": 22,
    "target": "sanctum:merge-docs",
    "top1": "sanctum:doc-consolidation"
   },
   "sanctum.merge-docs.p3": {
-   "rank": 42,
+   "rank": 41,
    "target": "sanctum:merge-docs",
    "top1": "spec-kit:speckit-implement"
   },
@@ -3851,12 +3851,12 @@
    "top1": "sanctum:fix-pr"
   },
   "sanctum.session-management.p1": {
-   "rank": 298,
+   "rank": 299,
    "target": "sanctum:session-management",
    "top1": "parseltongue:python-async"
   },
   "sanctum.session-management.p2": {
-   "rank": 74,
+   "rank": 75,
    "target": "sanctum:session-management",
    "top1": "scribe:session-replay"
   },
@@ -3871,7 +3871,7 @@
    "top1": "phantom:surface-check"
   },
   "sanctum.stack-create.p2": {
-   "rank": 4,
+   "rank": 3,
    "target": "sanctum:stack-create",
    "top1": "spec-kit:speckit-checklist"
   },
@@ -3921,7 +3921,7 @@
    "top1": "memory-palace:palace-sweep"
   },
   "sanctum.stack-rebase.p3": {
-   "rank": 44,
+   "rank": 40,
    "target": "sanctum:stack-rebase",
    "top1": "sanctum:stack-push"
   },
@@ -3941,7 +3941,7 @@
    "top1": "leyline:plugin-health"
   },
   "sanctum.test-updates.p1": {
-   "rank": 3,
+   "rank": 4,
    "target": "sanctum:test-updates",
    "top1": "sanctum:update-tests"
   },
@@ -3956,7 +3956,7 @@
    "top1": "sanctum:update-tests"
   },
   "sanctum.tutorial-updates.p1": {
-   "rank": 162,
+   "rank": 164,
    "target": "sanctum:tutorial-updates",
    "top1": "scry:record-terminal"
   },
@@ -3966,7 +3966,7 @@
    "top1": "sanctum:update-tutorial"
   },
   "sanctum.tutorial-updates.p3": {
-   "rank": 11,
+   "rank": 7,
    "target": "sanctum:tutorial-updates",
    "top1": "scry:vhs-recording"
   },
@@ -3986,17 +3986,17 @@
    "top1": "sanctum:update-ci"
   },
   "sanctum.update-dependencies.p1": {
-   "rank": 263,
+   "rank": 265,
    "target": "sanctum:update-dependencies",
    "top1": "parseltongue:python-packaging"
   },
   "sanctum.update-dependencies.p2": {
-   "rank": 211,
+   "rank": 212,
    "target": "sanctum:update-dependencies",
    "top1": "pensive:full-review"
   },
   "sanctum.update-dependencies.p3": {
-   "rank": 171,
+   "rank": 173,
    "target": "sanctum:update-dependencies",
    "top1": "parseltongue:python-packaging"
   },
@@ -4011,7 +4011,7 @@
    "top1": "sanctum:sync-capabilities"
   },
   "sanctum.update-docs.p3": {
-   "rank": 6,
+   "rank": 5,
    "target": "sanctum:update-docs",
    "top1": "hookify:rule-sweep"
   },
@@ -4021,7 +4021,7 @@
    "top1": "sanctum:update-plugins"
   },
   "sanctum.update-plugins.p2": {
-   "rank": 37,
+   "rank": 36,
    "target": "sanctum:update-plugins",
    "top1": "leyline:plugin-health"
   },
@@ -4061,17 +4061,17 @@
    "top1": "parseltongue:python-testing"
   },
   "sanctum.update-tutorial.p1": {
-   "rank": 16,
+   "rank": 17,
    "target": "sanctum:update-tutorial",
    "top1": "scry:vhs-recording"
   },
   "sanctum.update-tutorial.p2": {
-   "rank": 92,
+   "rank": 91,
    "target": "sanctum:update-tutorial",
    "top1": "egregore:dismiss"
   },
   "sanctum.update-tutorial.p3": {
-   "rank": 79,
+   "rank": 80,
    "target": "sanctum:update-tutorial",
    "top1": "scry:vhs-recording"
   },
@@ -4081,14 +4081,14 @@
    "top1": "parseltongue:python-packaging"
   },
   "sanctum.update-version.p2": {
-   "rank": 2,
+   "rank": 3,
    "target": "sanctum:update-version",
-   "top1": "sanctum:version-updates"
+   "top1": "spec-kit:speckit-constitution"
   },
   "sanctum.update-version.p3": {
-   "rank": 2,
+   "rank": 3,
    "target": "sanctum:update-version",
-   "top1": "leyline:plugin-health"
+   "top1": "spec-kit:speckit-constitution"
   },
   "sanctum.validate-pr.p1": {
    "rank": 1,
@@ -4106,9 +4106,9 @@
    "top1": "sanctum:validate-pr"
   },
   "sanctum.version-updates.p1": {
-   "rank": 2,
+   "rank": 3,
    "target": "sanctum:version-updates",
-   "top1": "sanctum:create-tag"
+   "top1": "spec-kit:speckit-constitution"
   },
   "sanctum.version-updates.p2": {
    "rank": 1,
@@ -4116,9 +4116,9 @@
    "top1": "sanctum:version-updates"
   },
   "sanctum.version-updates.p3": {
-   "rank": 3,
+   "rank": 4,
    "target": "sanctum:version-updates",
-   "top1": "sanctum:update-version"
+   "top1": "spec-kit:speckit-constitution"
   },
   "sanctum.workflow-improvement.p1": {
    "rank": 1,
@@ -4131,12 +4131,12 @@
    "top1": "sanctum:fix-workflow-analysis"
   },
   "sanctum.workflow-improvement.p3": {
-   "rank": 16,
+   "rank": 15,
    "target": "sanctum:workflow-improvement",
    "top1": "parseltongue:python-sweep"
   },
   "scribe.doc-generate.p1": {
-   "rank": 314,
+   "rank": 318,
    "target": "scribe:doc-generate",
    "top1": "sanctum:update-readme"
   },
@@ -4146,22 +4146,22 @@
    "top1": "pensive:api-review"
   },
   "scribe.doc-generate.p3": {
-   "rank": 314,
+   "rank": 318,
    "target": "scribe:doc-generate",
    "top1": "sanctum:update-readme"
   },
   "scribe.doc-generator.p1": {
-   "rank": 242,
+   "rank": 244,
    "target": "scribe:doc-generator",
    "top1": "scribe:tech-tutorial"
   },
   "scribe.doc-generator.p2": {
-   "rank": 65,
+   "rank": 66,
    "target": "scribe:doc-generator",
    "top1": "egregore:gate-audit"
   },
   "scribe.doc-generator.p3": {
-   "rank": 68,
+   "rank": 69,
    "target": "scribe:doc-generator",
    "top1": "egregore:gate-audit"
   },
@@ -4171,7 +4171,7 @@
    "top1": "hookify:rule-sweep"
   },
   "scribe.doc-polish.p2": {
-   "rank": 175,
+   "rank": 177,
    "target": "scribe:doc-polish",
    "top1": "egregore:dismiss"
   },
@@ -4186,7 +4186,7 @@
    "top1": "scribe:doc-sweep"
   },
   "scribe.doc-sweep.p2": {
-   "rank": 12,
+   "rank": 13,
    "target": "scribe:doc-sweep",
    "top1": "hookify:rule-sweep"
   },
@@ -4236,7 +4236,7 @@
    "top1": "scribe:simplified-technical-english"
   },
   "scribe.simplified-technical-english.p3": {
-   "rank": 19,
+   "rank": 16,
    "target": "scribe:simplified-technical-english",
    "top1": "imbue:evidence-sweep"
   },
@@ -4246,12 +4246,12 @@
    "top1": "sanctum:update-readme"
   },
   "scribe.slop-detector.p2": {
-   "rank": 181,
+   "rank": 177,
    "target": "scribe:slop-detector",
    "top1": "oracle:quality-bench"
   },
   "scribe.slop-detector.p3": {
-   "rank": 138,
+   "rank": 140,
    "target": "scribe:slop-detector",
    "top1": "hookify:rule-sweep"
   },
@@ -4316,7 +4316,7 @@
    "top1": "scribe:voice-extract"
   },
   "scribe.voice-generate.p1": {
-   "rank": 110,
+   "rank": 109,
    "target": "scribe:voice-generate",
    "top1": "scribe:session-to-post"
   },
@@ -4326,7 +4326,7 @@
    "top1": "scribe:voice-generate"
   },
   "scribe.voice-generate.p3": {
-   "rank": 184,
+   "rank": 186,
    "target": "scribe:voice-generate",
    "top1": "scribe:session-to-post"
   },
@@ -4336,14 +4336,14 @@
    "top1": "scribe:session-to-post"
   },
   "scribe.voice-learn.p2": {
-   "rank": 82,
+   "rank": 83,
    "target": "scribe:voice-learn",
    "top1": "egregore:dismiss"
   },
   "scribe.voice-learn.p3": {
-   "rank": 2,
+   "rank": 1,
    "target": "scribe:voice-learn",
-   "top1": "sanctum:version-updates"
+   "top1": "scribe:voice-learn"
   },
   "scribe.voice-review.p1": {
    "rank": 1,
@@ -4351,7 +4351,7 @@
    "top1": "scribe:voice-review"
   },
   "scribe.voice-review.p2": {
-   "rank": 102,
+   "rank": 103,
    "target": "scribe:voice-review",
    "top1": "sanctum:update-readme"
   },
@@ -4366,7 +4366,7 @@
    "top1": "scry:gif-generation"
   },
   "scry.browser-recording.p2": {
-   "rank": 39,
+   "rank": 37,
    "target": "scry:browser-recording",
    "top1": "scry:capture-set"
   },
@@ -4381,7 +4381,7 @@
    "top1": "scry:capture-set"
   },
   "scry.capture-set.p2": {
-   "rank": 5,
+   "rank": 6,
    "target": "scry:capture-set",
    "top1": "leyline:plugin-health"
   },
@@ -4411,12 +4411,12 @@
    "top1": "scry:browser-recording"
   },
   "scry.media-composition.p2": {
-   "rank": 66,
+   "rank": 65,
    "target": "scry:media-composition",
    "top1": "pensive:full-review"
   },
   "scry.media-composition.p3": {
-   "rank": 125,
+   "rank": 124,
    "target": "scry:media-composition",
    "top1": "scry:browser-recording"
   },
@@ -4431,7 +4431,7 @@
    "top1": "sanctum:tutorial-updates"
   },
   "scry.record-browser.p3": {
-   "rank": 42,
+   "rank": 43,
    "target": "scry:record-browser",
    "top1": "spec-kit:spec-review"
   },
@@ -4531,7 +4531,7 @@
    "top1": "spec-kit:speckit-clarify"
   },
   "spec-kit.speckit-clarify.p2": {
-   "rank": 50,
+   "rank": 51,
    "target": "spec-kit:speckit-clarify",
    "top1": "spec-kit:spec-review"
   },
@@ -4546,9 +4546,9 @@
    "top1": "spec-kit:speckit-constitution"
   },
   "spec-kit.speckit-constitution.p2": {
-   "rank": 4,
+   "rank": 1,
    "target": "spec-kit:speckit-constitution",
-   "top1": "spec-kit:speckit-implement"
+   "top1": "spec-kit:speckit-constitution"
   },
   "spec-kit.speckit-constitution.p3": {
    "rank": 1,
@@ -4651,7 +4651,7 @@
    "top1": "spec-kit:speckit-startup"
   },
   "spec-kit.speckit-startup.p3": {
-   "rank": 5,
+   "rank": 6,
    "target": "spec-kit:speckit-startup",
    "top1": "spec-kit:spec-review"
   },
@@ -4731,7 +4731,7 @@
    "top1": "abstract:promote-discussions"
   },
   "tome.dig.p1": {
-   "rank": 4,
+   "rank": 3,
    "target": "tome:dig",
    "top1": "tome:code-search"
   },
@@ -4781,7 +4781,7 @@
    "top1": "oracle:quality-bench"
   },
   "tome.ideate.p2": {
-   "rank": 10,
+   "rank": 9,
    "target": "tome:ideate",
    "top1": "attune:brainstorm"
   },
@@ -4897,9 +4897,8 @@
   "abstract:hook-scope-guide -> conjure:provider-sweep": 1,
   "abstract:hook-scope-guide -> sanctum:update-plugins": 2,
   "abstract:hooks-eval -> egregore:gate-audit": 1,
-  "abstract:improve-skills -> abstract:aggregate-logs": 1,
+  "abstract:improve-skills -> abstract:aggregate-logs": 2,
   "abstract:improve-skills -> oracle:quality-bench": 1,
-  "abstract:improve-skills -> scry:capture-set": 1,
   "abstract:make-dogfood -> attune:makefile-generation": 1,
   "abstract:make-dogfood -> conjure:provider-setup": 1,
   "abstract:make-dogfood -> leyline:plugin-health": 1,
@@ -4908,8 +4907,8 @@
   "abstract:metacognitive-self-mod -> sanctum:git-catchup": 1,
   "abstract:methodology-curator -> parseltongue:python-async": 3,
   "abstract:modular-skills -> abstract:aggregate-logs": 1,
-  "abstract:modular-skills -> abstract:analyze-skill": 1,
   "abstract:modular-skills -> oracle:quality-bench": 1,
+  "abstract:modular-skills -> pensive:parity-sweep": 1,
   "abstract:plugin-review -> oracle:quality-bench": 1,
   "abstract:promote-discussions -> parseltongue:python-async": 1,
   "abstract:rules-eval -> abstract:skill-audit": 1,
@@ -5007,12 +5006,12 @@
   "cartograph:code-communities -> conjure:provider-setup": 2,
   "cartograph:code-communities -> scry:capture-set": 1,
   "cartograph:data-flow -> memory-palace:palace-sweep": 1,
-  "cartograph:visualize -> cartograph:atlas": 2,
-  "cartograph:visualize -> cartograph:data-flow": 1,
+  "cartograph:visualize -> cartograph:atlas": 1,
+  "cartograph:visualize -> cartograph:data-flow": 2,
   "cartograph:workflow-diagram -> attune:mission": 1,
   "cartograph:workflow-diagram -> attune:mission-orchestrator": 1,
   "cartograph:workflow-diagram -> cartograph:call-chain": 1,
-  "conjure:agent-teams -> leyline:plugin-health": 1,
+  "conjure:agent-teams -> gauntlet:knowledge-extract": 1,
   "conjure:agent-teams -> phantom:control-desktop": 1,
   "conjure:delegation-core -> conjure:provider-sweep": 1,
   "conjure:delegation-core -> parseltongue:python-async": 2,
@@ -5027,8 +5026,8 @@
   "conjure:provider-setup -> conjure:provider-sweep": 1,
   "conjure:provider-sweep -> conjure:delegation-core": 1,
   "conjure:qwen-delegation -> parseltongue:python-async": 1,
-  "conserve:agent-expenditure -> cartograph:atlas": 1,
   "conserve:agent-expenditure -> leyline:evaluation-framework": 1,
+  "conserve:agent-expenditure -> parseltongue:python-async": 1,
   "conserve:agent-expenditure -> tome:research": 1,
   "conserve:ai-hygiene-audit -> conserve:bloat-scan": 1,
   "conserve:ai-hygiene-audit -> oracle:quality-bench": 1,
@@ -5062,6 +5061,7 @@
   "conserve:unbloat -> conserve:bloat-sweep": 2,
   "egregore:dismiss -> conjure:provider-sweep": 2,
   "egregore:dismiss -> oracle:quality-bench": 1,
+  "egregore:gate-audit -> parseltongue:run-profiler": 1,
   "egregore:install-watchdog -> leyline:plugin-health": 1,
   "egregore:install-watchdog -> parseltongue:python-async": 1,
   "egregore:install-watchdog -> phantom:surface-check": 1,
@@ -5090,9 +5090,9 @@
   "gauntlet:graph-build -> gauntlet:gauntlet-graph": 1,
   "gauntlet:graph-build -> parseltongue:python-async": 1,
   "gauntlet:graph-build -> sanctum:git-catchup": 1,
-  "gauntlet:graph-search -> cartograph:atlas": 1,
   "gauntlet:graph-search -> gauntlet:gauntlet-graph": 1,
   "gauntlet:graph-search -> gauntlet:graph-build": 1,
+  "gauntlet:graph-search -> pensive:parity-sweep": 1,
   "gauntlet:onboard -> gauntlet:challenge": 1,
   "gauntlet:onboard -> parseltongue:python-async": 1,
   "gauntlet:onboard -> scribe:tech-tutorial": 1,
@@ -5102,8 +5102,7 @@
   "hookify:configure -> hookify:rule-sweep": 1,
   "hookify:configure -> spec-kit:spec-review": 1,
   "hookify:from-hook -> parseltongue:python-async": 1,
-  "hookify:help -> cartograph:atlas": 1,
-  "hookify:help -> hookify:rule-catalog": 1,
+  "hookify:help -> hookify:rule-catalog": 2,
   "hookify:help -> hookify:rule-sweep": 1,
   "hookify:hookify -> abstract:rules-eval": 1,
   "hookify:hookify -> hookify:rule-sweep": 2,
@@ -5114,7 +5113,7 @@
   "hookify:rule-catalog -> parseltongue:python-async": 1,
   "hookify:writing-rules -> abstract:rules-eval": 1,
   "hookify:writing-rules -> conserve:filter-log": 1,
-  "hookify:writing-rules -> hookify:rule-sweep": 1,
+  "hookify:writing-rules -> sanctum:acp": 1,
   "imbue:assisted-mastery -> imbue:graduated-implementation": 1,
   "imbue:assisted-mastery -> parseltongue:python-async": 2,
   "imbue:catchup -> minister:initiative-pulse": 1,
@@ -5122,7 +5121,7 @@
   "imbue:dependency-verification -> hookify:rule-sweep": 1,
   "imbue:diff-analysis -> pensive:blast-radius": 1,
   "imbue:diff-analysis -> pensive:full-review": 1,
-  "imbue:evidence-sweep -> sanctum:stack-mode": 1,
+  "imbue:evidence-sweep -> pensive:parity-sweep": 1,
   "imbue:feature-review -> oracle:quality-bench": 1,
   "imbue:graduated-implementation -> parseltongue:python-async": 3,
   "imbue:justify -> abstract:skill-audit": 1,
@@ -5156,7 +5155,7 @@
   "imbue:workflow-monitor -> leyline:plugin-health": 1,
   "imbue:workflow-monitor -> spec-kit:speckit-startup": 1,
   "leyline:additive-bias-defense -> abstract:skill-audit": 1,
-  "leyline:additive-bias-defense -> egregore:gate-audit": 1,
+  "leyline:additive-bias-defense -> spec-kit:speckit-checklist": 1,
   "leyline:authentication-patterns -> conjure:gemini-delegation": 1,
   "leyline:authentication-patterns -> phantom:surface-check": 1,
   "leyline:content-sanitization -> conjure:glimmer-delegation": 1,
@@ -5164,9 +5163,9 @@
   "leyline:damage-control -> hookify:rule-sweep": 1,
   "leyline:damage-control -> oracle:quality-bench": 1,
   "leyline:damage-control -> sanctum:git-workspace-review": 1,
-  "leyline:decision-journal -> attune:mission": 1,
   "leyline:decision-journal -> oracle:quality-bench": 1,
   "leyline:decision-journal -> parseltongue:python-packaging": 1,
+  "leyline:decision-journal -> pensive:parity-sweep": 1,
   "leyline:decision-journal -> pensive:unified-review": 1,
   "leyline:decision-journal -> tome:web-search": 1,
   "leyline:document-conversion -> hookify:rule-sweep": 1,
@@ -5176,9 +5175,9 @@
   "leyline:evaluation-framework -> egregore:gate-audit": 1,
   "leyline:git-platform -> hookify:rule-sweep": 1,
   "leyline:git-platform -> sanctum:resolve-threads": 1,
-  "leyline:markdown-formatting -> conjure:provider-sweep": 1,
   "leyline:markdown-formatting -> gauntlet:graph-build": 1,
   "leyline:markdown-formatting -> hookify:rule-sweep": 1,
+  "leyline:markdown-formatting -> pensive:parity-sweep": 1,
   "leyline:progressive-loading -> abstract:modular-skills": 1,
   "leyline:progressive-loading -> conserve:token-conservation": 1,
   "leyline:risk-classification -> egregore:dismiss": 1,
@@ -5283,7 +5282,7 @@
   "pensive:unified-review -> abstract:skill-audit": 1,
   "pensive:unified-review -> conserve:bloat-sweep": 1,
   "phantom:computer-control -> phantom:control-desktop": 2,
-  "phantom:control-desktop -> leyline:plugin-health": 1,
+  "phantom:control-desktop -> archetypes:paradigm-panel": 1,
   "phantom:surface-check -> egregore:gate-audit": 1,
   "phantom:surface-check -> imbue:graduated-implementation": 1,
   "sanctum:commit-messages -> sanctum:commit-msg": 2,
@@ -5343,11 +5342,9 @@
   "sanctum:update-tests -> parseltongue:python-testing": 1,
   "sanctum:update-tutorial -> egregore:dismiss": 1,
   "sanctum:update-tutorial -> scry:vhs-recording": 2,
-  "sanctum:update-version -> leyline:plugin-health": 1,
   "sanctum:update-version -> parseltongue:python-packaging": 1,
-  "sanctum:update-version -> sanctum:version-updates": 1,
-  "sanctum:version-updates -> sanctum:create-tag": 1,
-  "sanctum:version-updates -> sanctum:update-version": 1,
+  "sanctum:update-version -> spec-kit:speckit-constitution": 2,
+  "sanctum:version-updates -> spec-kit:speckit-constitution": 2,
   "sanctum:workflow-improvement -> parseltongue:python-sweep": 1,
   "sanctum:workflow-improvement -> sanctum:fix-workflow-analysis": 1,
   "scribe:doc-generate -> pensive:api-review": 1,
@@ -5367,7 +5364,6 @@
   "scribe:tech-tutorial -> abstract:hook-scope-guide": 2,
   "scribe:voice-generate -> scribe:session-to-post": 2,
   "scribe:voice-learn -> egregore:dismiss": 1,
-  "scribe:voice-learn -> sanctum:version-updates": 1,
   "scribe:voice-learn -> scribe:session-to-post": 1,
   "scribe:voice-review -> attune:skill-library": 1,
   "scribe:voice-review -> sanctum:update-readme": 1,
@@ -5385,7 +5381,6 @@
   "scry:vhs-recording -> scry:record-terminal": 1,
   "spec-kit:spec-writing -> attune:project-specification": 1,
   "spec-kit:speckit-clarify -> spec-kit:spec-review": 1,
-  "spec-kit:speckit-constitution -> spec-kit:speckit-implement": 1,
   "spec-kit:speckit-converge -> spec-kit:speckit-implement": 1,
   "spec-kit:speckit-implement -> spec-kit:speckit-converge": 1,
   "spec-kit:speckit-orchestrator -> oracle:quality-bench": 1,
@@ -5634,6 +5629,7 @@
   "pensive:harden": "a2c3aee89c9d6209e31d1aa3df217089f3f79eee436441858c3d17809d597c14",
   "pensive:makefile-review": "838aca3d32982a11880fa8f76ffe3008e59bbce2c03432e3e5486ba1fd6785de",
   "pensive:math-review": "696158d8f45fed9c0d062617b5804d11b35115f200a50b30ecf81e1e0a922984",
+  "pensive:parity-sweep": "38e8c08a1082a55bafa7b143e7be3956d24c12485ed501027068900b63db4a91",
   "pensive:performance-review": "c226890fb3341902374f4f2a3fc501706d0758d41ce3d79714a32e7014dc557c",
   "pensive:refine-code": "63bc7b4817ed61e16d23a1664fac23d18b78884595140fb5ff6bb4311097a016",
   "pensive:rust-review": "19abd32909600e0f9e4851f03e32e36f8327665c01c8602c0593e22ebdc9cefd",
@@ -5711,7 +5707,7 @@
   "spec-kit:speckit-analyze": "5937ca663583e02ceb0863ad5ba4a9cb7ffe14ec5df1a44efd521f800f379be7",
   "spec-kit:speckit-checklist": "eefe2111061fa5cccbcdc03a3bcfd17457eaed2a7776eb227b01b7921a1c5725",
   "spec-kit:speckit-clarify": "6c7331e89ec75cc7ac6a8dd1626f8ffb5c1e8dbdf657749c6cb7cfccccda155b",
-  "spec-kit:speckit-constitution": "b58c5ff0a0ff11e4a50c67f5dcaf961f4f5698c74346e7eb992a522c1ac60ded",
+  "spec-kit:speckit-constitution": "73ffdfc0a90c6b23e96fbd126ee696d4b6c0896efce9e6d242189c1f1030f029",
   "spec-kit:speckit-converge": "f1d7bf23bb316c7796cb347a36e864878750ba3d9c0771c4533bfcf27d1bfb52",
   "spec-kit:speckit-implement": "0ebff82d0a01585dd408dc2f79571eb439d7bc97a12e39b211527274180c2445",
   "spec-kit:speckit-orchestrator": "11dbc1b3e5777a8470d189bfea932cc80698dc57b2e14da42e5ce9de119ba58c",
@@ -5733,12 +5729,12 @@
   "tome:triz": "aae83d3a9488c573e82df9f7b1eb80b33ae924c3833d30ceeddab9060cf80976",
   "tome:web-search": "86db435e94efee4af760b059e077321abd1c6d183d277ea777d40fe88654a763"
  },
- "mrr": 0.472187,
+ "mrr": 0.471803,
  "neighbors": {
   "abstract:aggregate-logs": [
    "abstract:improve-skills",
-   "abstract:analyze-skill",
-   "abstract:evaluate-skill"
+   "abstract:evaluate-skill",
+   "abstract:skill-audit"
   ],
   "abstract:analyze-skill": [
    "abstract:aggregate-logs",
@@ -5766,9 +5762,9 @@
    "abstract:hooks-eval"
   ],
   "abstract:escalation-governance": [
+   "abstract:evaluate-skill",
    "abstract:promote-discussions",
-   "abstract:skill-audit",
-   "archetypes:architecture-paradigm-domain-driven"
+   "abstract:skill-audit"
   ],
   "abstract:evaluate-skill": [
    "abstract:skill-audit",
@@ -5841,9 +5837,9 @@
    "abstract:methodology-curator"
   ],
   "abstract:skill-authoring": [
-   "egregore:gate-audit",
    "hookify:rule-sweep",
-   "abstract:skill-audit"
+   "abstract:skill-audit",
+   "attune:skill-library"
   ],
   "abstract:skill-graph-audit": [
    "conserve:bloat-sweep",
@@ -6078,7 +6074,7 @@
   "cartograph:atlas": [
    "minister:initiative-pulse",
    "memory-palace:palace-sweep",
-   "conjure:provider-sweep"
+   "pensive:parity-sweep"
   ],
   "cartograph:call-chain": [
    "attune:mission-orchestrator",
@@ -6096,9 +6092,9 @@
    "memory-palace:palace-sweep"
   ],
   "cartograph:data-flow": [
-   "archetypes:paradigm-panel",
    "attune:skill-library",
-   "cartograph:call-chain"
+   "cartograph:call-chain",
+   "cartograph:class-diagram"
   ],
   "cartograph:dependency-graph": [
    "conjure:provider-setup",
@@ -6173,7 +6169,7 @@
   "conjure:qwen-delegation": [
    "parseltongue:python-async",
    "conjure:delegation-core",
-   "hookify:rule-sweep"
+   "archetypes:architecture-paradigm-functional-core"
   ],
   "conserve:agent-expenditure": [
    "attune:skill-library",
@@ -6247,8 +6243,8 @@
   ],
   "conserve:optimize-context": [
    "oracle:quality-bench",
-   "scribe:session-to-post",
-   "tome:cite"
+   "tome:cite",
+   "archetypes:architecture-paradigm-functional-core"
   ],
   "conserve:response-compression": [
    "pensive:unified-review",
@@ -6271,9 +6267,9 @@
    "hookify:rule-sweep"
   ],
   "egregore:gate-audit": [
-   "hookify:rule-sweep",
-   "imbue:evidence-sweep",
-   "oracle:quality-bench"
+   "parseltongue:run-profiler",
+   "pensive:parity-sweep",
+   "hookify:rule-sweep"
   ],
   "egregore:install-watchdog": [
    "egregore:uninstall-watchdog",
@@ -6357,8 +6353,8 @@
   ],
   "gauntlet:knowledge-extract": [
    "gauntlet:gauntlet-extract",
-   "cartograph:atlas",
-   "oracle:quality-bench"
+   "oracle:quality-bench",
+   "attune:skill-library-mission"
   ],
   "gauntlet:onboard": [
    "archetypes:architecture-paradigm-functional-core",
@@ -6391,9 +6387,9 @@
    "abstract:improve-skills"
   ],
   "hookify:hookify": [
+   "abstract:create-skill",
    "abstract:hook-authoring",
-   "abstract:rules-eval",
-   "abstract:skill-audit"
+   "abstract:rules-eval"
   ],
   "hookify:install": [
    "abstract:create-skill",
@@ -6441,9 +6437,9 @@
    "abstract:create-skill"
   ],
   "imbue:evidence-sweep": [
+   "pensive:parity-sweep",
    "sanctum:stack-mode",
-   "hookify:rule-sweep",
-   "herald:judge-panel"
+   "hookify:rule-sweep"
   ],
   "imbue:feature-review": [
    "oracle:quality-bench",
@@ -6517,8 +6513,8 @@
   ],
   "imbue:workflow-monitor": [
    "cartograph:atlas",
-   "imbue:review-core",
-   "leyline:plugin-health"
+   "leyline:plugin-health",
+   "leyline:sem-integration"
   ],
   "leyline:additive-bias-defense": [
    "abstract:skill-audit",
@@ -6553,7 +6549,7 @@
   "leyline:error-patterns": [
    "archetypes:architecture-paradigm-functional-core",
    "archetypes:architecture-paradigm-microkernel",
-   "archetypes:paradigm-panel"
+   "attune:project-specification"
   ],
   "leyline:evaluation-framework": [
    "egregore:gate-audit",
@@ -6603,7 +6599,7 @@
   "leyline:stewardship": [
    "abstract:hooks-eval",
    "abstract:skill-audit",
-   "archetypes:architecture-paradigm-domain-driven"
+   "archetypes:architecture-paradigm-functional-core"
   ],
   "leyline:supply-chain-advisory": [
    "hookify:rule-sweep",
@@ -6636,9 +6632,9 @@
    "archetypes:architecture-paradigm-functional-core"
   ],
   "memory-palace:knowledge-intake": [
+   "pensive:parity-sweep",
    "abstract:skill-audit",
-   "archetypes:paradigm-panel",
-   "cartograph:atlas"
+   "archetypes:paradigm-panel"
   ],
   "memory-palace:knowledge-locator": [
    "archetypes:architecture-paradigm-functional-core",
@@ -6918,7 +6914,7 @@
   "sanctum:do-issue": [
    "abstract:metacognitive-self-mod",
    "abstract:skill-audit",
-   "archetypes:architecture-paradigm-domain-driven"
+   "archetypes:architecture-paradigm-functional-core"
   ],
   "sanctum:doc-consolidation": [
    "spec-kit:speckit-analyze",
@@ -7002,13 +6998,13 @@
   ],
   "sanctum:stack-push": [
    "sanctum:stack-rebase",
-   "phantom:surface-check",
-   "sanctum:stack-create"
+   "sanctum:stack-create",
+   "phantom:surface-check"
   ],
   "sanctum:stack-rebase": [
    "sanctum:stack-push",
-   "attune:skill-library",
-   "cartograph:atlas"
+   "cartograph:atlas",
+   "memory-palace:palace-sweep"
   ],
   "sanctum:sync-capabilities": [
    "cartograph:atlas",
@@ -7062,8 +7058,8 @@
   ],
   "sanctum:update-version": [
    "sanctum:version-updates",
-   "leyline:plugin-health",
-   "parseltongue:python-packaging"
+   "spec-kit:speckit-constitution",
+   "leyline:plugin-health"
   ],
   "sanctum:validate-pr": [
    "imbue:evidence-sweep",
@@ -7071,9 +7067,9 @@
    "hookify:rule-sweep"
   ],
   "sanctum:version-updates": [
+   "spec-kit:speckit-constitution",
    "sanctum:create-tag",
-   "sanctum:update-readme",
-   "sanctum:update-version"
+   "sanctum:update-readme"
   ],
   "sanctum:workflow-improvement": [
    "sanctum:fix-workflow-analysis",
@@ -7098,7 +7094,7 @@
   "scribe:doc-sweep": [
    "abstract:skill-audit",
    "archetypes:architecture-paradigms",
-   "conjure:provider-sweep"
+   "archetypes:paradigm-panel"
   ],
   "scribe:session-replay": [
    "sanctum:update-readme",
@@ -7113,7 +7109,7 @@
   "scribe:simplified-technical-english": [
    "hookify:rule-sweep",
    "imbue:evidence-sweep",
-   "minister:initiative-pulse"
+   "pensive:unified-review"
   ],
   "scribe:slop-detector": [
    "abstract:analyze-skill",
@@ -7143,7 +7139,7 @@
   "scribe:voice-generate": [
    "abstract:aggregate-logs",
    "abstract:hooks-eval",
-   "abstract:metacognitive-self-mod"
+   "abstract:plugin-review"
   ],
   "scribe:voice-learn": [
    "egregore:gate-audit",
@@ -7162,8 +7158,8 @@
   ],
   "scry:capture-set": [
    "attune:skill-library",
-   "egregore:gate-audit",
-   "leyline:plugin-health"
+   "conjure:provider-sweep",
+   "egregore:gate-audit"
   ],
   "scry:gif-generation": [
    "conjure:provider-sweep",
@@ -7216,9 +7212,9 @@
    "archetypes:architecture-paradigm-pipeline"
   ],
   "spec-kit:speckit-constitution": [
-   "spec-kit:speckit-analyze",
-   "spec-kit:speckit-converge",
-   "spec-kit:speckit-implement"
+   "sanctum:update-version",
+   "sanctum:version-updates",
+   "hookify:rule-sweep"
   ],
   "spec-kit:speckit-converge": [
    "spec-kit:speckit-analyze",
@@ -7248,7 +7244,7 @@
   "spec-kit:speckit-startup": [
    "spec-kit:spec-review",
    "spec-kit:speckit-orchestrator",
-   "spec-kit:speckit-converge"
+   "spec-kit:speckit-constitution"
   ],
   "spec-kit:speckit-tasks": [
    "spec-kit:speckit-analyze",
@@ -7276,9 +7272,9 @@
    "tome:web-search"
   ],
   "tome:dig": [
-   "cartograph:atlas",
    "pensive:harden",
-   "tome:code-search"
+   "tome:code-search",
+   "tome:synthesize"
   ],
   "tome:discourse": [
    "tome:web-search",
@@ -7297,7 +7293,7 @@
   ],
   "tome:papers": [
    "tome:triz",
-   "memory-palace:navigate",
+   "pensive:parity-sweep",
    "imbue:evidence-sweep"
   ],
   "tome:research": [
@@ -7322,5 +7318,5 @@
   ]
  },
  "positives": 973,
- "top1": 0.364851
+ "top1": 0.365879
 }

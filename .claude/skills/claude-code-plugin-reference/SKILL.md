@@ -71,6 +71,7 @@ plugins/imbue/
 | `hooks` | Paths to ADDITIONAL hook files only. `./hooks/hooks.json` is auto-loaded and must never appear here | Every plugin in this repo keeps `"hooks": []` (verified across all 23 manifests). See the hooks section for why |
 | `keywords` | Marketplace search and discovery terms | Free-form |
 | `dependencies` / `metadata.optional_dependencies` | Names of other night-market plugins | Informational plus runtime detection only. ADR-0001 forbids import coupling: plugins detect each other via the filesystem and degrade gracefully. A top-level `optional_dependencies` is not a manifest field and is stripped at load |
+| `engines` | `{"claude-code": "<range>"}`. Out-of-range plugins do not load (2.1.323) | Not declared here, see `claude-code-harness-deltas.md` |
 | `author`, `license` | Attribution | MIT throughout |
 | `homepage`, `repository` | Listing links | `homepage` must parse as a URL or the plugin fails to load. Pinned by `tests/test_plugin_manifest_contract.py` |
 

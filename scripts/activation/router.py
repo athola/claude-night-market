@@ -75,10 +75,17 @@ def evaluate(router: Router, cases: list[Case]) -> dict:
     case_count: Counter = Counter()
     for case in positives:
         ranking = router.rank(case.prompt)
-        order = [i for i, _ in ranking]
-        rank = order.index(case.target) + 1
-        per_case[case.id] = {"target": case.target, "rank": rank, "top1": order[0]}
-        above.setdefault(case.target, Counter()).update(order[: rank - 1])
+        target_score = dict(ranking)[case.target]
+        # Ties rank the target last among them. The id order in rank() is
+        # for display; letting it break ties moved MRR when an item was
+        # renamed, with no change to any wording.
+        others = [i for i, score in ranking if i != case.target]
+        rank = 1 + sum(
+            1 for i, score in ranking if i != case.target and score >= target_score
+        )
+        top1 = case.target if rank == 1 else others[0]
+        per_case[case.id] = {"target": case.target, "rank": rank, "top1": top1}
+        above.setdefault(case.target, Counter()).update(others[: rank - 1])
         score_sum.setdefault(case.target, Counter()).update(dict(ranking))
         case_count[case.target] += 1
     collisions: Counter = Counter()

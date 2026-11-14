@@ -118,6 +118,10 @@ _VALUE_FLAGS = {
         "--manifest-path",
     },
 }
+# Flags that take a value for one installer and are bare switches for
+# another in the same ecosystem: `-w` names a workspace for npm but is
+# pnpm's --workspace-root, and yarn has no `-w`.
+_BARE_SWITCHES = {"pnpm": frozenset({"-w"}), "yarn": frozenset({"-w"})}
 # Where one shell command ends and the next begins. A subshell or command
 # substitution opener and closer also start a new command, so the install
 # inside "(pip install x)" or "$(pip install x)" heads its own segment.
@@ -320,7 +324,9 @@ def _parse_install_segment(text: str) -> list[tuple[str, str]]:
 
     packages: list[tuple[str, str]] = []
     skip_next = False
-    value_flags = _VALUE_FLAGS[ecosystem]
+    value_flags = _VALUE_FLAGS[ecosystem] - _BARE_SWITCHES.get(
+        head.split()[0], frozenset()
+    )
     # shlex keeps a quoted specifier such as "requests >= 2" in one token.
     # Its comments=True also ends a word at a mid-word "#", as in a
     # "#egg=" fragment, where the shell starts a comment only at a "#"

@@ -7,8 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.3] - 2026-11-13
+
+### Removed
+
+- **Code nothing called.** abstract's `ErrorHandler`, `ToolError` and
+  `ErrorSeverity`, and the `error_handler` properties on
+  `AbstractScript` and `AbstractCLI`; conserve's
+  `area_agent_registry.py`; memory-palace's `TierManager` with
+  `assign_tier`, `get_tier` and the `tier_assignments` table. Each had
+  tests and no caller.
+- **The `pensive:shell-review` and `pensive:makefile-review` skill
+  stubs**, deprecated in 1.10.1 and 1.10.2 under ADR-0014. Invoke
+  `Skill(pensive:unified-review)` with the shell or makefile focus.
+  The `/shell-review` and `/makefile-review` commands remain.
+
+### Fixed
+
+- **`/reinstall-all-plugins` and `/update-all-plugins` ran scripts at
+  one developer's home path** and failed everywhere else. They use
+  `${CLAUDE_PLUGIN_ROOT}` now, as does the plugin-validator agent.
+- **opkg installs missed 37 skills, commands and agents** that 12
+  plugins registered in `plugin.json` but not `openpackage.yml`. A root
+  test now compares the two for every plugin.
+
 ### Changed
 
+- **spec-kit tracks upstream v1.4.0** (from v0.5.0). The constitution
+  is read at runtime by clarify, tasks and implement, and
+  `/speckit-constitution` no longer rewrites templates and refuses
+  feature work. Clarify asks real questions with a why-it-matters line
+  and re-validates the spec quality checklist. Implement treats
+  checklists as a read-only gate, tasks quote data-model constraints
+  verbatim, and converge assesses every task whatever its checkbox.
+  Checklist items stay unchecked for the reviewer, and plan writes
+  `quickstart.md` as a validation guide with no implementation code.
+  `taskstoissues` stays, although upstream moved it to an extension.
+  Features that need the `specify` CLI (extensions, presets, workflows)
+  are not ported.
+- **superpowers docs track upstream v7.0.2** (from v5.0.7). Seven
+  install snippets that paired `marketplace add obra/superpowers` with
+  `superpowers@superpowers-marketplace`, which never resolved, now use
+  `/plugin install superpowers@claude-plugins-official`.
+- **attune adopts superpowers v7 planning and brainstorming.** Plans
+  carry Global Constraints, per-task Interfaces and a Review Focus
+  section and record decisions rather than code. Brainstorming asks why
+  first, and the spec review loop sorts a builder's questions so only
+  the ones that change what gets built reach you.
+- **Harness ledger at Claude Code 2.1.323 and Fable 5.2.** phantom
+  prices Fable 5.2 at $8/$40, the hook validator says where `onFailure`
+  belongs, and `tests/test_skill_survives_compaction.py` keeps every
+  plugin SKILL.md inside the 5,000-token window Claude Code re-attaches
+  after compaction.
 - **`docs/deep-dive/` is gone and gitignored.** The governance
   sources moved to ADR-0030 and the stewardship **Origin** notes, and
   the network and data detail moved into the README. Skills and rules

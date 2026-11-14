@@ -50,9 +50,9 @@ status: ## Show project overview
 demo-skills: ## Validate egregore skill structure
 	@echo "=== Egregore Skills Demo ==="
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
-	done 2>/dev/null || echo "  (no skills found)"
+	done
 
 demo-egregore: ## Demo egregore manifest and work items (LIVE)
 	@echo "=== Egregore Orchestrator Demo (LIVE) ==="
@@ -67,7 +67,7 @@ demo-egregore: ## Demo egregore manifest and work items (LIVE)
 	@for agent in agents/*.md; do \
 		name=$$(basename "$$agent" .md); \
 		echo "  $$name"; \
-	done 2>/dev/null || echo "  (none)"
+	done
 	@echo ""
 	@echo "Scripts:"
 	@find scripts/ -name "*.py" 2>/dev/null | wc -l | xargs -I{} echo "  {} Python scripts"
@@ -83,7 +83,7 @@ demo-loop: ## Demo egregore loop lifecycle (LIVE)
 	path = '.egregore/manifest.json'; \
 	exists = os.path.exists(path); \
 	print(f'  Manifest: {\"found\" if exists else \"not found (expected in projects)\"}'); \
-	" 2>/dev/null || echo "  Manifest check: skipped (no Python env)"
+	"
 	@echo ""
 	@echo "Test infrastructure:"
 	@echo "  Tests: $$(find tests/ -name 'test_*.py' | wc -l) files"

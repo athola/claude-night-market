@@ -84,7 +84,7 @@ class TestSpeckitIntegration:
         def test_progress_to_checklist_data_flow(self) -> None:
             """Implement's checklist counter matches the lines /speckit-checklist writes."""
             counted = re.search(
-                r"Incomplete items: Lines matching `([^`]+)`", read(IMPLEMENT)
+                r"Unchecked items: Lines matching `([^`]+)`", read(IMPLEMENT)
             )
             written = re.search(r"`([^`]+) CHK### <requirement item>`", read(CHECKLIST))
             assert counted

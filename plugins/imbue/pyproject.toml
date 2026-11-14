@@ -1,6 +1,6 @@
 [project]
 name = "imbue-dev"
-version = "1.10.2"
+version = "1.10.3"
 description = "Development tools for the imbue Claude Code plugin - review workflow and evidence management"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -29,7 +29,6 @@ dev = [
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
     "pytest-cov>=7.1.0",
-    "pytest-asyncio>=1.2.0",
     "pytest-xdist>=3.8.0",
 ]
 
@@ -127,7 +126,6 @@ exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
 skips = ["B101"]  # Skip assert_used test for test files
 
 [tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
 minversion = "8.0"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
@@ -154,7 +152,6 @@ markers = [
     "slow: Slow running tests (use with -m slow)",
     "bdd: Behavior-driven development style tests"
 ]
-asyncio_mode = "auto"
 filterwarnings = [
     "error",
     "ignore::UserWarning",

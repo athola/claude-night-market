@@ -55,7 +55,9 @@ class SessionStore:
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
             return self._deserialize(data)
-        except (json.JSONDecodeError, KeyError, TypeError) as e:
+        # ValueError covers JSONDecodeError, UnicodeDecodeError and a
+        # subclass _deserialize rejecting a field.
+        except (ValueError, KeyError, TypeError) as e:
             print(
                 f"Warning: corrupt session {session_id}: {e}",
                 file=sys.stderr,

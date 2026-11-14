@@ -300,7 +300,7 @@ demo-keyword-index: ## Demo corpus keyword-index rebuild, dry-run (LIVE)
 	@echo "read by cache_lookup. It is NOT the capture index that"
 	@echo "'make demo-index' curates. Derived data, untracked in git, so a"
 	@echo "fresh checkout has none:"
-	@$(INDEX_BUILDER) --dry-run || true
+	@$(INDEX_BUILDER) --dry-run
 	@echo ""
 	@echo "Write it for real by dropping --dry-run."
 
@@ -308,10 +308,10 @@ demo-index: ## Demo capture-index curation: corpus stats + dry-run promotions (L
 	@echo "=== Capture-Index Curation Demo (LIVE) ==="
 	@echo ""
 	@echo "Corpus analytics over the real capture index (read-only):"
-	@$(CLI) index report || true
+	@$(CLI) index report
 	@echo ""
 	@echo "Promotion / archive proposals (dry-run, writes nothing):"
-	@$(CLI) index promote || true
+	@$(CLI) index promote
 	@echo ""
 	@echo "Apply for real with: $(CLI) index promote --apply"
 

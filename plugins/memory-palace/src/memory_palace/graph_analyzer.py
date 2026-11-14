@@ -1,7 +1,7 @@
 """NetworkX-based graph analysis for palace knowledge graphs.
 
 Loads the SQLite knowledge graph into a NetworkX DiGraph and
-runs algorithms for tier scoring, community detection, bridge
+runs PageRank, community detection, keystone and bridge
 identification, shortest paths, and link prediction.
 """
 

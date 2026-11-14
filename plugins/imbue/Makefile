@@ -186,7 +186,7 @@ demo-citation-verifier: ## Demo grounded-finding citation verifier (LIVE)
 demo-skills: ## List imbue skills
 	@echo "=== Imbue Skills ==="
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
 	done
 
@@ -195,7 +195,7 @@ demo-feature-review: ## Demo feature review with RICE scoring (LIVE)
 	@echo ""
 	@echo "Scanning plugin for feature-related patterns..."
 	@echo "Skills with feature triggers:"
-	@grep -rl 'feature' skills/ 2>/dev/null | head -5 | sed 's/^/  /'
+	@grep -rl 'feature' skills/ 2>/dev/null | sed -n '1,5p' | sed 's/^/  /'
 	@echo ""
 	@echo "Recent feature commits:"
 	@git log --oneline --all --grep="feat(imbue)" -5 2>/dev/null || echo "  (none found)"

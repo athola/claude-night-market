@@ -361,6 +361,21 @@ class TestDetectHighImpactIssues:
             assert expected_type not in types
 
     @pytest.mark.unit
+    def test_partial_outcomes_are_not_failures(self) -> None:
+        """Three successes and two partials report no high failure rate."""
+        metrics = _make_metrics(
+            total=5, success=3, failure=0, partial=2, success_rate=60.0
+        )
+        issues = detect_high_impact_issues({"p:s": metrics})
+        assert "high_failure_rate" not in [i["type"] for i in issues]
+
+    @pytest.mark.unit
+    def test_two_failures_in_five_is_a_high_failure_rate(self) -> None:
+        metrics = _make_metrics(total=5, success=3, failure=2, success_rate=60.0)
+        issues = detect_high_impact_issues({"p:s": metrics})
+        assert "high_failure_rate" in [i["type"] for i in issues]
+
+    @pytest.mark.unit
     def test_no_issues_for_healthy_skill(self) -> None:
         """Scenario: Healthy skill produces no issues
         Given a skill with high success rate and no rating

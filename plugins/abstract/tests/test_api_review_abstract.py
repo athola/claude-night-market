@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-from abstract.errors import ErrorHandler
 from abstract.frontmatter import FrontmatterProcessor
 from abstract.improvement_queue import ImprovementQueue
 from abstract.paths import get_config_dir
@@ -11,7 +10,6 @@ from abstract.skill_versioning import SkillVersionManager
 from abstract.wrapper_base import _extract_public_symbols
 from pathlib import Path
 import ast
-import logging
 import subprocess
 import sys
 
@@ -73,20 +71,6 @@ def test_importing_tokens_does_not_leave_leyline_on_sys_path() -> None:
         [sys.executable, "-c", code], capture_output=True, text=True, check=False
     )
     assert done.returncode == 0, done.stderr
-
-
-def test_error_handler_does_not_duplicate_handlers_for_same_tool() -> None:
-
-    name = "api-review-dup-handler"
-    logger = logging.getLogger(name)
-    try:
-        ErrorHandler(name)
-        ErrorHandler(name)
-        assert len(logger.handlers) == 1
-    finally:
-        for handler in list(logger.handlers):
-            logger.removeHandler(handler)
-            handler.close()
 
 
 def test_bump_version_raises_when_write_fails(tmp_path, monkeypatch) -> None:

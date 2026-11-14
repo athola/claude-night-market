@@ -23,7 +23,6 @@ SCRIPTS = Path(__file__).resolve().parents[3] / "scripts"
 LEYLINE_USERS = [
     "safe_replacer.py",
     "coordination_workspace.py",
-    "area_agent_registry.py",
 ]
 
 

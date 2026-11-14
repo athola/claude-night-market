@@ -266,7 +266,7 @@ Run these commands to verify the standardization:
 
 ```bash
 # Run all tests
-cd /home/alext/claude-night-market/plugins/imbue
+cd plugins/imbue
 uv run pytest tests/ --no-cov
 
 # Run specific test suites

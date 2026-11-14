@@ -77,6 +77,8 @@ write_plist() {
   XML_DIR="$(xml_escape "${WORKING_DIR}")"
   XML_PATH="$(xml_escape "${PATH}")"
 
+  # A fresh account has no LaunchAgents directory yet.
+  mkdir -p "${PLIST_PATH%/*}"
   cat >"${PLIST_PATH}" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"

@@ -137,6 +137,13 @@ run_plugin_lint() {
 
 # Runs from PROJECT_ROOT (main enters it in a subshell), so every plugin
 # path below is relative to the repository root.
+# The same plugin test the tests and typecheck runners use, so
+# plugins/__pycache__ is not "linted" and listed as skipped.
+is_plugin_dir() {
+  local dir="${1}"
+  [ -f "${dir}/.claude-plugin/plugin.json" ] || [ -f "${dir}/openpackage.yml" ]
+}
+
 run_selected() {
   local plugin_dir plugin_name changed_files changed_plugins
   case "${1:-}" in
@@ -145,7 +152,7 @@ run_selected() {
       banner "Running Linting Across All Plugins"
 
       for plugin_dir in plugins/*/; do
-        if [ -d "${plugin_dir}" ]; then
+        if is_plugin_dir "${plugin_dir}"; then
           run_plugin_lint "${plugin_dir}" || true
         fi
       done

@@ -110,11 +110,13 @@ check_running() {
   [ -f "${PIDFILE}" ] || return 0
   pid=$(cat "${PIDFILE}")
   if kill -0 "${pid}" 2>/dev/null; then
-    comm="$(ps -p "${pid}" -o comm= 2>/dev/null)"
+    # The pid can exit between kill -0 and ps; under set -e a failed ps
+    # would abort the tick with no log line.
+    comm="$(ps -p "${pid}" -o comm= 2>/dev/null)" || comm=""
     case "${comm##*/}" in
       claude*) exit 0 ;; # session alive
     esac
-    args="$(ps -p "${pid}" -o args= 2>/dev/null)"
+    args="$(ps -p "${pid}" -o args= 2>/dev/null)" || args=""
     case " ${args} " in
       *" claude "* | *"/claude "*) exit 0 ;; # session alive behind a shim
     esac

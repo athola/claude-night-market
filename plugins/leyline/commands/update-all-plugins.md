@@ -129,5 +129,5 @@ To configure auto-updates for a specific marketplace:
 
 Execute the update script:
 ```bash
-python3 /home/alext/claude-night-market/plugins/leyline/scripts/update_all_plugins.py
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/update_all_plugins.py
 ```

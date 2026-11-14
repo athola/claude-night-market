@@ -72,7 +72,7 @@ python3 plugins/hookify/scripts/install_rule.py --list
 ### security/ - Security Gates
 | Rule | Action | Default |
 |------|--------|---------|
-| `require-security-review` | block | enabled |
+| `require-security-review` | warn | enabled |
 
 ### workflow/ - Workflow Enforcement
 | Rule | Action | Default |

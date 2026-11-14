@@ -82,7 +82,7 @@ The file MUST be deleted on daemon shutdown.
 The daemon's PID is tracked in a sibling file:
 
 ```
-${CLAUDE_PLUGIN_DATA}/<plugin-name>/daemon.pid
+${CLAUDE_PLUGIN_DATA}/daemon.pid
 ```
 
 This enables lifecycle hooks to stop the daemon cleanly.

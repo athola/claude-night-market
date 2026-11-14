@@ -80,10 +80,12 @@ the code does.
 
 ### Exception: memory-palace (recorded 2026-10-28)
 
-`memory-palace` owns the knowledge graph analyzer and the embedding
-index. Consumer: tome, which imports them for thread analysis and
-semantic retrieval (ADR-0018). The same rules apply, and tome's
-plugin.json declares the edge. `tests/test_plugin_dependency_manifest.py`
+`memory-palace` owns the knowledge graph analyzer, the embedding
+index and the capture index. Consumers: tome, which imports the first
+two for thread analysis and semantic retrieval (ADR-0018), and
+abstract, which stages insight captures through
+`hooks/shared/deduplication`. The same rules apply, and both
+plugin.json files declare the edge. `tests/test_plugin_dependency_manifest.py`
 pins every runtime edge, so an undeclared one fails there first.
 
 ## Architecture
@@ -153,62 +155,14 @@ sequenceDiagram
     end
 ```
 
-### 1. Detection
-```python
-def is_plugin_available(plugin_name: str) -> bool:
-    """Check if a plugin is installed"""
-    plugin_path = Path.home() / ".claude" / "plugins" / plugin_name
-    return plugin_path.exists() and (plugin_path / "plugin.json").exists()
-```
+### Mechanism
 
-### 2. Optional Enhancement
-```python
-def enhance_with_plugin(data: dict) -> dict:
-    """Enhance data using other plugins if available"""
-    if is_plugin_available("other-plugin"):
-        try:
-            from other_plugin import enhancement
-            return enhancement.process(data)
-        except ImportError:
-            pass  # Plugin exists but functionality unavailable
-
-    # Default behavior
-    return basic_process(data)
-```
-
-### 3. Service Provider Pattern
-
-```mermaid
-flowchart LR
-    subgraph Provider["Conservation Plugin"]
-        R1[ServiceRegistry]
-        O[optimize_function]
-    end
-
-    subgraph Consumer["Other Plugin"]
-        R2[ServiceRegistry]
-        C[Consumer Code]
-    end
-
-    O -->|register| R1
-    R1 -.->|shared registry| R2
-    R2 -->|get_service| C
-
-    style Provider fill:#e7f3ff,stroke:#0066cc
-    style Consumer fill:#fff3e7,stroke:#cc6600
-```
-
-```python
-# Conservation plugin provides a service
-registry = ServiceRegistry()
-registry.register_service("optimize", optimize_function)
-
-# Other plugins discover and use it
-registry = ServiceRegistry()
-optimize = registry.get_service("optimize")
-if optimize:
-    result = optimize(content)
-```
+A plugin finds a sibling with `sibling_plugin_dir` and puts its source
+on the path with `add_sibling_src_to_path`, both from
+`leyline.sibling_plugins` (vendored into plugins that cannot import
+leyline). Each cross-plugin import is guarded, and the caller keeps a
+default for when the sibling is absent. The `is_plugin_available` and
+`ServiceRegistry` samples this section once held were never built.
 
 ## Consequences
 

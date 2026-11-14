@@ -17,7 +17,7 @@ related_artifacts:
   - .claude/skills/claude-code-plugin-reference/SKILL.md
   - .claude/upstream-baseline.json
   - .claude/skills/night-market-model-and-harness-updates/SKILL.md
-last_updated: 2026-10-06
+last_updated: 2026-11-13
 ---
 
 ## Synopsis
@@ -164,6 +164,37 @@ Recorded 2026-10-06. Two regression fixes: cloud sessions dropping
 permission-prompt answers (from 2.1.290), and a session's last messages
 lost on quit (from 2.1.288). Nothing a plugin configures or ships is
 affected.
+
+## 2.1.292 to 2.1.323
+
+Recorded 2026-11-13 from the CHANGELOG at
+https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md.
+The file has no entries for 2.1.297, 2.1.298, 2.1.313, 2.1.315 or
+2.1.320.
+
+| Version | Change | Consequence here |
+|---------|--------|------------------|
+| docs | After compaction each re-attached skill keeps its first 5,000 tokens, 25,000 combined | `tests/test_skill_survives_compaction.py` holds every plugin SKILL.md under 20,000 bytes |
+| 2.1.304 | Compaction re-sends the skill list. `/reload-skills` sends only changes | None needed |
+| 2.1.295 | `onFailure: "block"` on command and HTTP hooks makes a crashed or timed-out hook fail closed | No hook here sets it. `hook_validator.py` flags it on a matcher group, where the harness drops it |
+| 2.1.299 | `UserPromptSubmit` runs before a skill or command expands, and a blocking hook also stops its embedded shell lines | The six `UserPromptSubmit` hooks here receive the raw `/command` text. imbue's maintenance filter matches command names and still works |
+| 2.1.300 | `updatedInput` from PreToolUse and PermissionRequest is validated like Claude's input: unknown keys dropped, invalid input denied | No hook here returns `updatedInput`. `hook-authoring` documents the rule |
+| 2.1.314 | PreCompact output is cut at 10,000 characters per hook | conserve's `pre_compact_preserve.py` emits a five-line summary |
+| 2.1.314 | Hook `if` conditions match Monitor's shell commands the way they match Bash | The 14 `if`-conditioned hooks here written as `Bash(...)` now also gate Monitor commands |
+| 2.1.302, 2.1.312 | Prompt and agent hooks: at most 12 of one event at once, 24 per session | None here use `type: prompt` or `type: agent` |
+| 2.1.304 | Skill frontmatter hooks capped at 1,024 per source per session | Far above what any skill here registers |
+| 2.1.292, 2.1.296, 2.1.316 | Agent tool `effort` parameter, agent `autoCompactWindow` frontmatter, `CLAUDE_CODE_SUBAGENT_EFFORT` | Available. No agent here sets `autoCompactWindow` |
+| 2.1.295 | A subagent preloads at most 32 skills | The largest agent `skills:` list here has 3 |
+| 2.1.299 | Agent `tools:` and MCP allow rules match only the named server | No agent or allow rule here names an MCP tool |
+| 2.1.296 | `CLAUDE_CODE_WORKFLOW_SUBAGENT_MODEL` runs every workflow agent on one model | It overrides the per-agent `model` the shipped workflows set. Unset here |
+| 2.1.302 | Fork subagents are on by default in `-p`, SDK, desktop and VS Code | None needed |
+| 2.1.317 | Read's "file unchanged" stub is gone. A re-read returns content | Nothing here depends on the stub |
+| 2.1.323 | `plugin.json` gains `engines["claude-code"]`. Out-of-range plugins are not loaded | Not declared. Only 2.1.323 reads it, and every plugin here already needs a newer harness than any version that ignores it |
+| 2.1.323 | `engine.create` wildcard hooks become observe-only, and `validate` fails non-canonical forms | conserve and egregore pass `claude plugin validate --strict` |
+| 2.1.323 | Plugin `agent` setting deprecated and `subagentStatusLine` removed | Neither is used here |
+| 2.1.293, 2.1.321 | Haiku 5.5 and Fable 5.2 become their tiers' defaults | `phantom` prices Fable 5.2; see `anthropic-model-roster.md` |
+| 2.1.316 | Opus 4.8 fast mode is removed 2026-11-30 and then errors with no fallback | Nothing here selects fast mode |
+| 2.1.323 | Unrecognized model IDs assume a 1M window, up from 200K | None needed |
 
 ## Open questions this does not answer
 

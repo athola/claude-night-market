@@ -707,3 +707,73 @@ def test_strict_raises_when_git_is_missing_from_path() -> None:
         ) as excinfo:
             get_changed_files("HEAD", strict=True)
     assert isinstance(excinfo.value.__cause__, FileNotFoundError)
+
+
+def _git(repo: Path, *args: str) -> None:
+    subprocess.run(
+        ["git", "-c", "user.email=t@t", "-c", "user.name=t", *args],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+    )
+
+
+@pytest.fixture()
+def repo(tmp_path: Path) -> Path:
+    """Create a git repository the test process does not run inside."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    _git(root, "init", "-q")
+    return root
+
+
+class TestIncrementalAgainstARealRepo:
+    """Changed paths and dependents resolve the way git reports them."""
+
+    @pytest.mark.unit
+    def test_graph_rooted_at_a_subdirectory_parses_its_changes(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        """Changes under a graph rooted at a repo subdirectory are parsed."""
+        sub = repo / "sub"
+        sub.mkdir()
+        (sub / "m.py").write_text("def a():\n    pass\n")
+        _git(repo, "add", ".")
+        _git(repo, "commit", "-qm", "init")
+        full_build(str(sub), store)
+        (sub / "m.py").write_text("def a():\n    pass\n\ndef c():\n    pass\n")
+
+        report = incremental_update(str(sub), store, "HEAD")
+
+        assert report["files_parsed"] == 1
+        assert any(n.qualified_name.endswith("::c") for n in store.get_all_nodes())
+
+    @pytest.mark.unit
+    def test_renamed_callee_leaves_no_call_edge_to_a_missing_node(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        """A caller of a renamed function is reparsed with the callee file."""
+        (repo / "a.py").write_text("def helper():\n    pass\n")
+        (repo / "b.py").write_text(
+            "from a import helper\n\ndef user():\n    helper()\n"
+        )
+        _git(repo, "add", ".")
+        _git(repo, "commit", "-qm", "init")
+        full_build(str(repo), store)
+        assert any(e.target_qn.endswith("::helper") for e in store.get_all_edges()), (
+            "precondition: the call resolved to a.py's helper"
+        )
+        (repo / "a.py").write_text("def helper2():\n    pass\n")
+
+        incremental_update(str(repo), store, "HEAD")
+
+        node_names = {n.qualified_name for n in store.get_all_nodes()}
+        assert any(name.endswith("::helper2") for name in node_names)
+        dangling = [
+            e
+            for e in store.get_all_edges()
+            if e.kind == EdgeKind.CALLS
+            and "::" in e.target_qn
+            and e.target_qn not in node_names
+        ]
+        assert dangling == []

@@ -145,7 +145,7 @@ class SafeDependencyUpdater:
         return files_updated, total_changes
 
 
-def main() -> None:
+def main() -> int:
     """Safe update of dependency references."""
     parser = argparse.ArgumentParser(
         description="Safely update dependency references in skill files"
@@ -173,7 +173,7 @@ def main() -> None:
         base_path = Path(args.path).resolve()
         if not base_path.exists():
             output_error(f"Path not found: {base_path}", args)
-            return
+            return 1
 
         updater = SafeDependencyUpdater()
         # A-04: walk once, reuse for both update and validation.
@@ -208,10 +208,14 @@ def main() -> None:
 
     except FileNotFoundError as e:
         output_error(f"File not found: {e}", args)
+        return 1
     except PermissionError as e:
         output_error(f"Permission denied: {e}", args)
+        return 1
     except Exception as e:
         output_error(f"Error updating references: {e}", args)
+        return 1
+    return 0
 
 
 def output_result(result: dict, args: argparse.Namespace) -> None:
@@ -238,4 +242,4 @@ def output_error(message: str, args: argparse.Namespace) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -114,7 +114,19 @@ main() {
   esac
 
   INTERVAL="${1:-5}"
-  WORKING_DIR="${2:-$(pwd)}"
+  # OnUnitActiveSec takes a number of minutes here; "5m" became "5mmin".
+  case "${INTERVAL}" in
+    "" | *[!0-9]*)
+      log 5 "Interval must be a whole number of minutes, got '${INTERVAL}'"
+      exit 1
+      ;;
+  esac
+  # systemd ignores a relative WorkingDirectory, so the watchdog would
+  # find no manifest and do nothing every tick.
+  WORKING_DIR="$(cd "${2:-.}" && pwd)" || {
+    log 5 "Working directory '${2:-.}' does not exist"
+    exit 1
+  }
   WATCHDOG_SCRIPT="$(cd "${MYDIR}" && pwd)/watchdog.sh"
   UNIT_DIR="${HOME}/.config/systemd/user"
   # Quoted so a space does not split the path, and % doubled so systemd does

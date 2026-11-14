@@ -153,7 +153,7 @@ demo-pr-prep: ## Demo PR preparation workflow
 	@out=$$(git diff --stat HEAD~3..HEAD 2>/dev/null) \
 		|| out=$$(git diff --stat HEAD~1..HEAD 2>/dev/null) \
 		|| out="(no commit history to summarize)"; \
-	printf '%s\n' "$$out" | head -10
+	printf '%s\n' "$$out" | sed -n '1,10p'
 	@echo ""
 	@echo "Step 3: PR template structure"
 	@echo "  ## Summary"
@@ -175,7 +175,7 @@ demo-git-workspace: ## Demo git workspace review
 	@echo ""
 	@echo "Branches:"
 	@out=$$(git branch -a 2>/dev/null) || out="(branch listing unavailable)"; \
-	printf '%s\n' "$$out" | head -10
+	printf '%s\n' "$$out" | sed -n '1,10p'
 	@echo ""
 	@echo "Git workspace demo complete. Use sanctum:git-workspace-review for full analysis."
 
@@ -183,7 +183,7 @@ demo-skills: ## Validate sanctum skill structure
 	@echo "=== Sanctum Skills Demo ==="
 	@echo "Git workflow skills:"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
 	done
 	@echo ""

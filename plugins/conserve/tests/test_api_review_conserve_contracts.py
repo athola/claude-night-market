@@ -71,3 +71,21 @@ def test_searching_for_credential_words_is_not_denied(command: str) -> None:
     allowed all of these.
     """
     assert _decision(command) != "deny"
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git log --grep '.env'",
+        "git log --grep='fix credentials'",
+        "git log -pG .env",
+    ],
+)
+def test_quoted_or_clustered_git_search_values_are_denied(command: str) -> None:
+    """Only a bare `--grep x`, `--grep=x`, `-S x` or `-G x` value is exempt.
+
+    A quoted or clustered value cannot be told from a pathspec without
+    parsing the command line, and a miss there would print a credential
+    file. The cost is a prompt on a rare search.
+    """
+    assert _decision(command) == "deny"

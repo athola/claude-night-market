@@ -18,7 +18,9 @@ if str(_scripts) not in sys.path:
     sys.path.insert(0, str(_scripts))
 
 import hashlib
+import os
 
+import insight_palace_bridge as bridge
 from insight_palace_bridge import (
     finding_to_markdown,
     ingest_findings,
@@ -509,3 +511,51 @@ class TestQueryPalaceInsightsExceptScope:
         ):
             with pytest.raises(AttributeError):
                 query_palace_insights()
+
+
+class TestPalaceDataRoot:
+    """Captures land where memory-palace reads them, in every layout."""
+
+    def test_install_tree_maps_to_the_persistent_data_dir(self, tmp_path: Path) -> None:
+        installed = tmp_path / "plugins" / "cache" / "mkt" / "memory-palace" / "1.2.3"
+        expected = tmp_path / "plugins" / "data" / "memory-palace-mkt"
+        assert bridge._palace_data_root(installed, {}) == expected
+
+    def test_checkout_keeps_its_own_tree(self, tmp_path: Path) -> None:
+        checkout = tmp_path / "plugins" / "memory-palace"
+        assert bridge._palace_data_root(checkout, {}) == checkout
+
+    def test_palace_override_wins_and_abstracts_host_dir_is_ignored(
+        self, tmp_path: Path
+    ) -> None:
+        """CLAUDE_PLUGIN_DATA in abstract's hook process is abstract's dir."""
+        installed = tmp_path / "cache" / "mkt" / "memory-palace" / "1.0.0"
+        env = {
+            "CLAUDE_PLUGIN_DATA": str(tmp_path / "abstract-data"),
+            "MEMORY_PALACE_DATA_DIR": str(tmp_path / "chosen"),
+        }
+        assert bridge._palace_data_root(installed, env) == tmp_path / "chosen"
+        del env["MEMORY_PALACE_DATA_DIR"]
+        assert bridge._palace_data_root(installed, env) == (
+            tmp_path / "data" / "memory-palace-mkt"
+        )
+
+    def test_index_entry_lands_under_the_palace_root_not_abstracts(
+        self, high_finding: Finding, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The staged file and its index entry share one root."""
+        if not bridge._HAS_PALACE:
+            pytest.skip("memory-palace is not importable here")
+        palace = tmp_path / "palace-data"
+        abstract_data = tmp_path / "abstract-data"
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(abstract_data))
+        monkeypatch.delenv("MEMORY_PALACE_DATA_DIR", raising=False)
+        monkeypatch.setattr(bridge, "_PALACE_DATA", palace)
+        monkeypatch.setattr(bridge, "_PALACE_STAGING", palace / "data" / "staging")
+
+        assert bridge.ingest_findings([high_finding]) == 1
+
+        assert list((palace / "data" / "staging").glob("insight-*.md"))
+        assert (palace / "hooks" / "memory-palace-index.yaml").exists()
+        assert not abstract_data.exists()
+        assert "MEMORY_PALACE_DATA_DIR" not in os.environ

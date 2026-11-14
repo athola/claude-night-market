@@ -187,30 +187,25 @@ def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult 
 
 
 def check_prompt_injection(content: str) -> SafetyCheckResult | None:
-    """Check for prompt injection attempts - sanitize rather than block."""
-    # Cap sample size for regex safety
-    sample = content[: min(10240, _MAX_REGEX_INPUT_LEN)]
+    """Check for prompt injection attempts - sanitize rather than block.
 
+    Every pattern is applied: returning after the first match left the
+    other kinds of injection in content marked as sanitized. Detection
+    covers the same capped range as the substitution, so an injection
+    past the first few kilobytes is neither missed nor kept.
+    """
+    capped = content[: _MAX_REGEX_INPUT_LEN * 10]
+    sanitized = capped
     for pattern in _PROMPT_INJECTION_PATTERNS:
-        match = pattern.search(sample)
-        if match:
-            # Sanitize by removing the injection attempt (cap content for safety)
-            sanitize_content = content[
-                : _MAX_REGEX_INPUT_LEN * 10
-            ]  # Allow larger for sanitization
-            sanitized = pattern.sub("[REMOVED]", sanitize_content)
-            if len(content) > len(sanitize_content):
-                sanitized += content[
-                    len(sanitize_content) :
-                ]  # Append remainder unchanged
-            return SafetyCheckResult(
-                is_safe=True,  # Safe after sanitization
-                reason="Prompt injection pattern sanitized",
-                should_sanitize=True,
-                sanitized_content=sanitized,
-            )
-
-    return None
+        sanitized = pattern.sub("[REMOVED]", sanitized)
+    if sanitized == capped:
+        return None
+    return SafetyCheckResult(
+        is_safe=True,  # Safe after sanitization
+        reason="Prompt injection pattern sanitized",
+        should_sanitize=True,
+        sanitized_content=sanitized + content[len(capped) :],
+    )
 
 
 def check_code_execution_risk(

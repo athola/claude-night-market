@@ -24,6 +24,13 @@ def dispatch_agent(skill_name: str, context: Any) -> Any:
     return CodeReviewWorkflow().execute_skills([skill_name], context)[0]
 
 
+# Matched on path segments and name parts, not substrings: `rapid.py`,
+# `latest_notes.py` and `mathutils` used to select api, test and math
+# review.
+_API_PATH = re.compile(r"(?:^|[/_.-])(?:open)?api(?:[/_.-]|$)")
+_TEST_PATH = re.compile(r"(?:^|/)(?:tests?/|test_)|_test\.")
+
+
 class UnifiedReviewSkill(BaseReviewSkill):
     """Orchestrate review skills for code review."""
 
@@ -125,8 +132,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
             skills.append("makefile-review")
 
         # Check for test files
-        test_patterns = ["test_", "_test.", "tests/", "test/"]
-        has_tests = any(any(pattern in f for pattern in test_patterns) for f in files)
+        has_tests = any(_TEST_PATH.search(f) for f in files)
         if has_tests:
             skills.append("test-review")
 
@@ -137,7 +143,9 @@ class UnifiedReviewSkill(BaseReviewSkill):
                 try:
                     content = context.get_file_content(file)
                     if any(
-                        f"import {lib}" in content or f"from {lib}" in content
+                        re.search(
+                            rf"^\s*(?:import|from)\s+{re.escape(lib)}\b", content, re.M
+                        )
                         for lib in self.MATH_IMPORTS
                     ):
                         has_math = True
@@ -148,7 +156,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
         if has_math:
             skills.append("math-review")
 
-        if any("api" in f.lower() for f in files):
+        if any(_API_PATH.search(f.lower()) for f in files):
             skills.append("api-review")
 
         return skills

@@ -137,7 +137,7 @@ DO NOT use when: debugging runtime errors - use systematic-debugging instead.
 | Planning | Brainstorming | writing-plans vs brainstorming |
 | Testing | Security | TDD vs security-review |
 
-## CSO (Claude Search Optimization)
+## Skill Discovery Optimization (formerly CSO)
 
 ### Effective Keywords
 

@@ -138,7 +138,7 @@ coverage: ## Measure test coverage for hooks and scripts (term + HTML)
 	@echo "HTML report written to htmlcov/index.html"
 
 memory-profile: ## Profile memory usage
-	@if python3 -c "import memory_profiler" 2>/dev/null; then \
+	@if $(UV_RUN) python -c "import memory_profiler" 2>/dev/null; then \
 		$(UV_RUN) python3 -m memory_profiler scripts/*.py; \
 	else \
 		echo "Install memory_profiler: pip install memory_profiler"; \
@@ -182,7 +182,7 @@ demo-skills: ## Validate conservation skill structure
 	@echo "=== Conservation Skills Demo ==="
 	@echo "Resource management skills:"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
 	done
 	@echo ""
@@ -209,8 +209,9 @@ demo-bloat: ## Demo bloat detection on conservation plugin itself
 	@echo ""
 	@echo "Step 2: Check for stale files (unchanged 6+ months)"
 	@echo "Files with old modification dates:"
-	@find skills/ scripts/ -type f -mtime +180 2>/dev/null | head -3 | \
-		xargs -I{} echo "  {}" || echo "  (none found - all actively maintained)"
+	@stale=$$(find skills/ scripts/ -type f -mtime +180 2>/dev/null || true); \
+	if [ -n "$$stale" ]; then printf '%s\n' "$$stale" | sed -n '1,3p' | sed 's/^/  /'; \
+	else echo "  (none found - all actively maintained)"; fi
 	@echo ""
 	@echo "Step 3: Documentation bloat analysis"
 	@echo "Documentation files:"
@@ -219,7 +220,9 @@ demo-bloat: ## Demo bloat detection on conservation plugin itself
 	@echo ""
 	@echo "Step 4: Cache and build artifacts"
 	@echo "Cache directories:"
-	@du -sh .pytest_cache .mypy_cache .ruff_cache 2>/dev/null | awk '{print "  " $$0}' || echo "  (clean - no cache bloat)"
+	@caches=$$(du -sh .pytest_cache .mypy_cache .ruff_cache 2>/dev/null || true); \
+	if [ -n "$$caches" ]; then printf '%s\n' "$$caches" | awk '{print "  " $$0}'; \
+	else echo "  (clean - no cache bloat)"; fi
 	@echo ""
 	@echo "Bloat demo complete. Use /bloat-scan for detailed analysis."
 	@echo "Run /unbloat to safely remediate identified issues."
@@ -258,7 +261,10 @@ demo-ai-hygiene-audit: ## Demo ai-hygiene-audit command (LIVE)
 	@echo ""
 	@echo "Running ai-hygiene-audit on conserve plugin..."
 	@echo ""
-	@grep -r 'TODO\|FIXME' skills/ 2>/dev/null | wc -l | xargs -I{} echo 'Found {} TODO/FIXME items' || echo "  [INFO] No skills/ directory found"
+	@if [ -d skills ]; then \
+		count=$$({ grep -r 'TODO\|FIXME' skills/ || true; } | wc -l | tr -d ' '); \
+		echo "Found $$count TODO/FIXME items"; \
+	else echo "  [INFO] No skills/ directory found"; fi
 	@echo ""
 	@echo "Use /ai-hygiene-audit for full workflow."
 

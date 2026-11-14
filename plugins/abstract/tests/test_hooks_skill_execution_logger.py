@@ -683,3 +683,59 @@ def run_hook(hook_path: Path, env: dict[str, str]) -> dict[str, any]:
         "stdout": result.stdout.strip(),
         "stderr": result.stderr.strip(),
     }
+
+
+def _run_with_payload(hook_path: Path, payload: dict, home: Path) -> None:
+    subprocess.run(
+        [sys.executable, str(hook_path)],
+        input=json.dumps(payload),
+        check=True,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "CLAUDE_HOME": str(home)},
+        timeout=10,
+    )
+
+
+class TestOverlappingInvocationsPairByToolUseId:
+    """Each completion claims its own start, so an overlap does not spread."""
+
+    def test_overlap_leaves_no_state_and_later_calls_are_timed(
+        self, tmp_path: Path
+    ) -> None:
+        """Given two overlapping calls and one failed call with no post hook
+        When a later call runs pre then post
+        Then that call is timed and only the failed call's state remains
+        """
+        pre = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
+        post = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
+        ref = "abstract:skill-auditor"
+
+        def call(event: Path, use_id: str) -> None:
+            _run_with_payload(
+                event,
+                {
+                    "session_id": "s1",
+                    "tool_name": "Skill",
+                    "tool_input": {"skill": ref},
+                    "tool_use_id": use_id,
+                    "tool_response": "done",
+                },
+                tmp_path,
+            )
+
+        call(pre, "toolu_a")
+        call(pre, "toolu_b")
+        call(pre, "toolu_failed")
+        call(post, "toolu_b")
+        call(post, "toolu_a")
+        call(pre, "toolu_c")
+        call(post, "toolu_c")
+
+        observability = tmp_path / "skills" / "observability"
+        left = sorted(p.name for p in observability.glob(f"{ref}:*"))
+        assert left == [f"{ref}:id-toolu_failed.json"]
+        log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
+        entries = [json.loads(line) for line in _log_text(log_dir).splitlines()]
+        assert entries[-1]["duration_ms"] is not None
+        assert all(entry["duration_ms"] is not None for entry in entries)

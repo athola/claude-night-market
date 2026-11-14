@@ -346,3 +346,14 @@ def test_list_sessions_when_directory_was_removed(tmp_path: Path) -> None:
     store = _SimpleStore(sessions_dir)
     sessions_dir.rmdir()
     assert store.list_sessions() == []
+
+
+class TestSessionStoreLoadUndecodable:
+    """load() returns None for any corrupt file, undecodable bytes included."""
+
+    @pytest.mark.unit
+    def test_non_utf8_file_returns_none(self, tmp_path: Path, capsys) -> None:
+        store = _SimpleStore(tmp_path)
+        (tmp_path / "abc123.json").write_bytes(b"\xff\xfe{}")
+        assert store.load("abc123") is None
+        assert "corrupt session" in capsys.readouterr().err

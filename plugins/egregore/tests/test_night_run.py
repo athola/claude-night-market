@@ -390,6 +390,10 @@ class TestTheItemWorktreeStaysInsideTheRepository:
         with pytest.raises(ValueError, match="relative path inside"):
             night_run._item_worktree(tmp_path, "NS-001", declared)
 
+    def test_an_item_id_cannot_escape_through_the_default(self, tmp_path: Path) -> None:
+        with pytest.raises(ValueError, match="relative path inside"):
+            night_run._item_worktree(tmp_path, "../../../tmp/evil", None)
+
     def test_a_non_string_worktree_is_refused(self, tmp_path: Path) -> None:
         with pytest.raises(ValueError, match="must be a string"):
             night_run._item_worktree(tmp_path, "NS-001", ["wt"])
@@ -421,3 +425,41 @@ def test_git_unquote_decodes_simple_escapes_in_a_quoted_path() -> None:
     THEN the escapes become the tab and newline characters.
     """
     assert night_run._git_unquote('"col\\tumn\\nrow"') == "col\tumn\nrow"
+
+
+class TimeoutRecordingRunner(FakeRunner):
+    """Records the timeout each command was given."""
+
+    def __init__(self) -> None:
+        """Answer every command with exit 0."""
+        super().__init__({})
+        self.timeouts: dict[str, int] = {}
+
+    def run(self, command, cwd=None, timeout=0, env=None):
+        self.timeouts[shlex.join(command)] = timeout
+        return super().run(command, cwd=cwd, timeout=timeout, env=env)
+
+
+class TestHandoffCommandsAreBounded:
+    """One hung test run must not wedge an unattended night."""
+
+    def test_evidence_setup_and_full_suite_carry_a_timeout(
+        self, tmp_path: Path
+    ) -> None:
+        runner = TimeoutRecordingRunner()
+        night_run.run_task(
+            task(), HANDOFF, tmp_path, runner, babysitter=lambda **_: ("PASS", "", "")
+        )
+        evidence_timeout = runner.timeouts["pytest -q"]
+        night_run._prepare_worktree(runner, tmp_path, tmp_path / "wt", HANDOFF)
+        night_run._final_full_suite(runner, tmp_path, HANDOFF)
+
+        assert evidence_timeout > 0
+        assert runner.timeouts["uv sync"] > 0
+        assert runner.timeouts["pytest -q"] > 0
+
+    def test_the_budget_sets_the_command_timeout(self, tmp_path: Path) -> None:
+        runner = TimeoutRecordingRunner()
+        handoff = replace(HANDOFF, budget={**HANDOFF.budget, "command_timeout_s": 42})
+        night_run._final_full_suite(runner, tmp_path, handoff)
+        assert runner.timeouts["pytest -q"] == 42

@@ -21,12 +21,11 @@ if TYPE_CHECKING:
     from .base import AbstractScript, find_markdown_files, has_frontmatter_file
     from .cli_framework import AbstractCLI, CLIResult, OutputFormatter, cli_main
     from .config import AbstractConfig, ConfigFactory
-    from .errors import ErrorHandler, ErrorSeverity, ToolError
     from .frontmatter import FrontmatterProcessor, FrontmatterResult
     from .tasks_manager_base import TasksManager, TasksManagerConfig
     from .tokens import TokenAnalyzer, estimate_text_tokens, estimate_tokens
 
-__version__ = "1.10.2"
+__version__ = "1.10.3"
 
 __all__ = [
     "AbstractCLI",
@@ -34,15 +33,12 @@ __all__ = [
     "AbstractScript",
     "CLIResult",
     "ConfigFactory",
-    "ErrorHandler",
-    "ErrorSeverity",
     "FrontmatterProcessor",
     "FrontmatterResult",
     "OutputFormatter",
     "TasksManager",
     "TasksManagerConfig",
     "TokenAnalyzer",
-    "ToolError",
     "cli_main",
     "estimate_text_tokens",
     "estimate_tokens",
@@ -57,15 +53,12 @@ _EXPORT_SOURCES = {
     "AbstractScript": ".base",
     "CLIResult": ".cli_framework",
     "ConfigFactory": ".config",
-    "ErrorHandler": ".errors",
-    "ErrorSeverity": ".errors",
     "FrontmatterProcessor": ".frontmatter",
     "FrontmatterResult": ".frontmatter",
     "OutputFormatter": ".cli_framework",
     "TasksManager": ".tasks_manager_base",
     "TasksManagerConfig": ".tasks_manager_base",
     "TokenAnalyzer": ".tokens",
-    "ToolError": ".errors",
     "cli_main": ".cli_framework",
     "estimate_text_tokens": ".tokens",
     "estimate_tokens": ".tokens",

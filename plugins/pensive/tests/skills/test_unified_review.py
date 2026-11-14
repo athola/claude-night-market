@@ -470,3 +470,43 @@ class TestUnifiedReviewSkill:
         assert formatted[0]["id"] == "SEC001"
         assert formatted[1]["id"] == "BUG001"
         assert formatted[2]["id"] == "PERF001"
+
+
+class TestSkillSelectionMatchesWholeNames:
+    """A skill is selected for an api/test/math name, not a substring of one."""
+
+    @pytest.fixture
+    def skill(self):
+        return UnifiedReviewSkill()
+
+    @pytest.mark.unit
+    def test_lookalike_names_select_nothing_extra(
+        self, skill, mock_skill_context
+    ) -> None:
+        mock_skill_context.get_files.return_value = [
+            "src/rapid.py",
+            "src/latest_notes.py",
+            "src/contest/x.py",
+        ]
+        mock_skill_context.get_file_content.return_value = "from mathutils import x\n"
+        assert skill.select_review_skills(mock_skill_context) == ["code-reviewer"]
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("files", "content", "expected"),
+        [
+            (["src/api/routes.py"], "", "api-review"),
+            (["api_client.py"], "", "api-review"),
+            (["openapi.yaml"], "", "api-review"),
+            (["tests/test_app.py"], "", "test-review"),
+            (["pkg/app_test.go"], "", "test-review"),
+            (["m.py"], "    import numpy as np\n", "math-review"),
+            (["m.py"], "from math import pi\n", "math-review"),
+        ],
+    )
+    def test_real_names_still_select(
+        self, skill, mock_skill_context, files, content, expected
+    ) -> None:
+        mock_skill_context.get_files.return_value = files
+        mock_skill_context.get_file_content.return_value = content
+        assert expected in skill.select_review_skills(mock_skill_context)

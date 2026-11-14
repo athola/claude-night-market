@@ -51,16 +51,16 @@ demo-matchers: ## Demo pattern matcher functionality
 	@echo "Available matchers:"
 	@for f in matchers/*.py; do \
 		name=$$(basename "$$f" .py); \
-		[ "$$name" != "__init__" ] && echo "  - $$name"; \
-	done 2>/dev/null || echo "  (no matchers found)"
+		if [ "$$name" != "__init__" ]; then echo "  - $$name"; fi; \
+	done
 
 demo-rules: ## Demo rule engine functionality
 	@echo "=== Hookify Rule Engine Demo ==="
 	@echo "Core modules:"
 	@for f in core/*.py; do \
 		name=$$(basename "$$f" .py); \
-		[ "$$name" != "__init__" ] && echo "  - $$name"; \
-	done 2>/dev/null || echo "  (no modules found)"
+		if [ "$$name" != "__init__" ]; then echo "  - $$name"; fi; \
+	done
 
 plugin-check: demo-matchers demo-rules status ## Run all demo workflows
 	@echo ""

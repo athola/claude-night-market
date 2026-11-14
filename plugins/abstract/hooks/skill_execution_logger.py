@@ -419,6 +419,60 @@ def store_experience(
         sys.stderr.write(f"skill_execution_logger: experience not stored: {e}\n")
 
 
+def _claim_pre_state(skill_ref: str, tool_use_id: object) -> dict | None:
+    """Claim and delete this invocation's pre-execution state, if knowable."""
+    pre_state = None
+    state_dir = get_observability_dir()
+    state_files = list(state_dir.glob(f"{skill_ref}:*.json"))
+
+    # Orphans first: a state file older than any execution could plausibly
+    # run belongs to an invocation whose post hook never ran, usually a
+    # killed session. Left in place it is indistinguishable from a live
+    # invocation and makes every later completion of this skill ambiguous.
+    state_files = _purge_orphan_states(state_files)
+
+    # With a tool_use_id the pre hook named the state after it, so the
+    # pairing is exact and other live invocations do not matter.
+    if isinstance(tool_use_id, str) and tool_use_id:
+        own = state_dir / f"{skill_ref}:id-{tool_use_id}.json"
+        state_files = [own] if own.exists() else []
+
+    # Without a tool_use_id the glob keys on skill ref alone, and nothing
+    # in the payload identifies which invocation it belongs to, so with
+    # more than one live candidate this hook cannot know which start time is its
+    # own. Picking either end of the mtime order guesses: newest hands
+    # this entry the start of an invocation still running, which is how a
+    # completion reports an interval that began after it ended, and oldest
+    # is only right when completions happen to be first-in-first-out.
+    #
+    # An unidentifiable pairing is reported as unmeasured rather than
+    # guessed. A wrong interval is worse than a missing one: it is
+    # indistinguishable from a real reading downstream, which is the
+    # conflation #671 exists to remove.
+    if len(state_files) == 1:
+        state_file = state_files[0]
+        processing_file = state_file.with_suffix(".processing")
+        try:
+            # Atomic rename to claim the file before reading
+            state_file.rename(processing_file)
+            with open(processing_file) as f:
+                pre_state = json.load(f)
+            try:
+                processing_file.unlink()
+            except OSError as e:
+                sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
+        except FileNotFoundError:
+            # Another hook already claimed this file
+            pass
+        except (OSError, json.JSONDecodeError):
+            # Clean up .processing file on parse errors
+            try:
+                processing_file.unlink()
+            except OSError as e:
+                sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
+    return pre_state
+
+
 def main() -> None:
     """PostToolUse hook entry point."""
     try:
@@ -439,50 +493,7 @@ def main() -> None:
         plugin, skill = parse_skill_name(tool_input)
         skill_ref = f"{plugin}:{skill}"
 
-        # Try to read pre-execution state
-        pre_state = None
-        state_dir = get_observability_dir()
-        state_files = list(state_dir.glob(f"{skill_ref}:*.json"))
-
-        # Orphans first: a state file older than any execution could plausibly
-        # run belongs to an invocation whose post hook never ran, usually a
-        # killed session. Left in place it is indistinguishable from a live
-        # invocation and makes every later completion of this skill ambiguous.
-        state_files = _purge_orphan_states(state_files)
-
-        # The glob keys on skill ref alone, and nothing in a PostToolUse
-        # payload identifies which invocation it belongs to, so with more than
-        # one live candidate this hook cannot know which start time is its
-        # own. Picking either end of the mtime order guesses: newest hands
-        # this entry the start of an invocation still running, which is how a
-        # completion reports an interval that began after it ended, and oldest
-        # is only right when completions happen to be first-in-first-out.
-        #
-        # An unidentifiable pairing is reported as unmeasured rather than
-        # guessed. A wrong interval is worse than a missing one: it is
-        # indistinguishable from a real reading downstream, which is the
-        # conflation #671 exists to remove.
-        if len(state_files) == 1:
-            state_file = state_files[0]
-            processing_file = state_file.with_suffix(".processing")
-            try:
-                # Atomic rename to claim the file before reading
-                state_file.rename(processing_file)
-                with open(processing_file) as f:
-                    pre_state = json.load(f)
-                try:
-                    processing_file.unlink()
-                except OSError as e:
-                    sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
-            except FileNotFoundError:
-                # Another hook already claimed this file
-                pass
-            except (OSError, json.JSONDecodeError):
-                # Clean up .processing file on parse errors
-                try:
-                    processing_file.unlink()
-                except OSError as e:
-                    sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
+        pre_state = _claim_pre_state(skill_ref, payload.get("tool_use_id"))
 
         # Initialize continual evaluator
         history_file = get_log_directory() / ".history.json"

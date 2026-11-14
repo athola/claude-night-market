@@ -146,10 +146,15 @@ class TestMP011OptionalDepExceptionNarrowing:
 
 
 def _index_with(tmp_path, entries: dict[str, list[float]]):
-    """Build an index whose hash-provider entries are set directly."""
+    """Build an index whose hash-provider entries are set directly.
+
+    Short fixture vectors are zero-padded to the hash dimension: a
+    product over vectors of different lengths is refused.
+    """
+    padded = {k: v + [0.0] * (16 - len(v)) for k, v in entries.items()}
     path = tmp_path / "embeddings.yaml"
     path.write_text(
-        yaml.safe_dump({"providers": {"hash": {"embeddings": entries}}}),
+        yaml.safe_dump({"providers": {"hash": {"embeddings": padded}}}),
         encoding="utf-8",
     )
     return EmbeddingIndex(str(path), provider="hash")

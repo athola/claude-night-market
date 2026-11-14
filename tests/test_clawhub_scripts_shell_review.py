@@ -22,6 +22,8 @@ import subprocess
 import time
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ("clawhub-batch-publish.sh", "clawhub-submit.sh", "clawhub-cron.sh")
 
@@ -174,3 +176,63 @@ def test_submit_reports_a_failed_package_publish_as_a_failure(
     assert result.returncode != 0, result.stdout
     assert "Status:  complete" not in result.stdout
     assert "package scope not claimed" in result.stdout + result.stderr
+
+
+@pytest.mark.parametrize("flag", ["--dry-run", "--status"])
+def test_read_only_modes_leave_the_progress_file_alone(
+    tmp_path: Path, flag: str
+) -> None:
+    """--dry-run said "no state changes" yet restarted another release's record."""
+    repo = _sandbox(tmp_path)
+    _skills(repo, 2)
+    progress = repo / ".egregore" / "clawhub-progress.json"
+    progress.parent.mkdir()
+    progress.write_text(
+        json.dumps(
+            {
+                "version": "1.9.0",
+                "total": 2,
+                "published": ["skill-0"],
+                "failed": [],
+                "pending": ["skill-1"],
+                "batches_completed": 1,
+            }
+        )
+    )
+    before = progress.read_bytes()
+    shims = _shims(tmp_path, npx="exit 0")
+
+    result = _run(repo, "clawhub-batch-publish.sh", shims, flag)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert progress.read_bytes() == before
+
+
+def test_a_non_numeric_batch_size_is_refused(tmp_path: Path) -> None:
+    repo = _sandbox(tmp_path)
+    _skills(repo, 2)
+    result = _run(
+        repo,
+        "clawhub-batch-publish.sh",
+        _shims(tmp_path, npx="exit 0"),
+        "--batch-size",
+        "ten",
+    )
+    assert result.returncode != 0
+    assert "Traceback" not in result.stderr
+
+
+def test_cron_never_writes_an_empty_table_when_crontab_l_fails(tmp_path: Path) -> None:
+    """A transient `crontab -l` failure piped nothing into `crontab -`."""
+    repo = _sandbox(tmp_path)
+    (repo / "scripts" / "clawhub-submit.sh").write_text("exit 0\n")
+    calls = tmp_path / "crontab.calls"
+    shims = _shims(
+        tmp_path,
+        crontab=f'echo "$*" >> "{calls}"; case "$1" in -l) exit 1 ;; esac; exit 0',
+    )
+    result = _run(
+        repo, "clawhub-cron.sh", shims, CLAWHUB_SYNC_LOG=str(tmp_path / "s.log")
+    )
+    assert result.returncode == 0, result.stderr
+    assert calls.read_text().split() == ["-l"]

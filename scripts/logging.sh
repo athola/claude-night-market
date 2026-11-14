@@ -12,6 +12,17 @@ readonly __logging_loaded=1
 # Log level threshold; override via LOG_LEVEL env var.
 # 0=debug 1=info 2=warn 3=notice 4=error 5=crit
 LOG_LEVEL="${LOG_LEVEL:-1}"
+# A name, or anything that is not a digit, would make every numeric test
+# below error and return early, hiding every line but CRIT.
+case "${LOG_LEVEL}" in
+  [0-5]) ;;
+  [Dd][Ee][Bb][Uu][Gg]) LOG_LEVEL=0 ;;
+  [Ww][Aa][Rr][Nn]*) LOG_LEVEL=2 ;;
+  [Nn][Oo][Tt][Ii][Cc][Ee]) LOG_LEVEL=3 ;;
+  [Ee][Rr][Rr][Oo][Rr]) LOG_LEVEL=4 ;;
+  [Cc][Rr][Ii][Tt]*) LOG_LEVEL=5 ;;
+  *) LOG_LEVEL=1 ;;
+esac
 
 # log [LEVEL] MESSAGE ...
 # LEVEL: 0-5 numeric (default 1/info when omitted).

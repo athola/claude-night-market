@@ -149,5 +149,5 @@ Returns validation report with:
 ## Implementation
 
 ```bash
-python3 /home/alext/claude-night-market/plugins/abstract/scripts/validate_plugin.py <plugin-path>
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate_plugin.py <plugin-path>
 ```

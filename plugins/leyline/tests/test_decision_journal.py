@@ -565,3 +565,12 @@ def test_directory_sync_is_skipped_on_windows(
 
     assert events == ["fsync"]
     assert target.exists()
+
+
+def test_apply_append_keeps_a_shared_journal_readable(tmp_path: Path) -> None:
+    """The journals are committed docs; an append must not narrow them to 0600."""
+    target = tmp_path / "docs" / "tradeoffs.md"
+    apply_append(target, "tradeoffs", {"title": "A", "context": "x"})
+    target.chmod(0o644)
+    apply_append(target, "tradeoffs", {"title": "B", "context": "y"})
+    assert target.stat().st_mode & 0o777 == 0o644

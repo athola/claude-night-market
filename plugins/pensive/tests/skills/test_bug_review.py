@@ -356,6 +356,87 @@ class TestBugReviewSkill:
         assert any(
             "socket" in leak_type and "leak" in leak_type for leak_type in leak_types
         )
+        assert any("thread" in leak_type for leak_type in leak_types)
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "line",
+        [
+            "with open(os.path.join(p, 'a')) as fh:",
+            "with open(str(p)) as f:",
+            "with open(path) as f:",
+        ],
+    )
+    def test_context_managed_open_with_nested_call_is_not_a_leak(
+        self, mock_skill_context, line: str
+    ) -> None:
+        """The argument's own parentheses must not end the open( match."""
+        mock_skill_context.get_file_content.return_value = (
+            f"import os\n{line}\n    pass\n"
+        )
+        bugs = self.skill.detect_resource_leaks(mock_skill_context, "a.py")
+        assert not any("file opened" in b["issue"].lower() for b in bugs)
+
+    @pytest.mark.unit
+    def test_bare_open_with_nested_call_is_a_leak(self, mock_skill_context) -> None:
+        mock_skill_context.get_file_content.return_value = "f = open(str(p))\n"
+        bugs = self.skill.detect_resource_leaks(mock_skill_context, "a.py")
+        assert any("file opened" in b["issue"].lower() for b in bugs)
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "content",
+        [
+            "server.start()\n",
+            "t = threading.Thread(target=f)\nt.start()\nt.join()\n",
+            "t = threading.Thread(target=f, daemon=True)\nt.start()\n",
+            "ts = [Thread(target=f) for _ in r]\nfor t in ts:\n    t.start()\nfor t in ts:\n    t.join()\n",
+            "ws.append(Thread(target=f))\nws[0].start()\nfor x in ws:\n    x.join()\n",
+            "d['a'] = Thread(target=f)\nd['a'].start()\nd['a'].join()\n",
+            "t: Thread = Thread(target=f)\nt.start()\nt.join()\n",
+            "(t := Thread(target=f)).start()\nt.join()\n",
+            "try:\n    t = Thread(target=f)\n    t.start()\nfinally:\n    t.join()\n",
+            "if ready:\n    t = Thread(target=f)\n    t.start()\n    t.join()\n",
+            "t = Thread(target=f)\nt.start()\nts.append(t)\nfor th in ts:\n    th.join()\n",
+        ],
+        ids=[
+            "not-a-thread",
+            "joined",
+            "daemon",
+            "list-joined-in-loop",
+            "appended-joined-in-loop",
+            "dict-entry-joined",
+            "annotated",
+            "walrus",
+            "inside-try",
+            "inside-if",
+            "appended-after-binding",
+        ],
+    )
+    def test_start_is_a_thread_leak_only_for_an_unjoined_thread(
+        self, mock_skill_context, content: str
+    ) -> None:
+        mock_skill_context.get_file_content.return_value = content
+        bugs = self.skill.detect_resource_leaks(mock_skill_context, "a.py")
+        assert not any("thread" in b["issue"].lower() for b in bugs)
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "content",
+        [
+            "t = threading.Thread(target=f)\nt.start()\npath = os.path.join(a, b)\n",
+            "threading.Thread(target=f).start()\n",
+            "t = Thread(target=f)\nt.start()\nfoot.join(1)\n",
+        ],
+        ids=["other-join", "unbound-thread", "other-name-ending-in-t"],
+    )
+    def test_an_unjoined_thread_is_a_leak_whatever_else_joins(
+        self, mock_skill_context, content: str
+    ) -> None:
+        """os.path.join is not a thread join; an unbound Thread cannot be joined."""
+        mock_skill_context.get_file_content.return_value = content
+        bugs = self.skill.detect_resource_leaks(mock_skill_context, "a.py")
+        assert any("thread" in b["issue"].lower() for b in bugs)
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -630,6 +711,22 @@ class TestBugReviewSkill:
             assert "valid" in result
             assert "reasoning" in result
             assert "remaining_risks" in result
+        assert all(result["valid"] for result in validation_results)
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "fix",
+        [
+            {"original": "x = a / b", "fixed": "x = a / b"},
+            {"original": "x", "fixed": ""},
+        ],
+        ids=["unchanged", "empty"],
+    )
+    def test_unchanged_or_empty_fix_is_invalid(self, fix: dict[str, str]) -> None:
+        """A fix that changes nothing cannot have fixed anything."""
+        (result,) = self.skill.validate_bug_fixes([fix])
+        assert result["valid"] is False
+        assert result["remaining_risks"]
 
     @pytest.mark.bdd
     @pytest.mark.unit

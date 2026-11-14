@@ -113,13 +113,6 @@ CREATE TABLE IF NOT EXISTS waypoints (
 
 CREATE INDEX IF NOT EXISTS idx_wp_journey ON waypoints(journey_id);
 
-CREATE TABLE IF NOT EXISTS tier_assignments (
-    entity_id TEXT PRIMARY KEY,
-    tier INTEGER NOT NULL DEFAULT 3,
-    score REAL DEFAULT 0.0,
-    assigned_at TEXT NOT NULL,
-    reason TEXT DEFAULT ''
-);
 """
 
 _FTS_CREATE_SQL = """
@@ -134,10 +127,6 @@ CREATE VIRTUAL TABLE IF NOT EXISTS entities_fts USING fts5(
 _FTS_SYNC_SQL = """
 INSERT OR REPLACE INTO entities_fts(entity_id, name, entity_type)
 VALUES (?, ?, ?);
-"""
-
-_FTS_DELETE_SQL = """
-DELETE FROM entities_fts WHERE entity_id = ?;
 """
 
 
@@ -469,40 +458,6 @@ class KnowledgeGraph(SqliteGraphBase):
                ORDER BY sequence""",
             (journey_id,),
         )
-
-    # ------------------------------------------------------------------
-    # Tier Assignments
-    # ------------------------------------------------------------------
-
-    def assign_tier(
-        self,
-        entity_id: str,
-        tier: int,
-        score: float = 0.0,
-        reason: str = "",
-    ) -> None:
-        """Assign or update an entity's tier."""
-        now = self._now()
-        self._conn.execute(
-            """INSERT INTO tier_assignments
-               (entity_id, tier, score, assigned_at, reason)
-               VALUES (?, ?, ?, ?, ?)
-               ON CONFLICT(entity_id) DO UPDATE SET
-                 tier=excluded.tier,
-                 score=excluded.score,
-                 assigned_at=excluded.assigned_at,
-                 reason=excluded.reason""",
-            (entity_id, tier, score, now, reason),
-        )
-        self._conn.commit()
-
-    def get_tier(self, entity_id: str) -> dict[str, Any] | None:
-        """Get the tier assignment for an entity."""
-        row = self._conn.execute(
-            "SELECT * FROM tier_assignments WHERE entity_id = ?",
-            (entity_id,),
-        ).fetchone()
-        return dict(row) if row else None
 
     # ------------------------------------------------------------------
     # FTS5 Search

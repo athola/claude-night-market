@@ -231,6 +231,19 @@ class TestDecayModel:
         assert "fresh-1" not in entry_ids
         assert "critical-1" in entry_ids or len(stale) > 0
 
+    def test_default_threshold_returns_entries_whose_status_is_stale(
+        self, model: DecayModel
+    ) -> None:
+        """A 14-day seedling reads "stale" and must be returned by default."""
+        now = datetime.now(timezone.utc)
+        model.validate_entry("two-weeks", now - timedelta(days=14))
+        state = model.calculate_decay("two-weeks", "seedling", now - timedelta(days=14))
+        assert state.status == "stale"
+
+        stale = model.get_stale_entries([{"id": "two-weeks", "maturity": "seedling"}])
+
+        assert [s.entry_id for s in stale] == ["two-weeks"]
+
     def test_linear_decay_curve(self, model: DecayModel) -> None:
         """Linear decay should decrease uniformly."""
         factor1 = model._apply_decay_curve(10, 100, DecayCurve.LINEAR)

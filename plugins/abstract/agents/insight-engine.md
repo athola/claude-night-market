@@ -43,7 +43,7 @@ Read these files for baseline understanding:
 ### Step 2: Run Built-in Lightweight Lenses
 
 ```bash
-cd /home/alext/claude-night-market
+# Run from the claude-night-market repository root.
 python3 -c "
 import sys
 sys.path.insert(0, 'plugins/abstract/scripts')
@@ -98,7 +98,7 @@ appears 3+ times:
 ### Step 6: Post Findings
 
 ```bash
-cd /home/alext/claude-night-market
+# Run from the claude-night-market repository root.
 python3 -c "
 import sys, json
 sys.path.insert(0, 'plugins/abstract/scripts')

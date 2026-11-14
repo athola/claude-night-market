@@ -109,8 +109,11 @@ principles rather than an unfilled template):
 
 ### 3. Assess the Current Codebase
 
-For each requirement, acceptance criterion, plan touch-point, and incomplete
-task, determine the code's present state:
+For each requirement, acceptance criterion, plan touch-point, and task,
+determine the code's present state. Assess every task regardless of checkbox
+state or phase: completion claims are not evidence. Where a later task
+corrects an earlier one, assess the result of the chain as it stands, and
+flag code that contradicts, exceeds, or falls outside the stated intent.
 
 - **Met**: code satisfies the requirement or task.
 - **Partial**: code addresses part but leaves a gap (happy path without the

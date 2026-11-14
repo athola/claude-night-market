@@ -198,11 +198,9 @@ tags: [brainstorming, ideation, planning]
 
 ## References
 
-- Brainstorm session: `.claude/brainstorm-attune-discoverability.md`
-- Pattern catalog: `.claude/discoverability-patterns-summary.md`
-- Official spec findings: `.claude/frontmatter-spec-findings.md`
-- Implementation plan:
-  `docs/implementation-plan-attune-discoverability-v1.4.0.md`
+- Brainstorm session and implementation plan: removed from the repo
+  in d206b57a7; the pattern catalog and spec findings were never
+  committed
 - Templates: `plugins/attune/templates/`
 - Superpowers plugin: `~/.claude-code/plugins/superpowers/` (reference
   implementation)

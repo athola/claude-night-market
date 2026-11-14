@@ -44,8 +44,10 @@ and check for:
    differently in different sections)
 5. Missing edge cases referenced but not specified
 6. Missing dependencies between components
+7. Read it as the person who will build it: what would
+   you still need to ask before you could start?
 
-Respond with EXACTLY one of:
+Start your response with EXACTLY one of:
 
 **APPROVED** - if no issues found
 
@@ -53,6 +55,9 @@ Respond with EXACTLY one of:
   [N]. [Section reference] [blocking/non-blocking]
        Issue: [description]
        Suggested fix: [specific recommendation]
+
+Then, whatever the verdict, end with a list headed
+BUILDER QUESTIONS, one question per line, or "none".
 
 Be thorough but fair. Flag real problems, not style
 preferences.
@@ -71,7 +76,21 @@ subagent:
 ## Integration
 
 The main agent (not the human) fixes issues between
-iterations. The subagent only identifies problems and
+iterations. Builder questions do not drive the loop. Take
+them from the last review and sort them once, after the
+loop ends, into three piles, following superpowers'
+builder check (v7.0.0):
+
+- **Answered already** by the conversation or the
+  project: write the answer into the document.
+- **Minor**: a sensible builder could settle it without
+  changing what gets built. Settle it and mark it in the
+  document as the agent's call.
+- **Theirs**: only the human can answer it, and the
+  answer changes what gets built. Bring these in one
+  message, most important first.
+
+ The subagent only identifies problems and
 does not modify files. If the loop exhausts 3 iterations,
 present remaining issues as a structured list and ask
 the human for guidance.

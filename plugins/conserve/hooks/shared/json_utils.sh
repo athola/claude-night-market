@@ -52,9 +52,10 @@ get_json_field() {
   if command -v jq >/dev/null 2>&1; then
     # Tier 1: jq (most reliable)
     value=$(printf '%s\n' "${json}" | jq -r --arg f "${field}" '.[$f] // empty' 2>/dev/null || printf '\n')
-  elif printf '%s\n' "test" | grep -oP '\d+' >/dev/null 2>&1; then
-    # Tier 2: GNU grep with Perl regex
-    value=$(printf '%s\n' "${json}" | grep -oP "\"${field}\"\\s*:\\s*\"\\K[^\"]+" 2>/dev/null || printf '\n')
+  elif printf '%s\n' "1" | grep -oP '\d+' >/dev/null 2>&1; then
+    # Tier 2: GNU grep with Perl regex. -o prints every match, one per
+    # line; keep the first in document order. sed reads all input (no SIGPIPE).
+    value=$(printf '%s\n' "${json}" | grep -oP "\"${field}\"\\s*:\\s*\"\\K[^\"]+" 2>/dev/null | sed -n 1p || printf '\n')
   else
     # Tier 3: POSIX-compliant sed (universal fallback)
     value=$(printf '%s\n' "${json}" | sed -n "s/.*\"${field}\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p" 2>/dev/null || printf '\n')

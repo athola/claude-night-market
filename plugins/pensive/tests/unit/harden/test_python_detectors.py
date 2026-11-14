@@ -21,6 +21,8 @@ from __future__ import annotations
 import textwrap
 from typing import TYPE_CHECKING
 
+import pytest
+
 from pensive.harden.detectors_python import scan_path, scan_source
 
 if TYPE_CHECKING:
@@ -280,3 +282,52 @@ class TestScanFile:
         findings = scan_path(f)
         assert "PY04" in [getattr(x, "id", "?") for x in findings]
         assert all(getattr(x, "file", "").endswith("snippet.py") for x in findings)
+
+
+class TestPY02ExplicitUnsafeLoader:
+    """An explicit Loader is unsafe when it is a known object-building one."""
+
+    @pytest.mark.parametrize(
+        "loader", ["yaml.Loader", "yaml.UnsafeLoader", "yaml.FullLoader", "Loader"]
+    )
+    def test_unsafe_loader_fires(self, loader: str) -> None:
+        src = f"import yaml\nyaml.load(s, Loader={loader})\n"
+        assert "PY02" in _ids(_scan(src))
+
+    @pytest.mark.parametrize(
+        "loader",
+        ["yaml.SafeLoader", "yaml.CSafeLoader", "yaml.BaseLoader", "my_loader"],
+    )
+    def test_safe_or_unknown_loader_does_not_fire(self, loader: str) -> None:
+        src = f"import yaml\nyaml.load(s, Loader={loader})\n"
+        assert "PY02" not in _ids(_scan(src))
+
+
+class TestPY03ReceiverMethods:
+    """A method named exec on some object is not the built-in."""
+
+    def test_orm_session_method_does_not_fire(self) -> None:
+        src = "def run(session, stmt):\n    return session." + "exe" + "c(stmt)\n"
+        assert "PY03" not in _ids(_scan(src))
+
+    @pytest.mark.parametrize("prefix", ["", "builtins."])
+    def test_builtin_spelling_fires(self, prefix: str) -> None:
+        src = "import builtins\ndef run(src):\n    " + prefix + "exe" + "c(src)\n"
+        assert "PY03" in _ids(_scan(src))
+
+
+class TestPY11ZipFileHasNoFilter:
+    """ZipFile.extractall takes no filter=, so the PEP 706 advice breaks it."""
+
+    @pytest.mark.parametrize(
+        "body",
+        [
+            "zipfile.ZipFile(p).extractall(d)",
+            "with zipfile.ZipFile(p) as z:\n        z.extractall(d)",
+            "z = zipfile.ZipFile(p)\n    z.extractall(d)",
+        ],
+        ids=["direct", "with", "assigned"],
+    )
+    def test_zipfile_extractall_does_not_fire(self, body: str) -> None:
+        src = f"import zipfile\ndef unpack(p, d):\n    {body}\n"
+        assert "PY11" not in _ids(_scan(src))

@@ -118,7 +118,7 @@ status: ## Show project overview
 # ---------- Demo/Dogfood Targets ----------
 demo-makefile-review: ## Demo Makefile review on this plugin's Makefile
 	@echo "=== Pensive Makefile Review Demo ==="
-	@echo "Demonstrating makefile-review skill on this Makefile..."
+	@echo "Demonstrating the makefile-review command on this Makefile..."
 	@echo ""
 	@echo "Step 1: Structure Check"
 	@echo "Targets defined: $$(grep -cE '^[a-zA-Z_-]+:' Makefile)"
@@ -127,7 +127,7 @@ demo-makefile-review: ## Demo Makefile review on this plugin's Makefile
 	@echo ""
 	@echo "Step 2: Pattern Analysis"
 	@out=$$(grep -E '^\s*\$$(MAKE)' Makefile) || out=""; \
-	if [ -n "$$out" ]; then printf '%s\n' "$$out" | head -5; \
+	if [ -n "$$out" ]; then printf '%s\n' "$$out" | sed -n '1,5p'; \
 	else echo "  (no recursive make calls)"; fi
 	@echo ""
 	@echo "Step 3: Quality Checks"
@@ -141,7 +141,7 @@ demo-bug-review: ## Demo bug review on pensive source code
 	@echo "Demonstrating bug-review skill on pensive skills..."
 	@echo ""
 	@echo "Step 1: File Inventory"
-	@find skills/ -name "*.md" -type f | head -10
+	@find skills/ -name "*.md" -type f | sed -n '1,10p'
 	@echo ""
 	@echo "Step 2: Pattern Scanning"
 	@echo "TODO comments: $$(grep -r 'TODO' skills/ 2>/dev/null | wc -l)"
@@ -159,12 +159,12 @@ demo-skills: ## Validate pensive skill structure
 	@echo "=== Pensive Skills Demo ==="
 	@echo "Available review skills:"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
 	done
 	@echo ""
 	@echo "Skill coverage:"
-	@fail=0; for skill in api-review bug-review makefile-review test-review rust-review; do \
+	@fail=0; for skill in api-review bug-review unified-review test-review rust-review; do \
 		if [ -f "skills/$$skill/SKILL.md" ]; then \
 			printf '  %-16s [OK]\n' "$$skill:"; \
 		else \
@@ -308,7 +308,7 @@ demo-refine-code: ## Demo code refinement analysis (LIVE)
 	@echo ""
 	@echo "Duplicate patterns:"
 	@out=$$(grep -rn 'def ' src/ 2>/dev/null | awk -F: '{print $$3}' | sort | uniq -d); \
-	if [ -n "$$out" ]; then printf '%s\n' "$$out" | head -5; \
+	if [ -n "$$out" ]; then printf '%s\n' "$$out" | sed -n '1,5p'; \
 	else echo "  (none found)"; fi
 	@echo ""
 	@echo "Use /pensive:refine-code for full analysis."
@@ -376,8 +376,8 @@ test-math-review: ## Test math-review command (runs math review tests)
 test-makefile-review: ## Test makefile-review command (runs Makefile review tests)
 	$(PYTEST) tests/skills/test_makefile_review.py -v
 
-test-shell-review: ## Test shell-review command (not applicable: skill-only, no unit tests)
-	@echo "Not applicable: shell-review is a skill-only command with no unit tests"
+test-shell-review: ## Test shell-review command (not applicable: routes to unified-review, no unit tests)
+	@echo "Not applicable: shell-review routes to unified-review and has no unit tests"
 
 test-fpf-review: ## Test fpf-review command (not applicable: skill-only, no unit tests)
 	@echo "Not applicable: fpf-review is a skill-only command with no unit tests"

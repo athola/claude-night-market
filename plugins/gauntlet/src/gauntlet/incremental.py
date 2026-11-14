@@ -78,22 +78,30 @@ class ChangedFilesUnavailableError(RuntimeError):
     """git failed, timed out or is missing, so the changed set is unknown."""
 
 
-def get_changed_files(base_ref: str = "HEAD", strict: bool = False) -> list[str]:
+def get_changed_files(
+    base_ref: str = "HEAD", strict: bool = False, cwd: str | None = None
+) -> list[str]:
     """Get files changed since base_ref using git diff.
 
     On git timeout or a missing binary, returns [] by default, and on a
     nonzero exit it falls back to the staged files. With ``strict=True``
     all three raise ChangedFilesUnavailableError instead, so the caller
     can tell "nothing changed" from "could not tell".
+
+    With ``cwd`` the diff runs there with ``--relative``: paths come back
+    relative to ``cwd`` and limited to its subtree, which is what a graph
+    rooted at a subdirectory joins them to. git's default is paths
+    relative to the repository top level.
     """
     ref = _validate_ref(base_ref)
     try:
         result = subprocess.run(
-            ["git", "diff", "--name-only", ref],
+            ["git", "diff", "--name-only", "--relative", ref],
             capture_output=True,
             text=True,
             timeout=10,
             check=False,
+            cwd=cwd,
         )
         if result.returncode != 0:
             if strict:
@@ -104,7 +112,7 @@ def get_changed_files(base_ref: str = "HEAD", strict: bool = False) -> list[str]
                 " -- incremental scope may differ from expected",
                 result.returncode,
             )
-            return _get_staged_files()
+            return _get_staged_files(cwd)
         return [f.strip() for f in result.stdout.splitlines() if f.strip()]
     except subprocess.TimeoutExpired as exc:
         if strict:
@@ -126,15 +134,16 @@ def get_changed_files(base_ref: str = "HEAD", strict: bool = False) -> list[str]
         return []
 
 
-def _get_staged_files() -> list[str]:
-    """Fallback: get staged files."""
+def _get_staged_files(cwd: str | None = None) -> list[str]:
+    """Fallback: get staged files, relative to ``cwd`` like the diff."""
     try:
         result = subprocess.run(
-            ["git", "diff", "--cached", "--name-only"],
+            ["git", "diff", "--cached", "--name-only", "--relative"],
             capture_output=True,
             text=True,
             timeout=10,
             check=False,
+            cwd=cwd,
         )
         if result.returncode != 0:
             _log.warning(
@@ -242,10 +251,12 @@ def _no_work_report(**reason: str) -> dict[str, Any]:
     }
 
 
-def _changed_or_report(base_ref: str) -> tuple[list[str], dict[str, Any] | None]:
+def _changed_or_report(
+    base_ref: str, root_dir: str | None = None
+) -> tuple[list[str], dict[str, Any] | None]:
     """Return the changed files, or a finished report when there is no work."""
     try:
-        changed = get_changed_files(base_ref, strict=True)
+        changed = get_changed_files(base_ref, strict=True, cwd=root_dir)
     except ChangedFilesUnavailableError as exc:
         return [], _no_work_report(error=f"{exc}; run a full build")
     if not changed:
@@ -260,33 +271,33 @@ def incremental_update(
 ) -> dict[str, Any]:
     """Update only changed files and their dependents."""
     start = time.monotonic()
-    changed, early_report = _changed_or_report(base_ref)
+    changed, early_report = _changed_or_report(base_ref, root_dir)
     if early_report is not None:
         return early_report
 
-    # Collect dependents
-    to_reparse: set[str] = set()
+    # Hash-based skip: a reported file whose content the graph already
+    # holds is not re-parsed.
+    changed_files: list[str] = []
     for fp in changed:
         abs_path = str(Path(root_dir) / fp) if not Path(fp).is_absolute() else fp
-        if Path(abs_path).exists() and detect_language(abs_path):
-            to_reparse.add(abs_path)
-            for dep in find_dependents(graph, abs_path):
-                if Path(dep).exists():
-                    to_reparse.add(dep)
-
-    # Hash-based skip: don't re-parse if content unchanged
-    files_to_parse: list[str] = []
-    for fp in to_reparse:
+        if not (Path(abs_path).exists() and detect_language(abs_path)):
+            continue
         try:
-            content = Path(fp).read_bytes()
-            current_hash = hashlib.sha256(content).hexdigest()
+            current_hash = hashlib.sha256(Path(abs_path).read_bytes()).hexdigest()
         except OSError:
             continue
-
-        existing_nodes = graph.get_nodes_in_file(fp)
+        existing_nodes = graph.get_nodes_in_file(abs_path)
         if existing_nodes and existing_nodes[0].file_hash == current_hash:
             continue
-        files_to_parse.append(fp)
+        changed_files.append(abs_path)
+
+    # A dependent's own content is unchanged by definition, so the hash
+    # skip would drop every one of them. It is re-parsed regardless: its
+    # CALLS edges still target names the changed file may have removed.
+    dependents: set[str] = set()
+    for fp in changed_files:
+        dependents.update(d for d in find_dependents(graph, fp) if Path(d).exists())
+    files_to_parse = changed_files + sorted(dependents - set(changed_files))
 
     # Handle deleted files
     for fp in changed:

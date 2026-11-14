@@ -141,16 +141,22 @@ class TestConciseCarveOut:
         assert "suggestion-comments.md" in text
 
 
+def _phase_4_6() -> str:
+    """Phase 4.6 as a session reads it: the SKILL.md stub plus the module it loads."""
+    skill = SKILL.read_text(encoding="utf-8")
+    stub = skill.split("### Phase 4.6", 1)[1].split("### Phase 5", 1)[0]
+    module = SKILL.parent / "modules" / "invariant-conflicts.md"
+    return stub + module.read_text(encoding="utf-8")
+
+
 class TestHoldInsightsExtendsPhase46:
     def test_skill_anchors_hold_insights_to_the_invariant_escalation(self) -> None:
         """One escalation path, widened, rather than a second one beside it."""
-        skill = SKILL.read_text(encoding="utf-8")
-        phase = skill.split("### Phase 4.6", 1)[1].split("### Phase 5", 1)[0]
+        phase = _phase_4_6()
         assert "--hold-insights" in phase
 
     def test_held_insights_reuse_the_backlog_prompt(self) -> None:
-        skill = SKILL.read_text(encoding="utf-8")
-        phase = skill.split("### Phase 4.6", 1)[1].split("### Phase 5", 1)[0]
+        phase = _phase_4_6()
         assert "[y/n/select]" in phase
 
 

@@ -53,6 +53,8 @@ class FindingSpec:
 class _Context:
     file: str
     findings: list[Finding] = field(default_factory=list)
+    # Names bound to a ZipFile, whose extractall takes no filter=.
+    zip_names: set[str] = field(default_factory=set)
 
     def add(self, spec: FindingSpec) -> None:
         self.findings.append(
@@ -150,13 +152,22 @@ def _detect_PY01(call: ast.Call, ctx: _Context) -> None:
         )
 
 
+# Loaders that construct arbitrary Python objects. SafeLoader, CSafeLoader,
+# BaseLoader and a loader held in a variable stay silent: the detector
+# fires on known unsafe shapes, not on what it cannot resolve.
+_UNSAFE_YAML_LOADERS = frozenset(
+    {"Loader", "UnsafeLoader", "FullLoader", "CLoader", "CUnsafeLoader", "CFullLoader"}
+)
+
+
 def _detect_PY02(call: ast.Call, ctx: _Context) -> None:
     """yaml.load without an explicit safe Loader. CWE-502."""
     chain = _attr_chain(call.func)
     if chain != "yaml.load":
         return
     loader = _kw_value(call, "Loader")
-    if loader is None:
+    loader_name = _attr_chain(loader).rsplit(".", 1)[-1] if loader is not None else ""
+    if loader is None or loader_name in _UNSAFE_YAML_LOADERS:
         ctx.add(
             FindingSpec(
                 node=call,
@@ -164,7 +175,11 @@ def _detect_PY02(call: ast.Call, ctx: _Context) -> None:
                 severity="HIGH",
                 cwe="CWE-502",
                 ssdf="PW.9",
-                signal="yaml.load(...) called without explicit Loader= keyword",
+                signal=(
+                    "yaml.load(...) called without a safe Loader="
+                    if loader is not None
+                    else "yaml.load(...) called without explicit Loader= keyword"
+                ),
                 proposal=(
                     "Replace with yaml.safe_load(...) (or pass Loader=yaml.SafeLoader). "
                     "yaml.load() with the default Loader can construct arbitrary "
@@ -180,8 +195,9 @@ def _detect_PY03(call: ast.Call, ctx: _Context) -> None:
     name = ""
     if isinstance(fn, ast.Name):
         name = fn.id
-    elif isinstance(fn, ast.Attribute):
-        name = fn.attr
+    elif _attr_chain(fn).startswith("builtins."):
+        # Only the built-in itself: `session.exec(stmt)` is an ORM call.
+        name = _attr_chain(fn).split(".", 1)[1]
     # Match the eval/exec built-ins by name. Constructed from a base
     # prefix to avoid literal call sites in this source file.
     _eval_name = "eva" + "l"
@@ -319,6 +335,28 @@ def _detect_PY10(call: ast.Call, ctx: _Context) -> None:
     )
 
 
+def _is_zipfile_call(node: ast.AST) -> bool:
+    return isinstance(node, ast.Call) and _attr_chain(node.func) in {
+        "zipfile.ZipFile",
+        "ZipFile",
+    }
+
+
+def _zipfile_names(tree: ast.AST) -> set[str]:
+    """Names bound to a ZipFile by assignment or ``with ... as``."""
+    names: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and _is_zipfile_call(node.value):
+            names.update(t.id for t in node.targets if isinstance(t, ast.Name))
+        elif (
+            isinstance(node, ast.withitem)
+            and _is_zipfile_call(node.context_expr)
+            and isinstance(node.optional_vars, ast.Name)
+        ):
+            names.add(node.optional_vars.id)
+    return names
+
+
 def _detect_PY11(call: ast.Call, ctx: _Context) -> None:
     """tarfile.extractall without member filter. CWE-22 / PEP 706."""
     fn = call.func
@@ -327,6 +365,12 @@ def _detect_PY11(call: ast.Call, ctx: _Context) -> None:
     if fn.attr != "extractall":
         return
     if _has_kw(call, "filter"):
+        return
+    # ZipFile.extractall takes no filter=; the PEP 706 advice would break it.
+    receiver = fn.value
+    if _is_zipfile_call(receiver) or (
+        isinstance(receiver, ast.Name) and receiver.id in ctx.zip_names
+    ):
         return
     ctx.add(
         FindingSpec(
@@ -433,6 +477,7 @@ def scan_source(source: str | bytes, *, file: str = "<source>") -> list[Finding]
         )
         return ctx.findings
 
+    ctx.zip_names = _zipfile_names(tree)
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):
             for det in _CALL_DETECTORS:

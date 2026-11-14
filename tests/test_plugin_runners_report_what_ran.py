@@ -144,3 +144,23 @@ def test_shellcheck_run_by_a_bare_name_from_scripts_prints_usage() -> None:
 
     assert result.returncode == 0, result.stderr
     assert "Usage: scripts/shellcheck.sh" in result.stdout + result.stderr
+
+
+def test_a_malformed_coverage_threshold_fails_instead_of_disabling(
+    tmp_path: Path,
+) -> None:
+    """A quoted threshold failed the numeric test and read as "none set"."""
+    repo = _sandbox(tmp_path)
+    plugin = repo / "plugins" / "p"
+    (plugin / ".claude-plugin").mkdir(parents=True)
+    (plugin / ".claude-plugin" / "plugin.json").write_text('{"name": "p"}')
+    (plugin / "tests").mkdir()
+    (plugin / "tests" / "test_x.py").write_text("def test_x():\n    pass\n")
+    (plugin / "pyproject.toml").write_text(
+        '[project]\nname = "p"\n\n[tool.nightmarket]\ncoverage_threshold = "90"\n'
+    )
+
+    result = _run(repo, "run-plugin-tests.sh", "p")
+
+    assert result.returncode != 0
+    assert "coverage_threshold" in result.stdout + result.stderr

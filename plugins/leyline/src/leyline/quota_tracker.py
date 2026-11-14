@@ -26,6 +26,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
+from leyline.atomic_file import write_atomic
 from leyline.tokens import estimate_file_tokens
 
 # Quota threshold constants
@@ -151,7 +152,9 @@ class QuotaTracker:
             "last_request_time": self.usage.last_request_time,
             "minute_window_start": self.usage.minute_window_start,
         }
-        self.usage_file.write_text(json.dumps(data, indent=2))
+        # Readers take no lock: a truncate-then-write let one read an empty
+        # file and report a zeroed, healthy quota.
+        write_atomic(self.usage_file, json.dumps(data, indent=2), mode=None)
 
     def _cleanup_old_data(self) -> None:
         """Reset counters if time periods have passed."""

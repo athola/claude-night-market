@@ -652,6 +652,28 @@ class TestMatcherGroupUnknownKeys:
         assert any("'if'" in w for w in result["warnings"])
 
     @pytest.mark.unit
+    def test_misplaced_on_failure_on_a_group_is_reported(self) -> None:
+        """Scenario: `onFailure` (Claude Code 2.1.295) set on the group.
+
+        Placed there, a hook meant to fail closed fails open, because the
+        harness reads `onFailure` only beside `command`.
+        """
+        result = _make_result()
+        _validate_hook_entry(
+            "PreToolUse",
+            0,
+            {
+                "matcher": "Bash",
+                "onFailure": "block",
+                "hooks": [{"type": "command", "command": "echo hi"}],
+            },
+            result,
+        )
+        assert any(
+            "'onFailure'" in w and "hook-entry field" in w for w in result["warnings"]
+        )
+
+    @pytest.mark.unit
     def test_a_clean_group_is_not_reported(self) -> None:
         """Scenario: `matcher` and `hooks` are the whole vocabulary."""
         result = _make_result()

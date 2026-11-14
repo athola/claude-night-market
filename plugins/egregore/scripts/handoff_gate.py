@@ -159,6 +159,7 @@ _BUDGET_NUMBERS = (
     "max_tasks",
     "max_attempts_per_task",
     "implementer_timeout_s",
+    "command_timeout_s",
     "claude_token_ceiling",
 )
 

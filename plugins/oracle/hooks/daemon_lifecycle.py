@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Oracle daemon lifecycle hook.
 
-Handles SessionStart and Stop events to start and stop the ONNX
-inference daemon.  The daemon only runs when the opt-in sentinel
-file ``${CLAUDE_PLUGIN_DATA}/.oracle-enabled`` is present, making
+Handles SessionStart and SessionEnd events to start and stop the
+ONNX inference daemon. Stop fires after every assistant turn, so it
+would kill the daemon the session started after its first reply.
+The daemon only runs when the opt-in sentinel file
+``${CLAUDE_PLUGIN_DATA}/.oracle-enabled`` is present, making
 activation explicit rather than automatic.
 
 Designed for the 5-second hook timeout budget: the start path
@@ -50,15 +52,17 @@ def _get_models_dir() -> Path:
     return PLUGIN_ROOT / "models"
 
 
-def _get_event() -> str:
+def _read_payload() -> dict:
     try:
         payload = json.load(sys.stdin)
     except (ValueError, OSError):
         # ValueError covers JSONDecodeError and UnicodeDecodeError.
-        return ""
-    if not isinstance(payload, dict):
-        return ""
-    return str(payload.get("hook_event_name", ""))
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _get_event() -> str:
+    return str(_read_payload().get("hook_event_name", ""))
 
 
 # What the daemon's command line must contain for a PID to count as ours.
@@ -75,7 +79,7 @@ def _pid_is_daemon(pid: int) -> bool:
     pid-file cleanup, the number in daemon.pid can belong to an unrelated
     process of the same user, and ``os.kill(pid, 0)`` says only that
     something is there. The signal-0 probe is kept as the cheap first
-    step. The command line is what keeps the Stop hook from killing that
+    step. The command line is what keeps the SessionEnd hook from killing that
     something.
 
     ``-ww`` is required on Linux: procps cuts the command column to 80
@@ -196,8 +200,9 @@ def _stop_daemon() -> None:
 
 
 def main() -> None:
-    """Dispatch on SessionStart / Stop events."""
-    event = _get_event()
+    """Dispatch on SessionStart / SessionEnd events."""
+    payload = _read_payload()
+    event = str(payload.get("hook_event_name", ""))
     sentinel = _get_sentinel()
     venv = get_venv_path()
 
@@ -208,7 +213,10 @@ def main() -> None:
             return
         _start_daemon()
 
-    elif event == "Stop":
+    # /clear ends a session and starts the next one in the same process.
+    # The stop runs async, so it could land after the new SessionStart
+    # and kill the daemon that session keeps; the next one reuses it.
+    elif event == "SessionEnd" and payload.get("reason") != "clear":
         _stop_daemon()
 
 

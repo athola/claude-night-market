@@ -22,7 +22,7 @@ estimated_tokens: 400
 
 Generate Mermaid and ASCII diagrams from the knowledge
 graph, showing palace structure, entity relationships,
-synapse connectivity, and tier assignments.
+synapse connectivity, and PageRank importance.
 
 > **Status: wired**. Invoke via `/palace diagram <palace-id>
 > [--type map|ascii|entity|heatmap]`, which calls
@@ -106,7 +106,8 @@ Works with:
 
 - `memory-palace-architect`: visualize after palace creation
 - `knowledge-locator`: display search results as graph
-- `graph-analyzer`: tier-informed node sizing
+- `graph-analyzer`: PageRank node shapes, communities and
+  keystones
 
 ## Exit Criteria
 

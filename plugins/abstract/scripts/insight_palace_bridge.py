@@ -8,8 +8,11 @@ plugin works independently when memory-palace is absent.
 
 from __future__ import annotations
 
+import os
 import re
 import sys
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -41,8 +44,56 @@ try:
 except ImportError:
     _HAS_PALACE = False
 
-# Palace staging directory
-_PALACE_STAGING = _PALACE_ROOT / "data" / "staging"
+_PALACE_DATA_ENV = "MEMORY_PALACE_DATA_DIR"
+# cache/<marketplace>/<plugin>/<version>
+_INSTALL_DEPTH = 4
+
+
+def _palace_data_root(palace_root: Path, env: Mapping[str, str]) -> Path:
+    """Memory-palace's version-independent data root, seen from abstract.
+
+    ``CLAUDE_PLUGIN_DATA`` is set per plugin, so in abstract's hook
+    process it names abstract's directory and must not be used. An
+    install at ``<plugins>/cache/<mkt>/memory-palace/<ver>`` keeps its
+    data at ``<plugins>/data/memory-palace-<mkt>``, which is where
+    memory-palace's own hooks and CLI read captures (issue #661). A
+    checkout keeps its own tree.
+    """
+    override = env.get(_PALACE_DATA_ENV)
+    if override:
+        return Path(override)
+    parts = palace_root.parts[-_INSTALL_DEPTH:]
+    if (
+        len(parts) == _INSTALL_DEPTH
+        and parts[0] == "cache"
+        and parts[2] == "memory-palace"
+    ):
+        plugins_dir = Path(*palace_root.parts[:-_INSTALL_DEPTH])
+        return plugins_dir / "data" / f"memory-palace-{parts[1]}"
+    return palace_root
+
+
+@contextmanager
+def _palace_index_env() -> Iterator[None]:
+    """Point memory-palace's index resolution at ``_PALACE_DATA``.
+
+    The index path is resolved inside memory-palace from the
+    environment, where abstract's ``CLAUDE_PLUGIN_DATA`` would win.
+    ``MEMORY_PALACE_DATA_DIR`` outranks it and is restored afterward.
+    """
+    previous = os.environ.get(_PALACE_DATA_ENV)
+    os.environ[_PALACE_DATA_ENV] = str(_PALACE_DATA)
+    try:
+        yield
+    finally:
+        if previous is None:
+            del os.environ[_PALACE_DATA_ENV]
+        else:
+            os.environ[_PALACE_DATA_ENV] = previous
+
+
+_PALACE_DATA = _palace_data_root(_PALACE_ROOT.resolve(), os.environ)
+_PALACE_STAGING = _PALACE_DATA / "data" / "staging"
 
 # Severity-to-score mapping (from project brief)
 _SEVERITY_SCORES: dict[str, int] = {
@@ -141,8 +192,12 @@ def ingest_findings(
         return 0
 
     _PALACE_STAGING.mkdir(parents=True, exist_ok=True)
-    ingested = 0
+    with _palace_index_env():
+        return _ingest(findings)
 
+
+def _ingest(findings: list[Finding]) -> int:
+    ingested = 0
     for finding in findings[:10]:  # Cap at 10 per session
         fhash = finding_hash(finding)
         key = f"insight://{fhash}"
@@ -194,7 +249,8 @@ def query_palace_insights() -> list[dict[str, Any]]:
         return []
 
     try:
-        index = _load_index()
+        with _palace_index_env():
+            index = _load_index()
         entries = index.get("entries", {})
         results: list[dict[str, Any]] = []
 

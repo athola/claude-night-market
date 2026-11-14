@@ -52,7 +52,17 @@ def _detect_breaking_changes(files: list[str]) -> list[dict[str, Any]]:
 
         # Get the HEAD version via git
         try:
-            cmd = ["git", "show", "HEAD:" + file_path]
+            # `HEAD:<path>` resolves from the repository root; `HEAD:./name`
+            # resolves from -C's directory, so any path form the caller
+            # passes reaches the committed file.
+            resolved = path.resolve()
+            cmd = [
+                "git",
+                "-C",
+                str(resolved.parent),
+                "show",
+                f"HEAD:./{resolved.name}",
+            ]
             result = subprocess.run(  # nosec B603
                 cmd,
                 capture_output=True,

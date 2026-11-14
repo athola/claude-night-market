@@ -213,3 +213,60 @@ def test_launchd_install_rejects_a_bad_interval_or_relative_workdir(
         assert result.returncode == 0, result.stderr
         parsed = plistlib.loads(plist.read_bytes())
         assert parsed["WorkingDirectory"] == str(tmp_path / "relative-dir")
+
+
+@pytest.mark.parametrize(
+    ("interval", "workdir_arg"), [("5m", None), ("5", "relative-dir")]
+)
+def test_systemd_install_rejects_a_bad_interval_and_resolves_the_workdir(
+    tmp_path: Path, interval: str, workdir_arg: str | None
+) -> None:
+    """Systemd ignores a relative WorkingDirectory; "5m" became "5mmin"."""
+    shim_dir, _calls = _shims(tmp_path, "systemctl")
+    (tmp_path / "relative-dir").mkdir()
+    home = tmp_path / "home"
+    home.mkdir()
+    result = subprocess.run(
+        [
+            "/bin/bash",
+            str(SCRIPTS / "install_systemd.sh"),
+            interval,
+            workdir_arg or str(tmp_path),
+        ],
+        env={
+            **os.environ,
+            "HOME": str(home),
+            "PATH": f"{shim_dir}:{os.environ['PATH']}",
+        },
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    unit = home / ".config/systemd/user/egregore-watchdog.service"
+    if interval != "5":
+        assert result.returncode != 0
+        assert not unit.exists()
+    else:
+        assert result.returncode == 0, result.stderr
+        assert f"WorkingDirectory={tmp_path / 'relative-dir'}" in unit.read_text()
+
+
+def test_launchd_install_creates_the_launch_agents_directory(tmp_path: Path) -> None:
+    """A fresh account has no ~/Library/LaunchAgents yet."""
+    shim_dir, _calls = _shims(tmp_path, "launchctl")
+    home = tmp_path / "home"
+    home.mkdir()
+    result = subprocess.run(
+        ["/bin/bash", str(SCRIPTS / "install_launchd.sh"), "300", str(tmp_path)],
+        env={
+            **os.environ,
+            "HOME": str(home),
+            "PATH": f"{shim_dir}:{os.environ['PATH']}",
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert (home / "Library/LaunchAgents/com.egregore.watchdog.plist").exists()

@@ -1,5 +1,5 @@
 name: archetypes
-version: 1.10.2
+version: 1.10.3
 description: Architecture paradigm selection and implementation planning for software systems
 keywords:
 - architecture
@@ -27,3 +27,4 @@ skills:
 - skills/architecture-paradigm-service-based
 - skills/architecture-paradigm-space-based
 - skills/architecture-paradigms
+- skills/architecture-paradigm-domain-driven

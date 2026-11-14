@@ -59,6 +59,46 @@ def _feature_needing_3_11(node: ast.AST) -> str | None:
     return None
 
 
+# ast.Match exists from Python 3.10. On 3.9 a match statement does not
+# parse, so that code reaches the regex reading instead.
+_MATCH_NODE: type[ast.AST] | None = getattr(ast, "Match", None)
+
+
+def _report_once(
+    features_found: list[dict[str, str]],
+    issues: list[dict[str, str]],
+    feature: str,
+    min_version: str,
+    *,
+    status: str | None = None,
+) -> None:
+    """Record a feature and its issue, once per feature."""
+    if any(f["feature"] == feature for f in features_found):
+        return
+    features_found.append({"feature": feature, "min_version": min_version})
+    issues.append(
+        {
+            "feature": feature,
+            "status": status or f"requires_{min_version}+",
+            "min_version": min_version,
+        }
+    )
+
+
+def _is_slots_dataclass(decorator: ast.expr) -> bool:
+    """``@dataclass(slots=True)`` or ``@dataclasses.dataclass(slots=True)``."""
+    if not isinstance(decorator, ast.Call):
+        return False
+    func = decorator.func
+    name = func.id if isinstance(func, ast.Name) else getattr(func, "attr", "")
+    return name == "dataclass" and any(
+        kw.arg == "slots"
+        and isinstance(kw.value, ast.Constant)
+        and kw.value.value is True
+        for kw in decorator.keywords
+    )
+
+
 class CompatibilityChecker:
     """Check code compatibility across Python versions using AST analysis."""
 
@@ -75,11 +115,13 @@ class CompatibilityChecker:
         recommendations: list[str] = []
         min_version = "3.0"
 
-        self._check_regex_features(code, features_found, issues)
-
         try:
             tree = ast.parse(code)
         except SyntaxError:
+            # Text patterns are the only reading of code that does not
+            # parse. On parsed code they would also match docstrings and
+            # comments, so there the tree is read instead.
+            self._check_regex_features(code, features_found, issues)
             # Only the regex features are known. Without any, the code is
             # broken on every interpreter we can check, so claim none.
             if features_found:
@@ -192,7 +234,21 @@ class CompatibilityChecker:
             and any(alias.name == "annotations" for alias in node.names)
             for node in tree.body
         )
+        if postponed:
+            _report_once(
+                features_found,
+                issues,
+                "from __future__ import annotations",
+                "3.7",
+                status="compatible",
+            )
         for node in ast.walk(tree):
+            if _MATCH_NODE is not None and isinstance(node, _MATCH_NODE):
+                _report_once(features_found, issues, "match_statement", "3.10")
+            elif isinstance(node, ast.ClassDef) and any(
+                _is_slots_dataclass(d) for d in node.decorator_list
+            ):
+                _report_once(features_found, issues, "dataclass_slots", "3.10")
             feature_311 = _feature_needing_3_11(node)
             if feature_311:
                 features_found.append({"feature": feature_311, "min_version": "3.11"})

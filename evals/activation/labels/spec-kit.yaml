@@ -253,7 +253,7 @@ cases:
   type: positive
   prompt: 'Fill in our project constitution template. We want five principles: test-first,
     library-first, simple CLI interfaces, observability, and versioning. Bump the
-    version and update dependent templates.'
+    version.'
   target: spec-kit:speckit-constitution
   competitor: null
   cluster: spec-kit:speckit-constitution
@@ -268,7 +268,7 @@ cases:
 - id: spec-kit.speckit-constitution.p2
   type: positive
   prompt: We're adding a new non-negotiable rule about accessibility to .specify/memory/constitution.md.
-    Amend it and make sure the plan and tasks templates stay consistent.
+    Amend it and bump its version.
   target: spec-kit:speckit-constitution
   competitor: null
   cluster: spec-kit:speckit-constitution

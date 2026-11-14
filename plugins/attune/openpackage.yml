@@ -1,5 +1,5 @@
 name: attune
-version: 1.10.2
+version: 1.10.3
 description: Full-cycle project development - brainstorm ideas, create specifications, plan architecture, initialize projects,
   and execute implementation with integrated workflows from superpowers and spec-kit
 keywords:
@@ -62,6 +62,7 @@ skills:
 - skills/workflow-setup
 - skills/mission-orchestrator
 - skills/dorodango
+- skills/skill-library-mission
 commands:
 - commands/arch-init.md
 - commands/blueprint.md
@@ -73,6 +74,7 @@ commands:
 - commands/upgrade-project.md
 - commands/validate.md
 - commands/war-room.md
+- commands/skill-library.md
 agents:
 - agents/project-architect.md
 - agents/project-implementer.md

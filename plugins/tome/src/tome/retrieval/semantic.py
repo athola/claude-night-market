@@ -120,6 +120,10 @@ def open_embedder(
     return embedder
 
 
+# Stands in for an embedder that has no ``model`` attribute at all.
+_NO_MODEL_ATTR = object()
+
+
 class SemanticRetriever:
     """Rank findings by embedding similarity to a query.
 
@@ -149,7 +153,14 @@ class SemanticRetriever:
 
     @staticmethod
     def _infer_semantic(embedder: Embedder) -> bool:
-        """Read semantic status off a backend that publishes its provider."""
+        """Read semantic status off a backend that publishes its provider.
+
+        A backend that exposes ``model`` as None asked for a model and did
+        not get one: memory-palace's EmbeddingIndex then vectorizes by
+        hash whatever provider it requested.
+        """
+        if getattr(embedder, "model", _NO_MODEL_ATTR) is None:
+            return False
         return (
             getattr(embedder, "requested_provider", _MODEL_PROVIDER) != _HASH_PROVIDER
         )

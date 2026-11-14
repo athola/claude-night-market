@@ -30,7 +30,6 @@ class TestSchemaAndLifecycle:
             "synapses",
             "journeys",
             "waypoints",
-            "tier_assignments",
         ]:
             assert expected in tables, f"Missing table: {expected}"
 
@@ -301,24 +300,6 @@ class TestFTS:
         assert results == []
 
 
-class TestTierAssignments:
-    """Tier assignment storage."""
-
-    def test_assign_and_get_tier(self, graph: KnowledgeGraph) -> None:
-        """An assigned tier reads back at the level it was set to."""
-        graph.upsert_entity(entity_id="e1", entity_type="concept", name="Core")
-        graph.assign_tier(
-            entity_id="e1",
-            tier=0,
-            score=0.85,
-            reason="High PageRank + keystone",
-        )
-        tier = graph.get_tier("e1")
-        assert tier is not None
-        assert tier["tier"] == 0
-        assert tier["score"] == pytest.approx(0.85)
-
-
 class TestEdgeCases:
     """Edge cases and fallback paths."""
 
@@ -343,10 +324,6 @@ class TestEdgeCases:
     def test_get_journey_nonexistent(self, graph: KnowledgeGraph) -> None:
         """A missing journey id yields None."""
         assert graph.get_journey(9999) is None
-
-    def test_get_tier_nonexistent(self, graph: KnowledgeGraph) -> None:
-        """A missing tier assignment yields None."""
-        assert graph.get_tier("nonexistent") is None
 
 
 class TestBulkOperations:
