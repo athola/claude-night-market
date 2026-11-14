@@ -395,6 +395,9 @@ class TestBugReviewSkill:
             "d['a'] = Thread(target=f)\nd['a'].start()\nd['a'].join()\n",
             "t: Thread = Thread(target=f)\nt.start()\nt.join()\n",
             "(t := Thread(target=f)).start()\nt.join()\n",
+            "try:\n    t = Thread(target=f)\n    t.start()\nfinally:\n    t.join()\n",
+            "if ready:\n    t = Thread(target=f)\n    t.start()\n    t.join()\n",
+            "t = Thread(target=f)\nt.start()\nts.append(t)\nfor th in ts:\n    th.join()\n",
         ],
         ids=[
             "not-a-thread",
@@ -405,6 +408,9 @@ class TestBugReviewSkill:
             "dict-entry-joined",
             "annotated",
             "walrus",
+            "inside-try",
+            "inside-if",
+            "appended-after-binding",
         ],
     )
     def test_start_is_a_thread_leak_only_for_an_unjoined_thread(
