@@ -69,3 +69,22 @@ def test_bash_3_2_reaches_ffmpeg(tmp_path: Path) -> None:
     result, args_log = _run(tmp_path, SUBTITLE_FONT=str(font), LC_ALL="en_US.UTF-8")
     assert result.returncode == 0, result.stderr
     assert args_log.exists()
+
+
+def test_a_missing_input_is_reported_as_missing(tmp_path: Path) -> None:
+    """An absent input and an absent sidecar both read as "", which matched.
+
+    The script then said the GIF already carried the captions, sending the
+    user to re-record a file that was only misnamed.
+    """
+    absent = tmp_path / "absent.gif"
+    result = subprocess.run(
+        ["/bin/bash", str(ROOT / "assets/tapes/add-subtitles.sh"), str(absent)],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "not found" in result.stderr + result.stdout
+    assert "already carries" not in result.stderr + result.stdout

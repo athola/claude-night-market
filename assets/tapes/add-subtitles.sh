@@ -184,6 +184,12 @@ main() {
   esac
 
   depcheck || exit 1
+  # A missing input and a missing sidecar both read as "" below, which
+  # would report the GIF as already captioned.
+  if [ ! -f "${INPUT}" ]; then
+    log 4 "Input not found: ${INPUT}"
+    exit 1
+  fi
   # The default reads and writes one file, so a second run without a
   # fresh VHS record burned every caption twice. The sidecar holds the
   # checksum of the last captioned output.
