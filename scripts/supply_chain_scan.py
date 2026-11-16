@@ -33,6 +33,8 @@ def load_blocklist(root: Path) -> dict:
 
 
 _PACKAGE_HEADER = re.compile(r"(?m)^\[\[package\]\]\s*$")
+_NAME_LINE = re.compile(r'(?m)^name\s*=\s*"([^"]*)"\s*$')
+_VERSION_LINE = re.compile(r'(?m)^version\s*=\s*"([^"]*)"\s*$')
 
 
 def _skipped(path: Path, root: Path) -> bool:
@@ -56,16 +58,16 @@ def scan_lockfiles(root: Path, blocklist: dict) -> list[str]:
         # One block per [[package]]: name and version are matched inside
         # the same block, and a `{ name = ... }` dependency entry is not
         # at the start of a line, so it never counts as the package.
-        blocks = _PACKAGE_HEADER.split(lockfile.read_text())
+        locked = {
+            (name, version)
+            for block in _PACKAGE_HEADER.split(lockfile.read_text())
+            for name in _NAME_LINE.findall(block)
+            for version in _VERSION_LINE.findall(block)
+        }
         for pkg, entries in blocklist.items():
-            name_line = re.compile(rf'^name\s*=\s*"{re.escape(pkg)}"\s*$', re.M)
-            pkg_blocks = [b for b in blocks if name_line.search(b)]
             for entry in entries:
                 for ver in entry["versions"]:
-                    version_line = re.compile(
-                        rf'^version\s*=\s*"{re.escape(ver)}"\s*$', re.M
-                    )
-                    if any(version_line.search(b) for b in pkg_blocks):
+                    if (pkg, ver) in locked:
                         findings.append(
                             f"  CRITICAL: {lockfile}: {pkg}=={ver} "
                             f"({entry['severity']}) - {entry['description'][:80]}"

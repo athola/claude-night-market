@@ -251,7 +251,7 @@ demo-skills: ## Validate conjure skill structure
 	@echo "=== Conjure Skills Demo ==="
 	@echo "Delegation skills:"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
+		name=$$(sed -n '1,10s/^name:[[:space:]]*//p' "$$skill"); \
 		echo "  - $$name"; \
 	done
 	@echo ""

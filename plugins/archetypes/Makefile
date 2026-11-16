@@ -42,8 +42,7 @@ demo-paradigms: ## List available architecture paradigms
 	@echo "Available architecture paradigms:"
 	@echo ""
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
-		desc=$$(head -15 "$$skill" | { grep '^description:' || true; } | cut -d: -f2- | head -c 60); \
+		name=$$(sed -n '1,10s/^name:[[:space:]]*//p' "$$skill"); \
 		echo "  - $$name"; \
 	done
 	@echo ""

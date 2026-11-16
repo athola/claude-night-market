@@ -137,28 +137,28 @@ def search_academic(
     errors: list[dict[str, str]] = []
     for source, url, headers, parse in sources:
         found: list[dict[str, Any]] = []
-        failed_before = len(errors)
+        failure = None
         if clock() >= deadline:
-            errors.append(_spent(source))
-            queries.append(_query_row(source, topic, 0, errors[-1]))
+            failure = _spent(source)
+            errors.append(failure)
+            queries.append(_query_row(source, topic, 0, failure))
             continue
         reply = fetch(url, headers=headers, deadline=deadline)
         if reply.status != http.OK:
-            errors.append(_error(source, reply))
+            failure = _error(source, reply)
         else:
             try:
                 found = [f.to_dict() for f in parse(reply.body)]
             except _UNPARSEABLE:
-                errors.append(
-                    {
-                        "kind": "source_error",
-                        "source": source,
-                        "message": "unparseable response",
-                    }
-                )
+                failure = {
+                    "kind": "source_error",
+                    "source": source,
+                    "message": "unparseable response",
+                }
+        if failure:
+            errors.append(failure)
         findings.extend(found)
-        error = errors[-1] if len(errors) > failed_before else None
-        queries.append(_query_row(source, topic, len(found), error))
+        queries.append(_query_row(source, topic, len(found), failure))
     return _channel_report("academic", findings, queries, errors)
 
 

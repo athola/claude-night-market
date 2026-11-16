@@ -76,7 +76,6 @@ usage() {
   printf 'SCOPE_GUARD_OVERRIDE=1 turns a red verdict into exit 0.\n'
 }
 
-# A pre-push hook's first argument is a remote name, not a branch.
 is_ref() {
   git rev-parse --verify --quiet "${1}^{commit}" >/dev/null 2>&1
 }
@@ -94,6 +93,7 @@ take_base() {
   esac
 }
 
+# A pre-push hook's first argument is a remote name, not a branch.
 is_remote() {
   git remote 2>/dev/null | grep -qxF -- "${1}"
 }

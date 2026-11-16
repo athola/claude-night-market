@@ -61,10 +61,6 @@ def _read_payload() -> dict:
     return payload if isinstance(payload, dict) else {}
 
 
-def _get_event() -> str:
-    return str(_read_payload().get("hook_event_name", ""))
-
-
 # What the daemon's command line must contain for a PID to count as ours.
 # The full launched path, because a bare "daemon.py" also matches pytest
 # running test_daemon.py or an editor with some other daemon.py open.

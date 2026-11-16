@@ -120,7 +120,7 @@ demo-skills: ## Validate leyline skill structure
 	@echo "=== Leyline Skills Demo ==="
 	@echo "Infrastructure skills:"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
+		name=$$(sed -n '1,10s/^name:[[:space:]]*//p' "$$skill"); \
 		echo "  - $$name"; \
 	done
 	@echo ""

@@ -186,7 +186,7 @@ demo-citation-verifier: ## Demo grounded-finding citation verifier (LIVE)
 demo-skills: ## List imbue skills
 	@echo "=== Imbue Skills ==="
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
+		name=$$(sed -n '1,10s/^name:[[:space:]]*//p' "$$skill"); \
 		echo "  - $$name"; \
 	done
 

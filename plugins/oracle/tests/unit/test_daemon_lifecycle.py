@@ -15,12 +15,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from daemon_lifecycle import (
-    _get_event,
     _get_models_dir,
     _get_pid_file,
     _get_port_file,
     _get_sentinel,
     _is_daemon_running,
+    _read_payload,
     _start_daemon,
     _stop_daemon,
     main,
@@ -78,35 +78,35 @@ class TestEventParsing:
         """
         Scenario: SessionStart payload arrives on stdin
         Given a JSON payload with hook_event_name SessionStart
-        When _get_event is called
+        When the payload is read
         Then it returns 'SessionStart'
         """
         payload = json.dumps({"hook_event_name": "SessionStart"})
         with patch("sys.stdin", StringIO(payload)):
-            assert _get_event() == "SessionStart"
+            assert _read_payload().get("hook_event_name", "") == "SessionStart"
 
     @pytest.mark.unit
     def test_parses_stop_event(self):
         """
         Scenario: Stop payload arrives on stdin
         Given a JSON payload with hook_event_name Stop
-        When _get_event is called
+        When the payload is read
         Then it returns 'Stop'
         """
         payload = json.dumps({"hook_event_name": "Stop"})
         with patch("sys.stdin", StringIO(payload)):
-            assert _get_event() == "Stop"
+            assert _read_payload().get("hook_event_name", "") == "Stop"
 
     @pytest.mark.unit
     def test_returns_empty_string_on_bad_json(self):
         """
         Scenario: Stdin contains malformed JSON
         Given stdin has non-JSON content
-        When _get_event is called
+        When the payload is read
         Then it returns an empty string without raising
         """
         with patch("sys.stdin", StringIO("not json")):
-            assert _get_event() == ""
+            assert _read_payload().get("hook_event_name", "") == ""
 
 
 class TestSessionStartBehavior:
@@ -780,8 +780,12 @@ class TestStopWaitsForSessionEnd:
     @pytest.mark.unit
     def test_manifest_registers_session_end_not_stop(self) -> None:
         manifest = Path(__file__).resolve().parents[2] / "hooks" / "hooks.json"
-        events = set(json.loads(manifest.read_text())["hooks"])
-        assert events == {"SessionStart", "SessionEnd"}
+        hooks = json.loads(manifest.read_text())["hooks"]
+        assert set(hooks) == {"SessionStart", "SessionEnd"}
+        # The stop outlives the 5s hook timeout only when the harness does
+        # not wait on it.
+        (session_end,) = [h for group in hooks["SessionEnd"] for h in group["hooks"]]
+        assert session_end.get("async") is True
 
 
 class TestClearKeepsTheDaemon:

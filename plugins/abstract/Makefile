@@ -192,7 +192,7 @@ demo-analyzer: ## Demonstrate skill analyzer (LIVE)
 demo-skills: ## List available skills
 	@echo "=== Abstract Skills ==="
 	@for skill in $(SKILLS_DIR)/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | { grep '^name:' || true; } | cut -d: -f2 | tr -d ' '); \
+		name=$$(sed -n '1,10s/^name:[[:space:]]*//p' "$$skill"); \
 		echo "  - $$name"; \
 	done
 

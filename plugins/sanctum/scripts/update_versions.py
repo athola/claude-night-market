@@ -144,6 +144,18 @@ def update_openpackage_version(content: str, new_version: str) -> str:
     return re.sub(pattern, replacement, content, flags=re.MULTILINE)
 
 
+_UPDATERS = {
+    "pyproject.toml": update_pyproject_version,
+    "Cargo.toml": update_pyproject_version,
+    "package.json": update_package_json_version,
+    "plugin.json": update_package_json_version,
+    "metadata.json": update_package_json_version,
+    "marketplace.json": update_package_json_version,
+    "__init__.py": update_init_py_version,
+    "openpackage.yml": update_openpackage_version,
+}
+
+
 def update_version_file(
     file_path: Path, new_version: str, dry_run: bool = True
 ) -> bool:
@@ -158,18 +170,9 @@ def update_version_file(
     content = file_path.read_text(encoding="utf-8")
     original = content
 
-    if file_path.name == "pyproject.toml":
-        content = update_pyproject_version(content, new_version)
-    elif file_path.name == "Cargo.toml":
-        content = update_pyproject_version(content, new_version)
-    elif file_path.name == "package.json":
-        content = update_package_json_version(content, new_version)
-    elif file_path.name in ("plugin.json", "metadata.json", "marketplace.json"):
-        content = update_package_json_version(content, new_version)
-    elif file_path.name == "__init__.py":
-        content = update_init_py_version(content, new_version)
-    elif file_path.name == "openpackage.yml":
-        content = update_openpackage_version(content, new_version)
+    updater = _UPDATERS.get(file_path.name)
+    if updater is not None:
+        content = updater(content, new_version)
 
     if content != original:
         if not dry_run:

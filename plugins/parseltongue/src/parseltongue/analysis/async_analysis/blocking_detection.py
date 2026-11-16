@@ -34,7 +34,6 @@ def _is_blocking_sleep(call: ast.Call, bare_sleep_blocks: bool) -> bool:
 
 def _collect_sync_function_info(
     tree: ast.Module,
-    sync_func_names: set[str],
     sync_func_blocking: dict[str, list[str]],
     bare_sleep_blocks: bool,
 ) -> None:
@@ -43,7 +42,6 @@ def _collect_sync_function_info(
         if isinstance(node, ast.FunctionDef) and not isinstance(
             node, ast.AsyncFunctionDef
         ):
-            sync_func_names.add(node.name)
             for child in ast.walk(node):
                 if not isinstance(child, ast.Call):
                     continue
@@ -118,7 +116,6 @@ def _check_file_io(
 
 def _check_sync_function_call(
     call: ast.Call,
-    sync_func_names: set[str],
     sync_func_blocking: dict[str, list[str]],
     blocking_patterns: dict[str, Any],
     recommendations: list[str],
@@ -139,7 +136,7 @@ def _check_sync_function_call(
         call_name = func.attr
 
     # A helper that does no blocking I/O does not block the loop.
-    if call_name and call_name in sync_func_names and call_name in sync_func_blocking:
+    if call_name and call_name in sync_func_blocking:
         blocking_patterns["sync_function_call"] = {
             "function_name": call_name,
             "blocks_event_loop": True,
@@ -175,12 +172,9 @@ async def detect_blocking_calls(
     blocking_patterns: dict[str, Any] = {}
     recommendations: list[str] = []
 
-    sync_func_names: set[str] = set()
     sync_func_blocking: dict[str, list[str]] = {}
     bare_sleep_blocks = not _bare_sleep_is_asyncio(tree)
-    _collect_sync_function_info(
-        tree, sync_func_names, sync_func_blocking, bare_sleep_blocks
-    )
+    _collect_sync_function_info(tree, sync_func_blocking, bare_sleep_blocks)
 
     for node in ast.walk(tree):
         if isinstance(node, ast.AsyncFunctionDef):
@@ -193,7 +187,6 @@ async def detect_blocking_calls(
                     _check_file_io(child, blocking_patterns, recommendations)
                     _check_sync_function_call(
                         child,
-                        sync_func_names,
                         sync_func_blocking,
                         blocking_patterns,
                         recommendations,

@@ -181,41 +181,21 @@ class CompatibilityChecker:
     ) -> None:
         """Check for version-specific features using regex patterns."""
         if re.search(r"from\s+__future__\s+import\s+annotations", code):
-            issues.append(
-                {
-                    "feature": "from __future__ import annotations",
-                    "status": "compatible",
-                    "min_version": "3.7",
-                }
-            )
-            features_found.append(
-                {
-                    "feature": "from __future__ import annotations",
-                    "min_version": "3.7",
-                }
+            _report_once(
+                features_found,
+                issues,
+                "from __future__ import annotations",
+                "3.7",
+                status="compatible",
             )
 
         if re.search(r"^\s*match\s+\w+.*:\s*$", code, re.MULTILINE) and re.search(
             r"^\s*case\s+", code, re.MULTILINE
         ):
-            features_found.append({"feature": "match_statement", "min_version": "3.10"})
-            issues.append(
-                {
-                    "feature": "match_statement",
-                    "status": "requires_3.10+",
-                    "min_version": "3.10",
-                }
-            )
+            _report_once(features_found, issues, "match_statement", "3.10")
 
         if re.search(r"@dataclass\(.*slots\s*=\s*True", code):
-            features_found.append({"feature": "dataclass_slots", "min_version": "3.10"})
-            issues.append(
-                {
-                    "feature": "dataclass_slots",
-                    "status": "requires_3.10+",
-                    "min_version": "3.10",
-                }
-            )
+            _report_once(features_found, issues, "dataclass_slots", "3.10")
 
     def _check_ast_features(
         self,
@@ -224,8 +204,6 @@ class CompatibilityChecker:
         issues: list[dict[str, str]],
     ) -> None:
         """Check for version-specific features by walking the AST."""
-        union_reported = False
-        reported_311: set[str] = set()
         # With postponed evaluation an annotation is a string at runtime, so
         # `int | None` in one runs on any version that has the future import.
         postponed = any(
@@ -251,29 +229,9 @@ class CompatibilityChecker:
                 _report_once(features_found, issues, "dataclass_slots", "3.10")
             feature_311 = _feature_needing_3_11(node)
             if feature_311:
-                features_found.append({"feature": feature_311, "min_version": "3.11"})
-            if feature_311 and feature_311 not in reported_311:
-                reported_311.add(feature_311)
-                issues.append(
-                    {
-                        "feature": feature_311,
-                        "status": "requires_3.11+",
-                        "min_version": "3.11",
-                    }
-                )
+                _report_once(features_found, issues, feature_311, "3.11")
             if not postponed and _has_union_annotation(node):
-                features_found.append(
-                    {"feature": "union_type_syntax", "min_version": "3.10"}
-                )
-                if not union_reported:
-                    union_reported = True
-                    issues.append(
-                        {
-                            "feature": "union_type_syntax",
-                            "status": "requires_3.10+",
-                            "min_version": "3.10",
-                        }
-                    )
+                _report_once(features_found, issues, "union_type_syntax", "3.10")
             if isinstance(node, ast.NamedExpr):
                 features_found.append(
                     {"feature": "walrus_operator", "min_version": "3.8"}
