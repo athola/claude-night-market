@@ -219,8 +219,8 @@ health. Contribution guidelines are in the
 ## Acknowledgements
 
 Night Market builds on [Anthropic Claude Code][claude-code] and
-integrates with [github/spec-kit][spec-kit-upstream] (v0.5.0) and
-[obra/superpowers][superpowers-upstream] (v5.0.7, see the
+integrates with [github/spec-kit][spec-kit-upstream] (v1.4.0) and
+[obra/superpowers][superpowers-upstream] (v7.0.2, see the
 [integration guide][superpowers-doc]). Its AI involvement is declared
 under the [Quillx][quillx] disclosure standard as 3/5 (Adapted):
 human-directed, AI-generated, and meaningfully edited.
