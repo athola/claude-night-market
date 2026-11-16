@@ -79,8 +79,8 @@ Iron Law enforced through proof-of-work validation.
 | `tdd_bdd_gate.py` | PreToolUse | Enforces Iron Law at write-time |
 | `guard_package_hallucination.py` | PreToolUse (Bash) | Flags installs of hallucinated or typosquatted packages; warns by default, blocks with `VOW_SHADOW_MODE=0` |
 | `guard_scope_ramp.py` | PreToolUse (Write/Edit/MultiEdit) | Holds each increment to the current rung; ramps a notch per recorded demonstration; warns by default, blocks with `VOW_SHADOW_MODE=0` |
-| `vow_bounded_reads.py` | PreToolUse (Read/Grep/Glob) | Warns or blocks when discovery read budget (15 reads) is exceeded; set `VOW_SHADOW_MODE=0` to block |
-| `vow_bounded_reads_reset.py` | PreToolUse (Write/Edit/MultiEdit) | Resets the per-session read counter when implementation begins |
+| `vow_bounded_reads.py` | PreToolUse (Read/Grep/Glob) | Warns or blocks when discovery read budget (15 reads) is exceeded, or when a call repeats an identical earlier one; set `VOW_SHADOW_MODE=0` to block the budget |
+| `vow_bounded_reads_reset.py` | PreToolUse (Write/Edit/MultiEdit) | Resets the per-session read counter and remembered calls when implementation begins |
 | `vow_no_ai_attribution.py` | PreToolUse | Blocks AI attribution strings in git commit messages |
 | `vow_no_edit_narration.py` | PreToolUse (Write/Edit/MultiEdit) | Flags text that narrates the edit being made ("We renamed the handler"); reads inserted content only; warns by default, blocks with `VOW_SHADOW_MODE=0` |
 | `vow_no_emoji_commits.py` | PreToolUse | Blocks emoji characters in git commit messages |

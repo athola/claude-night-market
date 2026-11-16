@@ -495,7 +495,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `user_prompt.py` | memory-palace | UserPromptSubmit | URL detection and `+recall` |
 | `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
 | `verify_workflow_complete.py` | sanctum | Stop | Post-implementation checklist after a turn that edited files |
-| `vow_bounded_reads.py` | imbue | PreToolUse | Warns when discovery read budget (15 reads) is exceeded per session |
+| `vow_bounded_reads.py` | imbue | PreToolUse | Warns when discovery read budget (15 reads) is exceeded per session, or a call repeats an identical one |
 | `vow_no_ai_attribution.py` | imbue | PreToolUse | Blocks AI attribution strings (Co-authored-by: Claude, etc.) in commits |
 | `vow_no_edit_narration.py` | imbue | PreToolUse | Flags text that narrates the edit being made, in inserted content only |
 | `vow_no_emoji_commits.py` | imbue | PreToolUse | Blocks emoji characters in git commit messages |

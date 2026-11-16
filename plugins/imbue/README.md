@@ -108,9 +108,10 @@ the code is, such as "We renamed the handler". It reads inserted content
 only, so a session is never charged for prose it inherited.
 `vow_bounded_reads.py` fires on Read, Grep, and Glob calls and warns (or
 blocks, with `VOW_SHADOW_MODE=0`) when more than 15 consecutive discovery
-reads occur without an intervening write.
+reads occur without an intervening write. It also warns when a call
+repeats an identical earlier one. The repeat still counts.
 `vow_bounded_reads_reset.py` fires on Write, Edit, and MultiEdit calls and
-resets the counter with minimal overhead: no budget logic, just a counter
+resets the counter and the remembered calls: no budget logic, just a
 truncation.
 
 The four enforcement hooks (`vow_no_emoji_commits.py`,
