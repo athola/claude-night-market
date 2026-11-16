@@ -181,9 +181,8 @@ zero-padded to three digits and numbered in sequence across phases.
 - [ ] Criterion 1
 - [ ] Criterion 2
 
-**Technical Notes**:
-- Implementation detail 1
-- Implementation detail 2
+**Decision Notes**:
+- [The choice this task commits to, and why. The diff will show how]
 
 **Testing Requirements**:
 - Unit tests for X
@@ -288,10 +287,9 @@ Three-tier architecture:
 - [ ] Pre-commit hooks set up
 - [ ] Makefile with dev targets
 
-**Technical Notes**:
-- Use /attune:project-init for project setup
-- Configure monorepo structure (backend/, frontend/)
-- Set up shared Makefile targets
+**Decision Notes**:
+- One repository with backend/ and frontend/: both stacks share one CI
+  run and one Makefile, and the API and UI change together
 
 **Testing Requirements**:
 - CI pipeline passes
@@ -314,10 +312,11 @@ Three-tier architecture:
 - [ ] Debt_items table created
 - [ ] Indexes on foreign keys
 
-**Technical Notes**:
-- Use Alembic for migrations
-- Design for 1000+ debt items per repository
-- Include created_at/updated_at timestamps
+**Decision Notes**:
+- Alembic migrations: schema changes are reviewed as code and can be
+  rolled back
+- Sized for 1000+ debt items per repository, the largest repository
+  in the brief
 
 **Testing Requirements**:
 - Migration applies cleanly

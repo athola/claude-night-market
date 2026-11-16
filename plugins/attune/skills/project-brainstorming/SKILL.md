@@ -314,6 +314,10 @@ Final output saved to `docs/project-brief.md`:
 2. [Secondary goal]
 3. [Tertiary goal]
 
+## Out of Scope
+[Things that could reasonably be goals and were chosen not to be, each
+with its reason. Not negated goals]
+
 ## Constraints
 [From Phase 2]
 

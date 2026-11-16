@@ -280,8 +280,10 @@ Loads previous session state from `.attune/brainstorm-session.json`
 - [Trade-off 2 with mitigation]
 
 ## Out of Scope
-- [Explicitly excluded feature]
-- [Deferred capability]
+Things that could reasonably be goals and were chosen not to be, each
+with its reason. Not negated goals.
+- [Excluded feature]: [why it is excluded now]
+- [Deferred capability]: [why it waits]
 
 ## Next Steps
 1. /attune:specify - Create detailed specification
