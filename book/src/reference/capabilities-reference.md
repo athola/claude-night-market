@@ -463,8 +463,8 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `detect-git-platform.sh` | leyline | SessionStart | Detect git forge platform from remote URL |
 | `fetch-recent-discussions.sh` | leyline | SessionStart | Fetch recent GitHub Discussions |
 | `graph_auto_update.py` | gauntlet | PostToolUse | Auto-update code graph after git commits |
-| `graph_version_rebuild.py` | gauntlet | SessionStart | Rebuild the code graph in the background when an older gauntlet version built it |
 | `graph_community_refresh.py` | cartograph | PostToolUse | Refresh community detection after graph builds |
+| `graph_version_rebuild.py` | gauntlet | SessionStart | Rebuild the code graph in the background when an older gauntlet version built it |
 | `homeostatic_monitor.py` | abstract | PostToolUse | Stability gap monitoring, queues degrading skills for improvement |
 | `local_doc_processor.py` | memory-palace | PostToolUse | Processes local docs |
 | `noqa_guard.py` | leyline | PreToolUse | Block inline lint suppression directives |
