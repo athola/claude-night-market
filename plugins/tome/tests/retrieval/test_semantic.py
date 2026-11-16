@@ -302,7 +302,7 @@ class TestDegradationObservability:
 
         assert SemanticRetriever(embedder).is_semantic is not warned
 
-    @pytest.mark.integration
+    @pytest.mark.local_model
     def test_loaded_local_model_ranks_a_paraphrase_above_an_unrelated_finding(
         self, tmp_path: Any
     ) -> None:

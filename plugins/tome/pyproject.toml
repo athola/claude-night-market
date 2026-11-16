@@ -67,6 +67,7 @@ addopts = "-v --tb=short --cov=tome --cov-report=term-missing"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
+    "local_model: Needs sentence_transformers and a downloaded embedding model, which no CI job installs",
     "bdd: BDD-style tests",
 ]
 
