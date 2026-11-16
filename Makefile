@@ -257,7 +257,7 @@ docs-sync-check: ## Verify capabilities docs match plugin registrations
 # A full build, not incremental: an incremental update diffs against HEAD
 # and re-parses nothing on a clean tree. Runs in gauntlet's environment
 # because a system python3 may lack tree-sitter. Run on each release.
-graph: ## Rebuild the gauntlet code graph (.gauntlet/graph.db) from scratch
+graph: ## Re-parse every source file into the gauntlet code graph (.gauntlet/graph.db)
 	@uv run --project plugins/gauntlet python plugins/gauntlet/scripts/graph_build.py .
 
 check-json-utils: ## Verify inlined JSON utilities match scripts/shared/json_utils.sh

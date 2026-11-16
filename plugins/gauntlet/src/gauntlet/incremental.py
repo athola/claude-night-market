@@ -229,7 +229,9 @@ def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
     graph.set_metadata("last_build_type", "full")
     graph.set_metadata("last_build_duration", str(duration))
     graph.set_metadata("last_build_files", str(len(files)))
-    graph.set_metadata("gauntlet_version", __version__)
+    if total_nodes:
+        # Only a full re-parse gives every row this version's shape.
+        graph.set_metadata("gauntlet_version", __version__)
 
     return {
         "build_type": "full",
@@ -334,7 +336,6 @@ def incremental_update(
     duration = round(time.monotonic() - start, 2)
     graph.set_metadata("last_build_type", "incremental")
     graph.set_metadata("last_build_duration", str(duration))
-    graph.set_metadata("gauntlet_version", __version__)
 
     return {
         "build_type": "incremental",

@@ -37,8 +37,11 @@ for the current codebase.
    files it did not parse.
 
    An incremental update diffs against `--base-ref`, which
-   defaults to `HEAD` and so covers uncommitted changes only.
-   After a pull or a branch switch, run a full build.
+   defaults to the commit of the last successful build.
+   Commits made since then are re-parsed. A graph built
+   before that commit was recorded falls back to `HEAD`,
+   which covers uncommitted changes only: run a full build
+   once.
 
 4. **Report results**: Show the JSON output including
    files parsed, nodes created, edges created, and

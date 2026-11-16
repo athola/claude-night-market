@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -21,6 +22,21 @@ from gauntlet.incremental import (  # noqa: E402 - sys.path modified above
 )
 
 
+def _head_commit(root: Path) -> str | None:
+    """Commit the tree was at when this build read it, None outside git."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
 def main() -> None:
     """Build or update the code knowledge graph."""
     parser = argparse.ArgumentParser(description="Build code knowledge graph")
@@ -32,8 +48,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--base-ref",
-        default="HEAD",
-        help="Git ref for incremental diff (default: HEAD)",
+        default=None,
+        help="Git ref for incremental diff (default: the commit of the "
+        "last successful build, else HEAD)",
     )
     args = parser.parse_args()
 
@@ -55,7 +72,12 @@ def main() -> None:
 
     try:
         if args.incremental:
-            report = incremental_update(str(root), graph, args.base_ref)
+            # HEAD alone covers uncommitted edits only: on a clean tree a
+            # graph many commits stale reported "no changes detected".
+            base_ref = (
+                args.base_ref or graph.get_metadata("last_build_commit") or "HEAD"
+            )
+            report = incremental_update(str(root), graph, base_ref)
             if report.get("error"):
                 print(json.dumps(report, indent=2))
                 sys.exit(2)
@@ -74,6 +96,9 @@ def main() -> None:
                 sys.exit(2)
         # blast_radius scores a node by the stored flows that contain it. Tracing
         # without storing left that term at zero for every node.
+        head = _head_commit(root)
+        if head:
+            graph.set_metadata("last_build_commit", head)
         flows = trace_flows(graph)
         graph.store_flows(flows)
         report["flows_stored"] = len(flows)
