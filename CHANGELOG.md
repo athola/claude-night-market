@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+Five deterministic guards ported from NVIDIA auto-ontology
+(`3825917a`). Each holds an agent's claim to what its tools returned.
+
+- **tome:** `find_ungrounded_urls` returns report URLs that no
+  finding carries. `identify_gaps(..., entities=)` reports question
+  entities that no finding mentions, with an `entity_coverage` ratio.
+- **gauntlet:** call edges record `resolution` (`exact`,
+  `name_guess`, or empty). An existing graph database gains the
+  column when opened.
+- **imbue:** `vow_bounded_reads` warns when a Read, Grep or Glob call
+  repeats an identical earlier one. The repeat still counts against
+  the budget.
+
+### Changed
+
+- **imbue:** proof-of-work's evidence-logging module now says that
+  capped or empty output proves no absence, completeness or total. It
+  also separates observed, inferred, recommended and executed claims.
+
 ## [1.10.3] - 2026-11-13
 
 One entry below is marked Breaking, and this release ships it under a
