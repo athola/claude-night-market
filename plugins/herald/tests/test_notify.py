@@ -253,6 +253,22 @@ class TestValidateWebhookUrl:
             with pytest.raises(WebhookURLError, match="Cannot resolve"):
                 validate_webhook_url("https://evil-rebind.example.com/hook")
 
+    @pytest.mark.parametrize("control", ["\n", "\r", "\t", "\x00", "\x7f"])
+    def test_rejects_control_characters_before_resolving(self, control: str) -> None:
+        """Scenario: a control character cannot reach the curl config.
+
+        Given a URL carrying a newline, carriage return, tab, NUL or DEL
+        When validating the URL
+        Then raises WebhookURLError without resolving the hostname.
+
+        The URL is written to curl's stdin config, where a newline ends
+        the ``url`` line and the next line is read as a curl option.
+        """
+        url = f"https://hooks.slack.com/x{control}write-out = INJECTED{control}#"
+        with patch("socket.getaddrinfo", side_effect=AssertionError("resolved")):
+            with pytest.raises(WebhookURLError, match="control character"):
+                validate_webhook_url(url)
+
     def test_send_webhook_rejects_invalid_url(self) -> None:
         """Scenario: send_webhook rejects non-https URL.
 
@@ -1018,3 +1034,30 @@ class TestWebhookFailuresAndSecrets:
         assert not any("SECRETTOKEN" in arg for arg in mock_run.call_args[0][0])
         assert "SECRETTOKEN" in mock_run.call_args[1]["input"]
         assert "SECRETTOKEN" not in caplog.text
+
+    @patch("subprocess.run")
+    def test_config_line_round_trips_quote_and_backslash(
+        self, mock_run: MagicMock
+    ) -> None:
+        """A quote or backslash in the path reaches curl as the same URL.
+
+        curl reads a double-quoted config value with backslash escapes,
+        so unescaping the value written to stdin must give back the URL.
+        """
+        url = 'https://hooks.example.com/a"b\\c'
+        mock_run.return_value = MagicMock(returncode=0)
+        with patch("socket.getaddrinfo", return_value=self._PUBLIC):
+            assert send_webhook(url=url, event=AlertEvent.CRASH)
+        config = mock_run.call_args[1]["input"]
+        assert config.count("\n") == 1
+        assert config.startswith('url = "') and config.endswith('"\n')
+        quoted = config[len('url = "') : -len('"\n')]
+        unescaped = []
+        chars = iter(quoted)
+        for char in chars:
+            if char == "\\":
+                unescaped.append(next(chars))
+            else:
+                assert char != '"', "unescaped quote ends the value early"
+                unescaped.append(char)
+        assert "".join(unescaped) == url

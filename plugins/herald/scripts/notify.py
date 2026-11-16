@@ -42,10 +42,17 @@ def validate_webhook_url(url: str) -> str:
         the checked address is what makes the check hold.
 
     Raises:
-        WebhookURLError: If the URL uses a forbidden scheme, points
-            to localhost, or resolves to a private/reserved IP range.
+        WebhookURLError: If the URL contains a control character, uses
+            a forbidden scheme, points to localhost, or resolves to a
+            private/reserved IP range.
 
     """
+    # The URL becomes a line of curl's stdin config, where a newline ends
+    # the value and starts a new curl option. urlparse strips tab, CR and
+    # LF, so it is the raw string that gets checked.
+    if any(ord(char) < 0x20 or ord(char) == 0x7F for char in url):
+        raise WebhookURLError("Webhook URL contains a control character")
+
     parsed = urlparse(url)
 
     # Scheme must be https
