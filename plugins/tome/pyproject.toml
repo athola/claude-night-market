@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tome"
-version = "1.10.2"
+version = "1.10.3"
 description = "Multi-source research plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -67,6 +67,7 @@ addopts = "-v --tb=short --cov=tome --cov-report=term-missing"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
+    "local_model: Needs sentence_transformers and a downloaded embedding model, which no CI job installs",
     "bdd: BDD-style tests",
 ]
 

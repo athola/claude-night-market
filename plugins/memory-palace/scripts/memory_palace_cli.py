@@ -508,7 +508,7 @@ class _IndexMixin(_CLIBase):
         """
         index_path = self._capture_index_path()
         index = load_capture_index(index_path)
-        stats = corpus_stats(index, plugin_root=self.plugin_dir)
+        stats = corpus_stats(index, plugin_root=self._data_root())
         clusters = cluster_by_domain(index)
         candidates = rank_promotion_candidates(index, limit=top)
 
@@ -578,7 +578,7 @@ class _IndexMixin(_CLIBase):
         """
         index_path = self._capture_index_path()
         index = load_capture_index(index_path)
-        proposals = propose_promotions(index, plugin_root=self.plugin_dir)
+        proposals = propose_promotions(index, plugin_root=self._data_root())
 
         promotes = [p for p in proposals if p.action == "promote"]
         archives = [p for p in proposals if p.action == "archive"]
@@ -661,7 +661,7 @@ class _IndexMixin(_CLIBase):
         index_path = self._capture_index_path()
         index = load_capture_index(index_path)
         try:
-            keys = propose_orphan_prunes(index, self.plugin_dir)
+            keys = propose_orphan_prunes(index, self._data_root())
         except CorpusUnavailableError as exc:
             # Refuse, do not fail. This runs from the pre-commit hook
             # under set -e, so raising here would block every commit made

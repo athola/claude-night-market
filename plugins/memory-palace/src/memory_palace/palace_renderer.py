@@ -24,9 +24,12 @@ def _sanitize_label(text: str) -> str:
 _STRONG_THRESHOLD = 0.7
 _MEDIUM_THRESHOLD = 0.4
 
-# PageRank thresholds for node shape selection in algo_informed_er_graph
-_PAGERANK_STADIUM_THRESHOLD = 0.2  # score >= this → stadium shape ([name])
-_PAGERANK_ROUND_THRESHOLD = 0.1  # score >= this → round shape (name)
+# PageRank thresholds for node shape selection in algo_informed_er_graph,
+# in multiples of the mean score. Scores sum to 1, so the mean is 1/N; an
+# absolute cutoff made every node of a 5-node ring "central" and none of
+# a 30-node one.
+_PAGERANK_STADIUM_THRESHOLD = 3.0  # >= 3x the mean: stadium shape ([name])
+_PAGERANK_ROUND_THRESHOLD = 1.5  # >= 1.5x the mean: round shape (name)
 
 
 def _edge_style(strength: float) -> str:
@@ -435,7 +438,7 @@ class PalaceRenderer:
         keystones: set[str],
     ) -> str:
         """Return a Mermaid node line with shape and optional keystone class."""
-        score = pagerank_scores.get(eid, 0.0)
+        score = pagerank_scores.get(eid, 0.0) * len(pagerank_scores)
         label = _sanitize_label((self._graph.get_entity(eid) or {}).get("name", eid))
         if score >= _PAGERANK_STADIUM_THRESHOLD:
             base = f"    {eid}([{label}])"

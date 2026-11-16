@@ -90,7 +90,9 @@ compare_kind() {
 
   while IFS=$'\t' read -r name plugin; do
     [ -z "${name}" ] && continue
-    if ! printf '%s\n' "${documented}" | grep -Fqx "${name}"; then
+    # A here-string: grep -q exits at the first match, and under
+    # pipefail the writer's SIGPIPE would turn that match into a miss.
+    if ! grep -Fqx "${name}" <<<"${documented}"; then
       MISSING_ENTRIES+=("${label}: ${name} (${plugin}) - registered but NOT in docs")
       ERRORS=$((ERRORS + 1))
     fi

@@ -153,9 +153,9 @@ demo-skills: ## Validate tome skill structure
 	@echo "=== Tome Skills Demo ==="
 	@echo "Research skills:"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(sed -n '1,10s/^name:[[:space:]]*//p' "$$skill"); \
 		echo "  - $$name"; \
-	done 2>/dev/null || echo "  (no skills found)"
+	done
 
 plugin-check: demo-classify demo-plan demo-channels demo-skills status ## Run all demo workflows
 	@echo ""

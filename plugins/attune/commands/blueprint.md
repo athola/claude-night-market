@@ -52,7 +52,7 @@ Avoid this command if:
 When superpowers plugin is available:
 - Uses `Skill(superpowers:writing-plans)` for structured planning
 - Applies dependency analysis
-- Creates checkpoint-based execution flow
+- Adds its Global Constraints, Interfaces and Review Focus blocks
 
 Without superpowers:
 - Falls back to attune's native planning skill
@@ -153,6 +153,12 @@ Skill(attune:project-planning)
 - debt_items (id, repo_id, issue_number, type, priority)
 ```
 
+### Global Constraints
+
+Rules from the spec that bind every task, copied verbatim: version
+floors, dependency limits, naming, exact values. Implementers that see
+only their own task still see these.
+
 ### Section 2: Task Breakdown
 
 **Task Format**: task IDs use the spec-kit `TNNN` form (`T001`),
@@ -167,6 +173,8 @@ zero-padded to three digits and numbered in sequence across phases.
 **Priority**: P0 (Critical) | P1 (High) | P2 (Medium) | P3 (Low)
 **Estimate**: [Story points or hours]
 **Dependencies**: T002, T005
+**Interfaces**: Consumes [what it reads from earlier tasks]; produces
+[signatures or files later tasks use]
 **Assignee**: [Team member or TBD]
 
 **Acceptance Criteria**:
@@ -181,6 +189,12 @@ zero-padded to three digits and numbered in sequence across phases.
 - Unit tests for X
 - Integration tests for Y
 ```
+
+### Review Focus
+
+Up to five inputs or failure modes the spec implies but no task tests,
+each pinned by a test added to the task that owns the code. An empty
+section means the check ran and found none.
 
 ### Section 3: Development Phases
 
@@ -443,7 +457,7 @@ The planning skill automatically validates:
 When superpowers is installed, this command automatically:
 - Invokes `Skill(superpowers:writing-plans)` for planning framework
 - Uses dependency analysis patterns
-- Creates checkpoint-based execution flow
+- Self-reviews the plan for proportion and Review Focus coverage
 
 Check if superpowers is available:
 ```bash
@@ -452,6 +466,5 @@ Check if superpowers is available:
 
 Install superpowers:
 ```bash
-/plugin marketplace add obra/superpowers
-/plugin install superpowers@superpowers-marketplace
+/plugin install superpowers@claude-plugins-official
 ```

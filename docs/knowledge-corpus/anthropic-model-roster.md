@@ -19,7 +19,7 @@ related_artifacts:
   - docs/agent-model-matrix.md
   - plugins/phantom/src/phantom/cost.py
   - .claude/skills/night-market-model-and-harness-updates/SKILL.md
-last_updated: 2026-10-26
+last_updated: 2026-11-13
 ---
 
 ## Synopsis
@@ -29,7 +29,7 @@ names do not tell you where a model sits. This entry is the lookup
 table that settles both questions: which model to reach for, and what
 it costs when you do.
 
-Verified against the models overview on 2026-10-26. Refresh through
+Verified against the models overview on 2026-11-13. Refresh through
 `Skill(night-market-model-and-harness-updates)`, which reads the card
 as a mandatory source.
 
@@ -37,19 +37,19 @@ as a mandatory source.
 
 | Tier | API ID | In / Out per MTok | Context | Max out | Latency |
 |------|--------|-------------------|---------|---------|---------|
-| Frontier | `claude-fable-5-1` | $10 / $50 | 1M | 128k | Slower |
+| Frontier | `claude-fable-5-2` | $8 / $40 | 1M | 128k | Moderate |
 | Deep | `claude-opus-5-5` | $4 / $20 | 1M | 128k | Moderate |
 | Standard | `claude-sonnet-5-5` | $2 / $10 | 1M | 128k | Fast |
 | Lightweight | `claude-haiku-5-5` | $0.10 / $0.50 up to 100K, $0.50 / $2.50 above | 1M | 128k | Fastest |
 
-Cache reads cost 10% of the input rate, except Fable 5.1 at 2.5% and
+Cache reads cost 10% of the input rate, except Fable 5.2 at 2.5% and
 Opus 5.5 and Sonnet 5.5 at 5%. Default API effort is `high` on Fable
-5.1 and Sonnet 5.5 and `medium` on Opus 5.5 and Haiku 5.5.
+5.2 and Sonnet 5.5 and `medium` on Opus 5.5 and Haiku 5.5.
 
 Claude Code made each the default in its tier as it shipped: Fable 5.1
-in 2.1.257, Opus 5.5 in 2.1.280, Sonnet 5.5 in 2.1.284. Agent
-frontmatter pins the tier alias (`opus`, `sonnet`, `fable`, `haiku`),
-which moved with them.
+in 2.1.257, Opus 5.5 in 2.1.280, Sonnet 5.5 in 2.1.284, and Fable 5.2
+(released 2026-11-09) in 2.1.321. Agent frontmatter pins the tier
+alias (`opus`, `sonnet`, `fable`, `haiku`), which moved with them.
 
 ## What the card settles that the name does not
 
@@ -78,7 +78,7 @@ default.
 |-------|--------|
 | `claude-haiku-4-5-20251001` | Legacy, still callable. Its not-sooner-than date of 2026-10-15 has passed with no retirement date set |
 | `claude-opus-4-1-20250805` | Retired 2026-08-05, calls return 404 |
-| Fable 5 ($10 / $50), Opus 5 ($5 / $25), Sonnet 5 ($2 / $10) | Legacy, still callable |
+| Fable 5.1 and Fable 5 ($10 / $50), Opus 5 ($5 / $25), Sonnet 5 ($2 / $10) | Legacy, still callable |
 | Opus 4.8, 4.7, 4.6, 4.5; Sonnet 4.6 | Legacy, still callable |
 
 Haiku 4.5 can retire on short notice now. Code that names it rather

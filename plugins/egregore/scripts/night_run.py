@@ -47,8 +47,10 @@ from __future__ import annotations
 
 import argparse
 import importlib
+import os
 import re
 import shlex
+import signal
 import subprocess
 import sys
 from collections.abc import Callable, Mapping, Sequence
@@ -153,25 +155,53 @@ class SubprocessRunner:
         if not argv:
             return Completed(returncode=1, output="empty command")
         try:
-            proc = subprocess.run(
+            proc = subprocess.Popen(
                 argv,
                 cwd=cwd,
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True,
                 # A byte that is not UTF-8 must not discard the whole run's
                 # output: the output is the evidence.
                 errors="replace",
-                timeout=timeout or None,
-                check=False,
                 env=dict(env) if env is not None else None,
-            )
-        except subprocess.TimeoutExpired:
-            return Completed(
-                returncode=TIMEOUT_EXIT, output=f"timed out after {timeout}s"
+                # Its own process group, so a timeout can kill what the
+                # command spawned. ``uv run pytest`` leaves pytest as a
+                # grandchild that killing the direct child would orphan.
+                start_new_session=True,
             )
         except OSError as exc:
             return Completed(returncode=127, output=f"could not run {argv[0]!r}: {exc}")
-        return Completed(returncode=proc.returncode, output=proc.stdout + proc.stderr)
+        try:
+            stdout, stderr = proc.communicate(timeout=timeout or None)
+        except subprocess.TimeoutExpired as exc:
+            os.killpg(proc.pid, signal.SIGKILL)
+            try:
+                stdout, stderr = proc.communicate(timeout=_DRAIN_TIMEOUT_S)
+            except subprocess.TimeoutExpired:
+                # A descendant that left the group still holds the pipe.
+                # Keep what had arrived when the first wait expired.
+                stdout, stderr = _text(exc.stdout), _text(exc.stderr)
+            partial = stdout + stderr
+            note = f"timed out after {timeout}s"
+            return Completed(
+                returncode=TIMEOUT_EXIT,
+                output=f"{partial}\n{note}" if partial else note,
+            )
+        return Completed(returncode=proc.returncode, output=stdout + stderr)
+
+
+#: Seconds to collect output after the process group is killed.
+_DRAIN_TIMEOUT_S = 5
+
+
+def _text(captured: bytes | str | None) -> str:
+    """``TimeoutExpired`` carries bytes even when the pipe was text."""
+    if captured is None:
+        return ""
+    if isinstance(captured, bytes):
+        return captured.decode("utf-8", errors="replace")
+    return captured
 
 
 #: A babysitter takes the captured facts and answers with
@@ -274,7 +304,10 @@ def _git_unquote(name: str) -> str:
 
 def _changed_files(runner: Runner, workdir: Path) -> list[str]:
     """List the tracked files the implementer modified, staged or not."""
-    names = _git_query(runner, workdir, "diff", "HEAD", "--name-only")
+    # --no-renames: a rename lists its source as well as its destination,
+    # so moving a fenced file into an allowed path is judged as the
+    # deletion it is.
+    names = _git_query(runner, workdir, "diff", "HEAD", "--name-only", "--no-renames")
     return [_git_unquote(line.strip()) for line in names.splitlines() if line.strip()]
 
 
@@ -290,6 +323,17 @@ def _touched_files(runner: Runner, workdir: Path) -> list[str]:
     could not see.
     """
     return _changed_files(runner, workdir) + _untracked(runner, workdir)
+
+
+def _command_timeout(handoff: Handoff) -> int:
+    """Seconds an evidence, setup or full-suite command may run.
+
+    Without a bound one hung test run wedges the unattended night: the
+    watchdog relaunches a dead session, not a live hang. Separate from
+    implementer_timeout_s, because a suite slower than an implementer
+    turn would otherwise read as exit 124 and BLOCKED.
+    """
+    return int(handoff.budget.get("command_timeout_s", 3600))
 
 
 def _dispatch_implementer(
@@ -420,7 +464,9 @@ def run_task(
             continue
 
         observed = runner.run(
-            _argv_from_text(str(evidence.get("command", ""))), cwd=workdir
+            _argv_from_text(str(evidence.get("command", ""))),
+            cwd=workdir,
+            timeout=_command_timeout(handoff),
         )
         _raise_if_usage_limited(observed)
         objective = verdict_mod.objective_check(
@@ -789,7 +835,9 @@ def _prepare_worktree(
     if not setup:
         return None
 
-    prepared = runner.run(_argv_from_text(str(setup)), cwd=worktree)
+    prepared = runner.run(
+        _argv_from_text(str(setup)), cwd=worktree, timeout=_command_timeout(handoff)
+    )
     if prepared.returncode != 0:
         return f"{setup} exited {prepared.returncode}: {prepared.output[:200]}"
     return None
@@ -841,7 +889,9 @@ def _final_full_suite(
             None,
         )
 
-    observed = runner.run(_argv_from_text(str(full)), cwd=worktree)
+    observed = runner.run(
+        _argv_from_text(str(full)), cwd=worktree, timeout=_command_timeout(handoff)
+    )
     record = {
         "command": str(full),
         "exit": observed.returncode,
@@ -863,7 +913,8 @@ def _item_worktree(root: Path, item: str, declared: object) -> Path:
     the result is ``git checkout -- .`` and ``git clean -fd``.
     """
     if declared is None or declared == "":
-        return root / f".egregore/worktrees/{item}"
+        # The default runs the same checks: `item` is a handoff field too.
+        declared = f".egregore/worktrees/{item}"
     if not isinstance(declared, str):
         raise ValueError(
             f"handoff worktree must be a string, got {type(declared).__name__}"

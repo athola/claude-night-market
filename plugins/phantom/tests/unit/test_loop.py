@@ -203,6 +203,22 @@ class TestLoopResult:
 class TestExecuteTool:
     """Feature: Tool execution dispatch."""
 
+    def test_text_editor_tool_reads_the_named_file(self, tmp_path):
+        """The str_replace_based_edit_tool name routes to the editor handler."""
+        target = tmp_path / "notes.txt"
+        target.write_text("alpha\n")
+
+        result = _execute_tool(
+            "str_replace_based_edit_tool",
+            {"command": "view", "path": str(target)},
+            "tool-id-ed",
+            MagicMock(spec=DisplayToolkit),
+        )
+
+        assert result["tool_use_id"] == "tool-id-ed"
+        assert "alpha" in str(result["content"])
+        assert not result.get("is_error")
+
     def test_computer_tool_delegates_to_display(self):
         """
         Scenario: Computer tool execution

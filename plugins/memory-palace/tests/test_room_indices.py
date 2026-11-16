@@ -125,7 +125,7 @@ class TestRoomPartitioning:
         # Write old flat format (no rooms key)
         data = {
             "providers": {
-                "hash": {"embeddings": {"old-entry": [0.1, 0.2, 0.3]}},
+                "hash": {"embeddings": {"old-entry": [0.1, 0.2, 0.3] + [0.0] * 13}},
             },
             "metadata": {"default_provider": "hash"},
         }
@@ -191,10 +191,10 @@ class TestRoomPartitioning:
                 "hash": {
                     "rooms": {
                         "decisions": {
-                            "embeddings": {"e1": [0.1, 0.2]},
+                            "embeddings": {"e1": [0.1, 0.2] + [0.0] * 14},
                         },
                         "patterns": {
-                            "embeddings": {"e2": [0.3, 0.4]},
+                            "embeddings": {"e2": [0.3, 0.4] + [0.0] * 14},
                         },
                     },
                     "vector_dimension": 2,

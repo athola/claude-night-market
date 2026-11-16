@@ -61,6 +61,10 @@ def _run(
     )
 
 
+# The longest a model-supplied wait or key hold may block the loop.
+_MAX_PAUSE_SECONDS = 10
+
+
 class DisplayToolkit:
     """Execute computer use actions on a display.
 
@@ -288,7 +292,14 @@ class DisplayToolkit:
 
     def _do_scroll(self, action: dict[str, Any]) -> ActionResult:
         """Scroll at position."""
-        coord = action.get("coordinate", [0, 0])
+        # No default position: an implied (0, 0) is a point the safety
+        # filter never saw, so a scroll could act inside a blocked region.
+        coord = action.get("coordinate")
+        if not coord or len(coord) != 2:
+            return ActionResult(
+                success=False,
+                error="scroll requires coordinate [x, y]",
+            )
         direction = action.get("scroll_direction", "down")
         amount = int(action.get("scroll_amount", 3))
 
@@ -335,7 +346,7 @@ class DisplayToolkit:
 
         _run(["xdotool", "keydown", key])
         try:
-            time.sleep(duration)
+            time.sleep(min(duration, _MAX_PAUSE_SECONDS))
         finally:
             _run(["xdotool", "keyup", key], check=False)
         return ActionResult(success=True)
@@ -343,7 +354,7 @@ class DisplayToolkit:
     def _do_wait(self, action: dict[str, Any]) -> ActionResult:
         """Pause between actions."""
         duration = float(action.get("duration", 1))
-        time.sleep(min(duration, 10))  # Cap at 10s
+        time.sleep(min(duration, _MAX_PAUSE_SECONDS))
         return ActionResult(success=True)
 
     def _do_left_mouse_down(self, action: dict[str, Any]) -> ActionResult:

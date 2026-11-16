@@ -7,12 +7,16 @@ to classify matches as strong (>80%), partial (40-80%), or weak (<40%).
 
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 from typing import Any
 
 from memory_palace.corpus._frontmatter import parse_entry_frontmatter
-from memory_palace.corpus.embedding_index import EmbeddingIndex
+from memory_palace.corpus.embedding_index import (
+    EmbeddingDimensionError,
+    EmbeddingIndex,
+)
 from memory_palace.corpus.keyword_index import KeywordIndexer
 from memory_palace.corpus.query_templates import QueryTemplateManager
 
@@ -21,6 +25,9 @@ MATCH_STRONG = 0.8
 MATCH_PARTIAL = 0.4
 
 SEARCH_MODES = ("keywords", "queries", "embeddings", "unified")
+
+
+logger = logging.getLogger(__name__)
 
 
 class CacheLookup:
@@ -192,7 +199,14 @@ class CacheLookup:
         if not self.keyword_indexer.index.get("entries"):
             self.keyword_indexer.load_index()
         query_text = " ".join(query) if isinstance(query, list) else query
-        scores = self.embedding_index.search(query_text)
+        try:
+            scores = self.embedding_index.search(query_text)
+        except EmbeddingDimensionError as exc:
+            # The stored vectors and the query come from different
+            # embedding spaces (a local model that did not load). Keyword
+            # and query results still stand on their own.
+            logger.warning("embedding search skipped: %s", exc)
+            return []
         results = []
         for entry_id, score in scores:
             entry_data = self.keyword_indexer.index.get("entries", {}).get(entry_id)

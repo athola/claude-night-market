@@ -18,33 +18,35 @@ You **MUST** consider the user input before proceeding (if not empty).
 1. Run `.specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
 
 2. **Check checklists status** (if FEATURE_DIR/checklists/ exists):
+   - Treat checklist markers as a read-only gate: scan checkbox state, report it, and ask before proceeding when needed. Do NOT modify checklist files or markers
+   - `checklists/requirements.md` is the spec-quality checklist that `/speckit-specify` and `/speckit-clarify` maintain. Checklists from `/speckit-checklist` are reviewer-owned requirements-quality reviews: `[x]` there means the reviewer found the requirement criterion satisfied, and does NOT mean implementation work is complete
    - Scan all checklist files in the checklists/ directory
    - For each checklist, count:
      - Total items: All lines matching `- [ ]` or `- [X]` or `- [x]`
-     - Completed items: Lines matching `- [X]` or `- [x]`
-     - Incomplete items: Lines matching `- [ ]`
+     - Checked items: Lines matching `- [X]` or `- [x]`
+     - Unchecked items: Lines matching `- [ ]`
    - Create a status table:
 
      ```text
-     | Checklist | Total | Completed | Incomplete | Status |
-     |-----------|-------|-----------|------------|--------|
-     | ux.md     | 12    | 12        | 0          | PASS |
-     | test.md   | 8     | 5         | 3          | FAIL |
-     | security.md | 6   | 6         | 0          | PASS |
+     | Checklist | Total | Checked | Unchecked | Status |
+     |-----------|-------|---------|-----------|--------|
+     | ux.md     | 12    | 12      | 0         | PASS |
+     | test.md   | 8     | 5       | 3         | FAIL |
+     | security.md | 6   | 6       | 0         | PASS |
      ```
 
    - Calculate overall status:
-     - **PASS**: All checklists have 0 incomplete items
-     - **FAIL**: One or more checklists have incomplete items
+     - **PASS**: All checklists have 0 unchecked items
+     - **FAIL**: One or more checklists have unchecked items
 
-   - **If any checklist is incomplete**:
-     - Display the table with incomplete item counts
-     - **STOP** and ask: "Some checklists are incomplete. Do you want to proceed with implementation anyway? (yes/no)"
+   - **If any checklist has unchecked items**:
+     - Display the table with unchecked item counts
+     - **STOP** and ask: "Some checklists have unchecked items. Do you want to proceed with implementation anyway? (yes/no)"
      - Wait for user response before continuing
      - If user says "no" or "wait" or "stop", halt execution
      - If user says "yes" or "proceed" or "continue", proceed to step 3
 
-   - **If all checklists are complete**:
+   - **If all checklists are checked**:
      - Display the table showing all checklists passed
      - Automatically proceed to step 3
 
@@ -54,6 +56,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **IF EXISTS**: Read data-model.md for entities and relationships
    - **IF EXISTS**: Read contracts/ for API specifications and test requirements
    - **IF EXISTS**: Read research.md for technical decisions and constraints
+   - **IF EXISTS**: Read `.specify/memory/constitution.md` for governance constraints
    - **IF EXISTS**: Read quickstart.md for integration scenarios
 
 4. **Project Setup Verification**:

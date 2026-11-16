@@ -27,13 +27,14 @@ from dataclasses import dataclass
 # above. A flat row cannot carry both, so it holds the higher tier. The
 # budget guard then stops early on short prompts, never late on long ones.
 PRICING = {
-    # Current (pricing page, 2026-10-14)
-    "claude-fable-5-1": {"input": 10.0, "output": 50.0},
+    # Current (pricing page, 2026-10-14; Fable 5.2 checked 2026-11-13)
+    "claude-fable-5-2": {"input": 8.0, "output": 40.0},
     "claude-opus-5-5": {"input": 4.0, "output": 20.0},
     "claude-sonnet-5-5": {"input": 2.0, "output": 10.0},
     "claude-haiku-5-5": {"input": 0.5, "output": 2.5},
     "claude-haiku-4-5-20251001": {"input": 1.0, "output": 5.0},
     # Legacy, still callable
+    "claude-fable-5-1": {"input": 10.0, "output": 50.0},
     "claude-fable-5": {"input": 10.0, "output": 50.0},
     "claude-opus-5": {"input": 5.0, "output": 25.0},
     "claude-sonnet-5": {"input": 2.0, "output": 10.0},

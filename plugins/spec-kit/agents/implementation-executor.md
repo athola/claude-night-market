@@ -45,7 +45,8 @@ Executes implementation tasks systematically following the task plan.
 
 ### Pre-Implementation
 1. Validate all checklists are complete
-2. Load implementation context (tasks.md, plan.md, data-model.md)
+2. Load implementation context (tasks.md, plan.md, data-model.md, and
+   `.specify/memory/constitution.md` if it exists)
 3. Verify project setup (ignore files, dependencies)
 
 ### Task Execution

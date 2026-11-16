@@ -24,6 +24,7 @@ import pytest
 
 from tome.channels import academic, discourse, http
 from tome.channels import fetch as fetch_cli
+from tome.synthesis.quality import parse_envelope
 
 Transport = Callable[[str, dict], http.Response]
 
@@ -280,6 +281,55 @@ def test_reddit_calls_are_spaced_and_rate_limits_recorded() -> None:
             "message": "r/meshtastic: HTTP 403",
         }
     ]
+
+
+def test_a_rate_limited_source_is_a_failed_query_not_an_empty_one() -> None:
+    """The printed rows are what agents copy into their envelope."""
+    limited = http.Response(429, "Rate exceeded.", {})
+    transport, _ = _routed(
+        {
+            "export.arxiv.org": limited,
+            "api.semanticscholar.org": _ok(json.dumps({"data": []})),
+            "api.openalex.org": _ok(json.dumps({"results": []})),
+        }
+    )
+    report = fetch_cli.search_academic(
+        "x",
+        fetch=lambda u, **kw: http.fetch(
+            u, transport=transport, sleep=lambda s: None, **kw
+        ),
+    )
+    logs = {q.source: q for q in parse_envelope(report)}
+    assert logs["arxiv"].error == "rate_limit"
+    assert not logs["arxiv"].succeeded
+    assert logs["openalex"].succeeded
+
+
+def test_a_spent_budget_marks_every_skipped_query_failed() -> None:
+    """A source the budget never reached was not searched."""
+    ticks = iter([0.0, 10.0, 10.0, 10.0, 10.0])
+    report = fetch_cli.search_academic(
+        "x",
+        fetch=lambda u, **kw: _ok(""),
+        budget_seconds=1.0,
+        clock=lambda: next(ticks),
+    )
+    assert all(not q.succeeded for q in parse_envelope(report))
+
+
+def test_a_blocked_subreddit_is_a_failed_query() -> None:
+    transport, _ = _scripted(_ok(REDDIT_RSS), http.Response(403, "blocked", {}))
+    report = fetch_cli.search_reddit(
+        "meshtastic",
+        ["amateurradio", "meshtastic"],
+        fetch=lambda u, **kw: http.fetch(
+            u, transport=transport, sleep=lambda s: None, **kw
+        ),
+        sleep=lambda s: None,
+    )
+    logs = {q.query: q for q in parse_envelope(report)}
+    assert logs["r/meshtastic meshtastic"].error == "source_error"
+    assert logs["r/amateurradio meshtastic"].succeeded
 
 
 # --- CLI ------------------------------------------------------------------

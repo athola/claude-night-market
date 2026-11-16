@@ -26,7 +26,7 @@ description that names the job again, will activate reliably.
 
 **Skill**: `Skill(pensive:tiered-audit)`
 **Path**:
-`/home/alext/claude-night-market/plugins/pensive/skills/tiered-audit/SKILL.md`
+`plugins/pensive/skills/tiered-audit/SKILL.md`
 
 What to copy from this skill:
 
@@ -53,7 +53,7 @@ tiers explicitly rather than letting Claude pick.
 
 **Skill**: `Skill(abstract:subagent-testing)`
 **Path**:
-`/home/alext/claude-night-market/plugins/abstract/skills/subagent-testing/SKILL.md`
+`plugins/abstract/skills/subagent-testing/SKILL.md`
 
 This skill exists because `skill-authoring` requires baseline
 tests in fresh subagents. Rather than restating the testing
@@ -84,7 +84,7 @@ What to copy:
 
 **Skill**: `Skill(imbue:proof-of-work)`
 **Path**:
-`/home/alext/claude-night-market/plugins/imbue/skills/proof-of-work/SKILL.md`
+`plugins/imbue/skills/proof-of-work/SKILL.md`
 
 This skill enforces evidence before "done." It is referenced
 by `skill-authoring/SKILL.md` as the source of detailed
@@ -117,7 +117,7 @@ What to copy:
 
 **Skill**: `Skill(scribe:slop-detector)`
 **Path**:
-`/home/alext/claude-night-market/plugins/scribe/skills/slop-detector/SKILL.md`
+`plugins/scribe/skills/slop-detector/SKILL.md`
 
 What to copy:
 
@@ -138,7 +138,7 @@ What to copy:
 
 **Skill**: `Skill(abstract:skill-graph-audit)`
 **Path**:
-`/home/alext/claude-night-market/plugins/abstract/skills/skill-graph-audit/SKILL.md`
+`plugins/abstract/skills/skill-graph-audit/SKILL.md`
 
 What to copy:
 

@@ -353,7 +353,7 @@ Solution: Install sanctum and abstract plugins
 ### Skill Not Found
 ```bash
 Error: superpowers:receiving-code-review not found
-Solution: Install superpowers plugin from superpowers-marketplace
+Solution: Install superpowers with `/plugin install superpowers@claude-plugins-official`
 ```
 
 ### Quality Gate Failures

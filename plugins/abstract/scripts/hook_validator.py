@@ -195,7 +195,9 @@ GROUP_KEYS = frozenset({"matcher", "hooks"})
 # beside ``command``; on the group it is silently ignored, so the condition
 # reads as enforced and is not. That is why an unknown group key is worth a
 # warning rather than a note.
-MISPLACED_ENTRY_KEYS = frozenset({"if", "timeout", "type", "command", "async"})
+MISPLACED_ENTRY_KEYS = frozenset(
+    {"if", "timeout", "type", "command", "async", "onFailure"},
+)
 
 
 def _validate_group_keys(

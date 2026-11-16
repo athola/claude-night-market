@@ -13,7 +13,9 @@ from datetime import datetime, timezone
 
 # Constants
 CONTROLLABLE_GROWTH_THRESHOLD = 0.10
-MECW_USAGE_LIMIT = 100
+# MECW: never use more than 50% of the effective context window
+# (skills/context-optimization/modules/mecw-principles.md).
+MECW_USAGE_LIMIT = 50
 SAFETY_LIMIT_TURNS = 1000
 PROJECTION_TURNS = [5, 10, 20]
 
@@ -150,7 +152,7 @@ class GrowthAnalyzer:
                 ),
             }
 
-        # Estimate time to MECW violation (assuming 100% limit)
+        # Estimate time to MECW violation (the 50% limit)
         if current_usage > 0 and growth_rate > 0:
             turns_to_mecw = self._estimate_mecw_violation(
                 current_usage,
@@ -167,7 +169,7 @@ class GrowthAnalyzer:
         growth_rate: float,
         acceleration: float,
     ) -> float:
-        """Estimate turns until MECW violation (100% usage)."""
+        """Estimate turns until MECW violation (50% usage)."""
         if current_usage >= MECW_USAGE_LIMIT:
             return 0.0
 

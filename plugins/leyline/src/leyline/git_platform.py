@@ -55,7 +55,8 @@ def gh_api(
 
     Args:
         endpoint: REST endpoint (e.g. ``repos/foo/bar/issues``).
-        method: HTTP method, passed via ``-X`` when not GET.
+        method: HTTP method, passed via ``-X`` when not GET or when
+            fields are present: gh switches to POST on fields otherwise.
         fields: Optional ``-f key=value`` field pairs.
         timeout: Subprocess timeout in seconds.
 
@@ -64,7 +65,7 @@ def gh_api(
     """
     cmd = ["gh", "api", endpoint]
     method_upper = method.upper()
-    if method_upper != "GET":
+    if method_upper != "GET" or fields:
         cmd.extend(["-X", method_upper])
     for key, value in (fields or {}).items():
         if "=" in key:

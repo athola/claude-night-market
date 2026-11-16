@@ -111,8 +111,9 @@ class TestLocalOutputOption:
 
     @pytest.fixture()
     def skill_content(self) -> str:
-        """Load the SKILL.md content."""
-        return SKILL_FILE.read_text()
+        """Load the Phase 4.6 module, then the SKILL.md that points at it."""
+        module = SKILL_DIR / "modules" / "invariant-conflicts.md"
+        return module.read_text() + SKILL_FILE.read_text()
 
     @pytest.fixture()
     def command_content(self) -> str:
@@ -343,8 +344,9 @@ class TestInvariantConflictDetection:
 
     @pytest.fixture()
     def skill_content(self) -> str:
-        """Load the SKILL.md content."""
-        return SKILL_FILE.read_text()
+        """Load the Phase 4.6 module, then the SKILL.md that points at it."""
+        module = SKILL_DIR / "modules" / "invariant-conflicts.md"
+        return module.read_text() + SKILL_FILE.read_text()
 
     @pytest.mark.unit
     def test_has_invariant_detection_phase(self, skill_content: str) -> None:

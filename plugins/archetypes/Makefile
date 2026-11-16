@@ -42,8 +42,7 @@ demo-paradigms: ## List available architecture paradigms
 	@echo "Available architecture paradigms:"
 	@echo ""
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
-		desc=$$(head -15 "$$skill" | grep '^description:' | cut -d: -f2- | head -c 60); \
+		name=$$(sed -n '1,10s/^name:[[:space:]]*//p' "$$skill"); \
 		echo "  - $$name"; \
 	done
 	@echo ""
@@ -55,8 +54,8 @@ demo-skills: ## Validate archetypes skill structure
 	@echo ""
 	@fail=0; for skill in skills/*/SKILL.md; do \
 		name=$$(basename $$(dirname $$skill)); \
-		has_name=$$(grep -c '^name:' "$$skill" 2>/dev/null || echo 0); \
-		has_desc=$$(grep -c '^description:' "$$skill" 2>/dev/null || echo 0); \
+		has_name=$$(grep -c '^name:' "$$skill" 2>/dev/null || true); \
+		has_desc=$$(grep -c '^description:' "$$skill" 2>/dev/null || true); \
 		if [ "$$has_name" -gt 0 ] && [ "$$has_desc" -gt 0 ]; then \
 			echo "  [OK] $$name"; \
 		else \

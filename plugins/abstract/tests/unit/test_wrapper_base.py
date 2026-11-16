@@ -333,3 +333,34 @@ class TestDetectBreakingChangesWithMockedGit:
             result = _detect_breaking_changes([str(py_file)])
 
         assert result == []
+
+
+class TestDetectBreakingChangesAgainstARealRepo:
+    """git show needs a path git can resolve, whatever form the caller passes."""
+
+    @staticmethod
+    def _committed_module(tmp_path):
+        repo = tmp_path / "repo"
+        pkg = repo / "pkg"
+        pkg.mkdir(parents=True)
+        module = pkg / "api.py"
+        module.write_text("def keep():\n    pass\n\n\ndef gone():\n    pass\n")
+        git = ["git", "-c", "user.email=t@t", "-c", "user.name=t"]
+        subprocess.run([*git, "init", "-q"], cwd=repo, check=True)
+        subprocess.run([*git, "add", "."], cwd=repo, check=True)
+        subprocess.run([*git, "commit", "-qm", "init"], cwd=repo, check=True)
+        module.write_text("def keep():\n    pass\n")
+        return module
+
+    @pytest.mark.unit
+    def test_absolute_path_reports_a_removed_function(self, tmp_path):
+        module = self._committed_module(tmp_path)
+        changes = _detect_breaking_changes([str(module)])
+        assert [(c["type"], c["name"]) for c in changes] == [("removed", "gone")]
+
+    @pytest.mark.unit
+    def test_path_relative_to_another_cwd_reports_it(self, tmp_path, monkeypatch):
+        module = self._committed_module(tmp_path)
+        monkeypatch.chdir(module.parent)
+        changes = _detect_breaking_changes(["api.py"])
+        assert [(c["type"], c["name"]) for c in changes] == [("removed", "gone")]

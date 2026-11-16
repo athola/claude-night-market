@@ -176,6 +176,9 @@ my-cli/
 └── ...
 ```
 
+A full session from paradigm research to scaffold, with the files it
+writes: `examples/architecture-aware-example.md`.
+
 ## Output
 
 After completion, you'll have:

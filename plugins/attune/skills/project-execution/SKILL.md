@@ -33,7 +33,11 @@ role: library
 ## Integration
 
 **With superpowers**:
-- Uses `Skill(superpowers:executing-plans)` for systematic execution
+- Uses `Skill(superpowers:executing-plans)` for Native execution: the
+  session implements every task itself, then one whole-branch review.
+  `Skill(superpowers:subagent-driven-development)` is the other mode,
+  with an implementer and a reviewer per task. attune's per-task
+  Delegation Check below decides which tasks leave the session
 - Uses `Skill(superpowers:systematic-debugging)` for issue resolution
 - Uses `Skill(superpowers:verification-before-completion)` for validation
 - Uses `Skill(superpowers:test-driven-development)` for TDD workflow

@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.10.2-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.10.3-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-201-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-199-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 
 **A plugin marketplace for Claude Code.** Install only the
@@ -219,8 +219,8 @@ health. Contribution guidelines are in the
 ## Acknowledgements
 
 Night Market builds on [Anthropic Claude Code][claude-code] and
-integrates with [github/spec-kit][spec-kit-upstream] (v0.5.0) and
-[obra/superpowers][superpowers-upstream] (v5.0.7, see the
+integrates with [github/spec-kit][spec-kit-upstream] (v1.4.0) and
+[obra/superpowers][superpowers-upstream] (v7.0.2, see the
 [integration guide][superpowers-doc]). Its AI involvement is declared
 under the [Quillx][quillx] disclosure standard as 3/5 (Adapted):
 human-directed, AI-generated, and meaningfully edited.

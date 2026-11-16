@@ -175,7 +175,7 @@ demo-lint: ## Run linting on parseltongue code (LIVE)
 demo-skills: ## List parseltongue skills
 	@echo "=== Parseltongue Skills ==="
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		name=$$(sed -n '1,10s/^name:[[:space:]]*//p' "$$skill"); \
 		echo "  - $$name"; \
 	done
 

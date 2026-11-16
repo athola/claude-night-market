@@ -33,7 +33,8 @@ role: library
 ## Integration
 
 **With superpowers**:
-- Delegates to `Skill(superpowers:brainstorming)` for Socratic method
+- Delegates to `Skill(superpowers:brainstorming)`, which asks why
+  first, sizes the work, and runs a builder check on the design
 - Augments with project-specific patterns
 - Uses project brainstorm templates
 
@@ -51,6 +52,13 @@ role: library
 ## Brainstorming Framework
 
 ### Phase 1: Problem Definition
+
+If the request does not say why the person wants the thing, ask why
+first, openly and with no example answers, before any approach. Ask a
+question only when its answer changes what gets built and nothing in
+the request or the project already answers it. When a choice has
+options you can name, present the options with a recommendation rather
+than a bare "which one?".
 
 **Socratic Questions**:
 1. What problem are you solving?
@@ -449,8 +457,10 @@ review loop.
 2. Dispatch haiku-model subagent with the spec content
 3. If ISSUES FOUND: fix issues, re-dispatch (max 3
    iterations)
-4. If APPROVED or 3 iterations exhausted: proceed to
-   Phase 6 continuation
+4. If APPROVED or 3 iterations exhausted: sort the last
+   review's builder questions as the module describes,
+   bring the human the ones only they can answer in one
+   message, then proceed to Phase 6 continuation
 
 **Bypass Conditions**:
 - `--standalone` flag was provided

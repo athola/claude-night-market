@@ -4,10 +4,6 @@ description: |
   Automatically queue research sessions for knowledge corpus evaluation.
   Triggers after brainstorming sessions with WebSearch to prevent loss of
   valuable research.
-triggers:
-  - SessionEnd
-priority: 40
-enabled: true
 ---
 
 # Research Queue Integration Hook

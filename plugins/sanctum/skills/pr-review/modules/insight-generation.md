@@ -20,7 +20,7 @@ findings with severity "high" or "medium".
 2. For each high/medium finding, create a Finding object:
 
 ```bash
-cd /home/alext/claude-night-market
+# Run from the claude-night-market repository root.
 python3 -c "
 import sys, json
 sys.path.insert(0, 'plugins/abstract/scripts')

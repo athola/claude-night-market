@@ -21,7 +21,7 @@ description: |
   [ENFORCEMENT if applicable]
 ```
 
-## CSO (Claude Search Optimization)
+## Skill Discovery Optimization
 
 ### Effective Trigger Keywords
 

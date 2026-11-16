@@ -91,18 +91,8 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/hooks_eval/hooks_auditor.py \
 
 ## Quality Gates
 
-Default quality gate thresholds can be customized:
-
-```yaml
-quality_gates:
-  security_score: ">= 80"
-  performance_score: ">= 70"
-  compliance_score: ">= 85"
-  reliability_score: ">= 85"
-  overall_score: ">= 75"
-  max_critical_issues: 0
-  max_high_issues: 2
-```
+The default thresholds, and the `quality_gates` block that overrides
+them, are in the skill's `modules/evaluation-criteria.md`.
 
 ## Exit Codes
 

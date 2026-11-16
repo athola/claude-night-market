@@ -61,6 +61,8 @@ Given that feature description, do this:
    - For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot")
 
 3. Load `.specify/templates/spec-template.md` to understand required sections.
+   **IF EXISTS**: Load `.specify/memory/constitution.md` for project
+   principles and governance constraints.
 
 4. Follow this execution flow:
 

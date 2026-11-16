@@ -421,3 +421,23 @@ class TestAnalysisFailuresFallBackToThePlainGraph:
             PalaceRenderer(zero).algo_informed_er_graph("p1").startswith("flowchart LR")
         )
         zero.close()
+
+
+class TestPageRankShapesAreRelative:
+    """Node shape encodes centrality, not the number of nodes."""
+
+    @pytest.mark.parametrize("size", [5, 30])
+    def test_uniform_scores_render_plain_at_any_size(
+        self, renderer: PalaceRenderer, size: int
+    ) -> None:
+        """Every node of a uniform ring scores 1/N, the mean, at any N."""
+        scores = {f"n{i}": 1.0 / size for i in range(size)}
+        line = renderer._er_node_line("n0", scores, set())
+        assert line.endswith('["n0"]'), line
+
+    def test_a_node_far_above_the_mean_is_a_stadium(
+        self, renderer: PalaceRenderer
+    ) -> None:
+        """A hub holding half the rank in a 30-node graph is central."""
+        scores = {"hub": 0.5, **{f"n{i}": 0.5 / 29 for i in range(29)}}
+        assert "([" in renderer._er_node_line("hub", scores, set())

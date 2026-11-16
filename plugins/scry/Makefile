@@ -88,7 +88,7 @@ typecheck: ## Run type checking on test files
 	@if command -v uv >/dev/null 2>&1; then \
 		uv run mypy tests/ --strict --disable-error-code=untyped-decorator; \
 	else \
-		echo "  [SKIP] uv not installed"; \
+		echo "  uv not installed: nothing was checked" >&2; exit 1; \
 	fi
 	@echo "=== Type Checking Complete ==="
 
@@ -100,7 +100,7 @@ test-coverage: ## Run tests with coverage measurement
 		uv run pytest tests/ -v -m "not integration" --tb=short \
 			--cov=scripts --cov-report=term-missing --cov-branch; \
 	else \
-		echo "  [SKIP] uv not installed"; \
+		echo "  uv not installed: nothing was tested" >&2; exit 1; \
 	fi
 	@echo "=== Coverage Complete ==="
 
@@ -111,7 +111,7 @@ test-unit: ## Run unit tests (no external dependencies)
 	elif command -v pytest >/dev/null 2>&1; then \
 		pytest tests/ -v -m "not integration" --tb=short; \
 	else \
-		echo "  [SKIP] pytest not installed"; \
+		echo "  pytest not installed: nothing was tested" >&2; exit 1; \
 	fi
 	@echo "=== Unit Tests Complete ==="
 

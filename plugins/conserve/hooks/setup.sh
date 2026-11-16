@@ -27,22 +27,29 @@ main() {
     -x) set -x ;;
   esac
 
+  # Determine plugin root directory
+  SCRIPT_DIR="$(script_dir)"
+  PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+  # Source vendored JSON utilities (D-01).
+  PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}"
+  # shellcheck source=plugins/conserve/hooks/shared/json_utils.sh
+  source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
+
   # Read hook input to determine trigger type
   HOOK_INPUT=""
   TRIGGER_TYPE="init"
   # read fails on a line with no final newline but still stores it.
   if read -t 1 -r HOOK_INPUT 2>/dev/null || [[ -n "${HOOK_INPUT}" ]]; then
-    if command -v jq >/dev/null 2>&1; then
-      TRIGGER_TYPE=$(printf '%s\n' "${HOOK_INPUT}" | jq -r '.trigger // "init"' 2>/dev/null || printf '%s\n' "init")
-    fi
+    TRIGGER_TYPE="$(get_json_field "${HOOK_INPUT}" trigger)"
+    TRIGGER_TYPE="${TRIGGER_TYPE:-init}"
   fi
-
-  # Determine plugin root directory
-  SCRIPT_DIR="$(script_dir)"
-  PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
   # Project directory from environment or current working directory
   PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+  # Resolved like the state path it is compared with, so a symlinked
+  # project (/tmp to /private/tmp) is not rejected.
+  PROJECT_DIR="$(cd "${PROJECT_DIR}" 2>/dev/null && pwd -P || printf '%s\n' "${PROJECT_DIR}")"
 
   # Setup context message
   setup_context=""
@@ -159,7 +166,7 @@ $(printf '  - %s\n' "${setup_tasks[@]}")"
       # 1. Clean up old session state backups
       SESSION_STATE_DIR="${PROJECT_DIR}/.claude"
       if [ -d "${SESSION_STATE_DIR}" ]; then
-        backup_count=$(find "${SESSION_STATE_DIR}" -name "session-state*.bak" -type f 2>/dev/null | wc -l | tr -d ' ')
+        backup_count=$({ find "${SESSION_STATE_DIR}" -name "session-state*.bak" -type f 2>/dev/null || true; } | wc -l | tr -d ' ')
         if [ "${backup_count}" -gt 0 ]; then
           find "${SESSION_STATE_DIR}" -name "session-state*.bak" -type f -mtime +7 -delete 2>/dev/null || true
           maintenance_tasks+=("Cleaned session state backups older than 7 days")
@@ -201,11 +208,6 @@ $(printf '  - %s\n' "${maintenance_tasks[@]}")"
   # =============================================================================
   # OUTPUT
   # =============================================================================
-
-  # Source vendored JSON utilities (D-01).
-  PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}"
-  # shellcheck source=plugins/conserve/hooks/shared/json_utils.sh
-  source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
 
   context_escaped=$(escape_for_json "${setup_context}")
 

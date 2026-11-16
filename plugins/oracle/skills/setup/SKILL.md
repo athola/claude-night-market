@@ -15,7 +15,7 @@ Provision the ML inference environment.
 ## What This Does
 
 1. Creates a Python 3.11+ virtual environment using uv
-2. Installs onnxruntime into the venv
+2. Installs onnxruntime and pyyaml into the venv
 3. Verifies the installation
 
 ## Prerequisites
@@ -36,7 +36,10 @@ print(result.message)
 ```
 
 2. Report result to the user.
-3. If successful, tell the user the daemon will start on next session.
+3. If successful, tell the user the daemon starts on the next
+   session once a `models/` directory exists in the plugin. None
+   ships yet, so until then the hook logs "models directory
+   missing" to `daemon.log` and consumers use local scoring.
 4. If failed, show the error and suggest checking uv and network.
 
 ## Exit Criteria
@@ -45,8 +48,8 @@ print(result.message)
   and the venv path exists on disk under `plugins/oracle/`
 - [ ] `onnxruntime` is importable inside the provisioned venv;
   verified by `uv run python -c "import onnxruntime"` exiting 0
-- [ ] User receives a clear success message stating the daemon will
-  start on next session, or a clear failure message citing the
+- [ ] User receives a success message that states the daemon needs a
+  `models/` directory to start, or a failure message citing the
   specific error and whether it is a uv or network issue
 - [ ] On failure, no partial venv left in a broken state that would
   prevent a clean retry

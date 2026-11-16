@@ -27,7 +27,7 @@ Improvement.
 3. Post via the insight engine:
 
 ```bash
-cd /home/alext/claude-night-market
+# Run from the claude-night-market repository root.
 python3 -c "
 import sys, json
 sys.path.insert(0, 'plugins/abstract/scripts')

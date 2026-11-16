@@ -943,7 +943,7 @@ wheels = [
 
 [[package]]
 name = "scribe"
-version = "1.10.2"
+version = "1.10.3"
 source = { virtual = "." }
 dependencies = [
     { name = "pyyaml" },

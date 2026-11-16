@@ -347,7 +347,6 @@ _PYTHON_FIELD_RE = re.compile(
     r"|Mapped\[|Optional\[|str|int|float|bool|list\[)",
     re.MULTILINE,
 )
-_PRISMA_FIELD_RE = re.compile(r"^\s+(\w+)\s+\w+", re.MULTILINE)
 
 
 def _count_fields_python(body: str) -> int:

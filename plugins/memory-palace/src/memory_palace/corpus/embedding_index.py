@@ -13,6 +13,11 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
+
+class EmbeddingDimensionError(ValueError):
+    """Two vectors from different embedding spaces were compared."""
+
+
 try:
     import numpy as np
 
@@ -295,17 +300,18 @@ class EmbeddingIndex:
         """Compute dot product of two float vectors.
 
         Uses numpy when available and falls back to pure Python otherwise.
-        Logs a warning if vector dimensions differ (partial dot product).
+
+        Raises:
+            EmbeddingDimensionError: the vectors differ in length. They come from two
+                embedding spaces, typically a 384-dim local store queried
+                with 16-dim hash vectors after the model failed to load;
+                a truncated product ranks noise.
+
         """
         if len(a) != len(b):
-            logger.warning(
-                "Vector dimension mismatch in dot product: %d vs %d. "
-                "Truncating to shorter length; results may be unreliable.",
-                len(a),
-                len(b),
+            raise EmbeddingDimensionError(
+                f"Vector dimension mismatch in dot product: {len(a)} vs {len(b)}"
             )
         if _HAS_NUMPY and np is not None:
-            length = min(len(a), len(b))
-            return float(np.dot(a[:length], b[:length]))
-        length = min(len(a), len(b))
-        return sum(a[i] * b[i] for i in range(length))
+            return float(np.dot(a, b))
+        return sum(x * y for x, y in zip(a, b))

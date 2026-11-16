@@ -69,3 +69,92 @@ def test_bash_3_2_reaches_ffmpeg(tmp_path: Path) -> None:
     result, args_log = _run(tmp_path, SUBTITLE_FONT=str(font), LC_ALL="en_US.UTF-8")
     assert result.returncode == 0, result.stderr
     assert args_log.exists()
+
+
+def test_a_missing_input_is_reported_as_missing(tmp_path: Path) -> None:
+    """An absent input and an absent sidecar both read as "", which matched.
+
+    The script then said the GIF already carried the captions, sending the
+    user to re-record a file that was only misnamed.
+    """
+    shims = tmp_path / "shims"
+    shims.mkdir()
+    ffmpeg = shims / "ffmpeg"
+    ffmpeg.write_text("#!/bin/sh\nexit 0\n")
+    ffmpeg.chmod(0o755)
+    absent = tmp_path / "absent.gif"
+    result = subprocess.run(
+        ["/bin/bash", str(ROOT / "assets/tapes/add-subtitles.sh"), str(absent)],
+        env={**os.environ, "PATH": f"{shims}:{os.environ['PATH']}"},
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "Input not found" in result.stderr + result.stdout
+    assert "already carries" not in result.stderr + result.stdout
+
+
+def test_a_second_run_on_a_captioned_gif_is_refused(tmp_path: Path) -> None:
+    """Captioning in place, as the default does, must not burn captions twice.
+
+    Input and output are both named: the default output is the committed
+    showcase GIF, which a test must never write.
+    """
+    shims = tmp_path / "shims"
+    shims.mkdir()
+    ffmpeg = shims / "ffmpeg"
+    ffmpeg.write_text('#!/bin/sh\nfor last; do :; done; printf captioned > "$last"\n')
+    ffmpeg.chmod(0o755)
+    font = tmp_path / "f.ttf"
+    font.write_bytes(b"\0")
+    gif = tmp_path / "demo.gif"
+    gif.write_bytes(b"GIF89a")
+
+    def _caption() -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [
+                "/bin/bash",
+                str(ROOT / "assets/tapes/add-subtitles.sh"),
+                str(gif),
+                str(gif),
+            ],
+            env={
+                **os.environ,
+                "PATH": f"{shims}:{os.environ['PATH']}",
+                "SUBTITLE_FONT": str(font),
+            },
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=60,
+            check=False,
+        )
+
+    first = _caption()
+    assert first.returncode == 0, first.stderr
+    second = _caption()
+    assert second.returncode != 0
+    assert "already carries" in second.stderr + second.stdout
+    assert gif.read_bytes() == b"captioned"
+
+
+def test_the_checksum_sidecar_is_not_gitignored() -> None:
+    """An ignored sidecar is absent from every fresh clone, and so is the guard."""
+    ignored = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(ROOT),
+            "check-ignore",
+            "--no-index",
+            "-v",
+            "assets/gifs/skills-showcase.gif.captioned",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert ignored.returncode == 1, ignored.stdout

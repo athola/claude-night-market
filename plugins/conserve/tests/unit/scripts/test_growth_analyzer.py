@@ -563,7 +563,7 @@ class TestEstimateTurnsReturnType:
     ) -> None:
         """Scenario: Usage already at limit.
 
-        Given current_usage >= 100
+        Given current_usage >= 50, the MECW limit
         When estimating turns
         Then it returns 0.0 (float, not int).
         """
@@ -580,7 +580,7 @@ class TestEstimateTurnsReturnType:
         When estimating turns
         Then it returns 1.0 (float, not int).
         """
-        result = analyzer._estimate_mecw_violation(50, 1.0, 0.0)
+        result = analyzer._estimate_mecw_violation(25, 1.0, 0.0)
         assert result == 1.0
         assert isinstance(result, float)
 
@@ -593,7 +593,7 @@ class TestEstimateTurnsReturnType:
         When estimating turns
         Then the result is a float (from math.ceil wrapped in float()).
         """
-        result = analyzer._estimate_mecw_violation(50, 0.1, 0.0)
+        result = analyzer._estimate_mecw_violation(25, 0.1, 0.0)
         assert isinstance(result, float)
         assert result > 0
 
@@ -608,7 +608,7 @@ class TestEstimateTurnsReturnType:
         When estimating turns
         Then the result is a float.
         """
-        result = analyzer._estimate_mecw_violation(50, 0.05, 0.01)
+        result = analyzer._estimate_mecw_violation(25, 0.05, 0.01)
         assert isinstance(result, float)
         assert result > 0
 
@@ -621,7 +621,7 @@ class TestEstimateTurnsReturnType:
         When estimating turns
         Then it returns float('inf').
         """
-        result = analyzer._estimate_mecw_violation(50, 0.0, 0.0)
+        result = analyzer._estimate_mecw_violation(25, 0.0, 0.0)
         assert result == float("inf")
         assert isinstance(result, float)
 
@@ -633,15 +633,24 @@ if __name__ == "__main__":
 @pytest.mark.unit
 @pytest.mark.parametrize(
     ("usage", "rate", "turns"),
-    [(1.0, 0.99, 7.0), (1.0, 1.0, 7.0), (1.0, 3.0, 4.0)],
+    [(0.5, 0.99, 7.0), (0.5, 1.0, 7.0), (0.5, 3.0, 4.0)],
 )
 def test_turns_to_limit_holds_at_and_past_doubling(
     usage: float, rate: float, turns: float
 ) -> None:
-    """At 1% usage, 100% growth needs seven doublings to reach the limit.
+    """At 0.5% usage, 100% growth needs seven doublings to reach the 50% limit.
 
     A growth_rate >= 1.0 guard returned 1 turn regardless of usage, so the
     estimate fell from 7 at 99% growth to 1 at 100%. log(1 + r) is defined
     for every r > 0, so the closed form holds there too.
     """
     assert GrowthAnalyzer()._estimate_mecw_violation(usage, rate, 0.0) == turns
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(("usage", "turns"), [(60.0, 0.0), (40.0, 3.0)])
+def test_violation_horizon_uses_the_fifty_percent_mecw_rule(
+    usage: float, turns: float
+) -> None:
+    """MECW is violated past 50% of the window, not at 100% exhaustion."""
+    assert GrowthAnalyzer()._estimate_mecw_violation(usage, 0.1, 0.0) == turns

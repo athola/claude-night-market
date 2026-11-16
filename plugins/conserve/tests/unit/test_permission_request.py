@@ -1179,3 +1179,142 @@ class TestEnvironmentDumpsAsk:
         assert decision is None or decision.behavior != PermissionDecision.ALLOW, (
             command
         )
+
+
+class TestCredentialDirectoriesAndGitReaders:
+    """A credential directory or a git reader cannot bypass the deny list."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "grep -r . ~/.ssh",
+            'grep -r "" ~/.ssh',
+            "rg -uu . ~/.ssh",
+            "git diff HEAD -- .env",
+            "git log -p -- .env",
+            "git diff HEAD .env",
+            "git log -p .env",
+            "git diff --cached id_rsa",
+        ],
+    )
+    def test_recursive_or_git_read_of_credentials_is_denied(self, command: str) -> None:
+        """~/.ssh without a trailing slash and git diff/log of .env are denied."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision.behavior == PermissionDecision.DENY, command
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "git diff --no-index /dev/null ~/.ssh/id_rsa",
+            "git diff --no-index a.txt /etc/hosts",
+        ],
+    )
+    def test_git_diff_no_index_is_not_auto_approved(self, command: str) -> None:
+        """--no-index reads arbitrary paths outside the repo."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is None or decision.behavior != PermissionDecision.ALLOW, (
+            command
+        )
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "grep -r foo ./not.ssh.d",
+            "git log --grep env",
+            "git log --grep credentials",
+            "git log --grep=credentials",
+            "git log -S credentials",
+            "git diff HEAD",
+        ],
+    )
+    def test_lookalike_paths_and_plain_git_reads_stay_allowed(
+        self, command: str
+    ) -> None:
+        """Widening the deny keeps ordinary searches and git reads approved."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision.behavior == PermissionDecision.ALLOW, command
+
+
+class TestUnboundedReadsAreNotAutoApproved:
+    """A read that never ends burns the Bash timeout instead of returning."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        ["cat /dev/zero", "cat /dev/urandom", "tail -f app.log", "tail -F app.log"],
+    )
+    def test_device_and_follow_reads_fall_through(self, command: str) -> None:
+        """Device files and follow mode go to the dialog."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is None or decision.behavior != PermissionDecision.ALLOW, (
+            command
+        )
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("command", ["tail -5 app.log", "cat notes.txt"])
+    def test_bounded_reads_stay_allowed(self, command: str) -> None:
+        """Bounded reads keep auto-approval."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision.behavior == PermissionDecision.ALLOW, command
+
+
+class TestGitPathspecGlobs:
+    """A glob pathspec can match a credential file the text never names."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "git log -p -- .env*",
+            "git diff HEAD~3 -- '*.env'",
+            "git diff -- .en[v]",
+            # macOS resolves commands case-insensitively, so GIT runs git.
+            "GIT log -p -- .env*",
+            "Git DIFF HEAD~3 -- '*.env'",
+        ],
+    )
+    def test_glob_pathspec_is_not_auto_allowed(self, command: str) -> None:
+        """The dialog decides, because the glob may expand to `.env`."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is None or decision.behavior != PermissionDecision.ALLOW, (
+            command
+        )
+
+    @pytest.mark.unit
+    def test_literal_env_pathspec_is_still_denied(self) -> None:
+        """A credential named outright keeps its deny."""
+        decision = evaluate_permission("Bash", {"command": "git log -p -- .env"})
+        assert decision is not None
+        assert decision.behavior == PermissionDecision.DENY
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("command", ["git log -p -- src/app.py", "git diff HEAD~3"])
+    def test_plain_pathspec_stays_allowed(self, command: str) -> None:
+        """A literal, non-credential pathspec keeps auto-approval."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is not None
+        assert decision.behavior == PermissionDecision.ALLOW, command
+
+
+class TestCatDevAnchor:
+    """Only a real `/dev/` path is a device file."""
+
+    @pytest.mark.unit
+    def test_cat_under_a_dev_directory_is_allowed(self) -> None:
+        """`src/dev/x.py` is an ordinary file."""
+        decision = evaluate_permission("Bash", {"command": "cat src/dev/x.py"})
+        assert decision is not None
+        assert decision.behavior == PermissionDecision.ALLOW
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        ["cat /dev/zero", "cat </dev/zero", "cat a.txt /dev/zero", 'cat "/dev/zero"'],
+    )
+    def test_cat_dev_zero_is_not_allowed(self, command: str) -> None:
+        """A device file never returns, read as an operand or a redirect."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is None or decision.behavior != PermissionDecision.ALLOW

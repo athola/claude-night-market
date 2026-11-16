@@ -14,7 +14,14 @@ from pathlib import Path
 
 import pytest
 
-SKILL = Path(__file__).resolve().parents[1] / "skills" / "hook-authoring" / "SKILL.md"
+# The event table lives in the module the SKILL.md points at.
+SKILL = (
+    Path(__file__).resolve().parents[1]
+    / "skills"
+    / "hook-authoring"
+    / "modules"
+    / "hook-types.md"
+)
 
 DOCUMENTED = {
     "PostToolUse": "`tool_response`",

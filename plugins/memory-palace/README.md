@@ -108,6 +108,7 @@ Skill(memory-palace:knowledge-intake)
 | `web_research_handler.py` | PostToolUse | Processes web content for knowledge extraction. |
 | `skill_tracker_pre.py` | PreToolUse | Records start time when Skill tool is invoked. |
 | `skill_tracker_post.py` | PostToolUse | Logs completion, calculates metrics, stores memory. |
+| `research_queue.py` | SessionEnd | Queues the session's web research for corpus evaluation ([details](hooks/research-queue-integration.md)). |
 
 Setup hook (`claude --init-only`,
 `claude -p --maintenance "<prompt>"`) handles one-time initialization

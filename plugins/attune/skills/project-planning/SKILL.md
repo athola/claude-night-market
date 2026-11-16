@@ -33,7 +33,6 @@ For detailed task planning workflows, this skill delegates to `spec-kit:task-pla
 
 **With superpowers**:
 - Uses `Skill(superpowers:writing-plans)` for structured planning
-- Applies checkpoint-based execution patterns
 - Uses dependency analysis framework
 
 **Without superpowers**:
@@ -55,6 +54,16 @@ Before completing plan:
 - ✅ Critical path identified
 - ✅ Risks assessed with mitigations
 - ✅ Sprints balanced by capacity
+- ✅ Global Constraints block copies the spec's binding rules (version
+  floors, dependency limits, exact values) verbatim for every task
+- ✅ Each task that consumes or produces something another task uses
+  names it in an Interfaces line
+- ✅ Review Focus lists up to five inputs or failure modes the spec
+  implies but no task tests, each pinned by a test in the task that
+  owns the code. An empty section means checked and found none
+- ✅ The plan records decisions, not code: signatures, test assertions
+  and commands with their passing output. A plan several times longer
+  than the spec is a code transcript. Replace bodies with signatures
 
 ## Record the Tradeoff (decision journal)
 

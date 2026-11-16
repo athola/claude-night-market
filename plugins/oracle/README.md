@@ -15,9 +15,14 @@ Opt in by running the setup command:
 /oracle:setup
 ```
 
-This creates a venv, installs onnxruntime, and writes an
-`.oracle-enabled` sentinel. The `SessionStart` hook starts the
+This creates a venv, installs onnxruntime and pyyaml, and writes
+an `.oracle-enabled` sentinel. The `SessionStart` hook starts the
 daemon only when that sentinel is present.
+
+No model files ship with the plugin yet. Until a `models/`
+directory exists beside `hooks/`, the hook logs "models
+directory missing" to `daemon.log` and does not start the
+daemon. Consumer plugins fall back to local scoring.
 
 ## Architecture
 

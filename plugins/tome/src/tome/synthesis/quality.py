@@ -180,8 +180,12 @@ def parse_envelope(envelope: dict[str, Any]) -> list[QueryLog]:
             kind = (
                 _classify_error_text(str(raw_error))
                 if raw_error and not isinstance(raw_error, dict)
+                # Mirrors _envelope_error_kind: an empty dict is no
+                # error, and one without a kind is a source error.
                 else (
-                    str(raw_error.get("kind")) if isinstance(raw_error, dict) else None
+                    str(raw_error.get("kind") or SOURCE_ERROR)
+                    if isinstance(raw_error, dict) and raw_error
+                    else None
                 )
             )
             logs.append(

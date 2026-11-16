@@ -325,12 +325,12 @@ Agent B: Fix typo in CONTRIBUTING.md
 These don't need to coordinate. Agent-team adds overhead.
 ```
 
-## Integration with Squadron Composition
+## Integration with Team Formation
 
-See `../agent-teams/references/squadron-composition.md` for:
+See `../agent-teams/references/team-formation.md` for:
 
 - Team sizing by mission complexity
-- Role definitions (Admiral, Captain, Red-cell)
+- Role definitions (Coordinator, Agent, Reviewer)
 - File ownership rules
 
 ## Source

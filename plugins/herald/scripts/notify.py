@@ -42,10 +42,17 @@ def validate_webhook_url(url: str) -> str:
         the checked address is what makes the check hold.
 
     Raises:
-        WebhookURLError: If the URL uses a forbidden scheme, points
-            to localhost, or resolves to a private/reserved IP range.
+        WebhookURLError: If the URL contains a control character, uses
+            a forbidden scheme, points to localhost, or resolves to a
+            private/reserved IP range.
 
     """
+    # The URL becomes a line of curl's stdin config, where a newline ends
+    # the value and starts a new curl option. urlparse strips tab, CR and
+    # LF, so it is the raw string that gets checked.
+    if any(ord(char) < 0x20 or ord(char) == 0x7F for char in url):
+        raise WebhookURLError("Webhook URL contains a control character")
+
     parsed = urlparse(url)
 
     # Scheme must be https
@@ -55,6 +62,11 @@ def validate_webhook_url(url: str) -> str:
         )
 
     hostname = parsed.hostname or ""
+    # urlparse checks the port's range only when it is read.
+    try:
+        _ = parsed.port
+    except ValueError as exc:
+        raise WebhookURLError(f"Webhook URL has an invalid port: {exc}") from exc
 
     # Reject empty hostname
     if not hostname:
@@ -246,10 +258,17 @@ def _post(url: str, payload: dict[str, str]) -> bool:
         pinned = f"[{pinned}]"
     resolve_pin = f"{parsed.hostname}:{parsed.port or 443}:{pinned}"
 
+    # --fail makes an HTTP error status a nonzero exit: a revoked webhook
+    # answers 404 and curl would otherwise exit 0. The URL goes in on
+    # stdin through --config because its path is the credential, and
+    # argv is visible to every local user.
     cmd: list[str] = [
         "curl",
         "-s",
         "-S",
+        "--fail",
+        "--config",
+        "-",
         "-X",
         "POST",
         "-H",
@@ -258,12 +277,13 @@ def _post(url: str, payload: dict[str, str]) -> bool:
         json.dumps(payload),
         "--resolve",
         resolve_pin,
-        url,
     ]
+    escaped = url.replace("\\", "\\\\").replace('"', '\\"')
 
     try:
         result = subprocess.run(
             cmd,
+            input=f'url = "{escaped}"\n',
             capture_output=True,
             text=True,
             timeout=15,
@@ -276,7 +296,7 @@ def _post(url: str, payload: dict[str, str]) -> bool:
                 result.stderr.strip(),
             )
             return False
-        logger.info("Webhook sent to %s", url)
+        logger.info("Webhook sent to %s", parsed.hostname)
         return True
     except FileNotFoundError:
         logger.error("curl not found. Cannot send webhook.")

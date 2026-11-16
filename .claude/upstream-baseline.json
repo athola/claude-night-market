@@ -2,8 +2,8 @@
   "schema_version": 1,
   "harness": {
     "product": "claude-code",
-    "version": "2.1.291",
-    "recorded_at": "2026-10-06"
+    "version": "2.1.323",
+    "recorded_at": "2026-11-13"
   },
   "models": {
     "tiers": [
@@ -16,9 +16,9 @@
       "haiku": "claude-haiku-5-5",
       "sonnet": "claude-sonnet-5-5",
       "opus": "claude-opus-5-5",
-      "fable": "claude-fable-5-1"
+      "fable": "claude-fable-5-2"
     },
-    "recorded_at": "2026-10-26"
+    "recorded_at": "2026-11-13"
   },
   "vocabularies": {
     "effort_levels": [
@@ -30,11 +30,11 @@
     ]
   },
   "ratchets": {
-    "dated_ids_backlog": 70
+    "dated_ids_backlog": 72
   },
   "last_migration": {
-    "id": "2026-10-26-model-refresh",
-    "trigger": "model-release",
+    "id": "2026-11-13-harness-2-1-323-fable-5-2",
+    "trigger": "harness-update",
     "from": {
       "harness": "2.1.291",
       "model_tiers": [
@@ -45,7 +45,7 @@
       ]
     },
     "to": {
-      "harness": "2.1.291",
+      "harness": "2.1.323",
       "model_tiers": [
         "haiku",
         "sonnet",
@@ -53,8 +53,8 @@
         "fable"
       ]
     },
-    "assets_changed": 35,
-    "report": "docs/migrations/2026-10-26-model-refresh.md"
+    "assets_changed": 10,
+    "report": "docs/migrations/2026-11-13-harness-2-1-323-fable-5-2.md"
   },
   "history": [
     {
@@ -171,6 +171,30 @@
       },
       "assets_changed": 0,
       "report": "docs/migrations/2026-10-06-harness-2-1-291.md"
+    },
+    {
+      "id": "2026-10-26-model-refresh",
+      "trigger": "model-release",
+      "from": {
+        "harness": "2.1.291",
+        "model_tiers": [
+          "haiku",
+          "sonnet",
+          "opus",
+          "fable"
+        ]
+      },
+      "to": {
+        "harness": "2.1.291",
+        "model_tiers": [
+          "haiku",
+          "sonnet",
+          "opus",
+          "fable"
+        ]
+      },
+      "assets_changed": 35,
+      "report": "docs/migrations/2026-10-26-model-refresh.md"
     }
   ],
   "deprecations": {

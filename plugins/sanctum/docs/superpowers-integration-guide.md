@@ -1,8 +1,8 @@
 # Sanctum × Superpowers Integration Guide
 
-**Date**: 2026-04-03
-**Version**: 1.1.0
-**Synced with**: superpowers v5.0.7
+**Date**: 2026-11-13
+**Version**: 1.2.0
+**Synced with**: superpowers v7.0.2
 
 ## Overview
 
@@ -269,8 +269,8 @@ python3 test-wrapper-integration.py
    - `superpowers:finishing-a-development-branch` for branch
      cleanup and merge strategy
    - `superpowers:subagent-driven-development` for
-     autonomous task orchestration (mandatory on capable
-     harnesses since v5.0.0)
+     autonomous task orchestration (one of two execution
+     modes since v6.4.1, beside Native execution)
 
 2. **Advanced Workflow Automation**
    - CI/CD pipeline integration
@@ -289,20 +289,50 @@ The enhanced-command architecture supports easy extension:
 - Custom Sanctum integrations preserved
 - Additional workflow steps can be inserted
 
-## Upstream Changes (v5.0.x)
+## Upstream Changes (v5.1.0 to v7.0.2)
 
-Key superpowers changes affecting Sanctum integration:
+Superpowers changes that touch Sanctum's review and branch
+workflows. The full list is upstream's `RELEASE-NOTES.md`.
 
-### Inline Self-Review (v5.0.6)
+### Code Review Is a Prompt Template (v5.1.0, v6.4.1)
 
-Subagent review loops replaced with inline self-review
-checklists, reducing review overhead from ~25 minutes to
-~30 seconds. Sanctum's review workflows benefit from this
-pattern when delegating to superpowers skills.
+The `superpowers:code-reviewer` agent is gone.
+`requesting-code-review` dispatches a general-purpose subagent
+with the `code-reviewer.md` template that ships beside the
+skill. Reviewers judge behavior the spec does not mention by
+what a reasonable user would expect, and list what they
+declined to judge for the requesting session to decide. The
+multi-commit base is `git merge-base origin/main HEAD`, because
+a bare `origin/main` shows main's newer files as deletions once
+main moves past the branch point.
 
-### Instruction Priority (v5.0.0)
+### Branch Finishing (v6.0.0 to v6.3.0)
 
-Superpowers now enforces an explicit priority hierarchy:
+`finishing-a-development-branch` no longer hardcodes `gh pr
+create`, no longer offers to discard finished work, and stops
+to ask rather than force-removing a worktree that holds
+untracked files. Sanctum's `/pr` and `/prepare-pr` stay the
+GitHub path.
+
+### Worktrees (v5.1.0, v6.0.0)
+
+`using-git-worktrees` asks before creating a worktree, skips
+creation when already inside one, prefers the harness's native
+worktree tool, and places worktrees in the project's
+`.worktrees/`. The global `~/.config/superpowers/worktrees/`
+directory is gone.
+
+### Subagent-Driven Development (v6.0.0 to v7.0.2)
+
+One reviewer per task returns a spec verdict and a quality
+verdict. Task text and diffs move as files. Progress is kept in a
+plan-scoped `.superpowers/sdd/<plan>/` workspace that is
+deleted once the final review is clean. Its helper scripts act
+on the repository of the current directory and take `-C DIR`.
+
+### Instruction Priority
+
+Superpowers enforces an explicit priority hierarchy:
 
 1. User instructions (CLAUDE.md, direct requests)
 2. Superpowers skills
@@ -318,18 +348,13 @@ prevent subagents from activating full skill workflows.
 Sanctum's subagent dispatch patterns (do-issue, pr-review)
 should be aware of this when delegating work.
 
-### Context Isolation
-
-All superpowers delegation skills now scope subagent
-context explicitly. Sanctum's parallel execution patterns
-should follow the same principle.
-
 ### Platform Expansion
 
-Superpowers now supports 6 platforms: Claude Code, Cursor,
-Codex, OpenCode, Gemini CLI, Copilot CLI. Sanctum's
-integration patterns remain Claude Code focused but may
-need multi-platform awareness in future.
+Superpowers runs on more than a dozen harnesses, among them
+Claude Code, Codex, Copilot CLI, Cursor, OpenCode, Pi, Muse,
+Antigravity, Hermes and Kimi Code. Its skills name actions
+rather than Claude Code tools. Sanctum's integration remains
+Claude Code focused.
 
 ## Troubleshooting
 
@@ -337,11 +362,7 @@ need multi-platform awareness in future.
 
 **Superpowers Plugin Not Found**:
 ```bash
-# Add superpowers marketplace
-/plugin marketplace add obra/superpowers
-
-# Install superpowers plugin
-/plugin install superpowers@superpowers-marketplace
+/plugin install superpowers@claude-plugins-official
 ```
 
 **GitHub API Limits**:

@@ -2,7 +2,7 @@
 name: require-security-review
 enabled: true
 event: file
-action: block
+action: warn
 conditions:
   - field: file_path
     operator: regex_match
@@ -17,11 +17,11 @@ this system with their data. Changes here deserve
 careful review.
 (Care, Diligence)
 
-**BLOCKED: Security-sensitive code requires pensive review!**
+**Security-sensitive code: run a pensive review before merging.**
 
 You're modifying authentication/security code.
 
-**Required before this change:**
+**Recommended for this change:**
 ```bash
 Skill(pensive:harden)
 ```
@@ -36,14 +36,8 @@ Skill(pensive:harden)
 - [ ] Logging doesn't expose secrets
 - [ ] HTTPS only for sensitive data
 
-**After review, to proceed:**
-```bash
-# Disable temporarily
-# .claude/hookify.require-security-review.local.md - enabled: false
-# Make changes
-# Re-enable rule
-```
-
-**Why this blocks (not warns):**
-Security vulnerabilities can cause severe damage.
-Review MUST happen before changes.
+**Why this warns (not blocks):**
+Bundled rules load for every user. The patterns match
+words like "key", "hash" and "session" anywhere in a
+path or edit, so a block denied comments and docs.
+Install a local copy with `action: block` to enforce it.

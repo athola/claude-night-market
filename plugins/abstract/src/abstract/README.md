@@ -8,7 +8,6 @@ Centralized Python package for shared modules used across the Abstract plugin.
 src/abstract/
 ├── __init__.py      # Package initialization
 ├── config.py        # Configuration management
-├── errors.py        # Error handling utilities
 ├── utils.py         # Common utilities for skill processing
 ├── py.typed         # Type hints marker (PEP 561)
 └── README.md        # This file
@@ -45,29 +44,6 @@ config = AbstractConfig.from_yaml("config/abstract_config.yaml")
 # Access validation rules
 max_size = config.skill_validation.MAX_SKILL_FILE_SIZE
 required_fields = config.skill_validation.REQUIRED_FRONTMATTER_FIELDS
-```
-
-### `abstract.errors`
-Consistent error handling across all tools.
-
-**Classes**:
-- `ErrorHandler`: Centralized error management and logging
-- `ErrorSeverity`: Error severity levels enum
-- `ToolError`: Structured error information dataclass
-
-**Usage**:
-```python
-from abstract.errors import ErrorHandler, ErrorSeverity, ToolError
-
-errors = ErrorHandler("my-script")
-errors.handle_error(
-    ToolError(
-        severity=ErrorSeverity.HIGH,
-        error_code="VALIDATION_FAILED",
-        message="Skill validation failed",
-        suggestion="Check frontmatter format",
-    )
-)
 ```
 
 ### `abstract.utils`
@@ -129,23 +105,18 @@ from pathlib import Path
 try:
     from abstract.config import AbstractConfig
     from abstract.utils import find_skill_files, load_skill_file, estimate_tokens
-    from abstract.errors import ErrorHandler, ErrorSeverity, ToolError
 except ImportError:
     src_path = Path(__file__).parent.parent / "src"
     if src_path.exists():
         sys.path.insert(0, str(src_path))
         from abstract.config import AbstractConfig
         from abstract.utils import find_skill_files, load_skill_file, estimate_tokens
-        from abstract.errors import ErrorHandler, ErrorSeverity, ToolError
     else:
         print("ERROR: Cannot import abstract package", file=sys.stderr)
         sys.exit(1)
 
 
 def main():
-    # Initialize error handler
-    errors = ErrorHandler("my-script")
-
     # Load configuration
     config = AbstractConfig.from_yaml("config/abstract_config.yaml")
 
@@ -157,15 +128,8 @@ def main():
             content, frontmatter = load_skill_file(skill_path)
             tokens = estimate_tokens(content)
             print(f"{skill_path}: {tokens} tokens")
-        except Exception as e:
-            errors.handle_error(
-                ToolError(
-                    severity=ErrorSeverity.MEDIUM,
-                    error_code="LOAD_FAILED",
-                    message=f"Failed to load {skill_path}",
-                    details=str(e),
-                )
-            )
+        except (OSError, ValueError) as e:
+            print(f"Failed to load {skill_path}: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":

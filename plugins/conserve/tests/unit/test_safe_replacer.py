@@ -435,10 +435,11 @@ class TestMainCLI:
         """
         fake_path = tmp_path / "nonexistent"
         with patch.object(sys, "argv", ["safe_replacer", "--path", str(fake_path)]):
-            main()
+            exit_code = main()
 
         captured = capsys.readouterr()
-        assert "Error" in captured.err or "Path not found" in captured.err
+        assert "Path not found" in captured.err
+        assert exit_code == 1
 
     @pytest.mark.bdd
     @pytest.mark.integration
@@ -455,12 +456,42 @@ class TestMainCLI:
             "argv",
             ["safe_replacer", "--path", str(fake_path), "--output-json"],
         ):
-            main()
+            exit_code = main()
 
         captured = capsys.readouterr()
         data = json.loads(captured.out)
         assert data["success"] is False
         assert "error" in data
+        assert exit_code == 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("raised", "message"),
+        [
+            (FileNotFoundError("gone"), "File not found"),
+            (PermissionError("ro"), "Permission denied"),
+            (ValueError("bad"), "Error updating references"),
+        ],
+    )
+    def test_main_exits_nonzero_when_update_raises(
+        self, skill_tree: Path, capsys, raised: Exception, message: str
+    ) -> None:
+        """A failed update is a failed run, not a printed message and exit 0."""
+        argv = ["safe_replacer", "--path", str(skill_tree)]
+        with (
+            patch.object(sys, "argv", argv),
+            patch.object(SafeDependencyUpdater, "update_files", side_effect=raised),
+        ):
+            exit_code = main()
+
+        assert message in capsys.readouterr().err
+        assert exit_code == 1
+
+    @pytest.mark.unit
+    def test_main_returns_zero_on_success(self, skill_tree: Path) -> None:
+        """A clean run reports success to the shell."""
+        with patch.object(sys, "argv", ["safe_replacer", "--path", str(skill_tree)]):
+            assert main() == 0
 
     @pytest.mark.bdd
     @pytest.mark.integration

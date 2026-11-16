@@ -20,7 +20,6 @@ SCRIPTS = [
     "plugins/abstract/scripts/promote_discussion_to_issue.py",
     "plugins/conserve/scripts/coordination_workspace.py",
     "plugins/conserve/scripts/safe_replacer.py",
-    "plugins/conserve/scripts/area_agent_registry.py",
     "plugins/sanctum/scripts/quality_checker.py",
     "plugins/sanctum/scripts/test_generator.py",
 ]

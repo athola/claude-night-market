@@ -1,5 +1,5 @@
 name: tome
-version: 1.10.2
+version: 1.10.3
 description: >-
   Multi-source research plugin for Claude Code.
   Code archaeology, community discourse, academic
@@ -27,6 +27,8 @@ skills:
 - skills/synthesize
 - skills/triz
 - skills/web-search
+- skills/export
+- skills/ideate
 commands:
 - commands/cite.md
 - commands/dig.md
@@ -37,3 +39,5 @@ agents:
 - agents/discourse-scanner.md
 - agents/literature-reviewer.md
 - agents/triz-analyst.md
+- agents/research.md
+- agents/web-searcher.md

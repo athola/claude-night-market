@@ -199,12 +199,12 @@ class TestSpeckitCommands:
             assert flag in read(IMPLEMENT)
             assert flag in read(ANALYZE)
 
-        def test_should_pass_checklists_only_when_every_item_is_complete(self) -> None:
-            """Checklist status is PASS only when every checklist is complete."""
+        def test_should_pass_checklists_only_when_every_item_is_checked(self) -> None:
+            """Checklist status is PASS only when no checklist has an unchecked item."""
             implement = read(IMPLEMENT)
-            assert "- **PASS**: All checklists have 0 incomplete items" in implement
+            assert "- **PASS**: All checklists have 0 unchecked items" in implement
             assert (
-                "- **FAIL**: One or more checklists have incomplete items" in implement
+                "- **FAIL**: One or more checklists have unchecked items" in implement
             )
 
         def test_should_stop_and_ask_when_checklists_are_incomplete(self) -> None:

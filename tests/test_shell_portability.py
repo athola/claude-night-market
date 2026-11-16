@@ -50,7 +50,7 @@ def test_auth_module_refuses_bash_3_before_declaring_associative_arrays() -> Non
     no message naming the cause. A version check must come first.
     """
     body = AUTH_MODULE.read_text()
-    assert body.index("BASH_VERSINFO") < re.search(r"^declare -A", body, re.M).start()
+    assert body.index("BASH_VERSINFO") < re.search(r"^declare -g?A", body, re.M).start()
 
 
 def test_jq_programs_take_data_as_arguments_not_interpolation() -> None:

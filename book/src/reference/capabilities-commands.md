@@ -63,7 +63,7 @@ Scaffold a new skill with proper frontmatter and structure.
 --interactive  Guided creation flow
 
 # Examples
-/abstract:create-skill pensive:shell-review --template modular
+/abstract:create-skill pensive:license-review --template modular
 /abstract:create-skill imbue:new-methodology --category workflow-methodology
 ```
 

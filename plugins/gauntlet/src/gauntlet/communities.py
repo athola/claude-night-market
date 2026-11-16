@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from collections import Counter, defaultdict
-from itertools import combinations
 from pathlib import Path
 
 from gauntlet.graph import GraphStore
@@ -75,7 +74,11 @@ def detect_communities(
             all_edges,
         )
 
-    graph.store_communities(final)
+    # store_communities replaces every stored row, so a language subset
+    # would erase the other languages' communities. Only a full run
+    # persists; a filtered one is computed and returned.
+    if language is None:
+        graph.store_communities(final)
     return final
 
 
@@ -216,15 +219,19 @@ def get_architecture_overview(graph: GraphStore) -> dict:
     warnings: list[dict] = []
     all_edges = graph.get_all_edges()
 
-    # Check cross-community coupling
-    comm_qn_sets = [set(c["node_qns"]) for c in communities]
-    for i, j in combinations(range(len(communities)), 2):
-        cross_edges = sum(
-            1
-            for edge in all_edges
-            if (edge.source_qn in comm_qn_sets[i] and edge.target_qn in comm_qn_sets[j])
-            or (edge.source_qn in comm_qn_sets[j] and edge.target_qn in comm_qn_sets[i])
-        )
+    # Count cross-community edges per pair in one pass over the edges.
+    # Scanning every edge for every pair was O(C^2 * E): 5.5 s at 146
+    # communities, where unconnected nodes form singleton communities.
+    community_of = {
+        qn: index for index, c in enumerate(communities) for qn in c["node_qns"]
+    }
+    pair_counts: Counter[tuple[int, int]] = Counter()
+    for edge in all_edges:
+        source = community_of.get(edge.source_qn)
+        target = community_of.get(edge.target_qn)
+        if source is not None and target is not None and source != target:
+            pair_counts[(min(source, target), max(source, target))] += 1
+    for (i, j), cross_edges in sorted(pair_counts.items()):
         if cross_edges > _COUPLING_WARNING_THRESHOLD:
             warnings.append(
                 {

@@ -55,7 +55,7 @@ from abstract.utils import (
 )
 ```
 
-See `src/abstract/` for available modules and `docs/python-structure.md` for details.
+See `src/abstract/README.md` for available modules and `docs/python-structure.md` for why the package uses a `src/` layout.
 
 ## Running Scripts
 

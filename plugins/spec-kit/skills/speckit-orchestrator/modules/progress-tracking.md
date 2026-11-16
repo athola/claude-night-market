@@ -43,8 +43,7 @@ For every speckit command session:
 ```
 - [ ] Gather project principles (interactive or provided)
 - [ ] Create/update constitution.md
-- [ ] Sync dependent templates with constitution
-- [ ] Verify template consistency
+- [ ] List non-governance requests as Next Actions, unexecuted
 ```
 
 ### Planning Phase Items

@@ -65,7 +65,7 @@ def _passing_sitter(**_: object) -> tuple[str, str, str]:
 #: Git reads made while a task is judged. The evidence passes, so the
 #: walk reaches every one of them unless the failing one stops it.
 WALK_READS = [
-    ("git", "diff", "HEAD", "--name-only"),
+    ("git", "diff", "HEAD", "--name-only", "--no-renames"),
     ("git", "status", "--porcelain", "-uall"),
     ("git", "diff", "HEAD", "--numstat"),
     ("git", "diff", "HEAD", "--unified=0"),
@@ -104,7 +104,10 @@ class TestAGitFailureStopsTheWalk:
             failing,
             {
                 EVIDENCE: (1, "1 failed"),
-                ("git", "diff", "HEAD", "--name-only"): (0, "a/T1.py\n"),
+                ("git", "diff", "HEAD", "--name-only", "--no-renames"): (
+                    0,
+                    "a/T1.py\n",
+                ),
             },
         )
 
@@ -125,7 +128,9 @@ class TestMainReportsABrokenWalk:
         self, tmp_path: Path
     ) -> None:
         item = write_item(tmp_path)
-        runner = FailOneGitCommand(("git", "diff", "HEAD", "--name-only"))
+        runner = FailOneGitCommand(
+            ("git", "diff", "HEAD", "--name-only", "--no-renames")
+        )
 
         code = night_run.main(
             ["--item-dir", str(item), "--root", str(tmp_path)],
@@ -169,6 +174,16 @@ class TestStagedChangesAreFenced:
         runner.run(["git", "add", ".github/x.yml"], cwd=repo)
 
         assert ".github/x.yml" in night_run._touched_files(runner, repo)
+
+    def test_a_staged_rename_reports_its_source(self, tmp_path: Path) -> None:
+        """A rename out of a fenced path must show the path it emptied."""
+        repo = self._repo(tmp_path)
+        runner = night_run.SubprocessRunner()
+        runner.run(["git", "mv", "a.txt", "allowed.txt"], cwd=repo)
+
+        touched = night_run._touched_files(runner, repo)
+
+        assert {"a.txt", "allowed.txt"} <= set(touched)
 
     def test_staged_lines_count_toward_the_cap(self, tmp_path: Path) -> None:
         repo = self._repo(tmp_path)

@@ -288,3 +288,22 @@ class TestUsageTracker:
         tracker.import_events(events_data)
         assert len(tracker.get_events("entry-1")) == 1
         assert len(tracker.get_events("entry-2")) == 1
+
+
+class TestAggregatesFollowRetainedEvents:
+    """Scores describe the events kept, so an export round-trip preserves them."""
+
+    def test_evicted_events_leave_the_score(self) -> None:
+        """Before, the live score was -0.2 and the reloaded one +0.2."""
+        tracker = UsageTracker(max_events=2)
+        tracker.record_event("e", UsageSignal.STALE_FLAG)
+        tracker.record_event("e", UsageSignal.ACCESS)
+        tracker.record_event("e", UsageSignal.ACCESS)
+
+        restored = UsageTracker(max_events=2)
+        restored.import_events(tracker.export_events())
+
+        assert tracker.get_score("e").raw_score == pytest.approx(
+            restored.get_score("e").raw_score
+        )
+        assert tracker.get_score("e").access_count == 2

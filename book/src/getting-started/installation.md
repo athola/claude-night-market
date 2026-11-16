@@ -75,11 +75,7 @@ Installed plugins appear with their available skills and commands.
 For enhanced methodology integration:
 
 ```bash
-# Add superpowers marketplace
-/plugin marketplace add obra/superpowers
-
-# Install superpowers
-/plugin install superpowers@superpowers-marketplace
+/plugin install superpowers@claude-plugins-official
 ```
 
 Superpowers provides TDD, debugging,

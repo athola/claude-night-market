@@ -69,7 +69,15 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Use standard REST/GraphQL patterns
    - Output OpenAPI/GraphQL schema to `/contracts/`
 
-3. **Agent context update**:
+3. **Create the quickstart validation guide** in `quickstart.md`:
+   - Runnable scenarios that prove the feature works end to end:
+     prerequisites, setup and run commands, expected outcomes
+   - Link to contracts and the data model instead of copying them
+   - Do not include full implementation code, model or service bodies,
+     migrations, or complete test suites. Those belong in `tasks.md` and
+     the implementation phase
+
+4. **Agent context update**:
    - Run `.specify/scripts/bash/update-agent-context.sh claude`
    - These scripts detect which AI agent is in use
    - Update the appropriate agent-specific context file

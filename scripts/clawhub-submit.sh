@@ -267,8 +267,13 @@ main() {
 
   depcheck || exit 1
   detect_version
-  find_clawhub || exit 1
-  check_auth || exit 1
+  # A dry run publishes nothing, so it needs neither the CLI nor a login.
+  case "${DRY_RUN}" in
+    false)
+      find_clawhub || exit 1
+      check_auth || exit 1
+      ;;
+  esac
   build_export_if_needed
 
   exported=$(MANIFEST="${REPO_ROOT}/${SKILLS_DIR}/manifest.json" python3 -c '

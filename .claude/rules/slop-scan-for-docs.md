@@ -110,9 +110,9 @@ surrounds it.
 
 That sweep now puts 12 files over 3.0 rather than the 37 the raw
 number gave, and 8 of the 12 are markdown that a `plugins/` sweep
-always saw and CI never gated. Of the 4 Python files left, 2 are tests
-whose scenario docstrings use "X, not Y" as precision about what is
-under test, which is the rationale register and correct.
+always saw, now held by a count ceiling. Of the 4 Python files left,
+2 are tests whose scenario docstrings use "X, not Y" as precision
+about what is under test, which is the rationale register and correct.
 
 Notation is the shape to leave alone, and it is code that happens to
 sit in prose: an arrow in a mapping table
@@ -128,8 +128,10 @@ when it scores over the threshold and higher than its version at
 `REF`. The pre-commit hook runs it against `HEAD` on staged markdown,
 and CI runs it against the merge base on the markdown a PR changed.
 Documents that define patterns are skipped through `exclude_patterns`
-in `.slop-config.yaml`. Auditing reports. Scoring and ratcheting
-gate. Do not conflate them.
+in `.slop-config.yaml`. `--max-over N` is the fourth mode: CI runs it
+on `plugins/` and fails when more than N files score over the
+threshold, so the count can fall and never rise. Auditing reports.
+Scoring, ratcheting and the ceiling gate. Do not conflate them.
 
 The list below says what each finding means and how to rewrite
 it. Reach for a hand-written grep only when the script is

@@ -27,7 +27,9 @@ readonly MYDIR
 # shellcheck source=scripts/logging.sh
 . "${MYDIR%/}/../logging.sh"
 
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+# From this script's location, not the caller's working directory:
+# run from another repository it compared that repository's files.
+REPO_ROOT="$(cd "${MYDIR%/}/../.." && pwd)"
 readonly REPO_ROOT
 readonly CANONICAL="${REPO_ROOT}/scripts/shared/json_utils.sh"
 
@@ -88,6 +90,11 @@ main() {
         ;;
       -x | -t)
         XTRACE=1
+        ;;
+      *)
+        log 4 "Unknown option: ${1}"
+        usage
+        exit 1
         ;;
     esac
     shift

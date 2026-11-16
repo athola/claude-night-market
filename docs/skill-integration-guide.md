@@ -193,8 +193,6 @@ validation, or classification, low or zero Skill()
 inbound count in skill prose but active in hook
 execution paths. Examples: `imbue:vow-enforcement`
 (read by `imbue/hooks/vow_*.py`),
-`imbue:karpathy-principles` (referenced by
-`imbue/hooks/proof_enforcement.py`),
 `conserve:clear-context` (triggered by SessionStart
 context-overflow detection).
 

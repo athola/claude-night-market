@@ -28,7 +28,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 # Import implementations
-from .errors import ErrorHandler
 from .frontmatter import FrontmatterProcessor
 from .utils import find_project_root, load_config_with_defaults
 
@@ -95,7 +94,6 @@ class AbstractScript:
 
         # Lazy-loaded attributes
         self._config: AbstractConfig | None = None
-        self._error_handler: ErrorHandler | None = None
 
     def find_markdown_files(self, directory: Path) -> list[Path]:
         """Find all markdown files in a directory recursively.
@@ -159,28 +157,6 @@ class AbstractScript:
 
         """
         self._config = value
-
-    @property
-    def error_handler(self) -> ErrorHandler:
-        """Get the error handler, creating it lazily.
-
-        Returns:
-            ErrorHandler instance.
-
-        """
-        if self._error_handler is None:
-            self._error_handler = ErrorHandler(self.script_name)
-        return self._error_handler
-
-    @error_handler.setter
-    def error_handler(self, value: ErrorHandler) -> None:
-        """Set the error handler manually.
-
-        Args:
-            value: ErrorHandler instance to use.
-
-        """
-        self._error_handler = value
 
     def find_project_root(self, start_path: Path | None = None) -> Path:
         """Find the project root directory.

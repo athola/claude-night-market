@@ -549,6 +549,31 @@ class TestStateFileCleanup:
         state_files_after = list(obs_dir.glob(f"{skill_ref}:*.json"))
         assert len(state_files_after) < len(state_files_before), "State cleaned up"
 
+    def test_corrupt_state_file_is_reported_and_leaves_no_processing_file(
+        self, post_skill_env: dict[str, str], tmp_path: Path
+    ) -> None:
+        """Given: the pre-execution state file is not valid JSON
+        When: the PostToolUse hook claims it
+        Then: stderr names the parse error and no .processing file is left
+        """
+        skill_ref = "abstract:skill-auditor"
+        pre_hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
+        post_hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
+        env = {
+            **post_skill_env,
+            "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
+            "CLAUDE_HOME": str(tmp_path),
+        }
+        obs_dir = tmp_path / "skills" / "observability"
+        run_hook(pre_hook_path, {**env, "CLAUDE_TOOL_OUTPUT": ""})
+        (state_file,) = obs_dir.glob(f"{skill_ref}:*.json")
+        state_file.write_text("{not json")
+
+        result = run_hook(post_hook_path, env)
+
+        assert "skill_execution_logger: pre-state unreadable:" in result["stderr"]
+        assert list(obs_dir.glob("*.processing")) == []
+
 
 class TestErrorHandling:
     """Test error handling and graceful degradation."""
@@ -683,3 +708,59 @@ def run_hook(hook_path: Path, env: dict[str, str]) -> dict[str, any]:
         "stdout": result.stdout.strip(),
         "stderr": result.stderr.strip(),
     }
+
+
+def _run_with_payload(hook_path: Path, payload: dict, home: Path) -> None:
+    subprocess.run(
+        [sys.executable, str(hook_path)],
+        input=json.dumps(payload),
+        check=True,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "CLAUDE_HOME": str(home)},
+        timeout=10,
+    )
+
+
+class TestOverlappingInvocationsPairByToolUseId:
+    """Each completion claims its own start, so an overlap does not spread."""
+
+    def test_overlap_leaves_no_state_and_later_calls_are_timed(
+        self, tmp_path: Path
+    ) -> None:
+        """Given two overlapping calls and one failed call with no post hook
+        When a later call runs pre then post
+        Then that call is timed and only the failed call's state remains
+        """
+        pre = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
+        post = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
+        ref = "abstract:skill-auditor"
+
+        def call(event: Path, use_id: str) -> None:
+            _run_with_payload(
+                event,
+                {
+                    "session_id": "s1",
+                    "tool_name": "Skill",
+                    "tool_input": {"skill": ref},
+                    "tool_use_id": use_id,
+                    "tool_response": "done",
+                },
+                tmp_path,
+            )
+
+        call(pre, "toolu_a")
+        call(pre, "toolu_b")
+        call(pre, "toolu_failed")
+        call(post, "toolu_b")
+        call(post, "toolu_a")
+        call(pre, "toolu_c")
+        call(post, "toolu_c")
+
+        observability = tmp_path / "skills" / "observability"
+        left = sorted(p.name for p in observability.glob(f"{ref}:*"))
+        assert left == [f"{ref}:id-toolu_failed.json"]
+        log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
+        entries = [json.loads(line) for line in _log_text(log_dir).splitlines()]
+        assert entries[-1]["duration_ms"] is not None
+        assert all(entry["duration_ms"] is not None for entry in entries)

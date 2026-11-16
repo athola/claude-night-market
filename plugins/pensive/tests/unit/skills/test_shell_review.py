@@ -80,26 +80,14 @@ class TestUnifiedReviewOwnsShellReview:
 
 
 class TestOldNamesRedirect:
-    """The old skill and command keep working by routing to unified-review."""
+    """The old command keeps working by routing to unified-review."""
 
-    @pytest.mark.bdd
     @pytest.mark.unit
-    def test_stub_is_marked_deprecated_and_redirects(self) -> None:
-        """Given the old skill, it names its replacement and carries no workflow."""
-        text = read_or_fail(STUB_FILE)
-        assert "Deprecated" in text
-        assert "Skill(pensive:unified-review)" in text
-        assert "modules/shell-review.md" in text
-        assert "## Workflow" not in text
-        assert not (STUB_FILE.parent / "modules").exists()
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_stub_keeps_exit_criteria(self) -> None:
-        """Every SKILL.md needs Exit Criteria, the stub included."""
-        text = read_or_fail(STUB_FILE)
-        assert "## Exit Criteria" in text
-        assert "- [ ]" in text[text.index("## Exit Criteria") :]
+    def test_skill_stub_is_removed_and_unregistered(self) -> None:
+        """ADR-0014 kept the stub one release; 1.10.3 removed it."""
+        assert not STUB_FILE.exists()
+        manifest = STUB_FILE.parents[2] / ".claude-plugin" / "plugin.json"
+        assert "./skills/shell-review" not in manifest.read_text()
 
     @pytest.mark.bdd
     @pytest.mark.unit

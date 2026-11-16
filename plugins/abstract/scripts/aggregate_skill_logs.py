@@ -48,7 +48,7 @@ except ImportError:
 
 # Analysis thresholds
 MIN_EXECUTIONS_FOR_FAILURE_ANALYSIS = 5
-HIGH_FAILURE_THRESHOLD_PERCENT = 70  # Success rate below this is concerning
+HIGH_FAILURE_RATE_PERCENT = 30  # Failure rate above this is concerning
 LOW_RATING_THRESHOLD = 3.0  # Ratings below this need attention
 EXCESSIVE_FAILURES_THRESHOLD = 10  # Total failures above this is concerning
 SLOW_EXECUTION_THRESHOLD_MS = 10000  # 10 seconds
@@ -315,10 +315,12 @@ def detect_high_impact_issues(
     issues: list[dict[str, Any]] = []
 
     for skill, metrics in metrics_by_skill.items():
-        # High failure rate (>30%)
+        # High failure rate (>30%). Failures only: a partial outcome is not
+        # one, and counting it reported "0/5 failures" as a high failure rate.
         if (
             metrics.total_executions >= MIN_EXECUTIONS_FOR_FAILURE_ANALYSIS
-            and metrics.success_rate < HIGH_FAILURE_THRESHOLD_PERCENT
+            and metrics.failure_count * 100
+            > HIGH_FAILURE_RATE_PERCENT * metrics.total_executions
         ):
             issues.append(
                 {

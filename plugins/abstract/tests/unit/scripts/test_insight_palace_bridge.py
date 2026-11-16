@@ -18,7 +18,9 @@ if str(_scripts) not in sys.path:
     sys.path.insert(0, str(_scripts))
 
 import hashlib
+import os
 
+import insight_palace_bridge as bridge
 from insight_palace_bridge import (
     finding_to_markdown,
     ingest_findings,
@@ -509,3 +511,116 @@ class TestQueryPalaceInsightsExceptScope:
         ):
             with pytest.raises(AttributeError):
                 query_palace_insights()
+
+
+def patch_raise(exc: BaseException):
+    def _raise(**kwargs: object) -> None:
+        raise exc
+
+    return _raise
+
+
+class TestPalaceDataRoot:
+    """Captures land where memory-palace reads them, in every layout."""
+
+    def test_install_tree_maps_to_the_persistent_data_dir(self, tmp_path: Path) -> None:
+        installed = tmp_path / "plugins" / "cache" / "mkt" / "memory-palace" / "1.2.3"
+        expected = tmp_path / "plugins" / "data" / "memory-palace-mkt"
+        assert bridge._palace_data_root(installed, {}) == expected
+
+    def test_checkout_keeps_its_own_tree(self, tmp_path: Path) -> None:
+        checkout = tmp_path / "plugins" / "memory-palace"
+        assert bridge._palace_data_root(checkout, {}) == checkout
+
+    def test_palace_override_wins_and_abstracts_host_dir_is_ignored(
+        self, tmp_path: Path
+    ) -> None:
+        """CLAUDE_PLUGIN_DATA in abstract's hook process is abstract's dir."""
+        installed = tmp_path / "plugins" / "cache" / "mkt" / "memory-palace" / "1.0.0"
+        env = {
+            "CLAUDE_PLUGIN_DATA": str(tmp_path / "abstract-data"),
+            "MEMORY_PALACE_DATA_DIR": str(tmp_path / "chosen"),
+        }
+        assert bridge._palace_data_root(installed, env) == tmp_path / "chosen"
+        del env["MEMORY_PALACE_DATA_DIR"]
+        assert bridge._palace_data_root(installed, env) == (
+            tmp_path / "plugins" / "data" / "memory-palace-mkt"
+        )
+
+    def test_checkout_resolves_without_a_warning(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        bridge._palace_data_root(tmp_path / "plugins" / "memory-palace", {})
+        assert capsys.readouterr().err == ""
+
+    @pytest.mark.parametrize(
+        "relative",
+        [
+            "elsewhere/cache/mkt/memory-palace/1.0.0",
+            "plugins/cache/memory-palace/1.0.0",
+        ],
+    )
+    def test_unrecognized_cache_layout_warns_before_writing_into_it(
+        self, tmp_path: Path, relative: str, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Falling back to a versioned cache dir is issue #661 again."""
+        palace_root = tmp_path / relative
+        palace_root.mkdir(parents=True)
+        assert bridge._palace_data_root(palace_root, {}) == palace_root
+        err = capsys.readouterr().err
+        assert err.startswith("insight_palace_bridge: ")
+        assert err.count("\n") == 1
+
+    def test_absent_palace_under_a_cache_does_not_warn(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Installed abstract without memory-palace writes no captures."""
+        fallback = tmp_path / "plugins/cache/mkt/abstract/memory-palace"
+        bridge._palace_data_root(fallback, {})
+        assert capsys.readouterr().err == ""
+
+    def test_staged_file_is_removed_when_the_index_lock_times_out(
+        self, high_finding: Finding, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A staged insight with no index entry is an orphan the drain skips."""
+        if not bridge._HAS_PALACE:
+            pytest.skip("memory-palace is not importable here")
+        staging = tmp_path / "data" / "staging"
+        staging.mkdir(parents=True)
+        monkeypatch.setattr(bridge, "_PALACE_DATA", tmp_path)
+        monkeypatch.setattr(bridge, "_PALACE_STAGING", staging)
+        monkeypatch.setattr(bridge, "is_known", lambda **kwargs: False)
+        monkeypatch.setattr(
+            bridge, "update_index", patch_raise(TimeoutError("lock held"))
+        )
+
+        assert bridge.ingest_findings([high_finding]) == 0
+        assert list(staging.iterdir()) == []
+
+    def test_index_env_restores_a_preset_data_dir(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("MEMORY_PALACE_DATA_DIR", str(tmp_path / "preset"))
+        with bridge._palace_index_env():
+            assert os.environ["MEMORY_PALACE_DATA_DIR"] == str(bridge._PALACE_DATA)
+        assert os.environ["MEMORY_PALACE_DATA_DIR"] == str(tmp_path / "preset")
+
+    def test_index_entry_lands_under_the_palace_root_not_abstracts(
+        self, high_finding: Finding, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The staged file and its index entry share one root."""
+        if not bridge._HAS_PALACE:
+            pytest.skip("memory-palace is not importable here")
+        palace = tmp_path / "palace-data"
+        abstract_data = tmp_path / "abstract-data"
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(abstract_data))
+        monkeypatch.delenv("MEMORY_PALACE_DATA_DIR", raising=False)
+        monkeypatch.setattr(bridge, "_PALACE_DATA", palace)
+        monkeypatch.setattr(bridge, "_PALACE_STAGING", palace / "data" / "staging")
+
+        assert bridge.ingest_findings([high_finding]) == 1
+
+        assert list((palace / "data" / "staging").glob("insight-*.md"))
+        assert (palace / "hooks" / "memory-palace-index.yaml").exists()
+        assert not abstract_data.exists()
+        assert "MEMORY_PALACE_DATA_DIR" not in os.environ

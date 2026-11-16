@@ -3,7 +3,7 @@
 # are synced, then removes itself from crontab.
 #
 # Install: crontab -e, add:
-#   0 * * * * /home/alext/claude-night-market/scripts/clawhub-cron.sh
+#   0 * * * * /path/to/claude-night-market/scripts/clawhub-cron.sh
 #
 # Usage: scripts/clawhub-cron.sh [-h] [-x|-t]
 #
@@ -76,7 +76,14 @@ run_sync() {
   case "${exit_code}" in
     0)
       log_line "All skills synced. Removing cron job."
-      crontab -l 2>/dev/null | grep -v "clawhub-cron" | crontab - 2>/dev/null || true
+      # A transient `crontab -l` failure fed `crontab -` an empty table,
+      # which wiped every other cron job the user had.
+      local current
+      if ! current="$(crontab -l 2>/dev/null)"; then
+        log_line "crontab -l failed; leaving the cron table as it is."
+        return 0
+      fi
+      printf '%s\n' "${current}" | { grep -v "clawhub-cron" || true; } | crontab -
       log_line "Cron job removed."
       ;;
     *)
@@ -133,6 +140,11 @@ main() {
         ;;
       -x | -t)
         XTRACE=1
+        ;;
+      *)
+        log 4 "Unknown option: ${1}"
+        usage
+        exit 1
         ;;
     esac
     shift

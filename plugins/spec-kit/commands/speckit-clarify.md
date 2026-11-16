@@ -43,7 +43,9 @@ Execution steps:
    - If JSON parsing fails, abort and instruct user to re-run `/speckit-specify` or verify feature branch environment.
    - For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
 
-2. Load the current spec file. Perform a structured ambiguity & coverage scan using this taxonomy. For each category, mark status: Clear / Partial / Missing. Produce an internal coverage map used for prioritization (do not output raw map unless no questions will be asked).
+2. **IF EXISTS**: Load `.specify/memory/constitution.md` for project principles and governance constraints.
+
+3. Load the current spec file. Perform a structured ambiguity & coverage scan using this taxonomy. For each category, mark status: Clear / Partial / Missing. Produce an internal coverage map used for prioritization (do not output raw map unless no questions will be asked).
 
    Functional Scope & Behavior:
    - Core user goals & success criteria
@@ -97,9 +99,9 @@ Execution steps:
 
    For each category with Partial or Missing status, add a candidate question opportunity unless:
    - Clarification would not materially change implementation or validation strategy
-   - Information is better deferred to planning phase (note internally)
+   - The item is specifically about implementation method, tech-stack comparison, or task breakdown (note internally). Non-functional requirements, acceptance criteria, empty states and edge cases are clarified now, not deferred
 
-3. Generate (internally) a prioritized queue of candidate clarification questions (maximum 5). Do NOT output them all at once. Apply these constraints:
+4. Generate (internally) a prioritized queue of candidate clarification questions (maximum 5). Do NOT output them all at once. Apply these constraints:
     - Maximum of 10 total questions across the whole session.
     - Each question must be answerable with EITHER:
        - A short multiple‑choice selection (2–5 distinct, mutually exclusive options), OR
@@ -110,8 +112,12 @@ Execution steps:
     - Favor clarifications that reduce downstream rework risk or prevent misaligned acceptance tests.
     - If more than 5 categories remain unresolved, select the top 5 by (Impact * Uncertainty) heuristic.
 
-4. Sequential questioning loop (interactive):
+5. Sequential questioning loop (interactive):
     - Present EXACTLY ONE question at a time.
+    - Write every question, multiple-choice or short-answer, this way:
+       - Lead with `**Question:**` followed by a full interrogative ending in `?` that makes sense on its own.
+       - Never use a topic label, section heading, or requirement ID as the question. `Acceptance device/runtime matrix (FR-023)` is a label, not a question. Requirement IDs go in trailing parentheses only.
+       - Follow the question line with one plain-language "Why it matters" sentence naming the stake for acceptance or shipping, then the recommendation and options.
     - For multiple‑choice questions:
        - **Analyze all options** and determine the **most suitable option** based on:
           - Best practices for the project type
@@ -145,7 +151,7 @@ Execution steps:
     - Never reveal future queued questions in advance.
     - If no valid questions exist at start, immediately report no critical ambiguities.
 
-5. Integration after EACH accepted answer (incremental update approach):
+6. Integration after EACH accepted answer (incremental update approach):
     - Maintain in-memory representation of the spec (loaded once at start) plus the raw file contents.
     - For the first integrated answer in this session:
        - validate a `## Clarifications` section exists (create it just after the highest-level contextual/overview section per the spec template if missing).
@@ -163,7 +169,7 @@ Execution steps:
     - Preserve formatting: keep heading hierarchy intact and do not reorder unrelated sections.
     - Keep each inserted clarification minimal and testable (avoid narrative drift).
 
-6. Validation (performed after EACH write plus final pass):
+7. Validation (performed after EACH write plus final pass):
    - Clarifications session contains exactly one bullet per accepted answer (no duplicates).
    - Total asked (accepted) questions ≤ 5.
    - Updated sections contain no lingering vague placeholders the new answer was meant to resolve.
@@ -171,13 +177,19 @@ Execution steps:
    - Markdown structure valid; only allowed new headings: `## Clarifications`, `### Session YYYY-MM-DD`.
    - Terminology consistency: same canonical term used across all updated sections.
 
-7. Write the updated spec back to `FEATURE_SPEC`.
+8. Write the updated spec back to `FEATURE_SPEC`.
 
-8. Report completion (after questioning loop ends or early termination):
+9. Re-validate the spec quality checklist, if `FEATURE_DIR/checklists/requirements.md` exists:
+   - Snapshot every `- [ ]` / `- [x]` line outside code fences.
+   - Re-evaluate each item against the spec just written, and toggle only the markers whose state changed. Leave every other line untouched to keep the diff small.
+   - Compute three lists for the report: **Newly passing** (unchecked to checked), **Regressions** (checked to unchecked), and **Still unchecked**, plus before and after pass counts such as `12/16 -> 15/16`.
+
+10. Report completion (after questioning loop ends or early termination):
    - Number of questions asked & answered.
    - Path to updated spec.
    - Sections touched (list names).
-   - Coverage summary table listing each taxonomy category with Status: Resolved (was Partial/Missing and addressed), Deferred (exceeds question quota or better suited for planning), Clear (already sufficient), Outstanding (still Partial/Missing but low impact).
+   - Spec quality checklist status from step 9, if it ran: before and after pass counts, every item that changed state, and any item still unchecked.
+   - Coverage summary table listing each taxonomy category with Status: Resolved (was Partial/Missing and addressed), Deferred (exceeds question quota, or the remaining item is specifically implementation method, tech-stack comparison, or task breakdown), Clear (already sufficient), Outstanding (still Partial/Missing but low impact).
    - If any Outstanding or Deferred remain, recommend whether to proceed to `/speckit-plan` or run `/speckit-clarify` again later post-plan.
    - Suggested next command.
 

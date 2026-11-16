@@ -383,3 +383,54 @@ class TestMain:
         (tmp_path / "scripts").mkdir(parents=True)
         result = _mod.main()
         assert result == 0
+
+
+class TestScanScopedToRepo:
+    """Skip rules and version matching stay inside the scanned repo."""
+
+    @pytest.mark.unit
+    def test_repo_checked_out_under_a_dot_directory_is_still_scanned(
+        self, tmp_path: Path
+    ) -> None:
+        """A worktree under .claude/worktrees/ must not skip every lockfile."""
+        root = tmp_path / ".claude" / "worktrees" / "repo"
+        root.mkdir(parents=True)
+        (root / "uv.lock").write_text(
+            '[[package]]\nname = "badpkg"\nversion = "0.9.9"\n'
+        )
+        assert len(scan_lockfiles(root, SAMPLE_BLOCKLIST)) == 1
+
+    @pytest.mark.unit
+    def test_artifact_under_a_dot_directory_root_is_still_found(
+        self, tmp_path: Path
+    ) -> None:
+        """The artifact scan uses the same repo-relative skip rule."""
+        root = tmp_path / ".hidden" / "repo"
+        root.mkdir(parents=True)
+        (root / "evil.pth").write_text("x")
+        assert len(scan_artifacts(root, SAMPLE_BLOCKLIST)) == 1
+
+    @pytest.mark.unit
+    def test_bad_version_of_another_package_is_not_attributed(
+        self, tmp_path: Path
+    ) -> None:
+        """A later package pinning the bad version string is not a hit."""
+        (tmp_path / "uv.lock").write_text(
+            '[[package]]\nname = "badpkg"\nversion = "2.0.0"\n'
+            'dependencies = [\n    { name = "other" },\n]\n\n'
+            '[[package]]\nname = "other"\nversion = "0.9.9"\n'
+        )
+        assert scan_lockfiles(tmp_path, SAMPLE_BLOCKLIST) == []
+
+    @pytest.mark.unit
+    def test_dependency_reference_does_not_count_as_the_package(
+        self, tmp_path: Path
+    ) -> None:
+        """`{ name = "badpkg" }` in a dependency list has no version of its own."""
+        (tmp_path / "uv.lock").write_text(
+            '[[package]]\nname = "app"\nversion = "1.0.0"\n'
+            'dependencies = [\n    { name = "badpkg" },\n]\n\n'
+            '[[package]]\nname = "zlib-ng"\nversion = "0.9.9"\n\n'
+            '[[package]]\nname = "badpkg"\nversion = "1.0.0"\n'
+        )
+        assert scan_lockfiles(tmp_path, SAMPLE_BLOCKLIST) == []

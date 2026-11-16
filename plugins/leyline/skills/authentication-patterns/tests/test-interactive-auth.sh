@@ -50,6 +50,15 @@ main() {
     exit 1
   fi
 
+  # The module needs bash 4.2; stock macOS bash is 3.2. Skip there
+  # rather than report the module as broken.
+  case "${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}" in
+    [0-3].* | 4.[01])
+      printf '%s\n' "SKIP: bash ${BASH_VERSION} is older than 4.2"
+      exit 0
+      ;;
+  esac
+
   # Test 2: Source module
   printf '\n'
   printf '%s\n' "Test 2: Source module"

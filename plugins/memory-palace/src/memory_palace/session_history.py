@@ -272,11 +272,11 @@ class SessionHistoryManager:
         for sid in self._store.list_sessions():
             if sid == index_stem:
                 continue
-            # The store catches only JSON and shape errors; one file with
-            # bad bytes or an unparsable field must not fail every load.
+            # The store returns None for undecodable or unparsable files and
+            # says so on stderr; an unreadable one must not fail every load.
             try:
                 records.append(self._store.load(sid))
-            except (OSError, ValueError) as exc:
+            except OSError as exc:
                 logger.warning("skipping unreadable session %s: %s", sid, exc)
         loaded = sorted(
             (rec for rec in records if rec is not None),

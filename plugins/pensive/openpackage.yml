@@ -1,5 +1,5 @@
 name: pensive
-version: 1.10.2
+version: 1.10.3
 description: Reflective code review toolkit with structured analysis, blast radius analysis, domain expertise, and intelligent review orchestration
 keywords:
 - review
@@ -34,14 +34,14 @@ skills:
 - skills/blast-radius
 - skills/bug-review
 - skills/code-refinement
-- skills/makefile-review
 - skills/math-review
 - skills/rust-review
 - skills/safety-critical-patterns
-- skills/shell-review
 - skills/test-review
 - skills/unified-review
 - skills/tiered-audit
+- skills/harden
+- skills/performance-review
 commands:
 - commands/api-review.md
 - commands/architecture-review.md
@@ -55,9 +55,12 @@ commands:
 - commands/skill-history.md
 - commands/skill-review.md
 - commands/test-review.md
+- commands/harden.md
+- commands/performance-review.md
 agents:
 - agents/blast-radius-reviewer.md
 - agents/code-reviewer.md
 - agents/architecture-reviewer.md
 - agents/rust-auditor.md
 - agents/code-refiner.md
+- agents/harden-orchestrator.md

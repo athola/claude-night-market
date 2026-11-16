@@ -495,3 +495,40 @@ class TestDegradedRuntime:
         assert message.index("zzquux files are generated") < message.index(skipped)
         assert skipped.startswith("hookify skipped unreadable rules: ")
         assert "hookify.broken.local.md" in skipped
+
+
+class TestBundledRulesDoNotDenyOrdinaryEdits:
+    """Bundled rules load for every user, so a block must not hit routine edits."""
+
+    @pytest.mark.parametrize(
+        ("tool", "tool_input"),
+        [
+            (
+                "Edit",
+                {
+                    "file_path": "/repo/hooks/session_complete_notify.py",
+                    "old_string": "x = 1",
+                    "new_string": "x = 1  # key",
+                },
+            ),
+            (
+                "Write",
+                {"file_path": "/repo/docs/security-notes.md", "content": "hash of it"},
+            ),
+        ],
+        ids=["comment-in-session-hook", "security-doc"],
+    )
+    def test_routine_edit_is_not_denied(
+        self, tmp_path: Path, tool: str, tool_input: dict
+    ) -> None:
+        result = _run(
+            {
+                "hook_event_name": "PreToolUse",
+                "tool_name": tool,
+                "tool_input": tool_input,
+            },
+            tmp_path,
+        )
+        output = json.loads(result.stdout or "{}")
+        decision = output.get("hookSpecificOutput", {}).get("permissionDecision")
+        assert decision != "deny", output

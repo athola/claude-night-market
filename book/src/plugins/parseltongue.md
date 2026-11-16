@@ -249,7 +249,7 @@ uv pip sync requirements.lock
 | Skill | Enhancement |
 |-------|-------------|
 | `python-testing` | Uses `test-driven-development` for TDD cycles |
-| `python-testing` | Uses `testing-anti-patterns` for detection |
+| `python-testing` | Uses the TDD skill's `writing-good-tests.md` for detection |
 
 ## Related Plugins
 

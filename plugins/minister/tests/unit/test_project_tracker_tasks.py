@@ -34,6 +34,22 @@ class TestAddTask:
         # Assert
         assert len(empty_tracker.data.tasks) == initial_count + 1
 
+    def test_add_task_rejects_duplicate_id(
+        self, empty_tracker: ProjectTracker, minimal_task: Task
+    ) -> None:
+        """GIVEN a tracker holding a task.
+
+        WHEN a second task with the same id is added
+        THEN it is rejected and the tracker still holds one task, because
+        update_task only ever reaches the first task with an id.
+        """
+        empty_tracker.add_task(minimal_task)
+
+        with pytest.raises(ValueError, match=minimal_task.id):
+            empty_tracker.add_task(minimal_task)
+
+        assert len(empty_tracker.data.tasks) == 1
+
     def test_add_task_stores_task_with_all_fields(
         self, empty_tracker: ProjectTracker
     ) -> None:

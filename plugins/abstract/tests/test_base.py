@@ -252,30 +252,6 @@ class TestAbstractScript:
         # Then: Config is set
         assert script._config is mock_config
 
-    def test_error_handler_lazy_loading(self) -> None:
-        """Test that error_handler is lazily loaded."""
-        # Given: An AbstractScript
-        script = AbstractScript("test-script")
-
-        # When: Accessing error_handler property
-        handler = script.error_handler
-
-        # Then: Error handler is created with script name
-        assert handler is not None
-        assert handler.tool_name == "test-script"
-
-    def test_error_handler_setter(self) -> None:
-        """Test setting error_handler manually."""
-        # Given: An AbstractScript and a mock handler
-        script = AbstractScript("test-script")
-
-        # When: Setting handler manually
-        mock_handler = object()  # Use any object as mock
-        script.error_handler = mock_handler
-
-        # Then: Handler is set
-        assert script._error_handler is mock_handler
-
     def test_find_project_root(self, tmp_path: Path, monkeypatch) -> None:
         """Test find_project_root walks up to the pyproject.toml marker."""
         # Given: A project marked by pyproject.toml and a nested start path

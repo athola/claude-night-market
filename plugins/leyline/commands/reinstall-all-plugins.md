@@ -29,22 +29,22 @@ The following plugins are **automatically excluded** from reinstallation to prev
 Run the reinstall script:
 
 ```bash
-Bash("python3 /home/alext/claude-night-market/plugins/leyline/scripts/reinstall_all_plugins.py")
+Bash("python3 ${CLAUDE_PLUGIN_ROOT}/scripts/reinstall_all_plugins.py")
 ```
 
 For list-only mode:
 ```bash
-Bash("python3 /home/alext/claude-night-market/plugins/leyline/scripts/reinstall_all_plugins.py --list-only")
+Bash("python3 ${CLAUDE_PLUGIN_ROOT}/scripts/reinstall_all_plugins.py --list-only")
 ```
 
 For script generation:
 ```bash
-Bash("python3 /home/alext/claude-night-market/plugins/leyline/scripts/reinstall_all_plugins.py --generate-script")
+Bash("python3 ${CLAUDE_PLUGIN_ROOT}/scripts/reinstall_all_plugins.py --generate-script")
 ```
 
 For dry-run:
 ```bash
-Bash("python3 /home/alext/claude-night-market/plugins/leyline/scripts/reinstall_all_plugins.py --dry-run")
+Bash("python3 ${CLAUDE_PLUGIN_ROOT}/scripts/reinstall_all_plugins.py --dry-run")
 ```
 
 ## Output

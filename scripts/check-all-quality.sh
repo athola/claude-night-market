@@ -191,7 +191,7 @@ EOF
     *)
       log "1. Review failures above"
       log "2. Fix issues in failing plugins"
-      log "3. Run individual checks: ./scripts/run-plugin-{lint|typecheck|test}.sh <plugin>"
+      log "3. Run individual checks: ./scripts/run-plugin-{lint,typecheck,tests}.sh <plugin>"
       log "4. Re-run this script to verify fixes"
       case "${AUTO_FIX}" in
         false) log "5. Try with --fix flag for automatic linting fixes" ;;
@@ -212,6 +212,11 @@ main() {
       -x | -t) XTRACE=1 ;;
       --fix) AUTO_FIX=true ;;
       --report) GENERATE_REPORT=true ;;
+      *)
+        log 4 "Unknown option: ${arg}"
+        usage
+        exit 1
+        ;;
     esac
   done
 

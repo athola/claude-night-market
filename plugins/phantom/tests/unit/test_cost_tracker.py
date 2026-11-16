@@ -230,7 +230,7 @@ class TestPricingTracksTheModelCard:
         for model in (
             "claude-opus-5-5",
             "claude-sonnet-5-5",
-            "claude-fable-5-1",
+            "claude-fable-5-2",
             "claude-haiku-5-5",
             "claude-haiku-4-5-20251001",
         ):
@@ -255,8 +255,11 @@ class TestPricingTracksTheModelCard:
         When the pricing table is read
         Then the entries match the model card
         """
-        # platform.claude.com/docs/en/about-claude/models/overview, 2026-10-04
+        # platform.claude.com/docs/en/about-claude/pricing, 2026-11-13
+        assert PRICING["claude-fable-5-2"] == {"input": 8.0, "output": 40.0}
+        # Fable 5.1 is legacy since 5.2 shipped on 2026-11-09, still callable
         assert PRICING["claude-fable-5-1"] == {"input": 10.0, "output": 50.0}
+        # platform.claude.com/docs/en/about-claude/models/overview, 2026-10-04
         assert PRICING["claude-opus-5-5"] == {"input": 4.0, "output": 20.0}
         assert PRICING["claude-sonnet-5-5"] == {"input": 2.0, "output": 10.0}
         assert PRICING["claude-haiku-4-5-20251001"] == {"input": 1.0, "output": 5.0}

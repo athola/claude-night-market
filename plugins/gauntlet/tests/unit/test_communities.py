@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+import gauntlet.communities as comms
 from gauntlet.communities import (
     _leiden_communities,
     _subdivide_community,
@@ -499,3 +500,68 @@ class TestSubdivideCommunity:
         result = _subdivide_community(community, [], store)
         assert len(result) == 1
         assert result[0]["name"] == "mono"
+
+
+class TestLanguageFilterDoesNotPersist:
+    """A language-filtered detection leaves the stored communities alone."""
+
+    @pytest.mark.unit
+    def test_filtered_run_keeps_other_languages_communities(
+        self, store: GraphStore
+    ) -> None:
+        """store_communities replaces every row, so a subset must not reach it."""
+        for qn, lang in (("app.py::main", "python"), ("app.go::Init", "go")):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=qn,
+                    file_path=qn.split("::")[0],
+                    line_start=1,
+                    line_end=5,
+                    language=lang,
+                )
+            )
+        detect_communities(store)
+        assert store.get_community_for_node("app.py::main") is not None
+
+        detect_communities(store, language="go")
+
+        assert store.get_community_for_node("app.py::main") is not None
+
+
+class TestCouplingWarnings:
+    """Cross-community edges above the threshold produce one warning per pair."""
+
+    @pytest.mark.unit
+    def test_warns_for_the_coupled_pair_only(
+        self, store: GraphStore, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        crossings = comms._COUPLING_WARNING_THRESHOLD + 1
+        a_nodes = [f"a{n}" for n in range(crossings)]
+        b_nodes = [f"b{n}" for n in range(crossings)]
+        fixed = [
+            {"name": "A", "node_qns": a_nodes, "cohesion": 0.5},
+            {"name": "B", "node_qns": b_nodes, "cohesion": 0.5},
+            {"name": "C", "node_qns": ["c1"], "cohesion": 1.0},
+        ]
+        monkeypatch.setattr(comms, "detect_communities", lambda graph: fixed)
+        # Both directions count; one internal edge must not.
+        pairs = [
+            (a, b) if n % 2 else (b, a)
+            for n, (a, b) in enumerate(zip(a_nodes, b_nodes))
+        ] + [("a0", "a1"), ("c1", "a0")]
+        for n, (source, target) in enumerate(pairs):
+            store.upsert_edge(
+                GraphEdge(
+                    kind=EdgeKind.CALLS,
+                    source_qn=source,
+                    target_qn=target,
+                    file_path=f"f{n}.py",
+                    line=n,
+                )
+            )
+
+        warnings = comms.get_architecture_overview(store)["warnings"]
+
+        assert [w["communities"] for w in warnings] == [["A", "B"]]
+        assert warnings[0]["coupling_strength"] == crossings

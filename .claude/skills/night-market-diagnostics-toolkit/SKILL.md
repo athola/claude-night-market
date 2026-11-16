@@ -13,8 +13,7 @@ invocations, and how to read their output.
 
 Conventions for everything below:
 
-- Run all commands from the repo root
-  (`/home/alext/claude-night-market`).
+- Run all commands from the repo root.
 - Plain `python3` is enough for every script in the table except
   mutation testing, which needs `uv`.
 - All checks here are read-only. None of them mutate the repo.

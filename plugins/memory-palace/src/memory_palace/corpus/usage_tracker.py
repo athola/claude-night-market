@@ -47,6 +47,13 @@ SIGNAL_WEIGHTS: dict[UsageSignal, float] = {
 }
 
 
+_SIGNAL_COUNTERS = {
+    UsageSignal.ACCESS: "access_count",
+    UsageSignal.CITATION: "citation_count",
+    UsageSignal.POSITIVE_FEEDBACK: "positive_count",
+    UsageSignal.NEGATIVE_FEEDBACK: "negative_count",
+}
+
 _EMPTY_AGGREGATE: dict[str, Any] = {
     "access_count": 0,
     "citation_count": 0,
@@ -125,22 +132,29 @@ class UsageTracker:
             timestamp=datetime.now(timezone.utc),
             context=context or {},
         )
-        self._events.append(event)
-
-        # Maintain incremental aggregates so get_score() never scans the deque.
-        agg = self._aggregates.setdefault(entry_id, dict(_EMPTY_AGGREGATE))
-        agg["raw_score"] += SIGNAL_WEIGHTS.get(signal, 0.0)
-        if signal == UsageSignal.ACCESS:
-            agg["access_count"] += 1
-            agg["last_access"] = event.timestamp
-        elif signal == UsageSignal.CITATION:
-            agg["citation_count"] += 1
-        elif signal == UsageSignal.POSITIVE_FEEDBACK:
-            agg["positive_count"] += 1
-        elif signal == UsageSignal.NEGATIVE_FEEDBACK:
-            agg["negative_count"] += 1
-
+        self._append(event)
         return event
+
+    def _append(self, event: UsageEvent) -> None:
+        """Retain ``event`` and keep the per-entry aggregates in step.
+
+        The deque drops its oldest event when full, and export persists
+        only retained events, so a dropped event's contribution leaves
+        the aggregates too. Otherwise a save and load flipped the score.
+        """
+        if self._events.maxlen is not None and len(self._events) == self._events.maxlen:
+            self._count(self._events[0], -1)
+        self._events.append(event)
+        self._count(event, 1)
+        if event.signal == UsageSignal.ACCESS:
+            self._aggregates[event.entry_id]["last_access"] = event.timestamp
+
+    def _count(self, event: UsageEvent, sign: int) -> None:
+        agg = self._aggregates.setdefault(event.entry_id, dict(_EMPTY_AGGREGATE))
+        agg["raw_score"] += sign * SIGNAL_WEIGHTS.get(event.signal, 0.0)
+        counter = _SIGNAL_COUNTERS.get(event.signal)
+        if counter is not None:
+            agg[counter] += sign
 
     def get_score(
         self,
@@ -288,30 +302,7 @@ class UsageTracker:
                     timestamp=datetime.fromisoformat(data["timestamp"]),
                     context=data.get("context", {}),
                 )
-                self._events.append(event)
-                # Maintain aggregates for imported events.
-                entry_id = event.entry_id
-                agg = self._aggregates.setdefault(
-                    entry_id,
-                    {
-                        "access_count": 0,
-                        "citation_count": 0,
-                        "positive_count": 0,
-                        "negative_count": 0,
-                        "raw_score": 0.0,
-                        "last_access": None,
-                    },
-                )
-                agg["raw_score"] += SIGNAL_WEIGHTS.get(signal, 0.0)
-                if signal == UsageSignal.ACCESS:
-                    agg["access_count"] += 1
-                    agg["last_access"] = event.timestamp
-                elif signal == UsageSignal.CITATION:
-                    agg["citation_count"] += 1
-                elif signal == UsageSignal.POSITIVE_FEEDBACK:
-                    agg["positive_count"] += 1
-                elif signal == UsageSignal.NEGATIVE_FEEDBACK:
-                    agg["negative_count"] += 1
+                self._append(event)
             except (ValueError, KeyError) as e:
                 logger.warning(
                     "Skipping event with invalid data: %r (error: %s)",

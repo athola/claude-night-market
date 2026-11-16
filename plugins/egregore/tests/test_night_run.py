@@ -9,8 +9,12 @@ improvising when it runs out of attempts, budget, or evidence.
 
 from __future__ import annotations
 
+import os
 import shlex
+import signal
 import subprocess
+import sys
+import time
 from collections.abc import Sequence
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
@@ -354,17 +358,75 @@ class TestSubprocessRunner:
         """The subprocess layer raises the timeout, so nothing waits on a clock."""
         seen: dict[str, object] = {}
 
-        def _times_out(argv, **kwargs):
-            seen["timeout"] = kwargs.get("timeout")
-            raise subprocess.TimeoutExpired(cmd=argv, timeout=kwargs["timeout"])
+        class _SilentHang:
+            pid = 4242
 
-        monkeypatch.setattr(night_run.subprocess, "run", _times_out)
+            def __init__(self, argv, **_kwargs):
+                self.argv = argv
+                self.waits = 0
+
+            def communicate(self, timeout=None):
+                self.waits += 1
+                if self.waits == 1:
+                    seen["timeout"] = timeout
+                    raise subprocess.TimeoutExpired(cmd=self.argv, timeout=timeout)
+                return "", ""
+
+        monkeypatch.setattr(night_run.subprocess, "Popen", _SilentHang)
+        monkeypatch.setattr(
+            night_run.os, "killpg", lambda pid, sig: seen.update(killed=pid)
+        )
         result = night_run.SubprocessRunner().run(
             ["python3", "slow.py"], cwd=tmp_path, timeout=7
         )
         assert seen["timeout"] == 7
+        assert seen["killed"] == 4242
         assert result.returncode == night_run.TIMEOUT_EXIT
         assert result.output == "timed out after 7s"
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="POSIX process groups")
+    def test_a_timeout_keeps_what_the_command_printed_before_it(
+        self, tmp_path: Path
+    ) -> None:
+        """Partial output is the only evidence of where a hung run stopped."""
+        script = tmp_path / "hang.py"
+        script.write_text(
+            "import sys, time\n"
+            "print('reached step three', flush=True)\n"
+            "time.sleep(30)\n"
+        )
+        result = night_run.SubprocessRunner().run(
+            [sys.executable, str(script)], cwd=tmp_path, timeout=2
+        )
+        assert result.returncode == night_run.TIMEOUT_EXIT
+        assert "reached step three" in result.output
+        assert "timed out after 2s" in result.output
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="POSIX process groups")
+    def test_a_timeout_kills_the_grandchild_too(self, tmp_path: Path) -> None:
+        """``uv run pytest`` is a grandchild; killing only the child orphans it."""
+        pidfile = tmp_path / "grandchild.pid"
+        script = tmp_path / "spawn.py"
+        script.write_text(
+            "import subprocess, sys, time\n"
+            "child = subprocess.Popen(['sleep', '30'])\n"
+            f"open({str(pidfile)!r}, 'w').write(str(child.pid))\n"
+            "time.sleep(30)\n"
+        )
+        result = night_run.SubprocessRunner().run(
+            [sys.executable, str(script)], cwd=tmp_path, timeout=2
+        )
+        assert result.returncode == night_run.TIMEOUT_EXIT
+        grandchild = int(pidfile.read_text())
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            try:
+                os.kill(grandchild, 0)
+            except ProcessLookupError:
+                return
+            time.sleep(0.05)
+        os.kill(grandchild, signal.SIGKILL)
+        pytest.fail(f"grandchild {grandchild} outlived the timeout")
 
 
 class TestTheItemWorktreeStaysInsideTheRepository:
@@ -389,6 +451,10 @@ class TestTheItemWorktreeStaysInsideTheRepository:
     ) -> None:
         with pytest.raises(ValueError, match="relative path inside"):
             night_run._item_worktree(tmp_path, "NS-001", declared)
+
+    def test_an_item_id_cannot_escape_through_the_default(self, tmp_path: Path) -> None:
+        with pytest.raises(ValueError, match="relative path inside"):
+            night_run._item_worktree(tmp_path, "../../../tmp/evil", None)
 
     def test_a_non_string_worktree_is_refused(self, tmp_path: Path) -> None:
         with pytest.raises(ValueError, match="must be a string"):
@@ -421,3 +487,41 @@ def test_git_unquote_decodes_simple_escapes_in_a_quoted_path() -> None:
     THEN the escapes become the tab and newline characters.
     """
     assert night_run._git_unquote('"col\\tumn\\nrow"') == "col\tumn\nrow"
+
+
+class TimeoutRecordingRunner(FakeRunner):
+    """Records the timeout each command was given."""
+
+    def __init__(self) -> None:
+        """Answer every command with exit 0."""
+        super().__init__({})
+        self.timeouts: dict[str, int] = {}
+
+    def run(self, command, cwd=None, timeout=0, env=None):
+        self.timeouts[shlex.join(command)] = timeout
+        return super().run(command, cwd=cwd, timeout=timeout, env=env)
+
+
+class TestHandoffCommandsAreBounded:
+    """One hung test run must not wedge an unattended night."""
+
+    def test_evidence_setup_and_full_suite_carry_a_timeout(
+        self, tmp_path: Path
+    ) -> None:
+        runner = TimeoutRecordingRunner()
+        night_run.run_task(
+            task(), HANDOFF, tmp_path, runner, babysitter=lambda **_: ("PASS", "", "")
+        )
+        evidence_timeout = runner.timeouts["pytest -q"]
+        night_run._prepare_worktree(runner, tmp_path, tmp_path / "wt", HANDOFF)
+        night_run._final_full_suite(runner, tmp_path, HANDOFF)
+
+        assert evidence_timeout > 0
+        assert runner.timeouts["uv sync"] > 0
+        assert runner.timeouts["pytest -q"] > 0
+
+    def test_the_budget_sets_the_command_timeout(self, tmp_path: Path) -> None:
+        runner = TimeoutRecordingRunner()
+        handoff = replace(HANDOFF, budget={**HANDOFF.budget, "command_timeout_s": 42})
+        night_run._final_full_suite(runner, tmp_path, handoff)
+        assert runner.timeouts["pytest -q"] == 42

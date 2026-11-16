@@ -541,3 +541,51 @@ class TestHeldInputIsReleased:
         monkeypatch.setattr(display_module.time, "sleep", slept.append)
         assert toolkit._do_wait({"action": "wait", "duration": 60}).success is True
         assert slept == [10]
+
+
+class TestModelSuppliedInputsAreBounded:
+    """Coordinates and durations come from the model and stay in bounds."""
+
+    @patch("phantom.display._run")
+    def test_scroll_without_coordinate_fails_and_moves_nothing(self, mock_run, toolkit):
+        """A default (0, 0) let a scroll bypass the blocked-region filter."""
+        result = toolkit._do_scroll({"action": "scroll", "scroll_direction": "down"})
+        assert result.success is False
+        mock_run.assert_not_called()
+
+    def test_hold_key_is_capped_like_wait(self, toolkit, monkeypatch):
+        slept = []
+        monkeypatch.setattr(display_module.time, "sleep", slept.append)
+        with patch("phantom.display._run"):
+            toolkit._do_hold_key({"action": "hold_key", "text": "a", "duration": 1e9})
+        assert slept == [10]
+
+    @patch("phantom.display._run")
+    def test_mouse_move_moves_to_the_coordinate(self, mock_run, toolkit):
+        assert toolkit._do_mouse_move({"coordinate": [3, 4]}).success is True
+        mock_run.assert_called_once_with(["xdotool", "mousemove", "3", "4"])
+
+    @pytest.mark.parametrize(
+        ("handler", "button_cmd"),
+        [("_do_left_mouse_down", "mousedown"), ("_do_left_mouse_up", "mouseup")],
+    )
+    @patch("phantom.display._run")
+    def test_mouse_button_moves_first_when_given_a_coordinate(
+        self, mock_run, toolkit, handler, button_cmd
+    ):
+        assert getattr(toolkit, handler)({"coordinate": [5, 6]}).success is True
+        assert mock_run.call_args_list == [
+            call(["xdotool", "mousemove", "5", "6"]),
+            call(["xdotool", button_cmd, "1"]),
+        ]
+
+    @pytest.mark.parametrize(
+        ("handler", "button_cmd"),
+        [("_do_left_mouse_down", "mousedown"), ("_do_left_mouse_up", "mouseup")],
+    )
+    @patch("phantom.display._run")
+    def test_mouse_button_acts_in_place_without_a_coordinate(
+        self, mock_run, toolkit, handler, button_cmd
+    ):
+        assert getattr(toolkit, handler)({}).success is True
+        mock_run.assert_called_once_with(["xdotool", button_cmd, "1"])

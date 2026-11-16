@@ -28,6 +28,7 @@ so the team replicates what worked and avoids what did not.
 | LL-013 | done | Hooks sent permission decisions Claude Code ignores | 2026-09-28 |
 | LL-014 | open | Split a large working tree into commits from a clean worktree | 2026-10-15 |
 | LL-015 | open | A review fix shipped a regression its own test could not see | 2026-10-29 |
+| LL-016 | open | A script's default output path is a write to a committed file | 2026-11-16 |
 
 ## Lessons
 
@@ -805,6 +806,49 @@ correct.
 - Action: time any regex change to a sanitizer or other trust-boundary
   scanner on input of the adversary's choosing before it lands. Owner:
   maintainer. Status: open.
+
+## LL-016: A script's default output path is a write to a committed file
+
+- Status: open
+- Date: 2026-11-16
+- Phase: review
+- Category: testing
+- Owner: maintainer
+- Links: PR #1208, commits aff37160e, 75f4174c3, 77980126f
+<!-- key: fadee5f09e37 -->
+
+### What happened
+
+While writing a test for the add-subtitles double-caption guard on PR #1208, a
+fix agent ran assets/tapes/add-subtitles.sh with only an input path. The
+script's default output is that same committed file, so the run overwrote
+assets/gifs/skills-showcase.gif. The GIF was restored from the index before any
+commit.
+
+In the same round, the first fix for the cat /dev/ anchor (S2) required
+whitespace or a quote before /dev/, which reopened `cat </dev/zero`.
+
+### What went well / where we got lucky
+
+The agent reported the overwrite itself, and `git status` showed nothing under
+assets/ before committing. An advisor check before the push ran the redirect
+form and caught the S2 regression, fixed in 77980126f.
+
+### What did not work
+
+Trusting that a test only touches temp paths when the script under test defaults
+to repo files. Briefing an anchored-regex fix with the operand form alone.
+
+### Root cause
+
+add-subtitles.sh reads and writes one path by default, and the agent brief did
+not forbid default-path runs. The S2 brief named `cat /dev/zero` but not `cat
+</dev/zero`.
+
+### Recommendation / action item
+
+Tests of asset scripts always pass explicit temp input and output paths. Fix
+briefs for an anchored regex list the redirect form alongside the operand form.
 
 ## Archive
 

@@ -501,6 +501,33 @@ class TestNumericBudgetsAreParsedNotSniffed:
 
         assert result.state in {"UNSAFE", "INCOHERENT"}
 
+    @pytest.mark.parametrize("bad", ['"abc"', "0"])
+    def test_an_unreadable_command_timeout_is_refused(
+        self, tmp_path: Path, bad: str
+    ) -> None:
+        """A zero or text timeout would reach the runner as "no timeout"."""
+        handoff = GOOD_HANDOFF.replace(
+            "  max_attempts_per_task: 3\n",
+            f"  max_attempts_per_task: 3\n  command_timeout_s: {bad}\n",
+        )
+        item = write_item(tmp_path, **{"handoff.md": handoff})
+
+        result = gate.check_item(item)
+
+        assert result.state in {"UNSAFE", "INCOHERENT"}
+        assert any("command_timeout_s" in p for p in result.problems)
+
+    def test_a_positive_command_timeout_is_accepted(self, tmp_path: Path) -> None:
+        handoff = GOOD_HANDOFF.replace(
+            "  max_attempts_per_task: 3\n",
+            "  max_attempts_per_task: 3\n  command_timeout_s: 600\n",
+        )
+        item = write_item(tmp_path, **{"handoff.md": handoff})
+
+        result = gate.check_item(item)
+
+        assert result.state == "READY"
+
 
 class TestExpectIsBinary:
     """``expect`` has two legal values and no third meaning."""

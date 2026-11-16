@@ -184,7 +184,16 @@ class ProjectTracker:
         write_atomic(self.data_file, json.dumps(data, indent=2), mode=None)
 
     def add_task(self, task: Task) -> None:
-        """Add a new task to the tracker."""
+        """Add a new task to the tracker.
+
+        Raises:
+            ValueError: a task with this id already exists. ``update_task``
+                stops at the first match, so a second task with the same
+                id could never be updated.
+
+        """
+        if any(existing.id == task.id for existing in self.data.tasks):
+            raise ValueError(f"Task id already exists: {task.id}")
         self.data.tasks.append(task)
         self._save_data()
 

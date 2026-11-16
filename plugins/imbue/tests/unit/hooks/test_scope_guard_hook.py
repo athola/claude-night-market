@@ -125,3 +125,43 @@ class TestNonMaintenancePrompt:
         output = run_hook('{"prompt": "add a new login feature"}')
         assert "hookSpecificOutput" in output
         assert "hookEventName" in output["hookSpecificOutput"]
+
+
+def test_a_five_day_branch_is_in_the_yellow_zone(tmp_path) -> None:
+    """Both day thresholds defaulted to 7, so the yellow arm could never fire."""
+    env = {
+        k: v
+        for k, v in os.environ.items()
+        if not k.startswith(("GIT_", "SCOPE_GUARD_"))
+    }
+    env.update(SCOPE_GUARD_CACHE_TTL="0", HOME=str(tmp_path))
+    git = ["git", "-c", "user.email=t@t", "-c", "user.name=t"]
+    five_days_ago = str(int(__import__("time").time()) - 5 * 86400 - 3600)
+    dated = {
+        **env,
+        "GIT_AUTHOR_DATE": f"@{five_days_ago}",
+        "GIT_COMMITTER_DATE": f"@{five_days_ago}",
+    }
+    subprocess.run(
+        [*git, "init", "-q", "-b", "master"], cwd=tmp_path, env=env, check=True
+    )
+    (tmp_path / "a.txt").write_text("a\n")
+    subprocess.run([*git, "add", "."], cwd=tmp_path, env=env, check=True)
+    subprocess.run([*git, "commit", "-qm", "base"], cwd=tmp_path, env=dated, check=True)
+    subprocess.run([*git, "checkout", "-qb", "feat"], cwd=tmp_path, env=env, check=True)
+    (tmp_path / "b.txt").write_text("b\n")
+    subprocess.run([*git, "add", "."], cwd=tmp_path, env=env, check=True)
+    subprocess.run([*git, "commit", "-qm", "work"], cwd=tmp_path, env=env, check=True)
+
+    result = subprocess.run(
+        ["bash", str(HOOK_PATH)],
+        input='{"prompt": "add a new login feature"}',
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        env=env,
+        timeout=20,
+        check=False,
+    )
+
+    assert "Days: 5 (YELLOW)" in result.stdout, result.stdout + result.stderr

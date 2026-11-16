@@ -565,3 +565,110 @@ def test_directory_sync_is_skipped_on_windows(
 
     assert events == ["fsync"]
     assert target.exists()
+
+
+def test_apply_append_keeps_a_shared_journal_readable(tmp_path: Path) -> None:
+    """The journals are committed docs; an append must not narrow them to 0600."""
+    target = tmp_path / "docs" / "tradeoffs.md"
+    apply_append(target, "tradeoffs", {"title": "A", "context": "x"})
+    target.chmod(0o644)
+    apply_append(target, "tradeoffs", {"title": "B", "context": "y"})
+    assert target.stat().st_mode & 0o777 == 0o644
+
+
+# ---------------------------------------------------------------------------
+# Prose wrapping (LL-016: the repo's markdown hook rejected unwrapped output)
+# ---------------------------------------------------------------------------
+
+_LONG_PROSE = (
+    "The fix-pr round reverted each change and confirmed its test failed, "
+    "but a sibling input next to the tested one regressed and only a "
+    "separate pre-push review of the redirect form caught it."
+)
+
+
+def _prose_lines(entry: str) -> list[str]:
+    """Lines the wrap rule governs: not tables, headings or HTML comments."""
+    return [
+        line
+        for line in entry.splitlines()
+        if line.strip() and not line.lstrip().startswith(("|", "#", "<!--"))
+    ]
+
+
+def test_lesson_prose_sections_wrap_at_80_columns() -> None:
+    content = append_entry(
+        new_file_content("lessons"),
+        "lessons",
+        {
+            "title": "Wrap check",
+            "what_happened": _LONG_PROSE,
+            "root_cause": _LONG_PROSE,
+        },
+    )
+    entry = content.split("## LL-001:", 1)[1]
+    overlong = [line for line in _prose_lines(entry) if len(line) > 80]
+    assert overlong == []
+    # Wrapping moves line breaks only: the words survive in order.
+    section = entry.split("### What happened\n\n", 1)[1].split("\n\n", 1)[0]
+    assert " ".join(section.split()) == _LONG_PROSE
+
+
+def test_list_items_wrap_with_a_hanging_indent() -> None:
+    content = append_entry(
+        new_file_content("tradeoffs"),
+        "tradeoffs",
+        {"title": "Drivers wrap", "drivers": [_LONG_PROSE, "short"]},
+    )
+    section = content.split("### Decision drivers\n\n", 1)[1]
+    lines = section.split("\n- short", 1)[0].splitlines()
+    assert lines[0].startswith("- ")
+    assert all(line.startswith("  ") for line in lines[1:])
+    assert all(len(line) <= 80 for line in lines)
+
+
+def test_consequence_bullets_wrap_at_80_columns() -> None:
+    content = append_entry(
+        new_file_content("tradeoffs"),
+        "tradeoffs",
+        {"title": "Cons wrap", "consequences_negative": _LONG_PROSE},
+    )
+    entry = content.split("### Consequences\n\n", 1)[1]
+    assert all(len(line) <= 80 for line in entry.splitlines())
+    assert entry.startswith("- Negative / debt accepted: ")
+
+
+def test_wrapping_never_splits_an_inline_code_span() -> None:
+    span = "`cat </dev/zero with several spaced words inside`"
+    text = "padding " * 8 + span + " tail words follow it"
+    content = append_entry(
+        new_file_content("lessons"),
+        "lessons",
+        {"title": "Code span", "what_happened": text},
+    )
+    assert span in content
+
+
+def test_paragraph_breaks_inside_a_field_survive_wrapping() -> None:
+    content = append_entry(
+        new_file_content("lessons"),
+        "lessons",
+        {"title": "Paragraphs", "what_happened": "First paragraph.\n\nSecond one."},
+    )
+    assert "First paragraph.\n\nSecond one." in content
+
+
+def test_an_unbreakable_url_is_left_whole() -> None:
+    url = "https://example.com/" + "a" * 90
+    content = append_entry(
+        new_file_content("lessons"),
+        "lessons",
+        {"title": "URL", "what_happened": f"See {url} for detail."},
+    )
+    assert url in content
+
+
+@pytest.mark.parametrize("kind", ["tradeoffs", "lessons"])
+def test_fresh_scaffold_has_no_prose_past_80_columns(kind: str) -> None:
+    overlong = [line for line in _prose_lines(new_file_content(kind)) if len(line) > 80]
+    assert overlong == []

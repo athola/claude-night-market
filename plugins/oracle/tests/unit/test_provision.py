@@ -128,6 +128,8 @@ class TestProvisionVenv:
             calls = mock_run.call_args_list
             assert "venv" in str(calls[0])
             assert "onnxruntime" in str(calls[1])
+            # daemon.py imports yaml, and onnxruntime does not pull it in.
+            assert "pyyaml" in calls[1][0][0]
 
     @pytest.mark.unit
     def test_provision_fails_when_uv_missing(self, tmp_path: Path):

@@ -140,3 +140,44 @@ def test_gitlab_ci_logs_in_with_the_token(tmp_path: Path) -> None:
     )
     assert result.returncode == 0, result.stderr
     assert (tmp_path / "glab.ok.token").read_text() == FAKE_TOKEN
+
+
+def test_tables_survive_sourcing_from_a_function_that_returns(
+    tmp_path: Path,
+) -> None:
+    """A plain ``declare -A`` inside the loader's scope dies when it returns."""
+    script = (
+        f'load_auth() {{ source "{LIB}"; }}\n'
+        "load_auth\n"
+        'printf "%s" "${AUTH_CHECK_COMMANDS[github]:-}"'
+    )
+    result = subprocess.run(
+        [str(BASH), "-c", script],
+        env=_env(tmp_path),
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == "gh auth status"
+
+
+GCLOUD_SHIM = """#!/bin/sh
+case "$1 $2" in
+  "auth print-access-token") exit {code} ;;
+  *) exit 1 ;;
+esac
+"""
+
+
+@pytest.mark.parametrize(("code", "expected"), [(0, 0), (1, 1)])
+def test_gcloud_auth_check_follows_print_access_token(
+    tmp_path: Path, code: int, expected: int
+) -> None:
+    env = _env(tmp_path)
+    shim = tmp_path / "shims" / "gcloud"
+    shim.write_text(GCLOUD_SHIM.format(code=code))
+    shim.chmod(0o755)
+    result = _bash("check_auth_status gcloud", env)
+    assert result.returncode == expected, result.stderr

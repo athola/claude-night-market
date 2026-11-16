@@ -70,7 +70,7 @@ python3 plugins/hookify/scripts/install_rule.py --all
 ### security/ - Security Gates
 | Rule | Action | Default | Description |
 |------|--------|---------|-------------|
-| `require-security-review` | block | enabled | Require review for auth code |
+| `require-security-review` | warn | enabled | Require review for auth code |
 | `destructive-command-guard` | warn | enabled | Warn on destructive commands targeting prod-shaped paths |
 
 ### workflow/ - Workflow Enforcement

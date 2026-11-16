@@ -174,6 +174,13 @@ night-market-failure-archaeology SB7). Copy the fix's pattern: assert
 `subprocess_timeout < registered_budget` in a guard test, not a
 comment.
 
+When a hook's timeout or crash must stop the action rather than let it
+through, set `"onFailure": "block"` on the hook entry beside `command`
+(2.1.295). On the matcher group the harness drops it, and
+`hook_validator.py` warns. Two newer caps bound hook output:
+PreCompact output is cut at 10,000 characters per hook (2.1.314), and
+`updatedInput` keys the tool does not define are dropped (2.1.300).
+
 ## Host Python 3.9 constraint
 
 Plugin package code targets Python 3.12, but hook scripts run under the

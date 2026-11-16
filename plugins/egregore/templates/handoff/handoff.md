@@ -19,6 +19,7 @@ budget:
   max_tasks: 6
   max_attempts_per_task: 3
   implementer_timeout_s: 900
+  command_timeout_s: 3600
   claude_token_ceiling: 120000
 implementer:
   provider: auto

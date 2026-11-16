@@ -345,6 +345,58 @@ class TestIncrementalUpdate:
         assert report["nodes_created"] > 0
 
     @pytest.mark.unit
+    def test_unreadable_changed_file_warns_and_still_reparses_dependents(
+        self, tmp_path: Path, store: GraphStore, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """
+        Scenario: A changed file cannot be read
+        Given b.py imports from a.py and reading a.py raises OSError
+        When I run incremental_update with a.py reported changed
+        Then a warning names a.py and b.py is still re-parsed
+        """
+        a = tmp_path / "a.py"
+        b = tmp_path / "b.py"
+        a.write_text("def leaf():\n    pass\n")
+        b.write_text("from a import leaf\n")
+        for path in (a, b):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FILE,
+                    qualified_name=str(path),
+                    file_path=str(path),
+                    line_start=0,
+                    line_end=2,
+                )
+            )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.IMPORTS_FROM,
+                source_qn=str(b),
+                target_qn=str(a),
+                file_path=str(b),
+            )
+        )
+        real_read_bytes = Path.read_bytes
+
+        def read_bytes(self: Path) -> bytes:
+            if self == a:
+                raise PermissionError("denied")
+            return real_read_bytes(self)
+
+        changed = patch("gauntlet.incremental.get_changed_files", return_value=[str(a)])
+        parser = patch("gauntlet.incremental.parse_file", return_value=([], []))
+        with changed, patch.object(Path, "read_bytes", read_bytes):
+            with parser as parse_file:
+                with caplog.at_level("WARNING", logger="gauntlet.incremental"):
+                    incremental_update(str(tmp_path), store)
+
+        assert [c.args[0] for c in parse_file.call_args_list] == [str(b)]
+        assert any(
+            str(a) in r.getMessage() and "denied" in r.getMessage()
+            for r in caplog.records
+        )
+
+    @pytest.mark.unit
     def test_skips_file_with_unchanged_hash(
         self, tmp_path: Path, store: GraphStore
     ) -> None:
@@ -707,3 +759,73 @@ def test_strict_raises_when_git_is_missing_from_path() -> None:
         ) as excinfo:
             get_changed_files("HEAD", strict=True)
     assert isinstance(excinfo.value.__cause__, FileNotFoundError)
+
+
+def _git(repo: Path, *args: str) -> None:
+    subprocess.run(
+        ["git", "-c", "user.email=t@t", "-c", "user.name=t", *args],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+    )
+
+
+@pytest.fixture()
+def repo(tmp_path: Path) -> Path:
+    """Create a git repository the test process does not run inside."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    _git(root, "init", "-q")
+    return root
+
+
+class TestIncrementalAgainstARealRepo:
+    """Changed paths and dependents resolve the way git reports them."""
+
+    @pytest.mark.unit
+    def test_graph_rooted_at_a_subdirectory_parses_its_changes(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        """Changes under a graph rooted at a repo subdirectory are parsed."""
+        sub = repo / "sub"
+        sub.mkdir()
+        (sub / "m.py").write_text("def a():\n    pass\n")
+        _git(repo, "add", ".")
+        _git(repo, "commit", "-qm", "init")
+        full_build(str(sub), store)
+        (sub / "m.py").write_text("def a():\n    pass\n\ndef c():\n    pass\n")
+
+        report = incremental_update(str(sub), store, "HEAD")
+
+        assert report["files_parsed"] == 1
+        assert any(n.qualified_name.endswith("::c") for n in store.get_all_nodes())
+
+    @pytest.mark.unit
+    def test_renamed_callee_leaves_no_call_edge_to_a_missing_node(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        """A caller of a renamed function is reparsed with the callee file."""
+        (repo / "a.py").write_text("def helper():\n    pass\n")
+        (repo / "b.py").write_text(
+            "from a import helper\n\ndef user():\n    helper()\n"
+        )
+        _git(repo, "add", ".")
+        _git(repo, "commit", "-qm", "init")
+        full_build(str(repo), store)
+        assert any(e.target_qn.endswith("::helper") for e in store.get_all_edges()), (
+            "precondition: the call resolved to a.py's helper"
+        )
+        (repo / "a.py").write_text("def helper2():\n    pass\n")
+
+        incremental_update(str(repo), store, "HEAD")
+
+        node_names = {n.qualified_name for n in store.get_all_nodes()}
+        assert any(name.endswith("::helper2") for name in node_names)
+        dangling = [
+            e
+            for e in store.get_all_edges()
+            if e.kind == EdgeKind.CALLS
+            and "::" in e.target_qn
+            and e.target_qn not in node_names
+        ]
+        assert dangling == []

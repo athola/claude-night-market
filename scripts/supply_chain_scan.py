@@ -32,25 +32,42 @@ def load_blocklist(root: Path) -> dict:
     return data
 
 
+_PACKAGE_HEADER = re.compile(r"(?m)^\[\[package\]\]\s*$")
+_NAME_LINE = re.compile(r'(?m)^name\s*=\s*"([^"]*)"\s*$')
+_VERSION_LINE = re.compile(r'(?m)^version\s*=\s*"([^"]*)"\s*$')
+
+
+def _skipped(path: Path, root: Path) -> bool:
+    """Skip .venv, caches and node_modules inside the repo.
+
+    Only the parts below ``root`` are tested: a repo checked out under a
+    dot-directory (``.claude/worktrees/``) is still scanned.
+    """
+    return any(
+        p.startswith(".") or p in ("node_modules", "__pycache__")
+        for p in path.relative_to(root).parts
+    )
+
+
 def scan_lockfiles(root: Path, blocklist: dict) -> list[str]:
     """Check all uv.lock files for known compromised versions."""
     findings = []
     for lockfile in root.rglob("uv.lock"):
-        # Skip .venv and cache directories
-        parts = lockfile.parts
-        if any(
-            p.startswith(".") or p in ("node_modules", "__pycache__") for p in parts
-        ):
+        if _skipped(lockfile, root):
             continue
-        content = lockfile.read_text()
+        # One block per [[package]]: name and version are matched inside
+        # the same block, and a `{ name = ... }` dependency entry is not
+        # at the start of a line, so it never counts as the package.
+        locked = {
+            (name, version)
+            for block in _PACKAGE_HEADER.split(lockfile.read_text())
+            for name in _NAME_LINE.findall(block)
+            for version in _VERSION_LINE.findall(block)
+        }
         for pkg, entries in blocklist.items():
             for entry in entries:
                 for ver in entry["versions"]:
-                    pattern = (
-                        rf'name\s*=\s*"{re.escape(pkg)}"'
-                        rf'.*?version\s*=\s*"{re.escape(ver)}"'
-                    )
-                    if re.search(pattern, content, re.DOTALL):
+                    if (pkg, ver) in locked:
                         findings.append(
                             f"  CRITICAL: {lockfile}: {pkg}=={ver} "
                             f"({entry['severity']}) - {entry['description'][:80]}"
@@ -68,10 +85,7 @@ def scan_artifacts(root: Path, blocklist: dict) -> list[str]:
     findings = []
     for ind in indicators:
         for match in root.rglob(ind):
-            parts = match.parts
-            if any(
-                p.startswith(".") or p in ("node_modules", "__pycache__") for p in parts
-            ):
+            if _skipped(match, root):
                 continue
             findings.append(f"  CRITICAL: Found malicious artifact: {match}")
     return findings

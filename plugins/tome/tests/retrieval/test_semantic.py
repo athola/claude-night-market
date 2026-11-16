@@ -122,6 +122,24 @@ class TestRetrieverProviderAwareness:
         assert SemanticRetriever(FakeEmbedder()).is_semantic is True
 
     @pytest.mark.unit
+    def test_local_provider_whose_model_did_not_load_is_not_semantic(self) -> None:
+        """A local embedder with no model vectorizes by hash, whatever it asked for."""
+
+        class UnloadedLocal(FakeEmbedder):
+            requested_provider = "local"
+            model = None
+
+        assert SemanticRetriever(UnloadedLocal()).is_semantic is False
+
+    @pytest.mark.unit
+    def test_local_provider_with_a_loaded_model_is_semantic(self) -> None:
+        class LoadedLocal(FakeEmbedder):
+            requested_provider = "local"
+            model = object()
+
+        assert SemanticRetriever(LoadedLocal()).is_semantic is True
+
+    @pytest.mark.unit
     def test_explicit_override_wins(self) -> None:
         assert SemanticRetriever(FakeEmbedder(), is_semantic=False).is_semantic is False
 
@@ -244,22 +262,74 @@ class TestDegradationObservability:
         with pytest.warns(NonSemanticRetrievalWarning, match="not semantic"):
             open_embedder(str(tmp_path / "w.yaml"), provider="none")
 
-    @pytest.mark.integration
-    def test_real_provider_does_not_warn(self, tmp_path: Any) -> None:
-        """
-        GIVEN the semantic provider
-        WHEN an embedder is opened
-        THEN no degradation warning fires and the embedder it returns
-            is one a retriever reads as semantic
+    @pytest.mark.unit
+    def test_local_provider_whose_model_did_not_load_warns(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Any
+    ) -> None:
+        """Asking for local vectors and getting hashes is the #642 degradation."""
 
-        Without the second assertion this passes for an embedder that
-        silently fell back to hashing and forgot to publish it, which
-        is the shape of the defect #642 was filed about.
+        class UnloadedIndex:
+            def __init__(self, path: str, provider: str) -> None:
+                self.requested_provider = provider
+                self.model = None
+
+        monkeypatch.setattr(semantic_module, "_EmbeddingIndex", UnloadedIndex)
+        with pytest.warns(NonSemanticRetrievalWarning, match="did not load"):
+            open_embedder(str(tmp_path / "u.yaml"), provider="local")
+
+    @pytest.mark.integration
+    def test_local_provider_warns_exactly_when_it_is_not_semantic(
+        self, tmp_path: Any
+    ) -> None:
+        """
+        GIVEN the real backend and a request for local vectors
+        WHEN an embedder is opened
+        THEN it warns if and only if a retriever reads it as non-semantic
+
+        Whether sentence-transformers loads depends on the machine, so the
+        contract is the agreement: silent and semantic, or warned and not.
+        A silent hash fallback read as semantic is the defect #642 was
+        filed about.
         """
         pytest.importorskip("memory_palace")
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("error", NonSemanticRetrievalWarning)
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", NonSemanticRetrievalWarning)
             embedder = open_embedder(str(tmp_path / "q.yaml"), provider="local")
+        warned = any(
+            issubclass(w.category, NonSemanticRetrievalWarning) for w in caught
+        )
 
-        assert SemanticRetriever(embedder).is_semantic is True
+        assert SemanticRetriever(embedder).is_semantic is not warned
+
+    @pytest.mark.local_model
+    def test_loaded_local_model_ranks_a_paraphrase_above_an_unrelated_finding(
+        self, tmp_path: Any
+    ) -> None:
+        """
+        GIVEN the local embedding model loads
+        WHEN a query is ranked against a paraphrase and an unrelated finding
+        THEN the paraphrase ranks first
+
+        The hash fallback ranks these two arbitrarily, so this is the only
+        test that fails when "local" silently stops being semantic.
+        """
+        pytest.importorskip("memory_palace")
+        pytest.importorskip("sentence_transformers")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", NonSemanticRetrievalWarning)
+            embedder = open_embedder(str(tmp_path / "p.yaml"), provider="local")
+        if getattr(embedder, "model", None) is None:
+            pytest.skip("the local embedding model did not load on this machine")
+        retriever = SemanticRetriever(embedder)
+        paraphrase = make_finding(
+            0.5, title="feline sleeping on a rug", summary="a cat naps indoors"
+        )
+        unrelated = make_finding(
+            0.5, title="quarterly tax filing deadlines", summary="accounting"
+        )
+
+        ranked = retriever.rank("kitten dozing on the carpet", [unrelated, paraphrase])
+
+        assert retriever.is_semantic is True
+        assert ranked[0] is paraphrase

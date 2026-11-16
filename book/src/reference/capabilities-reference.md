@@ -142,7 +142,6 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `latent-space-engineering` | [imbue](../plugins/imbue.md) | Agent behavior shaping through instruction framing |
 | `loop-optimization` | [leyline](../plugins/leyline.md) | Hand-vs-compiler decision rule for loop transforms |
 | `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
-| `makefile-review` | [pensive](../plugins/pensive.md) | Deprecated alias for unified-review's makefile module |
 | `markdown-formatting` | [leyline](../plugins/leyline.md) | Line wrapping and style conventions |
 | `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
 | `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |
@@ -200,7 +199,6 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `session-replay` | [scribe](../plugins/scribe.md) | Convert session JSONL into GIF/MP4/WebM replays via VHS |
 | `session-to-post` | [scribe](../plugins/scribe.md) | Convert sessions into shareable blog posts or case studies |
 | `setup` | [oracle](../plugins/oracle.md) | Install and configure the oracle ONNX inference daemon |
-| `shell-review` | [pensive](../plugins/pensive.md) | Deprecated alias for unified-review's shell module |
 | `simplified-technical-english` | [scribe](../plugins/scribe.md) | Apply an ASD-STE100-derived register to operator and procedural text |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
 | `skill-graph-audit` | [abstract](../plugins/abstract.md) | Map Skill() refs across plugins; detect hubs, isolates, dangling targets |

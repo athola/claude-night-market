@@ -10,7 +10,7 @@ import urllib.request
 from pathlib import Path
 
 import pytest
-from daemon_lifecycle import _get_event
+from daemon_lifecycle import _read_payload
 
 from oracle.daemon import InferenceDaemon
 
@@ -19,18 +19,18 @@ MODEL = "weights:\n  a: 1.0\nintercept: 0.0\nsigmoid: true\n"
 
 @pytest.mark.unit
 @pytest.mark.parametrize("payload", ["null", "[]", '"Stop"', "3"])
-def test_get_event_survives_non_object_payload(monkeypatch, payload: str) -> None:
+def test_read_payload_survives_non_object_payload(monkeypatch, payload: str) -> None:
     monkeypatch.setattr("sys.stdin", io.StringIO(payload))
 
-    assert _get_event() == ""
+    assert _read_payload().get("hook_event_name", "") == ""
 
 
 @pytest.mark.unit
-def test_get_event_survives_undecodable_stdin(monkeypatch) -> None:
+def test_read_payload_survives_undecodable_stdin(monkeypatch) -> None:
     stdin = io.TextIOWrapper(io.BytesIO(b"\xff\xfe\x00"), encoding="utf-8")
     monkeypatch.setattr("sys.stdin", stdin)
 
-    assert _get_event() == ""
+    assert _read_payload().get("hook_event_name", "") == ""
 
 
 def _post(port: int, body: dict) -> tuple[int, dict]:
