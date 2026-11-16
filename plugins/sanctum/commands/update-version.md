@@ -39,6 +39,8 @@ rg "X\.Y\.Z" docs/ book/ plugins/*/README.md --glob "*.md"
 ### Phase 3: Verification
 - Run any required tests or builds, then show the resulting `git diff` to confirm the changes.
 - Verify no stale version references remain in documentation.
+- If `.gauntlet/graph.db` exists, run a full graph rebuild (`make graph`
+  where defined) so the graph records the new version.
 
 ## Manual Execution
 If a skill cannot be loaded, follow these steps:
