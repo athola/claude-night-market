@@ -1,4 +1,4 @@
-"""A build without a parser must say so."""
+"""A build without a parser must say so, and every build records its version."""
 
 from __future__ import annotations
 
@@ -10,8 +10,9 @@ from unittest.mock import patch
 
 import pytest
 
+import gauntlet
 from gauntlet.graph import GraphStore
-from gauntlet.incremental import incremental_update
+from gauntlet.incremental import full_build, incremental_update
 
 _SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "graph_build.py"
 
@@ -62,3 +63,27 @@ class TestIncrementalWithoutParser:
         )
         assert "error" in json.loads(result.stdout)
         assert result.returncode == 2
+
+
+class TestBuildRecordsVersion:
+    """The rebuild-on-release hook compares this key with the installed version."""
+
+    @pytest.mark.unit
+    def test_full_build_records_gauntlet_version(
+        self, tmp_path: Path, store: GraphStore
+    ) -> None:
+        pytest.importorskip("tree_sitter")
+        (tmp_path / "a.py").write_text("def a():\n    pass\n")
+        full_build(str(tmp_path), store)
+        assert store.get_metadata("gauntlet_version") == gauntlet.__version__
+
+    @pytest.mark.unit
+    def test_incremental_build_records_gauntlet_version(
+        self, tmp_path: Path, store: GraphStore
+    ) -> None:
+        pytest.importorskip("tree_sitter")
+        src = tmp_path / "a.py"
+        src.write_text("def a():\n    pass\n")
+        with patch("gauntlet.incremental.get_changed_files", return_value=[str(src)]):
+            incremental_update(str(tmp_path), store)
+        assert store.get_metadata("gauntlet_version") == gauntlet.__version__

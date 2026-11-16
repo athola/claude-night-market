@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from gauntlet import __version__
 from gauntlet.graph import GraphStore
 from gauntlet.models import EdgeKind
 from gauntlet.treesitter_parser import detect_language, parse_file, parser_available
@@ -228,6 +229,7 @@ def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
     graph.set_metadata("last_build_type", "full")
     graph.set_metadata("last_build_duration", str(duration))
     graph.set_metadata("last_build_files", str(len(files)))
+    graph.set_metadata("gauntlet_version", __version__)
 
     return {
         "build_type": "full",
@@ -332,6 +334,7 @@ def incremental_update(
     duration = round(time.monotonic() - start, 2)
     graph.set_metadata("last_build_type", "incremental")
     graph.set_metadata("last_build_duration", str(duration))
+    graph.set_metadata("gauntlet_version", __version__)
 
     return {
         "build_type": "incremental",
