@@ -1310,7 +1310,11 @@ class TestCatDevAnchor:
         assert decision.behavior == PermissionDecision.ALLOW
 
     @pytest.mark.unit
-    def test_cat_dev_zero_is_not_allowed(self) -> None:
-        """A device file never returns."""
-        decision = evaluate_permission("Bash", {"command": "cat /dev/zero"})
+    @pytest.mark.parametrize(
+        "command",
+        ["cat /dev/zero", "cat </dev/zero", "cat a.txt /dev/zero", 'cat "/dev/zero"'],
+    )
+    def test_cat_dev_zero_is_not_allowed(self, command: str) -> None:
+        """A device file never returns, read as an operand or a redirect."""
+        decision = evaluate_permission("Bash", {"command": command})
         assert decision is None or decision.behavior != PermissionDecision.ALLOW

@@ -138,7 +138,7 @@ SAFE_PATTERNS: list[str] = [
     r"^pwd$",
     # A device file (`/dev/zero`) or follow mode never returns, so it
     # burns the Bash timeout instead of being approved.
-    r"^cat\s+(?!.*\.env|.*credentials|.*\.ssh|(?:.*\s)?[\'\"]?/dev/)",
+    r"^cat\s+(?!.*\.env|.*credentials|.*\.ssh|(?:.*[\s<])?[\'\"]?/dev/)",
     r"^head\s+",
     r"^tail\s+(?!(?:.*\s)?(?:-\w*[fF]|--follow))",
     r"^wc\s+",
