@@ -48,6 +48,9 @@ tools returned.
   2 with an `error` instead of reporting files it never parsed. The
   graph-build skill runs the script in the plugin's own environment,
   since a system `python3` may lack tree-sitter.
+- **gauntlet:** `graph_build.py --incremental` now diffs from the commit
+  of the last successful build, not `HEAD`. On a clean tree the `HEAD`
+  diff was empty and a stale graph reported "no changes detected".
 
 ## [1.10.3] - 2026-11-13
 
