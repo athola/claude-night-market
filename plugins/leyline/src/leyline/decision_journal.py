@@ -24,6 +24,7 @@ import fcntl
 import hashlib
 import json
 import re
+import textwrap
 from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
@@ -177,7 +178,7 @@ def new_file_content(kind: str) -> str:
         "|----|--------|-------|------|\n\n"
         f"{_SECTION_HEADING[kind]}\n\n"
         f"{_ARCHIVE_HEADING}\n\n"
-        "Superseded or deprecated entries sink here; nothing is deleted "
+        "Superseded or deprecated entries sink here; nothing is deleted\n"
         "(git keeps history).\n\n"
         f"{template}"
     )
@@ -218,13 +219,52 @@ def _oneline(text: str) -> str:
     return " ".join(text.split())
 
 
+#: The column ``.claude/rules/markdown-formatting.md`` wraps prose at. The
+#: repo's pre-commit hook rejects longer lines, so unwrapped output from
+#: this module could not be committed without hand edits (LL-016).
+_WRAP_WIDTH = 80
+_CODE_SPAN_RE = re.compile(r"`[^`\n]+`")
+_NBSP = "\x00"
+
+
+def _wrap(text: str, first: str = "", rest: str = "") -> str:
+    """Wrap one paragraph at ``_WRAP_WIDTH``, keeping code spans and URLs whole.
+
+    Spaces inside an inline code span are swapped for a placeholder before
+    wrapping and restored after, because the formatting rule forbids a break
+    inside inline code. Long words are never split, which keeps a URL whole.
+    """
+    protected = _CODE_SPAN_RE.sub(
+        lambda match: match.group(0).replace(" ", _NBSP), " ".join(text.split())
+    )
+    wrapped = textwrap.fill(
+        protected,
+        width=_WRAP_WIDTH,
+        initial_indent=first,
+        subsequent_indent=rest,
+        break_long_words=False,
+        break_on_hyphens=False,
+    )
+    return wrapped.replace(_NBSP, " ")
+
+
+def _wrap_prose(text: str) -> str:
+    """Wrap each blank-line-separated paragraph, keeping the breaks between."""
+    paragraphs = re.split(r"\n\s*\n", text.strip())
+    return "\n\n".join(_wrap(paragraph) for paragraph in paragraphs)
+
+
+def _bullet(text: str) -> str:
+    return _wrap(text, first="- ", rest="  ")
+
+
 def _opt_section(heading: str, value: object) -> str:
     if value is None or value in ("", []):
         return ""
     if isinstance(value, list):
-        body = "\n".join(f"- {item}" for item in value)
+        body = "\n".join(_bullet(str(item)) for item in value)
     else:
-        body = str(value)
+        body = _wrap_prose(str(value))
     return f"\n### {heading}\n\n{body}\n"
 
 
@@ -266,9 +306,9 @@ def _render_tradeoff(
     if pos or neg:
         cons = "\n### Consequences\n\n"
         if pos:
-            cons += f"- Positive: {pos}\n"
+            cons += _bullet(f"Positive: {pos}") + "\n"
         if neg:
-            cons += f"- Negative / debt accepted: {neg}\n"
+            cons += _bullet(f"Negative / debt accepted: {neg}") + "\n"
     body = (
         f"## {entry_id}: {_oneline(fields['title'])}\n\n"
         + "\n".join(meta)
