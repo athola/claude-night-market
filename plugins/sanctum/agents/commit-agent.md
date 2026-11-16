@@ -72,7 +72,7 @@ Expert agent for generating well-structured conventional commit messages.
 
 ### Message Quality
 - Imperative mood enforcement
-- Body says why the change was made; the diff shows what
+- Body says why the change was made (the diff shows what)
 - Avoiding AI/tool mentions
 - Consistent terminology
 - Brevity without losing context

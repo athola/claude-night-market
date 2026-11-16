@@ -24,7 +24,7 @@ Run these git commands to gather context, then draft the message.
    ```
    <type>(<scope>): <imperative summary, ≤50 chars>
 
-   <body: why, wrapped at 72 chars; the diff shows what>
+   <body: why, wrapped at 72 chars (the diff shows what)>
 
    <footer: BREAKING CHANGE or issue refs, if any>
    ```

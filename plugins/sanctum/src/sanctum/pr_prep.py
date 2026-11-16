@@ -84,7 +84,6 @@ class PRPrepAnalyzer:
         "has_tests",
         "has_documentation",
         "passes_checks",
-        "describes_changes",
         "includes_breaking_changes",
     ]
 
@@ -178,9 +177,9 @@ class PRPrepAnalyzer:
 
         ``passes_checks`` and ``includes_breaking_changes`` need a test,
         lint or type run and a release decision respectively, neither of
-        which this context carries, so they are left untouched. So is
-        ``describes_changes``: whether a description states intent is a
-        property of its text, not of the paths it touches.
+        which this context carries, so they are left untouched. Whether a
+        description states intent is a property of its text, not of the
+        paths it touches, so no gate claims it.
 
         Args:
             context: PR context with changes and metadata
@@ -276,7 +275,7 @@ class PRPrepAnalyzer:
                 "|---|---|",
                 "| **Who** | <!-- who is affected --> |",
                 f"| **Where** | {len(paths)} files |",
-                "| **When** | on merge |",
+                "| **When** | <!-- on merge, or the flag or migration window --> |",
                 "",
                 "## Why",
                 "",

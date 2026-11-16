@@ -6,6 +6,9 @@ Tests the PRPrepAnalyzer class from src/sanctum/pr_prep.py.
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
+
 import pytest
 
 from sanctum.pr_prep import (
@@ -184,7 +187,9 @@ class TestPRPrepAnalyzer:
         THEN every gate is None, meaning not evaluated
         """
         gates = PRPrepAnalyzer.initialize_quality_gates()
-        assert len(gates) == 5
+        assert (
+            len(gates) == 4
+        )  # describes_changes removed: paths cannot judge a description
         assert all(v is None for v in gates.values())
         assert "has_tests" in gates
         assert "has_documentation" in gates
@@ -252,8 +257,9 @@ class TestPRPrepAnalyzer:
         }
         gates = PRPrepAnalyzer.initialize_quality_gates()
         result = PRPrepAnalyzer.validate_quality_gates(context, gates)
-        # Paths cannot say whether the description states intent.
-        assert result["describes_changes"] is None
+        # Paths cannot say whether the description states intent, so the
+        # analyzer offers no gate for it.
+        assert "describes_changes" not in result
         assert result["has_documentation"] is True
         assert result["has_tests"] is True
 
@@ -324,6 +330,26 @@ class TestPRPrepAnalyzer:
         assert "## Test plan" in result
         assert "2 files" in result
         assert "src/feature.py" not in result
+        # Only the file count is known; the merge timing is the author's call.
+        assert "| **When** | on merge |" not in result
+
+    def test_generated_scaffold_matches_the_pr_template(self) -> None:
+        """The scaffold is the pr-prep template's shape, not a second copy of it."""
+        template = (
+            Path(__file__).resolve().parents[1]
+            / "skills"
+            / "pr-prep"
+            / "modules"
+            / "pr-template.md"
+        ).read_text(encoding="utf-8")
+        result = PRPrepAnalyzer.generate_pr_description(
+            {"changed_files": [{"path": "a.py"}]}
+        )
+        headings = [line for line in result.splitlines() if line.startswith("## ")]
+        labels = re.findall(r"\| (\*\*\w+\*\*) \|", result)
+        assert headings
+        for item in headings + labels:
+            assert item in template, item
 
     def test_generate_pr_description_without_changes(self) -> None:
         """

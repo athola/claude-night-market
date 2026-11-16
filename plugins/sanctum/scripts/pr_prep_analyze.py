@@ -153,7 +153,16 @@ def render_markdown(report: dict[str, Any], base: str) -> str:
         lines += ["## Suggested reviewers", ""]
         lines += [f"- {name}" for name in report["reviewers"]] or ["- none matched"]
         lines.append("")
-    lines += ["## Description scaffold", "", report["description"].rstrip(), ""]
+    # Fenced: the scaffold's own ## headings would otherwise read as
+    # sections of this report.
+    lines += [
+        "## Description scaffold",
+        "",
+        "```markdown",
+        report["description"].rstrip(),
+        "```",
+        "",
+    ]
     return "\n".join(lines) + "\n"
 
 

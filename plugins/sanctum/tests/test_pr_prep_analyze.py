@@ -183,6 +183,9 @@ class TestCommandLine:
             assert heading in out
         assert "carries a `!` marker" in out
         assert "- alex" in out
+        # The scaffold's own headings sit in a fence, apart from the report's
+        scaffold = out.split("## Description scaffold", 1)[1]
+        assert scaffold.lstrip().startswith("```markdown")
 
     def test_render_marks_unevaluated_gates_unknown(
         self, branch_repo: tuple[Path, str], capsys: pytest.CaptureFixture[str]
