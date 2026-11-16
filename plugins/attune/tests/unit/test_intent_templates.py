@@ -37,6 +37,14 @@ def test_brief_template_carries_problem_goals_and_out_of_scope(path: Path) -> No
 
 
 @pytest.mark.unit
+def test_skill_out_of_scope_comes_from_the_wont_have_answers() -> None:
+    """A section with no source question gets filled by invention."""
+    text = BRIEFS[0].read_text(encoding="utf-8")
+    assert "From the Won't Have list" in _brief_template(BRIEFS[0])
+    assert "Out of Scope" in text.split("## Exit Criteria", 1)[1]
+
+
+@pytest.mark.unit
 def test_blueprint_task_notes_record_the_decision_not_the_steps() -> None:
     """Steps are the diff's job; the plan keeps the choice and its reason."""
     text = (ROOT / "commands" / "blueprint.md").read_text(encoding="utf-8")
