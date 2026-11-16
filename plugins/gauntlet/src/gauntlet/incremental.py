@@ -12,7 +12,7 @@ from typing import Any
 
 from gauntlet.graph import GraphStore
 from gauntlet.models import EdgeKind
-from gauntlet.treesitter_parser import detect_language, parse_file
+from gauntlet.treesitter_parser import detect_language, parse_file, parser_available
 
 _log = logging.getLogger(__name__)
 
@@ -274,6 +274,13 @@ def incremental_update(
     changed, early_report = _changed_or_report(base_ref, root_dir)
     if early_report is not None:
         return early_report
+    if not parser_available():
+        # Parsing would yield nothing and the report would still count the
+        # files, so a stale graph would read as freshly updated.
+        return _no_work_report(
+            error="tree-sitter parser unavailable in this interpreter; "
+            "run with the gauntlet environment (uv run --project <plugin>)"
+        )
 
     # Hash-based skip: a reported file whose content the graph already
     # holds is not re-parsed.

@@ -56,6 +56,9 @@ def main() -> None:
     try:
         if args.incremental:
             report = incremental_update(str(root), graph, args.base_ref)
+            if report.get("error"):
+                print(json.dumps(report, indent=2))
+                sys.exit(2)
         else:
             report = full_build(str(root), graph)
             if not report.get("nodes_created"):
