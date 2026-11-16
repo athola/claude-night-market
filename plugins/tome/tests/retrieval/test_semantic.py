@@ -301,3 +301,35 @@ class TestDegradationObservability:
         )
 
         assert SemanticRetriever(embedder).is_semantic is not warned
+
+    @pytest.mark.integration
+    def test_loaded_local_model_ranks_a_paraphrase_above_an_unrelated_finding(
+        self, tmp_path: Any
+    ) -> None:
+        """
+        GIVEN the local embedding model loads
+        WHEN a query is ranked against a paraphrase and an unrelated finding
+        THEN the paraphrase ranks first
+
+        The hash fallback ranks these two arbitrarily, so this is the only
+        test that fails when "local" silently stops being semantic.
+        """
+        pytest.importorskip("memory_palace")
+        pytest.importorskip("sentence_transformers")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", NonSemanticRetrievalWarning)
+            embedder = open_embedder(str(tmp_path / "p.yaml"), provider="local")
+        if getattr(embedder, "model", None) is None:
+            pytest.skip("the local embedding model did not load on this machine")
+        retriever = SemanticRetriever(embedder)
+        paraphrase = make_finding(
+            0.5, title="feline sleeping on a rug", summary="a cat naps indoors"
+        )
+        unrelated = make_finding(
+            0.5, title="quarterly tax filing deadlines", summary="accounting"
+        )
+
+        ranked = retriever.rank("kitten dozing on the carpet", [unrelated, paraphrase])
+
+        assert retriever.is_semantic is True
+        assert ranked[0] is paraphrase

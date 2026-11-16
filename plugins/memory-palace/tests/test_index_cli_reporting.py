@@ -16,6 +16,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -369,3 +370,65 @@ class TestCapturesResolveAgainstTheDataRoot:
         assert cli.index_report(output_format="json") is True
 
         assert json.loads(capsys.readouterr().out)["orphan_count"] == 0
+
+    def _install_with_data_root(
+        self, cli, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> Path:
+        """Two of three pending captures exist under the data root, none in the install."""
+        data_root = tmp_path / "data-root"
+        cli.plugin_dir = tmp_path / "install"
+        cli.plugin_dir.mkdir()
+        monkeypatch.setenv("MEMORY_PALACE_DATA_DIR", str(data_root))
+        today = datetime.now(timezone.utc).isoformat()
+        _write_index(
+            data_root,
+            {
+                f"https://example.com/{key}": _entry(
+                    key, routing_type="pending", last_updated=today
+                )
+                for key in ("a", "b", "c")
+            },
+        )
+        for key in ("a", "b"):
+            (data_root / "data" / "staging" / f"{key}.md").write_text(
+                "x", encoding="utf-8"
+            )
+        return data_root
+
+    def test_prune_orphans_finds_captures_under_the_data_root(
+        self,
+        cli,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """GIVEN captures a and b under the data root and c missing
+        WHEN index_prune_orphans runs as a dry run
+        THEN only c is proposed for pruning
+        """
+        self._install_with_data_root(cli, tmp_path, monkeypatch)
+
+        assert cli.index_prune_orphans() is True
+
+        out = capsys.readouterr().out
+        assert "Orphan entries to prune: 1" in out
+        assert "[PRUNE] https://example.com/c" in out
+
+    def test_promote_finds_captures_under_the_data_root(
+        self,
+        cli,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """GIVEN captures a and b under the data root and c missing
+        WHEN index_promote runs as a dry run
+        THEN only c is archived as an orphan
+        """
+        self._install_with_data_root(cli, tmp_path, monkeypatch)
+
+        assert cli.index_promote() is True
+
+        out = capsys.readouterr().out
+        assert out.count("orphan: backing file missing") == 1
+        assert "[ARCHIVE] https://example.com/c" in out

@@ -8,6 +8,7 @@ caller comparing the value with `case` never matched.
 from __future__ import annotations
 
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -22,14 +23,30 @@ COPIES = [
 PAYLOAD = '{"tool_name":"Bash","tool_input":{"tool_name":"x"}}'
 
 
+#: GNU ``grep -oP``, for the one pattern shape json_utils uses: it matches
+#: the pattern against each stdin line and prints every match, so a probe
+#: whose input cannot match fails here as it does on a real GNU grep.
+#: ``\K`` has no Python equivalent, so the part after it is a group.
+GREP_STAND_IN = """#!{python}
+import re, sys
+pattern = next(a for a in sys.argv[1:] if not a.startswith("-"))
+head, _, tail = pattern.partition(r"\\K")
+regex = re.compile(f"(?:{{head}})({{tail}})" if tail else f"({{head}})")
+found = False
+for line in sys.stdin:
+    for match in regex.finditer(line):
+        found = True
+        print(match.group(1))
+sys.exit(0 if found else 1)
+"""
+
+
 def _path_with_gnu_grep(tmp_path: Path) -> Path:
-    """Stand in for GNU grep: the probe passes, extraction prints each match."""
+    """Stand in for GNU grep -oP, which macOS and BusyBox do not ship."""
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     grep = bin_dir / "grep"
-    grep.write_text(
-        '#!/bin/sh\ncase "$*" in *"\\d+"*) exit 0 ;; esac\nprintf \'Bash\\nx\\n\'\n'
-    )
+    grep.write_text(GREP_STAND_IN.format(python=sys.executable))
     grep.chmod(0o755)
     (bin_dir / "sed").symlink_to("/usr/bin/sed")
     return bin_dir
