@@ -42,6 +42,19 @@ tools returned.
   capped or empty output proves no absence, completeness or total. It
   also separates observed, inferred, recommended and executed claims.
 
+Intent artifacts now ask for intent and leave the "what" to the diff,
+after "IDRs as records of intent" (Will Lachance, 2026-10-10).
+
+- **sanctum:** the pr-prep description scaffold is the Who/Where/When
+  table, Why, What and how, and Test plan, not a list of changed paths.
+  `describes_changes` stays unevaluated, because paths cannot judge a
+  description.
+- **sanctum:** commit-messages, `commit-msg`, `acp` and the commit agent
+  ask the body for why.
+- **attune:** both brief templates carry Out of Scope (things that could
+  reasonably be goals, chosen not to be). Blueprint tasks carry Decision
+  Notes in place of implementation detail.
+
 ### Fixed
 
 - **gauntlet:** an incremental build with no tree-sitter parser now exits
