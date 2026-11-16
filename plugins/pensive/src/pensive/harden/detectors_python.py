@@ -342,10 +342,30 @@ def _is_zipfile_call(node: ast.AST) -> bool:
     }
 
 
-def _zipfile_names(tree: ast.AST) -> set[str]:
+_FUNCTION_DEFS = (ast.FunctionDef, ast.AsyncFunctionDef)
+
+
+def _scope_nodes(scope: ast.AST) -> list[ast.AST]:
+    """Nodes of one scope, stopping at nested functions.
+
+    A name bound in one function must not decide how a same-named
+    receiver in another function is read.
+    """
+    nodes: list[ast.AST] = []
+    stack = list(ast.iter_child_nodes(scope))
+    while stack:
+        node = stack.pop()
+        if isinstance(node, _FUNCTION_DEFS):
+            continue
+        nodes.append(node)
+        stack.extend(ast.iter_child_nodes(node))
+    return nodes
+
+
+def _zipfile_names(nodes: list[ast.AST]) -> set[str]:
     """Names bound to a ZipFile by assignment or ``with ... as``."""
     names: set[str] = set()
-    for node in ast.walk(tree):
+    for node in nodes:
         if isinstance(node, ast.Assign) and _is_zipfile_call(node.value):
             names.update(t.id for t in node.targets if isinstance(t, ast.Name))
         elif (
@@ -477,11 +497,14 @@ def scan_source(source: str | bytes, *, file: str = "<source>") -> list[Finding]
         )
         return ctx.findings
 
-    ctx.zip_names = _zipfile_names(tree)
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Call):
-            for det in _CALL_DETECTORS:
-                det(node, ctx)
+    scopes = [tree, *(n for n in ast.walk(tree) if isinstance(n, _FUNCTION_DEFS))]
+    for scope in scopes:
+        nodes = _scope_nodes(scope)
+        ctx.zip_names = _zipfile_names(nodes)
+        for node in nodes:
+            if isinstance(node, ast.Call):
+                for det in _CALL_DETECTORS:
+                    det(node, ctx)
     return ctx.findings
 
 

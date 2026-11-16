@@ -288,7 +288,16 @@ class TestPY02ExplicitUnsafeLoader:
     """An explicit Loader is unsafe when it is a known object-building one."""
 
     @pytest.mark.parametrize(
-        "loader", ["yaml.Loader", "yaml.UnsafeLoader", "yaml.FullLoader", "Loader"]
+        "loader",
+        [
+            "yaml.Loader",
+            "yaml.UnsafeLoader",
+            "yaml.FullLoader",
+            "Loader",
+            "yaml.CLoader",
+            "yaml.CUnsafeLoader",
+            "yaml.CFullLoader",
+        ],
     )
     def test_unsafe_loader_fires(self, loader: str) -> None:
         src = f"import yaml\nyaml.load(s, Loader={loader})\n"
@@ -331,3 +340,30 @@ class TestPY11ZipFileHasNoFilter:
     def test_zipfile_extractall_does_not_fire(self, body: str) -> None:
         src = f"import zipfile\ndef unpack(p, d):\n    {body}\n"
         assert "PY11" not in _ids(_scan(src))
+
+    def test_zip_name_in_another_function_does_not_silence_tar_extractall(
+        self,
+    ) -> None:
+        src = (
+            "import tarfile, zipfile\n"
+            "def unzip(p):\n"
+            "    arc = zipfile.ZipFile(p)\n"
+            "    arc.extractall('out')\n"
+            "def untar(p):\n"
+            "    arc = tarfile.open(p)\n"
+            "    arc.extractall('out')\n"
+        )
+        findings = [f for f in _scan(src) if f.id == "PY11"]
+        assert [f.line for f in findings] == [7]
+
+    def test_module_level_zip_name_does_not_silence_tar_in_function(self) -> None:
+        src = (
+            "import tarfile, zipfile\n"
+            "arc = zipfile.ZipFile('a.zip')\n"
+            "arc.extractall('out')\n"
+            "def untar(p):\n"
+            "    arc = tarfile.open(p)\n"
+            "    arc.extractall('out')\n"
+        )
+        findings = [f for f in _scan(src) if f.id == "PY11"]
+        assert [f.line for f in findings] == [6]
