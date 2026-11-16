@@ -138,7 +138,7 @@ SAFE_PATTERNS: list[str] = [
     r"^pwd$",
     # A device file (`/dev/zero`) or follow mode never returns, so it
     # burns the Bash timeout instead of being approved.
-    r"^cat\s+(?!.*\.env|.*credentials|.*\.ssh|.*/dev/)",
+    r"^cat\s+(?!.*\.env|.*credentials|.*\.ssh|(?:.*\s)?[\'\"]?/dev/)",
     r"^head\s+",
     r"^tail\s+(?!(?:.*\s)?(?:-\w*[fF]|--follow))",
     r"^wc\s+",
@@ -387,6 +387,12 @@ def _path_operands(words: list[str]) -> list[str]:
     head, rest = words[0], words[1:]
     if head in _READERS:
         return [word for word in rest if not word.startswith("-")]
+    # `git diff` and `git log` take a glob pathspec, after `--` or not, and
+    # `.env*` reaches the file the deny list names. Revisions are counted
+    # too, so a reflog `HEAD@{1}` goes to the dialog as well.
+    # The safe patterns match case-insensitively, and macOS runs GIT as git.
+    if head.lower() == "git" and [w.lower() for w in rest[:1]] in (["diff"], ["log"]):
+        return [word for word in rest[1:] if not word.startswith("-")]
     if head not in _SEARCHERS:
         return []
     syntax = _SEARCH_SYNTAX[head]

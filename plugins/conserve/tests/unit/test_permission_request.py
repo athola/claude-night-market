@@ -1259,3 +1259,58 @@ class TestUnboundedReadsAreNotAutoApproved:
         """Bounded reads keep auto-approval."""
         decision = evaluate_permission("Bash", {"command": command})
         assert decision.behavior == PermissionDecision.ALLOW, command
+
+
+class TestGitPathspecGlobs:
+    """A glob pathspec can match a credential file the text never names."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "git log -p -- .env*",
+            "git diff HEAD~3 -- '*.env'",
+            "git diff -- .en[v]",
+            # macOS resolves commands case-insensitively, so GIT runs git.
+            "GIT log -p -- .env*",
+            "Git DIFF HEAD~3 -- '*.env'",
+        ],
+    )
+    def test_glob_pathspec_is_not_auto_allowed(self, command: str) -> None:
+        """The dialog decides, because the glob may expand to `.env`."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is None or decision.behavior != PermissionDecision.ALLOW, (
+            command
+        )
+
+    @pytest.mark.unit
+    def test_literal_env_pathspec_is_still_denied(self) -> None:
+        """A credential named outright keeps its deny."""
+        decision = evaluate_permission("Bash", {"command": "git log -p -- .env"})
+        assert decision is not None
+        assert decision.behavior == PermissionDecision.DENY
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("command", ["git log -p -- src/app.py", "git diff HEAD~3"])
+    def test_plain_pathspec_stays_allowed(self, command: str) -> None:
+        """A literal, non-credential pathspec keeps auto-approval."""
+        decision = evaluate_permission("Bash", {"command": command})
+        assert decision is not None
+        assert decision.behavior == PermissionDecision.ALLOW, command
+
+
+class TestCatDevAnchor:
+    """Only a real `/dev/` path is a device file."""
+
+    @pytest.mark.unit
+    def test_cat_under_a_dev_directory_is_allowed(self) -> None:
+        """`src/dev/x.py` is an ordinary file."""
+        decision = evaluate_permission("Bash", {"command": "cat src/dev/x.py"})
+        assert decision is not None
+        assert decision.behavior == PermissionDecision.ALLOW
+
+    @pytest.mark.unit
+    def test_cat_dev_zero_is_not_allowed(self) -> None:
+        """A device file never returns."""
+        decision = evaluate_permission("Bash", {"command": "cat /dev/zero"})
+        assert decision is None or decision.behavior != PermissionDecision.ALLOW

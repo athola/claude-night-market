@@ -22,30 +22,32 @@ import pytest
 HOOK_SCRIPT = Path(__file__).parents[3] / "hooks" / "setup.sh"
 
 
-def _run(
+def _run(  # noqa: PLR0913 - each keyword sets one part of the hook environment
     trigger: str,
     home: Path,
     *,
     terminator: str = "\n",
     state_path: str | None = None,
     path: str | None = None,
+    project: Path | None = None,
 ) -> subprocess.CompletedProcess:
+    project = project or home / "project"
     env = os.environ.copy()
     if path is not None:
         env["PATH"] = path
     env["HOME"] = str(home)
-    env["CLAUDE_PROJECT_DIR"] = str(home / "project")
+    env["CLAUDE_PROJECT_DIR"] = str(project)
     env.pop("CLAUDE_ENV_FILE", None)
     env.pop("CONSERVE_SESSION_STATE_PATH", None)
     if state_path is not None:
         env["CONSERVE_SESSION_STATE_PATH"] = state_path
-    (home / "project").mkdir(parents=True, exist_ok=True)
+    project.mkdir(parents=True, exist_ok=True)
     return subprocess.run(
         ["/bin/bash", str(HOOK_SCRIPT)],
         input=json.dumps({"trigger": trigger}) + terminator,
         capture_output=True,
         text=True,
-        cwd=str(home / "project"),
+        cwd=str(project),
         env=env,
         timeout=60,
         check=False,
@@ -158,6 +160,33 @@ def test_a_dangling_symlink_under_home_pointing_outside_is_not_followed(
     assert result.returncode == 0, result.stderr
     assert "escapes allowed dirs" in result.stderr
     assert not outside.exists()
+
+
+@pytest.mark.unit
+def test_a_state_path_inside_a_symlinked_project_is_accepted(
+    tmp_path: Path,
+) -> None:
+    """The state path is resolved, so the project path must be too.
+
+    Given CLAUDE_PROJECT_DIR reached through a symlink (/tmp to
+    /private/tmp) and CONSERVE_SESSION_STATE_PATH inside that project,
+    outside HOME
+    When the Setup hook runs
+    Then it writes the state file there and does not warn.
+    """
+    real_project = tmp_path / "real-project"
+    real_project.mkdir()
+    linked_project = tmp_path / "linked-project"
+    linked_project.symlink_to(real_project)
+    target = linked_project / "state.md"
+
+    result = _run(
+        "init", tmp_path / "home", state_path=str(target), project=linked_project
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "escapes allowed dirs" not in result.stderr
+    assert (real_project / "state.md").is_file()
 
 
 @pytest.mark.unit

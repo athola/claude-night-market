@@ -27,23 +27,23 @@ main() {
     -x) set -x ;;
   esac
 
+  # Determine plugin root directory
+  SCRIPT_DIR="$(script_dir)"
+  PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+  # Source vendored JSON utilities (D-01).
+  PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}"
+  # shellcheck source=plugins/conserve/hooks/shared/json_utils.sh
+  source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
+
   # Read hook input to determine trigger type
   HOOK_INPUT=""
   TRIGGER_TYPE="init"
   # read fails on a line with no final newline but still stores it.
   if read -t 1 -r HOOK_INPUT 2>/dev/null || [[ -n "${HOOK_INPUT}" ]]; then
-    if command -v jq >/dev/null 2>&1; then
-      TRIGGER_TYPE=$(printf '%s\n' "${HOOK_INPUT}" | jq -r '.trigger // "init"' 2>/dev/null || printf '%s\n' "init")
-    else
-      # Without jq, --maintenance used to run the init branch.
-      TRIGGER_TYPE=$(printf '%s\n' "${HOOK_INPUT}" | sed -n 's/.*"trigger"[[:space:]]*:[[:space:]]*"\([A-Za-z_-]*\)".*/\1/p')
-      TRIGGER_TYPE="${TRIGGER_TYPE:-init}"
-    fi
+    TRIGGER_TYPE="$(get_json_field "${HOOK_INPUT}" trigger)"
+    TRIGGER_TYPE="${TRIGGER_TYPE:-init}"
   fi
-
-  # Determine plugin root directory
-  SCRIPT_DIR="$(script_dir)"
-  PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
   # Project directory from environment or current working directory
   PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
@@ -208,11 +208,6 @@ $(printf '  - %s\n' "${maintenance_tasks[@]}")"
   # =============================================================================
   # OUTPUT
   # =============================================================================
-
-  # Source vendored JSON utilities (D-01).
-  PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}"
-  # shellcheck source=plugins/conserve/hooks/shared/json_utils.sh
-  source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
 
   context_escaped=$(escape_for_json "${setup_context}")
 
