@@ -46,7 +46,8 @@ estimated_tokens: 350
 
 3. **Draft the message**:
    - **Subject**: `<type>(<scope>): <imperative summary>` (50 chars max)
-   - **Body**: What and why, wrapped at 72 chars
+   - **Body**: Why the change was made, wrapped at 72 chars. The
+     subject names the change and the diff shows what
    - **Footer**: BREAKING CHANGE, issue refs, and the
      discussion trailer below
 
