@@ -125,8 +125,10 @@ method the question names or that a comparison will rank, and
 pass the list as the workflow's `entities` arg. The workflow
 searches each one no channel covered, and returns the rest as
 `coverage.unsearched`. When dispatching agents directly instead,
-run the same check yourself before synthesis: dispatch
-`tome:web-searcher` for each entity no finding mentions. Never
+run the same check yourself before synthesis: call
+`identify_gaps(findings, channels, entities=entities)` from
+`tome.synthesis.quality` and dispatch `tome:web-searcher` for each
+name in its `uncovered_entities`. Never
 rule an option in or out without a search behind it. A
 2026-10-05 report ruled Beartooth out on a description alone,
 because no channel happened to cover it. An entity still

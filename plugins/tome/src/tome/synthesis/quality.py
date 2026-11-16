@@ -21,6 +21,7 @@ world.
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
@@ -272,9 +273,22 @@ def channel_outcomes(session: ResearchSession) -> dict[str, str]:
     return outcomes
 
 
+def _entity_is_mentioned(entity: str, findings: list[Finding]) -> bool:
+    """Whether any finding's title or summary names the entity.
+
+    Whole-word, case-insensitive, matching ``workflows/research.js``:
+    "Mesh" is not a search for Meshtastic, and "Go" is not a hit on
+    "Google". Lookarounds replace ``\\b`` so entities ending in
+    punctuation ("C++") still anchor.
+    """
+    pattern = re.compile(rf"(?<!\w){re.escape(entity)}(?!\w)", re.IGNORECASE)
+    return any(pattern.search(f"{f.title} {f.summary}") for f in findings)
+
+
 def identify_gaps(
     findings: list[Finding],
     planned_channels: list[str],
+    entities: list[str] | None = None,
 ) -> dict[str, Any]:
     """Identify gaps in research coverage.
 
@@ -282,14 +296,22 @@ def identify_gaps(
     - Channels that returned no findings
     - Source diversity (one channel dominating)
     - Recency gaps (all findings are old)
+    - Named entities no finding mentions (only when ``entities`` is given)
+
+    Entity coverage exists because a channel plan can be fully answered
+    while an option the question names was never searched, and the
+    report then rules it out by silence.
 
     Args:
         findings: The merged findings list.
         planned_channels: Channels that were part of the research plan.
+        entities: Products, projects or methods the question names.
+            Blank strings are ignored.
 
     Returns:
         Dict with keys: empty_channels, source_diversity_warning,
-        recency_gap.
+        recency_gap. With non-blank ``entities``, also
+        uncovered_entities and entity_coverage (covered share, 0.0-1.0).
     """
     # Which planned channels got no results?
     channels_with_results: set[str] = {f.channel for f in findings}
@@ -313,11 +335,18 @@ def identify_gaps(
     if years and all((_CURRENT_YEAR - y) > _RECENCY_GAP_YEARS for y in years):
         recency_gap = True
 
-    return {
+    gaps: dict[str, Any] = {
         "empty_channels": empty_channels,
         "source_diversity_warning": source_diversity_warning,
         "recency_gap": recency_gap,
     }
+
+    named = [e for e in (entities or []) if e.strip()]
+    if named:
+        uncovered = [e for e in named if not _entity_is_mentioned(e, findings)]
+        gaps["uncovered_entities"] = uncovered
+        gaps["entity_coverage"] = (len(named) - len(uncovered)) / len(named)
+    return gaps
 
 
 def compute_quality_score(
