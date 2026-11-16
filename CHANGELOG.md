@@ -50,6 +50,10 @@ repository called the removed names.
 - **egregore's night run dropped a timed-out command's output** and
   left its grandchildren running. It keeps the output and kills the
   process group.
+- **leyline's journal helper wrote prose the markdown hook rejects.**
+  `journal_append.py` put each section and bullet on one line, and the
+  80-column pre-commit check failed every entry. It wraps at 80 now and
+  keeps inline code and URLs whole.
 
 ### Changed
 
