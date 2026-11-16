@@ -21,13 +21,24 @@ for the current codebase.
 
    For full build:
    ```bash
-   python3 ${CLAUDE_PLUGIN_ROOT}/scripts/graph_build.py <dir>
+   uv run --project ${CLAUDE_PLUGIN_ROOT} python \
+     ${CLAUDE_PLUGIN_ROOT}/scripts/graph_build.py <dir>
    ```
 
    For incremental update:
    ```bash
-   python3 ${CLAUDE_PLUGIN_ROOT}/scripts/graph_build.py <dir> --incremental
+   uv run --project ${CLAUDE_PLUGIN_ROOT} python \
+     ${CLAUDE_PLUGIN_ROOT}/scripts/graph_build.py <dir> --incremental
    ```
+
+   The build runs in the plugin's own environment because
+   a system `python3` may lack tree-sitter. Without it a
+   build exits 2 with an `error` key rather than reporting
+   files it did not parse.
+
+   An incremental update diffs against `--base-ref`, which
+   defaults to `HEAD` and so covers uncommitted changes only.
+   After a pull or a branch switch, run a full build.
 
 4. **Report results**: Show the JSON output including
    files parsed, nodes created, edges created, and
@@ -72,6 +83,12 @@ Ruby, and PHP.
   column existed). Treat `name_guess` edges as unconfirmed: blast
   radius lists them under `name_guess_callers`. A
   database lacking the column gains it when opened.
+- Each build records `gauntlet_version` in the `metadata`
+  table. At session start, a graph built by an older
+  version is rebuilt in the background (log:
+  `.gauntlet/rebuild.log`). Opt out with
+  `{"rebuild_on_upgrade": false}` in
+  `.gauntlet/config.json`.
 
 ## Exit Criteria
 
