@@ -753,6 +753,14 @@ Auto-updates the code knowledge graph after git
 commits to keep the graph current with codebase
 changes.
 
+### `graph_version_rebuild.py`
+**Type**: SessionStart
+
+Rebuilds `.gauntlet/graph.db` in the background when
+an older gauntlet version built it, so each release's
+extraction changes reach existing graphs. Opt out with
+`rebuild_on_upgrade: false` in `.gauntlet/config.json`.
+
 ### `precommit_gate.py`
 **Type**: PreToolUse
 **Matcher**: `Bash`

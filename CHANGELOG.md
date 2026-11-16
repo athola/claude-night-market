@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **gauntlet:** each graph build records `gauntlet_version`. At session
+  start, a graph built by an older version is rebuilt once in the
+  background through `uv run --project` (log: `.gauntlet/rebuild.log`).
+  Opt out with `rebuild_on_upgrade: false` in `.gauntlet/config.json`.
+- `make graph` runs a full gauntlet graph build. The release runbook
+  calls it after the version bump.
+
 Six deterministic guards and one evidence rule, ported from NVIDIA
 auto-ontology (`3825917a`). Each holds an agent's claim to what its
 tools returned.
@@ -34,6 +41,13 @@ tools returned.
 - **imbue:** proof-of-work's evidence-logging module now says that
   capped or empty output proves no absence, completeness or total. It
   also separates observed, inferred, recommended and executed claims.
+
+### Fixed
+
+- **gauntlet:** an incremental build with no tree-sitter parser now exits
+  2 with an `error` instead of reporting files it never parsed. The
+  graph-build skill runs the script in the plugin's own environment,
+  since a system `python3` may lack tree-sitter.
 
 ## [1.10.3] - 2026-11-13
 
