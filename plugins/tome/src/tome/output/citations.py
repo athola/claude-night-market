@@ -2,7 +2,14 @@
 
 from __future__ import annotations
 
+import re
+from urllib.parse import urlsplit
+
 from tome.models import Finding
+
+# Stops at whitespace and the delimiters that close a markdown link or
+# quote; trailing sentence punctuation is trimmed after the match.
+_URL_PATTERN = re.compile(r"https?://[^\s<>()\[\]\"']+", re.IGNORECASE)
 
 # Platform display names keyed by source identifier.
 _PLATFORM_NAMES = {
@@ -68,6 +75,38 @@ def _format_discourse(finding: Finding) -> str:
     username = meta.get("username", "")
     author_part = f"{username}. " if username else ""
     return f'{author_part}"{finding.title}". {platform}{score_part}. {finding.url}'
+
+
+def _normalize_url(url: str) -> str:
+    """Reduce formatting-only differences so equal sources compare equal.
+
+    Scheme and host are case-insensitive, a fragment never selects a
+    different document, and a trailing slash is stylistic.
+    """
+    parts = urlsplit(url)
+    path = parts.path.rstrip("/")
+    query = f"?{parts.query}" if parts.query else ""
+    return f"{parts.scheme.lower()}://{parts.netloc.lower()}{path}{query}"
+
+
+def find_ungrounded_urls(report_text: str, findings: list[Finding]) -> list[str]:
+    """Return URLs cited in ``report_text`` that no finding carries.
+
+    A model editing a report can write a plausible URL it never
+    retrieved. Checking every cited URL against the session's findings
+    catches that without a model call, the same way a SQL answer is
+    rejected for naming a table no earlier retrieve showed.
+
+    URLs come back as written, once each, in first-appearance order.
+    """
+    grounded = {_normalize_url(f.url) for f in findings}
+    ungrounded: dict[str, str] = {}
+    for match in _URL_PATTERN.finditer(report_text):
+        url = match.group().rstrip(".,;:!?")
+        key = _normalize_url(url)
+        if key not in grounded and key not in ungrounded:
+            ungrounded[key] = url
+    return list(ungrounded.values())
 
 
 def generate_bibliography(findings: list[Finding]) -> str:

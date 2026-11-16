@@ -30,6 +30,10 @@ Merge findings from all channels into a ranked report.
 2. Rank: `tome.synthesis.ranker.rank_findings()`
 3. Group: `tome.synthesis.ranker.group_by_channel()`
 4. Format: `tome.output.report.format_report()`
+5. Ground: after any hand edit of the formatted text, run
+   `tome.output.citations.find_ungrounded_urls(text, findings)`.
+   Remove each URL it returns, or find a source for it. A URL no
+   finding carries was never retrieved.
 
 ## Output Formats
 
@@ -43,6 +47,8 @@ Merge findings from all channels into a ranked report.
       all called in sequence before output is formatted
 - [ ] Output formatted via `format_report()` by default, or
       `format_brief()` / `format_transcript()` when the flag is set
+- [ ] `find_ungrounded_urls()` returns an empty list for the final
+      report text, or each URL it returns is removed or sourced
 - [ ] Findings grouped by theme in the report, not presented as raw
       per-channel lists
 - [ ] If the merged finding count is 0, this is stated explicitly
