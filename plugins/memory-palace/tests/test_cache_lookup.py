@@ -5,7 +5,10 @@ from pathlib import Path
 import pytest
 
 from memory_palace.corpus.cache_lookup import CacheLookup
-from memory_palace.corpus.embedding_index import EmbeddingIndex
+from memory_palace.corpus.embedding_index import (
+    EmbeddingDimensionError,
+    EmbeddingIndex,
+)
 from memory_palace.corpus.keyword_index import KeywordIndexer
 from memory_palace.corpus.query_templates import QueryTemplateManager
 
@@ -315,3 +318,36 @@ class TestMismatchedEmbeddingDimensions:
 
         assert results
         assert all(r.get("entry_id") != "some-entry" for r in results)
+
+    def test_dot_raises_the_dimension_error_type(self) -> None:
+        """The lookup catches this type and no other ValueError."""
+        with pytest.raises(EmbeddingDimensionError):
+            EmbeddingIndex._dot([1.0] * 16, [1.0] * 384)
+
+    def test_lookup_warns_on_a_dimension_mismatch(
+        self, cache_lookup, tmp_path, caplog
+    ) -> None:
+        """The mismatch is logged, not silently dropped."""
+        index = EmbeddingIndex(str(tmp_path / "embeddings.yaml"), provider="hash")
+        index.entries = {"some-entry": [0.05] * 384}
+        cache_lookup.embedding_index = index
+
+        with caplog.at_level("WARNING"):
+            assert cache_lookup._search_embeddings("learning machine") == []
+        assert "embedding search skipped" in caplog.text
+
+    def test_other_value_error_from_the_provider_propagates(
+        self, cache_lookup, tmp_path, monkeypatch
+    ) -> None:
+        """Only the dimension mismatch is a known fallback case."""
+        index = EmbeddingIndex(str(tmp_path / "embeddings.yaml"), provider="hash")
+        index.entries = {"some-entry": [0.05] * 16}
+
+        def broken_embed(text: str) -> list[float]:
+            raise ValueError("provider returned garbage")
+
+        monkeypatch.setattr(index, "vectorize", broken_embed)
+        cache_lookup.embedding_index = index
+
+        with pytest.raises(ValueError, match="garbage"):
+            cache_lookup._search_embeddings("learning machine")

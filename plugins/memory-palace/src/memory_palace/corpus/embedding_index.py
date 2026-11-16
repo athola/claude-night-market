@@ -13,6 +13,11 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
+
+class EmbeddingDimensionError(ValueError):
+    """Two vectors from different embedding spaces were compared."""
+
+
 try:
     import numpy as np
 
@@ -297,14 +302,14 @@ class EmbeddingIndex:
         Uses numpy when available and falls back to pure Python otherwise.
 
         Raises:
-            ValueError: the vectors differ in length. They come from two
+            EmbeddingDimensionError: the vectors differ in length. They come from two
                 embedding spaces, typically a 384-dim local store queried
                 with 16-dim hash vectors after the model failed to load;
                 a truncated product ranks noise.
 
         """
         if len(a) != len(b):
-            raise ValueError(
+            raise EmbeddingDimensionError(
                 f"Vector dimension mismatch in dot product: {len(a)} vs {len(b)}"
             )
         if _HAS_NUMPY and np is not None:

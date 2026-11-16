@@ -45,8 +45,8 @@ except ImportError:
     _HAS_PALACE = False
 
 _PALACE_DATA_ENV = "MEMORY_PALACE_DATA_DIR"
-# cache/<marketplace>/<plugin>/<version>
-_INSTALL_DEPTH = 4
+# plugins/cache/<marketplace>/<plugin>/<version>
+_INSTALL_DEPTH = 5
 
 
 def _palace_data_root(palace_root: Path, env: Mapping[str, str]) -> Path:
@@ -58,6 +58,10 @@ def _palace_data_root(palace_root: Path, env: Mapping[str, str]) -> Path:
     data at ``<plugins>/data/memory-palace-<mkt>``, which is where
     memory-palace's own hooks and CLI read captures (issue #661). A
     checkout keeps its own tree.
+
+    The layout match mirrors ``memory_palace.paths._install_layout``,
+    which is not imported because it is reachable only once the palace
+    hooks import has put memory-palace's ``src`` on the path.
     """
     override = env.get(_PALACE_DATA_ENV)
     if override:
@@ -65,11 +69,18 @@ def _palace_data_root(palace_root: Path, env: Mapping[str, str]) -> Path:
     parts = palace_root.parts[-_INSTALL_DEPTH:]
     if (
         len(parts) == _INSTALL_DEPTH
-        and parts[0] == "cache"
-        and parts[2] == "memory-palace"
+        and parts[0] == "plugins"
+        and parts[1] == "cache"
+        and parts[3] == "memory-palace"
     ):
-        plugins_dir = Path(*palace_root.parts[:-_INSTALL_DEPTH])
-        return plugins_dir / "data" / f"memory-palace-{parts[1]}"
+        plugins_dir = Path(*palace_root.parts[: -_INSTALL_DEPTH + 1])
+        return plugins_dir / "data" / f"memory-palace-{parts[2]}"
+    if "cache" in palace_root.parts and palace_root.is_dir():
+        sys.stderr.write(
+            f"insight_palace_bridge: {palace_root} is in a plugin cache but not"
+            " at plugins/cache/<marketplace>/memory-palace/<version>;"
+            " captures go into the versioned directory\n"
+        )
     return palace_root
 
 
@@ -217,17 +228,25 @@ def _ingest(findings: list[Finding]) -> int:
             filename = f"insight-{type_slug}-{skill_slug}-{date_str}.md"
             filepath = _PALACE_STAGING / filename
 
+            created = not filepath.exists()
             filepath.write_text(content, encoding="utf-8")
 
-            update_index(
-                content_hash=content_hash,
-                stored_at=f"data/staging/{filename}",
-                importance_score=score,
-                url=key,
-                title=finding.title(),
-                maturity="seedling",
-                routing_type="meta",
-            )
+            try:
+                update_index(
+                    content_hash=content_hash,
+                    stored_at=f"data/staging/{filename}",
+                    importance_score=score,
+                    url=key,
+                    title=finding.title(),
+                    maturity="seedling",
+                    routing_type="meta",
+                )
+            except TimeoutError:
+                # No index entry points at a file this call created, so
+                # the drain would never see it.
+                if created:
+                    filepath.unlink(missing_ok=True)
+                raise
             ingested += 1
         except Exception as exc:
             print(

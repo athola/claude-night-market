@@ -11,6 +11,7 @@ import hashlib
 import os
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from types import ModuleType
@@ -346,6 +347,8 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
             closed range [0, 100]. Validation runs before any state
             mutation so a bad score cannot poison the cache or the
             on-disk index.
+        TimeoutError: if another process holds the index lock past
+            ``_LOCK_TIMEOUT_SECONDS``. Nothing has been written.
 
     """
     if not 0 <= importance_score <= 100:
@@ -414,7 +417,6 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
             return
 
         index_path = _get_index_path()
-        index_path.parent.mkdir(parents=True, exist_ok=True)
         if _index_load_failed:
             _set_aside_corrupt_index(index_path)
             _index_load_failed = False
@@ -423,11 +425,20 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
             index_path, yaml.safe_dump(index, default_flow_style=False, sort_keys=False)
         )
 
-        _stage_index(index_path)
-
         # Update cache
         _index_cache = index
         _index_mtime = index_path.stat().st_mtime
+
+    # git runs outside the lock: a slow `git add` would otherwise hold
+    # every queued capture past its hook timeout.
+    _stage_index(index_path)
+
+
+# The WebFetch hook is killed at 5s. A waiter killed after its queue
+# file was written leaves that file with no index entry, so it gives up
+# first and lets the caller remove the file.
+_LOCK_TIMEOUT_SECONDS = 3.0
+_LOCK_POLL_SECONDS = 0.05
 
 
 @contextlib.contextmanager
@@ -437,13 +448,30 @@ def _index_lock() -> Iterator[None]:
     Parallel WebFetch calls run one hook process each. ``write_atomic``
     keeps the file whole but cannot stop the last writer from dropping
     entries the others added, which left staged captures no index entry
-    points at.
+    points at. On a platform without ``fcntl`` no lock is taken.
+
+    Raises:
+        TimeoutError: if the lock is still held by another process after
+            ``_LOCK_TIMEOUT_SECONDS``.
+
     """
     index_path = _get_index_path()
     index_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(index_path.with_name(index_path.name + ".lock"), "a") as lock_file:
+    lock_path = index_path.with_name(index_path.name + ".lock")
+    with open(lock_path, "a") as lock_file:
         if fcntl is not None:
-            fcntl.flock(lock_file, fcntl.LOCK_EX)
+            deadline = time.monotonic() + _LOCK_TIMEOUT_SECONDS
+            while True:
+                try:
+                    fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except BlockingIOError:
+                    if time.monotonic() >= deadline:
+                        raise TimeoutError(
+                            f"index lock {lock_path} held for over"
+                            f" {_LOCK_TIMEOUT_SECONDS}s"
+                        ) from None
+                    time.sleep(_LOCK_POLL_SECONDS)
         yield
 
 

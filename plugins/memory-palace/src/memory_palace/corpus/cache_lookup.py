@@ -13,7 +13,10 @@ from pathlib import Path
 from typing import Any
 
 from memory_palace.corpus._frontmatter import parse_entry_frontmatter
-from memory_palace.corpus.embedding_index import EmbeddingIndex
+from memory_palace.corpus.embedding_index import (
+    EmbeddingDimensionError,
+    EmbeddingIndex,
+)
 from memory_palace.corpus.keyword_index import KeywordIndexer
 from memory_palace.corpus.query_templates import QueryTemplateManager
 
@@ -198,7 +201,7 @@ class CacheLookup:
         query_text = " ".join(query) if isinstance(query, list) else query
         try:
             scores = self.embedding_index.search(query_text)
-        except ValueError as exc:
+        except EmbeddingDimensionError as exc:
             # The stored vectors and the query come from different
             # embedding spaces (a local model that did not load). Keyword
             # and query results still stand on their own.

@@ -113,6 +113,9 @@ CREATE TABLE IF NOT EXISTS waypoints (
 
 CREATE INDEX IF NOT EXISTS idx_wp_journey ON waypoints(journey_id);
 
+-- Retired with the tier subsystem; older databases still carry it.
+DROP TABLE IF EXISTS tier_assignments;
+
 """
 
 _FTS_CREATE_SQL = """

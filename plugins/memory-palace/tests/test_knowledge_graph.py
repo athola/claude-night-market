@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sqlite3
 from sqlite3 import ProgrammingError
 
 import pytest
@@ -32,6 +33,17 @@ class TestSchemaAndLifecycle:
             "waypoints",
         ]:
             assert expected in tables, f"Missing table: {expected}"
+
+    def test_init_drops_the_retired_tier_assignments_table(self, tmp_path) -> None:
+        """A database written before the tier subsystem was deleted loses its table."""
+        db = tmp_path / "graph.db"
+        conn = sqlite3.connect(db)
+        conn.execute("CREATE TABLE tier_assignments (entity_id TEXT PRIMARY KEY)")
+        conn.commit()
+        conn.close()
+
+        with KnowledgeGraph(str(db)) as g:
+            assert "tier_assignments" not in g.table_names()
 
     def test_context_manager(self) -> None:
         """Used as a context manager the graph opens usable and closes clean."""
