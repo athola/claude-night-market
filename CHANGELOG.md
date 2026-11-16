@@ -23,7 +23,8 @@ tools returned.
 - **gauntlet:** call edges record `resolution` (`exact`,
   `name_guess`, or empty). An existing graph database gains the
   column when opened. A bare call that matches several vendored copies
-  resolves to the caller's own plugin copy, as a `name_guess`.
+  resolves to the caller's own plugin copy, as a `name_guess`. Blast radius
+  reports those guessed callers under `name_guess_callers`.
 - **imbue:** `vow_bounded_reads` warns when a Read, Grep or Glob call
   repeats an identical earlier one. The repeat still counts against
   the budget.
