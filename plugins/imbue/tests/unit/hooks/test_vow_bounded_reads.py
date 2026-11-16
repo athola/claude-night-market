@@ -1557,6 +1557,8 @@ class TestRepeatedIdenticalCallWarning:
         assert first == ""
         assert "repeats an earlier" in second
         assert "Reuse the earlier result" in second
+        # compaction or a Bash write can make the earlier result unusable
+        assert "no longer in context" in second
 
     @pytest.mark.unit
     def test_different_offset_is_not_a_repeat(self, hook_module, capsys, tmp_path):

@@ -288,7 +288,8 @@ def main() -> None:
         if _note_call(counter_file, _call_key(tool_name, tool_input)):
             repeat_note = (
                 f"This {tool_name} call repeats an earlier identical call in this "
-                "discovery phase. Reuse the earlier result instead of re-running it."
+                "discovery phase. Reuse the earlier result. Re-run only if it is "
+                "no longer in context or the target changed outside Edit/Write."
             )
 
         weight = _read_weight(tool_name, tool_input)
