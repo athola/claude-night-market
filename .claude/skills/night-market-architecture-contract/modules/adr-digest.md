@@ -1,12 +1,13 @@
 ---
 name: adr-digest
-description: "One line per ADR: the decision and where it is enforced. The ADRs in docs/adr are the record."
+description: "One line per ADR: its status and the decision. The ADRs in docs/adr are the record."
 ---
 
 ## ADR digest
 
-All 23 records are in `docs/adr/`. Statuses for 0001 to 0017 were
-read from the files on 2026-07-02, and 0018 to 0022 on 2026-08-23.
+All 30 records are in `docs/adr/`. Statuses for 0001 to 0017 were
+read from the files on 2026-07-02, 0018 to 0022 on 2026-08-23, and
+0014 and 0023 to 0030 on 2026-11-16.
 
 | ADR | Title | Status | One-line takeaway |
 |-----|-------|--------|-------------------|
@@ -23,7 +24,7 @@ read from the files on 2026-07-02, and 0018 to 0022 on 2026-08-23.
 | 0011 | Shared Session-Capture Envelope | Accepted | One JSON envelope shape for friction and trace payloads, separate files |
 | 0012 | Confidence-Tagged Agent Claims | Superseded by 0017 | VERIFIED/INFERRED/ASSUMPTION tags: no enforcement built |
 | 0013 | Operationalizing Naur Theory-Building | Superseded by 0017 | Theory-building rituals: folded into 0017's lighter form |
-| 0014 | Pensive Review-Skill Consolidation | Accepted (sequencing only) | 9 review skills, 5 sharing a verdict scaffold. Consolidation sequenced, not done |
+| 0014 | Pensive Review-Skill Consolidation | Accepted, done in 1.10.3 | shell-review and makefile-review folded in and their stubs removed. 8 review skills remain; the slash commands stay as aliases |
 | 0015 | Over-Built Orchestrator Skill Simplification | Accepted (data-collection phase) | Collect 30 days of usage data before simplifying over-built skills |
 | 0016 | Wire-or-Archive for Three Orphan Skills | Accepted (decisions recorded) | Orphans judged on demand signal, wiring cost, and reference value |
 | 0017 | Decisions on Confidence-Tagging and Theory-Building | Accepted (2026-06-18) | No enforcement mechanisms and voluntary use. Supersedes 0012 and 0013 |
@@ -32,3 +33,11 @@ read from the files on 2026-07-02, and 0018 to 0022 on 2026-08-23.
 | 0020 | Detect a Thin Field with Positive Controls, Not Overlap Estimation | Accepted | Frontier detection uses positive controls, not overlap math |
 | 0021 | PR Descriptions Carry Six Dimensions in Two Registers | Accepted (2026-08-12) | Six dimensions, but only some earn a heading |
 | 0022 | The Autonomous Loop Continues by Riding the Stop Hook | Accepted, with a named open problem (2026-08-23) | Stop-hook re-injection is the loop. Cost bounded by stall detection; the reliance stays open |
+| 0023 | A Continuation Baton Makes a Dropped Turn Observable | Accepted, with the ADR-0022 dependency unchanged | Each stop records a sequenced baton with a deadline, so a turn that never starts is detectable |
+| 0024 | Tome Channel Cards and a Record-Based Stop Decision | Accepted | One frozen card per research channel. The planner gates on cards, and stopping is decided from the record |
+| 0025 | Fan-Outs Report What They Dropped, Scanners Prove They Can See | Accepted | Every workflow that filters null agent results returns the dropped items beside the results |
+| 0026 | TRIZ Records Carry Their Residual | Accepted | Each contradiction record says whether a catalogue row matched or a fallback was used |
+| 0027 | Skill History Is Replaced, Not Rewritten | Accepted | History is written to a temp file and renamed over the old one, under an exclusive lock |
+| 0028 | Tickets Carry the Why, or a Link to It | Accepted | `leyline:ticket-writing`: the first screen says what was decided and why, or links to it |
+| 0029 | Trust-Based Delivery Keeps PRs as the Human Gate | Accepted | Machine review runs before the PR. Humans review in it, and out-of-lane diffs get a named reviewer |
+| 0030 | Constitution Rules Name Their Check and Disclose at Repo Level | Accepted | Each rule names the mechanism that checks it, or says a reviewer is the only check |

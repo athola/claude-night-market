@@ -9,11 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.10.3] - 2026-11-13
 
+One entry below is marked Breaking, and this release ships it under a
+patch number as the maintainer's choice of version: nothing in this
+repository called the removed names.
+
 ### Removed
 
-- **Code nothing called.** abstract's `ErrorHandler`, `ToolError` and
-  `ErrorSeverity`, and the `error_handler` properties on
-  `AbstractScript` and `AbstractCLI`; conserve's
+- **Breaking: code nothing called.** abstract's `ErrorHandler`,
+  `ToolError` and `ErrorSeverity`, and the `error_handler` properties
+  on `AbstractScript` and `AbstractCLI`, are gone from the public
+  `abstract` package: an external `from abstract import ErrorHandler`
+  now raises `ImportError`. Also removed: conserve's
   `area_agent_registry.py`; memory-palace's `TierManager` with
   `assign_tier`, `get_tier` and the `tier_assignments` table. Each had
   tests and no caller.
@@ -27,9 +33,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`/reinstall-all-plugins` and `/update-all-plugins` ran scripts at
   one developer's home path** and failed everywhere else. They use
   `${CLAUDE_PLUGIN_ROOT}` now, as does the plugin-validator agent.
-- **opkg installs missed 37 skills, commands and agents** that 12
+- **opkg installs missed 38 skills, commands and agents** that 12
   plugins registered in `plugin.json` but not `openpackage.yml`. A root
   test now compares the two for every plugin.
+- **herald's webhook URL could add curl options.** A newline in the URL
+  started a new line of curl's stdin config. Control characters are
+  rejected now.
+- **conserve auto-approved `git log -p -- .env*`.** A glob pathspec
+  reached the credential file that the deny list names. Diff and log
+  calls with glob operands now prompt.
+- **pensive's PY11 went quiet on tar** when a ZipFile anywhere in the
+  same file used the same name. Names are scoped per function now.
+- **memory-palace's index lock could outlast the WebFetch hook**,
+  leaving an orphaned capture. The lock gives up after 3s, and git runs
+  after it is released.
+- **egregore's night run dropped a timed-out command's output** and
+  left its grandchildren running. It keeps the output and kills the
+  process group.
 
 ### Changed
 
@@ -45,7 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `taskstoissues` stays, although upstream moved it to an extension.
   Features that need the `specify` CLI (extensions, presets, workflows)
   are not ported.
-- **superpowers docs track upstream v7.0.2** (from v5.0.7). Seven
+- **superpowers docs track upstream v7.0.2** (from v5.0.7). Eight
   install snippets that paired `marketplace add obra/superpowers` with
   `superpowers@superpowers-marketplace`, which never resolved, now use
   `/plugin install superpowers@claude-plugins-official`.

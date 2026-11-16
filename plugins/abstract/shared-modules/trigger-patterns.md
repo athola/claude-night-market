@@ -21,7 +21,7 @@ description: |
   [ENFORCEMENT if applicable]
 ```
 
-## Skill Discovery Optimization (formerly CSO)
+## Skill Discovery Optimization
 
 ### Effective Trigger Keywords
 

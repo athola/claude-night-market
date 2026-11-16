@@ -119,8 +119,7 @@ class TestParseFrontmatter:
 class TestParseFrontmatterWithBody:
     """Scenarios for parse_frontmatter_with_body().
 
-    The helper is added to consolidate the four scripts
-    (clawhub_export, a2a_cards, area_agent_registry,
+    The helper consolidates the scripts (clawhub_export, a2a_cards,
     coordination_workspace) that re-implemented FRONTMATTER_RE
     plus a parser. Each needs the parsed frontmatter dict and
     the body string after the closing ``---``.

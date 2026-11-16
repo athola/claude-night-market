@@ -4,7 +4,8 @@ After auto-compaction Claude Code re-attaches the most recent invocation
 of each skill and keeps only its first 5,000 tokens
 (https://code.claude.com/docs/en/skills, "Skill content after
 compaction"). Text past that point is gone for the rest of the session.
-superpowers hit this in v7.0.1: subagent-driven-development lost its
+superpowers' v7.0.1 release notes describe the same cut as 20,000
+characters. Before that release, subagent-driven-development lost its
 five-round limit to the cut and ran 18 fix rounds on one task.
 
 No tokenizer ships here, so the bound is 20,000 bytes, the proxy
