@@ -252,7 +252,8 @@ class TestPRPrepAnalyzer:
         }
         gates = PRPrepAnalyzer.initialize_quality_gates()
         result = PRPrepAnalyzer.validate_quality_gates(context, gates)
-        assert result["describes_changes"] is True
+        # Paths cannot say whether the description states intent.
+        assert result["describes_changes"] is None
         assert result["has_documentation"] is True
         assert result["has_tests"] is True
 
@@ -310,12 +311,19 @@ class TestPRPrepAnalyzer:
         """
         GIVEN context with changed files
         WHEN generate_pr_description is called
-        THEN description is generated
+        THEN it is an intent skeleton, not the changed-file list
+
+        A list of paths restates the diff, which the report already shows
+        by bucket. The skeleton asks for why before what.
         """
-        context = {"changed_files": [{"path": "src/feature.py"}]}
+        context = {
+            "changed_files": [{"path": "src/feature.py"}, {"path": "src/other.py"}]
+        }
         result = PRPrepAnalyzer.generate_pr_description(context)
-        assert "src/feature.py" in result
-        assert "1 files" in result
+        assert result.index("## Why") < result.index("## What and how")
+        assert "## Test plan" in result
+        assert "2 files" in result
+        assert "src/feature.py" not in result
 
     def test_generate_pr_description_without_changes(self) -> None:
         """

@@ -178,7 +178,9 @@ class PRPrepAnalyzer:
 
         ``passes_checks`` and ``includes_breaking_changes`` need a test,
         lint or type run and a release decision respectively, neither of
-        which this context carries, so they are left untouched.
+        which this context carries, so they are left untouched. So is
+        ``describes_changes``: whether a description states intent is a
+        property of its text, not of the paths it touches.
 
         Args:
             context: PR context with changes and metadata
@@ -196,7 +198,6 @@ class PRPrepAnalyzer:
 
         updated_gates["has_tests"] = any(_is_test_path(p) for p in paths)
         updated_gates["has_documentation"] = any(p.endswith(".md") for p in paths)
-        updated_gates["describes_changes"] = bool(changed_files)
         return updated_gates
 
     @staticmethod
@@ -249,7 +250,11 @@ class PRPrepAnalyzer:
 
     @staticmethod
     def generate_pr_description(context: dict[str, Any]) -> str:
-        """Generate PR description from context.
+        """Generate the intent skeleton a PR description is written into.
+
+        A list of changed paths restates the diff, which reviewers already
+        have. The skeleton fills only what paths can tell (the file count)
+        and leaves the why for the author, ahead of the what.
 
         Args:
             context: PR context containing changed_files and metadata.
@@ -265,7 +270,24 @@ class PRPrepAnalyzer:
         paths = [
             f.get("path", "") if isinstance(f, dict) else str(f) for f in changed_files
         ]
-        lines = [f"## Changes ({len(paths)} files)", ""]
-        for p in paths:
-            lines.append(f"- {p}")
-        return "\n".join(lines)
+        return "\n".join(
+            [
+                "| | |",
+                "|---|---|",
+                "| **Who** | <!-- who is affected --> |",
+                f"| **Where** | {len(paths)} files |",
+                "| **When** | on merge |",
+                "",
+                "## Why",
+                "",
+                "<!-- the problem this solves: an issue, a number, or an incident -->",
+                "",
+                "## What and how",
+                "",
+                "<!-- the decisions taken to solve it, not a restatement of the diff -->",
+                "",
+                "## Test plan",
+                "",
+                "<!-- commands run and what they printed -->",
+            ]
+        )
