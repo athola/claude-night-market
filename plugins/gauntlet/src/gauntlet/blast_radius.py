@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from gauntlet.constants import SECURITY_KEYWORDS
-from gauntlet.graph import GraphStore
+from gauntlet.graph import RESOLUTION_NAME_GUESS, GraphStore
 from gauntlet.incremental import _validate_ref
 from gauntlet.models import EdgeKind, GraphNode, NodeKind
 
@@ -231,6 +231,7 @@ def _empty_report(overall_risk: str) -> dict[str, Any]:
         "review_priorities": [],
         "direct_changes": 0,
         "total_affected": 0,
+        "name_guess_callers": {},
     }
 
 
@@ -282,6 +283,18 @@ def analyze_changes(
         )
     ]
 
+    # A caller linked by a bare-name pick may not call this node at all, so
+    # the reviewer sees those links apart from confirmed ones.
+    name_guess_callers: dict[str, list[str]] = {}
+    for n in all_affected:
+        guessed = [
+            e.source_qn
+            for e in graph.get_edges_by_target(n.qualified_name)
+            if e.kind == EdgeKind.CALLS and e.resolution == RESOLUTION_NAME_GUESS
+        ]
+        if guessed:
+            name_guess_callers[n.qualified_name] = guessed
+
     # Top 10 by risk
     sorted_nodes = sorted(
         all_affected,
@@ -307,4 +320,5 @@ def analyze_changes(
         "review_priorities": review_priorities,
         "direct_changes": len(direct),
         "total_affected": len(all_affected),
+        "name_guess_callers": name_guess_callers,
     }

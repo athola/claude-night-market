@@ -69,7 +69,8 @@ Ruby, and PHP.
   matched several definitions and only one sits in the caller's
   own `plugins/<name>/`, as with vendored copies), or empty (declared
   edge, external call, or a row from a graph built before the
-  column existed). Treat `name_guess` edges as unconfirmed. A
+  column existed). Treat `name_guess` edges as unconfirmed: blast
+  radius lists them under `name_guess_callers`. A
   database lacking the column gains it when opened.
 
 ## Exit Criteria

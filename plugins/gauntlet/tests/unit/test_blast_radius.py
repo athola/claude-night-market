@@ -499,6 +499,64 @@ class TestAnalyzeChangesPipeline:
         assert result["review_priorities"] == []
 
     @pytest.mark.unit
+    def test_callers_reached_by_a_name_guess_are_listed(
+        self, store: GraphStore
+    ) -> None:
+        """
+        Scenario: a changed method is called through an untyped receiver
+        Given main calls graph.upsert and the target was picked by bare name
+        When changes to the method are analyzed
+        Then the report names main as a guessed caller of the method
+
+        A reviewer reading the blast radius needs to know which callers
+        come from a guess rather than an import or a typed receiver.
+        """
+        upsert = f"{_TOP}/g.py::Graph.upsert"
+        main = f"{_TOP}/a.py::main"
+        for qn, kind in (
+            (main, NodeKind.FUNCTION),
+            (f"{_TOP}/g.py::Graph", NodeKind.CLASS),
+            (upsert, NodeKind.FUNCTION),
+        ):
+            path = qn.split("::")[0]
+            store.upsert_node(
+                GraphNode(
+                    kind=kind,
+                    qualified_name=qn,
+                    file_path=path,
+                    line_start=1,
+                    line_end=5,
+                )
+            )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn=main,
+                target_qn="graph.upsert",
+                file_path=f"{_TOP}/a.py",
+            )
+        )
+        store.resolve_call_targets()
+
+        with patch(
+            "gauntlet.blast_radius.subprocess.run",
+            side_effect=self._git(self._diff("g.py", 1, 5)),
+        ):
+            result = analyze_changes(store)
+
+        assert result["name_guess_callers"] == {upsert: [main]}
+
+    @pytest.mark.unit
+    def test_empty_report_carries_an_empty_guessed_caller_map(
+        self, store: GraphStore
+    ) -> None:
+        with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
+            mock_run.return_value = type("R", (), {"returncode": 0, "stdout": ""})()
+            result = analyze_changes(store)
+
+        assert result["name_guess_callers"] == {}
+
+    @pytest.mark.unit
     def test_unknown_repository_root_reports_an_error_not_a_verdict(
         self, store: GraphStore
     ) -> None:
