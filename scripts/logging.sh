@@ -17,11 +17,15 @@ LOG_LEVEL="${LOG_LEVEL:-1}"
 case "${LOG_LEVEL}" in
   [0-5]) ;;
   [Dd][Ee][Bb][Uu][Gg]) LOG_LEVEL=0 ;;
+  [Ii][Nn][Ff][Oo]) LOG_LEVEL=1 ;;
   [Ww][Aa][Rr][Nn]*) LOG_LEVEL=2 ;;
   [Nn][Oo][Tt][Ii][Cc][Ee]) LOG_LEVEL=3 ;;
   [Ee][Rr][Rr][Oo][Rr]) LOG_LEVEL=4 ;;
   [Cc][Rr][Ii][Tt]*) LOG_LEVEL=5 ;;
-  *) LOG_LEVEL=1 ;;
+  *)
+    printf '[WARN]  LOG_LEVEL=%s is not a level; using 1 (info)\n' "${LOG_LEVEL}" >&2
+    LOG_LEVEL=1
+    ;;
 esac
 
 # log [LEVEL] MESSAGE ...

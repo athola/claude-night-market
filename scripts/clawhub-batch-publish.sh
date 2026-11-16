@@ -147,19 +147,37 @@ build_export_if_needed() {
 
 # A finished run for an earlier release leaves pending=[] behind, and
 # reusing it published nothing for the new one.
+# Returns 0 when current, 1 when absent or from another release, and 2
+# when unreadable: restarting an unreadable record loses its published list.
 progress_is_current() {
-  local semver="${1:?progress_is_current needs a semver}"
+  local semver="${1:?progress_is_current needs a semver}" rc=0
   env PROGRESS_FILE="${PROGRESS_FILE}" SEMVER="${semver}" python3 -c "
 import json, os, sys
-p = json.load(open(os.environ['PROGRESS_FILE']))
+try:
+    p = json.load(open(os.environ['PROGRESS_FILE']))
+except FileNotFoundError:
+    sys.exit(1)
+except (OSError, ValueError) as exc:
+    print(exc, file=sys.stderr)
+    sys.exit(2)
+if not isinstance(p, dict):
+    sys.exit(2)
 sys.exit(0 if p.get('version') == os.environ['SEMVER'] else 1)
-" 2>/dev/null
+" || rc="${?}"
+  case "${rc}" in
+    2) log 4 "Cannot parse ${PROGRESS_FILE}; repair or remove it by hand" ;;
+  esac
+  return "${rc}"
 }
 
 init_progress_if_stale() {
-  local semver="${1:?init_progress_if_stale needs a semver}"
-  if ! progress_is_current "${semver}"; then
-    env SKILLS_DIR="${SKILLS_DIR}" SEMVER="${semver}" PROGRESS_FILE="${PROGRESS_FILE}" python3 -c "
+  local semver="${1:?init_progress_if_stale needs a semver}" rc=0
+  progress_is_current "${semver}" || rc="${?}"
+  case "${rc}" in
+    0) return 0 ;;
+    2) return 1 ;;
+  esac
+  env SKILLS_DIR="${SKILLS_DIR}" SEMVER="${semver}" PROGRESS_FILE="${PROGRESS_FILE}" python3 -c "
 import json, os
 from pathlib import Path
 
@@ -178,7 +196,6 @@ Path(os.environ['PROGRESS_FILE']).parent.mkdir(parents=True, exist_ok=True)
 Path(os.environ['PROGRESS_FILE']).write_text(json.dumps(progress, indent=2))
 print(f'Initialized progress: {len(skills)} skills to publish')
 "
-  fi
 }
 
 show_status() {
@@ -231,7 +248,7 @@ print(f'[dry-run] no state changes, no network calls')
 publish_batch() {
   env PROGRESS_FILE="${PROGRESS_FILE}" RETRY_FAILED="${RETRY_FAILED}" \
     BATCH_SIZE="${BATCH_SIZE}" SKILLS_DIR="${SKILLS_DIR}" \
-    SEMVER="${1:?publish_batch needs a semver}" VERSION="${VERSION}" python3 -c "
+    SEMVER="${1:?publish_batch needs a semver}" VERSION="${VERSION}" python3 -u -c "
 import json, os
 import subprocess
 import sys
@@ -320,7 +337,7 @@ print(f'Remaining: {len(progress[\"pending\"])} pending, {len(progress[\"failed\
 }
 
 main() {
-  local semver
+  local semver rc
 
   parse_args "$@"
 
@@ -336,10 +353,15 @@ main() {
   # and stop before the export is built or a stale record is restarted.
   case "${STATUS_ONLY}${DRY_RUN}" in
     *true*)
-      if ! progress_is_current "${semver}"; then
-        log "No progress recorded for ${semver}; a publish run starts one."
-        exit 0
-      fi
+      rc=0
+      progress_is_current "${semver}" || rc="${?}"
+      case "${rc}" in
+        1)
+          log "No progress recorded for ${semver}; a publish run starts one."
+          exit 0
+          ;;
+        2) exit 1 ;;
+      esac
       ;;
   esac
   case "${STATUS_ONLY}" in
@@ -356,7 +378,7 @@ main() {
   esac
 
   build_export_if_needed
-  init_progress_if_stale "${semver}"
+  init_progress_if_stale "${semver}" || exit 1
 
   # Streamed as it runs: a batch takes minutes, and a crash must not
   # discard the OK and FAIL lines already printed.

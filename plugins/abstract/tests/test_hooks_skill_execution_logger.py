@@ -549,6 +549,31 @@ class TestStateFileCleanup:
         state_files_after = list(obs_dir.glob(f"{skill_ref}:*.json"))
         assert len(state_files_after) < len(state_files_before), "State cleaned up"
 
+    def test_corrupt_state_file_is_reported_and_leaves_no_processing_file(
+        self, post_skill_env: dict[str, str], tmp_path: Path
+    ) -> None:
+        """Given: the pre-execution state file is not valid JSON
+        When: the PostToolUse hook claims it
+        Then: stderr names the parse error and no .processing file is left
+        """
+        skill_ref = "abstract:skill-auditor"
+        pre_hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
+        post_hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
+        env = {
+            **post_skill_env,
+            "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
+            "CLAUDE_HOME": str(tmp_path),
+        }
+        obs_dir = tmp_path / "skills" / "observability"
+        run_hook(pre_hook_path, {**env, "CLAUDE_TOOL_OUTPUT": ""})
+        (state_file,) = obs_dir.glob(f"{skill_ref}:*.json")
+        state_file.write_text("{not json")
+
+        result = run_hook(post_hook_path, env)
+
+        assert "skill_execution_logger: pre-state unreadable:" in result["stderr"]
+        assert list(obs_dir.glob("*.processing")) == []
+
 
 class TestErrorHandling:
     """Test error handling and graceful degradation."""

@@ -345,6 +345,58 @@ class TestIncrementalUpdate:
         assert report["nodes_created"] > 0
 
     @pytest.mark.unit
+    def test_unreadable_changed_file_warns_and_still_reparses_dependents(
+        self, tmp_path: Path, store: GraphStore, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """
+        Scenario: A changed file cannot be read
+        Given b.py imports from a.py and reading a.py raises OSError
+        When I run incremental_update with a.py reported changed
+        Then a warning names a.py and b.py is still re-parsed
+        """
+        a = tmp_path / "a.py"
+        b = tmp_path / "b.py"
+        a.write_text("def leaf():\n    pass\n")
+        b.write_text("from a import leaf\n")
+        for path in (a, b):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FILE,
+                    qualified_name=str(path),
+                    file_path=str(path),
+                    line_start=0,
+                    line_end=2,
+                )
+            )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.IMPORTS_FROM,
+                source_qn=str(b),
+                target_qn=str(a),
+                file_path=str(b),
+            )
+        )
+        real_read_bytes = Path.read_bytes
+
+        def read_bytes(self: Path) -> bytes:
+            if self == a:
+                raise PermissionError("denied")
+            return real_read_bytes(self)
+
+        changed = patch("gauntlet.incremental.get_changed_files", return_value=[str(a)])
+        parser = patch("gauntlet.incremental.parse_file", return_value=([], []))
+        with changed, patch.object(Path, "read_bytes", read_bytes):
+            with parser as parse_file:
+                with caplog.at_level("WARNING", logger="gauntlet.incremental"):
+                    incremental_update(str(tmp_path), store)
+
+        assert [c.args[0] for c in parse_file.call_args_list] == [str(b)]
+        assert any(
+            str(a) in r.getMessage() and "denied" in r.getMessage()
+            for r in caplog.records
+        )
+
+    @pytest.mark.unit
     def test_skips_file_with_unchanged_hash(
         self, tmp_path: Path, store: GraphStore
     ) -> None:

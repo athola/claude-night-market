@@ -208,6 +208,36 @@ def test_read_only_modes_leave_the_progress_file_alone(
     assert progress.read_bytes() == before
 
 
+@pytest.mark.parametrize("flag", [None, "--status", "--dry-run"])
+def test_a_corrupt_progress_file_is_reported_not_restarted(
+    tmp_path: Path, flag: str | None
+) -> None:
+    """A parse failure read as "another release", and a restart lost `published`."""
+    repo = _sandbox(tmp_path)
+    _skills(repo, 2)
+    progress = repo / ".egregore" / "clawhub-progress.json"
+    progress.parent.mkdir()
+    progress.write_text('{"version": "1.10.0", "published": ["skill-0"')
+    before = progress.read_bytes()
+    args = (flag,) if flag else ()
+
+    result = _run(
+        repo, "clawhub-batch-publish.sh", _shims(tmp_path, npx="exit 0"), *args
+    )
+
+    assert result.returncode != 0
+    assert progress.read_bytes() == before
+    assert "[ERROR]" in result.stderr
+    assert str(progress) in result.stderr
+
+
+def test_the_batch_publisher_writes_unbuffered_behind_tee() -> None:
+    """Piped to tee, a buffered python3 holds every line until it exits."""
+    source = (ROOT / "scripts" / "clawhub-batch-publish.sh").read_text()
+    body = source.split("publish_batch() {", 1)[1].split("\n}\n", 1)[0]
+    assert "python3 -u -c" in body
+
+
 def test_a_non_numeric_batch_size_is_refused(tmp_path: Path) -> None:
     repo = _sandbox(tmp_path)
     _skills(repo, 2)

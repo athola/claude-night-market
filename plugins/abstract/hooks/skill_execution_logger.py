@@ -455,19 +455,20 @@ def _claim_pre_state(skill_ref: str, tool_use_id: object) -> dict | None:
         try:
             # Atomic rename to claim the file before reading
             state_file.rename(processing_file)
+        except FileNotFoundError:
+            # Another hook already claimed this file, and owns its cleanup
+            return pre_state
+        except OSError as e:
+            sys.stderr.write(f"skill_execution_logger: pre-state unreadable: {e}\n")
+            return pre_state
+        try:
             with open(processing_file) as f:
                 pre_state = json.load(f)
+        except (OSError, json.JSONDecodeError) as e:
+            sys.stderr.write(f"skill_execution_logger: pre-state unreadable: {e}\n")
+        finally:
             try:
-                processing_file.unlink()
-            except OSError as e:
-                sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
-        except FileNotFoundError:
-            # Another hook already claimed this file
-            pass
-        except (OSError, json.JSONDecodeError):
-            # Clean up .processing file on parse errors
-            try:
-                processing_file.unlink()
+                processing_file.unlink(missing_ok=True)
             except OSError as e:
                 sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
     return pre_state

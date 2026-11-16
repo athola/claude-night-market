@@ -278,13 +278,16 @@ def incremental_update(
     # Hash-based skip: a reported file whose content the graph already
     # holds is not re-parsed.
     changed_files: list[str] = []
+    unreadable: list[str] = []
     for fp in changed:
         abs_path = str(Path(root_dir) / fp) if not Path(fp).is_absolute() else fp
         if not (Path(abs_path).exists() and detect_language(abs_path)):
             continue
         try:
             current_hash = hashlib.sha256(Path(abs_path).read_bytes()).hexdigest()
-        except OSError:
+        except OSError as exc:
+            _log.warning("cannot read changed file %s: %s", abs_path, exc)
+            unreadable.append(abs_path)
             continue
         existing_nodes = graph.get_nodes_in_file(abs_path)
         if existing_nodes and existing_nodes[0].file_hash == current_hash:
@@ -295,7 +298,7 @@ def incremental_update(
     # skip would drop every one of them. It is re-parsed regardless: its
     # CALLS edges still target names the changed file may have removed.
     dependents: set[str] = set()
-    for fp in changed_files:
+    for fp in changed_files + unreadable:
         dependents.update(d for d in find_dependents(graph, fp) if Path(d).exists())
     files_to_parse = changed_files + sorted(dependents - set(changed_files))
 
