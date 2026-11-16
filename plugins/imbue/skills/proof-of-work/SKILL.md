@@ -224,3 +224,6 @@ when its evidence exists, whichever way it was recorded.
       next concrete step to unblock it.
 - [ ] The final response does not contain any "should work", "looks
       correct", or "will work" claims without supporting evidence.
+- [ ] No claim of absence, completeness, or a total rests on capped
+      or empty output unless the cap is marked and the query's
+      coverage is shown (see `modules/evidence-logging.md`).
