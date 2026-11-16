@@ -1508,3 +1508,201 @@ class TestIncrementAndResetShareOneDefinition:
         assert reset_module._counter_path is shared.read_counter_path
         assert hook_module._get_session_id is shared.session_id_from
         assert reset_module._get_session_id is shared.session_id_from
+
+
+class TestRepeatedIdenticalCallWarning:
+    """Feature: warn when a discovery call repeats an earlier identical one.
+
+    As the vow enforcement system
+    I want an identical tool_name and tool_input seen twice in a session flagged
+    So that the agent reuses the earlier result instead of paying for it again.
+    """
+
+    @pytest.fixture
+    def reset_module(self):
+        """Import vow_bounded_reads_reset via importlib."""
+        hooks_path = Path(__file__).resolve().parents[3] / "hooks"
+        spec = importlib.util.spec_from_file_location(
+            "vow_bounded_reads_reset", hooks_path / "vow_bounded_reads_reset.py"
+        )
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["vow_bounded_reads_reset"] = mod
+        spec.loader.exec_module(mod)
+        return mod
+
+    def _call(self, hook_module, counter_path, tool_name, tool_input, capsys):
+        """Run main() once and return the advisory text, or "" when silent."""
+        stdin_data = json.dumps(
+            {"tool_name": tool_name, "session_id": "rep", "tool_input": tool_input}
+        )
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit):
+                    hook_module.main()
+        out = capsys.readouterr().out.strip()
+        if not out:
+            return ""
+        return json.loads(out)["hookSpecificOutput"]["additionalContext"]
+
+    @pytest.mark.unit
+    def test_first_call_is_silent_and_identical_second_call_warns(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        args = ("Read", {"file_path": "/a.py"})
+
+        first = self._call(hook_module, counter_path, *args, capsys)
+        second = self._call(hook_module, counter_path, *args, capsys)
+
+        assert first == ""
+        assert "repeats an earlier" in second
+        assert "Reuse the earlier result" in second
+
+    @pytest.mark.unit
+    def test_different_offset_is_not_a_repeat(self, hook_module, capsys, tmp_path):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        self._call(hook_module, counter_path, "Read", {"file_path": "/a.py"}, capsys)
+
+        later = self._call(
+            hook_module,
+            counter_path,
+            "Read",
+            {"file_path": "/a.py", "offset": 200},
+            capsys,
+        )
+
+        assert later == ""
+
+    @pytest.mark.unit
+    def test_same_input_under_another_tool_is_not_a_repeat(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        self._call(hook_module, counter_path, "Grep", {"pattern": "x"}, capsys)
+
+        later = self._call(hook_module, counter_path, "Glob", {"pattern": "x"}, capsys)
+
+        assert later == ""
+
+    @pytest.mark.unit
+    def test_key_order_in_tool_input_does_not_hide_a_repeat(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        self._call(
+            hook_module, counter_path, "Read", {"file_path": "/a", "limit": 9}, capsys
+        )
+
+        later = self._call(
+            hook_module, counter_path, "Read", {"limit": 9, "file_path": "/a"}, capsys
+        )
+
+        assert "repeats an earlier" in later
+
+    @pytest.mark.unit
+    def test_a_repeat_still_counts_against_the_budget(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        for _ in range(3):
+            self._call(
+                hook_module, counter_path, "Read", {"file_path": "/a.py"}, capsys
+            )
+
+        assert _counter_value(counter_path) == 3
+
+    @pytest.mark.unit
+    def test_a_repeated_free_call_is_flagged_without_counting(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        self._call(hook_module, counter_path, "Glob", {"pattern": "*.py"}, capsys)
+
+        later = self._call(
+            hook_module, counter_path, "Glob", {"pattern": "*.py"}, capsys
+        )
+
+        assert "repeats an earlier" in later
+        assert _counter_value(counter_path) == 0
+
+    @pytest.mark.unit
+    def test_repeat_note_joins_the_budget_warning_in_one_output(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        _seed_counter(counter_path, 15)
+        args = ("Read", {"file_path": "/a.py"})
+        self._call(hook_module, counter_path, *args, capsys)
+
+        later = self._call(hook_module, counter_path, *args, capsys)
+
+        assert "repeats an earlier" in later
+        assert "Bounded discovery vow" in later
+
+    @pytest.mark.unit
+    def test_repeat_is_advisory_when_blocking_is_enabled(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """A repeat is not a budget breach, so it never denies the call."""
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        args = ("Read", {"file_path": "/a.py"})
+        self._call(hook_module, counter_path, *args, capsys)
+
+        later = self._call(hook_module, counter_path, *args, capsys)
+
+        assert "repeats an earlier" in later
+
+    @pytest.mark.unit
+    def test_reset_forgets_earlier_calls(
+        self, hook_module, reset_module, capsys, tmp_path
+    ):
+        """A file edited since the first read is worth reading again."""
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        args = ("Read", {"file_path": "/a.py"})
+        self._call(hook_module, counter_path, *args, capsys)
+
+        reset_module._atomic_reset(counter_path)
+        later = self._call(hook_module, counter_path, *args, capsys)
+
+        assert later == ""
+
+    @pytest.mark.unit
+    def test_remembered_calls_are_bounded_and_oldest_is_evicted(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        total = hook_module._MAX_REMEMBERED_CALLS + 20
+        for index in range(total):
+            self._call(
+                hook_module, counter_path, "Glob", {"pattern": f"p{index}"}, capsys
+            )
+
+        newest = self._call(
+            hook_module, counter_path, "Glob", {"pattern": f"p{total - 1}"}, capsys
+        )
+        oldest = self._call(
+            hook_module, counter_path, "Glob", {"pattern": "p0"}, capsys
+        )
+
+        assert "repeats an earlier" in newest
+        assert oldest == ""
+
+    @pytest.mark.unit
+    def test_unwritable_state_never_blocks_or_crashes(self, hook_module, capsys):
+        stdin_data = json.dumps(
+            {
+                "tool_name": "Glob",
+                "session_id": "rep-err",
+                "tool_input": {"pattern": "*"},
+            }
+        )
+        with patch.object(
+            hook_module.os, "open", side_effect=PermissionError("denied")
+        ):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit) as exc:
+                    hook_module.main()
+
+        assert exc.value.code == 0
+        assert capsys.readouterr().out.strip() == ""

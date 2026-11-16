@@ -23,6 +23,7 @@ remains an advisory signal there.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -36,6 +37,7 @@ from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path 
     fd_owned_by_us,
     read_counter_path,
     secure_open,
+    seen_calls_path,
     session_id_from,
     shadow_mode_active,
 )
@@ -81,6 +83,10 @@ _SHORT_READ_LINES = 50
 # discovery phase reads happen far more often than the TTL, so a live
 # counter is never reset by accident.
 _COUNTER_TTL_SECONDS = 8 * 60 * 60
+
+# Calls remembered per session for repeat detection. Oldest drop first, so
+# the file stays a few KB however long the session runs.
+_MAX_REMEMBERED_CALLS = 64
 
 
 def _read_weight(tool_name: str, tool_input: object) -> float:
@@ -209,6 +215,48 @@ def _atomic_increment(path: Path, weight: float = 1.0) -> float:  # noqa: PLR091
                 pass
 
 
+def _call_key(tool_name: str, tool_input: object) -> str:
+    """Return a short digest of the call, stable across dict key order."""
+    canonical = json.dumps([tool_name, tool_input], sort_keys=True, default=str)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+
+
+def _note_call(counter_path: Path, key: str) -> bool:
+    """Record *key* and return True when an earlier call this phase had it.
+
+    Shares the counter's lock discipline and TTL. Returns False on any
+    failure: a lost repeat warning is cheaper than a crashed hook.
+    """
+    fd = -1
+    try:
+        fd = secure_open(seen_calls_path(counter_path), os.O_RDWR | os.O_CREAT, 0o600)
+        if not fd_owned_by_us(fd):
+            return False
+        if _HAS_FCNTL and _fcntl is not None:
+            _fcntl.flock(fd, _fcntl.LOCK_EX)
+        seen: list[str] = []
+        stale = (time.time() - os.fstat(fd).st_mtime) > _COUNTER_TTL_SECONDS
+        if not stale:
+            try:
+                loaded = json.loads(os.read(fd, 65536) or b"{}").get("seen", [])
+                seen = [k for k in loaded if isinstance(k, str)]
+            except (json.JSONDecodeError, ValueError, TypeError, AttributeError):
+                seen = []
+        repeated = key in seen
+        if not repeated:
+            seen = (seen + [key])[-_MAX_REMEMBERED_CALLS:]
+            os.lseek(fd, 0, os.SEEK_SET)
+            os.ftruncate(fd, 0)
+            os.write(fd, json.dumps({"seen": seen}).encode("utf-8"))
+        return repeated
+    except (OSError, RuntimeError, NotImplementedError) as exc:
+        print(f"[vow-bounded-reads] WARN: repeat check failed: {exc}", file=sys.stderr)
+        return False
+    finally:
+        if fd >= 0:
+            os.close(fd)  # closing releases the flock
+
+
 def _is_read_tool(tool_name: str) -> bool:
     """Return True if *tool_name* is a discovery read tool."""
     return tool_name in _READ_TOOLS
@@ -235,19 +283,37 @@ def main() -> None:
         if not _is_read_tool(tool_name):
             sys.exit(0)
 
-        weight = _read_weight(tool_name, data.get("tool_input"))
-        if not weight:
-            sys.exit(0)
+        tool_input = data.get("tool_input")
+        repeat_note = ""
+        if _note_call(counter_file, _call_key(tool_name, tool_input)):
+            repeat_note = (
+                f"This {tool_name} call repeats an earlier identical call in this "
+                "discovery phase. Reuse the earlier result instead of re-running it."
+            )
 
-        new_count = _atomic_increment(counter_file, weight)
+        weight = _read_weight(tool_name, tool_input)
+        new_count = _atomic_increment(counter_file, weight) if weight else 0
 
-        if new_count > _BUDGET:
+        if repeat_note and new_count <= _BUDGET:
+            print(
+                json.dumps(
+                    {
+                        "hookSpecificOutput": {
+                            "hookEventName": "PreToolUse",
+                            "additionalContext": repeat_note,
+                        }
+                    }
+                )
+            )
+            print("[vow-bounded-reads] WARN: repeated call", file=sys.stderr)
+        elif new_count > _BUDGET:
             shadow = _shadow_mode()
             decision = "warn" if shadow else "block"
             reason = (
                 f"Bounded discovery vow: {new_count:g} reads in this discovery phase. "
                 f"Budget is {_BUDGET} for open exploration. "
                 "Consider starting implementation."
+                + (f" {repeat_note}" if repeat_note else "")
                 + (
                     " Shadow mode active — will block once VOW_SHADOW_MODE=0."
                     if shadow
