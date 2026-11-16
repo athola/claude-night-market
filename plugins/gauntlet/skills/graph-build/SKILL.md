@@ -62,6 +62,13 @@ Ruby, and PHP.
 - Auto-creates `.gauntlet/.gitignore` to prevent commits
 - Incremental updates use SHA-256 hashing to skip
   unchanged files
+- Each `edges` row has a `resolution` column recording how a
+  CALLS target was found: `exact` (module qualifier, `self`/`cls`
+  scope, or a unique definition), `name_guess` (a method picked by
+  bare name on a receiver of unknown type), or empty (declared
+  edge, external call, or a row from a graph built before the
+  column existed). Treat `name_guess` edges as unconfirmed. A
+  database lacking the column gains it when opened.
 
 ## Exit Criteria
 

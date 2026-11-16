@@ -23,6 +23,12 @@ except ImportError:  # pragma: no cover -- standalone fallback
 
 _log = logging.getLogger(__name__)
 
+# How a CALLS target was resolved. An empty string means the edge was not
+# resolved by this module: a declared edge (imports, containment), a call
+# left external, or a row written before the column existed.
+RESOLUTION_EXACT = "exact"
+RESOLUTION_NAME_GUESS = "name_guess"
+
 _MAX_BFS_NODES = 10_000
 
 # ---------------------------------------------------------------------------
@@ -56,7 +62,8 @@ CREATE TABLE IF NOT EXISTS edges (
     source_qn TEXT NOT NULL,
     target_qn TEXT NOT NULL,
     file_path TEXT DEFAULT '',
-    line INTEGER DEFAULT 0
+    line INTEGER DEFAULT 0,
+    resolution TEXT DEFAULT ''
 );
 
 CREATE INDEX IF NOT EXISTS idx_edges_src ON edges(source_qn);
@@ -130,8 +137,13 @@ def _pick_call_target(
     candidates: list[tuple[str, str]],
     edge_file: str,
     classes: set[str],
-) -> str | None:
+) -> tuple[str, str] | None:
     """Choose the definition a call reaches, or None when it is ambiguous.
+
+    Returns ``(qualified_name, resolution)``. A scope rule or a module
+    qualifier that singles out one definition is ``exact``. An object
+    receiver of unknown type reaches a method only by its bare name, so
+    that pick is a ``name_guess``.
 
     A bare call prefers a unique definition in the calling file, then a
     unique one anywhere, and never reaches a class method: a method needs
@@ -146,21 +158,21 @@ def _pick_call_target(
         free = [(qn, fp) for qn, fp in candidates if _parent(qn) not in classes]
         local = [qn for qn, fp in free if fp == edge_file]
         if len(local) == 1:
-            return local[0]
-        return free[0][0] if len(free) == 1 else None
+            return local[0], RESOLUTION_EXACT
+        return (free[0][0], RESOLUTION_EXACT) if len(free) == 1 else None
     if receiver in ("self", "cls"):
         local = [
             qn for qn, fp in candidates if fp == edge_file and _parent(qn) in classes
         ]
-        return local[0] if len(local) == 1 else None
+        return (local[0], RESOLUTION_EXACT) if len(local) == 1 else None
     stem = receiver.rsplit(".", 1)[-1]
     module_level = [
         qn for qn, fp in candidates if _module_stem(fp) == stem and _parent(qn) is None
     ]
     if len(module_level) == 1:
-        return module_level[0]
+        return module_level[0], RESOLUTION_EXACT
     methods = [qn for qn, _ in candidates if _parent(qn) in classes]
-    return methods[0] if len(methods) == 1 else None
+    return (methods[0], RESOLUTION_NAME_GUESS) if len(methods) == 1 else None
 
 
 class GraphStore(SqliteGraphBase):
@@ -168,6 +180,21 @@ class GraphStore(SqliteGraphBase):
 
     _schema_sql = _SCHEMA_SQL
     _fts_create_sql = _FTS_CREATE_SQL
+
+    def _init_schema(self) -> None:
+        """Create the schema, then add columns a pre-existing database lacks.
+
+        ``CREATE TABLE IF NOT EXISTS`` skips a table that already exists, so
+        a graph built by an older version never gets new columns from the
+        DDL alone, and incremental updates reopen exactly such graphs.
+        """
+        super()._init_schema()
+        columns = {row[1] for row in self._conn.execute("PRAGMA table_info(edges)")}
+        if "resolution" not in columns:
+            self._conn.execute(
+                "ALTER TABLE edges ADD COLUMN resolution TEXT DEFAULT ''"
+            )
+            self._conn.commit()
 
     # ------------------------------------------------------------------
     # Node CRUD
@@ -314,11 +341,12 @@ class GraphStore(SqliteGraphBase):
         with self._conn:
             for edge_id, source_qn, target, edge_file in unresolved:
                 receiver, _, name = target.rpartition(".")
-                chosen = _pick_call_target(
+                pick = _pick_call_target(
                     receiver, by_bare.get(name, []), edge_file, classes
                 )
-                if chosen is None:
+                if pick is None:
                     continue
+                chosen, resolution = pick
                 duplicate = self._conn.execute(
                     "SELECT 1 FROM edges WHERE kind = ? AND source_qn = ? AND target_qn = ?",
                     (str(EdgeKind.CALLS), source_qn, chosen),
@@ -327,7 +355,8 @@ class GraphStore(SqliteGraphBase):
                     self._conn.execute("DELETE FROM edges WHERE id = ?", (edge_id,))
                 else:
                     self._conn.execute(
-                        "UPDATE edges SET target_qn = ? WHERE id = ?", (chosen, edge_id)
+                        "UPDATE edges SET target_qn = ?, resolution = ? WHERE id = ?",
+                        (chosen, resolution, edge_id),
                     )
                 resolved += 1
         return resolved
@@ -726,6 +755,7 @@ class GraphStore(SqliteGraphBase):
             target_qn=row["target_qn"],
             file_path=row["file_path"] or "",
             line=row["line"] or 0,
+            resolution=row["resolution"] or "",
         )
 
 

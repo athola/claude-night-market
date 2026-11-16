@@ -140,6 +140,8 @@ class GraphEdge:
     target_qn: str
     file_path: str = ""
     line: int = 0
+    # Set by GraphStore.resolve_call_targets; "" when not resolved there.
+    resolution: str = ""
 
     def __post_init__(self) -> None:
         """Sanitize both endpoint names and reject an empty source or target."""
@@ -160,6 +162,7 @@ class GraphEdge:
             "target_qn": self.target_qn,
             "file_path": self.file_path,
             "line": self.line,
+            "resolution": self.resolution,
         }
 
     @classmethod
@@ -171,6 +174,7 @@ class GraphEdge:
             target_qn=data["target_qn"],
             file_path=data.get("file_path", ""),
             line=data.get("line", 0),
+            resolution=data.get("resolution", ""),
         )
 
 
