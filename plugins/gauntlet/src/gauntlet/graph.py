@@ -125,6 +125,18 @@ def _module_stem(file_path: str) -> str:
     return parts[-2] if base == "__init__" and len(parts) > 1 else base
 
 
+def _plugin_of(file_path: str) -> str:
+    """Name in the first ``plugins/<name>/`` path segment, '' when absent.
+
+    Works on relative and absolute paths alike.
+    """
+    parts = file_path.replace("\\", "/").split("/")
+    for index, part in enumerate(parts[:-2]):
+        if part == "plugins":
+            return parts[index + 1]
+    return ""
+
+
 def _parent(qualified_name: str) -> str | None:
     """Enclosing class or function of a definition, None at module level."""
     path, _, name = qualified_name.rpartition("::")
@@ -146,9 +158,11 @@ def _pick_call_target(
     that pick is a ``name_guess``.
 
     A bare call prefers a unique definition in the calling file, then a
-    unique one anywhere, and never reaches a class method: a method needs
-    a receiver. ``self.x`` and ``cls.x`` reach a class method in the
-    calling file, never a module-level function.
+    unique one anywhere, then a unique one in the caller's own plugin
+    (a ``name_guess``, since vendored copies share a name), and never
+    reaches a class method: a method needs a receiver. ``self.x`` and
+    ``cls.x`` reach a class method in the calling file, never a
+    module-level function.
     ``mod.x`` reaches a module-level ``x`` in the file imported as ``mod``,
     so ``os.walk`` never matches a ``walk`` defined in the repository. Any
     other receiver is an object whose type is unknown: it can reach a class
@@ -159,7 +173,14 @@ def _pick_call_target(
         local = [qn for qn, fp in free if fp == edge_file]
         if len(local) == 1:
             return local[0], RESOLUTION_EXACT
-        return (free[0][0], RESOLUTION_EXACT) if len(free) == 1 else None
+        if len(free) == 1:
+            return free[0][0], RESOLUTION_EXACT
+        # Vendored copies of one module share a name across plugins; only
+        # the caller's own plugin copy is a candidate, and it is a name
+        # match rather than an import-confirmed link.
+        plugin = _plugin_of(edge_file)
+        own = [qn for qn, fp in free if plugin and _plugin_of(fp) == plugin]
+        return (own[0], RESOLUTION_NAME_GUESS) if len(own) == 1 else None
     if receiver in ("self", "cls"):
         local = [
             qn for qn, fp in candidates if fp == edge_file and _parent(qn) in classes

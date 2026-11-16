@@ -151,3 +151,84 @@ class TestEdgeResolutionMigration:
                 row["name"] for row in store._conn.execute("PRAGMA table_info(edges)")
             ]
         assert columns.count("resolution") == 1
+
+
+class TestVendoredCopyResolution:
+    """
+    Feature: Resolving a bare call among vendored copies of one module
+
+    As a reader of blast radius
+    I want a call to reach the copy inside the caller's own plugin
+    So that the dependency is not lost to a three-way name collision
+    """
+
+    _CALLER = "plugins/herald/hooks/latte.py"
+
+    def _seed_copies(self, store: GraphStore, *paths: str) -> None:
+        store.upsert_node(_node(f"{self._CALLER}::main", self._CALLER))
+        for path in paths:
+            store.upsert_node(_node(f"{path}::write_atomic", path))
+        store.upsert_edge(_call(f"{self._CALLER}::main", "write_atomic", self._CALLER))
+
+    @pytest.mark.unit
+    def test_bare_call_prefers_own_plugin_copy_as_name_guess(
+        self, store: GraphStore
+    ) -> None:
+        own = "plugins/herald/hooks/_vendored_leyline_atomic_file.py"
+        self._seed_copies(
+            store,
+            "plugins/leyline/src/leyline/atomic_file.py",
+            own,
+            "plugins/sanctum/hooks/_vendored_leyline_atomic_file.py",
+        )
+        store.resolve_call_targets()
+        edge = store.get_edges_by_source(f"{self._CALLER}::main")[0]
+        assert edge.target_qn == f"{own}::write_atomic"
+        assert _resolution(store, f"{self._CALLER}::main") == ["name_guess"]
+
+    @pytest.mark.unit
+    def test_absolute_paths_resolve_to_own_plugin_copy(self, store: GraphStore) -> None:
+        root = "/home/dev/night-market"
+        caller = f"{root}/plugins/herald/hooks/latte.py"
+        own = f"{root}/plugins/herald/hooks/_vendored_leyline_atomic_file.py"
+        store.upsert_node(_node(f"{caller}::main", caller))
+        for path in (
+            f"{root}/plugins/leyline/src/leyline/atomic_file.py",
+            own,
+            f"{root}/plugins/sanctum/hooks/_vendored_leyline_atomic_file.py",
+        ):
+            store.upsert_node(_node(f"{path}::write_atomic", path))
+        store.upsert_edge(_call(f"{caller}::main", "write_atomic", caller))
+        store.resolve_call_targets()
+        edge = store.get_edges_by_source(f"{caller}::main")[0]
+        assert edge.target_qn == f"{own}::write_atomic"
+
+    @pytest.mark.unit
+    def test_caller_plugin_without_copy_stays_unresolved(
+        self, store: GraphStore
+    ) -> None:
+        self._seed_copies(
+            store,
+            "plugins/leyline/src/leyline/atomic_file.py",
+            "plugins/sanctum/hooks/_vendored_leyline_atomic_file.py",
+        )
+        assert store.resolve_call_targets() == 0
+        assert _resolution(store, f"{self._CALLER}::main") == [""]
+
+    @pytest.mark.unit
+    def test_two_copies_in_own_plugin_stay_unresolved(self, store: GraphStore) -> None:
+        self._seed_copies(
+            store,
+            "plugins/herald/hooks/_vendored_leyline_atomic_file.py",
+            "plugins/herald/src/_vendored_leyline_atomic_file.py",
+            "plugins/leyline/src/leyline/atomic_file.py",
+        )
+        assert store.resolve_call_targets() == 0
+
+    @pytest.mark.unit
+    def test_single_cross_plugin_definition_still_resolves_exact(
+        self, store: GraphStore
+    ) -> None:
+        self._seed_copies(store, "plugins/leyline/src/leyline/atomic_file.py")
+        store.resolve_call_targets()
+        assert _resolution(store, f"{self._CALLER}::main") == ["exact"]
