@@ -47,8 +47,10 @@ from __future__ import annotations
 
 import argparse
 import importlib
+import os
 import re
 import shlex
+import signal
 import subprocess
 import sys
 from collections.abc import Callable, Mapping, Sequence
@@ -153,25 +155,53 @@ class SubprocessRunner:
         if not argv:
             return Completed(returncode=1, output="empty command")
         try:
-            proc = subprocess.run(
+            proc = subprocess.Popen(
                 argv,
                 cwd=cwd,
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True,
                 # A byte that is not UTF-8 must not discard the whole run's
                 # output: the output is the evidence.
                 errors="replace",
-                timeout=timeout or None,
-                check=False,
                 env=dict(env) if env is not None else None,
-            )
-        except subprocess.TimeoutExpired:
-            return Completed(
-                returncode=TIMEOUT_EXIT, output=f"timed out after {timeout}s"
+                # Its own process group, so a timeout can kill what the
+                # command spawned. ``uv run pytest`` leaves pytest as a
+                # grandchild that killing the direct child would orphan.
+                start_new_session=True,
             )
         except OSError as exc:
             return Completed(returncode=127, output=f"could not run {argv[0]!r}: {exc}")
-        return Completed(returncode=proc.returncode, output=proc.stdout + proc.stderr)
+        try:
+            stdout, stderr = proc.communicate(timeout=timeout or None)
+        except subprocess.TimeoutExpired as exc:
+            os.killpg(proc.pid, signal.SIGKILL)
+            try:
+                stdout, stderr = proc.communicate(timeout=_DRAIN_TIMEOUT_S)
+            except subprocess.TimeoutExpired:
+                # A descendant that left the group still holds the pipe.
+                # Keep what had arrived when the first wait expired.
+                stdout, stderr = _text(exc.stdout), _text(exc.stderr)
+            partial = stdout + stderr
+            note = f"timed out after {timeout}s"
+            return Completed(
+                returncode=TIMEOUT_EXIT,
+                output=f"{partial}\n{note}" if partial else note,
+            )
+        return Completed(returncode=proc.returncode, output=stdout + stderr)
+
+
+#: Seconds to collect output after the process group is killed.
+_DRAIN_TIMEOUT_S = 5
+
+
+def _text(captured: bytes | str | None) -> str:
+    """``TimeoutExpired`` carries bytes even when the pipe was text."""
+    if captured is None:
+        return ""
+    if isinstance(captured, bytes):
+        return captured.decode("utf-8", errors="replace")
+    return captured
 
 
 #: A babysitter takes the captured facts and answers with
