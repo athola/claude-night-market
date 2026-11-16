@@ -45,10 +45,10 @@ tools returned.
 Intent artifacts now ask for intent and leave the "what" to the diff,
 after "IDRs as records of intent" (Will Lachance, 2026-10-10).
 
-- **sanctum:** the pr-prep description scaffold is the Who/Where/When
-  table, Why, What and how, and Test plan, not a list of changed paths.
-  `describes_changes` stays unevaluated, because paths cannot judge a
-  description.
+- **sanctum:** the pr-prep description scaffold is the pr-prep
+  template's Who/Where/When table, Why, What and how, and Test plan,
+  rendered in a fence. It used to list the changed paths. The
+  `describes_changes` gate is removed: paths cannot judge a description.
 - **sanctum:** commit-messages, `commit-msg`, `acp` and the commit agent
   ask the body for why.
 - **attune:** both brief templates carry Out of Scope (things that could
