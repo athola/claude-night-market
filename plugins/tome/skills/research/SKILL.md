@@ -203,6 +203,11 @@ mgr.save(session)
 
 ### Step 7: Present Results
 
+Before showing the summary, run
+`tome.output.citations.find_ungrounded_urls(summary, session.findings)`
+on its text. Drop or source each URL it returns: no channel retrieved
+it.
+
 Display a brief summary to the user:
 - The frontier verdict and its reason, from
   `tome.synthesis.frontier.frontier_verdict(session)`. It is
@@ -280,5 +285,7 @@ Then offer interactive refinement:
       synthesis regardless of whether all agents succeeded
 - [ ] Top 3 findings by relevance score displayed to the user with
       the path to the saved report
+- [ ] `find_ungrounded_urls` returned an empty list for the summary
+      shown, or each URL it returned was dropped or sourced
 - [ ] If all agents fail, error reported and manual alternatives
       suggested; an empty report is never generated

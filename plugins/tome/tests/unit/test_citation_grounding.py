@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from tests.factories import make_finding
@@ -71,3 +73,11 @@ class TestFindUngroundedUrls:
         for finding in _findings():
             session.add_finding(finding)
         assert find_ungrounded_urls(format_report(session), session.findings) == []
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("skill", ["research", "synthesize"])
+def test_skill_runs_grounding_where_prose_is_written(skill: str) -> None:
+    # The function only helps if the stage that writes report prose calls it
+    text = (Path(__file__).parents[2] / "skills" / skill / "SKILL.md").read_text()
+    assert "find_ungrounded_urls" in text

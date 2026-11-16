@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-Five deterministic guards ported from NVIDIA auto-ontology
-(`3825917a`). Each holds an agent's claim to what its tools returned.
+Four deterministic guards and one evidence rule, ported from NVIDIA
+auto-ontology (`3825917a`). Each holds an agent's claim to what its
+tools returned.
 
 - **tome:** `find_ungrounded_urls` returns report URLs that no
   finding carries. `identify_gaps(..., entities=)` reports question
