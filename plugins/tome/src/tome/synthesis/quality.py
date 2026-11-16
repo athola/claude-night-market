@@ -274,7 +274,7 @@ def channel_outcomes(session: ResearchSession) -> dict[str, str]:
 
 
 def _entity_is_mentioned(entity: str, findings: list[Finding]) -> bool:
-    """Whether any finding's title or summary names the entity.
+    """Whether any finding's title, summary or URL names the entity.
 
     Whole-word, case-insensitive, matching ``workflows/research.js``:
     "Mesh" is not a search for Meshtastic, and "Go" is not a hit on
@@ -282,7 +282,7 @@ def _entity_is_mentioned(entity: str, findings: list[Finding]) -> bool:
     punctuation ("C++") still anchor.
     """
     pattern = re.compile(rf"(?<!\w){re.escape(entity)}(?!\w)", re.IGNORECASE)
-    return any(pattern.search(f"{f.title} {f.summary}") for f in findings)
+    return any(pattern.search(f"{f.title} {f.summary} {f.url}") for f in findings)
 
 
 def identify_gaps(
@@ -341,7 +341,7 @@ def identify_gaps(
         "recency_gap": recency_gap,
     }
 
-    named = [e for e in (entities or []) if e.strip()]
+    named = [e.strip() for e in (entities or []) if e.strip()]
     if named:
         uncovered = [e for e in named if not _entity_is_mentioned(e, findings)]
         gaps["uncovered_entities"] = uncovered

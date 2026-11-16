@@ -58,3 +58,18 @@ class TestEntityCoverage:
     def test_blank_entities_are_ignored(self) -> None:
         gaps = identify_gaps([make_finding()], ["code"], entities=["  ", ""])
         assert set(gaps) == _BASE_KEYS
+
+    def test_entity_named_only_in_url_is_covered(self) -> None:
+        # research.js matches title, url and why; the Python rule must agree
+        findings = [
+            make_finding(
+                title="Field radios", summary="", url="https://beartooth.com/x"
+            )
+        ]
+        gaps = identify_gaps(findings, ["code"], entities=["beartooth"])
+        assert gaps["uncovered_entities"] == []
+
+    def test_padded_entity_still_matches(self) -> None:
+        findings = [make_finding(title="Meshtastic notes", summary="")]
+        gaps = identify_gaps(findings, ["code"], entities=[" Meshtastic "])
+        assert gaps["uncovered_entities"] == []
