@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sqlite3
 import time
 from pathlib import Path
@@ -65,6 +66,22 @@ class TestGraphVersionRebuild:
         assert (gdir / "rebuild.lock").exists()
         assert "1.0.0" in output["hookSpecificOutput"]["additionalContext"]
 
+    def test_newer_graph_is_left_alone(self, project: Path) -> None:
+        # The release runbook builds with the bumped version before the
+        # installed plugin is updated; an older plugin must not rebuild it.
+        _graph(project, "2.1.0")
+        output, popen = _run()
+        assert output is None
+        popen.assert_not_called()
+
+    def test_failed_build_keeps_the_lock_so_sessions_do_not_relaunch(
+        self, project: Path
+    ) -> None:
+        _graph(project, "1.0.0")
+        _, popen = _run()
+        script = popen.call_args.args[0][-1]
+        assert "&& rm -f" in script
+
     def test_graph_without_a_recorded_version_is_rebuilt(self, project: Path) -> None:
         _graph(project, None)
         _, popen = _run()
@@ -106,6 +123,17 @@ class TestGraphVersionRebuild:
             "/gauntlet-graph build" in output["hookSpecificOutput"]["additionalContext"]
         )
         assert not (gdir / "rebuild.lock").exists()
+
+    def test_plugin_json_and_package_versions_agree(self) -> None:
+        # A drift would make every session see a version mismatch.
+        init = (
+            Path(hook.__file__).resolve().parents[1]
+            / "src"
+            / "gauntlet"
+            / "__init__.py"
+        )
+        package = re.search(r'__version__ = "([^"]+)"', init.read_text()).group(1)
+        assert hook._installed_version() == package
 
     def test_installed_version_comes_from_plugin_json(self) -> None:
         manifest = (

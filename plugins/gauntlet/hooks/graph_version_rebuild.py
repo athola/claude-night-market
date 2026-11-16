@@ -52,6 +52,20 @@ def _graph_version(db_path: Path) -> str | None:
     return row[0] if row else None
 
 
+def _older(built: str | None, installed: str) -> bool:
+    """Whether the graph predates the installed plugin.
+
+    A graph newer than the plugin is left alone: the release runbook builds
+    with the bumped version before the installed plugin is updated.
+    """
+    if built is None:
+        return True
+    try:
+        return tuple(map(int, built.split("."))) < tuple(map(int, installed.split(".")))
+    except ValueError:
+        return built != installed
+
+
 def _opted_out(gauntlet_dir: Path) -> bool:
     config = gauntlet_dir / "config.json"
     if not config.exists():
@@ -98,7 +112,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     installed = _installed_version()
     built = _graph_version(db_path)
-    if built == installed:
+    if not _older(built, installed):
         return None
     built_label = built or "an unrecorded version"
 
@@ -106,7 +120,8 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if uv is None:
         return _context(
             f"gauntlet graph was built by {built_label}, plugin is {installed}. "
-            "uv is not on PATH, so it was not rebuilt: run /gauntlet-graph build."
+            "uv is not on PATH, so it was not rebuilt. Install uv "
+            "(https://docs.astral.sh/uv/), then run /gauntlet-graph build."
         )
 
     lock = gauntlet_dir / "rebuild.lock"
@@ -124,7 +139,9 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
             str(root),
         ]
     )
-    script = f"{build}; rm -f {shlex.quote(str(lock))}"
+    # A failed build keeps the lock, so sessions do not relaunch it until
+    # the lock goes stale; the log says why it failed.
+    script = f"{build} && rm -f {shlex.quote(str(lock))}"
     argv = ["sh", "-c", script]
     nice = shutil.which("nice")
     if nice:
