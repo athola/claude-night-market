@@ -9,16 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-Four deterministic guards and one evidence rule, ported from NVIDIA
+Six deterministic guards and one evidence rule, ported from NVIDIA
 auto-ontology (`3825917a`). Each holds an agent's claim to what its
 tools returned.
 
+- **memory-palace:** an embedding index records the model that built
+  it. A search with a different model raises
+  `EmbeddingModelMismatchError`. An index saved before this stays
+  unattributed rather than being stamped with a guess.
 - **tome:** `find_ungrounded_urls` returns report URLs that no
   finding carries. `identify_gaps(..., entities=)` reports question
   entities that no finding mentions, with an `entity_coverage` ratio.
 - **gauntlet:** call edges record `resolution` (`exact`,
   `name_guess`, or empty). An existing graph database gains the
-  column when opened.
+  column when opened. A bare call that matches several vendored copies
+  resolves to the caller's own plugin copy, as a `name_guess`.
 - **imbue:** `vow_bounded_reads` warns when a Read, Grep or Glob call
   repeats an identical earlier one. The repeat still counts against
   the budget.
