@@ -201,10 +201,6 @@ class KnowledgeGraph(SqliteGraphBase):
             "SELECT * FROM entities WHERE entity_type = ?", (entity_type,)
         )
 
-    def get_entity_ids(self) -> list[dict[str, Any]]:
-        """Fetch every entity id as ``{"entity_id": ...}`` rows."""
-        return self._rows("SELECT entity_id FROM entities")
-
     def get_entity_summaries(self) -> list[dict[str, Any]]:
         """Fetch id, type and name of every entity."""
         return self._rows("SELECT entity_id, entity_type, name FROM entities")
