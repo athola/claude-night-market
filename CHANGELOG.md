@@ -55,6 +55,15 @@ after "IDRs as records of intent" (Will Lachance, 2026-10-10).
   reasonably be goals, chosen not to be). Blueprint tasks carry Decision
   Notes in place of implementation detail.
 
+### Removed
+
+- **memory-palace:** `KnowledgeGraph.get_entity_ids`, which lost its only
+  caller when the tier subsystem was deleted.
+- Frontmatter keys nothing reads: `token_budget` (conserve),
+  `optional_dependencies` (sanctum doc-updates), `aliases` (sanctum
+  prepare-pr) and one `trigger`. The `evaluation_criteria` weights in
+  abstract's rules-eval and skills-eval move into each skill body.
+
 ### Fixed
 
 - **sanctum:** `description_paths.py` fails a PR description that still
