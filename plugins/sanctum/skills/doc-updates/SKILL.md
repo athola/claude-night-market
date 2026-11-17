@@ -26,8 +26,6 @@ dependencies:
 - imbue:proof-of-work
 - scribe:slop-detector
 - scribe:doc-generator
-optional_dependencies:
-- elements-of-style:writing-clearly-and-concisely
 ---
 
 # Documentation Update Workflow

@@ -3,7 +3,6 @@ name: mcp-subagents
 description: Create focused, single-purpose subagents for complex workflow
   decomposition with MECW compliance.
 location: plugin
-token_budget: 80  # Optimized with modules
 progressive_loading: true
 dependencies:
   hub: [mcp-code-execution]

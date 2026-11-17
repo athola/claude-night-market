@@ -1,6 +1,5 @@
 ---
 name: prepare-pr
-aliases: [pr]
 description: Prepare a PR end-to-end by updating documentation, running tests, dogfooding checks, and validating with code review.
 usage: /prepare-pr [--no-code-review] [--reviewer-scope strict|standard|lenient] [--skip-updates] [destination-file]
 extends: "superpowers:receiving-code-review"
@@ -217,7 +216,6 @@ Continuing with PR preparation...
 ## Integration with Existing Workflows
 
 ### Backward Compatibility
-- `/pr` now aliases to `/prepare-pr` with full update workflow
 - Use `--skip-updates` to get previous behavior (skip Phase 0)
 - Use `--no-code-review` to skip the review step when needed
 - Gradual adoption remains available
