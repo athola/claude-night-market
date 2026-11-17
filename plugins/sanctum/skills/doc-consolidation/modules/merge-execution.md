@@ -280,7 +280,7 @@ Generate detailed summary:
 |------|------|----------|
 | docs/api-overview.md | 1,847 bytes | findings |
 | docs/plans/2025-12-06-api-consistency.md | 1,456 bytes | actionable |
-| docs/adr/0002-2025-12-06-cli-naming.md | 634 bytes | decisions |
+| docs/adr/0002-cli-naming.md | 634 bytes | decisions |
 
 ## Updated Files (1)
 
