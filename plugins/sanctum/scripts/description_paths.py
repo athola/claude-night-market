@@ -11,6 +11,8 @@ draft is written before the last commit:
   it. Fails.
 - not in diff: tracked but untouched. A warning, because a description
   may name the caller of a fixed function. ``--strict`` fails on it.
+- unfilled: an HTML comment outside code, left from the pr-prep
+  scaffold. Fails, as idr-tools' IDR002 does for a finished record.
 
 A token counts as a file only when its last segment has an extension
 with a letter in it, so branches (``feature/rc5``), addresses, versions,
@@ -44,6 +46,8 @@ _SUFFIX = re.compile(r"(::\w+|:\d+(?::\d+)?)$")
 # Branches (feature/rc5), addresses, versions, and directories have none.
 _FILE_NAME = re.compile(r"^[\w.-]*\w\.[A-Za-z][A-Za-z0-9]{0,5}$")
 _SKIP_PREFIX = ("-", "~", "/", "...")
+_INLINE_CODE = re.compile(r"`[^`\n]*`")
+_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
 
 
 @dataclass
@@ -52,6 +56,8 @@ class Report:
 
     phantom: list[str] = field(default_factory=list)
     untouched: list[str] = field(default_factory=list)
+    # Scaffold comments still in the body: fields nobody filled.
+    placeholders: list[str] = field(default_factory=list)
 
 
 def named_paths(text: str) -> list[str]:
@@ -86,6 +92,8 @@ def check(text: str, changed: list[str], tracked: list[str]) -> Report:
             report.phantom.append(path)
         # A bare name nothing tracks is an identifier such as
         # ``Dispatchers.IO``, so it is neither phantom nor untouched.
+    prose = _INLINE_CODE.sub("", _FENCE.sub("", text))
+    report.placeholders = _COMMENT.findall(prose)
     return report
 
 
@@ -96,7 +104,9 @@ def _git(repo: Path, *args: str) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Exit 1 on a phantom path, or on any path outside the diff with --strict.
+    """Exit 1 on a phantom path or an unfilled scaffold comment.
+
+    With --strict, a path outside the diff also exits 1.
 
     Exit 2 when git fails, so a bad base is not read as a phantom path.
     """
@@ -129,7 +139,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"phantom: {path}")
     for path in report.untouched:
         print(f"not in diff: {path}")
-    if report.phantom or (args.strict and report.untouched):
+    for comment in report.placeholders:
+        print(f"unfilled: {comment}")
+    if report.phantom or report.placeholders or (args.strict and report.untouched):
         return 1
     return 0
 

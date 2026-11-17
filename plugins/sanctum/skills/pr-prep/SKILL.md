@@ -187,8 +187,8 @@ base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/description_paths.py" --base "${base}" pr_description.md
 ```
 
-It exits 1 on a named file that does not exist, and 2 when git cannot
-resolve the base.
+It exits 1 on a named file that does not exist or on a scaffold comment
+left unfilled, and 2 when git cannot resolve the base.
 
 Find who should review the parts of the change outside the author's
 lane. The script reads each touched directory's history up to the

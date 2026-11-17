@@ -267,3 +267,46 @@ class TestMain:
         repo, _ = branch_repo
         assert self._run(repo, "origin/no-such-branch", "Changes `src/api.py`.") == 2
         assert "origin/no-such-branch" in capsys.readouterr().err
+
+
+class TestUnfilledPlaceholders:
+    """A scaffold comment left in the body is a field nobody filled.
+
+    idr-tools lints the same leftover (IDR002) before a record is final.
+    """
+
+    @pytest.mark.unit
+    def test_leftover_scaffold_comment_is_reported(self) -> None:
+        text = "## Why\n\n<!-- the problem this solves -->\n"
+        assert check(text, [], []).placeholders == ["<!-- the problem this solves -->"]
+
+    @pytest.mark.unit
+    def test_comment_in_a_fence_or_inline_code_is_not_reported(self) -> None:
+        text = "Use `<!-- x -->` markers.\n\n```markdown\n<!-- y -->\n```\n"
+        assert check(text, [], []).placeholders == []
+
+    @pytest.mark.unit
+    def test_main_fails_on_an_unfilled_placeholder(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        _git(tmp_path, "init", "-q")
+        (tmp_path / "a.py").write_text("x = 1\n")
+        _git(tmp_path, "add", "a.py")
+        _git(
+            tmp_path,
+            "-c",
+            "user.email=t@t",
+            "-c",
+            "user.name=t",
+            "commit",
+            "-qm",
+            "init",
+        )
+        desc = tmp_path / "pr.md"
+        desc.write_text("| **Who** | <!-- who is affected --> |\n")
+        code = main([str(desc), "--base", "HEAD", "--repo", str(tmp_path)])
+        assert code == 1
+        assert "unfilled: <!-- who is affected -->" in capsys.readouterr().out
