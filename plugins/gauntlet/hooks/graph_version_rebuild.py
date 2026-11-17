@@ -45,7 +45,12 @@ def _graph_version(db_path: Path) -> str | None:
         row = conn.execute(
             "SELECT value FROM metadata WHERE key = 'gauntlet_version'"
         ).fetchone()
-    except sqlite3.OperationalError:
+    except sqlite3.OperationalError as exc:
+        # A graph without the table predates version stamps. Any other
+        # error, such as a lock held by a running build, must not read
+        # as "never recorded" and start a second build.
+        if "no such table" not in str(exc):
+            raise
         return None
     finally:
         conn.close()
@@ -60,10 +65,8 @@ def _older(built: str | None, installed: str) -> bool:
     """
     if built is None:
         return True
-    try:
-        return tuple(map(int, built.split("."))) < tuple(map(int, installed.split(".")))
-    except ValueError:
-        return built != installed
+    # update_versions.py writes only X.Y.Z, so both sides parse.
+    return tuple(map(int, built.split("."))) < tuple(map(int, installed.split(".")))
 
 
 def _opted_out(gauntlet_dir: Path) -> bool:
@@ -73,7 +76,8 @@ def _opted_out(gauntlet_dir: Path) -> bool:
     try:
         data = json.loads(config.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
-        return False
+        # An unreadable opt-out is not consent to a multi-minute rebuild.
+        return True
     return isinstance(data, dict) and data.get("rebuild_on_upgrade") is False
 
 

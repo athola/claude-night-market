@@ -141,3 +141,23 @@ class TestGraphVersionRebuild:
         )
         expected = json.loads(manifest.read_text())["version"]
         assert hook._installed_version() == expected
+
+
+@pytest.mark.unit
+class TestRebuildFailsSafe:
+    """A wrong guess here starts a multi-minute rebuild, so doubt means wait."""
+
+    def test_locked_graph_starts_no_second_build(self, project: Path) -> None:
+        _graph(project, "1.0.0")
+        conn = MagicMock()
+        conn.execute.side_effect = sqlite3.OperationalError("database is locked")
+        with patch.object(hook.sqlite3, "connect", return_value=conn):
+            with pytest.raises(sqlite3.OperationalError):
+                _run()
+
+    def test_unreadable_opt_out_config_starts_nothing(self, project: Path) -> None:
+        gdir = _graph(project, "1.0.0")
+        (gdir / "config.json").write_text("{not json")
+        output, popen = _run()
+        popen.assert_not_called()
+        assert output is None
