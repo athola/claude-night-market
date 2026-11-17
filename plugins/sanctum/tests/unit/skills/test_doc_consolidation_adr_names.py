@@ -14,7 +14,11 @@ ADR_DIR = Path(__file__).resolve().parents[5] / "docs" / "adr"
 @pytest.mark.unit
 def test_adr_destination_carries_no_date() -> None:
     # A dated name sorts and links differently from every committed ADR.
-    for path in [SKILL_DIR / "SKILL.md", *sorted((SKILL_DIR / "modules").glob("*.md"))]:
+    for path in [
+        SKILL_DIR / "SKILL.md",
+        SKILL_DIR.parents[1] / "commands" / "merge-docs.md",
+        *sorted((SKILL_DIR / "modules").glob("*.md")),
+    ]:
         for target in re.findall(
             r"docs/adr/[^`|\s]+", path.read_text(encoding="utf-8")
         ):
@@ -28,3 +32,12 @@ def test_committed_adrs_follow_the_undated_convention() -> None:
     assert names
     for name in names:
         assert re.fullmatch(r"\d{4}-[a-z0-9-]+\.md", name), name
+
+
+@pytest.mark.unit
+def test_merge_execution_handles_the_file_issue_strategy() -> None:
+    """The planner emits FILE_ISSUE for a gitignored destination."""
+    text = (SKILL_DIR / "modules" / "merge-execution.md").read_text(encoding="utf-8")
+    section = text.split("### FILE_ISSUE", 1)[1].split("\n### ", 1)[0]
+    assert "minister:create-issue" in section
+    assert "gitignored" in section

@@ -19,6 +19,7 @@ import re
 import shutil
 import subprocess
 import sys
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from datetime import date
 from pathlib import Path
@@ -169,7 +170,7 @@ class Route:
     category: str
     value: str
     destination: str
-    strategy: str  # CREATE_NEW, INTELLIGENT_WEAVE, REPLACE_SECTION, APPEND_WITH_CONTEXT
+    strategy: str  # CREATE_NEW, INTELLIGENT_WEAVE, REPLACE_SECTION, APPEND_WITH_CONTEXT, FILE_ISSUE
     rationale: str
 
 
@@ -439,13 +440,20 @@ def route_chunk(
     chunk: ContentChunk,
     existing_docs: list[str],
     source_file: str,
+    is_ignored: Callable[[str], bool] | None = None,
 ) -> Route:
-    """Determine routing for a single chunk."""
+    """Determine routing for a single chunk.
+
+    ``is_ignored`` reports whether a path is gitignored. A fallback file
+    there is never committed, so the item is routed to an issue instead.
+    """
     # Find best semantic match
     best_match = None
     best_score = 0.0
 
     for doc_path in existing_docs:
+        if is_ignored is not None and is_ignored(doc_path):
+            continue
         relevance = compute_relevance(chunk, doc_path)
         if relevance > best_score and relevance >= RELEVANCE_MIN_SCORE:
             best_match = doc_path
@@ -468,7 +476,7 @@ def route_chunk(
 
     fallback_destinations = {
         "actionable": f"docs/plans/{today}-{topic}.md",
-        "decisions": f"docs/adr/{today}-{topic}.md",
+        "decisions": f"docs/adr/{_next_adr_number(existing_docs):04d}-{topic}.md",
         "findings": f"docs/{topic}.md",
         "metrics": "docs/benchmarks.md",
         "migration": "docs/migration-guide.md",
@@ -476,6 +484,15 @@ def route_chunk(
     }
 
     destination = fallback_destinations.get(chunk.category, f"docs/{topic}.md")
+    if is_ignored is not None and is_ignored(destination):
+        return Route(
+            chunk_header=chunk.header,
+            category=chunk.category,
+            value=chunk.value,
+            destination="github-issue",
+            strategy="FILE_ISSUE",
+            rationale=f"{destination} is gitignored: a file there is never committed",
+        )
 
     return Route(
         chunk_header=chunk.header,
@@ -485,6 +502,38 @@ def route_chunk(
         strategy="CREATE_NEW",
         rationale=f"No semantic match, using {chunk.category} fallback",
     )
+
+
+def _next_adr_number(existing_docs: list[str]) -> int:
+    """Return the number after the highest ``docs/adr/NNNN-*.md`` present."""
+    numbers = [
+        int(m.group(1))
+        for doc in existing_docs
+        if (m := re.search(r"adr/(\d{4})-[^/]+\.md$", doc.replace("\\", "/")))
+    ]
+    return max(numbers, default=0) + 1
+
+
+def git_ignored(repo: str) -> Callable[[str], bool]:
+    """Return a probe for whether ``repo``'s ignore rules exclude a path.
+
+    Outside a git repository nothing is ignored, so the probe says False.
+    """
+
+    def probe(path: str) -> bool:
+        try:
+            result = subprocess.run(
+                ["git", "-C", repo, "check-ignore", "-q", path],
+                capture_output=True,
+                timeout=10,
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            return False
+        # 0: ignored, 1: not ignored, 128: not a repository
+        return result.returncode == 0
+
+    return probe
 
 
 def slugify(text: str) -> str:
@@ -499,6 +548,7 @@ def generate_plan(source_file: str, docs_dir: str = "docs") -> ConsolidationPlan
     """Generate complete consolidation plan for a source file."""
     chunks = extract_chunks(source_file)
     existing_docs = find_existing_docs(docs_dir)
+    is_ignored = git_ignored(str(Path(docs_dir).resolve().parent))
 
     routes = []
     skipped = []
@@ -508,7 +558,7 @@ def generate_plan(source_file: str, docs_dir: str = "docs") -> ConsolidationPlan
             skipped.append({"header": chunk.header, "reason": "Low value content"})
             continue
 
-        route = route_chunk(chunk, existing_docs, source_file)
+        route = route_chunk(chunk, existing_docs, source_file, is_ignored)
         routes.append(route)
 
     summary = {
@@ -516,7 +566,10 @@ def generate_plan(source_file: str, docs_dir: str = "docs") -> ConsolidationPlan
         "routed": len(routes),
         "skipped": len(skipped),
         "new_files": sum(1 for r in routes if r.strategy == "CREATE_NEW"),
-        "updates": sum(1 for r in routes if r.strategy != "CREATE_NEW"),
+        "issues": sum(1 for r in routes if r.strategy == "FILE_ISSUE"),
+        "updates": sum(
+            1 for r in routes if r.strategy not in ("CREATE_NEW", "FILE_ISSUE")
+        ),
     }
 
     return ConsolidationPlan(

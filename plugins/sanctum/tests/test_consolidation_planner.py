@@ -470,3 +470,64 @@ def test_git_untracked_files_returns_names_with_spaces_and_unicode_unquoted(tmp_
 
     assert "audit report.md" in untracked
     assert "café notes.md" in untracked
+
+
+def test_ignored_fallback_destination_routes_to_an_issue():
+    """A file under a gitignored path is never committed, so the item is lost."""
+    cp = _load_script()
+    chunk = cp.ContentChunk(
+        header="Action Items",
+        content="todo list",
+        category="actionable",
+        value="medium",
+    )
+    route = cp.route_chunk(
+        chunk, [], "scratch.md", is_ignored=lambda p: p.startswith("docs/plans/")
+    )
+    assert route.strategy == "FILE_ISSUE"
+    assert route.destination == "github-issue"
+    assert "gitignored" in route.rationale
+
+
+def test_decision_fallback_takes_the_next_adr_number_without_a_date():
+    cp = _load_script()
+    chunk = cp.ContentChunk(
+        header="CLI Naming", content="we chose x", category="decisions", value="high"
+    )
+    existing = ["docs/adr/0029-a.md", "docs/adr/0030-b.md", "docs/guide.md"]
+    route = cp.route_chunk(chunk, [], "scratch.md")
+    assert route.destination == "docs/adr/0001-cli-naming.md"
+    route = cp.route_chunk(chunk, existing, "scratch.md")
+    assert route.destination == "docs/adr/0031-cli-naming.md"
+
+
+def test_git_ignored_probe_reads_the_repository_ignore_rules(tmp_path):
+    cp = _load_script()
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    (tmp_path / ".gitignore").write_text("docs/plans/\n")
+    is_ignored = cp.git_ignored(str(tmp_path))
+    assert is_ignored("docs/plans/2026-01-01-x.md") is True
+    assert is_ignored("docs/adr/0001-x.md") is False
+
+
+def test_git_ignored_probe_outside_a_repository_ignores_nothing(tmp_path):
+    cp = _load_script()
+    assert cp.git_ignored(str(tmp_path))("docs/plans/x.md") is False
+
+
+def test_ignored_existing_doc_is_never_a_semantic_match(tmp_path):
+    """Weaving into a gitignored file loses the content as surely as creating one."""
+    cp = _load_script()
+    plan_doc = tmp_path / "docs" / "plans" / "action-items-review.md"
+    plan_doc.parent.mkdir(parents=True)
+    plan_doc.write_text("# Action Items\n\nAction items todo list for the review.\n")
+    chunk = cp.ContentChunk(
+        header="Action Items",
+        content="action items todo list review",
+        category="actionable",
+        value="medium",
+    )
+    route = cp.route_chunk(
+        chunk, [str(plan_doc)], "scratch.md", is_ignored=lambda p: "/plans/" in p
+    )
+    assert route.strategy == "FILE_ISSUE"

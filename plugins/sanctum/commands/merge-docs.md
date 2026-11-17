@@ -71,8 +71,8 @@ Content is routed based on category:
 
 | Category | Default Destination |
 |----------|---------------------|
-| Actionable Items | `docs/plans/YYYY-MM-DD-{topic}.md` |
-| Decisions Made | `docs/adr/NNNN-{date}-{topic}.md` |
+| Actionable Items | `docs/plans/YYYY-MM-DD-{topic}.md`, or a GitHub issue when that path is gitignored |
+| Decisions Made | `docs/adr/NNNN-{topic}.md` |
 | Findings/Insights | Best-match existing doc |
 | Metrics/Baselines | `docs/benchmarks/` |
 | Migration Guides | `docs/migration-guide.md` |

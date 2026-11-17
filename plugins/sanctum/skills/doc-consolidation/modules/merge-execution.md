@@ -45,6 +45,15 @@ def pre_execution_checks(plan: ConsolidationPlan) -> list[str]:
 
 ## Strategy Implementations
 
+### FILE_ISSUE
+
+The planner emits this when the fallback destination is gitignored,
+such as `docs/plans/` in a repository that keeps plans local. A file
+written there is never committed, so the item would be lost. Show the
+item to the user. On approval, open an issue with
+`Skill(minister:create-issue)`, then record the issue number in the
+merge report. Write no file.
+
 ### CREATE_NEW
 
 ```python
