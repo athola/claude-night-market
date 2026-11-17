@@ -61,6 +61,9 @@ after "IDRs as records of intent" (Will Lachance, 2026-10-10).
   holds a scaffold comment, reporting each as `unfilled`.
 - **sanctum:** doc-consolidation names new ADRs `NNNN-topic.md`, the
   convention every committed ADR follows.
+- **sanctum:** doc-consolidation never routes content into a gitignored
+  file. A plan item with no committed home becomes a GitHub issue on
+  approval.
 - **gauntlet:** an incremental build with no tree-sitter parser now exits
   2 with an `error` instead of reporting files it never parsed. The
   graph-build skill runs the script in the plugin's own environment,
