@@ -12,7 +12,11 @@ Issue: https://github.com/athola/claude-night-market/issues/69
 
 from __future__ import annotations
 
-import fcntl
+try:
+    import fcntl
+except ImportError:  # Windows has no fcntl
+    fcntl = None
+    import msvcrt
 import importlib
 import json
 import os
@@ -131,7 +135,10 @@ class ContinualEvaluator:
         self.history_file.parent.mkdir(parents=True, exist_ok=True)
         lock_file = self.history_file.with_name(self.history_file.name + ".lock")
         with open(lock_file, "a") as lock:
-            fcntl.flock(lock, fcntl.LOCK_EX)
+            if fcntl:
+                fcntl.flock(lock, fcntl.LOCK_EX)
+            else:
+                msvcrt.locking(lock.fileno(), msvcrt.LK_LOCK, 1)
             self.skill_history.clear()
             self._load_history(set_aside_corrupt=True)
             history = self.skill_history[skill_ref]
