@@ -500,14 +500,27 @@ class TestWorkspaceFlagPerInstaller:
 
 
 @pytest.mark.unit
-def test_typosquat_suspect_that_exists_in_registry_is_not_a_hard_finding(pg):
-    """A real package near a popular name (react-dnd, torchx) was blocked
-    without a registry lookup, and a retry got the same verdict (IMB-1).
+@pytest.mark.parametrize(
+    "command",
+    ["pip install reqeusts", "npm i lodashh", "pip install nunpy"],
+)
+def test_typosquat_that_exists_in_registry_stays_hard(pg, command):
+    """A registered typosquat is the attack, so a registry hit is no excuse.
+
+    The registry check once downgraded these to a warning that blocking
+    mode never enforced.
     """
+    findings = pg.assess_packages(command, registry_fn=lambda name, ecosystem: True)
+    assert [f["kind"] for f in findings] == ["typosquat"]
+
+
+@pytest.mark.unit
+def test_registered_package_with_no_popular_neighbor_is_not_flagged(pg):
+    """Only edit distance to a popular name makes a typosquat suspect."""
     findings = pg.assess_packages(
-        "pip install torchx", registry_fn=lambda name, ecosystem: True
+        "pip install zorblax-telemetry", registry_fn=lambda name, ecosystem: True
     )
-    assert [f["kind"] for f in findings] == ["near_popular"]
+    assert findings == []
 
 
 @pytest.mark.unit

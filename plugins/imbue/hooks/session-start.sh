@@ -134,8 +134,9 @@ EOF
 
       # Determine zone
       zone="green"
-      # Same thresholds and overrides as user-prompt-submit.sh; hardcoded
-      # values here read yellow at session start and green on the prompt.
+      # Same line, commit and day thresholds and overrides as
+      # user-prompt-submit.sh. The new-files rung is checked only on the
+      # prompt, so a branch over it alone reads green here.
       if [ "${lines_changed}" -gt "${SCOPE_GUARD_RED_LINES:-2000}" ] ||
         [ "${commits}" -gt "${SCOPE_GUARD_RED_COMMITS:-30}" ] ||
         [ "${days_on_branch}" -gt "${SCOPE_GUARD_RED_DAYS:-7}" ]; then

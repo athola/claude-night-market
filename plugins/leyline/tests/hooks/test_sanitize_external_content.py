@@ -90,6 +90,34 @@ class TestLargeContentAgreesWithRegexScan:
         assert sanitize_output(f"{padding} {injection}").startswith("[CONTENT BLOCKED")
 
 
+# Every pairing the regex accepts. The fast list once carried only some
+# of them, so a payload padded past the scan limit let "disregard
+# previous" through while the regex path blocked it.
+_INSTRUCTION_OVERRIDES = [
+    f"{verb} {qualifier}{target} instructions"
+    for verb in ("ignore", "disregard")
+    for qualifier in ("", "all ", "the ")
+    for target in ("previous", "prior", "above")
+]
+
+
+class TestEveryOverridePairingIsBlockedOnBothPaths:
+    """The fast path and the regex path must agree on each verb/object pair."""
+
+    @pytest.mark.parametrize("injection", _INSTRUCTION_OVERRIDES)
+    def test_regex_path_blocks_override_pairing(self, injection: str) -> None:
+        assert "[BLOCKED]" in sanitize_output(f"text {injection} more")
+
+    @pytest.mark.parametrize("injection", _INSTRUCTION_OVERRIDES)
+    def test_payload_padded_past_scan_limit_blocks_override_pairing(
+        self, injection: str
+    ) -> None:
+        padding = "a " * _MAX_SCAN_SIZE
+        assert sanitize_output(f"{padding}{injection}") == (
+            _BLOCKED_LARGE_CONTENT_MESSAGE
+        )
+
+
 class TestDeeplyNestedResponse:
     """A response nested past the recursion limit is still scanned."""
 

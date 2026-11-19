@@ -69,3 +69,41 @@ def test_force_push_rule_blocks_force_pushes_to_main(
     engine: RuleEngine, command: str
 ) -> None:
     assert _blocked(engine, command)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "bash -c 'git push -f origin main'",
+        'bash -c "git push origin main --force"',
+        "(git push --force origin main)",
+        "ssh host 'git push --force origin master'",
+        "echo `git push -f origin main`",
+        "out=$(git push -f origin master)",
+        'git push -f origin "main"',
+        "git push --force origin 'master'",
+        "git push origin '+main'",
+        'git push -f origin "HEAD:refs/heads/main"',
+    ],
+)
+def test_force_push_rule_blocks_wrapped_and_quoted_force_pushes(
+    engine: RuleEngine, command: str
+) -> None:
+    """Agents wrap commands in bash -c, ssh and subshells, and quote names."""
+    assert _blocked(engine, command)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "bash -c 'git push --force-with-lease origin main'",
+        "(git push --force-with-lease origin main)",
+        "ssh host 'git push origin main'",
+        'git push -f origin "main-backup"',
+        "bash -c 'git push -f origin feature/x' && git log main",
+    ],
+)
+def test_force_push_rule_allows_wrapped_lease_and_ordinary_pushes(
+    engine: RuleEngine, command: str
+) -> None:
+    assert not _blocked(engine, command)

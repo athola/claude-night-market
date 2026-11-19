@@ -2,11 +2,13 @@
 """Vow: Reset bounded-reads counter when implementation starts.
 
 PostToolUse hook on a successful Write/Edit/MultiEdit.  Truncates the
-per-session read counter file back to zero.
+per-session read counter to zero and deletes the remembered-calls file,
+so an edited file can be read again without a repeat warning.
 
-Intentionally minimal: reads only the session ID from stdin, then
-writes ``{"count": 0}`` to the counter file.  No JSON parsing of
-tool output, no pattern checks, no budget logic.
+Intentionally minimal: reads only the session ID from stdin, writes
+``{"count": 0}`` to the counter file and unlinks the remembered-calls
+file.  No JSON parsing of tool output, no pattern checks, no budget
+logic.
 
 Concurrency: acquires the same ``fcntl.flock(LOCK_EX)`` as the
 companion increment script so a Read in flight cannot clobber the

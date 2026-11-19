@@ -130,8 +130,9 @@ DANGEROUS_PATTERNS: list[tuple[str, str]] = [
     (
         # Anchored to a home directory: a project's own `.docker/` or
         # `infra/.aws/` holds config, not credentials.
-        rf"{_READER_START}(?:~|\$\{{?HOME\}}?|/(?:Users|home)/[^/\s]+)"
-        rf"/\.(?:aws|config/gh|docker|kube|gnupg)(?=/|\s|$|['\"])",
+        rf"{_READER_START}(?:~|\$\{{?HOME\}}?|/root|/(?:Users|home)/[^/\s]+)"
+        rf"/\.(?:aws|azure|config/gh|config/glab-cli|docker|kube|gnupg)"
+        r"(?=/|\s|$|['\"])",
         "Blocked: credential directory exposure",
     ),
     # Git dangerous operations
@@ -209,6 +210,9 @@ SAFE_PATTERNS: list[str] = [
 ]
 
 
+_REDUNDANT_PATH_SEGMENT = re.compile(r"/(?:\.?/)+")
+
+
 def check_dangerous(command: str) -> Decision | None:
     """Check if command matches dangerous patterns.
 
@@ -219,8 +223,11 @@ def check_dangerous(command: str) -> Decision | None:
         Decision to deny if dangerous, None otherwise.
 
     """
+    # `~/.config/./gh` and `~/.config//gh` name the same directory as
+    # `~/.config/gh`. Collapse them so a path spelling cannot dodge a deny.
+    collapsed = _REDUNDANT_PATH_SEGMENT.sub("/", command)
     for pattern, message in DANGEROUS_PATTERNS:
-        if re.search(pattern, command, re.IGNORECASE):
+        if re.search(pattern, collapsed, re.IGNORECASE):
             logger.info("Dangerous pattern matched: %s", pattern)
             return Decision(PermissionDecision.DENY, message)
     return None

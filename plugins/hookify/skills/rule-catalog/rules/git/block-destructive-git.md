@@ -23,10 +23,13 @@ This command can cause **irreversible data loss** - uncommitted changes, local b
 |---------|------|------------------|
 | `git reset --hard` | 🔴 Critical | All uncommitted changes (staged and unstaged) |
 | `git checkout -- .` | 🔴 Critical | All unstaged changes in working directory |
+| `git checkout .` | 🔴 Critical | All unstaged changes in working directory |
+| `git restore .` | 🔴 Critical | All unstaged changes in working directory |
 | `git checkout HEAD -- <file>` | 🟡 High | Specific file's uncommitted changes |
 | `git checkout <branch> -- <path>` | 🔴 Critical | Overwrites files from another branch (undoes intentional changes) |
 | `git restore --source` | 🟡 High | Overwrites files from another ref |
 | `git clean -fd` | 🔴 Critical | All untracked files and directories |
+| `git clean -xdf` | 🔴 Critical | Untracked and ignored files, local config included |
 | `git stash drop` | 🟡 High | Stashed changes permanently |
 | `git branch -D` | 🟡 High | Force-deletes branch (even unmerged) |
 | `git reflog expire` | 🔴 Critical | Recovery points for lost commits |
@@ -59,7 +62,7 @@ git stash push -u                # Save tracked and untracked changes
 
 # Option 2: Commit the changes to a backup branch
 git switch -c backup/my-changes
-git commit -am "wip: backup before reset"
+git add -A && git commit -m "wip: backup before reset"  # Untracked too
 git switch -                     # Original branch, clean tree
 
 # Option 3: Discard one file only, named explicitly

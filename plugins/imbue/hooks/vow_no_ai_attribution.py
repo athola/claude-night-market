@@ -20,6 +20,7 @@ from pathlib import Path
 # D-06: shadow_mode and is_git_commit are in shared/vow_utils.
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
+    git_commit_message_offset,
     git_commit_offset,
     is_git_commit,
     shadow_mode_active,
@@ -79,6 +80,16 @@ _AI_ATTRIBUTION_PATTERNS = [
 
 _COMPILED = [re.compile(p, re.IGNORECASE) for p in _AI_ATTRIBUTION_PATTERNS]
 
+# Text piped into `git commit -F -` starts a line after a `\n` escape or
+# the opening quote of the printf or echo that prints it. Only the feeding
+# commands are read this way: an echo chained after the commit is not the
+# message.
+_FEEDER_TRAILER = re.compile(
+    r"(?:\\n|\b(?:printf|echo)(?:\s+-\w+)*\s+['\"])"
+    rf"\s*(?:{_STRONG_ATTRIBUTION_PREFIX}):?[^\n]*?\b(?:{_TOOL_NAME_GROUP})\b",
+    re.IGNORECASE,
+)
+
 
 def _has_ai_attribution(command: str) -> bool:
     """Return True if *command* contains an AI attribution string."""
@@ -105,10 +116,15 @@ def main() -> None:
         if not is_git_commit(command):
             sys.exit(0)
 
-        # Only the commit and what follows it: an earlier segment such as
-        # `printf ... > notes.txt &&` is not part of the message.
-        offset = git_commit_offset(command) or 0
-        if not _has_ai_attribution(command[offset:]):
+        # Only the message: an earlier segment such as `printf ... >
+        # notes.txt &&` is not part of it, while text piped into
+        # `git commit -F -` is.
+        message_offset = git_commit_message_offset(command) or 0
+        feeders = command[message_offset : git_commit_offset(command)]
+        if not (
+            _has_ai_attribution(command[message_offset:])
+            or _FEEDER_TRAILER.search(feeders)
+        ):
             sys.exit(0)
 
         shadow = shadow_mode_active()

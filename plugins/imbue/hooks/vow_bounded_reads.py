@@ -292,16 +292,17 @@ def main() -> None:
         tool_input = data.get("tool_input")
         weight = _read_weight(tool_name, tool_input)
         new_count = _atomic_increment(counter_file, weight) if weight else 0
-        # A targeted read (under _SHORT_READ_LINES) is never denied: an Edit
-        # needs the file read first, and denying every Read left only a way
-        # around the vow. It still counts toward the budget.
-        # It still counts, and past twice the budget it is denied too, so
-        # chunked reads cannot walk a tree the budget was meant to bound.
-        denied = (
-            new_count > _BUDGET
-            and not _shadow_mode()
-            and (weight >= 1 or new_count > 2 * _BUDGET)
-        )
+        shadow = _shadow_mode()
+        # A targeted read (under _SHORT_READ_LINES) is allowed up to twice
+        # the budget: an Edit needs the file read first. It still counts,
+        # and past twice the budget it is denied too, so chunked reads
+        # cannot walk a tree the budget was meant to bound.
+        targeted_spent = new_count > 2 * _BUDGET
+        denied = new_count > _BUDGET and not shadow and (weight >= 1 or targeted_spent)
+        if denied:
+            # A denied read read nothing, and counting it made every retry
+            # push the count further from the limit.
+            _atomic_increment(counter_file, -weight)
 
         repeat_note = ""
         if _note_call(
@@ -325,16 +326,20 @@ def main() -> None:
                 )
             )
             print("[vow-bounded-reads] WARN: repeated call", file=sys.stderr)
-        elif new_count > _BUDGET and (
-            weight >= 1 or _shadow_mode() or new_count > 2 * _BUDGET
-        ):
-            shadow = _shadow_mode()
+        elif denied or (shadow and new_count > _BUDGET):
             decision = "warn" if shadow else "block"
+            escape = (
+                "Targeted reads are spent too. A successful Write or Edit "
+                "resets the count. Until then, work from what is in context. "
+                "The user can also set VOW_SHADOW_MODE=1."
+                if targeted_spent
+                else "To read the file you are about to edit, pass offset "
+                f"and a limit under {_SHORT_READ_LINES}."
+            )
             reason = (
                 f"Bounded discovery vow: {new_count:g} reads in this discovery phase. "
                 f"Budget is {_BUDGET} for open exploration. "
-                "Consider starting implementation. To read the file you "
-                f"are about to edit, pass offset and a limit under {_SHORT_READ_LINES}."
+                f"Consider starting implementation. {escape}"
                 + (f" {repeat_note}" if repeat_note else "")
                 + (
                     " Shadow mode active — will block once VOW_SHADOW_MODE=0."

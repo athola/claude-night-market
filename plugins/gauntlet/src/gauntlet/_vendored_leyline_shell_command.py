@@ -17,14 +17,22 @@ from __future__ import annotations
 
 import re
 
-# Optional subshell parens, variable assignments and wrappers, then git
-# (bare or path-qualified), then global options with their values, then
-# exactly the commit subcommand (`commit-tree` is not a commit).
+# A segment may open with subshell parens, a brace group, a command
+# substitution (`$(`, a backtick, or `out=$(`), shell keywords (`then`,
+# `do`, `!`, `time`), variable assignments and wrappers (sudo with its
+# options). Then git, bare or path-qualified, then global options with
+# their values, quoted or not, then exactly the commit subcommand
+# (`commit-tree` is not a commit). A substitution after another word
+# (`echo $(git commit)`) is not recognized.
+_OPTION_VALUE = r"""(?:'[^']*'|"[^"]*"|\S+)"""
 _GIT_COMMIT_RE = re.compile(
-    r"(?:\(\s*)*"
-    r"(?:(?:[A-Za-z_][A-Za-z0-9_]*=\S*|env|command|exec|nohup|sudo)\s+)*"
+    r"(?:\$?\(\s*|\{\s+|`\s*|!\s+"
+    r"|[A-Za-z_][A-Za-z0-9_]*=(?=\$\(|`)"
+    r"|(?:[A-Za-z_][A-Za-z0-9_]*=\S*|if|then|elif|else|do|while|until|time"
+    r"|env|command|exec|nohup|sudo(?:\s+-\S+(?:\s+[^-\s]\S*)?)*)\s+)*"
     r"(?:\S*/)?git"
-    r"(?:\s+(?:-[Cc]\s+\S+|--(?:git-dir|work-tree|namespace)\s+\S+|-\S+))*"
+    rf"(?:\s+(?:-[Cc]\s+{_OPTION_VALUE}"
+    rf"|--(?:git-dir|work-tree|namespace)\s+{_OPTION_VALUE}|-\S+))*"
     r"\s+commit(?![\w-])"
 )
 _SHELL_TOKEN_RE = re.compile(
@@ -65,6 +73,30 @@ def git_commit_end(command: str) -> int | None:
         if token.group(0) in ("&&", "||", ";", "|"):
             return token.start()
     return len(command)
+
+
+# `-F -`, `-qF-`, `--file=-` or `--file -`: the message is read from stdin.
+_STDIN_MESSAGE_RE = re.compile(r"\s(?:-[A-Za-z]*F\s*|--file(?:=|\s+))-(?=\s|$)")
+
+
+def git_commit_message_offset(command: str) -> int | None:
+    """Return where the first git commit's message text can start, or None.
+
+    That is the commit segment itself, unless the commit reads its message
+    from stdin with ``-F -``. Then the message comes from the commands piped
+    into it, and the offset is the first command of that pipeline.
+    """
+    start = git_commit_offset(command)
+    if start is None:
+        return None
+    if not _STDIN_MESSAGE_RE.search(command[start : git_commit_end(command)]):
+        return start
+    pipeline = 0
+    for token in _SHELL_TOKEN_RE.finditer(command[:start]):
+        if token.group(0) in ("&&", "||", ";", "\n"):
+            pipeline = token.end()
+    feeders = command[pipeline:start]
+    return pipeline + len(feeders) - len(feeders.lstrip())
 
 
 def is_git_commit(command: str) -> bool:

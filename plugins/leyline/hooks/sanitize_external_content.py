@@ -166,12 +166,16 @@ _FAST_CHECKS = [
     "__builtins__",
     "system-reminder",
     "you are now",
-    "ignore previous",
-    "ignore all previous",
-    # Phrases, not the bare words: over the scan limit a hit blocks the
+    # Every pairing the override regex accepts, built from the same parts.
+    # A hand-written subset let "disregard previous" past the scan limit.
+    *(
+        f"{verb} {qualifier}{target}"
+        for verb in ("ignore", "disregard")
+        for qualifier in ("", "all ", "the ")
+        for target in ("previous", "prior", "above")
+    ),
+    # Phrases, not the bare word: over the scan limit a hit blocks the
     # whole payload, and "override" alone is ordinary code vocabulary.
-    "disregard prior",
-    "disregard all prior",
     "override your instructions",
     "override the instructions",
     "new instructions",

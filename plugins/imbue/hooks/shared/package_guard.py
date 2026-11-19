@@ -439,8 +439,9 @@ def assess_packages(
 
     ``registry_fn(name, ecosystem)`` returns True (exists), False
     (definitively absent), or None (could not determine / offline). It
-    is only called for names not in the known-popular set. When omitted,
-    no registry check is performed and unknown names are left implicit.
+    is only called for names that are neither popular nor a typosquat
+    suspect. When omitted, no registry check is performed and unknown
+    names are left implicit.
 
     ``budget_seconds`` bounds the total time spent in ``registry_fn``
     across the whole command. Without it a long install list multiplies
@@ -461,30 +462,9 @@ def assess_packages(
         if normalize_name(name, ecosystem) in known:
             continue
 
+        # Edit distance alone decides: a typosquat that is registered is
+        # the attack, so the registry is consulted only for unknown names.
         suspect = nearest_known(name, ecosystem)
-        within_budget = deadline is None or time.monotonic() < deadline
-        if (
-            suspect is not None
-            and registry_fn is not None
-            and within_budget
-            and registry_fn(name, ecosystem) is True
-        ):
-            # A real package near a popular name (torchx, react-dnd) was
-            # blocked on edit distance alone, and a retry gave the same
-            # verdict. It exists, so warn instead.
-            findings.append(
-                {
-                    "name": name,
-                    "ecosystem": ecosystem,
-                    "kind": "near_popular",
-                    "detail": (
-                        f"'{name}' exists, and is one or two edits from the "
-                        f"popular package '{suspect}'. Confirm it is the one "
-                        f"you meant."
-                    ),
-                }
-            )
-            continue
         if suspect is not None:
             findings.append(
                 {

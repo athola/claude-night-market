@@ -72,8 +72,10 @@ about 40 added lines: a change a human can read and explain in one
 sitting. The bound is the point, not a nuisance: it keeps
 understanding in pace with output. The `guard_scope_ramp.py` hook
 makes this concrete by flagging an increment that jumps past the
-current rung. It counts code only: prose and data files (`.md`,
-`.json`, `.yaml`, `.toml` and similar) do not climb the rung.
+current rung. It skips prose and data files with these suffixes:
+`.md`, `.rst`, `.txt`, `.adoc`, `.json`, `.jsonl`, `.yaml`, `.yml`,
+`.toml`, `.csv`, `.lock`, `.svg`. Every other file counts, and so does
+a RED or CRITICAL file whatever its suffix.
 
 ### 2. Ramp a notch only on demonstrated understanding
 

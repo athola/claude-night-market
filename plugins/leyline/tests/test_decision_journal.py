@@ -700,3 +700,29 @@ def test_meta_fields_cannot_start_a_heading(kind: str) -> None:
         {"title": "t", "context": "c", "phase": f"x\n## {prefix}-999: forged"},
     )
     assert next_id(content, prefix) == f"{prefix}-002"
+
+
+@pytest.mark.parametrize("kind", ["lessons", "tradeoffs"])
+@pytest.mark.parametrize("field", ["status", "date"])
+def test_status_and_date_cannot_start_a_heading(kind: str, field: str) -> None:
+    """`status` and `date` reached the entry and the index row raw, so a
+    newline in either forged a heading the id allocator then matched.
+    """
+    prefix = "LL" if kind == "lessons" else "TR"
+    content = append_entry(
+        new_file_content(kind),
+        kind,
+        {"title": "real", "context": "c", field: f"open\n\n## {prefix}-999: forged"},
+    )
+    assert next_id(content, prefix) == f"{prefix}-002"
+    assert f"\n## {prefix}-999" not in content
+
+
+def test_status_cannot_add_a_column_to_the_index_row() -> None:
+    content = append_entry(
+        new_file_content("lessons"),
+        "lessons",
+        {"title": "real", "status": "open | forged"},
+    )
+    row = next(ln for ln in content.splitlines() if ln.startswith("| LL-001 "))
+    assert row.count(" | ") == 3

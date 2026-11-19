@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -127,8 +128,14 @@ class TestNonMaintenancePrompt:
         assert "hookEventName" in output["hookSpecificOutput"]
 
 
-def _days_line(tmp_path, base_age_days: int, work_age_days: int) -> str:
-    """Run the hook on a branch whose base and first commit have these ages."""
+IMBUE_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _aged_branch(tmp_path, base_age_days: int, work_age_days: int) -> dict:
+    """Build a repo whose base and first branch commit have these ages.
+
+    Returns the environment to run a script in it with.
+    """
     env = {
         k: v
         for k, v in os.environ.items()
@@ -162,9 +169,13 @@ def _days_line(tmp_path, base_age_days: int, work_age_days: int) -> str:
         env=dated(work_age_days),
         check=True,
     )
+    return env
+
+
+def _run_in(tmp_path, env: dict, script: Path, stdin: str, *args: str) -> str:
     result = subprocess.run(
-        ["bash", str(HOOK_PATH)],
-        input='{"prompt": "add a new login feature"}',
+        ["bash", str(script), *args],
+        input=stdin,
         capture_output=True,
         text=True,
         cwd=tmp_path,
@@ -173,6 +184,12 @@ def _days_line(tmp_path, base_age_days: int, work_age_days: int) -> str:
         check=False,
     )
     return result.stdout + result.stderr
+
+
+def _days_line(tmp_path, base_age_days: int, work_age_days: int) -> str:
+    """Run the hook on a branch whose base and first commit have these ages."""
+    env = _aged_branch(tmp_path, base_age_days, work_age_days)
+    return _run_in(tmp_path, env, HOOK_PATH, '{"prompt": "add a new login feature"}')
 
 
 def test_a_five_day_branch_is_in_the_yellow_zone(tmp_path) -> None:
@@ -186,3 +203,25 @@ def test_fresh_branch_off_old_base_is_green(tmp_path) -> None:
     """
     out = _days_line(tmp_path, 400, 0)
     assert "Days:" not in out, out
+
+
+def test_session_start_reads_fresh_branch_off_old_base_as_green(tmp_path) -> None:
+    """session-start.sh carries its own copy of the days-on-branch measure."""
+    env = _aged_branch(tmp_path, 400, 0)
+    out = _run_in(
+        tmp_path, env, IMBUE_ROOT / "hooks" / "session-start.sh", '{"source": "cli"}'
+    )
+    assert "imbue quick reference" in out, out
+    assert "SCOPE-GUARD" not in out, out
+
+
+def test_pre_pr_check_counts_zero_days_on_fresh_branch_off_old_base(
+    tmp_path,
+) -> None:
+    """pre_pr_scope_check.sh carries a third copy of the days measure."""
+    env = _aged_branch(tmp_path, 400, 0)
+    out = _run_in(tmp_path, env, IMBUE_ROOT / "scripts" / "pre_pr_scope_check.sh", "")
+    days = re.search(r"Days on branch:\s+(?:\x1b\[[0-9;]*m)?\s*(\d+)", out)
+    assert days is not None, out
+    assert days.group(1) == "0"
+    assert "GREEN ZONE" in out, out

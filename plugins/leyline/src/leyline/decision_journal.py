@@ -398,7 +398,10 @@ def _add_index_row(
 ) -> str:
     start, nxt = _index_bounds(content)
     section = content[start:nxt]
-    row = f"| {entry_id} | {status} | {_escape_cell(title)} | {date} |"
+    row = (
+        f"| {entry_id} | {_escape_cell(status)} | {_escape_cell(title)} "
+        f"| {_escape_cell(date)} |"
+    )
     lines = section.rstrip("\n").splitlines()
     # Append after the last table line (header/separator/existing rows).
     insert_at = max(i for i, ln in enumerate(lines) if ln.lstrip().startswith("|"))
@@ -443,6 +446,13 @@ def append_entry(
         if f"## {supersedes}:" not in content:
             raise ValueError(f"cannot supersede unknown entry {supersedes!r}")
 
+    # The renderers and the index row all read these, so they are made one
+    # line here, once: a newline in either forged a heading.
+    fields = {
+        **fields,
+        "status": _oneline(str(fields.get("status", cfg["default_status"]))),
+        "date": _oneline(str(fields.get("date", _today()))),
+    }
     entry_id = next_id(content, cfg["prefix"])
     render = _render_tradeoff if kind == "tradeoffs" else _render_lesson
     entry = render(entry_id, fields, supersedes)
@@ -453,9 +463,8 @@ def append_entry(
     new_content = content[:pos] + "\n" + entry + content[pos:]
 
     # Update the active index.
-    status = fields.get("status", cfg["default_status"])
     new_content = _add_index_row(
-        new_content, entry_id, status, fields["title"], fields.get("date", _today())
+        new_content, entry_id, fields["status"], fields["title"], fields["date"]
     )
 
     # Supersession: flip the old entry's status + index row.

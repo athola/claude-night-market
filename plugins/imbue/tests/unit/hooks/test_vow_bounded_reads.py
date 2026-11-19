@@ -1793,6 +1793,55 @@ class TestRepeatedIdenticalCallWarning:
         assert all('"deny"' not in o for o in outs[:4])
         assert '"deny"' in outs[4]
 
+    @pytest.mark.unit
+    def test_past_twice_the_budget_the_reason_does_not_offer_a_targeted_read(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """The deny reason offered a short read that the same rule then denied."""
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.setattr(hook_module, "_BUDGET", 1)
+        counter_path = tmp_path / "vow_read_counter_spent.json"
+        counter_path.write_text(json.dumps({"count": 2.0}))
+        stdin_data = json.dumps(
+            {
+                "tool_name": "Read",
+                "session_id": "s",
+                "tool_input": {"file_path": "/target.py", "offset": 1, "limit": 20},
+            }
+        )
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit):
+                    hook_module.main()
+        out = json.loads(capsys.readouterr().out)["hookSpecificOutput"]
+        assert out["permissionDecision"] == "deny"
+        assert "limit under" not in out["permissionDecisionReason"]
+        assert "Write or Edit resets the count" in out["permissionDecisionReason"]
+
+    @pytest.mark.unit
+    def test_a_denied_read_does_not_raise_the_count(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """Each denied retry pushed the count further past the limit."""
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.setattr(hook_module, "_BUDGET", 1)
+        counter_path = tmp_path / "vow_read_counter_retry.json"
+        counter_path.write_text(json.dumps({"count": 1.0}))
+        for _ in range(3):
+            stdin_data = json.dumps(
+                {
+                    "tool_name": "Read",
+                    "session_id": "r",
+                    "tool_input": {"file_path": "/x.py"},
+                }
+            )
+            with patch.object(hook_module, "_counter_path", return_value=counter_path):
+                with patch("sys.stdin", StringIO(stdin_data)):
+                    with pytest.raises(SystemExit):
+                        hook_module.main()
+            assert '"deny"' in capsys.readouterr().out
+        assert json.loads(counter_path.read_text())["count"] == 1.0
+
 
 @pytest.mark.unit
 def test_reset_is_registered_after_a_successful_write() -> None:

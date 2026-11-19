@@ -25,6 +25,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from shared._vendored_leyline_shell_command import (
     git_commit_end,
+    git_commit_message_offset,
     git_commit_offset,
     is_git_commit,
 )
@@ -34,6 +35,7 @@ __all__ = [
     "O_NOFOLLOW",
     "fd_owned_by_us",
     "git_commit_end",
+    "git_commit_message_offset",
     "git_commit_offset",
     "is_git_commit",
     "read_counter_path",

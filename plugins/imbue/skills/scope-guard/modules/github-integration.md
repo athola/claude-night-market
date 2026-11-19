@@ -19,7 +19,7 @@ quickly without a persistent record.
 When deferring an item, run this command:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py" \
+python3 "${CLAUDE_PLUGIN_ROOT:?set it to the imbue plugin root}/scripts/deferred_capture.py" \
   --title "<feature name>" \
   --source scope-guard \
   --context "Worthiness: <score>. <breakdown>. <reason>" \

@@ -1331,6 +1331,15 @@ class TestCatDevAnchor:
         "cat $HOME/.kube/config",
         "cat /Users/me/.docker/config.json",
         "tail ~/.netrc",
+        # Container sessions run as root.
+        "cat /root/.kube/config",
+        "cat /root/.aws/config",
+        # `.` and empty segments resolve to the same directory.
+        "cat ~/.config/./gh/hosts.yml",
+        "cat ~/.config//gh/hosts.yml",
+        "cat ~//.aws/config",
+        "cat ~/.azure/accessTokens.json",
+        "cat ~/.config/glab-cli/config.yml",
     ],
 )
 def test_reads_under_credential_directories_are_denied(command: str) -> None:

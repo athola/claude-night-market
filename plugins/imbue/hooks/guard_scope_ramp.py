@@ -33,6 +33,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.scope_ramp import (  # noqa: E402 - hook injects sys.path before importing sibling shared/ module
+    RUNG_CAP,
     RUNG_START,
     added_lines,
     assess_ramp,
@@ -82,6 +83,32 @@ def _state_path(session_id: str) -> Path:
     return _state_dir() / f"scope_ramp_{safe_id}.json"
 
 
+def _is_int(field: object) -> bool:
+    return isinstance(field, int) and not isinstance(field, bool)
+
+
+def _is_valid_state(state: object) -> bool:
+    """Check the shape ``{rung: int, increments: int, env_notch_used?: bool}``.
+
+    A ``null`` or string field raised later inside the hook, whose
+    catch-all allowed the write and left the bad state on disk, so the
+    gate stayed off for the rest of the session.
+    """
+    if not isinstance(state, dict):
+        return False
+    rung = state.get("rung")
+    increments = state.get("increments")
+    return (
+        isinstance(rung, int)
+        and _is_int(rung)
+        and 1 <= rung <= RUNG_CAP
+        and isinstance(increments, int)
+        and _is_int(increments)
+        and increments >= 0
+        and isinstance(state.get("env_notch_used", False), bool)
+    )
+
+
 def _load_state(path: Path) -> dict:
     """Read rung state, returning the bounded default on any error.
 
@@ -98,8 +125,7 @@ def _load_state(path: Path) -> dict:
             return default
         raw = os.read(fd, 1_000_000).decode("utf-8")
         state = json.loads(raw) if raw else default
-        # `null` or `[]` parse fine and then raise on `.get`.
-        return state if isinstance(state, dict) else default
+        return state if _is_valid_state(state) else default
     except (ValueError, TypeError) as exc:  # corrupt state must not crash the hook
         print(
             f"[guard-scope-ramp] WARN: corrupt state file, using default: {exc}",
@@ -197,6 +223,17 @@ def _append_ledger(entry: dict) -> None:
         print(f"[guard-scope-ramp] WARN: ledger write failed: {exc}", file=sys.stderr)
 
 
+def _is_ungated(file_path: str, stakes: str | None) -> bool:
+    """Prose and data skip the rung unless the file is RED or CRITICAL.
+
+    A deploy manifest or CI workflow is data by suffix and high stakes by
+    path, and an 800-line one printed nothing while deploy.py was denied.
+    """
+    if Path(file_path).suffix.lower() not in _UNGATED_SUFFIXES:
+        return False
+    return stakes_for(file_path, stakes) not in ("RED", "CRITICAL")
+
+
 def _cursor_response(data: object) -> None:
     """Emit an allow response when Cursor has no additional hook output."""
     if isinstance(data, dict) and "cursor_version" in data:
@@ -222,7 +259,8 @@ def main() -> None:
         file_path = tool_input.get("file_path", tool_input.get("path", ""))
 
         added = added_lines(tool_name, tool_input)
-        if added <= 0 or Path(str(file_path)).suffix.lower() in _UNGATED_SUFFIXES:
+        stakes = _explicit_stakes()
+        if added <= 0 or _is_ungated(str(file_path), stakes):
             _cursor_response(data)
             sys.exit(0)
 
@@ -233,7 +271,6 @@ def main() -> None:
 
         rung_before = int(state.get("rung", RUNG_START))
         token = _ramp_token_present(state)
-        stakes = _explicit_stakes()
         finding, new_state = assess_ramp(
             added, file_path, state, ramp_token=token, stakes=stakes
         )

@@ -153,6 +153,30 @@ class TestLogUsage:
         entry = json.loads(log_file.read_text().splitlines()[0])
         assert entry["operation"] == "probe"
 
+    @pytest.mark.unit
+    @pytest.mark.parametrize("bad_id", [None, "", 7])
+    def test_session_without_a_string_id_is_not_resumed(
+        self, tmp_path: Path, bad_id: object
+    ) -> None:
+        """`"session_id": null` resumed as the session id `'None'`."""
+        (tmp_path / "svc_session.json").write_text(
+            json.dumps(
+                {"session_id": bad_id, "last_activity": __import__("time").time()}
+            )
+        )
+        logger = UsageLogger(service="svc", storage_dir=tmp_path)
+        assert logger.session_id.startswith("session_")
+
+    @pytest.mark.unit
+    def test_activity_update_does_not_keep_a_malformed_session_alive(
+        self, tmp_path: Path
+    ) -> None:
+        """`{"foo": 1}` had its last_activity refreshed on every event."""
+        logger = UsageLogger(service="svc", storage_dir=tmp_path, session_id="given")
+        logger.session_file.write_text(json.dumps({"foo": 1}))
+        logger.log_usage(UsageEvent("probe"))
+        assert json.loads(logger.session_file.read_text()) == {"foo": 1}
+
 
 class TestMainCli:
     """Integration tests for the main() CLI entry point.

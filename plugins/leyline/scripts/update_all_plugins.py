@@ -209,10 +209,9 @@ def print_summary(
     updated_plugins: list[dict[str, Any]],
     already_latest: list[dict[str, Any]],
     failed_plugins: list[dict[str, Any]],
-    unverified: list[dict[str, Any]] | None = None,
+    unverified: list[dict[str, Any]],
 ) -> None:
     """Print the update summary."""
-    unverified = unverified or []
     print("\n" + "=" * 50)
     print("UPDATE SUMMARY")
     print("=" * 50)
