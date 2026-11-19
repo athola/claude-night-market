@@ -107,6 +107,13 @@ Reviews identify modified files and apply domain-specific checks.
 Findings are documented with precise location data, severity rankings,
 and specific remediation steps.
 
+The `unified-review` workflow runs one reviewer per dimension and three
+verifier lenses per finding. Its return lists a dimension whose reviewer
+died under `missing` and one whose reviewer could not assess it under
+`declined`, with the reason. Neither counts as reviewed. The lenses share
+one model and their errors correlate. Reproduce a finding before acting
+on it.
+
 For platform clients that ship independently, the `parity-sweep`
 workflow inventories each platform root and reports the features one
 has and another lacks, each confirmed against the code on every

@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `make graph` runs a full gauntlet graph build. The release runbook
   calls it after the version bump.
 
+Review lessons from Caldara and Fernandez-Villaverde, "Can Peer Review
+Survive AI-Generated Text?" (2026):
+
+- **pensive:** a `unified-review` reviewer that cannot assess its
+  dimension returns `declined` with a reason. The return lists it under
+  `dimensions.declined` and leaves it out of `reviewed`. Before, an
+  empty list was the only exit and read as a clean dimension.
+- **pensive:** the architecture reviewer counts a departure from a
+  standard only when it names the cost. The workflow and skill state
+  that lens votes share one model and their errors correlate.
+
 Six deterministic guards and one evidence rule, ported from NVIDIA
 auto-ontology (`3825917a`). Each holds an agent's claim to what its
 tools returned.
