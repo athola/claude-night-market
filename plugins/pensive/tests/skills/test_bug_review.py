@@ -14,6 +14,7 @@ import pytest
 
 from pensive.skills.base import AnalysisResult
 from pensive.skills.bug_review import BugReviewSkill
+from pensive.utils.severity_mapper import categorize
 
 
 class TestBugReviewSkill:
@@ -593,6 +594,57 @@ class TestBugReviewSkill:
         assert len(timing_bugs) >= 3  # Should detect 3 vulnerable functions
         assert any("timing attack" in bug["issue"].lower() for bug in timing_bugs)
 
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "source",
+        [
+            'if key == "a":\n    pass\n',
+            "if monkey == 2:\n    pass\n",
+            "if keyword == other:\n    pass\n",
+            "if secret_len == 3:\n    pass\n",
+        ],
+    )
+    def test_timing_detector_ignores_plain_key_comparison(
+        self, mock_skill_context, source: str
+    ) -> None:
+        """Dict keys and names that merely contain "key" are not secrets."""
+        mock_skill_context.get_file_content.return_value = source
+        assert self.skill.detect_timing_attacks(mock_skill_context, "x.py") == []
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "if user_password == supplied:\n    pass\n",
+            "return api_key == provided\n",
+            "ok = token == header_token\n",
+        ],
+    )
+    def test_timing_detector_still_flags_secret_comparison(
+        self, mock_skill_context, source: str
+    ) -> None:
+        mock_skill_context.get_file_content.return_value = source
+        assert len(self.skill.detect_timing_attacks(mock_skill_context, "x.py")) == 1
+
+    @pytest.mark.unit
+    def test_duplicate_elif_in_separate_functions_is_not_flagged(
+        self, mock_skill_context
+    ) -> None:
+        """DOTALL let `.*` join elifs from different functions (PEN-4)."""
+        mock_skill_context.get_file_content.return_value = (
+            "def a(x):\n    if x == 1:\n        pass\n    elif mode == 'v':\n        pass\n"
+            "\n\ndef b(mode):\n    if mode:\n        pass\n    elif mode == 'v':\n        pass\n"
+        )
+        assert self.skill.detect_logical_errors(mock_skill_context, "x.py") == []
+
+    @pytest.mark.unit
+    def test_duplicate_elif_in_one_chain_is_flagged(self, mock_skill_context) -> None:
+        mock_skill_context.get_file_content.return_value = (
+            "if mode == 'a':\n    pass\nelif mode == 'v':\n    pass\n"
+            "elif mode == 'v':\n    pass\n"
+        )
+        assert len(self.skill.detect_logical_errors(mock_skill_context, "x.py")) == 1
+
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorizes_bug_severity(self) -> None:
@@ -881,3 +933,39 @@ class TestBugReviewSkill:
         assert age_false_positives == [], (
             f"age > 18 pattern fired on non-auth code: {age_false_positives}"
         )
+
+
+@pytest.mark.parametrize(
+    "issue",
+    [
+        "insecurity in the docs wording",
+        "non-critical cosmetic issue",
+        "security token logged",
+        "dangerous eval of input",
+    ],
+)
+def test_bug_review_categorize_matches_shared_mapper(issue: str) -> None:
+    """The local copy kept the substring rule the shared mapper dropped (PEN-10)."""
+    bug = {"type": "performance", "issue": issue}
+    local = BugReviewSkill().categorize_severity([bug])[0]["severity"]
+    assert local == categorize([bug])[0]["severity"]
+
+
+@pytest.mark.parametrize(
+    ("bug_type", "severity"),
+    [
+        ("sql_injection", "critical"),
+        ("timing_attack", "critical"),
+        ("null_pointer", "high"),
+        ("race_condition", "high"),
+        ("resource_leak", "medium"),
+        ("off_by_one", "medium"),
+        ("type_confusion", "low"),
+    ],
+)
+def test_bug_review_type_severities_survive_delegation(
+    bug_type: str, severity: str
+) -> None:
+    """The map the bug review used to carry, now read from the shared one."""
+    bug = {"type": bug_type, "issue": "x"}
+    assert BugReviewSkill().categorize_severity([bug])[0]["severity"] == severity

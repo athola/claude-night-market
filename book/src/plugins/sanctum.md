@@ -49,6 +49,12 @@ It's the plugin you'll use most during active coding.
 | `/update-dependencies` | Update project dependencies |
 | `/create-tag` | Create git tags for releases |
 | `/resolve-threads` | Resolve PR review threads |
+| `/acp` | Stage changes, generate conventional commit message, commit, and push to current branch |
+| `/fixit` | Fix broken functionality from pasted error output, stack traces, or |
+| `/prepare-pr` | Prepare a PR end-to-end by updating documentation, running tests, dogfooding checks, and validating with code review |
+| `/sync-capabilities` | Detect and fix drift between plugin.json registrations and capabilities reference documentation |
+| `/update-ci` | Update pre-commit hooks and CI/CD workflows based on recent project changes |
+| `/validate-pr` | Generate and self-execute a diff-derived test plan for a PR |
 
 ## Agents
 

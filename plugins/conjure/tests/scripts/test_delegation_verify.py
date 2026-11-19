@@ -18,7 +18,10 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from delegation_executor import Delegator  # noqa: E402 - sys.path set above
-from delegation_services import ServiceConfig  # noqa: E402 - sys.path set above
+from delegation_services import (
+    SERVICES,
+    ServiceConfig,  # noqa: E402 - sys.path set above
+)
 from delegation_verify import (  # noqa: E402 - sys.path set above
     readiness_issues,
     verify_service,
@@ -504,3 +507,34 @@ class TestVerifyAnswersCanThisProviderTakeWork:
             ok, issues = delegator.verify_service("glimmer")
 
         assert ok, issues
+
+
+def test_verify_probe_env_drops_env_unset_variables(monkeypatch) -> None:
+    """--verify spawns the provider CLI too, so it drops the same variables."""
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-parent")
+    monkeypatch.setenv("ZAI_API_KEY", "zai-test-value")
+    seen_envs = []
+
+    def fake_run(*args: Any, **kwargs: Any) -> subprocess.CompletedProcess:
+        seen_envs.append(kwargs["env"])
+        return subprocess.CompletedProcess(args[0], 0, "1.0.0", "")
+
+    with patch("delegation_verify.subprocess.run", side_effect=fake_run):
+        verify_service(SERVICES["glm"])
+
+    assert seen_envs
+    assert all("ANTHROPIC_API_KEY" not in env for env in seen_envs)
+
+
+def test_missing_binary_is_reported_before_a_missing_credential(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """No binary and no key: the trail said "set the key" (CNJ-2)."""
+    monkeypatch.delenv("PROBE_API_KEY", raising=False)
+    module = sys.modules[verify_service.__module__]
+    monkeypatch.setattr(module, "_binary_on_path", lambda _c: False)
+    ok, issues = verify_service(_service(install_hint="pipx install probe-cli"))
+    assert ok is False
+    assert issues == [
+        "Command 'probe-cli' not found. Install with: pipx install probe-cli"
+    ]

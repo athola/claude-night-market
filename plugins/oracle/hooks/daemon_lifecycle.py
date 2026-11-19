@@ -15,12 +15,14 @@ subprocess.  The stop path sends SIGTERM if the daemon is running.
 
 from __future__ import annotations
 
+import fcntl
 import json
 import logging
 import os
 import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
@@ -129,8 +131,17 @@ def _start_daemon() -> None:
     # The daemon refuses to start without its models, so launching it
     # would write a pid for a process that is already gone.
     if not models_dir.is_dir():
-        with open(data_dir / "daemon.log", "a") as log:
-            log.write(f"oracle: not starting, models directory missing: {models_dir}\n")
+        # No models ship, so this repeats every session: write it once.
+        line = f"oracle: not starting, models directory missing: {models_dir}\n"
+        log_path = data_dir / "daemon.log"
+        tail = b""
+        if log_path.is_file():
+            with open(log_path, "rb") as log:
+                log.seek(max(0, log_path.stat().st_size - len(line) - 1))
+                tail = log.read()
+        if not tail.endswith(line.encode()):
+            with open(log_path, "a") as log:
+                log.write(line)
         return
 
     log_fh = open(str(data_dir / "daemon.log"), "a")  # noqa: SIM115 - fd duped into subprocess, closed on the parent side after Popen returns
@@ -195,6 +206,50 @@ def _stop_daemon() -> None:
             pass
 
 
+#: A session that crashed never sends SessionEnd; its marker stops
+#: counting after this long so it cannot keep the daemon alive forever.
+_SESSION_MARKER_TTL_SECONDS = 24 * 60 * 60
+
+
+def _sessions_dir() -> Path:
+    return get_oracle_data_dir() / "sessions"
+
+
+def _marker(session_id: str) -> Path | None:
+    """Return the session's marker path, or None for an unusable id."""
+    safe = "".join(c for c in session_id if c.isalnum() or c in "-_")[:128]
+    return _sessions_dir() / safe if safe else None
+
+
+def _register_session(session_id: str) -> None:
+    marker = _marker(session_id)
+    if marker is not None:
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        marker.touch()
+
+
+def _other_sessions_live(session_id: str) -> bool:
+    """Drop this session's marker; report whether a fresh one remains.
+
+    One daemon serves every session, so a session ending must not stop it
+    while another session still uses it.
+    """
+    own = _marker(session_id)
+    if own is not None:
+        own.unlink(missing_ok=True)
+    directory = _sessions_dir()
+    if not directory.is_dir():
+        return False
+    cutoff = time.time() - _SESSION_MARKER_TTL_SECONDS
+    for marker in directory.iterdir():
+        try:
+            if marker.stat().st_mtime > cutoff:
+                return True
+        except FileNotFoundError:
+            continue  # another session ended between iterdir and stat
+    return False
+
+
 def main() -> None:
     """Dispatch on SessionStart / SessionEnd events."""
     payload = _read_payload()
@@ -207,13 +262,24 @@ def main() -> None:
             return
         if not is_provisioned(venv):
             return
-        _start_daemon()
+        _register_session(str(payload.get("session_id", "")))
+        # Held across the running check and the spawn inside _start_daemon,
+        # so two sessions starting together launch one daemon, not two.
+        data_dir = get_oracle_data_dir()
+        data_dir.mkdir(parents=True, exist_ok=True)
+        with open(data_dir / "daemon.start.lock", "a") as start_lock:
+            fcntl.flock(start_lock, fcntl.LOCK_EX)
+            _start_daemon()
 
     # /clear ends a session and starts the next one in the same process.
     # The stop runs async, so it could land after the new SessionStart
     # and kill the daemon that session keeps; the next one reuses it.
-    elif event == "SessionEnd" and payload.get("reason") != "clear":
-        _stop_daemon()
+    elif event == "SessionEnd":
+        live = _other_sessions_live(str(payload.get("session_id", "")))
+        # /clear ends this id and starts another in the same process; the
+        # stop runs async and could kill the daemon the next session keeps.
+        if not live and payload.get("reason") != "clear":
+            _stop_daemon()
 
 
 if __name__ == "__main__":

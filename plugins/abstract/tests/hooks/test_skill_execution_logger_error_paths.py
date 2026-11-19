@@ -35,13 +35,17 @@ def _run_main(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture,
     tool_response: str = "Success",
+    event: str = "PostToolUse",
 ) -> tuple[int, str, str]:
     payload = {
+        "hook_event_name": event,
         "tool_name": "Skill",
         "tool_input": {"skill": SKILL},
         "tool_response": tool_response,
         "session_id": "sess-1",
     }
+    if event == "PostToolUseFailure":
+        payload["error"] = tool_response
     monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
     with pytest.raises(SystemExit) as exc:
         hook.main()
@@ -99,7 +103,11 @@ class TestSanitizeOutput:
     ) -> None:
         """A failing skill's output reaches the log only through redaction."""
         code, _, _ = _run_main(
-            hook, monkeypatch, capsys, "Error: auth failed, password: hunter2!"
+            hook,
+            monkeypatch,
+            capsys,
+            "Error: auth failed, password: hunter2!",
+            event="PostToolUseFailure",
         )
 
         (log_file,) = (
@@ -125,6 +133,27 @@ class TestHistoryLoadErrors:
 
         assert dict(evaluator.skill_history) == {}
         assert "failed to load history" in capsys.readouterr().err
+
+
+class TestWrongShapeHistory:
+    """Valid JSON of another shape raised AttributeError on every Skill call."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "body", ["[]", '{"a:b": {"accuracies": "x", "durations": []}}', '{"a:b": 3}']
+    )
+    def test_history_with_wrong_shape_is_set_aside(
+        self, hook: ModuleType, tmp_path: Path, body: str
+    ) -> None:
+        history = tmp_path / ".history.json"
+        history.write_text(body)
+        evaluator = hook.ContinualEvaluator(history)
+
+        evaluator.evaluate_iteration(SKILL, success=True, duration_ms=5)
+
+        assert (tmp_path / ".history.json.corrupt").read_text() == body
+        saved = json.loads(history.read_text())
+        assert saved[SKILL]["accuracies"] == [1]
 
 
 class TestOrphanPurge:
@@ -268,3 +297,27 @@ class TestSaveHistoryCleanup:
 
         assert [p.name for p in history_file.parent.iterdir()] == [".history.json"]
         assert "seed:0" in json.loads(history_file.read_text())
+
+
+@pytest.mark.unit
+def test_skill_text_mentioning_error_is_logged_as_success(
+    hook: ModuleType, monkeypatch: pytest.MonkeyPatch, capsys, tmp_path
+) -> None:
+    """leyline:error-patterns logged as a failure on every load (ABS-14)."""
+    _run_main(hook, monkeypatch, capsys, "Error handling: catch the specific error")
+    (log_file,) = (tmp_path / "skills" / "logs" / "abstract" / "skill-auditor").glob(
+        "*.jsonl"
+    )
+    assert json.loads(log_file.read_text())["outcome"] == "success"
+
+
+@pytest.mark.unit
+def test_failure_event_logs_but_prints_nothing(
+    hook: ModuleType, monkeypatch: pytest.MonkeyPatch, capsys, tmp_path
+) -> None:
+    """PostToolUseFailure output schema is unverified, so the hook stays silent."""
+    code, out, _ = _run_main(
+        hook, monkeypatch, capsys, "boom", event="PostToolUseFailure"
+    )
+    assert code == 0
+    assert out == ""

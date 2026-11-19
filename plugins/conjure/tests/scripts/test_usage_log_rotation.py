@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import stat
 import sys
 from pathlib import Path
 
@@ -25,3 +27,14 @@ def test_append_without_fcntl_still_rotates_and_appends(
 
     assert backup.read_text() == "x" * 20 + "\n"
     assert log.read_text() == '{"n": 1}\n'
+
+
+def test_new_usage_log_is_private_to_the_user(tmp_path: Path) -> None:
+    """The log holds prompt lengths and errors; it was created 0644 (CNJ-5)."""
+    log = tmp_path / "usage.jsonl"
+    old_umask = os.umask(0o022)
+    try:
+        usage_log_rotation.append_line(log, tmp_path / "usage.jsonl.1", "{}", 1024)
+    finally:
+        os.umask(old_umask)
+    assert stat.S_IMODE(log.stat().st_mode) == 0o600

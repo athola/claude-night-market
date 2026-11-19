@@ -109,7 +109,7 @@ class TestProvisionVenv:
     Feature: Venv provisioning via uv
 
     As a user running /oracle:setup
-    I want the venv and onnxruntime installed automatically
+    I want the daemon's venv installed automatically
     So that I don't need to manage Python environments
     """
 
@@ -127,9 +127,10 @@ class TestProvisionVenv:
             assert result.success is True
             calls = mock_run.call_args_list
             assert "venv" in str(calls[0])
-            assert "onnxruntime" in str(calls[1])
-            # daemon.py imports yaml, and onnxruntime does not pull it in.
+            # daemon.py imports only math and yaml; no ONNX model ships, so
+            # onnxruntime was ~50 MB nothing imported (ORC-1).
             assert "pyyaml" in calls[1][0][0]
+            assert "onnxruntime" not in calls[1][0][0]
 
     @pytest.mark.unit
     def test_provision_fails_when_uv_missing(self, tmp_path: Path):
@@ -165,7 +166,7 @@ class TestProvisionVenv:
     def test_provision_fails_when_install_fails(self, tmp_path: Path):
         """
         Scenario: uv pip install returns non-zero exit code
-        Given venv creation succeeds but onnxruntime install fails
+        Given venv creation succeeds but the dependency install fails
         When provision_venv is called
         Then it returns failure with stderr message
         """
@@ -176,7 +177,8 @@ class TestProvisionVenv:
             ]
             result = provision_venv(tmp_path / "venv")
             assert result.success is False
-            assert "onnxruntime" in result.message.lower()
+            assert "failed to install" in result.message.lower()
+            assert "network error" in result.message
 
     @pytest.mark.unit
     def test_provision_fails_on_timeout(self, tmp_path: Path):

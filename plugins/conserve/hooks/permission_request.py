@@ -125,6 +125,15 @@ DANGEROUS_PATTERNS: list[tuple[str, str]] = [
     (rf"{_READER_START}{_CRED_PATH}", "Blocked: potential credential exposure"),
     (rf"{_GIT_PATHSPEC}{_CRED_PATH}", "Blocked: potential credential exposure"),
     (rf"{_READER_START}/\.ssh(?=/|\s|$|['\"])", "Blocked: SSH key exposure"),
+    # Tools keep tokens in files with ordinary names (gh's hosts.yml,
+    # docker's config.json), so the directory is the signal, not the name.
+    (
+        # Anchored to a home directory: a project's own `.docker/` or
+        # `infra/.aws/` holds config, not credentials.
+        rf"{_READER_START}(?:~|\$\{{?HOME\}}?|/(?:Users|home)/[^/\s]+)"
+        rf"/\.(?:aws|config/gh|docker|kube|gnupg)(?=/|\s|$|['\"])",
+        "Blocked: credential directory exposure",
+    ),
     # Git dangerous operations
     (r"git\s+push\s+.*--force\s+origin\s+(main|master)", "Blocked: force push to main"),
     (r"git\s+reset\s+--hard\s+origin/", "Blocked: hard reset from remote"),

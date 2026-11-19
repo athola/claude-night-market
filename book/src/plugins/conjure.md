@@ -31,13 +31,6 @@ or when specialized models are better suited.
 | `make quota-status` | Show current quota usage | `make quota-status` |
 | `make usage-report` | Summarize token usage and costs | `make usage-report` |
 
-## Hooks
-
-| Hook | Type | Description |
-|------|------|-------------|
-| `bridge.on_tool_start` | PreToolUse | Suggests delegation when files exceed thresholds |
-| `bridge.after_tool_use` | PostToolUse | Suggests delegation if output is truncated |
-
 ## Usage Examples
 
 ### Auto-Delegation

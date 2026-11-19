@@ -7,7 +7,7 @@ Phase 2 execution remains on the main conversation model.
 Usage:
     python consolidation_planner.py scan [--repo-path PATH]
     python consolidation_planner.py analyze FILE [FILE...]
-    python consolidation_planner.py route --chunks CHUNKS_JSON --docs-dir PATH
+    python consolidation_planner.py plan FILE [--docs-dir PATH] [--json]
 """
 
 from __future__ import annotations
@@ -193,20 +193,17 @@ def git_untracked_files(repo_path: str = ".") -> list[str]:
 
         env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
         result = subprocess.run(
-            # -z: names with spaces or non-ASCII come back verbatim, not
-            # C-quoted ("caf\303\251.md" in quotes).
-            [git_path, "status", "--porcelain", "-z"],
+            # ls-files, not status: its paths are relative to cwd, which is
+            # what callers join to repo_path, and it lists every file inside
+            # a new directory. -z keeps unusual names verbatim, not C-quoted.
+            [git_path, "ls-files", "--others", "--exclude-standard", "-z"],
             cwd=repo_path,
             capture_output=True,
             text=True,
             check=True,
             env=env,
         )
-        untracked = []
-        for entry in result.stdout.split("\0"):
-            if entry.startswith("??"):
-                untracked.append(entry[3:])
-        return untracked
+        return [entry for entry in result.stdout.split("\0") if entry]
     except (subprocess.CalledProcessError, FileNotFoundError):
         return []
 
@@ -313,9 +310,12 @@ def extract_chunks(file_path: str) -> list[ContentChunk]:
     current_header = None
     current_lines: list[str] = []
 
+    in_fence = False
     for line in content.split("\n"):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
         # New section header
-        if line.startswith("## "):
+        if line.startswith("## ") and not in_fence:
             if current_header:
                 chunk = make_chunk(current_header, current_lines)
                 if chunk:
@@ -471,7 +471,11 @@ def route_chunk(
         )
 
     # Fallback based on category
-    topic = slugify(chunk.header or Path(source_file).stem.replace("_REPORT", ""))
+    topic = (
+        slugify(chunk.header)
+        or slugify(Path(source_file).stem.replace("_REPORT", ""))
+        or "untitled"
+    )
     today = date.today().isoformat()
 
     fallback_destinations = {
@@ -548,7 +552,9 @@ def generate_plan(source_file: str, docs_dir: str = "docs") -> ConsolidationPlan
     """Generate complete consolidation plan for a source file."""
     chunks = extract_chunks(source_file)
     existing_docs = find_existing_docs(docs_dir)
-    is_ignored = git_ignored(str(Path(docs_dir).resolve().parent))
+    # existing_docs are cwd-relative, so the probe runs from the cwd; from
+    # the docs dir's parent, `pkg/docs/x.md` named `pkg/pkg/docs/x.md`.
+    is_ignored = git_ignored(str(Path.cwd()))
 
     routes = []
     skipped = []

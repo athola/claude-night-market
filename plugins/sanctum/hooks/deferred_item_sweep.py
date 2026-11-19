@@ -90,6 +90,23 @@ def _read_entries_after(ledger_path: Path, count: int) -> list:
     return current[count:] if isinstance(current, list) else []
 
 
+def _load_entries(ledger_path: Path) -> list[dict] | None:
+    """Return the ledger's entries, or None when there is nothing to sweep."""
+    if not ledger_path.exists():
+        return None
+    try:
+        with open(ledger_path) as f:
+            entries = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(entries, list) or not all(isinstance(e, dict) for e in entries):
+        sys.stderr.write(
+            f"deferred_item_sweep: {ledger_path} is not a list of entries; left as is\n"
+        )
+        return None
+    return entries
+
+
 def process_ledger(ledger_path: Path) -> dict:
     """Read ledger, retry unfiled entries, clean up.
 
@@ -104,13 +121,8 @@ def process_ledger(ledger_path: Path) -> dict:
         "deferred_to_next_sweep": 0,
     }
 
-    if not ledger_path.exists():
-        return stats
-
-    try:
-        with open(ledger_path) as f:
-            entries = json.load(f)
-    except (OSError, json.JSONDecodeError):
+    entries = _load_entries(ledger_path)
+    if entries is None:
         return stats
 
     if not entries:

@@ -11,14 +11,59 @@ edit this file, never a copy.
 from __future__ import annotations
 
 import contextlib
+import json
 import os
 import stat
 import sys
 import tempfile
+from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
+
+try:
+    import fcntl
+except ImportError:  # Windows: no advisory locks, writers are not serialized
+    fcntl = None  # type: ignore[assignment]  # None sentinel: file_lock branches on it
 
 #: mkstemp's own mode: only the owner may read the file.
 PRIVATE = 0o600
+
+
+@contextlib.contextmanager
+def file_lock(path: str | os.PathLike[str]) -> Iterator[None]:
+    """Hold the exclusive lock every writer of ``path`` agrees on.
+
+    The lock file is ``<name>.lock`` beside ``path``. ``write_atomic`` keeps
+    a file whole but cannot stop a load-modify-write from dropping another
+    writer's change; holding this across the whole cycle does.
+    """
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with open(target.with_name(target.name + ".lock"), "a") as lock:
+        if fcntl is not None:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            if fcntl is not None:
+                fcntl.flock(lock, fcntl.LOCK_UN)
+
+
+def read_json_object(
+    path: str | os.PathLike[str], default: dict[str, Any]
+) -> dict[str, Any]:
+    """Return the JSON object at ``path``, or ``default``.
+
+    A state file that is missing, unreadable, not JSON, or valid JSON of
+    another shape (``[]`` after a bad write) all mean "no state". Readers
+    that caught only the decode error raised on ``[].get`` instead.
+    """
+    try:
+        with open(path, encoding="utf-8") as handle:
+            loaded = json.load(handle)
+    except (OSError, ValueError):
+        return default
+    return loaded if isinstance(loaded, dict) else default
 
 
 def write_atomic(

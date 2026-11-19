@@ -9,10 +9,12 @@ Note: Uses asyncio.create_subprocess_exec (safe, no shell injection).
 from __future__ import annotations
 
 import asyncio
+import logging
 import shutil
-import subprocess  # nosec B404 - Used safely with create_subprocess_exec (no shell)
 from pathlib import Path
 
+from scripts.delegation_services import SERVICES
+from scripts.delegation_verify import verify_service
 from scripts.war_room.config import (
     CLAUDE_HAIKU,
     CLAUDE_OPUS,
@@ -27,9 +29,28 @@ from scripts.war_room.config import (
 )
 from scripts.war_room.models import ExpertConfig
 
+logger = logging.getLogger(__name__)
+
 # ---------------------------------------------------------------------------
 # Expert Configuration
 # ---------------------------------------------------------------------------
+
+
+def _registry_argv(service: str, model: str) -> list[str]:
+    """Build an expert's argv from the delegation registry.
+
+    War Room spelled these again, so a CLI-contract fix in the registry
+    never reached it. The prompt flag, when the provider has one, stays
+    last; the orchestrator escapes the prompt that follows it.
+    """
+    spec = SERVICES[service]
+    argv = [spec.command, *spec.subcommand]
+    if spec.model_flag:
+        argv += [spec.model_flag, model]
+    if spec.prompt_flag:
+        argv.append(spec.prompt_flag)
+    return argv
+
 
 EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "supreme_commander": ExpertConfig(
@@ -52,7 +73,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         model=GEMINI_PRO,
         description="Deep context analysis with 1M+ token window",
         phases=["intel"],
-        command=["gemini", "--model", GEMINI_PRO, "-p"],
+        command=_registry_argv("gemini", GEMINI_PRO),
     ),
     "field_tactician": ExpertConfig(
         role="Field Tactician",
@@ -67,7 +88,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         model=QWEN_CODER,
         description="Rapid reconnaissance and data gathering",
         phases=["intel"],
-        command=["qwen", "--model", QWEN_CODER, "-p"],
+        command=_registry_argv("qwen", QWEN_CODER),
     ),
     "red_team": ExpertConfig(
         role="Red Team Commander",
@@ -75,7 +96,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         model=GEMINI_FLASH,
         description="Adversarial challenge and failure mode identification",
         phases=["red_team", "premortem"],
-        command=["gemini", "--model", GEMINI_FLASH, "-p"],
+        command=_registry_argv("gemini", GEMINI_FLASH),
     ),
     "logistics_officer": ExpertConfig(
         role="Logistics Officer",
@@ -83,7 +104,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         model=QWEN_CODER,
         description="Resource estimation and dependency analysis",
         phases=["coa"],
-        command=["qwen", "--model", QWEN_CODER, "-p"],
+        command=_registry_argv("qwen", QWEN_CODER),
     ),
     # ``mmx text chat --message`` is the official MiniMax CLI contract; the
     # orchestrator appends the prompt as the final argv element, so the
@@ -94,7 +115,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         model=MINIMAX_M3,
         description="Operational trade-off analysis with a large context window",
         phases=["intel", "coa"],
-        command=["mmx", "text", "chat", "--model", MINIMAX_M3, "--message"],
+        command=_registry_argv("minimax", MINIMAX_M3),
         optional=True,
     ),
     "skeptical_analyst": ExpertConfig(
@@ -103,7 +124,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         model=MINIMAX_M3_1_FLASH,
         description="Rapid second-opinion challenge of proposed courses of action",
         phases=["red_team"],
-        command=["mmx", "text", "chat", "--model", MINIMAX_M3_1_FLASH, "--message"],
+        command=_registry_argv("minimax", MINIMAX_M3_1_FLASH),
         optional=True,
     ),
     # ``muse exec <prompt>`` takes the prompt positionally: Meta documents no
@@ -116,7 +137,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         model=MUSE_SPARK,
         description="Repository-scale implementation review across a large codebase",
         phases=["intel", "coa"],
-        command=["muse", "exec", "--model", MUSE_SPARK],
+        command=_registry_argv("muse", MUSE_SPARK),
         optional=True,
     ),
 }
@@ -174,9 +195,8 @@ def get_haiku_command() -> list[str]:
 
 
 async def check_expert_availability(expert: ExpertConfig) -> bool:
-    """Test if an external expert is available with a lightweight probe.
+    """Report whether an external expert can take work, without a model call.
 
-    Returns True if expert responds successfully, False otherwise.
     Results are cached to avoid repeated probes.
     """
     cache_key = f"{expert.service}:{expert.model}"
@@ -190,36 +210,23 @@ async def check_expert_availability(expert: ExpertConfig) -> bool:
         _expert_availability[cache_key] = True
         return True
 
+    # No completion: a "respond with 'ok'" probe was billed per expert and
+    # could not tell a missing binary from a rejected key. A registry
+    # provider gets the registry's own checks (PATH, environment,
+    # credentials, version probe); the GLM wrapper gets a PATH check.
+    service = SERVICES.get(expert.service) if expert.command else None
     try:
-        cmd = get_expert_command(expert)
-        # Use minimal probe prompt
-        probe_cmd = cmd + ["respond with 'ok'"]
-
-        proc = await asyncio.create_subprocess_exec(
-            *probe_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        try:
-            await asyncio.wait_for(proc.communicate(), timeout=10.0)
-        except asyncio.TimeoutError:
-            # wait_for cancels communicate(), not the process. Without
-            # this the provider CLI outlives the probe, holding its pipes
-            # for the rest of the session.
-            proc.kill()
-            await proc.wait()
-            raise
-
-        available = proc.returncode == 0
-        _expert_availability[cache_key] = available
-        return available
-
-    # asyncio.TimeoutError became an alias of the builtin only in 3.11;
-    # this plugin runs on 3.9, where catching TimeoutError alone lets the
-    # probe timeout escape and take the whole panel down.
-    except (asyncio.TimeoutError, TimeoutError, FileNotFoundError, RuntimeError):
-        _expert_availability[cache_key] = False
-        return False
+        if service is not None:
+            available, _issues = await asyncio.to_thread(verify_service, service)
+        else:
+            available = shutil.which(get_expert_command(expert)[0]) is not None
+    except (OSError, RuntimeError, ValueError) as exc:
+        # The billed probe these replaced also read a raising check as
+        # "unavailable", so the panel falls back rather than failing.
+        logger.debug("availability check for %s raised: %s", expert.role, exc)
+        available = False
+    _expert_availability[cache_key] = available
+    return available
 
 
 def get_fallback_notice() -> str:

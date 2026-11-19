@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import subprocess
 import sys
@@ -134,3 +135,56 @@ class TestIncrementalDiffsFromTheLastBuild:
         finally:
             graph.close()
         assert "added_later" in names
+
+
+def _load_graph_build():
+
+    spec = importlib.util.spec_from_file_location("graph_build_under_test", _SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class TestBuildBookkeeping:
+    """GAU-6, GAU-7."""
+
+    @pytest.mark.unit
+    def test_hook_artifacts_are_gitignored(self, tmp_path: Path) -> None:
+        """A legacy .gitignore left rebuild.lock and rebuild.log untracked."""
+        gdir = tmp_path / ".gauntlet"
+        gdir.mkdir()
+        (gdir / ".gitignore").write_text("graph.db\n*.db-wal\n*.db-shm\n")
+        (tmp_path / "a.py").write_text("def a():\n    pass\n")
+        subprocess.run([sys.executable, str(_SCRIPT), str(tmp_path)], check=False)
+        lines = (gdir / ".gitignore").read_text().splitlines()
+        assert "rebuild.*" in lines
+        assert lines.count("graph.db") == 1
+
+    @pytest.mark.unit
+    def test_head_recorded_is_the_one_seen_before_the_build(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A commit made during a long build was stamped as built, and its
+        changes were never re-parsed.
+        """
+        module = _load_graph_build()
+        built: list[bool] = []
+        real_full_build = module.full_build
+
+        def full_build(*args, **kwargs):
+            report = real_full_build(*args, **kwargs)
+            built.append(True)
+            return report
+
+        monkeypatch.setattr(module, "full_build", full_build)
+        monkeypatch.setattr(
+            module, "_head_commit", lambda _root: "after" if built else "before"
+        )
+        (tmp_path / "a.py").write_text("def a():\n    pass\n")
+        monkeypatch.setattr(sys, "argv", ["graph_build.py", str(tmp_path)])
+        module.main()
+        db = GraphStore(tmp_path / ".gauntlet" / "graph.db")
+        try:
+            assert db.get_metadata("last_build_commit") == "before"
+        finally:
+            db.close()

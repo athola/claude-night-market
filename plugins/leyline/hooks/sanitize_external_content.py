@@ -33,8 +33,9 @@ _HIGH_SEVERITY = [
         r"(?i)</\s*(?:system|assistant|human|IMPORTANT)\b[^>]*>",
         r"(?i)system-reminder",
         r"(?i)you\s+are\s+now\b",
-        r"(?i)ignore\s+(all\s+)?previous",
-        r"(?i)disregard\s+(all\s+)?prior",
+        # Either verb with either word: one pairing each let "disregard
+        # previous" and "ignore prior" through.
+        r"(?i)(?:ignore|disregard)\s+(?:all\s+|the\s+)?(?:previous|prior|above)\b",
         r"(?i)override\s+(your|the)\s+instructions",
         r"(?i)new\s+instructions\s*:",
         r"!!python/",
@@ -131,8 +132,11 @@ _MEDIUM_SEVERITY = [
 
 # gh subcommands that print text other people wrote, plus the raw
 # fetchers. Whitespace is \s+ because `gh  api` runs the same command.
+# glab is the GitLab twin, and both accept flags (`-R owner/repo`) before
+# the subcommand.
 _EXTERNAL_BASH_RE = re.compile(
-    r"\bgh\s+(?:api|issue|pr|run|release|gist|search|repo|discussion)\b"
+    r"\b(?:gh|glab)\s+(?:-\S+\s+(?:[^-\s]\S*\s+)?)*"
+    r"(?:api|issue|pr|mr|run|release|gist|search|repo|discussion)\b"
     r"|\b(?:curl|wget)\s"
 )
 
@@ -164,8 +168,12 @@ _FAST_CHECKS = [
     "you are now",
     "ignore previous",
     "ignore all previous",
-    "disregard",
-    "override",
+    # Phrases, not the bare words: over the scan limit a hit blocks the
+    # whole payload, and "override" alone is ordinary code vocabulary.
+    "disregard prior",
+    "disregard all prior",
+    "override your instructions",
+    "override the instructions",
     "new instructions",
     "eval(",
     "exec(",

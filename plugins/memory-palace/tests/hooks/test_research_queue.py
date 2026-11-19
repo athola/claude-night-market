@@ -89,7 +89,12 @@ def _payload(transcript: Path | str, session_id: str = "abc12345") -> dict:
     }
 
 
-def _run(payload: dict, cwd: Path) -> subprocess.CompletedProcess:
+def _run(
+    payload: dict, cwd: Path, *, corpus: bool = True
+) -> subprocess.CompletedProcess:
+    """Run the hook in ``cwd``; ``corpus`` gives it a knowledge corpus to write to."""
+    if corpus:
+        (cwd / "docs" / "knowledge-corpus").mkdir(parents=True, exist_ok=True)
     return subprocess.run(
         [sys.executable, str(HOOK)],
         input=json.dumps(payload),
@@ -378,7 +383,7 @@ def test_unwritable_queue_directory_exits_cleanly(tmp_path: Path) -> None:
     blocker.parent.mkdir(parents=True)
     blocker.write_text("not a directory", encoding="utf-8")
 
-    result = _run(_payload(transcript), tmp_path)
+    result = _run(_payload(transcript), tmp_path, corpus=False)
 
     assert result.returncode == 0
     assert result.stderr == ""
@@ -518,3 +523,20 @@ def test_compaction_summary_is_skipped_when_reading_the_topic(tmp_path: Path) ->
     searches, topic = research_queue._transcript_signal(str(transcript))
 
     assert (searches, topic) == (0, "research agent memory")
+
+
+def test_redacts_password_assignment() -> None:
+    """Only sk-/ghp_/AKIA/api_key were redacted from the queued prompt (MP-11)."""
+    hook = _load_hook()
+    assert "hunter2" not in hook.SECRET_PATTERN.sub(
+        "[redacted]", "password = hunter2 x"
+    )
+
+
+def test_queue_not_created_in_repo_without_corpus_dir(tmp_path: Path) -> None:
+    """A research-like session ending in any directory created docs/ there
+    and wrote the user's prompt into it (MP-11).
+    """
+    transcript = _transcript(tmp_path, "research agent memory", searches=5)
+    _run(_payload(transcript), tmp_path, corpus=False)
+    assert not (tmp_path / "docs").exists()

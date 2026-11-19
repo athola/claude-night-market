@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from memory_palace._vendored_leyline_atomic_file import write_atomic
+from memory_palace._vendored_leyline_session_store import validate_session_id
 
 # ---------------------------------------------------------------------------
 # Computational encoding helpers (Issue #394)
@@ -130,11 +131,21 @@ class PalaceRepository:
             },
         }
 
-        palace_file = os.path.join(self.palaces_dir, f"{palace_id}.json")
+        palace_file = self.palace_file(palace_id)
         _atomic_write_json(palace_file, palace)
 
         self.update_master_index()
         return palace
+
+    def palace_file(self, palace_id: str, base_dir: str | None = None) -> str:
+        """Return the JSON path for ``palace_id``, refusing ids that leave it.
+
+        Ids arrive from imported bundles and callers; ``../x`` joined
+        unchecked read, wrote and deleted files outside ``palaces_dir``.
+        """
+        if not validate_session_id(palace_id):
+            raise ValueError(f"invalid palace id {palace_id!r}")
+        return os.path.join(base_dir or self.palaces_dir, f"{palace_id}.json")
 
     def load_palace(self, palace_id: str) -> dict[str, Any] | None:
         """Load a palace from disk by its ID.
@@ -146,7 +157,7 @@ class PalaceRepository:
             A dictionary representing the palace, or None if not found.
 
         """
-        palace_file = os.path.join(self.palaces_dir, f"{palace_id}.json")
+        palace_file = self.palace_file(palace_id)
         if os.path.exists(palace_file):
             try:
                 with open(palace_file, encoding="utf-8") as f:
@@ -177,7 +188,7 @@ class PalaceRepository:
 
         """
         palace["last_modified"] = datetime.now(timezone.utc).isoformat()
-        palace_file = os.path.join(self.palaces_dir, f"{palace['id']}.json")
+        palace_file = self.palace_file(palace["id"])
 
         self.create_backup(palace["id"])
 
@@ -204,7 +215,7 @@ class PalaceRepository:
             True if deleted successfully, False if the file did not exist.
 
         """
-        palace_file = os.path.join(self.palaces_dir, f"{palace_id}.json")
+        palace_file = self.palace_file(palace_id)
         if os.path.exists(palace_file):
             self.create_backup(palace_id)
             os.remove(palace_file)
@@ -226,11 +237,13 @@ class PalaceRepository:
 
         """
         base_dir = target_dir or self.palaces_dir
-        palace_file = os.path.join(base_dir, f"{palace_id}.json")
+        palace_file = self.palace_file(palace_id, base_dir)
         if os.path.exists(palace_file):
             backup_dir = os.path.join(base_dir, "backups")
             os.makedirs(backup_dir, exist_ok=True)
-            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            # Microseconds: second resolution let a burst of saves overwrite
+            # the burst's first backup, the one holding the earlier state.
+            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
             backup_file = os.path.join(backup_dir, f"{palace_id}_{timestamp}.json")
 
             with (

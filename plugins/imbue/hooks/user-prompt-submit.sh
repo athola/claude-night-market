@@ -133,7 +133,11 @@ main() {
 
   # Optimize: combine merge-base and log into single operation
   if [ -n "${merge_base}" ]; then
-    merge_base_date=$(git log -1 --format=%ct "${merge_base}" 2>/dev/null || date +%s)
+    # Age of the branch's own first commit, not of the base it forked from:
+    # a branch cut from a quiet base read RED on its first commit. tail, not
+    # head, so pipefail never sees SIGPIPE.
+    merge_base_date=$(git log --format=%ct "${merge_base}..HEAD" 2>/dev/null | tail -1)
+    merge_base_date=${merge_base_date:-$(date +%s)}
   else
     merge_base_date=$(date +%s)
   fi

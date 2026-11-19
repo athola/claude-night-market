@@ -107,14 +107,29 @@ def quick_size_check(
     return None
 
 
+#: Overlap between scan windows, longer than any pattern's match.
+_WINDOW_OVERLAP = 512
+
+
+def _windows(content: str) -> list[str]:
+    """Split ``content`` into overlapping slices of at most the regex bound.
+
+    A sampled prefix let a payload placed after it pass and be stored as
+    safe. Windows keep each regex call bounded and still see every byte.
+    """
+    step = _MAX_REGEX_INPUT_LEN - _WINDOW_OVERLAP
+    return [
+        content[i : i + _MAX_REGEX_INPUT_LEN]
+        for i in range(0, max(len(content), 1), step)
+    ]
+
+
 def check_secrets(content: str) -> SafetyCheckResult | None:
     """Check for secrets in content. Returns result if found, None if clean."""
-    # Only check first 10KB for speed, capped for regex safety
-    sample = content[: min(10240, _MAX_REGEX_INPUT_LEN)]
-
-    for pattern in _SECRET_PATTERNS:
-        if pattern.search(sample):
-            return SafetyCheckResult(False, "Potential secret/credential detected")
+    for sample in _windows(content):
+        for pattern in _SECRET_PATTERNS:
+            if pattern.search(sample):
+                return SafetyCheckResult(False, "Potential secret/credential detected")
 
     return None
 
@@ -169,10 +184,10 @@ def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult 
             return SafetyCheckResult(False, "Unicode combining character bomb detected")
 
     # 4. BiDi override attack
-    if safety.get("block_bidi_override", True):
-        for char in content[:5000]:
-            if char in _BIDI_OVERRIDES:
-                return SafetyCheckResult(False, "Bidirectional text override detected")
+    if safety.get("block_bidi_override", True) and not _BIDI_OVERRIDES.isdisjoint(
+        content
+    ):
+        return SafetyCheckResult(False, "Bidirectional text override detected")
 
     # 5. Null byte injection (in text content)
     if "\x00" in content:
@@ -221,14 +236,16 @@ def check_code_execution_risk(
 
     # Strip backtick-wrapped code spans before scanning
     # so discussions ABOUT code don't trigger
-    sample = re.sub(r"`[^`]+`", "", content[:_MAX_REGEX_INPUT_LEN])
-
-    for pattern in _CODE_EXECUTION_PATTERNS:
-        if pattern.search(sample):
-            return SafetyCheckResult(
-                False,
-                "Code execution pattern detected",
-            )
+    for window in _windows(content):
+        # One-line, short spans only: across lines, any two backticks hid
+        # whatever lay between them.
+        sample = re.sub(r"`[^`\n]{1,200}`", "", window)
+        for pattern in _CODE_EXECUTION_PATTERNS:
+            if pattern.search(sample):
+                return SafetyCheckResult(
+                    False,
+                    "Code execution pattern detected",
+                )
 
     return None
 

@@ -140,13 +140,9 @@ demo-attune-commands: demo-attune ## Run all attune documented command demos
 test: lint type-check ## Run all tests
 	$(PYTEST) $(PYTEST_TARGETS)
 
-test-attune: ## Test attune command workflow
-	@echo "=== Testing attune workflow ==="
-	@echo "Validating: /attune"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-attune: ## No automated test for /attune (exits 1)
+	@echo "No automated test for /attune; run it by hand."
+	@exit 1
 
 plugin-check: demo-init demo-brainstorm demo-skills ## Run all demo workflows
 	@echo ""

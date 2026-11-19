@@ -376,14 +376,14 @@ class TestOutcomeDetection:
         assert entry["outcome"] == "failure"
         assert entry["error"] is not None, "Should store error message"
 
-    def test_should_detect_partial_in_warning_output(
+    def test_warning_text_in_a_successful_call_is_success(
         self, skill_tool_env_partial: dict[str, str], tmp_path: Path
     ) -> None:
-        """Test partial outcome is detected from warning output.
+        """PostToolUse fires only on success; text is not a verdict (ABS-14).
 
-        Given: Tool output containing "warning"
+        Given: a successful Skill call whose output contains "warning"
         When: The hook executes
-        Then: Outcome should be "partial"
+        Then: Outcome is "success"
         """
         # Given
         skill_ref = "abstract:skill-auditor"
@@ -402,7 +402,7 @@ class TestOutcomeDetection:
         log_text = _log_text(log_dir)
         entry = json.loads(log_text.strip())
 
-        assert entry["outcome"] == "partial"
+        assert entry["outcome"] == "success"
 
 
 class TestContinualMetrics:
@@ -463,6 +463,9 @@ class TestContinualMetrics:
                 "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
                 "CLAUDE_TOOL_OUTPUT": output,
                 "CLAUDE_HOME": str(tmp_path),
+                "CLAUDE_HOOK_EVENT_NAME": (
+                    "PostToolUseFailure" if i % 2 == 0 else "PostToolUse"
+                ),
             }
             run_hook(hook_path, env)
 
@@ -650,6 +653,7 @@ class TestOutputSanitization:
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
             "CLAUDE_TOOL_OUTPUT": long_output,
             "CLAUDE_HOME": str(tmp_path),
+            "CLAUDE_HOOK_EVENT_NAME": "PostToolUseFailure",
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
 

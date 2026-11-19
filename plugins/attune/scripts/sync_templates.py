@@ -90,8 +90,12 @@ class TemplateSynchronizer:
                 content = re.sub(pattern, replacement, content)
 
         elif language == "rust":
+            # The first `name =` is [package]'s; [[bin]] and dependency
+            # tables carry their own.
+            content = re.sub(
+                r'name = "[\w-]+"', 'name = "{{PROJECT_NAME}}"', content, count=1
+            )
             replacements = [
-                (r'name = "[\w-]+"', 'name = "{{PROJECT_NAME}}"'),
                 (r'edition = "\d+"', 'edition = "{{RUST_EDITION}}"'),
                 (r'authors = \["[^"]+"\]', 'authors = ["{{AUTHOR}} <{{EMAIL}}>"]'),
                 (r'description = "[^"]+"', 'description = "{{PROJECT_DESCRIPTION}}"'),

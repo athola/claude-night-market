@@ -15,6 +15,8 @@ implementations wrong:
 
 from __future__ import annotations
 
+import time
+
 import pytest
 
 from scribe import spelling
@@ -239,3 +241,13 @@ def test_convert_is_idempotent() -> None:
     twice = to_american(once)
     assert once == twice
     assert "colour" not in once.lower()
+
+
+def test_many_protected_spans_do_not_make_normalization_quadratic() -> None:
+    """Each match scanned every span: 20k spans x 20k matches took 9 s (SCR-5)."""
+    text = "`x` colour " * 20000
+    start = time.perf_counter()
+    converted = to_american(text)
+    assert time.perf_counter() - start < 2.0
+    assert converted.count("color") == 20000
+    assert converted.count("`x`") == 20000

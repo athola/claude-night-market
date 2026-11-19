@@ -43,7 +43,7 @@ If no response is received, treat it as **n** and continue.
 For each approach to be captured, run:
 
 ```bash
-python3 scripts/deferred_capture.py \
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py" \
   --title "Alternative: <approach-name>" \
   --source brainstorm \
   --context "<pros summary>. Not selected because: <user rationale>"
@@ -59,7 +59,7 @@ in Phase 5 under "Rejected Approaches".
 - Only capture on explicit confirmation (Y or select).
   Default behavior when the user skips the prompt is no
   capture.
-- If `scripts/deferred_capture.py` is not present, log a
+- If `${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py` is not present, log a
   warning and skip capture rather than blocking continuation.
 - After capture (or skipping), proceed immediately to Phase 6
   without further prompts.

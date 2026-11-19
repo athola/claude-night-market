@@ -237,3 +237,47 @@ class TestModuleEntryPoint:
             timeout=60,
         )
         assert proc.returncode == 2, proc.stdout + proc.stderr
+
+
+class TestUnparseableFilesAreNotSilentlyDropped:
+    """The default --severity LOW floor dropped the PYSX advisory, so a
+    tree of unparseable files printed the clean line, and --strict passed.
+    """
+
+    def test_strict_cli_fails_when_a_file_cannot_be_parsed(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        (tmp_path / "bad.py").write_text("def f(:\n")
+        code = run_cli(["--path", str(tmp_path), "--strict"])
+        out = capsys.readouterr().out
+        assert code != 0
+        assert "bad.py" in out
+
+    def test_default_severity_still_reports_an_unparseable_file(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        (tmp_path / "bad.py").write_text("def f(:\n")
+        code = run_cli(["--path", str(tmp_path), "--json"])
+        payload = json.loads(capsys.readouterr().out)
+        assert code == 0
+        assert [f["id"] for f in payload["data"]["findings"]] == ["PYSX"]
+
+
+class TestPy04SeverityFollowsTheCommand:
+    """shell=True on a constant string was HIGH/CWE-78, the same as on a
+    formatted string the skill's own table describes (PEN-7).
+    """
+
+    def test_py04_constant_command_is_not_high(self, tmp_path: Path) -> None:
+        (tmp_path / "a.py").write_text(
+            "import subprocess\nsubprocess.run('ls -l', shell=True)\n"
+        )
+        findings = [f for f in scan_directory(tmp_path) if f.id == "PY04"]
+        assert [f.severity for f in findings] == ["LOW"]
+
+    def test_py04_formatted_command_stays_high(self, tmp_path: Path) -> None:
+        (tmp_path / "a.py").write_text(
+            "import subprocess\nsubprocess.run(f'ls {d}', shell=True)\n"
+        )
+        findings = [f for f in scan_directory(tmp_path) if f.id == "PY04"]
+        assert [f.severity for f in findings] == ["HIGH"]

@@ -642,9 +642,7 @@ class _IndexMixin(_CLIBase):
             return True
 
         backup_dir = self._data_root() / "data" / "backups"
-        result = apply_title_repairs(
-            index, proposals, index_path, backup_dir=backup_dir
-        )
+        result = apply_title_repairs(proposals, index_path, backup_dir=backup_dir)
         self.print_success(
             f"Repaired {result.applied} titles. Backup: {result.backup_path}"
         )

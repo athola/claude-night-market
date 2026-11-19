@@ -115,19 +115,12 @@ NEGATIVE_CONTEXT_WORDS = [
 
 
 def is_documentation_file(file_path: str) -> bool:
-    """Check if a file is documentation."""
-    path = Path(file_path)
-    doc_extensions = {".md", ".rst", ".txt", ".adoc"}
-    doc_directories = {"docs", "doc", "documentation", "wiki", "examples", "commands"}
+    """Decide doc mode by suffix alone.
 
-    if path.suffix.lower() in doc_extensions:
-        return True
-
-    for part in path.parts:
-        if part.lower() in doc_directories:
-            return True
-
-    return False
+    A directory name also counted, so `docs/conf.py` or `examples/run.py`,
+    which execute, had their findings suppressed by any nearby "never".
+    """
+    return Path(file_path).suffix.lower() in {".md", ".rst", ".txt", ".adoc"}
 
 
 def has_negative_context(content: str, match_pos: int, window: int = 300) -> bool:

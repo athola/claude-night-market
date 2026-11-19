@@ -14,6 +14,7 @@ When auto-capture is disabled or fails, it prompts the user to store findings.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import re
@@ -25,7 +26,9 @@ from typing import TYPE_CHECKING
 
 from shared.config import get_config
 from shared.deduplication import (
+    SEARCH_KEY_PREFIX,
     _load_index,
+    forget_stored,
     get_content_hash,
     get_stored_at,
     is_known,
@@ -401,8 +404,9 @@ QUEUE_NOTICE_THRESHOLD = 500
 def prune_queue(directory: Path, keep: int = QUEUE_KEEP) -> int:
     """Drop the oldest auto-captures beyond ``keep``, and report how many.
 
-    Only files carrying the ``webfetch-`` prefix are eligible. That
-    prefix is the line between what this hook wrote unattended and what
+    Only files carrying the ``webfetch-`` or ``websearch-`` prefix are
+    eligible. That prefix is the line between what this hook wrote
+    unattended and what
     a person named and filed: the curated entries in this directory are
     tracked in git and carry no prefix, and deleting those to tidy a
     machine's leavings would be the wrong trade.
@@ -412,21 +416,33 @@ def prune_queue(directory: Path, keep: int = QUEUE_KEEP) -> int:
     """
     try:
         captures = sorted(
-            directory.glob("webfetch-*.md"),
+            [*directory.glob("webfetch-*.md"), *directory.glob("websearch-*.md")],
             key=lambda p: p.stat().st_mtime,
             reverse=True,
         )
     except OSError:
         return 0
 
-    removed = 0
+    removed: set[str] = set()
     for stale in captures[keep:]:
         try:
             stale.unlink()
         except OSError:
             continue
-        removed += 1
-    return removed
+        removed.add(_stored_at(stale))
+    try:
+        forget_stored(removed)
+    except (OSError, TimeoutError) as exc:
+        logger.warning("web_research_handler: index not pruned: %s", exc)
+    return len(removed)
+
+
+def _stored_at(capture: Path) -> str:
+    """Return the ``stored_at`` an index entry records for ``capture``."""
+    try:
+        return str(capture.relative_to(DATA_ROOT))
+    except ValueError:
+        return str(capture)
 
 
 def capture_notice(url: str, filename: str, length: int, backlog: int) -> str:
@@ -674,8 +690,15 @@ def store_websearch_results(
 """
 
     return _store_to_queue(
-        filename, queue_entry, content_hash, query, f"WebSearch: {query}"
+        filename,
+        queue_entry,
+        content_hash,
+        f"{SEARCH_KEY_PREFIX}{query}",
+        f"WebSearch: {query}",
     )
+
+
+_QUEUE_TAIL_BYTES = 64 * 1024
 
 
 def _recent_intake_pending(query: str) -> bool:
@@ -688,8 +711,16 @@ def _recent_intake_pending(query: str) -> bool:
         return False
 
     try:
-        # Read last 20 lines (most recent entries) to avoid scanning huge files
-        lines = queue_path.read_text(encoding="utf-8").strip().splitlines()[-20:]
+        # The last 20 entries, from a bounded tail read: the queue only
+        # grows and this runs on every Web tool call.
+        with open(queue_path, "rb") as queue:
+            size = queue.seek(0, 2)  # end of file
+            queue.seek(max(0, size - _QUEUE_TAIL_BYTES))
+            tail = queue.read().decode("utf-8")
+        lines = tail.strip().splitlines()
+        if size > _QUEUE_TAIL_BYTES:
+            lines = lines[1:]  # the first line was cut by the seek
+        lines = lines[-20:]
         normalized_query = query.lower().strip()
         for line in reversed(lines):
             try:
@@ -714,6 +745,15 @@ def _build_storage_reminder(tool_name: str) -> str:
     """Build a storage reminder message for when auto-capture is not active."""
     skill_ref = "/memory-palace:knowledge-intake"
     return f"Research detected via {tool_name}. Consider storing valuable findings with {skill_ref}"
+
+
+def _web_entity_id(url: str) -> str:
+    """Graph id for a fetched URL.
+
+    A 40-character prefix merged long same-site paths into one entity, so
+    the full URL is hashed.
+    """
+    return "web_" + hashlib.sha256(url.encode()).hexdigest()[:16]
 
 
 def _handle_webfetch(
@@ -813,8 +853,7 @@ def _handle_webfetch(
     register_kwargs: dict[str, str] | None = None
     if stored_path:
         register_kwargs = {
-            "entity_id": "web_"
-            + (url or "unknown").replace("://", "_").replace("/", "_")[:40],
+            "entity_id": _web_entity_id(url or "unknown"),
             "name": extract_title_from_content(content, url or ""),
         }
     return context_parts, stored_path, register_kwargs

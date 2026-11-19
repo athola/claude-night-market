@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Provisions the oracle ML inference daemon with onnxruntime via uv. Use when setting up local ONNX model inference for skill quality evaluation.
+description: Provisions the oracle ML inference daemon's venv via uv. Use when setting up local ONNX model inference for skill quality evaluation.
 ---
 
 # Oracle Setup
@@ -15,7 +15,7 @@ Provision the ML inference environment.
 ## What This Does
 
 1. Creates a Python 3.11+ virtual environment using uv
-2. Installs onnxruntime and pyyaml into the venv
+2. Installs pyyaml into the venv (onnxruntime waits for an ONNX model)
 3. Verifies the installation
 
 ## Prerequisites
@@ -46,8 +46,8 @@ print(result.message)
 
 - [ ] `provision_venv()` returns a result with a non-error `message`
   and the venv path exists on disk under `plugins/oracle/`
-- [ ] `onnxruntime` is importable inside the provisioned venv;
-  verified by `uv run python -c "import onnxruntime"` exiting 0
+- [ ] `yaml` is importable inside the provisioned venv; verified by
+  running the venv's python with `-c "import yaml"` and exit code 0
 - [ ] User receives a success message that states the daemon needs a
   `models/` directory to start, or a failure message citing the
   specific error and whether it is a uv or network issue

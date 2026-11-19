@@ -435,31 +435,6 @@ class TestSkillPerformanceConsiderations:
             assert cost >= 0
 
 
-class TestSkillIntegrationWithHooks:
-    """Test skill integration with hook system."""
-
-    @pytest.mark.bdd
-    def test_hook_files_exist(self) -> None:
-        """Given skill when checking for hooks.
-
-        then bridge hooks should exist in hook directory.
-        """
-        # Skills use hooks but don't need to reference them explicitly
-        hook_dir = Path(__file__).parent.parent / "hooks" / "gemini"
-
-        assert hook_dir.exists(), "Gemini hooks directory should exist"
-
-    @pytest.mark.bdd
-    def test_bridge_hook_compatibility(self) -> None:
-        """Given skills when checking bridge hooks then should be compatible."""
-        # The skills should work with the bridge hooks tested in test_hooks.py
-        hook_dir = Path(__file__).parent.parent / "hooks" / "gemini"
-
-        assert hook_dir.exists()
-        assert (hook_dir / "bridge.on_tool_start").exists()
-        assert (hook_dir / "bridge.after_tool_use").exists()
-
-
 class TestSkillConfigurationManagement:
     """Test skill configuration and customization."""
 

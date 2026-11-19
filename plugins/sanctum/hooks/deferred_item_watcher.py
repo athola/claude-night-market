@@ -42,7 +42,8 @@ DEFERRAL_PATTERNS = re.compile(
     re.IGNORECASE,
 )
 
-_DEFERRED_MARKER_RE = re.compile(r"\[Deferred\]\s*(.*)", re.IGNORECASE)
+# [ \t]*, not \s*: \s crossed the newline and took the next line as title.
+_DEFERRED_MARKER_RE = re.compile(r"\[Deferred\][ \t]*(.*)", re.IGNORECASE)
 _PREFIX_RE = re.compile(r"^\[Deferred\]\s*", re.IGNORECASE)
 
 

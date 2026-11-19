@@ -495,6 +495,24 @@ class TestHasExistingIssue:
         assert promote_module.has_existing_issue(item, "o/r") is None
         assert "duplicate check" in capsys.readouterr().err
 
+    def test_run_auto_promote_skips_duplicate_check_below_threshold(
+        self, promote_module, tmp_path: Path, monkeypatch
+    ) -> None:
+        """A gh call per sub-threshold item spent the Stop hook's budget (ABS-1)."""
+        (tmp_path / "LEARNINGS.md").write_text("x")
+        item = {"skill": "p:s", "type": "t", "metric": "m", "detail": "d"}
+        monkeypatch.setattr(
+            promote_module, "parse_improvement_items", lambda _c: [item]
+        )
+        monkeypatch.setattr(promote_module, "detect_target_repo", lambda: ("o", "n"))
+        monkeypatch.setattr(promote_module, "calculate_priority", lambda _i: 0.0)
+        duplicate = MagicMock(return_value=False)
+        monkeypatch.setattr(promote_module, "has_existing_issue", duplicate)
+
+        promote_module.run_auto_promote()
+
+        duplicate.assert_not_called()
+
     def test_failed_duplicate_check_promotes_nothing_and_retries_later(
         self, promote_module, tmp_path: Path, monkeypatch, capsys
     ) -> None:

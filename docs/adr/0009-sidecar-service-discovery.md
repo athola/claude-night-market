@@ -64,7 +64,13 @@ ${CLAUDE_PLUGIN_DATA}/daemon.port
 names `~/.claude/plugins/data/<plugin>-<marketplace>/`. A client in
 another plugin finds the daemon's directory as a sibling of its own
 data directory with the plugin name swapped, keeping the
-`-<marketplace>` suffix. `leyline/plugin_data.py` holds that layout.
+`-<marketplace>` suffix. `leyline/plugin_data.py` resolves only the
+calling plugin's own directory. The sibling rule is re-derived where it
+is used: gauntlet swaps the `gauntlet-` prefix
+(`gauntlet/ml/__init__.py`), and abstract matches the install path
+(`abstract/scripts/insight_palace_bridge.py`, mirroring
+`memory_palace.paths._install_layout`). A change to the host's layout
+must update all three.
 
 Fallback location when `CLAUDE_PLUGIN_DATA` is not set:
 

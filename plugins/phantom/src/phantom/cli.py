@@ -61,6 +61,8 @@ def run_task(args: argparse.Namespace) -> None:
         thinking_budget=args.thinking_budget,
         system_prompt=args.system_prompt,
         budget_usd=args.budget_usd,
+        include_bash=not args.no_bash,
+        include_text_editor=not args.no_editor,
     )
 
     def on_action(action_type: str, action: dict[str, Any]) -> None:
@@ -92,13 +94,25 @@ def run_task(args: argparse.Namespace) -> None:
         print(result.final_text)
 
 
+def _shorten(value: Any, limit: int = 200) -> str:
+    """Render ``value`` for a prompt, cut to ``limit`` characters."""
+    text = repr(value) if isinstance(value, str) else str(value)
+    return text if len(text) <= limit else text[:limit] + "..."
+
+
 def _ask_before_acting(action: dict[str, Any]) -> bool:
     """Show the action and run it only on an explicit yes.
 
     A closed stdin (a piped or `< /dev/null` run) is a reply of no.
     """
+    # Every field the action carries: "Run type?" alone hid the text to be
+    # typed and the coordinates to be clicked, so a yes approved the unseen.
+    details = ", ".join(
+        f"{key}={_shorten(value)}" for key, value in action.items() if key != "action"
+    )
+    label = action.get("action", action)
     try:
-        reply = input(f"Run {action.get('action', action)}? [y/N] ")
+        reply = input(f"Run {label}({details})? [y/N] ")
     except EOFError:
         return False
     return reply.strip().lower().startswith("y")
@@ -173,6 +187,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--confirm",
         action="store_true",
         help="Ask before each action; anything but y rejects it",
+    )
+    parser.add_argument(
+        "--no-bash",
+        action="store_true",
+        help="Do not give the model the shell tool",
+    )
+    parser.add_argument(
+        "--no-editor",
+        action="store_true",
+        help="Do not give the model the file editor tool",
     )
     parser.add_argument(
         "--quiet",

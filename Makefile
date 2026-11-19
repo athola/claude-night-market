@@ -269,7 +269,7 @@ check-json-utils: ## Verify inlined JSON utilities match scripts/shared/json_uti
 check-discussions: ## Reconcile the Discussions board against the commit log
 	@uv run python scripts/reconcile_discussions.py
 
-writeback-discussions: ## Post resolution comments for trailered findings
+writeback-discussions: ## Preview (dry run) resolution comments for trailered findings
 	@uv run python scripts/reconcile_discussions.py --apply --dry-run
 	@echo ""
 	@echo "Dry run only. Re-run without --dry-run in the script to post:"

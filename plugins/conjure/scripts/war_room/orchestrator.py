@@ -15,6 +15,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.delegation_prompt import _prompt_argv
+from scripts.delegation_services import SERVICES
 from scripts.war_room import experts as _experts_mod
 from scripts.war_room.config import CLAUDE_HAIKU
 from scripts.war_room.delphi import (
@@ -75,6 +77,14 @@ _PLAIN: dict[str, Any] = {
     "_compute_convergence": compute_convergence,
     "_compute_borda_scores": compute_borda_scores,
 }
+
+
+class ExpertFailureNote(str):
+    """A bracketed note that an expert's provider failed, not an answer.
+
+    It reads as text to every caller, so phases still see why an expert is
+    silent, but the orchestrator never records it as a contribution.
+    """
 
 
 class WarRoomOrchestrator:
@@ -206,6 +216,11 @@ class WarRoomOrchestrator:
                 _haiku_fallback_notices.append(notice)
             result = await self._invoke_haiku_fallback(expert, prompt)
 
+        # A provider's error note is not an expert's answer, and the DAG is
+        # the sealed record of what experts said.
+        if isinstance(result, ExpertFailureNote):
+            return result
+
         # Record in Merkle-DAG
         session.merkle_dag.add_contribution(
             content=result,
@@ -241,15 +256,19 @@ class WarRoomOrchestrator:
                 raise
             # One stray byte from an external CLI is not a failed answer.
             if proc.returncode != 0:
-                return f"[{label} failed: {stderr.decode(errors='replace')[:500]}]"
+                return ExpertFailureNote(
+                    f"[{label} failed: {stderr.decode(errors='replace')[:500]}]"
+                )
             return stdout.decode(errors="replace")
         # Both names: they are distinct classes before Python 3.11.
         except (asyncio.TimeoutError, TimeoutError):
-            return f"[{label} timed out after {_SUBPROCESS_TIMEOUT_SECONDS:.0f}s]"
+            return ExpertFailureNote(
+                f"[{label} timed out after {_SUBPROCESS_TIMEOUT_SECONDS:.0f}s]"
+            )
         except FileNotFoundError:
-            return not_found
+            return ExpertFailureNote(not_found)
         except Exception as e:
-            return f"[{label} error: {e}]"
+            return ExpertFailureNote(f"[{label} error: {e}]")
 
     async def _invoke_haiku_fallback(self, expert: Any, prompt: str) -> str:
         """Invoke Haiku as fallback for unavailable external expert.
@@ -280,7 +299,15 @@ class WarRoomOrchestrator:
         Arguments passed as list, not through shell.
         """
         cmd = get_expert_command(expert)
-        cmd.append(prompt)
+        service = SERVICES.get(expert.service) if expert.command else None
+        if service is None:
+            cmd.append(prompt)
+        else:
+            # The registry's escaping, so a prompt starting with "-" is not
+            # read as a CLI flag: it needs `--prompt=<text>` or `-- <text>`.
+            if service.prompt_flag and cmd[-1] == service.prompt_flag:
+                cmd.pop()
+            cmd.extend(_prompt_argv(service, prompt))
         return await self._run_subprocess(
             cmd,
             expert.role,
@@ -305,12 +332,15 @@ class WarRoomOrchestrator:
 
         results = await asyncio.gather(*tasks.values(), return_exceptions=True)
 
+        # A failure note or exception is not an opinion: kept out of what the
+        # phases and the Borda count read, and recorded on the session.
         output: dict[str, str] = {}
+        failures = session.artifacts.setdefault("expert_failures", {})
         for key, result in zip(tasks.keys(), results):
             if isinstance(result, BaseException):
-                output[key] = f"[Error: {result}]"
-            elif isinstance(result, str):
-                output[key] = result
+                failures[f"{phase}:{key}"] = f"[Error: {result}]"
+            elif isinstance(result, ExpertFailureNote):
+                failures[f"{phase}:{key}"] = str(result)
             else:
                 output[key] = str(result)
         return output

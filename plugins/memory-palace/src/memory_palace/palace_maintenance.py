@@ -11,6 +11,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from memory_palace._vendored_leyline_atomic_file import file_lock
+from memory_palace._vendored_leyline_session_store import validate_session_id
 from memory_palace.palace_repository import PalaceRepository
 
 MIN_KEYWORD_LENGTH = 2
@@ -33,7 +35,24 @@ class PalaceMaintenance:
     # Queue ingestion
     # ------------------------------------------------------------------
 
-    def sync_from_queue(  # noqa: PLR0912 - queue ingestion handles many content types and edge cases
+    def sync_from_queue(
+        self,
+        queue_path: str,
+        auto_create: bool = False,
+        dry_run: bool = False,
+    ) -> dict[str, Any]:
+        """Process intake queue entries into palaces, under the queue's lock.
+
+        The intake hook appends under the same lock; rewriting the queue
+        without it could truncate an entry appended mid-sync.
+        """
+        if not os.path.exists(queue_path):
+            # Nothing to lock or rewrite; the locked path reports empty.
+            return self._sync_from_queue_locked(queue_path, auto_create, dry_run)
+        with file_lock(queue_path):
+            return self._sync_from_queue_locked(queue_path, auto_create, dry_run)
+
+    def _sync_from_queue_locked(  # noqa: PLR0912 - queue ingestion handles many content types and edge cases
         self,
         queue_path: str,
         auto_create: bool = False,
@@ -320,6 +339,10 @@ class PalaceMaintenance:
         imported = 0
         skipped = 0
         for palace in bundle.get("palaces", []):
+            # A bundle is outside input; `../x` wrote outside palaces_dir.
+            if not validate_session_id(palace["id"]):
+                skipped += 1
+                continue
             palace_file = Path(self._repo.palaces_dir) / f"{palace['id']}.json"
             if palace_file.exists() and keep_existing:
                 skipped += 1

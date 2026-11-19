@@ -785,3 +785,27 @@ class TestGracefulDegradation:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+def test_missing_pyyaml_is_reported_once_not_silently(tmp_path: Path) -> None:
+    """Without PyYAML the interceptor exited 0 with only a debug log, so the
+    cache lookups were off and nobody knew (MP-1).
+    """
+
+    def run() -> str:
+        out = StringIO()
+        payload = StringIO(json.dumps({"tool_name": "WebFetch", "tool_input": {}}))
+        with (
+            patch("sys.stdin", payload),
+            patch("sys.stdout", out),
+            patch.object(research_interceptor, "_HAS_MEMORY_PALACE", False),
+            patch.object(research_interceptor, "_MISSING_MODULE", "yaml"),
+            patch.object(research_interceptor, "DATA_ROOT", tmp_path),
+            pytest.raises(SystemExit),
+        ):
+            research_interceptor.main()
+        return out.getvalue()
+
+    first = run()
+    assert "PyYAML" in json.loads(first)["hookSpecificOutput"]["additionalContext"]
+    assert run() == ""

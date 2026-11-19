@@ -40,7 +40,7 @@ from shared.scope_ramp import (  # noqa: E402 - hook injects sys.path before imp
     stakes_for,
 )
 from shared.vow_utils import (  # noqa: E402 - same path-injection pattern as sibling vow hooks
-    _OFF_VALUES,
+    OFF_VALUES,
     fd_owned_by_us,
     secure_open,
     secure_state_dir,
@@ -49,6 +49,24 @@ from shared.vow_utils import (  # noqa: E402 - same path-injection pattern as si
 )
 
 _CODE_TOOLS = frozenset({"Write", "Edit", "MultiEdit", "StrReplace"})
+# The rung measures implementation increments. Prose and data are not
+# implementation, and a long README counted as a 500-line code slice.
+_UNGATED_SUFFIXES = frozenset(
+    {
+        ".md",
+        ".rst",
+        ".txt",
+        ".adoc",
+        ".json",
+        ".jsonl",
+        ".yaml",
+        ".yml",
+        ".toml",
+        ".csv",
+        ".lock",
+        ".svg",
+    }
+)
 _RAMP_OK_FILE = ".imbue/ramp-ok"
 _LEDGER_FILE = ".imbue/ramp-ledger.jsonl"
 
@@ -79,7 +97,9 @@ def _load_state(path: Path) -> dict:
         if not fd_owned_by_us(fd):
             return default
         raw = os.read(fd, 1_000_000).decode("utf-8")
-        return json.loads(raw) if raw else default
+        state = json.loads(raw) if raw else default
+        # `null` or `[]` parse fine and then raise on `.get`.
+        return state if isinstance(state, dict) else default
     except (ValueError, TypeError) as exc:  # corrupt state must not crash the hook
         print(
             f"[guard-scope-ramp] WARN: corrupt state file, using default: {exc}",
@@ -131,16 +151,31 @@ def _explicit_stakes() -> str | None:
         return None
 
 
-def _ramp_token_present() -> bool:
-    """Return True when a recorded-demonstration token is available.
+def _env_ramp_token() -> bool:
+    """Return True when ``IMBUE_RAMP_OK`` grants a notch.
 
     Case-insensitive, and empty or "off" is off: `IMBUE_RAMP_OK=False`
     handed out a free rung jump because only lowercase spellings matched.
     """
     value = os.environ.get("IMBUE_RAMP_OK", "0").strip().lower()
-    if value and value not in (*_OFF_VALUES, "off"):
+    return bool(value) and value not in (*OFF_VALUES, "off")
+
+
+def _ramp_token_present(state: dict | None = None) -> bool:
+    """Return True when a recorded-demonstration token is available.
+
+    The env token sits in every call's environment and is never consumed,
+    so it counts once per session; the file token is consumed on use.
+    """
+    if Path(_RAMP_OK_FILE).exists():
         return True
-    return Path(_RAMP_OK_FILE).exists()
+    return _env_ramp_token() and not (state or {}).get("env_notch_used")
+
+
+def _record_env_notch(state: dict, new_state: dict, token: bool) -> dict:
+    """Mark the session's env notch spent once the env token has granted it."""
+    spent = state.get("env_notch_used") or (token and not Path(_RAMP_OK_FILE).exists())
+    return {**new_state, "env_notch_used": True} if spent else new_state
 
 
 def _consume_ramp_token() -> None:
@@ -148,7 +183,7 @@ def _consume_ramp_token() -> None:
     try:
         Path(_RAMP_OK_FILE).unlink()
     except (FileNotFoundError, OSError):
-        pass  # env-based token is single-turn; nothing to remove
+        pass  # no file token; the env token is spent via env_notch_used
 
 
 def _append_ledger(entry: dict) -> None:
@@ -187,7 +222,7 @@ def main() -> None:
         file_path = tool_input.get("file_path", tool_input.get("path", ""))
 
         added = added_lines(tool_name, tool_input)
-        if added <= 0:
+        if added <= 0 or Path(str(file_path)).suffix.lower() in _UNGATED_SUFFIXES:
             _cursor_response(data)
             sys.exit(0)
 
@@ -197,11 +232,12 @@ def main() -> None:
         state = _load_state(state_path)
 
         rung_before = int(state.get("rung", RUNG_START))
-        token = _ramp_token_present()
+        token = _ramp_token_present(state)
         stakes = _explicit_stakes()
         finding, new_state = assess_ramp(
             added, file_path, state, ramp_token=token, stakes=stakes
         )
+        new_state = _record_env_notch(state, new_state, token)
         _save_state(state_path, new_state)
         if token:
             _consume_ramp_token()

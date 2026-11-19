@@ -640,9 +640,10 @@ class TestDecide:
         When deciding on an explicit next-action turn with stop_hook_active
         Then the cap does NOT fire (out-of-window) and the turn continues
 
-        Invariant: the count resets after a window of inactivity. Dropping the
-        ``within_window`` check would let an old, abandoned count force a stop
-        on a freshly resumed session -- this test forbids that regression.
+        Invariant: an old, abandoned count never forces a stop on a resumed
+        session. A resumed session's first Stop arrives with
+        ``stop_hook_active`` false, which starts a new chain. (Before HER-1
+        this was a time window, which also let slow loops run unbounded.)
         """
         monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
         monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
@@ -652,14 +653,14 @@ class TestDecide:
         )
         throttle = dsl._throttle_path("s12")
         dsl._write_throttle(throttle, dsl.MAX_CONTINUATIONS, 1000.0)
-        # now is well past last + THROTTLE_WINDOW_SECONDS, so the count is stale.
-        stale_now = 1000.0 + dsl.THROTTLE_WINDOW_SECONDS + 1.0
+        # Long after the old count was written.
+        stale_now = 1000.0 + 301.0
 
         out = dsl.decide(
             {
                 "session_id": "s12",
                 "transcript_path": str(transcript),
-                "stop_hook_active": True,
+                "stop_hook_active": False,
             },
             now=stale_now,
         )
@@ -675,8 +676,8 @@ class TestDecide:
         When MAX_CONTINUATIONS of them have been counted
         Then the next stop_hook_active turn hits the cap and approves the stop
 
-        Invariant: the count resets only after THROTTLE_WINDOW_SECONDS with no
-        CONTINUE. A sliding window would hold at most 3 decisions spaced 120 s
+        Invariant: the count resets only when the user starts a turn. A
+        sliding window would hold at most 3 decisions spaced 120 s
         apart, never reach the cap, and let this loop spin unbounded.
         """
         monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
@@ -1122,7 +1123,7 @@ class TestThrottleWindowReset:
         transcript.write_text(_assistant_line("Next, I'll run the tests.") + "\n")
         throttle = dsl._throttle_path("s1")
         now = 10_000.0
-        dsl._write_throttle(throttle, 7, now - dsl.THROTTLE_WINDOW_SECONDS - 1)
+        dsl._write_throttle(throttle, 7, now - 301)
 
         decision = dsl.decide(
             {"session_id": "s1", "transcript_path": str(transcript)}, now
@@ -1130,3 +1131,46 @@ class TestThrottleWindowReset:
 
         assert decision["decision"] == "block"
         assert dsl._read_throttle(throttle) == (1, now)
+
+
+@pytest.mark.unit
+def test_cap_trips_when_turns_are_slower_than_the_window(tmp_path, monkeypatch):
+    """Each continuation more than 300 s apart reset the count, so a slow
+    autonomous loop never reached the cap (HER-1).
+    """
+    monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+    monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+    transcript = tmp_path / "t.jsonl"
+    transcript.write_text(
+        _assistant_line("Tests pass. Now I'll update the docs."), encoding="utf-8"
+    )
+    event = {"session_id": "slow", "transcript_path": str(transcript)}
+
+    decisions = [
+        dsl.decide({**event, "stop_hook_active": i > 0}, now=1000.0 + 400 * i)
+        for i in range(dsl.MAX_CONTINUATIONS + 2)
+    ]
+
+    assert any(d["decision"] == "approve" for d in decisions)
+
+
+@pytest.mark.unit
+def test_a_fresh_turn_starts_a_new_count(tmp_path, monkeypatch):
+    """A turn the user started is a new chain, whatever the old count."""
+    monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+    monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+    transcript = tmp_path / "t.jsonl"
+    transcript.write_text(
+        _assistant_line("Tests pass. Now I'll update the docs."), encoding="utf-8"
+    )
+    dsl._write_throttle(dsl._throttle_path("fresh"), dsl.MAX_CONTINUATIONS, 1000.0)
+
+    out = dsl.decide(
+        {
+            "session_id": "fresh",
+            "transcript_path": str(transcript),
+            "stop_hook_active": False,
+        },
+        now=1001.0,
+    )
+    assert out["decision"] == "block"

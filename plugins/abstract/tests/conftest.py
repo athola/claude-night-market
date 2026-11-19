@@ -134,6 +134,7 @@ def skill_tool_env_failure(skill_tool_env: dict[str, str]) -> dict[str, str]:
     return {
         **skill_tool_env,
         "CLAUDE_TOOL_OUTPUT": "Error: skill execution failed",
+        "CLAUDE_HOOK_EVENT_NAME": "PostToolUseFailure",
     }
 
 

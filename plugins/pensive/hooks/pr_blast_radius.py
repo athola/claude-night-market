@@ -82,6 +82,8 @@ def _explicit_base(command: str) -> str | None:
             return token.split("=", 1)[1]
         if token in ("--base", "-B") and i + 1 < len(tokens):
             return tokens[i + 1]
+        if token.startswith("-B") and token != "-B":  # cobra's -Bmain
+            return token[2:]
     return None
 
 
@@ -130,7 +132,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     tool_input = hook_input.get("tool_input", {})
     command = tool_input.get("command", "")
 
-    if "gh pr create" not in command and "gh pr submit" not in command:
+    if "gh pr create" not in command:
         return None
 
     db_path = _find_graph_db()

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import logging
@@ -51,7 +52,7 @@ class SpecKitCache:
             # string, 0 or [] is still data and must not share an entry
             # with "no data".
             # SHA256 for collision resistance (not for cryptographic security).
-            data_hash = hashlib.sha256(str(data).encode()).hexdigest()[:8]
+            data_hash = hashlib.sha256(str(data).encode()).hexdigest()[:16]
             return f"{key}_{data_hash}"
         return key
 
@@ -97,7 +98,9 @@ class SpecKitCache:
         # Check memory cache first
         if cache_key in self._memory_cache:
             if not self.is_expired(cache_key, ttl):
-                return self._memory_cache[cache_key]
+                # A copy: a caller mutating its result must not change
+                # every later hit (the disk copy would disagree).
+                return copy.deepcopy(self._memory_cache[cache_key])
             # Remove expired entry
             del self._memory_cache[cache_key]
             if cache_key in self._cache_timestamps:
@@ -114,8 +117,9 @@ class SpecKitCache:
                     # would restart its TTL.
                     self._memory_cache[cache_key] = cached_data
                     self._cache_timestamps[cache_key] = cache_path.stat().st_mtime
-                    return cached_data
-            except (OSError, json.JSONDecodeError):
+                    return copy.deepcopy(cached_data)
+            # ValueError covers JSONDecodeError and UnicodeDecodeError.
+            except (OSError, ValueError):
                 # Invalid cache file, remove it
                 cache_path.unlink(missing_ok=True)
 
@@ -141,7 +145,7 @@ class SpecKitCache:
         cache_key = self._get_cache_key(key, data)
 
         # Store in memory cache
-        self._memory_cache[cache_key] = value
+        self._memory_cache[cache_key] = copy.deepcopy(value)
         self._cache_timestamps[cache_key] = time.time()
 
         # Store in file-based cache

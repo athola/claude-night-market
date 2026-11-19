@@ -86,8 +86,9 @@ Ruby, and PHP.
   column existed). Treat `name_guess` edges as unconfirmed: blast
   radius lists them under `name_guess_callers`. A
   database lacking the column gains it when opened.
-- Each build records `gauntlet_version` in the `metadata`
-  table. At session start, a graph built by an older
+- Each full build that stores nodes records `gauntlet_version`
+  in the `metadata` table; an incremental build leaves it
+  alone. At session start, a graph built by an older
   version is rebuilt in the background (log:
   `.gauntlet/rebuild.log`). Opt out with
   `{"rebuild_on_upgrade": false}` in

@@ -368,6 +368,17 @@ class TestTheAvailabilityReport:
 
         assert "gemini" in render_available(ledger)
 
+    def test_installed_provider_with_unchecked_sign_in_is_named(
+        self, ledger_path: Path
+    ) -> None:
+        """A CLI-auth provider was left out as if absent (CNJ-13)."""
+        ledger = ProviderLedger(ledger_path, ttl_seconds=10**9)
+        ledger.record(_record("muse", auth_confirmed_at=None, recorded_at=time.time()))
+
+        report = render_available(ledger)
+        assert "muse" in report
+        assert "sign-in not checked" in report
+
     def test_several_ready_providers_are_listed_in_order(
         self, ledger_path: Path
     ) -> None:

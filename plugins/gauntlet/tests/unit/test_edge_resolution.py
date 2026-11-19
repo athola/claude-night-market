@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
@@ -232,3 +233,41 @@ class TestVendoredCopyResolution:
         self._seed_copies(store, "plugins/leyline/src/leyline/atomic_file.py")
         store.resolve_call_targets()
         assert _resolution(store, f"{self._CALLER}::main") == ["exact"]
+
+
+@pytest.mark.unit
+def test_object_receiver_sharing_module_name_is_a_name_guess(store: GraphStore) -> None:
+    """`config.load()` on a parameter named like config.py was labelled exact,
+    so it never reached name_guess_callers (GAU-4).
+    """
+    store.upsert_node(_node("config.py::load", "config.py"))
+    store.upsert_node(_node("store.py::Store", "store.py", NodeKind.CLASS))
+    store.upsert_node(_node("store.py::Store.load", "store.py"))
+    store.upsert_node(_node("main.py::run", "main.py"))
+    store.upsert_edge(_call("main.py::run", "config.load", "main.py"))
+    store.resolve_call_targets()
+    assert _resolution(store, "main.py::run") == ["name_guess"]
+
+
+@pytest.mark.unit
+def test_init_schema_tolerates_column_added_concurrently(tmp_path: Path) -> None:
+    """Two processes upgrading one legacy graph: the second ALTER raised
+    "duplicate column name" and failed that process (GAU-8).
+    """
+    db = tmp_path / "graph.db"
+    GraphStore(db).close()  # the column exists now
+    real_execute = sqlite3.Connection.execute
+
+    class StaleConnection(sqlite3.Connection):
+        def execute(self, sql, *args):  # type: ignore[override] - narrows sqlite3 execute to fake a stale schema
+            if sql.startswith("PRAGMA table_info(edges)"):
+                return iter([(0, "id"), (1, "source_qn")])  # column looks absent
+            return real_execute(self, sql, *args)
+
+    original_connect = sqlite3.connect
+
+    def connect(*args, **kwargs):
+        return original_connect(*args, factory=StaleConnection, **kwargs)
+
+    with mock.patch("sqlite3.connect", connect):
+        GraphStore(db).close()

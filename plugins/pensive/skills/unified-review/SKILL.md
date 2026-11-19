@@ -185,7 +185,7 @@ preserved so they are not lost between review cycles.
 For each finding assigned to the backlog, run:
 
 ```bash
-python3 scripts/deferred_capture.py \
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py" \
   --title "<finding title>" \
   --source review \
   --context "Review dimension: <dimension>. <finding description>"

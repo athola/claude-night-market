@@ -311,6 +311,23 @@ def _changed_files(runner: Runner, workdir: Path) -> list[str]:
     return [_git_unquote(line.strip()) for line in names.splitlines() if line.strip()]
 
 
+def _head(runner: Runner, workdir: Path) -> str:
+    """Return the commit HEAD names in ``workdir``."""
+    return _git_query(runner, workdir, "rev-parse", "HEAD").strip()
+
+
+def _uncommit_since(runner: Runner, workdir: Path, base: str) -> None:
+    """Turn commits an implementer made back into staged changes.
+
+    The fence diffs against HEAD. An implementer that ran ``git commit``
+    moved HEAD, so its edits, a denylisted ``.github/`` file included,
+    were invisible. A soft reset keeps the edits and hands them to the
+    fence; the runner commits only what passes.
+    """
+    if _head(runner, workdir) != base:
+        runner.run(["git", "reset", "--soft", base], cwd=workdir)
+
+
 def _touched_files(runner: Runner, workdir: Path) -> list[str]:
     """Every path the implementer wrote, created ones included.
 
@@ -425,10 +442,12 @@ def run_task(
         )
         return result
 
+    base = _head(runner, workdir)
     for attempt in range(1, max_attempts + 1):
         result.attempts = attempt
 
         dispatched = _dispatch_implementer(runner, handoff, task, workdir, steer)
+        _uncommit_since(runner, workdir, base)
         if PROVIDERS_EXHAUSTED in dispatched.output and not allow_fallback:
             result.verdict = "BLOCKED"
             result.reason = (
@@ -552,6 +571,8 @@ def topo_sort(tasks: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
     guessed would hide the gate being wrong.
     """
     by_id = {str(t.get("id")): t for t in tasks}
+    if len(by_id) != len(tasks):
+        raise ValueError("duplicate task ids; the gate is supposed to refuse them")
     ordered: list[Mapping[str, Any]] = []
     placed: set[str] = set()
     remaining = [str(t.get("id")) for t in tasks]
@@ -806,6 +827,33 @@ def _metered_babysitter(
     return metered
 
 
+def _is_registered_worktree(runner: Runner, root: Path, worktree: Path) -> bool:
+    """Report whether git already tracks ``worktree`` as a worktree of ``root``."""
+    listing = _git(runner, root, "worktree", "list", "--porcelain")
+    if listing.returncode != 0:
+        return False
+    wanted = str(worktree.resolve())
+    return any(
+        line in (f"worktree {wanted}", f"worktree {worktree}")
+        for line in listing.output.splitlines()
+    )
+
+
+def _committed_task_ids(runner: Runner, worktree: Path, handoff: Handoff) -> set[str]:
+    """Task ids already committed on the item branch (subjects ``<tid>: ...``)."""
+    log = _git(runner, worktree, "log", "--format=%s", f"{handoff.base_branch}..HEAD")
+    if log.returncode != 0:
+        return set()
+    return {line.split(":", 1)[0] for line in log.output.splitlines() if ":" in line}
+
+
+def _pending_tasks(
+    tasks: Sequence[Mapping[str, Any]], done: set[str]
+) -> list[Mapping[str, Any]]:
+    """Tasks in dependency order, less those already committed."""
+    return [task for task in topo_sort(tasks) if str(task.get("id")) not in done]
+
+
 def _prepare_worktree(
     runner: Runner, root: Path, worktree: Path, handoff: Handoff
 ) -> str | None:
@@ -818,6 +866,10 @@ def _prepare_worktree(
     failed ``uv sync`` left every later test failing for a reason that
     had nothing to do with the task the babysitter was judging.
     """
+    if _is_registered_worktree(runner, root, worktree):
+        # A parked item resumes in the worktree it left; cutting the
+        # branch again failed with "a branch named ... already exists".
+        return None
     added = _git(
         runner,
         root,
@@ -901,6 +953,19 @@ def _final_full_suite(
     if observed.returncode != 0:
         return record, f"the full suite exited {observed.returncode}"
     return record, None
+
+
+def _suite_on_committed_tree(
+    runner: Runner, worktree: Path, handoff: Handoff, result: ItemResult
+) -> tuple[dict[str, Any], str | None]:
+    """Revert uncommitted edits, then run the final suite.
+
+    Edits to allowed files that no task lists are never committed, so a
+    suite run over them judged a tree the branch does not hold. They are
+    recorded and reverted first, the same as at a park.
+    """
+    result.discarded = _discard_uncommitted(runner, worktree)
+    return _final_full_suite(runner, worktree, handoff)
 
 
 def _item_worktree(root: Path, item: str, declared: object) -> Path:
@@ -988,7 +1053,9 @@ def run_item(  # noqa: PLR0913 - budget and budget_path travel together; bundlin
         return result
 
     spend = [0]
-    for task in topo_sort(tasks):
+    # A resumed item keeps its committed tasks; running them again would
+    # apply their changes twice.
+    for task in _pending_tasks(tasks, _committed_task_ids(runner, worktree, handoff)):
         tid = str(task.get("id"))
 
         try:
@@ -1044,7 +1111,9 @@ def run_item(  # noqa: PLR0913 - budget and budget_path travel together; bundlin
         _discard_at_park(runner, worktree, result)
 
     if result.status == "ready":
-        result.full_suite, red = _final_full_suite(runner, worktree, handoff)
+        result.full_suite, red = _suite_on_committed_tree(
+            runner, worktree, handoff, result
+        )
         if red is not None:
             result.status = "full_suite_red"
             result.reason = red

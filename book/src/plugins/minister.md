@@ -22,6 +22,14 @@ It bridges the gap between development work and project management.
 | `github-initiative-pulse` | Initiative progress tracking | Weekly status reports |
 | `release-health-gates` | Release readiness checks | Before releasing |
 
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/minister:close-issue` | Check whether issues can be closed, based on commits |
+| `/minister:create-issue` | Create a GitHub issue with labels and reference links |
+| `/minister:update-labels` | Reorganize issue labels into type, priority and effort |
+
 ## Scripts
 
 | Script | Description |
@@ -57,17 +65,14 @@ Skill(minister:release-health-gates)
 ### CLI Usage
 
 ```bash
-# List initiatives
-python tracker.py list
+# Show the status report for every task
+python tracker.py status
 
-# Show initiative details
-python tracker.py show auth-v2
+# Update a task's status
+python tracker.py update --id auth-v2 --status "In Progress"
 
-# Generate weekly report
-python tracker.py report --week
-
-# Update status
-python tracker.py update auth-v2 --status in-progress
+# Export tasks to CSV
+python tracker.py export --output tasks.csv
 ```
 
 ## Initiative Structure
@@ -136,40 +141,25 @@ Address breaking change documentation before release.
 
 ## Reporting
 
-### Weekly Report
+### Status Report
 
 ```bash
-python tracker.py report --week
-
-# Outputs:
-# - Initiatives summary
-# - This week's completions
-# - Next week's focus
-# - Blockers and risks
+python tracker.py status
 ```
 
-### Stakeholder Summary
+### Summary for an Issue or PR
 
 ```bash
-python tracker.py report --stakeholder
-
-# Generates executive summary:
-# - High-level progress
-# - Key achievements
-# - Timeline updates
-# - Resource needs
+# Markdown summary to paste into a GitHub issue or PR
+python tracker.py status --github-comment
 ```
 
 ## Integration with GitHub
 
-Minister reads from GitHub:
+A task records the GitHub issue or PR it tracks:
 
 ```bash
-# Sync initiative from GitHub milestone
-python tracker.py sync --milestone "v2.0"
-
-# Pull issue status
-python tracker.py refresh auth-v2
+python tracker.py update --id auth-v2 --github-issue 42
 ```
 
 ## Superpowers Integration
@@ -201,14 +191,11 @@ health_gates:
 ### Sprint Planning
 
 ```bash
-# Check initiative status
-python tracker.py list
+# Check task status
+python tracker.py status
 
-# Update priorities
-python tracker.py update auth-v2 --priority high
-
-# Generate planning report
-python tracker.py report --planning
+# Record progress on a task
+python tracker.py update --id auth-v2 --completion 40
 ```
 
 ### Release Preparation

@@ -52,8 +52,8 @@ class NotificationState:
         """Load state from file, or return fresh state if not found."""
         state_file = cls.state_file_path(session_id)
         try:
-            if state_file.exists():
-                data = json.loads(state_file.read_text())
+            data = json.loads(state_file.read_text()) if state_file.exists() else None
+            if isinstance(data, dict):
                 return cls(
                     last_notify_time=data.get("last_notify_time", 0.0),
                     last_content_hash=data.get("last_content_hash", ""),
@@ -69,7 +69,10 @@ class NotificationState:
         """Persist state to file."""
         state_file = self.state_file_path(self.session_id)
         try:
-            fd = os.open(str(state_file), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            # O_NOFOLLOW: the path is predictable in a shared temp dir, and a
+            # planted symlink would have its target truncated.
+            flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | getattr(os, "O_NOFOLLOW", 0)
+            fd = os.open(str(state_file), flags, 0o600)
             with os.fdopen(fd, "w") as f:
                 f.write(json.dumps(asdict(self)))
         except OSError as exc:

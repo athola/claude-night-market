@@ -122,7 +122,9 @@ planner gates on, and a drift test holds the two together.
 
 **Named entities.** List every product, project, standard or
 method the question names or that a comparison will rank, and
-pass the list as the workflow's `entities` arg. The workflow
+pass the list as the workflow's `entities` arg. Store it on the
+session too (`session.entities = entities`, then `mgr.save(session)`)
+so the report lists the ones no finding mentions. The workflow
 searches each one no channel covered, and returns the rest as
 `coverage.unsearched`. When dispatching agents directly instead,
 run the same check yourself before synthesis: call

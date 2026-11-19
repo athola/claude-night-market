@@ -4,6 +4,8 @@
 This script reads the installed plugins configuration and updates each plugin.
 """
 
+from __future__ import annotations
+
 import json
 import re
 import subprocess
@@ -48,6 +50,10 @@ def read_installed_plugins() -> dict[str, list[dict[str, Any]]]:
     return plugins
 
 
+#: update_plugin's version when exit 0 output named no version.
+_UNKNOWN = "unknown"
+
+
 def update_plugin(plugin_full_name: str) -> tuple[bool, str, str]:
     """Update a single plugin and return (success, old_version, new_version)."""
     try:
@@ -82,8 +88,8 @@ def update_plugin(plugin_full_name: str) -> tuple[bool, str, str]:
                 if versions:
                     return True, versions.group(1), versions.group(2)
 
-            # Assume success but couldn't parse versions
-            return True, "unknown", "unknown"
+            # Exit 0 with output that names neither outcome: not "latest".
+            return True, _UNKNOWN, _UNKNOWN
 
         else:
             if result.stderr:
@@ -118,6 +124,14 @@ def process_plugin(
 
     success, old_version, new_version = update_plugin(plugin_full_name)
 
+    if success and new_version == _UNKNOWN:
+        print("   [??] Update ran; its output did not say which version is installed")
+        return {
+            "status": "unverified",
+            "name": plugin_name,
+            "marketplace": marketplace,
+            "version": current_version,
+        }
     if success:
         if old_version == new_version:
             print(f"   [OK] Already at latest version ({new_version})")
@@ -162,6 +176,9 @@ def main() -> None:
     updated_plugins: list[dict[str, Any]] = []
     already_latest: list[dict[str, Any]] = []
     failed_plugins: list[dict[str, Any]] = []
+    # The update ran but its output named no version: not a failure, and
+    # not proof the plugin is current either.
+    unverified: list[dict[str, Any]] = []
 
     # Process each plugin
     for plugin_full_name, plugin_list in plugins.items():
@@ -173,11 +190,15 @@ def main() -> None:
                 already_latest.append(result)
             elif result["status"] == "updated":
                 updated_plugins.append(result)
+            elif result["status"] == "unverified":
+                unverified.append(result)
             else:
                 failed_plugins.append(result)
 
     # Print summary
-    print_summary(total_plugins, updated_plugins, already_latest, failed_plugins)
+    print_summary(
+        total_plugins, updated_plugins, already_latest, failed_plugins, unverified
+    )
 
     if failed_plugins:
         sys.exit(1)
@@ -188,14 +209,17 @@ def print_summary(
     updated_plugins: list[dict[str, Any]],
     already_latest: list[dict[str, Any]],
     failed_plugins: list[dict[str, Any]],
+    unverified: list[dict[str, Any]] | None = None,
 ) -> None:
     """Print the update summary."""
+    unverified = unverified or []
     print("\n" + "=" * 50)
     print("UPDATE SUMMARY")
     print("=" * 50)
     print(f"Total plugins: {total_plugins}")
     print(f"Updated: {len(updated_plugins)}")
     print(f"Already latest: {len(already_latest)}")
+    print(f"Unverified: {len(unverified)}")
     print(f"Failed: {len(failed_plugins)}")
 
     if updated_plugins:
@@ -212,6 +236,11 @@ def print_summary(
             print(f"  - {plugin['name']}@{plugin['marketplace']} ({plugin['version']})")
         if len(already_latest) > MAX_SHOW_PLUGINS:
             print(f"  ... and {len(already_latest) - MAX_SHOW_PLUGINS} more")
+
+    if unverified:
+        print(f"\n[UNVERIFIED] ({len(unverified)} plugins, version not reported):")
+        for plugin in unverified:
+            print(f"  - {plugin['name']}@{plugin['marketplace']}")
 
     if failed_plugins:
         print(f"\n[FAILED] ({len(failed_plugins)} plugins):")

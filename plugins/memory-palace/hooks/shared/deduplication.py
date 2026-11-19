@@ -104,11 +104,21 @@ def get_content_hash(content: str | bytes) -> str:
     return f"sha256:{hashlib.sha256(content).hexdigest()[:16]}"
 
 
-_TRACKING_PARAMS = frozenset({"utm_source", "utm_medium", "utm_campaign", "ref"})
+# `ref` is not tracking: it selects a git ref on GitHub and many doc sites.
+_TRACKING_PARAMS = frozenset({"utm_source", "utm_medium", "utm_campaign"})
+
+
+SEARCH_KEY_PREFIX = "search:"
 
 
 def get_url_key(url: str) -> str:
-    """Normalize URL for consistent keying."""
+    """Normalize URL for consistent keying.
+
+    A ``search:`` key holds a query, not a URL, and is returned as given:
+    the normalizer would drop a trailing ``?`` and query-like pairs.
+    """
+    if url.startswith(SEARCH_KEY_PREFIX):
+        return url
     # Fragment first: a trailing slash before "#" is still a trailing slash.
     url = url.split("#", 1)[0]
 
@@ -196,6 +206,10 @@ def _load_index() -> dict[str, Any]:
         try:
             with open(index_path) as f:
                 _index_cache = yaml.safe_load(f) or {"entries": {}, "hashes": {}}
+            if not isinstance(_index_cache, dict):
+                # A list parses fine and then raised on `.setdefault`,
+                # outside this set-aside path.
+                raise yaml.YAMLError("index is not a mapping")
         except yaml.YAMLError as exc:
             # Issue #528: a corrupt index file must not take down web-research
             # store calls. Reads proceed on an empty index and leave the file
@@ -311,6 +325,41 @@ def needs_update(
         return True  # Not indexed yet
 
     return entry.get("content_hash") != content_hash
+
+
+def forget_stored(stored_paths: set[str]) -> None:
+    """Drop the entries and hashes of capture files that were deleted.
+
+    Pruning a capture file left its entry behind, so ``is_known`` kept
+    answering True for content nothing can retrieve, and the page was
+    never captured again. Same lock and write-back as ``update_index``.
+    """
+    global _index_cache, _index_mtime  # noqa: PLW0603 - same module cache update_index refreshes
+    if not stored_paths or yaml is None:
+        return
+    with _index_lock():
+        _index_cache = None
+        index = _load_index()
+        if _index_load_failed:
+            # update_index sets a corrupt index aside before writing; a prune
+            # has nothing to add, so it leaves the file for that path.
+            return
+        index["entries"] = {
+            key: entry
+            for key, entry in index["entries"].items()
+            if entry.get("stored_at") not in stored_paths
+        }
+        index["hashes"] = {
+            digest: where
+            for digest, where in index["hashes"].items()
+            if where not in stored_paths
+        }
+        index_path = _get_index_path()
+        write_atomic(
+            index_path, yaml.safe_dump(index, default_flow_style=False, sort_keys=False)
+        )
+        _index_cache = index
+        _index_mtime = index_path.stat().st_mtime
 
 
 def update_index(  # noqa: PLR0913 - index entries have many metadata fields

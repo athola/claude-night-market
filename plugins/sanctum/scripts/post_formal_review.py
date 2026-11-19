@@ -268,7 +268,7 @@ def post_gitlab(
     findings, summary, pending = request.findings, request.summary, request.pending
     base = f"projects/{quote(project, safe='')}/merge_requests/{mr}"
     viewer = _glab(run, "GET", "user")["username"]
-    request = _glab(run, "GET", base)
+    merge_request = _glab(run, "GET", base)
     drafts = _glab(run, "GET", f"{base}/draft_notes") or []
     if drafts and pending != "join":
         return {"status": "pending-draft", "draft_comments": len(drafts)}
@@ -299,7 +299,7 @@ def post_gitlab(
                 note = f"_(line {finding.line}, outside the diff)_\n\n{note}"
         _glab(run, "POST", f"{base}/draft_notes", {"note": note, "position": position})
 
-    event = choose_event(findings, own_pr=request["author"]["username"] == viewer)
+    event = choose_event(findings, own_pr=merge_request["author"]["username"] == viewer)
     state = "requested_changes" if event == "REQUEST_CHANGES" else "reviewed"
     _glab(
         run,
@@ -309,7 +309,11 @@ def post_gitlab(
     )
     if event == "APPROVE":
         _glab(run, "POST", f"{base}/approve")
-    return {"status": "submitted", "event": event, "url": request.get("web_url", "")}
+    return {
+        "status": "submitted",
+        "event": event,
+        "url": merge_request.get("web_url", ""),
+    }
 
 
 def _load_findings(path: str) -> list[Finding]:
@@ -366,25 +370,47 @@ def main(argv: list[str] | None = None) -> int:
             summary = handle.read()
 
     request = ReviewRequest(findings=findings, summary=summary, pending=args.pending)
+    try:
+        result = _post(args, parser, request)
+    except subprocess.CalledProcessError as err:
+        # A failure after the review was opened leaves a pending draft; the
+        # next run reports it as pending-draft and asks what to do.
+        detail = (err.stderr or "").strip() or f"exit {err.returncode}"
+        sys.stderr.write(
+            f"{err.cmd[0]} failed: {detail}. A pending draft review may remain "
+            "on the PR; rerun to see it, then join, submit or discard it.\n"
+        )
+        return 2
+    return _report(result)
+
+
+def _post(
+    args: argparse.Namespace,
+    parser: argparse.ArgumentParser,
+    request: ReviewRequest,
+) -> dict[str, Any]:
+    """Send the review through the platform's CLI."""
     if args.platform == "github":
         if not args.repo:
             parser.error("--repo is required for github")
-        result = post_github(
+        return post_github(
             run_cli,
             repo=args.repo,
             pr=args.pr,
             request=request,
         )
-    else:
-        if not args.project:
-            parser.error("--project is required for gitlab")
-        result = post_gitlab(
-            run_cli,
-            project=args.project,
-            mr=args.pr,
-            request=request,
-        )
+    if not args.project:
+        parser.error("--project is required for gitlab")
+    return post_gitlab(
+        run_cli,
+        project=args.project,
+        mr=args.pr,
+        request=request,
+    )
 
+
+def _report(result: dict[str, Any]) -> int:
+    """Print the outcome and return the exit code."""
     if result["status"] == "pending-draft":
         sys.stderr.write(
             f"You have a pending draft review with {result['draft_comments']} "

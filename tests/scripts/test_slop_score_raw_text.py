@@ -51,3 +51,18 @@ def test_the_gate_fails_a_file_that_is_only_a_trojan_fence(tmp_path: Path) -> No
 
 def test_a_prose_free_file_without_hidden_characters_still_scores_zero() -> None:
     assert _load().score_text("```python\nx = 1\n```\n").score == 0.0
+
+
+def test_iter_markdown_finds_files_under_absolute_worktrees_path(
+    tmp_path: Path,
+) -> None:
+    """A `worktrees` ancestor of the root skipped every file (ROOT-1)."""
+    root = tmp_path / "worktrees" / "feature"
+    (root / "docs").mkdir(parents=True)
+    (root / "docs" / "a.md").write_text("# A\n")
+    (root / "node_modules").mkdir()
+    (root / "node_modules" / "b.md").write_text("# B\n")
+
+    found = _load()._iter_markdown([str(root)])
+
+    assert [p.name for p in found] == ["a.md"]

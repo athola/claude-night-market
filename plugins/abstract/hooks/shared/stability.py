@@ -30,6 +30,10 @@ WINDOW = 5
 # skill on every later run.
 RECENT_RUNS = 20
 
+#: A gap above this is instability worth flagging. From the Avalanche
+#: continual-learning work: https://avalanche.continualai.org/
+STABILITY_GAP_THRESHOLD = 0.3
+
 
 def _checked(outcomes: Sequence[float]) -> Sequence[float]:
     for outcome in outcomes:

@@ -132,24 +132,37 @@ def check_churn_hotspots(
 
 def check_fix_on_fix(
     commits: list[tuple[str, str]],
+    files_by_commit: dict[str, set[str]] | None = None,
 ) -> list[EscalationFlag]:
     """Identify commits that fix previous commits.
 
     Args:
-        commits: List of (hash, message) tuples.
+        commits: List of (hash, message) tuples, newest first as git logs.
+        files_by_commit: Files each commit touched. When given, a fix is
+            flagged only if an earlier fix in range touched one of its
+            files, which is the signal escalation-criteria.md defines.
+            Without it every fix-keyword commit is flagged, and a single
+            ordinary fix escalated a branch to Tier 2.
 
     Returns:
         List of escalation flags for fix-on-fix patterns.
 
     """
+    fixes = [(sha, msg) for sha, msg in commits if FIX_KEYWORDS.search(msg)]
+    if files_by_commit is None:
+        repeated = fixes
+    else:
+        repeated = []
+        fixed_files: set[str] = set()
+        for sha, message in reversed(fixes):
+            touched = files_by_commit.get(sha, set())
+            if touched & fixed_files:
+                repeated.append((sha, message))
+            fixed_files |= touched
+        repeated.reverse()
     return [
-        EscalationFlag(
-            area="",
-            reason="fix-on-fix",
-            detail=f"{sha[:7]}: {message}",
-        )
-        for sha, message in commits
-        if FIX_KEYWORDS.search(message)
+        EscalationFlag(area="", reason="fix-on-fix", detail=f"{sha[:7]}: {message}")
+        for sha, message in repeated
     ]
 
 

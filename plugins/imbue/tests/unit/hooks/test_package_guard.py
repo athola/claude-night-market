@@ -497,3 +497,50 @@ class TestWorkspaceFlagPerInstaller:
     def test_npm_workspace_flag_still_consumes_its_value(self, pg) -> None:
         """`npm i -w ws pkgx` names workspace ws, then installs pkgx."""
         assert pg.parse_packages("npm i -w ws pkgx") == [("npm", "pkgx")]
+
+
+@pytest.mark.unit
+def test_typosquat_suspect_that_exists_in_registry_is_not_a_hard_finding(pg):
+    """A real package near a popular name (react-dnd, torchx) was blocked
+    without a registry lookup, and a retry got the same verdict (IMB-1).
+    """
+    findings = pg.assess_packages(
+        "pip install torchx", registry_fn=lambda name, ecosystem: True
+    )
+    assert [f["kind"] for f in findings] == ["near_popular"]
+
+
+@pytest.mark.unit
+def test_typosquat_suspect_missing_from_registry_stays_hard(pg):
+    findings = pg.assess_packages(
+        "pip install reqeusts", registry_fn=lambda name, ecosystem: False
+    )
+    assert [f["kind"] for f in findings] == ["typosquat"]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("command", "expected"),
+    [
+        (".venv/bin/pip install reqeusts", [("pypi", "reqeusts")]),
+        ("/usr/bin/python3 -m pip install reqeusts", [("pypi", "reqeusts")]),
+        ("/opt/homebrew/bin/npm install lodsh", [("npm", "lodsh")]),
+        ("~/.cargo/bin/cargo add serdee", [("crates", "serdee")]),
+    ],
+)
+def test_path_qualified_installers_are_parsed(pg, command, expected):
+    """A path before pip/python/npm parsed to [], so nothing was checked (IMB-4)."""
+    assert pg.parse_packages(command) == expected
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        'bash -c "pip install evilpkg"',
+        "sh -c 'npm install evilpkg && echo ok'",
+        'zsh -lc "uv pip install evilpkg"',
+    ],
+)
+def test_shell_wrapped_installers_are_parsed(pg, command: str) -> None:
+    """`bash -c "pip install x"` read as a bash command, not an install (IMB-4)."""
+    assert any(name == "evilpkg" for _eco, name in pg.parse_packages(command))

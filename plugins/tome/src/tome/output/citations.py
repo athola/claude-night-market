@@ -7,9 +7,10 @@ from urllib.parse import urlsplit
 
 from tome.models import Finding
 
-# Stops at whitespace and the delimiters that close a markdown link or
-# quote; trailing sentence punctuation is trimmed after the match.
-_URL_PATTERN = re.compile(r"https?://[^\s<>()\[\]\"']+", re.IGNORECASE)
+# Stops at whitespace, brackets, quotes and markdown emphasis (backtick,
+# asterisk). Parentheses are allowed, because a URL can hold a balanced
+# pair (`Foo_(bar)`); `_trim_url` drops an unbalanced closing one.
+_URL_PATTERN = re.compile(r"https?://[^\s<>\[\]\"'`*]+", re.IGNORECASE)
 
 # Platform display names keyed by source identifier.
 _PLATFORM_NAMES = {
@@ -89,6 +90,21 @@ def _normalize_url(url: str) -> str:
     return f"{parts.scheme.lower()}://{parts.netloc.lower()}{path}{query}"
 
 
+def _trim_url(url: str) -> str:
+    """Drop sentence punctuation and a `)` that closes a markdown link."""
+    while True:
+        trimmed = url.rstrip(".,;:!?")
+        if trimmed.endswith(")") and trimmed.count("(") < trimmed.count(")"):
+            trimmed = trimmed[:-1]
+        if trimmed == url:
+            return url
+        url = trimmed
+
+
+def _urls_in(text: str) -> list[str]:
+    return [_trim_url(match.group()) for match in _URL_PATTERN.finditer(text)]
+
+
 def find_ungrounded_urls(report_text: str, findings: list[Finding]) -> list[str]:
     """Return URLs cited in ``report_text`` that no finding carries.
 
@@ -99,10 +115,11 @@ def find_ungrounded_urls(report_text: str, findings: list[Finding]) -> list[str]
 
     URLs come back as written, once each, in first-appearance order.
     """
+    # A URL a finding's summary quotes was retrieved with that finding.
     grounded = {_normalize_url(f.url) for f in findings}
+    grounded.update(_normalize_url(u) for f in findings for u in _urls_in(f.summary))
     ungrounded: dict[str, str] = {}
-    for match in _URL_PATTERN.finditer(report_text):
-        url = match.group().rstrip(".,;:!?")
+    for url in _urls_in(report_text):
         key = _normalize_url(url)
         if key not in grounded and key not in ungrounded:
             ungrounded[key] = url

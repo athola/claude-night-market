@@ -7,6 +7,7 @@ then reinstalls it. Useful for clearing cache corruption or version mismatches.
 
 import argparse
 import os
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -176,8 +177,12 @@ def generate_script(
     """Generate a bash script for terminal execution."""
     script_path = _create_script_path()
 
-    plugin_list = "\n".join(f'  "{p["full_name"]}"' for p in reinstallable)
+    # Names come from installed_plugins.json; inside double quotes a `$(...)`
+    # in one ran when the user executed the script.
+    plugin_list = "\n".join(f"  {shlex.quote(p['full_name'])}" for p in reinstallable)
     excluded_note = ", ".join(p["name"] for p in excluded) if excluded else "none"
+    excluded_note = excluded_note.replace("\n", " ")
+    quoted_note = shlex.quote(f"(Excluded: {excluded_note})")
 
     script_content = f"""#!/bin/bash
 # Generated reinstall script for Claude Code plugins
@@ -192,7 +197,7 @@ PLUGINS=(
 )
 
 echo "Reinstalling ${{#PLUGINS[@]}} plugins..."
-echo "(Excluded: {excluded_note})"
+echo {quoted_note}
 echo ""
 
 echo "Phase 1: Uninstalling plugins..."

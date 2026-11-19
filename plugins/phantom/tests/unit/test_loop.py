@@ -1103,3 +1103,91 @@ class TestRunLoop:
         display.execute.assert_not_called()
         assert result.actions_blocked == 1
         assert result.messages[2]["content"][0]["is_error"] is True
+
+
+def test_stuck_abort_keeps_the_tool_results_in_history() -> None:
+    """The abort returned before appending tool_results, leaving a tool_use
+    with no tool_result: the history cannot be resent (PHA-5).
+    """
+    block = MagicMock()
+    block.type = "tool_use"
+    block.name = "computer"
+    block.id = "stuck-1"
+    block.input = {"action": "left_click", "coordinate": [5, 5]}
+    response = MagicMock(content=[block], usage=None, stop_reason="tool_use")
+    client = MagicMock()
+    client.beta.messages.create.return_value = response
+    tracker = MagicMock(stuck_count=3)
+    tracker.record.return_value = True
+    policy = MagicMock()
+    policy.should_abort.return_value = True
+    display = MagicMock(spec=DisplayToolkit)
+    display.execute.return_value = ActionResult(success=True)
+    display.take_screenshot.return_value = ActionResult(
+        success=True, screenshot_b64="dGVzdA=="
+    )
+    ctx = _make_iteration_context(
+        screenshot_tracker=tracker, stuck_policy=policy, display=display
+    )
+    messages: list = [{"role": "user", "content": "go"}]
+
+    stop = _process_iteration(
+        _make_iteration_config(),
+        ctx,
+        _ClientSetup(client=client, tools=[], beta_flag="b"),
+        messages,
+        LoopResult(),
+    )
+
+    assert stop == "stuck"
+    assert messages[-1]["role"] == "user"
+    assert messages[-1]["content"][0]["tool_use_id"] == "stuck-1"
+
+
+def test_stuck_abort_answers_every_remaining_tool_use() -> None:
+    """Blocks after the aborting one had no tool_result at all (PHA-5)."""
+    blocks = []
+    for block_id in ("stuck-1", "never-run"):
+        block = MagicMock()
+        block.type = "tool_use"
+        block.name = "computer"
+        block.id = block_id
+        block.input = {"action": "left_click", "coordinate": [5, 5]}
+        blocks.append(block)
+    client = MagicMock()
+    client.beta.messages.create.return_value = MagicMock(
+        content=blocks, usage=None, stop_reason="tool_use"
+    )
+    tracker = MagicMock(stuck_count=3)
+    tracker.record.return_value = True
+    policy = MagicMock()
+    policy.should_abort.return_value = True
+    display = MagicMock(spec=DisplayToolkit)
+    display.execute.return_value = ActionResult(success=True)
+    display.take_screenshot.return_value = ActionResult(
+        success=True, screenshot_b64="dGVzdA=="
+    )
+    ctx = _make_iteration_context(
+        screenshot_tracker=tracker, stuck_policy=policy, display=display
+    )
+    messages: list = [{"role": "user", "content": "go"}]
+
+    _process_iteration(
+        _make_iteration_config(),
+        ctx,
+        _ClientSetup(client=client, tools=[], beta_flag="b"),
+        messages,
+        LoopResult(),
+    )
+
+    answered = [r["tool_use_id"] for r in messages[-1]["content"]]
+    assert answered == ["stuck-1", "never-run"]
+    assert messages[-1]["content"][1]["is_error"] is True
+    display.execute.assert_called_once()
+
+
+def test_tool_result_carries_action_text() -> None:
+    """A cursor_position answer reached the model as "Action completed" (PHA-2)."""
+    result = ActionResult(success=True, metadata={"text": "X=10, Y=20"})
+    formatted = _format_tool_result("id-1", result)
+    assert formatted["content"] == [{"type": "text", "text": "X=10, Y=20"}]

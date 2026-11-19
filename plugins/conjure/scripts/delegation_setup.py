@@ -364,14 +364,28 @@ def write_ledger(
 
 
 def render_available(ledger: ProviderLedger) -> str:
-    """Name the harnesses conjure can call on this machine right now."""
+    """Name the harnesses conjure can call on this machine right now.
+
+    A CLI that keeps its own sign-in is never confirmed by the status
+    table, so it is named apart rather than left out.
+    """
     ready = ledger.available()
-    if not ready:
+    unchecked = ledger.installed_unconfirmed()
+    lines = []
+    if ready:
+        lines.append("Available to conjure: " + ", ".join(ready))
+    if unchecked:
+        lines.append(
+            "Installed, sign-in not checked: "
+            + ", ".join(unchecked)
+            + " (run --doctor to probe)"
+        )
+    if not lines:
         return (
             "No provider is confirmed ready. Run --doctor for the reason "
             "per provider, or --install <service> to add one."
         )
-    return "Available to conjure: " + ", ".join(ready)
+    return "\n".join(lines)
 
 
 def install_every_missing(states: Sequence[ProviderState]) -> int:

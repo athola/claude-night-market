@@ -30,9 +30,15 @@ _TOKENS = "plugins/leyline/src/leyline/tokens.py"
 _SESSION_STORE = "plugins/leyline/src/leyline/session_store.py"
 _REPORT_FORMATTER = "plugins/abstract/src/abstract/report_formatter.py"
 _ATOMIC_FILE = "plugins/leyline/src/leyline/atomic_file.py"
+_SHELL_COMMAND = "plugins/leyline/src/leyline/shell_command.py"
 
 #: Canonical source path to the copies generated from it, repo-relative.
 VENDORED: dict[str, list[str]] = {
+    # gauntlet's precommit gate and imbue's vows must agree on what commits.
+    _SHELL_COMMAND: [
+        "plugins/gauntlet/src/gauntlet/_vendored_leyline_shell_command.py",
+        "plugins/imbue/hooks/shared/_vendored_leyline_shell_command.py",
+    ],
     _FRONTMATTER: [
         "plugins/sanctum/src/sanctum/_vendored_leyline_frontmatter.py",
         "plugins/memory-palace/scripts/_vendored_leyline_frontmatter.py",
@@ -73,6 +79,7 @@ VENDORED: dict[str, list[str]] = {
     _ATOMIC_FILE: [
         "plugins/abstract/src/abstract/_vendored_leyline_atomic_file.py",
         "plugins/conserve/hooks/shared/_vendored_leyline_atomic_file.py",
+        "plugins/conserve/scripts/_vendored_leyline_atomic_file.py",
         "plugins/egregore/scripts/_vendored_leyline_atomic_file.py",
         "plugins/herald/hooks/_vendored_leyline_atomic_file.py",
         "plugins/memory-palace/src/memory_palace/_vendored_leyline_atomic_file.py",

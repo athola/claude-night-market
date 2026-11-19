@@ -819,3 +819,12 @@ class TestDictResponsesKeepTheirLines:
         payload = {"tool_response": {"content": [{"text": "[Deferred] Fix x"}], "n": 3}}
 
         assert extract_deferred_titles(mod._response_text(payload)) == ["Fix x"]
+
+
+def test_marker_with_empty_title_does_not_capture_next_line() -> None:
+    """`\\s*` crossed the newline, so the next line of prose became the
+    issue title (SAN-9).
+    """
+    assert extract_deferred_titles("[Deferred]\nSome unrelated prose.") == [
+        "Untitled deferred item"
+    ]

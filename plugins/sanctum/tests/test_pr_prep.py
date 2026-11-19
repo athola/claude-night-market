@@ -41,7 +41,6 @@ class TestBreakingChanges:
         changes = BreakingChanges(has_breaking_changes=False)
         assert changes.has_breaking_changes is False
         assert changes.breaking_commits == []
-        assert changes.affected_apis == []
 
 
 class TestMergeStrategy:
@@ -151,11 +150,11 @@ class TestPRPrepAnalyzer:
         result = PRPrepAnalyzer.detect_breaking_changes(context)
         assert result.breaking_commits == ["b2", "c3", "d4"]
 
-    def test_detect_breaking_changes_with_breaking_file_type(self) -> None:
+    def test_file_type_alone_does_not_mark_a_change_breaking(self) -> None:
         """
-        GIVEN files marked as breaking type
+        GIVEN a file dict typed "breaking", a type no producer emits
         WHEN detect_breaking_changes is called
-        THEN affected_apis contains those files
+        THEN only commit messages decide (SAN-14)
         """
         context = {
             "commits": [],
@@ -164,8 +163,7 @@ class TestPRPrepAnalyzer:
             ],
         }
         result = PRPrepAnalyzer.detect_breaking_changes(context)
-        assert result.has_breaking_changes is True
-        assert "src/api.py" in result.affected_apis
+        assert result.has_breaking_changes is False
 
     def test_detect_breaking_changes_with_no_breaking_changes(self) -> None:
         """
@@ -380,3 +378,15 @@ class TestIsTestPath:
 
     def test_a_name_merely_containing_test_is_not_a_test(self) -> None:
         assert not _is_test_path("plugins/latest/config.py")
+
+
+def test_has_documentation_true_for_rst_change() -> None:
+    """The gate counted only .md while classify buckets .rst/.txt/.adoc as
+    docs, so one report said both "docs" and has_documentation False (SAN-6).
+    """
+
+    gates = PRPrepAnalyzer.validate_quality_gates(
+        {"changed_files": [{"path": "docs/a.rst", "type": "docs"}], "commits": []},
+        PRPrepAnalyzer.initialize_quality_gates(),
+    )
+    assert gates["has_documentation"] is True

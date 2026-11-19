@@ -108,7 +108,7 @@ class TestMakefileTargetGeneratorFromValidator:
         result = gen.generate_demo_targets("testplugin", commands)
 
         assert "test-check:" in result
-        assert "## Test check command workflow" in result
+        assert "## No automated test for /check (exits 1)" in result
 
     @pytest.mark.unit
     def test_generate_demo_targets_includes_aggregate(self, tmp_path: Path) -> None:

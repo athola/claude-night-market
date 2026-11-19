@@ -20,6 +20,7 @@ _START = time.monotonic()
 _BUDGET_SECONDS = 8.5  # Leave headroom within 10s hook timeout
 # Skip the lens pass rather than start one that cannot finish in the budget.
 _MIN_LENS_SECONDS = 2.0
+_MIN_STAGE_SECONDS = 3.0
 
 # ------------------------------------------------------------------
 # Path setup: same pattern as aggregate_learnings_daily.py
@@ -103,11 +104,20 @@ def main() -> None:
     if not _HAS_SCRIPTS or not _learnings_have_content():
         return
 
-    # Auto-promote high-severity items to Issues
-    best_effort(_HOOK, "auto-promote", _promote)
-
-    # Post learnings summary to Discussions
-    best_effort(_HOOK, "post-learnings", _post_learnings)
+    # Each gh stage needs seconds; one started near the Stop timeout is
+    # killed mid-write, which can post a discussion and never record it.
+    for label, stage in (
+        ("auto-promote", _promote),
+        ("post-learnings", _post_learnings),
+    ):
+        remaining = _BUDGET_SECONDS - (time.monotonic() - _START)
+        if remaining <= _MIN_STAGE_SECONDS:
+            print(
+                f"[post_learnings_stop] skipping {label} ({remaining:.1f}s remaining)",
+                file=sys.stderr,
+            )
+            continue
+        best_effort(_HOOK, label, stage)
 
     # Run insight engine lenses if budget remains
     remaining = _BUDGET_SECONDS - (time.monotonic() - _START)

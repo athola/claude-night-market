@@ -690,3 +690,31 @@ class TestOneInstalledPluginsReader:
             reinstall_all_plugins.read_installed_plugins
             is update_all_plugins.read_installed_plugins
         )
+
+
+def test_update_plugin_unrecognized_output_is_not_reported_latest(capsys) -> None:
+    """Exit 0 with output that names neither outcome read as "Already at
+    latest version (unknown)" (LEY-6).
+    """
+    done = MagicMock(returncode=0, stdout="done", stderr="")
+    with patch("update_all_plugins.subprocess.run", return_value=done):
+        result = update_all_plugins.process_plugin(
+            "p@m", {"version": "1.0.0", "installPath": "/x"}
+        )
+    assert result["status"] == "unverified"
+    assert "Already at latest" not in capsys.readouterr().out
+
+
+@patch("update_all_plugins.update_plugin", return_value=(True, "unknown", "unknown"))
+@patch(
+    "update_all_plugins.read_installed_plugins",
+    return_value={"p@m": [{"version": "1.0.0"}]},
+)
+def test_unverified_update_is_reported_and_is_not_a_failure(
+    _read: MagicMock, _update: MagicMock, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """`unverified` fell into the failed bucket and exited 1 (LEY-6)."""
+    update_all_plugins.main()
+    out = capsys.readouterr().out
+    assert "Unverified: 1" in out
+    assert "Failed: 0" in out

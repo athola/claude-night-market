@@ -80,13 +80,7 @@ class TestClassify:
         ],
     )
     def test_the_bucket_vocabulary_is_closed(self, path: str) -> None:
-        """classify never says "breaking", which is why no report line can.
-
-        ``PRPrepAnalyzer.detect_breaking_changes`` populates
-        ``affected_apis`` from files typed ``breaking``. This script is
-        the only caller that builds those dicts, and it cannot emit that
-        type, so the markdown carries no line for it.
-        """
+        """Classify sorts every path into one of three buckets."""
         assert classify(path) in {"test", "docs", "feature"}
 
 
@@ -124,13 +118,13 @@ class TestCollectAndAnalyze:
         assert report["quality_gates"]["passes_checks"] is None
         assert report["quality_gates"]["includes_breaking_changes"] is None
 
-    def test_collected_files_never_populate_affected_apis(
+    def test_report_has_no_affected_apis_field(
         self, branch_repo: tuple[Path, str]
     ) -> None:
-        """classify() emits no "breaking" type, so the list stays empty."""
+        """No producer ever typed a file "breaking", so it is gone (SAN-14)."""
         repo, base = branch_repo
         report = analyze(collect(base, repo))
-        assert report["breaking"]["affected_apis"] == []
+        assert "affected_apis" not in report["breaking"]
 
     def test_reviewers_come_from_the_map(self, branch_repo: tuple[Path, str]) -> None:
         """A prefix map turns changed paths into reviewer names."""
@@ -181,7 +175,7 @@ class TestCommandLine:
             "## Description scaffold",
         ):
             assert heading in out
-        assert "carries a `!` marker" in out
+        assert "is marked breaking (`!` or a BREAKING CHANGE footer)" in out
         assert "- alex" in out
         # The scaffold's own headings sit in a fence, apart from the report's
         scaffold = out.split("## Description scaffold", 1)[1]
@@ -257,3 +251,42 @@ class TestRunsWithoutPyYAML:
         )
         assert result.returncode == 0, result.stderr
         assert "PR prep analysis" in result.stdout
+
+
+class TestGitOutputParsing:
+    """Footers, spaces and non-ASCII paths were lost in git's text output
+    (SAN-1, SAN-3).
+    """
+
+    def test_collect_detects_breaking_change_footer_in_commit_body(
+        self, branch_repo: tuple[Path, str]
+    ) -> None:
+        repo, _ = branch_repo
+        base = _git(repo, "rev-parse", "HEAD")
+        (repo / "src" / "more.py").write_text("x = 1\n")
+        _git(repo, "add", "-A")
+        _git(
+            repo,
+            "commit",
+            "-qm",
+            "feat: rename config key",
+            "-m",
+            "BREAKING CHANGE: `timeout` is now `timeout_s`.",
+        )
+
+        report = analyze(collect(base, repo))
+
+        assert report["breaking"]["has_breaking_changes"] is True
+
+    def test_collect_reads_a_path_with_a_space_and_non_ascii(
+        self, branch_repo: tuple[Path, str]
+    ) -> None:
+        repo, _ = branch_repo
+        base = _git(repo, "rev-parse", "HEAD")
+        (repo / "src" / "my café.py").write_text("x = 1\n")
+        _git(repo, "add", "-A")
+        _git(repo, "commit", "-qm", "feat: add cafe")
+
+        paths = [f["path"] for f in collect(base, repo)["changed_files"]]
+
+        assert paths == ["src/my café.py"]

@@ -118,6 +118,9 @@ class _InferenceHandler(BaseHTTPRequestHandler):
     """Handle GET /health and POST /infer."""
 
     server: _InferenceServer  # type narrowing for mypy
+    # HTTPServer serves one connection at a time: without a socket timeout,
+    # a client that declares a body and sends none blocks every later request.
+    timeout = 5
 
     def log_message(  # noqa: A002 - overrides stdlib BaseHTTPRequestHandler.log_message signature
         self,

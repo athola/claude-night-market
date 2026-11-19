@@ -829,3 +829,56 @@ class TestIncrementalAgainstARealRepo:
             and e.target_qn not in node_names
         ]
         assert dangling == []
+
+
+class TestRemovedFilesLeaveTheGraph:
+    """Ghost nodes from renamed or deleted files (GAU-1, GAU-2)."""
+
+    @pytest.mark.unit
+    def test_incremental_after_rename_drops_old_path_nodes(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        """Git reported only the new path of a rename, so the old one stayed."""
+        (repo / "a.py").write_text("def helper():\n    pass\n")
+        _git(repo, "add", ".")
+        _git(repo, "commit", "-qm", "init")
+        full_build(str(repo), store)
+        _git(repo, "mv", "a.py", "b.py")
+        _git(repo, "commit", "-qm", "rename")
+
+        incremental_update(str(repo), store, "HEAD~1")
+
+        assert store.get_nodes_in_file(str(repo / "a.py")) == []
+        assert store.get_nodes_in_file(str(repo / "b.py")) != []
+
+    @pytest.mark.unit
+    def test_full_build_drops_nodes_of_deleted_files(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        """A full build stored current files and never removed gone ones."""
+        (repo / "a.py").write_text("def helper():\n    pass\n")
+        (repo / "keep.py").write_text("def keep():\n    pass\n")
+        full_build(str(repo), store)
+        (repo / "a.py").unlink()
+
+        full_build(str(repo), store)
+
+        assert store.get_nodes_in_file(str(repo / "a.py")) == []
+        assert store.get_nodes_in_file(str(repo / "keep.py")) != []
+
+
+@pytest.mark.unit
+def test_full_build_without_a_parser_leaves_the_graph_alone(
+    repo: Path, store: GraphStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Every parse is empty without tree-sitter, and storing those would
+    wipe the graph now that a full build replaces each file's rows.
+    """
+    (repo / "a.py").write_text("def helper():\n    pass\n")
+    full_build(str(repo), store)
+    monkeypatch.setattr("gauntlet.incremental.parser_available", lambda: False)
+
+    report = full_build(str(repo), store)
+
+    assert "error" in report
+    assert store.get_nodes_in_file(str(repo / "a.py")) != []

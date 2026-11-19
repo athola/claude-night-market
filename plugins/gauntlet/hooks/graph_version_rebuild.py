@@ -13,6 +13,7 @@ Opt out with ``{"rebuild_on_upgrade": false}`` in ``.gauntlet/config.json``.
 
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import shlex
@@ -81,20 +82,35 @@ def _opted_out(gauntlet_dir: Path) -> bool:
     return isinstance(data, dict) and data.get("rebuild_on_upgrade") is False
 
 
+def _guard_path(lock: Path) -> Path:
+    return lock.with_name(lock.name + ".guard")
+
+
 def _take_lock(lock: Path) -> bool:
-    """Create the lock, replacing one a dead build left behind."""
-    try:
-        if time.time() - lock.stat().st_mtime > _LOCK_TTL_SECONDS:
-            lock.unlink()
-    except FileNotFoundError:
-        pass
-    try:
-        fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-    except FileExistsError:
-        return False
-    os.write(fd, str(time.time()).encode("ascii"))
-    os.close(fd)
-    return True
+    """Create the lock, replacing one a dead build left behind.
+
+    The stale check, unlink and create run under an exclusive flock on a
+    guard file. Without it, two sessions could both find the lock stale,
+    and the second would unlink the first's fresh lock and build again.
+    A taker that finds the guard held gives way: someone else is deciding.
+    """
+    with open(_guard_path(lock), "a") as guard:
+        try:
+            fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return False
+        try:
+            if time.time() - lock.stat().st_mtime > _LOCK_TTL_SECONDS:
+                lock.unlink()
+        except FileNotFoundError:
+            pass
+        try:
+            fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        except FileExistsError:
+            return False
+        os.write(fd, str(time.time()).encode("ascii"))
+        os.close(fd)
+        return True
 
 
 def _context(message: str) -> dict[str, Any]:
@@ -106,6 +122,18 @@ def _context(message: str) -> dict[str, Any]:
     }
 
 
+def _launch(argv: list[str], root: Path, log_path: Path) -> None:
+    with open(log_path, "ab") as log:
+        subprocess.Popen(
+            argv,
+            cwd=str(root),
+            stdin=subprocess.DEVNULL,
+            stdout=log,
+            stderr=subprocess.STDOUT,
+            start_new_session=True,
+        )
+
+
 def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     """Start a background rebuild when the graph predates the plugin."""
     root = Path(os.getcwd())
@@ -115,7 +143,16 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     installed = _installed_version()
-    built = _graph_version(db_path)
+    try:
+        built = _graph_version(db_path)
+    except sqlite3.OperationalError:
+        # Locked by a build in progress: wait rather than start a second.
+        return None
+    except sqlite3.DatabaseError:
+        return _context(
+            f"gauntlet graph at {db_path} is unreadable, so it was not "
+            "rebuilt. Run /gauntlet-graph build to replace it."
+        )
     if not _older(built, installed):
         return None
     built_label = built or "an unrecorded version"
@@ -152,15 +189,12 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         argv = [nice, "-n", "10", *argv]
 
     log_path = gauntlet_dir / "rebuild.log"
-    with open(log_path, "ab") as log:
-        subprocess.Popen(
-            argv,
-            cwd=str(root),
-            stdin=subprocess.DEVNULL,
-            stdout=log,
-            stderr=subprocess.STDOUT,
-            start_new_session=True,
-        )
+    try:
+        _launch(argv, root, log_path)
+    except OSError:
+        # Nothing was started, so nothing will release the lock.
+        lock.unlink(missing_ok=True)
+        raise
     return _context(
         f"gauntlet graph was built by {built_label}, plugin is {installed}: "
         f"rebuilding in the background (log: {log_path})."

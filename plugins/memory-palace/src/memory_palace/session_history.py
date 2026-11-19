@@ -570,7 +570,9 @@ class SessionHistoryManager:
             to_remove = [
                 s["session_id"]
                 for s in index["sessions"]
-                if s.get("started_at", "") < cutoff_str
+                # A row with no timestamp has no age: "" sorted before
+                # every cutoff, so a hand-edited row was always deleted.
+                if s.get("started_at") and s["started_at"] < cutoff_str
             ]
 
             for sid in to_remove:

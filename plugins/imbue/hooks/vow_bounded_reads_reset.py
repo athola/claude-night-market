@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Vow: Reset bounded-reads counter when implementation starts.
 
-PreToolUse hook triggered on Write/Edit/MultiEdit.  Truncates the
+PostToolUse hook on a successful Write/Edit/MultiEdit.  Truncates the
 per-session read counter file back to zero.
 
 Intentionally minimal: reads only the session ID from stdin, then
@@ -143,7 +143,7 @@ def _atomic_reset(path: Path) -> None:
 
 
 def main() -> None:
-    """Entry point for the PreToolUse hook."""
+    """Entry point for the PostToolUse hook."""
     try:
         raw = sys.stdin.read()
         data = json.loads(raw)

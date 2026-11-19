@@ -220,22 +220,6 @@ User override - disabled
         assert rule.enabled is False
         assert rule.action == "warn"
 
-    def test_get_rule_status_marks_a_user_override(self, tmp_path: Path) -> None:
-        """An override file is reported on the bundled entry, not as a new rule."""
-        user_rules_dir = tmp_path / ".claude"
-        user_rules_dir.mkdir()
-        (user_rules_dir / "hookify.block-force-push.local.md").write_text(
-            "---\nname: block-force-push\nenabled: false\nevent: bash\n"
-            "pattern: git push --force\naction: warn\n---\n\noverride\n"
-        )
-
-        status = ConfigLoader(
-            user_rules_dir=user_rules_dir, include_bundled=True
-        ).get_rule_status()
-
-        assert status["block-force-push"]["overridden"] is True
-        assert "block-force-push.local" not in status
-
     def test_get_bundled_rule_names(self) -> None:
         """Should return names of all bundled rules."""
         loader = ConfigLoader()
@@ -244,15 +228,6 @@ User override - disabled
         assert "block-force-push" in names
         assert "warn-print-statements" in names
         assert len(names) >= 8  # We have 8 bundled rules
-
-    def test_get_rule_status(self) -> None:
-        """Should return status of all rules."""
-        loader = ConfigLoader()
-        status = loader.get_rule_status()
-
-        assert "block-force-push" in status
-        assert status["block-force-push"]["source"] == "bundled"
-        assert status["block-force-push"]["category"] == "git"
 
 
 class TestFrontmatterWithoutPyYAML:
@@ -422,21 +397,3 @@ class TestLoaderErrorPaths:
         assert loader.load_errors == [
             "broken.md: No valid YAML frontmatter found",
         ]
-
-    def test_user_only_rule_status_is_custom(self, tmp_path: Path) -> None:
-        (tmp_path / "hookify.mine.local.md").write_text(
-            "---\nname: mine\nenabled: true\nevent: bash\npattern: x\n---\nm\n"
-        )
-
-        status = ConfigLoader(
-            user_rules_dir=tmp_path, include_bundled=False
-        ).get_rule_status()
-
-        assert status == {
-            "mine": {
-                "source": "user",
-                "category": "custom",
-                "path": str(tmp_path / "hookify.mine.local.md"),
-                "overridden": False,
-            }
-        }

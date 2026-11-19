@@ -276,10 +276,13 @@ def channel_outcomes(session: ResearchSession) -> dict[str, str]:
 def _entity_is_mentioned(entity: str, findings: list[Finding]) -> bool:
     """Whether any finding's title, summary or URL names the entity.
 
-    Whole-word, case-insensitive, matching ``workflows/research.js``:
-    "Mesh" is not a search for Meshtastic, and "Go" is not a hit on
-    "Google". Lookarounds replace ``\\b`` so entities ending in
-    punctuation ("C++") still anchor.
+    Whole-word and case-insensitive, the same word rule as
+    ``workflows/research.js``: "Mesh" is not a search for Meshtastic, and
+    "Go" is not a hit on "Google". Lookarounds replace ``\\b`` so entities
+    ending in punctuation ("C++") still anchor. The haystack is narrower:
+    the workflow also reads each channel's ``searched`` text and each
+    finding's ``why``, so an entity searched with no hits counts as
+    covered there and as a gap here.
     """
     pattern = re.compile(rf"(?<!\w){re.escape(entity)}(?!\w)", re.IGNORECASE)
     return any(pattern.search(f"{f.title} {f.summary} {f.url}") for f in findings)

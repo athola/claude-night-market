@@ -98,9 +98,15 @@ def check(text: str, changed: list[str], tracked: list[str]) -> Report:
 
 
 def _git(repo: Path, *args: str) -> list[str]:
-    return subprocess.run(
+    """Run git with ``-z`` and return its NUL-separated fields.
+
+    Splitting text output on whitespace broke a path with a space, and
+    git C-quotes a non-ASCII path unless asked for ``-z``.
+    """
+    out = subprocess.run(
         ["git", *args], cwd=repo, capture_output=True, text=True, check=True
-    ).stdout.split()
+    ).stdout
+    return [field for field in out.split("\x00") if field]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -123,11 +129,11 @@ def main(argv: list[str] | None = None) -> int:
     else:
         text = Path(args.description).read_text(encoding="utf-8")
     try:
-        merge_base = _git(repo, "merge-base", args.base, "HEAD")[0]
+        merge_base = _git(repo, "merge-base", args.base, "HEAD")[0].strip()
         # --no-renames lists a moved file under both names.
-        changed = _git(repo, "diff", "--name-only", "--no-renames", merge_base)
-        changed += _git(repo, "ls-files", "--others", "--exclude-standard")
-        tracked = _git(repo, "ls-files")
+        changed = _git(repo, "diff", "-z", "--name-only", "--no-renames", merge_base)
+        changed += _git(repo, "ls-files", "-z", "--others", "--exclude-standard")
+        tracked = _git(repo, "ls-files", "-z")
     except subprocess.CalledProcessError as err:
         print(
             f"git failed against base {args.base}: {err.stderr.strip()}",

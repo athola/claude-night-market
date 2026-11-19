@@ -123,12 +123,14 @@ class UnifiedReviewSkill(BaseReviewSkill):
         """
         skills = ["code-reviewer"]  # Always include general review
         files = context.get_files()
+        # Build files sit below the root in a monorepo.
+        basenames = {f.rsplit("/", 1)[-1] for f in files}
 
         # Language-specific skills
-        if "Cargo.toml" in files or any(f.endswith(".rs") for f in files):
+        if "Cargo.toml" in basenames or any(f.endswith(".rs") for f in files):
             skills.append("rust-review")
 
-        if "Makefile" in files or "makefile" in files:
+        if "Makefile" in basenames or "makefile" in basenames:
             skills.append("makefile-review")
 
         # Check for test files

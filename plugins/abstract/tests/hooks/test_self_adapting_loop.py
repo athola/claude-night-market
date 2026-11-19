@@ -60,8 +60,10 @@ def _library(home: Path) -> ExperienceLibrary:
 
 
 def _post_payload(tool_input: dict, response: object) -> dict:
+    # A failed Skill call arrives as PostToolUseFailure; text never decides.
+    failed = isinstance(response, str) and response.startswith("Error:")
     return {
-        "hook_event_name": "PostToolUse",
+        "hook_event_name": "PostToolUseFailure" if failed else "PostToolUse",
         "tool_name": "Skill",
         "tool_input": tool_input,
         "tool_response": response,
@@ -632,7 +634,11 @@ class TestLoggerAdvancesTheEvaluationWindow:
         entry = _queue(tmp_path).skills[SKILL]
         assert entry.status == "monitoring"
         assert entry.eval_start is None
-        metrics = json.loads(result.stdout)["hookSpecificOutput"]["continual_metrics"]
+        # A failure run prints nothing; its log entry carries the metrics.
+        (log_file,) = (tmp_path / "skills" / "logs").rglob("*.jsonl")
+        metrics = json.loads(log_file.read_text().strip().splitlines()[-1])[
+            "continual_metrics"
+        ]
         assert "window_evaluation" not in metrics
         assert _history_accuracies(tmp_path, SKILL) == [*HEALTHY, 0]
 

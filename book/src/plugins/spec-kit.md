@@ -37,6 +37,7 @@ This reduces wasted effort and validates features match requirements.
 | `/speckit-clarify` | Ask clarifying questions |
 | `/speckit-constitution` | Create project constitution |
 | `/speckit-startup` | Bootstrap workflow at session start |
+| `/speckit-taskstoissues` | Convert tasks.md entries into GitHub Issues |
 
 ## Agents
 

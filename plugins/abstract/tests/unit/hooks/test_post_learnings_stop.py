@@ -26,6 +26,17 @@ sys.modules["post_learnings_stop"] = _mod
 _spec.loader.exec_module(_mod)
 
 
+@pytest.fixture(autouse=True)
+def _fresh_budget(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Start each test with the hook's whole budget.
+
+    ``_START`` is taken at import, as it is for the one process a Stop
+    runs. In a long test session it is minutes old, and every stage would
+    read as out of budget.
+    """
+    monkeypatch.setattr(_mod, "_START", _mod.time.monotonic())
+
+
 class _BrokenStdin:
     """Stdin whose read() fails the way a closed pipe does."""
 
@@ -188,6 +199,24 @@ class TestLearningsUnreadable:
 
 class TestPipelineIsolation:
     """One failing stage does not stop the next."""
+
+    @pytest.mark.unit
+    def test_stop_hook_skips_post_when_budget_exhausted(
+        self,
+        pipeline_calls: list[str],
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        """A stage started near the 10 s Stop timeout is killed mid-write,
+        which can post a discussion and never record it (ABS-9).
+        """
+        monkeypatch.setattr("sys.stdin", io.StringIO(""))
+        monkeypatch.setattr(_mod, "_START", _mod.time.monotonic() - 60)
+
+        _mod.main()
+
+        assert pipeline_calls == []
+        assert "skipping post-learnings" in capsys.readouterr().err
 
     @pytest.mark.unit
     def test_failed_promote_still_posts_learnings(

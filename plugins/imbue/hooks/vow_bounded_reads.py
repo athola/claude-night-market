@@ -221,8 +221,11 @@ def _call_key(tool_name: str, tool_input: object) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
 
 
-def _note_call(counter_path: Path, key: str) -> bool:
+def _note_call(counter_path: Path, key: str, *, record: bool = True) -> bool:
     """Record *key* and return True when an earlier call this phase had it.
+
+    ``record=False`` only looks: a call about to be denied must not be
+    remembered, or its retry is told to reuse a result that never arrived.
 
     Shares the counter's lock discipline and TTL. Returns False on any
     failure: a lost repeat warning is cheaper than a crashed hook.
@@ -243,7 +246,10 @@ def _note_call(counter_path: Path, key: str) -> bool:
             except (json.JSONDecodeError, ValueError, TypeError, AttributeError):
                 seen = []
         repeated = key in seen
-        if not repeated:
+        if record and repeated:
+            # A call in use stays remembered: the TTL runs from last use.
+            os.utime(fd)
+        if record and not repeated:
             seen = (seen + [key])[-_MAX_REMEMBERED_CALLS:]
             os.lseek(fd, 0, os.SEEK_SET)
             os.ftruncate(fd, 0)
@@ -284,16 +290,28 @@ def main() -> None:
             sys.exit(0)
 
         tool_input = data.get("tool_input")
+        weight = _read_weight(tool_name, tool_input)
+        new_count = _atomic_increment(counter_file, weight) if weight else 0
+        # A targeted read (under _SHORT_READ_LINES) is never denied: an Edit
+        # needs the file read first, and denying every Read left only a way
+        # around the vow. It still counts toward the budget.
+        # It still counts, and past twice the budget it is denied too, so
+        # chunked reads cannot walk a tree the budget was meant to bound.
+        denied = (
+            new_count > _BUDGET
+            and not _shadow_mode()
+            and (weight >= 1 or new_count > 2 * _BUDGET)
+        )
+
         repeat_note = ""
-        if _note_call(counter_file, _call_key(tool_name, tool_input)):
+        if _note_call(
+            counter_file, _call_key(tool_name, tool_input), record=not denied
+        ):
             repeat_note = (
                 f"This {tool_name} call repeats an earlier identical call in this "
                 "discovery phase. Reuse the earlier result. Re-run only if it is "
                 "no longer in context or the target changed outside Edit/Write."
             )
-
-        weight = _read_weight(tool_name, tool_input)
-        new_count = _atomic_increment(counter_file, weight) if weight else 0
 
         if repeat_note and new_count <= _BUDGET:
             print(
@@ -307,13 +325,16 @@ def main() -> None:
                 )
             )
             print("[vow-bounded-reads] WARN: repeated call", file=sys.stderr)
-        elif new_count > _BUDGET:
+        elif new_count > _BUDGET and (
+            weight >= 1 or _shadow_mode() or new_count > 2 * _BUDGET
+        ):
             shadow = _shadow_mode()
             decision = "warn" if shadow else "block"
             reason = (
                 f"Bounded discovery vow: {new_count:g} reads in this discovery phase. "
                 f"Budget is {_BUDGET} for open exploration. "
-                "Consider starting implementation."
+                "Consider starting implementation. To read the file you "
+                f"are about to edit, pass offset and a limit under {_SHORT_READ_LINES}."
                 + (f" {repeat_note}" if repeat_note else "")
                 + (
                     " Shadow mode active — will block once VOW_SHADOW_MODE=0."

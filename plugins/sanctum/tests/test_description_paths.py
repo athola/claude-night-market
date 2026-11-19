@@ -184,6 +184,16 @@ class TestMain:
         repo, base = branch_repo
         assert self._run(repo, base, "Changes `src/api.py`.") == 0
 
+    def test_main_accepts_a_non_ascii_path_in_the_diff(
+        self, branch_repo: tuple[Path, str]
+    ) -> None:
+        """Git C-quoted the name, so a correct description exited 1 (SAN-3)."""
+        repo, base = branch_repo
+        (repo / "src" / "café.py").write_text("c = 1\n")
+        _git(repo, "add", "-A")
+        _git(repo, "commit", "-qm", "feat: cafe")
+        assert self._run(repo, base, "Adds `src/café.py`.") == 0
+
     def test_exits_one_on_a_phantom_path(
         self, branch_repo: tuple[Path, str], capsys: pytest.CaptureFixture[str]
     ) -> None:

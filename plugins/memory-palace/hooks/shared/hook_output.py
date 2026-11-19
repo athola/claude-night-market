@@ -4,10 +4,16 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+try:
+    import fcntl
+except ImportError:  # Windows: appends are not serialized
+    fcntl = None  # type: ignore[assignment]  # None sentinel: queue_for_intake branches on it
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +89,26 @@ def build_hook_payload(
     return None
 
 
+#: A sync holds the queue lock for its whole run; a hook waits this long
+#: and then skips queueing rather than stall the tool call.
+_QUEUE_LOCK_TIMEOUT_SECONDS = 2.0
+
+
+def _lock_within_timeout(lock: Any) -> bool:
+    """Take an exclusive lock on ``lock``, or report that it stayed held."""
+    if fcntl is None:
+        return True
+    deadline = time.monotonic() + _QUEUE_LOCK_TIMEOUT_SECONDS
+    while True:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return True
+        except BlockingIOError:
+            if time.monotonic() >= deadline:
+                return False
+            time.sleep(0.05)
+
+
 def queue_for_intake(
     plugin_root: Path,
     decision: Any,
@@ -102,8 +128,16 @@ def queue_for_intake(
             "intake_payload": decision.intake_payload.to_dict(),
             "tool_input": ctx.tool_input,
         }
-        with queue_path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(queue_entry) + "\n")
+        # palace maintenance rewrites the queue under this lock.
+        lock_path = queue_path.with_name(queue_path.name + ".lock")
+        with open(lock_path, "a") as lock:
+            if not _lock_within_timeout(lock):
+                logger.warning(
+                    "research_interceptor: intake queue busy; entry not queued"
+                )
+                return
+            with queue_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(queue_entry) + "\n")
     except (PermissionError, OSError) as e:
         logger.error(
             "research_interceptor: Failed to queue intake entry (I/O error): %s", e

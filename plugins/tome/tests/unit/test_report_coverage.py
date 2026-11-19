@@ -276,3 +276,25 @@ class TestCoverageSection:
             ["code"], [QueryLog("code", "q", "github", result_count=1)], [_finding()]
         )
         assert "quality score" not in format_report(session).lower()
+
+
+def test_report_names_entities_no_finding_covers() -> None:
+    """format_report never passed entities to identify_gaps, so the gap
+    section could not list a named product nothing mentioned (TOM-2).
+    """
+    session = _session(["code"], [], [_finding("code")])
+    session.entities = ["Meshtastic", "Example"]
+    report = format_report(session)
+    assert "Meshtastic" in report
+
+
+def test_session_entities_survive_a_round_trip() -> None:
+    session = _session(["code"], [], [])
+    session.entities = ["Meshtastic"]
+    assert ResearchSession.from_dict(session.to_dict()).entities == ["Meshtastic"]
+
+
+def test_a_session_saved_before_entities_loads_with_none() -> None:
+    data = _session(["code"], [], []).to_dict()
+    data.pop("entities", None)
+    assert ResearchSession.from_dict(data).entities == []

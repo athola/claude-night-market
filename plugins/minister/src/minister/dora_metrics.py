@@ -631,11 +631,12 @@ def collect_failures_from_gh(
                 if closed_iso
                 else None
             )
+            # FailureEvent rejects a row closed before it opened; that is
+            # one bad row, skipped like a malformed timestamp.
+            events.append(FailureEvent(opened_at=opened_at, resolved_at=resolved_at))
         except ValueError as exc:
-            warnings.append(f"skipped gh row with malformed timestamp: {exc}")
+            warnings.append(f"skipped gh row with malformed timestamp or order: {exc}")
             partial = True
-            continue
-        events.append(FailureEvent(opened_at=opened_at, resolved_at=resolved_at))
     return CollectionResult(events=events, partial=partial, warnings=tuple(warnings))
 
 

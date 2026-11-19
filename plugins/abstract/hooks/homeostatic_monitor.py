@@ -33,6 +33,7 @@ from shared.hook_io import read_hook_payload  # noqa: E402 - import after path s
 from shared.skill_utils import parse_skill_name  # noqa: E402 - import after path setup
 from shared.stability import (  # noqa: E402 - import after path setup
     RECENT_RUNS,
+    STABILITY_GAP_THRESHOLD,
     stability_gap_since,
 )
 
@@ -58,7 +59,6 @@ try:
 except ImportError:
     _HAS_TRACKER = False
 
-STABILITY_GAP_THRESHOLD = 0.3
 CRITICAL_GAP_THRESHOLD = 0.5
 
 
@@ -439,7 +439,7 @@ def main() -> None:
                 f"skipping queue ops for {skill_ref} (gap={gap:.2f})\n"
             )
             print(
-                json.dumps(_build_output(skill_ref, gap, "degrading", velocity, trend))
+                json.dumps(_build_output(skill_ref, gap, _status(gap), velocity, trend))
             )
             sys.exit(0)
 
@@ -455,7 +455,7 @@ def main() -> None:
             sys.stderr.write(
                 f"homeostatic_monitor: queue not updated for {skill_ref}: {e}\n"
             )
-            output = _build_output(skill_ref, gap, "degrading", velocity, trend)
+            output = _build_output(skill_ref, gap, _status(gap), velocity, trend)
         if output is None:
             sys.exit(0)
         print(json.dumps(output))

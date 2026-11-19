@@ -49,4 +49,6 @@ def test_blueprint_task_notes_record_the_decision_not_the_steps() -> None:
     """Steps are the diff's job; the plan keeps the choice and its reason."""
     text = (ROOT / "commands" / "blueprint.md").read_text(encoding="utf-8")
     assert "Implementation detail 1" not in text
-    assert "**Decision Notes**" in text
+    # Every task block, not one: two could revert unnoticed (ATN-2).
+    assert "**Technical Notes**" not in text
+    assert text.count("**Decision Notes**") >= 3

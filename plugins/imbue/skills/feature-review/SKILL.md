@@ -219,7 +219,7 @@ should be preserved as a deferred item.
 Run once per skipped high-scoring suggestion:
 
 ```bash
-python3 scripts/deferred_capture.py \
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py" \
   --title "<suggestion title>" \
   --source feature-review \
   --context "RICE score: <score>. <description>"

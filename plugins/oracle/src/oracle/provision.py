@@ -46,7 +46,11 @@ def get_python_path(venv_path: Path) -> Path:
 
 
 def provision_venv(venv_path: Path) -> ProvisionResult:
-    """Provision a Python 3.11+ venv with onnxruntime."""
+    """Provision a Python 3.11+ venv with the daemon's dependencies.
+
+    daemon.py serves YAML linear and sigmoid models with math and yaml.
+    onnxruntime is not installed until an ONNX model ships to load.
+    """
     try:
         result = subprocess.run(
             ["uv", "venv", "--python", "3.11", str(venv_path)],
@@ -63,8 +67,7 @@ def provision_venv(venv_path: Path) -> ProvisionResult:
 
         python = str(get_python_path(venv_path))
         result = subprocess.run(
-            # daemon.py imports yaml; onnxruntime does not depend on it.
-            ["uv", "pip", "install", "--python", python, "onnxruntime", "pyyaml"],
+            ["uv", "pip", "install", "--python", python, "pyyaml"],
             capture_output=True,
             text=True,
             timeout=300,
@@ -73,7 +76,7 @@ def provision_venv(venv_path: Path) -> ProvisionResult:
         if result.returncode != 0:
             return ProvisionResult(
                 success=False,
-                message=f"Failed to install onnxruntime: {result.stderr.strip()}",
+                message=f"Failed to install pyyaml: {result.stderr.strip()}",
             )
 
         return ProvisionResult(

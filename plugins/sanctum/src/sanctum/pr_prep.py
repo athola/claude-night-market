@@ -49,6 +49,11 @@ def _is_test_path(path: str) -> bool:
     )
 
 
+#: What pr-prep counts as documentation. classify and the has_documentation
+#: gate read this one tuple, so a report cannot say "docs" and "no docs".
+DOC_SUFFIXES = (".md", ".rst", ".txt", ".adoc")
+
+
 @dataclass
 class FileCategories:
     """Categorized file changes."""
@@ -66,7 +71,6 @@ class BreakingChanges:
 
     has_breaking_changes: bool
     breaking_commits: list[str] = field(default_factory=list)
-    affected_apis: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -140,17 +144,9 @@ class PRPrepAnalyzer:
             or _BREAKING_FOOTER.search(commit.get("message", ""))
         ]
 
-        # Look for files marked as breaking
-        affected_apis = [
-            file["path"]
-            for file in map(_as_change, context.get("changed_files", []))
-            if file.get("type") == "breaking"
-        ]
-
         return BreakingChanges(
-            has_breaking_changes=bool(breaking_commits or affected_apis),
+            has_breaking_changes=bool(breaking_commits),
             breaking_commits=breaking_commits,
-            affected_apis=affected_apis,
         )
 
     @staticmethod
@@ -196,7 +192,9 @@ class PRPrepAnalyzer:
         ]
 
         updated_gates["has_tests"] = any(_is_test_path(p) for p in paths)
-        updated_gates["has_documentation"] = any(p.endswith(".md") for p in paths)
+        updated_gates["has_documentation"] = any(
+            p.endswith(DOC_SUFFIXES) for p in paths
+        )
         return updated_gates
 
     @staticmethod

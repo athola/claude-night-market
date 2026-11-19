@@ -369,3 +369,11 @@ class TestAStaleResetDoesNotDiscardALiveRetryAfter:
             now=NOW,
         )
         assert plan is None
+
+
+@pytest.mark.parametrize("value", ["1e12", "inf"])
+def test_parse_reset_ignores_absurd_retry_after(value: str) -> None:
+    """OverflowError from a huge or infinite retry-after crashed the
+    usage-limit handler (EGR-7).
+    """
+    assert window.parse_reset({"retry-after": value}, "") is None

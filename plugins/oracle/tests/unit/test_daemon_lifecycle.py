@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import signal
@@ -705,6 +706,30 @@ class TestLifecycleErrorPaths:
         assert not (tmp_path / "daemon.pid").exists()
         assert "models directory" in (tmp_path / "daemon.log").read_text()
 
+    def test_missing_models_line_is_logged_once_across_sessions(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """Every SessionStart appended the same line without bound (ORC-4)."""
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        (tmp_path / ".oracle-enabled").touch()
+        python = tmp_path / "venv" / "bin" / "python"
+        python.parent.mkdir(parents=True)
+        python.touch()
+        payload = json.dumps({"hook_event_name": "SessionStart"})
+
+        for _ in range(3):
+            with (
+                patch("sys.stdin", StringIO(payload)),
+                patch(
+                    "daemon_lifecycle._get_models_dir", return_value=tmp_path / "none"
+                ),
+                patch("daemon_lifecycle.subprocess.Popen"),
+            ):
+                main()
+
+        log = (tmp_path / "daemon.log").read_text()
+        assert log.count("models directory missing") == 1
+
     @pytest.mark.unit
     def test_a_missing_models_directory_still_clears_stale_port_and_pid(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -812,3 +837,81 @@ class TestClearKeepsTheDaemon:
         ):
             main()
         stop.assert_called_once()
+
+
+def test_one_session_ending_keeps_the_daemon_another_session_uses(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Any SessionEnd stopped the shared daemon under a live session (ORC-3)."""
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    (tmp_path / ".oracle-enabled").touch()
+    python = tmp_path / "venv" / "bin" / "python"
+    python.parent.mkdir(parents=True)
+    python.touch()
+
+    def fire(event: str, session: str) -> None:
+        payload = json.dumps({"hook_event_name": event, "session_id": session})
+        with patch("sys.stdin", StringIO(payload)):
+            main()
+
+    with (
+        patch("daemon_lifecycle._start_daemon"),
+        patch("daemon_lifecycle._stop_daemon") as stop,
+    ):
+        fire("SessionStart", "A")
+        fire("SessionStart", "B")
+        fire("SessionEnd", "A")
+        stop.assert_not_called()
+        fire("SessionEnd", "B")
+        stop.assert_called_once()
+
+
+def test_daemon_start_runs_under_an_exclusive_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Two sessions starting together both passed the running check and
+    spawned two daemons (ORC-3).
+    """
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    (tmp_path / ".oracle-enabled").touch()
+    python = tmp_path / "venv" / "bin" / "python"
+    python.parent.mkdir(parents=True)
+    python.touch()
+    held: list[bool] = []
+
+    def probe() -> None:
+        with open(tmp_path / "daemon.start.lock", "a") as other:
+            try:
+                fcntl.flock(other, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                held.append(True)
+
+    payload = json.dumps({"hook_event_name": "SessionStart", "session_id": "A"})
+    with (
+        patch("sys.stdin", StringIO(payload)),
+        patch("daemon_lifecycle._start_daemon", side_effect=probe),
+    ):
+        main()
+    assert held == [True]
+
+
+def test_clear_drops_the_session_marker_without_stopping(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """/clear ends one session id and starts another; the old marker kept the
+    daemon alive for the 24 h TTL (ORC-3).
+    """
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    marker = tmp_path / "sessions" / "A"
+    marker.parent.mkdir(parents=True)
+    marker.touch()
+    payload = json.dumps(
+        {"hook_event_name": "SessionEnd", "session_id": "A", "reason": "clear"}
+    )
+    with (
+        patch("sys.stdin", StringIO(payload)),
+        patch("daemon_lifecycle._stop_daemon") as stop,
+    ):
+        main()
+    stop.assert_not_called()
+    assert not marker.exists()

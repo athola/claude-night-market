@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from oracle.daemon import InferenceDaemon
+from oracle.daemon import InferenceDaemon, _InferenceHandler
 
 TEST_MODEL_YAML = """\
 schema_version: 1
@@ -663,3 +663,9 @@ class TestZeroBlendFallback:
         assert resp.status == 200
         assert abs(body["blend"]["word_overlap_weight"] - 0.5) < 1e-9
         assert abs(body["blend"]["ml_weight"] - 0.5) < 1e-9
+
+
+def test_handler_has_a_socket_timeout() -> None:
+    """One silent client blocked the single-threaded server forever (ORC-2)."""
+    assert _InferenceHandler.timeout is not None
+    assert 0 < _InferenceHandler.timeout <= 10

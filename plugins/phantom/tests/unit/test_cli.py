@@ -256,6 +256,22 @@ class TestSafetyControlsReachTheCli:
         loop = self._run_with_loop(monkeypatch, ["--confirm", "go"])
         assert loop.call_args.kwargs["hooks"].confirm_callback is _ask_before_acting
 
+    def test_no_bash_and_no_editor_drop_those_tools(self, monkeypatch) -> None:
+        """Shell and editor tools were always on with no opt-out (PHA-3)."""
+        loop = self._run_with_loop(monkeypatch, ["--no-bash", "--no-editor", "go"])
+        config = loop.call_args.kwargs["setup"].loop_config
+        assert config.include_bash is False
+        assert config.include_text_editor is False
+
+    def test_bash_and_editor_stay_on_by_default(self, monkeypatch) -> None:
+        config = (
+            self._run_with_loop(monkeypatch, ["go"])
+            .call_args.kwargs["setup"]
+            .loop_config
+        )
+        assert config.include_bash is True
+        assert config.include_text_editor is True
+
     def test_no_confirmation_gate_without_confirm(self, monkeypatch) -> None:
         loop = self._run_with_loop(monkeypatch, ["go"])
         assert loop.call_args.kwargs["hooks"].confirm_callback is None
@@ -284,3 +300,24 @@ class TestAskBeforeActing:
 
         monkeypatch.setattr("builtins.input", closed_stdin)
         assert _ask_before_acting({"action": "left_click"}) is False
+
+
+def test_ask_before_acting_shows_typed_text_and_coordinates(monkeypatch) -> None:
+    """The prompt read "Run type?" and hid what would be typed or where it
+    would click, so a yes approved something unseen (PHA-1).
+    """
+    prompts: list[str] = []
+
+    def fake_input(text: str) -> str:
+        prompts.append(text)
+        return "n"
+
+    monkeypatch.setattr("builtins.input", fake_input)
+
+    _ask_before_acting({"action": "type", "text": "rm -rf ~"})
+    _ask_before_acting({"action": "left_click", "coordinate": [10, 20]})
+    _ask_before_acting({"action": "type", "text": "x" * 500})
+
+    assert "rm -rf ~" in prompts[0]
+    assert "[10, 20]" in prompts[1]
+    assert len(prompts[2]) < 400

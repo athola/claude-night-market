@@ -72,7 +72,8 @@ about 40 added lines: a change a human can read and explain in one
 sitting. The bound is the point, not a nuisance: it keeps
 understanding in pace with output. The `guard_scope_ramp.py` hook
 makes this concrete by flagging an increment that jumps past the
-current rung.
+current rung. It counts code only: prose and data files (`.md`,
+`.json`, `.yaml`, `.toml` and similar) do not climb the rung.
 
 ### 2. Ramp a notch only on demonstrated understanding
 

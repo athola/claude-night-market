@@ -81,3 +81,33 @@ def test_direct_invocation_still_passes_through(tmp_path: Path) -> None:
     )
     assert result.returncode == 3
     assert result.stdout == "skrills validate --x\n"
+
+
+def _direct(tmp_path: Path, **env: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["/bin/bash", str(_wrapper(tmp_path)), "validate"],
+        env={
+            "PATH": f"{_shim_dir(tmp_path)}:/usr/bin:/bin",
+            "HOME": str(tmp_path),
+            **env,
+        },
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+
+
+def test_verify_hash_without_pin_refuses(tmp_path: Path) -> None:
+    """Asking for verification with no pin ran the binary unchecked (ABS-7)."""
+    result = _direct(tmp_path, SKRILLS_VERIFY_HASH="1")
+    assert result.returncode == 1
+    assert "skrills validate" not in result.stdout
+    assert "SKRILLS_EXPECTED_HASH" in result.stderr
+
+
+def test_hash_mismatch_exit_code_is_not_127(tmp_path: Path) -> None:
+    """A mismatch read as "not found", so callers fell back silently (ABS-7)."""
+    result = _direct(tmp_path, SKRILLS_VERIFY_HASH="1", SKRILLS_EXPECTED_HASH="0" * 64)
+    assert result.returncode == 1
+    assert "not found" not in result.stderr

@@ -252,3 +252,49 @@ def test_every_caller_side_default_matches_config_defaults() -> None:
                 mismatched.append(f"{hook.name}:{node.lineno} {key}={default!r}")
     assert checked > 0, "no caller-side defaults found; the sweep is vacuous"
     assert mismatched == []
+
+
+def test_config_user_file_not_silently_ignored_without_pyyaml(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    """Without PyYAML the user's config was replaced by defaults in silence.
+
+    The hooks run on the first python3 on PATH, which often lacks PyYAML.
+    """
+    config_file = tmp_path / "memory-palace-config.yaml"
+    config_file.write_text("enabled: false\n")
+    monkeypatch.setattr(config_module, "yaml", None)
+    monkeypatch.setattr(config_module, "_get_config_path", lambda: config_file)
+    monkeypatch.setattr(config_module, "_config_cache", None)
+    monkeypatch.setattr(config_module, "_warned_no_yaml", False, raising=False)
+
+    config_module.get_config()
+    config_module.get_config()
+
+    err = capsys.readouterr().err
+    assert err.count(str(config_file)) == 1
+    assert "PyYAML" in err
+
+
+def test_top_level_switches_are_honored_without_pyyaml(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """`enabled: false` is the user's off switch; it must hold without PyYAML."""
+    config_file = tmp_path / "memory-palace-config.yaml"
+    config_file.write_text("# off for now\nenabled: false\nsafety:\n  enabled: true\n")
+    monkeypatch.setattr(config_module, "yaml", None)
+    monkeypatch.setattr(config_module, "_get_config_path", lambda: config_file)
+    monkeypatch.setattr(config_module, "_config_cache", None)
+
+    config = config_module.get_config()
+
+    assert config["enabled"] is False
+    assert config["safety"] == config_module.CONFIG_DEFAULTS["safety"]
+
+
+def test_home_ssh_path_is_unsafe_and_double_dot_name_is_safe(tmp_path: Path) -> None:
+    """`/.ssh/` matched only a root-level dir, and any `..` in a name was
+    read as traversal (MP-9).
+    """
+    assert config_module.is_path_safe(str(Path.home() / ".ssh" / "notes.md")) is False
+    assert config_module.is_path_safe(str(tmp_path / "docs" / "foo..bar.md")) is True

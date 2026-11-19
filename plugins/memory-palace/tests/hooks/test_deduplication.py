@@ -1075,3 +1075,61 @@ class TestLegacyUrlKeys:
         assert get_url_key("example.com/watch?v=AbC") == get_url_key(
             "example.com/watch?v=abc"
         )
+
+
+def test_url_key_keeps_ref_parameter() -> None:
+    """`ref` selects a git ref; two refs collapsed to one key (MP-8)."""
+    from shared.deduplication import get_url_key
+
+    main = get_url_key("https://api.github.com/repos/o/r/contents/a?ref=main")
+    dev = get_url_key("https://api.github.com/repos/o/r/contents/a?ref=dev")
+    assert main != dev
+
+
+def test_search_key_is_kept_verbatim() -> None:
+    """Queries went through the URL normalizer, which dropped a trailing
+    `?` and a `ref=` pair (MP-8).
+    """
+    from shared.deduplication import get_url_key
+
+    assert get_url_key("search:Why use ref=main?") == "search:Why use ref=main?"
+
+
+def test_forgotten_capture_is_no_longer_known(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A pruned capture file kept its index entry, so is_known stayed True
+    and the page was never captured again (MP-6).
+    """
+    monkeypatch.setattr(dedup_module, "_get_index_path", lambda: tmp_path / "i.yaml")
+    monkeypatch.setattr(dedup_module, "yaml", real_yaml)
+    monkeypatch.setattr(dedup_module, "_index_cache", None)
+    monkeypatch.setattr(dedup_module, "_index_mtime", 0)
+    url = "https://example.com/page"
+    dedup_module.update_index("h1", "queue/webfetch-1.md", 50, url=url)
+    dedup_module.update_index("h2", "queue/webfetch-2.md", 50, url=url + "2")
+
+    dedup_module.forget_stored({"queue/webfetch-1.md"})
+
+    assert not dedup_module.is_known(url=url)
+    assert not dedup_module.is_known(content_hash="h1")
+    assert dedup_module.is_known(url=url + "2")
+
+
+def test_forget_stored_leaves_a_corrupt_index_alone(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A prune after a failed load wrote an empty index over the corrupt one,
+    which update_index sets aside instead (MP-6).
+    """
+    index_path = tmp_path / "i.yaml"
+    index_path.write_text("entries: [unclosed\n")
+    monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+    monkeypatch.setattr(dedup_module, "yaml", real_yaml)
+    monkeypatch.setattr(dedup_module, "_index_cache", None)
+    monkeypatch.setattr(dedup_module, "_index_mtime", 0)
+    monkeypatch.setattr(dedup_module, "_index_load_failed", False)
+
+    dedup_module.forget_stored({"queue/webfetch-1.md"})
+
+    assert index_path.read_text() == "entries: [unclosed\n"

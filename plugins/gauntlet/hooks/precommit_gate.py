@@ -85,7 +85,7 @@ def check_pass_token(gauntlet_dir: Path, staged_hash: str) -> bool:
     except (json.JSONDecodeError, OSError):
         return False
 
-    if data.get("staged_hash") != staged_hash:
+    if not isinstance(data, dict) or data.get("staged_hash") != staged_hash:
         return False
 
     expires_at_str = data.get("expires_at", "")
@@ -225,7 +225,14 @@ def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
             safe_load,
         )
     except ImportError:
-        pass
+        if (gauntlet_dir / "config.yaml").exists():
+            # The hook runs on the first python3 on PATH, which may lack
+            # PyYAML; skipping the user's file in silence left the gate on.
+            print(
+                f"warning: PyYAML is not installed for {sys.executable}; "
+                f"{gauntlet_dir / 'config.yaml'} is ignored",
+                file=sys.stderr,
+            )
     else:
         yaml_path = gauntlet_dir / "config.yaml"
         if yaml_path.exists():

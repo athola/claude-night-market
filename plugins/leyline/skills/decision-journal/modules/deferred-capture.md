@@ -97,7 +97,7 @@ Error: `{"status": "error", "message": "..."}`
 
 Any wrapper can verify conformance with:
 
-    python3 scripts/deferred_capture.py \
+    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py" \
       --title "Test: compliance check" \
       --source test \
       --context "Automated compliance verification" \

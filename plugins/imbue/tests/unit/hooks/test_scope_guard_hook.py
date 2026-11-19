@@ -127,8 +127,8 @@ class TestNonMaintenancePrompt:
         assert "hookEventName" in output["hookSpecificOutput"]
 
 
-def test_a_five_day_branch_is_in_the_yellow_zone(tmp_path) -> None:
-    """Both day thresholds defaulted to 7, so the yellow arm could never fire."""
+def _days_line(tmp_path, base_age_days: int, work_age_days: int) -> str:
+    """Run the hook on a branch whose base and first commit have these ages."""
     env = {
         k: v
         for k, v in os.environ.items()
@@ -136,23 +136,32 @@ def test_a_five_day_branch_is_in_the_yellow_zone(tmp_path) -> None:
     }
     env.update(SCOPE_GUARD_CACHE_TTL="0", HOME=str(tmp_path))
     git = ["git", "-c", "user.email=t@t", "-c", "user.name=t"]
-    five_days_ago = str(int(__import__("time").time()) - 5 * 86400 - 3600)
-    dated = {
-        **env,
-        "GIT_AUTHOR_DATE": f"@{five_days_ago}",
-        "GIT_COMMITTER_DATE": f"@{five_days_ago}",
-    }
+    now = int(__import__("time").time())
+
+    def dated(days: int) -> dict:
+        stamp = f"@{now - days * 86400 - 3600}"
+        return {**env, "GIT_AUTHOR_DATE": stamp, "GIT_COMMITTER_DATE": stamp}
+
     subprocess.run(
         [*git, "init", "-q", "-b", "master"], cwd=tmp_path, env=env, check=True
     )
     (tmp_path / "a.txt").write_text("a\n")
     subprocess.run([*git, "add", "."], cwd=tmp_path, env=env, check=True)
-    subprocess.run([*git, "commit", "-qm", "base"], cwd=tmp_path, env=dated, check=True)
+    subprocess.run(
+        [*git, "commit", "-qm", "base"],
+        cwd=tmp_path,
+        env=dated(base_age_days),
+        check=True,
+    )
     subprocess.run([*git, "checkout", "-qb", "feat"], cwd=tmp_path, env=env, check=True)
     (tmp_path / "b.txt").write_text("b\n")
     subprocess.run([*git, "add", "."], cwd=tmp_path, env=env, check=True)
-    subprocess.run([*git, "commit", "-qm", "work"], cwd=tmp_path, env=env, check=True)
-
+    subprocess.run(
+        [*git, "commit", "-qm", "work"],
+        cwd=tmp_path,
+        env=dated(work_age_days),
+        check=True,
+    )
     result = subprocess.run(
         ["bash", str(HOOK_PATH)],
         input='{"prompt": "add a new login feature"}',
@@ -163,5 +172,17 @@ def test_a_five_day_branch_is_in_the_yellow_zone(tmp_path) -> None:
         timeout=20,
         check=False,
     )
+    return result.stdout + result.stderr
 
-    assert "Days: 5 (YELLOW)" in result.stdout, result.stdout + result.stderr
+
+def test_a_five_day_branch_is_in_the_yellow_zone(tmp_path) -> None:
+    """Both day thresholds defaulted to 7, so the yellow arm could never fire."""
+    assert "Days: 5 (YELLOW)" in _days_line(tmp_path, 400, 5)
+
+
+def test_fresh_branch_off_old_base_is_green(tmp_path) -> None:
+    """Age came from the merge-base commit, so a new branch off a quiet
+    base read RED on its first commit (IMB-13).
+    """
+    out = _days_line(tmp_path, 400, 0)
+    assert "Days:" not in out, out

@@ -459,7 +459,20 @@ class TestMakefileSynthesis:
 
         # Should generate test-validate target
         assert "test-validate:" in generated
-        assert "## Test validate command workflow" in generated
+        assert "## No automated test for /validate (exits 1)" in generated
+
+    def test_generated_test_targets_do_not_claim_validation(
+        self, tmp_path: Path
+    ) -> None:
+        """The stub echoed "Validating" and exited 0 for an untested command."""
+        generator = MakefileTargetGenerator(tmp_path)
+        commands = [{"type": "slash-command", "command": "validate", "args": ""}]
+
+        generated = generator.generate_demo_targets("test", commands)
+
+        assert "Validating:" not in generated
+        assert "Check:" not in generated
+        assert "\t@exit 1\n" in generated
 
     def test_generates_aggregate_target(self, tmp_path: Path) -> None:
         """Test generation of aggregate demo-{plugin}-commands target."""

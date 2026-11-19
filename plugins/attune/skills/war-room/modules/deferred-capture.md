@@ -24,7 +24,7 @@ it received at least one Borda vote.
 If it did, capture it as a deferred item:
 
 ```bash
-python3 scripts/deferred_capture.py \
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py" \
   --title "COA: <coa-title>" \
   --source war-room \
   --context "<rejection rationale from Supreme Commander>" \
@@ -44,7 +44,7 @@ such as "should revisit", "worth exploring", "consider in
 phase N"), capture it using the same script:
 
 ```bash
-python3 scripts/deferred_capture.py \
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py" \
   --title "COA: <coa-title>" \
   --source war-room \
   --context "<rejection rationale from Supreme Commander>" \
@@ -61,7 +61,7 @@ Omit `--artifact-path` if no coa file corresponds to the item.
   confirmation.
 - Capture every qualifying COA in a single pass before
   closing the session.
-- If `scripts/deferred_capture.py` is not present in the
+- If `${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py` is not present in the
   repository, log a warning and skip capture rather than
   blocking the war-room close.
 - The session ID must match the ID stored in

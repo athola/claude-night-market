@@ -38,8 +38,23 @@ def _has_union_annotation(node: ast.AST) -> bool:
 _TRY_STAR: type | None = getattr(ast, "TryStar", None)
 
 
-def _feature_needing_3_11(node: ast.AST) -> str | None:
-    """Name the 3.11-only feature ``node`` uses, if any."""
+#: Module-level names added in 3.11, keyed by module.
+_NAMES_3_11 = {
+    "datetime": {"UTC": "datetime_utc"},
+    "enum": {"StrEnum": "enum_strenum"},
+    "typing": {"Self": "typing_self"},
+}
+
+
+def _feature_needing_3_11(
+    node: ast.AST, module_aliases: dict[str, str] | None = None
+) -> str | None:
+    """Name the 3.11-only feature ``node`` uses, if any.
+
+    ``module_aliases`` maps a local name to the module it is bound to, so
+    ``import datetime as dt`` makes ``dt.UTC`` count.
+    """
+    aliases = module_aliases or {name: name for name in _NAMES_3_11}
     if _TRY_STAR is not None and isinstance(node, _TRY_STAR):
         return "except_star"
     if isinstance(node, ast.Import) and any(a.name == "tomllib" for a in node.names):
@@ -47,15 +62,111 @@ def _feature_needing_3_11(node: ast.AST) -> str | None:
     if isinstance(node, ast.ImportFrom):
         if node.module == "tomllib":
             return "tomllib"
-        if node.module == "datetime" and any(a.name == "UTC" for a in node.names):
-            return "datetime_utc"
+        names = _NAMES_3_11.get(node.module or "", {})
+        for alias in node.names:
+            if alias.name in names:
+                return names[alias.name]
+    if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+        module = aliases.get(node.value.id)
+        if module is not None:
+            return _NAMES_3_11.get(module, {}).get(node.attr)
+    return None
+
+
+def _module_aliases(tree: ast.Module) -> dict[str, str]:
+    """Local names bound to the modules whose 3.11 names are checked."""
+    aliases = {name: name for name in _NAMES_3_11}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name in _NAMES_3_11:
+                    aliases[alias.asname or alias.name] = alias.name
+    return aliases
+
+
+_BUILTIN_TYPE_NAMES = frozenset(
+    {
+        "int",
+        "str",
+        "float",
+        "bytes",
+        "bool",
+        "complex",
+        "list",
+        "dict",
+        "set",
+        "frozenset",
+        "tuple",
+        "type",
+        "object",
+    }
+)
+
+
+def _is_type_operand(node: ast.expr) -> bool:
+    """True for ``None``, a builtin type, a generic alias, or a union of them.
+
+    Plain names such as ``MASK`` are left out: ``3 | MASK`` is bitwise or,
+    which every version runs.
+    """
+    if isinstance(node, ast.Constant):
+        return node.value is None
+    if isinstance(node, ast.Name):
+        return node.id in _BUILTIN_TYPE_NAMES
+    if isinstance(node, ast.Subscript):
+        return isinstance(node.value, ast.Name) and node.value.id in _BUILTIN_TYPE_NAMES
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+        return _is_type_operand(node.left) or _is_type_operand(node.right)
+    return False
+
+
+def _annotation_node_ids(tree: ast.Module) -> set[int]:
+    """Ids of every node inside an annotation, which the future import defers."""
+    ids: set[int] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.AnnAssign, ast.arg)):
+            annotations = [node.annotation]
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            annotations = [node.returns]
+        else:
+            continue
+        for annotation in annotations:
+            if annotation is not None:
+                ids.update(id(part) for part in ast.walk(annotation))
+    return ids
+
+
+def _is_runtime_union(node: ast.AST, annotation_ids: set[int]) -> bool:
+    """``A | B`` evaluated at runtime, which needs 3.10 even with the future import."""
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+        if node.func.id in {"isinstance", "issubclass"} and node.args[1:]:
+            classinfo = node.args[1]
+            return isinstance(classinfo, ast.BinOp) and isinstance(
+                classinfo.op, ast.BitOr
+            )
+        return False
+    return (
+        isinstance(node, ast.BinOp)
+        and isinstance(node.op, ast.BitOr)
+        and id(node) not in annotation_ids
+        and _is_type_operand(node)
+    )
+
+
+def _feature_needing_3_10_or_3_12(node: ast.AST) -> tuple[str, str] | None:
+    """Name a 3.10 call form or a 3.12 PEP 695 form ``node`` uses, if any."""
     if (
-        isinstance(node, ast.Attribute)
-        and node.attr == "UTC"
-        and isinstance(node.value, ast.Name)
-        and node.value.id == "datetime"
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "zip"
+        and any(kw.arg == "strict" for kw in node.keywords)
     ):
-        return "datetime_utc"
+        return "zip_strict", "3.10"
+    type_alias = getattr(ast, "TypeAlias", None)
+    if type_alias is not None and isinstance(node, type_alias):
+        return "type_statement", "3.12"
+    if getattr(node, "type_params", None):
+        return "type_parameter_syntax", "3.12"
     return None
 
 
@@ -220,14 +331,21 @@ class CompatibilityChecker:
                 "3.7",
                 status="compatible",
             )
+        module_aliases = _module_aliases(tree)
+        annotation_ids = _annotation_node_ids(tree)
         for node in ast.walk(tree):
+            if _is_runtime_union(node, annotation_ids):
+                _report_once(features_found, issues, "union_type_syntax", "3.10")
+            other = _feature_needing_3_10_or_3_12(node)
+            if other:
+                _report_once(features_found, issues, other[0], other[1])
             if _MATCH_NODE is not None and isinstance(node, _MATCH_NODE):
                 _report_once(features_found, issues, "match_statement", "3.10")
             elif isinstance(node, ast.ClassDef) and any(
                 _is_slots_dataclass(d) for d in node.decorator_list
             ):
                 _report_once(features_found, issues, "dataclass_slots", "3.10")
-            feature_311 = _feature_needing_3_11(node)
+            feature_311 = _feature_needing_3_11(node, module_aliases)
             if feature_311:
                 _report_once(features_found, issues, feature_311, "3.11")
             if not postponed and _has_union_annotation(node):

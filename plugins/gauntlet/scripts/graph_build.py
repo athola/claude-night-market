@@ -37,6 +37,18 @@ def _head_commit(root: Path) -> str | None:
     return result.stdout.strip() if result.returncode == 0 else None
 
 
+#: Everything gauntlet writes under .gauntlet/ except config.
+_IGNORED = ("graph.db", "*.db-wal", "*.db-shm", "rebuild.*")
+
+
+def _ensure_gitignore(gitignore: Path) -> None:
+    """Add any missing ignore line; a legacy file lacked the rebuild ones."""
+    present = gitignore.read_text().splitlines() if gitignore.exists() else []
+    missing = [line for line in _IGNORED if line not in present]
+    if missing:
+        gitignore.write_text("".join(f"{line}\n" for line in [*present, *missing]))
+
+
 def main() -> None:
     """Build or update the code knowledge graph."""
     parser = argparse.ArgumentParser(description="Build code knowledge graph")
@@ -63,10 +75,10 @@ def main() -> None:
     db_dir.mkdir(exist_ok=True)
     db_path = db_dir / "graph.db"
 
-    # Write .gitignore if missing
-    gitignore = db_dir / ".gitignore"
-    if not gitignore.exists():
-        gitignore.write_text("graph.db\n*.db-wal\n*.db-shm\n")
+    _ensure_gitignore(db_dir / ".gitignore")
+    # Read before the build: a commit made during a long build is not in
+    # it, and stamping the later HEAD meant that commit was never parsed.
+    head = _head_commit(root)
 
     graph = GraphStore(db_path)
 
@@ -96,7 +108,6 @@ def main() -> None:
                 sys.exit(2)
         # blast_radius scores a node by the stored flows that contain it. Tracing
         # without storing left that term at zero for every node.
-        head = _head_commit(root)
         if head:
             graph.set_metadata("last_build_commit", head)
         flows = trace_flows(graph)

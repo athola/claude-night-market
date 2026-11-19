@@ -190,9 +190,11 @@ def _pick_call_target(
     module_level = [
         qn for qn, fp in candidates if _module_stem(fp) == stem and _parent(qn) is None
     ]
-    if len(module_level) == 1:
-        return module_level[0], RESOLUTION_EXACT
     methods = [qn for qn, _ in candidates if _parent(qn) in classes]
+    if len(module_level) == 1:
+        # A receiver named like a module may be a local object instead; with
+        # a same-named method also in the graph, the pick is a guess.
+        return module_level[0], RESOLUTION_NAME_GUESS if methods else RESOLUTION_EXACT
     return (methods[0], RESOLUTION_NAME_GUESS) if len(methods) == 1 else None
 
 
@@ -212,9 +214,15 @@ class GraphStore(SqliteGraphBase):
         super()._init_schema()
         columns = {row[1] for row in self._conn.execute("PRAGMA table_info(edges)")}
         if "resolution" not in columns:
-            self._conn.execute(
-                "ALTER TABLE edges ADD COLUMN resolution TEXT DEFAULT ''"
-            )
+            try:
+                self._conn.execute(
+                    "ALTER TABLE edges ADD COLUMN resolution TEXT DEFAULT ''"
+                )
+            except sqlite3.OperationalError as exc:
+                # Another process upgrading the same graph added it between
+                # the read above and this ALTER.
+                if "duplicate column" not in str(exc):
+                    raise
             self._conn.commit()
 
     # ------------------------------------------------------------------

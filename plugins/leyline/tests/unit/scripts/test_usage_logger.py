@@ -507,3 +507,17 @@ class TestQueryMethods:
         THEN it returns an empty list.
         """
         assert logger.get_session_operations() == []
+
+
+@pytest.mark.parametrize("body", ["[]", '{"last_activity": null}', '"x"'])
+def test_usage_logger_recovers_from_non_dict_session_file(
+    tmp_path: Path, body: str
+) -> None:
+    """Valid JSON of the wrong shape raised AttributeError or TypeError."""
+    (tmp_path / "svc_session.json").write_text(body)
+
+    logger = UsageLogger(service="svc", storage_dir=tmp_path)
+    logger.log_usage(UsageEvent("read-file"))
+
+    session = json.loads((tmp_path / "svc_session.json").read_text())
+    assert session["session_id"] == logger.session_id

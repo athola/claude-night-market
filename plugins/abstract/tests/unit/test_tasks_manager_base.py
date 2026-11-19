@@ -908,3 +908,59 @@ class TestDefaultAskUser:
             assert result == ""
         finally:
             sys.stdin = old_stdin
+
+
+class TestTier3TaskManagerFindings:
+    """ABS-3, ABS-4, ABS-5, ABS-6."""
+
+    @pytest.mark.unit
+    def test_file_fallback_returns_same_id_for_same_description(
+        self, manager: TasksManager
+    ) -> None:
+        """The Tasks path reused a matching task; the file path made a new one."""
+        first = manager.ensure_task_exists("Write the parser")
+        assert manager.ensure_task_exists("Write the parser") == first
+
+    @pytest.mark.unit
+    def test_status_update_tolerates_a_state_file_without_metrics(
+        self, manager: TasksManager
+    ) -> None:
+        task_id = manager.ensure_task_exists("Write the parser")
+        state = json.loads(manager.fallback_state_file.read_text())
+        del state["metrics"]
+        manager.fallback_state_file.write_text(json.dumps(state))
+        manager.update_task_status(task_id, "complete")
+        state = json.loads(manager.fallback_state_file.read_text())
+        assert state["metrics"]["tasks_complete"] == 1
+
+    @pytest.mark.unit
+    def test_shared_service_is_not_called_circular(self) -> None:
+        result = detect_ambiguity(
+            "Refactor code that uses authmanager",
+            context={
+                "existing_tasks": [{"description": "Test code that uses authmanager"}]
+            },
+        )
+        assert "circular" not in result.message.lower()
+        assert "authmanager" in result.message
+
+    @pytest.mark.unit
+    def test_shared_service_has_a_type_named_for_it(self) -> None:
+        """The type still said CIRCULAR_DEPENDENCY for a shared service (ABS-5)."""
+        result = detect_ambiguity(
+            "Refactor code that uses authmanager",
+            context={
+                "existing_tasks": [{"description": "Test code that uses authmanager"}]
+            },
+        )
+        assert result.ambiguity_type is AmbiguityType.SHARED_SERVICE
+        assert AmbiguityType.CIRCULAR_DEPENDENCY is AmbiguityType.SHARED_SERVICE
+
+    @pytest.mark.unit
+    def test_cross_cutting_keyword_matches_case_insensitively(self) -> None:
+        result = detect_ambiguity(
+            "please UPDATE everything now",
+            context={},
+            cross_cutting_keywords=["Update Everything"],
+        )
+        assert result.ambiguity_type == AmbiguityType.CROSS_CUTTING

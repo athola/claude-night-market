@@ -429,3 +429,26 @@ class TestEveryAttributionFormIsGuarded:
         """
         command = "git commit -m 'fix: parser\n\ngithub-copilot[bot]'"
         assert _blocked(hook_module, capsys, command)
+
+
+class TestAttributionIsReadFromTheCommitOnly:
+    """IMB-2: the whole chain was scanned, and a prose verb mid-subject
+    read as a trailer.
+    """
+
+    def test_clean_message_mentioning_claude_code_is_not_flagged(self, hook_module):
+        command = "git commit -m 'docs: explain the step Verified by Claude Code'"
+        assert hook_module._has_ai_attribution(command) is False
+
+    def test_attribution_text_in_earlier_chain_segment_is_ignored(
+        self, hook_module, capsys
+    ):
+        stdin_data = _make_input(
+            command="printf 'Co-authored-by: Claude' > notes.txt && git commit -m 'clean'"
+        )
+        with patch.dict("os.environ", {"VOW_SHADOW_MODE": "0"}):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit) as exc:
+                    hook_module.main()
+        assert exc.value.code == 0
+        assert "deny" not in capsys.readouterr().out

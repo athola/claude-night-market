@@ -44,7 +44,10 @@ class AmbiguityType(Enum):
     MULTIPLE_COMPONENTS = "multiple_components"
     CROSS_CUTTING = "cross_cutting"
     LARGE_SCOPE = "large_scope"
-    CIRCULAR_DEPENDENCY = "circular_dependency"
+    SHARED_SERVICE = "shared_service"
+    # Old name for the same check, kept so existing callers still import;
+    # it never detected a cycle, only a service two tasks both touch.
+    CIRCULAR_DEPENDENCY = "shared_service"
 
 
 @dataclass
@@ -165,7 +168,7 @@ def detect_ambiguity(
     # Check for cross-cutting concerns
     description_lower = task_description.lower()
     for keyword in keywords:
-        if keyword in description_lower:
+        if keyword.lower() in description_lower:
             return AmbiguityResult(
                 is_ambiguous=True,
                 ambiguity_type=AmbiguityType.CROSS_CUTTING,
@@ -195,23 +198,23 @@ def detect_ambiguity(
     existing_tasks = context.get("existing_tasks", [])
     task_lower = task_description.lower()
     task_services = set(_SERVICE_RE.findall(task_lower))
-    conflict = _has_circular_dependency(task_lower, task_services, existing_tasks)
+    conflict = _shared_service(task_lower, task_services, existing_tasks)
     if conflict is not None:
         return AmbiguityResult(
             is_ambiguous=True,
-            ambiguity_type=AmbiguityType.CIRCULAR_DEPENDENCY,
+            ambiguity_type=AmbiguityType.SHARED_SERVICE,
             message=conflict,
         )
 
     return AmbiguityResult(is_ambiguous=False)
 
 
-def _has_circular_dependency(
+def _shared_service(
     task_lower: str,
     task_services: set[str],
     existing_tasks: list[dict[str, Any]],
 ) -> str | None:
-    """Check whether a task creates a circular dependency with existing tasks.
+    """Name a service this task and an existing task both use, if any.
 
     Args:
         task_lower: Lowercased task description.
@@ -229,11 +232,13 @@ def _has_circular_dependency(
         if "uses" not in existing_desc:
             continue
         existing_services = set(_SERVICE_RE.findall(existing_desc))
-        # Circular = both tasks reference each other's services
+        # Text alone cannot show a cycle, only that both tasks use the same
+        # service, so the message says that and no more.
         task_svcs_lower = {s.lower() for s in task_services}
         existing_svcs_lower = {s.lower() for s in existing_services}
-        if task_svcs_lower & existing_svcs_lower:
-            return "Potential circular dependency detected"
+        shared = sorted(task_svcs_lower & existing_svcs_lower)
+        if shared:
+            return f"Shares {', '.join(shared)} with an existing task"
     return None
 
 
@@ -421,6 +426,12 @@ class TasksManager:
         empty_state = {"tasks": {}, "metrics": {"tasks_complete": 0, "tasks_total": 0}}
         state = safe_json_load(self.fallback_state_file, default=empty_state)
 
+        # "Create or find": the Tasks path reuses a matching task, so this
+        # one does too rather than minting a duplicate.
+        for existing_id, task in state["tasks"].items():
+            if task.get("description") == task_description:
+                return str(existing_id)
+
         task_id = f"{self.config.task_prefix}-{len(state['tasks']) + 1:03d}"
 
         state["tasks"][task_id] = {
@@ -592,7 +603,7 @@ class TasksManager:
             state["tasks"][task_id].update(kwargs)
 
             if status == "complete":
-                state["metrics"]["tasks_complete"] = len(
+                state.setdefault("metrics", {})["tasks_complete"] = len(
                     [
                         t
                         for t in state["tasks"].values()

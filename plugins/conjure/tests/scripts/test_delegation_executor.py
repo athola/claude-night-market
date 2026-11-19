@@ -12,7 +12,7 @@ import sys
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -594,10 +594,7 @@ class TestDelegator:
 
     @patch("subprocess.run")
     @patch("delegation_executor.estimate_tokens")
-    @patch("builtins.open", new_callable=mock_open)
-    def test_log_usage(
-        self, mock_file, mock_estimate, mock_run, temp_config_dir
-    ) -> None:
+    def test_log_usage(self, mock_estimate, mock_run, temp_config_dir) -> None:
         """Given execution result when logging usage then should write to log file."""
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = "Success"
@@ -608,13 +605,8 @@ class TestDelegator:
 
         delegator.execute("gemini", "test prompt")
 
-        # Verify log file was opened and written to
-        mock_file.assert_called_with(delegator.usage_log, "a")
-        handle = mock_file()
-        written_data = handle.write.call_args[0][0]
-
-        # Parse and verify log entry
-        log_entry = json.loads(written_data.strip())
+        # Read what reached the log file, not how it was opened.
+        log_entry = json.loads(delegator.usage_log.read_text().strip())
         assert log_entry["service"] == "gemini"
         assert log_entry["success"] is True
         assert "timestamp" in log_entry

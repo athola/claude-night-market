@@ -16,7 +16,8 @@ from pathlib import Path
 
 import pytest
 
-from leyline.atomic_file import write_atomic
+from leyline.atomic_file import file_lock, read_json_object, write_atomic
+import fcntl
 
 GOOD = '{"session_count": 1}\n'
 
@@ -247,3 +248,49 @@ def test_directory_sync_is_skipped_on_windows(
 
     assert events == ["fsync"]
     assert target.exists()
+
+
+class TestReadJsonObject:
+    """State readers caught JSONDecodeError but not a valid non-object, so
+    `[]` in a state file raised AttributeError on the first `.get`.
+    """
+
+    @pytest.mark.parametrize("body", ["[]", "3", '"text"', "null", "{not json", ""])
+    def test_returns_default_for_anything_but_an_object(
+        self, tmp_path: Path, body: str
+    ) -> None:
+        state = tmp_path / "state.json"
+        state.write_text(body)
+        assert read_json_object(state, {"fresh": True}) == {"fresh": True}
+
+    def test_returns_default_when_missing(self, tmp_path: Path) -> None:
+        assert read_json_object(tmp_path / "absent.json", {}) == {}
+
+    def test_returns_the_object(self, tmp_path: Path) -> None:
+        state = tmp_path / "state.json"
+        state.write_text('{"a": 1}')
+        assert read_json_object(state, {}) == {"a": 1}
+
+
+class TestFileLock:
+    """Writers restated the lock convention, so a second writer could not
+    find the first writer's lock (ARCH-5).
+    """
+
+    def test_a_second_holder_waits_for_the_first(self, tmp_path: Path) -> None:
+
+        target = tmp_path / "index.yaml"
+        with open(tmp_path / "index.yaml.lock", "a") as held:
+            fcntl.flock(held, fcntl.LOCK_EX)
+            entered = threading.Event()
+
+            def contender() -> None:
+                with file_lock(target):
+                    entered.set()
+
+            worker = threading.Thread(target=contender)
+            worker.start()
+            assert not entered.wait(0.3)
+            fcntl.flock(held, fcntl.LOCK_UN)
+        worker.join(5)
+        assert entered.is_set()

@@ -81,3 +81,29 @@ def test_skill_runs_grounding_where_prose_is_written(skill: str) -> None:
     # The function only helps if the stage that writes report prose calls it
     text = (Path(__file__).parents[2] / "skills" / skill / "SKILL.md").read_text()
     assert "find_ungrounded_urls" in text
+
+
+class TestGroundedUrlsInMarkdown:
+    """Markdown wrapping and parentheses produced false "ungrounded" URLs,
+    and the skills tell the model to drop each one (TOM-1).
+    """
+
+    def test_backticked_and_bold_urls_are_grounded(self) -> None:
+        findings = [make_finding(url="https://a.com/x")]
+        report = "See `https://a.com/x` and **https://a.com/x**."
+        assert find_ungrounded_urls(report, findings) == []
+
+    def test_url_with_parentheses_is_grounded(self) -> None:
+        url = "https://en.wikipedia.org/wiki/Foo_(bar)"
+        findings = [make_finding(url=url)]
+        assert find_ungrounded_urls(f"Per {url}, and [w]({url}).", findings) == []
+
+    def test_url_in_a_finding_summary_is_grounded(self) -> None:
+        findings = [make_finding(summary="Docs at https://docs.a.com/guide say so.")]
+        assert find_ungrounded_urls("See https://docs.a.com/guide.", findings) == []
+
+    def test_an_invented_url_is_still_reported(self) -> None:
+        findings = [make_finding(url="https://a.com/x")]
+        assert find_ungrounded_urls("`https://b.com/y`", findings) == [
+            "https://b.com/y"
+        ]

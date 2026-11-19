@@ -12,6 +12,7 @@ walk rather than a finished one.
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import replace
 from pathlib import Path
 
 import night_run
@@ -272,3 +273,71 @@ class TestStagedChangesAreFenced:
 
         assert night_run._revert_offenders(runner, repo, ["new.txt"]) == []
         assert not (repo / "new.txt").exists()
+
+
+class TestImplementerCommitsStayFenced:
+    """The fence diffed against HEAD, so an implementer that committed
+    moved HEAD and its edits were invisible to the fence (EGR-5).
+    """
+
+    def test_fence_sees_commits_made_by_implementer(self, tmp_path: Path) -> None:
+        runner = night_run.SubprocessRunner()
+        for argv in (
+            ("git", "init", "-q"),
+            ("git", "config", "user.email", "t@example.com"),
+            ("git", "config", "user.name", "t"),
+        ):
+            runner.run(list(argv), cwd=tmp_path)
+        (tmp_path / "a.txt").write_text("one\n")
+        runner.run(["git", "add", "a.txt"], cwd=tmp_path)
+        runner.run(["git", "commit", "-q", "-m", "init"], cwd=tmp_path)
+        base = night_run._head(runner, tmp_path)
+        (tmp_path / ".github").mkdir()
+        (tmp_path / ".github" / "x.yml").write_text("on: push\n")
+        runner.run(["git", "add", "-A"], cwd=tmp_path)
+        runner.run(["git", "commit", "-q", "-m", "sneaky"], cwd=tmp_path)
+
+        night_run._uncommit_since(runner, tmp_path, base)
+
+        assert night_run._head(runner, tmp_path) == base
+        assert ".github/x.yml" in night_run._touched_files(runner, tmp_path)
+
+
+class TestAParkedItemResumes:
+    """After a park the branch and worktree already exist, and a rerun died
+    on `git worktree add -b` with setup_failed (EGR-4).
+    """
+
+    @staticmethod
+    def _repo(tmp_path: Path) -> tuple[night_run.SubprocessRunner, Path]:
+
+        runner = night_run.SubprocessRunner()
+        root = tmp_path / "repo"
+        root.mkdir()
+        for argv in (
+            ("git", "init", "-q", "-b", "main"),
+            ("git", "config", "user.email", "t@example.com"),
+            ("git", "config", "user.name", "t"),
+        ):
+            runner.run(list(argv), cwd=root)
+        (root / "a.txt").write_text("one\n")
+        runner.run(["git", "add", "a.txt"], cwd=root)
+        runner.run(["git", "commit", "-q", "-m", "init"], cwd=root)
+        handoff = replace(HANDOFF, commands={})
+        return runner, root, handoff
+
+    def test_rerun_after_park_reuses_existing_worktree(self, tmp_path: Path) -> None:
+        runner, root, handoff = self._repo(tmp_path)
+        worktree = tmp_path / "wt"
+        assert night_run._prepare_worktree(runner, root, worktree, handoff) is None
+        assert night_run._prepare_worktree(runner, root, worktree, handoff) is None
+
+    def test_committed_task_ids_are_read_from_the_branch(self, tmp_path: Path) -> None:
+        runner, root, handoff = self._repo(tmp_path)
+        worktree = tmp_path / "wt"
+        night_run._prepare_worktree(runner, root, worktree, handoff)
+        (worktree / "b.txt").write_text("b\n")
+        runner.run(["git", "add", "b.txt"], cwd=worktree)
+        runner.run(["git", "commit", "-q", "-m", "T1: add b"], cwd=worktree)
+
+        assert night_run._committed_task_ids(runner, worktree, handoff) == {"T1"}

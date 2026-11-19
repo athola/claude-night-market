@@ -35,6 +35,10 @@ It integrates with sanctum's documentation workflows.
 | `/doc-generate` | Generate new documentation |
 | `/session-to-post` | Convert current session into a blog post or case study |
 | `/session-replay` | Generate GIF/MP4/WebM replay from session JSONL |
+| `/voice-extract` | Extract your writing voice from samples into a reusable profile |
+| `/voice-generate` | Generate text in your extracted writing voice |
+| `/voice-learn` | Run learning pass on manually edited text to improve voice profile |
+| `/voice-review` | Review existing text against a voice profile |
 
 ## Agents
 

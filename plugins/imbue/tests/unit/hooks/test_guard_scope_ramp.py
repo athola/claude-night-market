@@ -100,6 +100,19 @@ class TestGuardScopeRampHook:
         assert out is None
 
     @pytest.mark.unit
+    @pytest.mark.parametrize("name", ["README.md", "data/fixture.json", "ci.yml"])
+    def test_prose_and_data_files_do_not_climb_the_rung(self, name: str):
+        """The rung gates implementation; a 500-line doc counted as code (IMB-10)."""
+        code, out = run_hook(
+            "Write",
+            {"file_path": name, "content": _big_content(500)},
+            f"sess-doc-{name}",
+            {"VOW_SHADOW_MODE": "0"},
+        )
+        assert code == 0
+        assert out is None
+
+    @pytest.mark.unit
     def test_non_code_tool_is_silent(self):
         code, out = run_hook("Bash", {"command": "ls"}, "sess-bash")
         assert code == 0
@@ -659,3 +672,19 @@ class TestMainInProcess:
         code, out, _ = self._main(hook, monkeypatch, capsys, stdin_text)
         assert code == 0
         assert out is None
+
+
+@pytest.mark.unit
+def test_env_ramp_token_widens_rung_once_per_session(tmp_path) -> None:
+    """The env token is in every call's environment, so it widened the rung
+    on every write instead of once (IMB-8).
+    """
+    for _ in range(4):
+        run_hook(
+            "Write",
+            {"file_path": "src/util.py", "content": _big_content(55)},
+            "sess-env-once",
+            {"IMBUE_RAMP_OK": "1", "VOW_SHADOW_MODE": "1"},
+        )
+    ledger = tmp_path / ".imbue" / "ramp-ledger.jsonl"
+    assert len(ledger.read_text().splitlines()) == 1

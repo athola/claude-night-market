@@ -49,6 +49,7 @@ selecting the right skills for each codebase.
 | `/refine-code` | Analyze and improve living code quality |
 | `/skill-review` | Analyze skill runtime metrics and stability gaps (canonical) |
 | `/skill-history` | View recent skill executions |
+| `/harden` | Active security hardening of the existing codebase, with a report and concrete proposals to apply |
 
 > **Note**: For static skill quality analysis (frontmatter, structure), use `abstract:skill-auditor` instead.
 

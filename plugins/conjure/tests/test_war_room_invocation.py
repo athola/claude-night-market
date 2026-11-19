@@ -25,6 +25,7 @@ from scripts.war_room import (
     get_haiku_command,
 )
 from scripts.war_room.experts import _expert_availability, _haiku_fallback_notices
+from scripts.war_room.orchestrator import ExpertFailureNote
 
 
 class TestExternalInvocation:
@@ -214,8 +215,34 @@ class TestParallelInvocation:
                 "test",
             )
 
-        assert "[Error:" in results["chief_strategist"]
+        # A failure is not an opinion: phases and the Borda count never see
+        # it, and the session records it instead (CNJ-9).
+        assert "chief_strategist" not in results
         assert "Success from red_team" in results["red_team"]
+        assert (
+            "Simulated failure"
+            in session.artifacts["expert_failures"]["test:chief_strategist"]
+        )
+
+    @pytest.mark.asyncio
+    async def test_invoke_parallel_keeps_failure_notes_out_of_results(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """A `[Role command not found]` note was counted as a ballot (CNJ-9)."""
+        session = WarRoomSession(session_id="note", problem_statement="x")
+
+        async def invoke(key: str, *_args: object) -> str:
+            if key == "chief_strategist":
+                return ExpertFailureNote("[Chief Strategist command not found: x]")
+            return "1. A - best"
+
+        with patch.object(orchestrator, "_invoke_expert", side_effect=invoke):
+            results = await orchestrator._invoke_parallel(
+                ["chief_strategist", "red_team"], {"default": "p"}, session, "voting"
+            )
+
+        assert list(results) == ["red_team"]
+        assert "voting:chief_strategist" in session.artifacts["expert_failures"]
 
     @pytest.mark.asyncio
     async def test_invoke_parallel_skips_unknown_experts(
@@ -427,3 +454,90 @@ class TestHaikuFallback:
         assert "Test Expert" in prompt_arg
         assert "Expert for testing" in prompt_arg
         assert "original prompt" in prompt_arg
+
+
+@pytest.mark.asyncio
+async def test_failed_expert_is_not_recorded_as_a_contribution(
+    tmp_path: Path,
+) -> None:
+    """A provider failure is not sealed into the audit DAG (CNJ-9).
+
+    Its error note was recorded as the expert's answer.
+    """
+    orchestrator = WarRoomOrchestrator(strategeion_path=tmp_path)
+    session = WarRoomSession(session_id="fail", problem_statement="x")
+    with (
+        patch(
+            "scripts.war_room.experts.check_expert_availability",
+            new_callable=AsyncMock,
+            return_value=True,
+        ),
+        patch(
+            "asyncio.create_subprocess_exec",
+            new_callable=AsyncMock,
+            side_effect=FileNotFoundError("qwen"),
+        ),
+    ):
+        result = await orchestrator._invoke_expert("scout", "p", session, "intel")
+
+    assert result.startswith("[")
+    assert session.merkle_dag.nodes == {}
+
+
+@pytest.mark.parametrize(
+    ("expert_key", "tail"),
+    [
+        ("intelligence_officer", ["--prompt=-v"]),  # gemini, flag provider
+        ("scout", ["--prompt=-v"]),  # qwen
+    ],
+)
+async def test_dash_leading_prompt_is_escaped_like_the_registry(
+    tmp_path: Path, expert_key: str, tail: list[str]
+) -> None:
+    """A raw `-v` after `-p` was read as a CLI flag (CNJ-15)."""
+    orchestrator = WarRoomOrchestrator(strategeion_path=tmp_path)
+    session = WarRoomSession(session_id="dash", problem_statement="x")
+    with (
+        patch(
+            "scripts.war_room.experts.check_expert_availability",
+            new_callable=AsyncMock,
+            return_value=True,
+        ),
+        patch(
+            "asyncio.create_subprocess_exec",
+            new_callable=AsyncMock,
+            side_effect=FileNotFoundError("cli"),
+        ) as spawn,
+    ):
+        await orchestrator._invoke_expert(expert_key, "-v", session, "intel")
+
+    argv = list(spawn.call_args.args)
+    assert argv[-len(tail) :] == tail
+    assert "-p" not in argv[-2:]
+
+
+async def test_availability_probe_bills_no_completion() -> None:
+    """The probe was a billed "respond with 'ok'" completion (CNJ-10)."""
+    expert = EXPERT_CONFIGS["intelligence_officer"]  # gemini
+    _expert_availability.clear()
+    with (
+        patch(
+            "scripts.war_room.experts.verify_service",
+            return_value=(False, ["Command 'gemini' not found"]),
+        ) as verify,
+        patch("asyncio.create_subprocess_exec", new_callable=AsyncMock) as spawn,
+    ):
+        available = await check_expert_availability(expert)
+
+    assert available is False
+    verify.assert_called_once()
+    spawn.assert_not_called()
+
+
+async def test_a_raising_availability_check_reads_as_unavailable() -> None:
+    """The billed probe caught RuntimeError; the registry check must too (CNJ-10)."""
+    _expert_availability.clear()
+    with patch(
+        "scripts.war_room.experts.verify_service", side_effect=RuntimeError("boom")
+    ):
+        assert await check_expert_availability(EXPERT_CONFIGS["scout"]) is False

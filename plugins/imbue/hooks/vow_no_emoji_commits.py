@@ -18,6 +18,7 @@ from pathlib import Path
 # D-06: shadow_mode and git_commit_offset are in shared/vow_utils.
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
+    git_commit_end,
     git_commit_offset,
     shadow_mode_active,
     vow_output,
@@ -71,7 +72,8 @@ def main() -> None:
 
         # An emoji in an earlier command ("echo ... && git commit") is not
         # in the commit message.
-        if not _has_emoji(command[offset:]):
+        # Nor is one in a command chained after it ("... && echo 🎉").
+        if not _has_emoji(command[offset : git_commit_end(command)]):
             sys.exit(0)
 
         shadow = shadow_mode_active()

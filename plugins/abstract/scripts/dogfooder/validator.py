@@ -194,14 +194,13 @@ class MakefileTargetGenerator:
         # Generate test targets for slash commands
         for cmd in slash_cmds[:10]:
             cmd_name = cmd["command"]
+            # Echo-only "Validating" lines exited 0 for a command nothing
+            # tested, and verify steps trusted them. Fail until a real
+            # check replaces this recipe.
             test_target = (
-                f"test-{cmd_name}: ## Test {cmd_name} command workflow\n"
-                f'\t@echo "=== Testing {cmd_name} workflow ==="\n'
-                f'\t@echo "Validating: /{cmd_name}"\n'
-                f'\t@echo "Check: Command executes without errors"\n'
-                f'\t@echo "Check: Output matches expected format"\n'
-                f'\t@echo "Status: [ ] Manual test required"\n'
-                f'\t@echo ""\n'
+                f"test-{cmd_name}: ## No automated test for /{cmd_name} (exits 1)\n"
+                f'\t@echo "No automated test for /{cmd_name}; run it by hand."\n'
+                f"\t@exit 1\n"
                 f"\n"
             )
             targets.append(test_target)

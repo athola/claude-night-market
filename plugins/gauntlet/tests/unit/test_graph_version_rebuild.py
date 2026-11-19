@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import re
@@ -152,8 +153,17 @@ class TestRebuildFailsSafe:
         conn = MagicMock()
         conn.execute.side_effect = sqlite3.OperationalError("database is locked")
         with patch.object(hook.sqlite3, "connect", return_value=conn):
-            with pytest.raises(sqlite3.OperationalError):
-                _run()
+            output, popen = _run()
+        popen.assert_not_called()
+        assert output is None
+
+    def test_corrupt_graph_returns_a_hint_not_a_traceback(self, project: Path) -> None:
+        """A raised DatabaseError printed a traceback at SessionStart (GAU-5)."""
+        gdir = _graph(project, "1.0.0")
+        (gdir / "graph.db").write_bytes(b"not a sqlite database" * 100)
+        output, popen = _run()
+        popen.assert_not_called()
+        assert "/gauntlet-graph build" in json.dumps(output)
 
     def test_unreadable_opt_out_config_starts_nothing(self, project: Path) -> None:
         gdir = _graph(project, "1.0.0")
@@ -161,3 +171,28 @@ class TestRebuildFailsSafe:
         output, popen = _run()
         popen.assert_not_called()
         assert output is None
+
+
+def test_stale_lock_takeover_waits_for_a_concurrent_taker(tmp_path: Path) -> None:
+    """Two takers could both unlink a stale lock and both build (GAU-9)."""
+    lock = tmp_path / "rebuild.lock"
+    lock.write_text("old")
+    old = time.time() - hook._LOCK_TTL_SECONDS - 60
+    os.utime(lock, (old, old))
+    with open(hook._guard_path(lock), "a") as guard:
+        fcntl.flock(guard, fcntl.LOCK_EX)
+        assert hook._take_lock(lock) is False
+    assert hook._take_lock(lock) is True
+
+
+def test_a_failed_launch_releases_the_lock(project: Path) -> None:
+    """Popen raising left the lock, blocking rebuilds for two hours (GAU-5)."""
+    gdir = _graph(project, "1.0.0")
+    tools = {"uv": "/usr/bin/uv", "nice": "/usr/bin/nice"}
+    with (
+        patch.object(hook.shutil, "which", side_effect=tools.get),
+        patch.object(hook.subprocess, "Popen", side_effect=OSError("exec format")),
+        pytest.raises(OSError),
+    ):
+        hook.main({"hook_event_name": "SessionStart"})
+    assert not (gdir / "rebuild.lock").exists()
