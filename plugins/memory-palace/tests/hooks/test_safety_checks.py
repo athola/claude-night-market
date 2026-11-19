@@ -335,6 +335,17 @@ class TestCodeExecutionRisk:
         result = check_code_execution_risk(content)
         assert result is None
 
+    def test_fenced_code_block_is_scanned(self) -> None:
+        """A fence spans lines, so stripping it would hide any payload.
+
+        Deliberate: a tutorial whose fenced example calls a flagged
+        function is not stored. Only one-line inline spans are exempt.
+        """
+        content = _payload("Example:\n```python\nev", "al(user_text)\n```\n")
+        result = check_code_execution_risk(content)
+        assert result is not None
+        assert result.is_safe is False
+
     def test_handles_empty_content(self) -> None:
         """Empty content should return None."""
         result = check_code_execution_risk("")

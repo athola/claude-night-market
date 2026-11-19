@@ -238,7 +238,8 @@ def check_code_execution_risk(
     # so discussions ABOUT code don't trigger
     for window in _windows(content):
         # One-line, short spans only: across lines, any two backticks hid
-        # whatever lay between them.
+        # whatever lay between them. Fenced blocks are therefore scanned,
+        # and a page whose fenced example matches a pattern is not stored.
         sample = re.sub(r"`[^`\n]{1,200}`", "", window)
         for pattern in _CODE_EXECUTION_PATTERNS:
             if pattern.search(sample):

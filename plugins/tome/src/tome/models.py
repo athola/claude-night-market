@@ -182,6 +182,15 @@ class ResearchSession:
     # report can list the ones no finding mentions.
     entities: list[str] = field(default_factory=list)
 
+    def __post_init__(self) -> None:
+        """Keep only non-blank string entities, stripped.
+
+        A stored ``"Rust"`` iterated into its letters, and ``null`` raised
+        on load. Anything that is not a list holds no entities.
+        """
+        raw = self.entities if isinstance(self.entities, list) else []
+        self.entities = [e.strip() for e in raw if isinstance(e, str) and e.strip()]
+
     def add_finding(self, finding: Finding) -> None:
         """Append a finding and update the modified timestamp."""
         self.findings.append(finding)
@@ -238,7 +247,7 @@ class ResearchSession:
             # reads as unknown rather than as an empty field.
             query_log=[QueryLog.from_dict(q) for q in d.get("query_log", [])],
             # Older sessions carry no entities and load with none.
-            entities=[str(e) for e in d.get("entities", [])],
+            entities=d.get("entities", []),
         )
 
 

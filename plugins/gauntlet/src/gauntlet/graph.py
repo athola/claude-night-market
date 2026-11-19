@@ -13,7 +13,7 @@ import sqlite3
 from collections import deque
 from typing import Any
 
-from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
+from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind, Resolution
 
 try:
     from leyline.sqlite_graph_base import SqliteGraphBase
@@ -22,12 +22,6 @@ except ImportError:  # pragma: no cover -- standalone fallback
 
 
 _log = logging.getLogger(__name__)
-
-# How a CALLS target was resolved. An empty string means the edge was not
-# resolved by this module: a declared edge (imports, containment), a call
-# left external, or a row written before the column existed.
-RESOLUTION_EXACT = "exact"
-RESOLUTION_NAME_GUESS = "name_guess"
 
 _MAX_BFS_NODES = 10_000
 
@@ -149,7 +143,7 @@ def _pick_call_target(
     candidates: list[tuple[str, str]],
     edge_file: str,
     classes: set[str],
-) -> tuple[str, str] | None:
+) -> tuple[str, Resolution] | None:
     """Choose the definition a call reaches, or None when it is ambiguous.
 
     Returns ``(qualified_name, resolution)``. A scope rule or a module
@@ -172,20 +166,20 @@ def _pick_call_target(
         free = [(qn, fp) for qn, fp in candidates if _parent(qn) not in classes]
         local = [qn for qn, fp in free if fp == edge_file]
         if len(local) == 1:
-            return local[0], RESOLUTION_EXACT
+            return local[0], Resolution.EXACT
         if len(free) == 1:
-            return free[0][0], RESOLUTION_EXACT
+            return free[0][0], Resolution.EXACT
         # Vendored copies of one module share a name across plugins; only
         # the caller's own plugin copy is a candidate, and it is a name
         # match rather than an import-confirmed link.
         plugin = _plugin_of(edge_file)
         own = [qn for qn, fp in free if plugin and _plugin_of(fp) == plugin]
-        return (own[0], RESOLUTION_NAME_GUESS) if len(own) == 1 else None
+        return (own[0], Resolution.NAME_GUESS) if len(own) == 1 else None
     if receiver in ("self", "cls"):
         local = [
             qn for qn, fp in candidates if fp == edge_file and _parent(qn) in classes
         ]
-        return (local[0], RESOLUTION_EXACT) if len(local) == 1 else None
+        return (local[0], Resolution.EXACT) if len(local) == 1 else None
     stem = receiver.rsplit(".", 1)[-1]
     module_level = [
         qn for qn, fp in candidates if _module_stem(fp) == stem and _parent(qn) is None
@@ -194,8 +188,8 @@ def _pick_call_target(
     if len(module_level) == 1:
         # A receiver named like a module may be a local object instead; with
         # a same-named method also in the graph, the pick is a guess.
-        return module_level[0], RESOLUTION_NAME_GUESS if methods else RESOLUTION_EXACT
-    return (methods[0], RESOLUTION_NAME_GUESS) if len(methods) == 1 else None
+        return module_level[0], Resolution.NAME_GUESS if methods else Resolution.EXACT
+    return (methods[0], Resolution.NAME_GUESS) if len(methods) == 1 else None
 
 
 class GraphStore(SqliteGraphBase):
@@ -385,7 +379,7 @@ class GraphStore(SqliteGraphBase):
                 else:
                     self._conn.execute(
                         "UPDATE edges SET target_qn = ?, resolution = ? WHERE id = ?",
-                        (chosen, resolution, edge_id),
+                        (chosen, str(resolution), edge_id),
                     )
                 resolved += 1
         return resolved
@@ -784,7 +778,7 @@ class GraphStore(SqliteGraphBase):
             target_qn=row["target_qn"],
             file_path=row["file_path"] or "",
             line=row["line"] or 0,
-            resolution=row["resolution"] or "",
+            resolution=Resolution(row["resolution"] or ""),
         )
 
 

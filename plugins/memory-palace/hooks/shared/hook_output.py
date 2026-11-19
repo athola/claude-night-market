@@ -89,8 +89,8 @@ def build_hook_payload(
     return None
 
 
-#: A sync holds the queue lock for its whole run; a hook waits this long
-#: and then skips queueing rather than stall the tool call.
+#: A sync holds the queue lock only to read and to rewrite the queue; a
+#: hook waits this long and then skips queueing rather than stall the call.
 _QUEUE_LOCK_TIMEOUT_SECONDS = 2.0
 
 

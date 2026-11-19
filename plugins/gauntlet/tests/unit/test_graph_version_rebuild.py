@@ -196,3 +196,40 @@ def test_a_failed_launch_releases_the_lock(project: Path) -> None:
     ):
         hook.main({"hook_event_name": "SessionStart"})
     assert not (gdir / "rebuild.lock").exists()
+
+
+class TestAFailedRebuildIsReported:
+    """A failed build keeps the lock, and later sessions printed nothing."""
+
+    @pytest.mark.unit
+    def test_rebuild_records_its_exit_status(self, project: Path) -> None:
+        _graph(project, "1.0.0")
+        _, popen = _run()
+        assert "rebuild.status" in popen.call_args.args[0][-1]
+
+    @pytest.mark.unit
+    def test_held_lock_after_a_failed_rebuild_names_the_log(
+        self, project: Path
+    ) -> None:
+        gdir = _graph(project, "1.0.0")
+        (gdir / "rebuild.lock").write_text(str(time.time()))
+        (gdir / "rebuild.status").write_text("1\n")
+        output, popen = _run()
+        popen.assert_not_called()
+        context = output["hookSpecificOutput"]["additionalContext"]
+        assert "failed" in context
+        assert str(gdir / "rebuild.log") in context
+
+    @pytest.mark.unit
+    def test_held_lock_while_a_rebuild_runs_stays_silent(self, project: Path) -> None:
+        gdir = _graph(project, "1.0.0")
+        (gdir / "rebuild.lock").write_text(str(time.time()))
+        output, _ = _run()
+        assert output is None
+
+    @pytest.mark.unit
+    def test_a_new_rebuild_clears_the_last_status(self, project: Path) -> None:
+        gdir = _graph(project, "1.0.0")
+        (gdir / "rebuild.status").write_text("1\n")
+        _run()
+        assert not (gdir / "rebuild.status").exists()

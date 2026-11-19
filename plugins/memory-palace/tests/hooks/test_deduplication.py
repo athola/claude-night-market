@@ -297,6 +297,36 @@ class TestYamlUnavailable:
         assert index_path.read_text() == "entries: }\n"
         assert not list(tmp_path.glob("*.corrupt-*"))
 
+    @pytest.mark.parametrize(
+        "body",
+        ["entries: []\nhashes: {}\n", "entries:\nhashes: {}\n", "hashes: []\n"],
+    )
+    def test_index_with_wrong_shaped_sections_is_set_aside(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, body: str
+    ) -> None:
+        """A list or null under ``entries`` passed the top-level check, and
+        every capture then crashed on ``.items()``.
+        """
+        index_path = tmp_path / "memory-palace-index.yaml"
+        index_path.write_text(body)
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+        monkeypatch.setattr(dedup_module, "yaml", real_yaml)
+        monkeypatch.setattr(dedup_module, "_index_cache", None)
+        monkeypatch.setattr(dedup_module, "_stage_index", lambda _path: None)
+
+        assert dedup_module._load_index() == {"entries": {}, "hashes": {}}
+        update_index(
+            content_hash="sha256:new",
+            stored_at="docs/new.md",
+            url="https://new.example",
+            importance_score=10,
+        )
+
+        set_aside = list(tmp_path.glob("memory-palace-index.yaml.corrupt-*"))
+        assert [p.read_text() for p in set_aside] == [body]
+        fresh = real_yaml.safe_load(index_path.read_text())
+        assert list(fresh["entries"]) == ["https://new.example"]
+
     def test_is_known_returns_false_when_yaml_unavailable(
         self, monkeypatch: object
     ) -> None:

@@ -136,6 +136,46 @@ class TestIncrementalDiffsFromTheLastBuild:
             graph.close()
         assert "added_later" in names
 
+    @pytest.mark.unit
+    def test_incremental_build_with_base_ref_does_not_stamp_past_unbuilt_commits(
+        self, tmp_path: Path
+    ) -> None:
+        """A diff of HEAD~1 alone stamped HEAD, so the commit before it was
+        never parsed and the next plain incremental reported no changes.
+        """
+        pytest.importorskip("tree_sitter")
+        (tmp_path / "a.py").write_text("def a():\n    pass\n")
+        _git(tmp_path, "init", "-q")
+        _git(tmp_path, "add", "a.py")
+        _git(tmp_path, "commit", "-qm", "c0")
+        build = [sys.executable, str(_SCRIPT), str(tmp_path)]
+        subprocess.run(build, capture_output=True, check=True)
+
+        (tmp_path / "a.py").write_text(
+            "def a():\n    pass\n\n\ndef gamma():\n    pass\n"
+        )
+        _git(tmp_path, "commit", "-qam", "c1")
+        (tmp_path / "b.py").write_text("def delta():\n    pass\n")
+        _git(tmp_path, "add", "b.py")
+        _git(tmp_path, "commit", "-qm", "c2")
+        subprocess.run(
+            [*build, "--incremental", "--base-ref", "HEAD~1"],
+            capture_output=True,
+            check=True,
+        )
+        result = subprocess.run(
+            [*build, "--incremental"], capture_output=True, text=True, check=False
+        )
+
+        assert result.returncode == 0, result.stdout
+        graph = GraphStore(tmp_path / ".gauntlet" / "graph.db")
+        try:
+            nodes = graph.get_nodes_in_file(str(tmp_path / "a.py"))
+            names = {n.qualified_name.rsplit("::", 1)[-1] for n in nodes}
+        finally:
+            graph.close()
+        assert "gamma" in names
+
 
 def _load_graph_build():
 
@@ -158,6 +198,7 @@ class TestBuildBookkeeping:
         subprocess.run([sys.executable, str(_SCRIPT), str(tmp_path)], check=False)
         lines = (gdir / ".gitignore").read_text().splitlines()
         assert "rebuild.*" in lines
+        assert "update.*" in lines
         assert lines.count("graph.db") == 1
 
     @pytest.mark.unit

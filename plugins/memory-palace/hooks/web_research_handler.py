@@ -716,7 +716,9 @@ def _recent_intake_pending(query: str) -> bool:
         with open(queue_path, "rb") as queue:
             size = queue.seek(0, 2)  # end of file
             queue.seek(max(0, size - _QUEUE_TAIL_BYTES))
-            tail = queue.read().decode("utf-8")
+            # The seek can land inside a character; that line is dropped
+            # below, so its broken bytes must not fail the decode.
+            tail = queue.read().decode("utf-8", errors="replace")
         lines = tail.strip().splitlines()
         if size > _QUEUE_TAIL_BYTES:
             lines = lines[1:]  # the first line was cut by the seek

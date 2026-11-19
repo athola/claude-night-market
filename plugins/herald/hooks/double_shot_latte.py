@@ -303,7 +303,9 @@ def _read_throttle(path: Path) -> tuple[int, float]:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
         return int(data.get("count", 0)), float(data.get("last", 0.0))
-    except (OSError, ValueError, AttributeError):
+    except (OSError, ValueError, AttributeError, TypeError):
+        # A non-object file, or a field of the wrong type, reads as fresh:
+        # raising here approved every turn until the file was deleted.
         return 0, 0.0
 
 

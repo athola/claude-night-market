@@ -239,6 +239,7 @@ class EmbeddingIndex:
 
     def add_to_room(self, room: str, entry_id: str, text: str) -> None:
         """Add an entry to a room-specific index partition."""
+        self._check_model()
         if room not in self._room_entries:
             self._room_entries[room] = {}
         vector = self.vectorize(text)
@@ -301,7 +302,12 @@ class EmbeddingIndex:
         When room-partitioned entries exist, they are serialized under a
         ``rooms`` key inside the provider block. Flat (non-room) entries
         are stored under the ``embeddings`` key as before.
+
+        Raises EmbeddingModelMismatchError when the loaded vectors came from
+        another model: stamping the current id over them would hide the
+        mismatch that ``_check_model`` exists to catch.
         """
+        self._check_model()
         target_path = Path(path) if path else self.embeddings_path
         target_provider = provider or self.requested_provider or self.active_provider
         payload = entries if entries is not None else self.entries

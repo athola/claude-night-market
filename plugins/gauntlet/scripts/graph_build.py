@@ -38,7 +38,7 @@ def _head_commit(root: Path) -> str | None:
 
 
 #: Everything gauntlet writes under .gauntlet/ except config.
-_IGNORED = ("graph.db", "*.db-wal", "*.db-shm", "rebuild.*")
+_IGNORED = ("graph.db", "*.db-wal", "*.db-shm", "rebuild.*", "update.*")
 
 
 def _ensure_gitignore(gitignore: Path) -> None:
@@ -83,12 +83,16 @@ def main() -> None:
     graph = GraphStore(db_path)
 
     try:
+        # The stamp claims the graph is current through HEAD. Only a full
+        # build or a diff from the stamped commit makes that true: a diff
+        # from any other ref skips the commits between it and the stamp.
+        covers_head = not args.incremental
         if args.incremental:
+            stamped = graph.get_metadata("last_build_commit")
             # HEAD alone covers uncommitted edits only: on a clean tree a
             # graph many commits stale reported "no changes detected".
-            base_ref = (
-                args.base_ref or graph.get_metadata("last_build_commit") or "HEAD"
-            )
+            base_ref = args.base_ref or stamped or "HEAD"
+            covers_head = stamped is not None and base_ref == stamped
             report = incremental_update(str(root), graph, base_ref)
             if report.get("error"):
                 print(json.dumps(report, indent=2))
@@ -108,7 +112,7 @@ def main() -> None:
                 sys.exit(2)
         # blast_radius scores a node by the stored flows that contain it. Tracing
         # without storing left that term at zero for every node.
-        if head:
+        if head and covers_head:
             graph.set_metadata("last_build_commit", head)
         flows = trace_flows(graph)
         graph.store_flows(flows)

@@ -9,7 +9,7 @@ from unittest import mock
 import pytest
 
 from gauntlet.graph import GraphStore
-from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
+from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind, Resolution
 
 
 def _node(qn: str, file_path: str, kind: NodeKind = NodeKind.FUNCTION) -> GraphNode:
@@ -271,3 +271,37 @@ def test_init_schema_tolerates_column_added_concurrently(tmp_path: Path) -> None
 
     with mock.patch("sqlite3.connect", connect):
         GraphStore(db).close()
+
+
+class TestResolutionIsOneOfThreeValues:
+    """An unknown resolution read as a confirmed caller in blast radius."""
+
+    @staticmethod
+    def _edge_dict(resolution: str) -> dict[str, object]:
+        return {
+            "kind": "CALLS",
+            "source_qn": "a.py::main",
+            "target_qn": "c.py::helper",
+            "resolution": resolution,
+        }
+
+    @pytest.mark.unit
+    def test_edge_from_dict_rejects_an_unknown_resolution(self) -> None:
+        with pytest.raises(ValueError, match="nam_guess"):
+            GraphEdge.from_dict(self._edge_dict("nam_guess"))
+
+    @pytest.mark.unit
+    def test_edge_from_dict_parses_a_known_resolution(self) -> None:
+        edge = GraphEdge.from_dict(self._edge_dict("name_guess"))
+        assert edge.resolution is Resolution.NAME_GUESS
+        assert edge.to_dict()["resolution"] == "name_guess"
+
+    @pytest.mark.unit
+    def test_stored_edge_with_an_unknown_resolution_is_rejected(
+        self, store: GraphStore
+    ) -> None:
+        store.upsert_node(_node("a.py::main", "a.py"))
+        store.upsert_edge(_call("a.py::main", "helper", "a.py"))
+        store._conn.execute("UPDATE edges SET resolution = 'guessed'")
+        with pytest.raises(ValueError, match="guessed"):
+            store.get_edges_by_source("a.py::main")

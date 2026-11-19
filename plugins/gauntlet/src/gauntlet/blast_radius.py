@@ -11,9 +11,9 @@ from pathlib import Path
 from typing import Any
 
 from gauntlet.constants import SECURITY_KEYWORDS
-from gauntlet.graph import RESOLUTION_NAME_GUESS, GraphStore
+from gauntlet.graph import GraphStore
 from gauntlet.incremental import _validate_ref
-from gauntlet.models import EdgeKind, GraphNode, NodeKind
+from gauntlet.models import EdgeKind, GraphNode, NodeKind, Resolution
 
 _DEFAULT_WEIGHTS = {
     "test_gap": 0.30,
@@ -290,7 +290,7 @@ def analyze_changes(
         guessed = [
             e.source_qn
             for e in graph.get_edges_by_target(n.qualified_name)
-            if e.kind == EdgeKind.CALLS and e.resolution == RESOLUTION_NAME_GUESS
+            if e.kind == EdgeKind.CALLS and e.resolution == Resolution.NAME_GUESS
         ]
         if guessed:
             name_guess_callers[n.qualified_name] = guessed

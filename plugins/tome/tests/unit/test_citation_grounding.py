@@ -51,6 +51,29 @@ class TestFindUngroundedUrls:
             "https://invented.example.org/x"
         ]
 
+    def test_scheme_does_not_false_flag(self) -> None:
+        assert find_ungrounded_urls("http://example.com/a", _findings()) == []
+
+    def test_www_prefix_does_not_false_flag(self) -> None:
+        assert find_ungrounded_urls("https://www.example.com/a", _findings()) == []
+
+    def test_query_parameter_order_does_not_false_flag(self) -> None:
+        findings = [make_finding(url="https://example.com/s?q=1&page=2")]
+        assert find_ungrounded_urls("https://example.com/s?page=2&q=1", findings) == []
+
+    def test_different_query_value_is_flagged(self) -> None:
+        findings = [make_finding(url="https://example.com/s?q=1")]
+        assert find_ungrounded_urls("https://example.com/s?q=2", findings) == [
+            "https://example.com/s?q=2"
+        ]
+
+    def test_malformed_finding_url_does_not_abort_the_check(self) -> None:
+        findings = [make_finding(url="http://[bad"), *_findings()]
+        text = "https://example.com/a https://invented.example.org/p"
+        assert find_ungrounded_urls(text, findings) == [
+            "https://invented.example.org/p"
+        ]
+
     def test_different_path_is_flagged(self) -> None:
         assert find_ungrounded_urls("https://example.com/b", _findings()) == [
             "https://example.com/b"

@@ -463,6 +463,25 @@ class TestCaptureFunction:
 class TestEdgeCases:
     """Tests for edge cases and error handling."""
 
+    def test_load_project_palace_refuses_an_id_that_leaves_the_directory(
+        self, manager, tmp_path
+    ):
+        """A ``../`` id read JSON outside the palace directory (CWE-22)."""
+        outside = Path(manager.project_palaces_dir).parent.parent / "outside.json"
+        outside.write_text('{"id": "outside"}')
+        with pytest.raises(ValueError, match="invalid palace id"):
+            manager.load_project_palace("../../outside")
+
+    def test_save_project_palace_refuses_an_id_that_leaves_the_directory(self, manager):
+        """The id comes from loaded JSON, so a hand-edited file chose the path."""
+        palace = manager.create_project_palace("repo")
+        palace["id"] = "../../escaped"
+        with pytest.raises(ValueError, match="invalid palace id"):
+            manager.save_project_palace(palace)
+        assert not (
+            Path(manager.project_palaces_dir).parent.parent / "escaped.json"
+        ).exists()
+
     def test_load_nonexistent_palace(self, manager):
         """Loading an unknown palace returns None.
 

@@ -55,7 +55,7 @@ def test_auto_update_without_a_parser_runs_in_the_plugin_environment(
     monkeypatch.setattr(graph_auto_update, "parser_available", lambda: False)
     monkeypatch.setattr(graph_auto_update.shutil, "which", lambda name: "/bin/uv")
     popen = MagicMock()
-    with patch.object(graph_auto_update.subprocess, "Popen", popen):
+    with patch("subprocess.Popen", popen):
         output = graph_auto_update.main(
             {
                 "tool_name": "Bash",
@@ -65,9 +65,10 @@ def test_auto_update_without_a_parser_runs_in_the_plugin_environment(
         )
 
     argv = popen.call_args.args[0]
-    assert argv[:3] == ["/bin/uv", "run", "--project"]
-    assert str(tmp_path) in argv
-    assert "--incremental" in argv
+    assert argv[:2] == ["sh", "-c"]
+    assert argv[2].startswith("/bin/uv run --project ")
+    assert str(tmp_path) in argv[2]
+    assert "--incremental" in argv[2]
     assert "background" in output["hookSpecificOutput"]["additionalContext"]
 
 
@@ -82,6 +83,6 @@ def test_auto_update_waits_while_a_rebuild_holds_its_lock(
     (gauntlet_dir / "rebuild.lock").write_text("")
     monkeypatch.setattr(graph_auto_update.shutil, "which", lambda name: "/bin/uv")
     popen = MagicMock()
-    with patch.object(graph_auto_update.subprocess, "Popen", popen):
+    with patch("subprocess.Popen", popen):
         assert graph_auto_update._update_in_plugin_env(gauntlet_dir) is None
     popen.assert_not_called()

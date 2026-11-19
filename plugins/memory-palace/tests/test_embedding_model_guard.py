@@ -125,3 +125,27 @@ def test_local_store_queried_after_model_load_failure_names_both_models(
 
 def test_mismatch_error_is_caught_where_dimension_errors_already_are() -> None:
     assert issubclass(EmbeddingModelMismatchError, EmbeddingDimensionError)
+
+
+def test_add_to_room_raises_when_stored_model_differs(tmp_path: Path) -> None:
+    """Mixing a second model's vectors into a room made the store unqueryable."""
+    path = tmp_path / "emb.yaml"
+    _built_hash_index(path)
+    _rewrite_model_id(path, "some-other-16-dim-model")
+    index = EmbeddingIndex(str(path), provider="hash")
+
+    with pytest.raises(EmbeddingModelMismatchError):
+        index.add_to_room("r1", "epsilon", "epsilon zeta")
+
+
+def test_export_refuses_to_restamp_another_models_vectors(tmp_path: Path) -> None:
+    """Export wrote the current model id over vectors another model built."""
+    path = tmp_path / "emb.yaml"
+    _built_hash_index(path)
+    _rewrite_model_id(path, "some-other-16-dim-model")
+    index = EmbeddingIndex(str(path), provider="hash")
+
+    with pytest.raises(EmbeddingModelMismatchError):
+        index.export()
+    store = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert store["providers"]["hash"]["model_id"] == "some-other-16-dim-model"

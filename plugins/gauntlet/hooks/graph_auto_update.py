@@ -11,7 +11,6 @@ import json
 import logging
 import os
 import shutil
-import subprocess
 import sys
 import time
 from pathlib import Path
@@ -20,6 +19,13 @@ from typing import Any
 _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
+
+from graph_version_rebuild import (
+    _launch,
+    graph_build_argv,
+    last_run_failed,
+    status_command,
+)
 
 from gauntlet.git_commands import is_git_commit
 from gauntlet.treesitter_parser import parser_available
@@ -63,9 +69,6 @@ def _is_auto_update_enabled(gauntlet_dir: Path) -> bool:
     return False
 
 
-_PLUGIN_ROOT = Path(__file__).resolve().parent.parent
-
-
 def _update_in_plugin_env(gauntlet_dir: Path) -> dict[str, Any] | None:
     """Run the incremental update where tree-sitter is installed.
 
@@ -81,31 +84,28 @@ def _update_in_plugin_env(gauntlet_dir: Path) -> dict[str, Any] | None:
             "on PATH. Run /gauntlet-graph build."
         )
     if (gauntlet_dir / "rebuild.lock").exists():
-        # A version rebuild is already rewriting this graph.
+        # A version rebuild is already rewriting this graph, or failed and
+        # still holds the lock.
+        if last_run_failed(gauntlet_dir / "rebuild.status"):
+            return _context(
+                "Graph not updated: the background rebuild failed (log: "
+                f"{gauntlet_dir / 'rebuild.log'})."
+            )
         return None
     # The graph the hook found, which may sit above the cwd.
-    root = str(gauntlet_dir.parent)
-    argv = [
-        uv,
-        "run",
-        "--project",
-        str(_PLUGIN_ROOT),
-        "python",
-        str(_PLUGIN_ROOT / "scripts" / "graph_build.py"),
-        root,
-        "--incremental",
-        "--base-ref",
-        "HEAD~1",
-    ]
+    root = gauntlet_dir.parent
     log_path = gauntlet_dir / "update.log"
-    with open(log_path, "ab") as log:
-        subprocess.Popen(
-            argv,
-            cwd=root,
-            stdin=subprocess.DEVNULL,
-            stdout=log,
-            stderr=subprocess.STDOUT,
-            start_new_session=True,
+    status = gauntlet_dir / "update.status"
+    failed = last_run_failed(status)
+    status.unlink(missing_ok=True)
+    # No --base-ref: the build diffs from the last commit it stamped, so a
+    # commit an earlier update missed is still parsed.
+    build = graph_build_argv(uv, root, "--incremental")
+    _launch(["sh", "-c", status_command(build, status)], root, log_path)
+    if failed:
+        return _context(
+            "Graph not updated: the last background update failed (log: "
+            f"{log_path}). Retrying in the background."
         )
     return _context(f"Graph updating in the background (log: {log_path}).")
 

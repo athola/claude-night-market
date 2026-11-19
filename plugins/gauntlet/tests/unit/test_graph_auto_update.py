@@ -329,3 +329,72 @@ class TestUpdateOutcomeReporting:
         ):
             assert main(_COMMIT_EVENT) is None
         close.assert_called_once()
+
+
+class TestBackgroundUpdate:
+    """The detached update, used when this python3 has no tree-sitter."""
+
+    @staticmethod
+    def _launch(gauntlet_dir: Path) -> tuple[dict[str, object] | None, list[str]]:
+        from unittest.mock import MagicMock  # noqa: PLC0415 - local to this helper
+
+        popen = MagicMock()
+        with (
+            patch.object(graph_auto_update.shutil, "which", return_value="/bin/uv"),
+            patch("subprocess.Popen", popen),
+        ):
+            output = graph_auto_update._update_in_plugin_env(gauntlet_dir)
+        argv = popen.call_args.args[0] if popen.called else []
+        return output, argv
+
+    @pytest.mark.unit
+    def test_background_update_diffs_from_the_last_build_not_head_parent(
+        self, gauntlet_dir: Path
+    ) -> None:
+        """A diff of HEAD~1 skipped any commit the previous update missed."""
+        _, argv = self._launch(gauntlet_dir)
+        script = " ".join(argv)
+        assert "--incremental" in script
+        assert "--base-ref" not in script
+
+    @pytest.mark.unit
+    def test_background_update_records_its_exit_status(
+        self, gauntlet_dir: Path
+    ) -> None:
+        _, argv = self._launch(gauntlet_dir)
+        assert "update.status" in argv[-1]
+
+    @pytest.mark.unit
+    def test_failed_background_update_is_reported_on_the_next_commit(
+        self, gauntlet_dir: Path
+    ) -> None:
+        """Every commit printed the same success-shaped line over a failure."""
+        (gauntlet_dir / "update.status").write_text("2\n")
+        output, argv = self._launch(gauntlet_dir)
+        context = output["hookSpecificOutput"]["additionalContext"]
+        assert context.startswith(
+            "Graph not updated: the last background update failed"
+        )
+        assert str(gauntlet_dir / "update.log") in context
+        assert argv, "the update is retried"
+
+    @pytest.mark.unit
+    def test_succeeded_background_update_reports_updating(
+        self, gauntlet_dir: Path
+    ) -> None:
+        (gauntlet_dir / "update.status").write_text("0\n")
+        output, _ = self._launch(gauntlet_dir)
+        context = output["hookSpecificOutput"]["additionalContext"]
+        assert context.startswith("Graph updating in the background")
+
+    @pytest.mark.unit
+    def test_failed_rebuild_holding_the_lock_is_reported(
+        self, gauntlet_dir: Path
+    ) -> None:
+        """The auto-update skipped in silence behind a dead rebuild's lock."""
+        (gauntlet_dir / "rebuild.lock").write_text("")
+        (gauntlet_dir / "rebuild.status").write_text("1\n")
+        output, argv = self._launch(gauntlet_dir)
+        assert argv == []
+        context = output["hookSpecificOutput"]["additionalContext"]
+        assert str(gauntlet_dir / "rebuild.log") in context

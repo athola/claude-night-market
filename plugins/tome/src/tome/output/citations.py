@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from tome.models import Finding
 
@@ -81,13 +81,22 @@ def _format_discourse(finding: Finding) -> str:
 def _normalize_url(url: str) -> str:
     """Reduce formatting-only differences so equal sources compare equal.
 
-    Scheme and host are case-insensitive, a fragment never selects a
-    different document, and a trailing slash is stylistic.
+    Host is case-insensitive and a ``www.`` prefix names the same site.
+    ``http`` and ``https`` serve the same document, a fragment never
+    selects a different one, a trailing slash is stylistic, and query
+    parameter order carries no meaning. A URL too malformed to split is
+    compared as written, so one bad finding cannot abort the check.
     """
-    parts = urlsplit(url)
+    try:
+        parts = urlsplit(url)
+    except ValueError:
+        return url
+    host = parts.netloc.lower()
+    host = host[4:] if host.startswith("www.") else host
     path = parts.path.rstrip("/")
-    query = f"?{parts.query}" if parts.query else ""
-    return f"{parts.scheme.lower()}://{parts.netloc.lower()}{path}{query}"
+    params = sorted(parse_qsl(parts.query, keep_blank_values=True))
+    query = f"?{urlencode(params)}" if params else ""
+    return f"{host}{path}{query}"
 
 
 def _trim_url(url: str) -> str:

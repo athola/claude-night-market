@@ -115,7 +115,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         }
 
         # Save to project palaces directory
-        palace_file = os.path.join(self.project_palaces_dir, f"{palace_id}.json")
+        palace_file = self._repo.palace_file(palace_id, self.project_palaces_dir)
         _atomic_write_json(palace_file, project_palace)
 
         self._update_project_index()
@@ -127,7 +127,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         Returns None when the palace is absent, corrupt, or unreadable, as
         ``load_palace`` does. The reason goes to stderr.
         """
-        palace_file = os.path.join(self.project_palaces_dir, f"{palace_id}.json")
+        palace_file = self._repo.palace_file(palace_id, self.project_palaces_dir)
         if os.path.exists(palace_file):
             try:
                 with open(palace_file, encoding="utf-8") as f:
@@ -167,7 +167,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         project index.
         """
         palace["last_modified"] = datetime.now(timezone.utc).isoformat()
-        palace_file = os.path.join(self.project_palaces_dir, f"{palace['id']}.json")
+        palace_file = self._repo.palace_file(palace["id"], self.project_palaces_dir)
 
         # Invalidate cached embedding index since palace data changed
         self._cached_embedding_index = None

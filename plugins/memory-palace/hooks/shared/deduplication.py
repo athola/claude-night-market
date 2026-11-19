@@ -210,6 +210,11 @@ def _load_index() -> dict[str, Any]:
                 # A list parses fine and then raised on `.setdefault`,
                 # outside this set-aside path.
                 raise yaml.YAMLError("index is not a mapping")
+            for section in ("entries", "hashes"):
+                # `entries: []` or a bare `entries:` passed the check above,
+                # and every caller then raised on `.items()` or `.get()`.
+                if not isinstance(_index_cache.get(section, {}), dict):
+                    raise yaml.YAMLError(f"index {section} is not a mapping")
         except yaml.YAMLError as exc:
             # Issue #528: a corrupt index file must not take down web-research
             # store calls. Reads proceed on an empty index and leave the file

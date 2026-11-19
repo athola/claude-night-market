@@ -1883,6 +1883,55 @@ def test_long_urls_sharing_a_prefix_get_distinct_entity_ids() -> None:
     assert first.startswith("web_")
 
 
+def test_webfetch_graph_entities_differ_for_long_urls_sharing_a_prefix() -> None:
+    """The capture path built its own 40-char prefix id, so two long
+    same-site URLs registered as one graph entity.
+    """
+    base = "https://docs.example.com/reference/api/v2/endpoints/"
+    content = "Reference documentation for this endpoint. " * 5
+
+    def entity_for(url: str) -> str:
+        with (
+            patch.object(web_research_handler, "is_known", return_value=False),
+            patch.object(web_research_handler, "get_stored_at", return_value=None),
+            patch.object(
+                web_research_handler, "store_webfetch_content", return_value="/x.md"
+            ),
+            patch.object(web_research_handler, "prune_queue"),
+        ):
+            _, stored, register = web_research_handler._handle_webfetch(
+                {"url": url, "prompt": "p"},
+                {"result": content, "url": url},
+                _default_config(),
+                auto_capture=True,
+            )
+        assert stored == "/x.md"
+        return register["entity_id"]
+
+    assert entity_for(base + "users/list") != entity_for(base + "users/detail")
+
+
+def test_recent_intake_pending_survives_a_tail_seek_inside_a_character(
+    tmp_path: Path,
+) -> None:
+    """A strict decode of a tail that starts mid-character raised, and the
+    pending query read as not pending.
+    """
+    queue_file = tmp_path / "data" / "intake_queue.jsonl"
+    queue_file.parent.mkdir(parents=True)
+    filler = ('{"query": "' + "\u00e9" * 200 + '"}\n').encode("utf-8")
+    tail_bytes = web_research_handler._QUEUE_TAIL_BYTES
+    split = False
+    for pad in range(4):
+        last = ('{"query": "pytest fixtures' + " " * pad + '"}\n').encode()
+        body = filler * 400 + last
+        split = split or 0x80 <= body[len(body) - tail_bytes] <= 0xBF
+        queue_file.write_bytes(body)
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
+            assert _recent_intake_pending("pytest fixtures"), pad
+    assert split, "no pad put the seek inside a character"
+
+
 def test_recent_intake_pending_reads_only_the_tail(tmp_path: Path) -> None:
     """The whole queue was read on every Web call to keep 20 lines (MP-12)."""
     queue_file = tmp_path / "data" / "intake_queue.jsonl"

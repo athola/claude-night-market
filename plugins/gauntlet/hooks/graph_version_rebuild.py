@@ -3,8 +3,8 @@
 
 A release can change what extraction writes (new columns, new edge
 resolution), and an existing graph keeps the old shape until each file is
-re-parsed. When the graph's recorded ``gauntlet_version`` differs from
-the installed plugin, start one full build in the background. The build
+re-parsed. When the graph's recorded ``gauntlet_version`` is older than
+the installed plugin, or missing, start one full build in the background. The build
 needs tree-sitter, which the system python running hooks may lack, so it
 runs through ``uv run --project`` in the plugin's own environment.
 
@@ -122,6 +122,37 @@ def _context(message: str) -> dict[str, Any]:
     }
 
 
+def graph_build_argv(uv: str, root: Path, *extra: str) -> list[str]:
+    """Run graph_build.py in the plugin's environment, which has tree-sitter."""
+    return [
+        uv,
+        "run",
+        "--project",
+        str(_PLUGIN_ROOT),
+        "python",
+        str(_PLUGIN_ROOT / "scripts" / "graph_build.py"),
+        str(root),
+        *extra,
+    ]
+
+
+def status_command(build: list[str], status: Path) -> str:
+    """Shell line that runs ``build`` and writes its exit code to ``status``.
+
+    The build is detached, so its exit code is otherwise lost and a failure
+    reads the same as a build still running.
+    """
+    return f"{shlex.join(build)}; echo $? > {shlex.quote(str(status))}"
+
+
+def last_run_failed(status: Path) -> bool:
+    """Whether the last detached build wrote a nonzero exit code."""
+    try:
+        return status.read_text(encoding="ascii").strip() != "0"
+    except FileNotFoundError:
+        return False
+
+
 def _launch(argv: list[str], root: Path, log_path: Path) -> None:
     with open(log_path, "ab") as log:
         subprocess.Popen(
@@ -166,29 +197,29 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         )
 
     lock = gauntlet_dir / "rebuild.lock"
+    status = gauntlet_dir / "rebuild.status"
+    log_path = gauntlet_dir / "rebuild.log"
     if not _take_lock(lock):
+        if last_run_failed(status):
+            return _context(
+                f"gauntlet graph rebuild failed (log: {log_path}). It is "
+                f"retried once {lock} is removed or two hours old."
+            )
         return None
 
-    build = shlex.join(
-        [
-            uv,
-            "run",
-            "--project",
-            str(_PLUGIN_ROOT),
-            "python",
-            str(_PLUGIN_ROOT / "scripts" / "graph_build.py"),
-            str(root),
-        ]
-    )
     # A failed build keeps the lock, so sessions do not relaunch it until
-    # the lock goes stale; the log says why it failed.
-    script = f"{build} && rm -f {shlex.quote(str(lock))}"
+    # the lock goes stale; the status file and the log say it failed.
+    status.unlink(missing_ok=True)
+    script = (
+        f"{status_command(graph_build_argv(uv, root), status)}; "
+        f'[ "$(cat {shlex.quote(str(status))})" = 0 ] '
+        f"&& rm -f {shlex.quote(str(lock))}"
+    )
     argv = ["sh", "-c", script]
     nice = shutil.which("nice")
     if nice:
         argv = [nice, "-n", "10", *argv]
 
-    log_path = gauntlet_dir / "rebuild.log"
     try:
         _launch(argv, root, log_path)
     except OSError:

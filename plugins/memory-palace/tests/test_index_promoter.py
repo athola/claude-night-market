@@ -857,3 +857,23 @@ def test_apply_title_repairs_waits_for_index_lock(tmp_path: Path) -> None:
         fcntl.flock(held, fcntl.LOCK_UN)
     worker.join(5)
     assert done.is_set()
+
+
+def test_apply_orphan_prunes_waits_for_index_lock(tmp_path: Path) -> None:
+    """Pruning wrote the index without the hook's lock, as promotion did."""
+    index_path = tmp_path / "memory-palace-index.yaml"
+    index_path.write_text("entries: {}\nhashes: {}\n")
+    done = threading.Event()
+
+    def prune() -> None:
+        apply_orphan_prunes([], index_path, backup_dir=tmp_path / "backups")
+        done.set()
+
+    with open(tmp_path / "memory-palace-index.yaml.lock", "a") as held:
+        fcntl.flock(held, fcntl.LOCK_EX)
+        worker = threading.Thread(target=prune)
+        worker.start()
+        assert not done.wait(0.3)
+        fcntl.flock(held, fcntl.LOCK_UN)
+    worker.join(5)
+    assert done.is_set()

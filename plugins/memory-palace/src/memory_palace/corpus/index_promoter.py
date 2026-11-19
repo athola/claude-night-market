@@ -217,6 +217,35 @@ def _write_index_atomic(index: dict[str, Any], index_path: Path) -> None:
     )
 
 
+def _backup_and_load(
+    index_path: Path, backup_dir: Path, name: str
+) -> tuple[Path, dict[str, Any]]:
+    """Copy the index aside, then load it. Call under ``file_lock(index_path)``.
+
+    ``name`` is the backup file name with ``{}`` where the timestamp goes.
+    """
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    backup_path = backup_dir / name.format(timestamp)
+    if index_path.exists():
+        shutil.copyfile(index_path, backup_path)
+    return backup_path, load_capture_index(index_path)
+
+
+def _update_entries(
+    entries: dict[str, Any], proposals: list[Proposal], kind: str
+) -> int:
+    """Merge each proposal's changes into its entry; return how many applied."""
+    applied = 0
+    for proposal in proposals:
+        entry = entries.get(proposal.key)
+        if entry is None:
+            logger.warning("%s key not in index, skipping: %s", kind, proposal.key)
+            continue
+        entry.update(proposal.changes)
+        applied += 1
+    return applied
+
+
 def apply_promotions(
     proposals: list[Proposal],
     index_path: Path,
@@ -244,23 +273,10 @@ def apply_promotions(
     # The capture hook holds this lock across its load-modify-write;
     # writing without it dropped captures the hook had just indexed.
     with file_lock(index_path):
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        backup_path = backup_dir / f"memory-palace-index-{timestamp}.yaml"
-        if index_path.exists():
-            shutil.copyfile(index_path, backup_path)
-
-        index = load_capture_index(index_path)
-        entries = index.get("entries", {})
-
-        applied = 0
-        for proposal in proposals:
-            entry = entries.get(proposal.key)
-            if entry is None:
-                logger.warning("Proposal key not in index, skipping: %s", proposal.key)
-                continue
-            entry.update(proposal.changes)
-            applied += 1
-
+        backup_path, index = _backup_and_load(
+            index_path, backup_dir, "memory-palace-index-{}.yaml"
+        )
+        applied = _update_entries(index.get("entries", {}), proposals, "Proposal")
         _write_index_atomic(index, index_path)
     return ApplyResult(applied=applied, backup_path=backup_path)
 
@@ -340,22 +356,10 @@ def apply_title_repairs(
     backup_dir.mkdir(parents=True, exist_ok=True)
 
     with file_lock(index_path):
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        backup_path = backup_dir / f"memory-palace-index-{timestamp}.pre-retitle.yaml"
-        if index_path.exists():
-            shutil.copyfile(index_path, backup_path)
-
-        index = load_capture_index(index_path)
-        entries = index.get("entries", {})
-        applied = 0
-        for proposal in proposals:
-            entry = entries.get(proposal.key)
-            if entry is None:
-                logger.warning("Retitle key not in index, skipping: %s", proposal.key)
-                continue
-            entry.update(proposal.changes)
-            applied += 1
-
+        backup_path, index = _backup_and_load(
+            index_path, backup_dir, "memory-palace-index-{}.pre-retitle.yaml"
+        )
+        applied = _update_entries(index.get("entries", {}), proposals, "Retitle")
         _write_index_atomic(index, index_path)
     return ApplyResult(applied=applied, backup_path=backup_path)
 
@@ -413,12 +417,9 @@ def apply_orphan_prunes(
     # The capture hook holds this lock across its load-modify-write;
     # writing without it dropped captures the hook had just indexed.
     with file_lock(index_path):
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        backup_path = backup_dir / f"memory-palace-index-prune-{timestamp}.yaml"
-        if index_path.exists():
-            shutil.copyfile(index_path, backup_path)
-
-        index = load_capture_index(index_path)
+        backup_path, index = _backup_and_load(
+            index_path, backup_dir, "memory-palace-index-prune-{}.yaml"
+        )
         entries = index.get("entries", {})
         hashes = index.get("hashes", {})
 
