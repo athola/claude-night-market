@@ -155,6 +155,12 @@ reconstruct from the diff.
 Ground it. "Three bug reports traced to this" beats "improves
 consistency".
 
+The Why is thinking text. Writing it is how the engineer finds out
+whether the change is worth merging. The engineer writes it or confirms
+it sentence by sentence, and the same holds for the how when it names
+a tradeoff. An agent may draft the What and the test plan, which report
+work already done.
+
 ### What and how
 
 What changed, in the reader's terms rather than a restatement of the

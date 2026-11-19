@@ -26,6 +26,9 @@ Survive AI-Generated Text?" (2026):
 - **pensive:** the architecture reviewer counts a departure from a
   standard only when it names the cost. The workflow and skill state
   that lens votes share one model and their errors correlate.
+- **sanctum:** `pr-review` treats a slop score as a trigger to verify
+  the document's claims. The finding is the false claim. The PR
+  template marks the Why as the engineer's thinking text.
 
 Six deterministic guards and one evidence rule, ported from NVIDIA
 auto-ontology (`3825917a`). Each holds an agent's claim to what its
