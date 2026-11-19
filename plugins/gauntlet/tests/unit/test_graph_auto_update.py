@@ -104,6 +104,12 @@ class TestMainHook:
     So that blast radius analysis uses fresh data
     """
 
+    @pytest.fixture(autouse=True)
+    def _parser_present(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        # The in-process update is under test here. A CI job without
+        # tree-sitter would take the plugin-environment path instead.
+        monkeypatch.setattr(graph_auto_update, "parser_available", lambda: True)
+
     @pytest.mark.unit
     def test_ignores_non_bash_tools(self) -> None:
         """Non-Bash tool events are ignored."""
@@ -281,6 +287,10 @@ class TestUpdateOutcomeReporting:
         (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
         GraphStore(str(gauntlet_dir / "graph.db")).close()
         monkeypatch.chdir(gauntlet_dir.parent)
+        # These cases cover the in-process update. Without a parser the hook
+        # hands off to the plugin environment, as it does on a CI job that
+        # lacks tree-sitter, so the parser is pinned present here.
+        monkeypatch.setattr(graph_auto_update, "parser_available", lambda: True)
 
     @pytest.mark.unit
     def test_failed_update_is_reported_as_not_updated(

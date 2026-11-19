@@ -11,6 +11,17 @@
 	mutation-test plugin-check precommit quota-status spellcheck status test test-plugin \
 	test-status test-suite usage-report validate-all validate-delegation demo-conjure-commands
 
+# PROMPT and FILES reach the recipes as environment variables and are
+# expanded by the shell as data. Pasted into the recipe text, a prompt
+# holding backticks or a quote ran as a command. $(value ...) into a simple
+# variable stops make itself from expanding them: a command-line
+# PROMPT='$(shell ...)' otherwise ran before any shell quoting applied.
+# It sits above the includes: GNU make 4 expands a command-line variable
+# whenever an earlier $(shell ...) builds its environment.
+override PROMPT := $(value PROMPT)
+override FILES := $(value FILES)
+export PROMPT FILES
+
 # Override source directories for this plugin
 SRC_DIRS := scripts
 MYPY_TARGETS := scripts/
@@ -151,14 +162,6 @@ delegate-usage: ## Show usage analytics across services
 	@echo "Showing delegation usage analytics..."
 	uv run python scripts/delegation_executor.py --usage
 
-# PROMPT and FILES reach the recipes as environment variables and are
-# expanded by the shell as data. Pasted into the recipe text, a prompt
-# holding backticks or a quote ran as a command. $(value ...) into a simple
-# variable stops make itself from expanding them: a command-line
-# PROMPT='$(shell ...)' otherwise ran before any shell quoting applied.
-override PROMPT := $(value PROMPT)
-override FILES := $(value FILES)
-export PROMPT FILES
 
 # One rule for every provider: each recipe differed only in the name.
 PROVIDERS := gemini qwen minimax glm muse codex opencode glimmer auto
