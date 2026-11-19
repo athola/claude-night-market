@@ -7,11 +7,190 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+Review fixes from the two PR #1256 reviews (94 findings). Each fix has
+a test written to fail first, or corrected text for a docs finding.
+
+- **abstract:** a Stop-hook stage skipped for lack of time runs first on
+  the next Stop, so a slow auto-promote no longer blocks post-learnings
+  on every Stop.
+- **abstract:** a pending marker left by a killed Stop hook is checked
+  against GitHub, not read as already posted, so that day's learnings
+  post is no longer skipped.
+- **abstract:** a skill history record missing a key or holding a
+  non-number is set aside, not admitted and then raised on every Skill
+  call.
+- **abstract:** every TasksManager reader treats a state file of the
+  wrong shape as no state. Before, only `update_task_status` tolerated a
+  missing `metrics`.
+- **attune:** the deferred-capture modules stop with a message when
+  `CLAUDE_PLUGIN_ROOT` is unset, instead of skipping the capture because
+  `/scripts/deferred_capture.py` does not exist.
+- **book:** `/pr` is no longer documented as an alias for
+  `/sanctum:prepare-pr`. The alias was a frontmatter key nothing reads,
+  so `/pr` never resolved.
+- **book:** the `/fixit` row shows its whole description, not the first
+  line of it.
+- **book:** the `/justify` row shows its description, not the YAML `>-`
+  marker.
+- **ci:** the Python 3.9 jobs pin `ubuntu-24.04`, because
+  `ubuntu-latest` moved to 26.04, which has no 3.9 build, and every job
+  failed at setup.
+- **conjure:** A Red Team or escalation-intel provider failure is no
+  longer passed to the phases as that expert's answer. `_invoke_expert`
+  returns None and records the failure.
+- **conjure:** A War Room expert whose provider rejects its key but
+  exits 0 is recorded as a failure, not as the expert's answer.
+- **conjure:** An existing world-readable usage log is made 0600 on the
+  next append.
+- **conjure:** Directory expansion now leaves out a file whose resolved
+  target is a secret (an in-tree `notes.txt -> .env` link), anything
+  under `.ssh/` or `.gnupg/`, and `*.secrets` files.
+- **conjure:** The War Room GLM expert no longer inherits
+  `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN`, matching
+  delegation's `env_unset`.
+- **conjure:** The War Room fallback notice says why an expert is
+  unavailable (missing binary, unset key or refused key).
+- **conjure:** When the Haiku fallback cannot start because `claude` is
+  not on PATH, the War Room records a failure, not an expert opinion.
+- **conjure:** `--total-timeout` bounds provider calls and no longer
+  starts an availability probe after the deadline. The help text says
+  probes are not counted.
+- **conjure:** `make delegate-* PROMPT='...'` no longer runs `$(shell
+  ...)` or expands `$VAR` in the prompt; make passes it to the provider
+  verbatim.
+- **conserve:** Credential-directory reads are denied under /root, in
+  ~/.azure and ~/.config/glab-cli, and when the path is spelled with ./
+  or // segments.
+- **conserve:** the bloat-scan and unbloat examples name `/prepare-pr`.
+  `/pr` never resolved.
+- **egregore:** a failed `git reset --soft` after the implementer stops
+  the walk as git_failed instead of letting its committed edits pass the
+  scope fence unseen
+- **egregore:** a rerun of an item whose setup command failed runs setup
+  again instead of walking its tasks in an unprepared worktree
+- **egregore:** a resume whose base branch no longer resolves stops as
+  git_failed instead of dispatching already-committed tasks again
+- **gauntlet:** `.gauntlet/update.log` and `update.status` are
+  gitignored, so `git add -A` no longer picks them up
+- **gauntlet:** a failed background graph update is reported on the next
+  commit, naming `update.log`, instead of every commit claiming an
+  update is running
+- **gauntlet:** a failed background rebuild is reported, naming
+  `rebuild.log`, while its lock holds, instead of leaving sessions and
+  commit updates silent for two hours
+- **gauntlet:** a pass token with a null or timezone-naive timestamp
+  reads as no token, instead of denying every commit of that staged set
+- **gauntlet:** an edge's call resolution is parsed as one of `""`,
+  `exact` or `name_guess`, so an unknown value is rejected instead of
+  shown as a confirmed caller
+- **gauntlet:** an incremental build from an explicit `--base-ref` no
+  longer stamps HEAD, and the commit hook diffs from the last stamped
+  build, so a commit an earlier update missed is still parsed
+- **gauntlet:** an unquoted `mode: off` in `.gauntlet/config.yaml` turns
+  the pre-commit gate off, and an empty `precommit:` falls back to gate
+  mode instead of denying every commit
+- **herald:** a throttle file with a null or wrong-typed field reads as
+  fresh, so the continuation judge is no longer disabled until someone
+  deletes the file
+- **hookify:** block-force-push blocks force pushes to main inside bash
+  -c, ssh, subshells and backticks, and with a quoted branch name.
+- **imbue:** A scope-ramp state file with a null, non-numeric or
+  out-of-range field reads as the default rung instead of switching the
+  gate off for the session.
+- **imbue:** A typosquat suspect stays a blocking finding when it exists
+  in the registry, since a registered typosquat is the attack.
+- **imbue:** Past twice the read budget, the bounded-reads deny reason
+  names the real exits instead of a targeted read it would deny, and
+  denied reads no longer raise the count.
+- **imbue:** The no-AI-attribution vow reads a message piped into git
+  commit -F -, including printf text with \n escapes.
+- **imbue:** The scope ramp gates RED and CRITICAL files of any suffix,
+  including deploy manifests, CI workflows and prose on high-stakes
+  paths, and honors IMBUE_STAKES for them; only low-stakes prose and
+  data skip the rung.
+- **imbue, egregore, leyline:** module calls to `deferred_capture.py`
+  stop with a message when `CLAUDE_PLUGIN_ROOT` is unset, instead of
+  running `/scripts/deferred_capture.py`.
+- **leyline:** A decision-journal status or date containing a newline or
+  pipe can no longer forge a heading or an index column.
+- **leyline:** Payloads over 100 KB are blocked on every
+  ignore/disregard override pairing the regex blocks, including
+  "disregard previous" and "ignore the above".
+- **leyline:** The shared git commit detector recognizes commits inside
+  if/then, loops, brace groups, $( ) and backticks, after time, ! and
+  sudo -u, and with a quoted -C path.
+- **leyline:** The usage logger starts a new session instead of resuming
+  one whose session_id is null or not a string.
+- **memory-palace:** `intake_queue.jsonl.lock` is gitignored.
+- **memory-palace:** a capture index whose `entries` or `hashes` is a
+  list or empty is set aside like a corrupt one, instead of crashing
+  every WebFetch capture
+- **memory-palace:** a queue sync holds the intake lock only to read and
+  rewrite the queue, so a research query flagged during a long sync is
+  queued and survives the rewrite
+- **memory-palace:** an embedding index built by another model refuses
+  `add_to_room` and `export`, so its vectors are never re-stamped with
+  the current model id
+- **memory-palace:** fenced code blocks are now scanned for
+  code-execution patterns, so a page with a fenced `eval(...)` example
+  is no longer stored. Only one-line inline spans are exempt
+- **memory-palace:** project palace ids are validated before they become
+  file paths, so `load_project_palace("../../x")` raises instead of
+  reading outside the palace directory
+- **memory-palace:** the intake-pending check no longer misses a queued
+  query when the 64 KiB tail seek splits a multi-byte character
+- **oracle:** A session ending takes the start lock before it decides to
+  stop the daemon, so it cannot kill a daemon another session has just
+  confirmed running.
+- **oracle:** The setup skill no longer claims to set up ONNX inference,
+  which the provisioned venv cannot run.
+- **pensive:** `harden --strict --help` names both exit codes: 2 for a
+  HIGH finding, 3 for a file it could not analyze.
+- **pensive:** `run_code_review` honors `exclude` and `skills` from a
+  plain dict config, which it used to ignore.
+- **pensive:** a `**/tests/**` exclude pattern also excludes a top-level
+  `tests/` directory.
+- **pensive:** the duplicate-elif check compares conditions within one
+  if/elif chain, not across two chains a few lines apart.
+- **pensive:** the unified-review schema requires a non-empty `declined`
+  reason.
+- **phantom:** `--confirm` prints a field longer than the prompt limit
+  in full before asking, so text typed after 200 characters of filler is
+  no longer hidden from the approval.
+- **sanctum:** `description_paths.py` no longer fails a description for
+  a linter directive such as `<!-- markdownlint-disable MD013 -->`.
+- **sanctum:** a dated ADR file name is no longer read as ADR number
+  2026 when the next number is picked.
+- **sanctum:** a deferred-item ledger entry with a null title is skipped
+  and counted as failed. It no longer ends the sweep and loses the filed
+  markers of earlier entries.
+- **sanctum:** a null or mistyped field in the completion-notify state
+  file falls back to its default. It used to stop notifications for the
+  rest of the session.
+- **sanctum:** the consolidation planner asks git about each path's
+  ignore status once per plan, not once per chunk.
+- **sanctum:** two decisions in one consolidation plan get consecutive
+  ADR numbers rather than the same one.
+- **scribe:** a replay's `Output` path under the home directory is
+  written as given, not redacted to `~`, which VHS created as a literal
+  `./~/` directory.
+- **spec-kit:** a test pins that a `test-<command>` stub target exits 1.
+- **tests:** the PATH-trimming tests check `os.path.lexists`, so a
+  dangling system symlink such as Ubuntu 26.04's `grub-ntldr-img` no
+  longer crashes them.
+- **tome:** a stored session whose `entities` is a string or null loads
+  with no entities, instead of one entity per letter or a crash
+- **tome:** citation grounding no longer flags a retrieved source cited
+  with another scheme, a `www.` prefix or reordered query parameters,
+  and one malformed finding URL no longer aborts the check
+
 ## [1.10.4] - 2026-11-18
 
 ### Added
 
-- **gauntlet:** each graph build records `gauntlet_version`. At session
+- **gauntlet:** each full graph build records `gauntlet_version`. At session
   start, a graph built by an older version is rebuilt once in the
   background through `uv run --project` (log: `.gauntlet/rebuild.log`).
   Opt out with `rebuild_on_upgrade: false` in `.gauntlet/config.json`.
@@ -56,8 +235,9 @@ tools returned.
   editor tools, which stay on by default.
 - **pensive:** `pensive-harden --sarif` emits SARIF 2.1.0 for code-scanning
   upload.
-- **conjure:** `--total-timeout` (and `total_timeout=`) bounds the whole
-  `auto` provider chain.
+- **conjure:** `--total-timeout` (and `total_timeout=`) bounds the
+  provider calls of the `auto` chain. Availability checks are not counted,
+  and no provider is probed after the total has run out.
 - **phantom:** the `cursor_position` action reports the pointer.
 - **abstract:** failed Skill calls are logged through `PostToolUseFailure`.
 - **tome:** a session stores the entities its question names, and the
@@ -92,8 +272,10 @@ after "IDRs as records of intent" (Will Lachance, 2026-10-10).
   The usage log is created 0600.
 - **egregore:** a ready item reverts stray uncommitted edits before its
   final suite runs.
-- **imbue:** the scope ramp counts code only. Block-mode bounded reads
-  allow a targeted read past the budget.
+- **imbue:** the scope ramp skips prose and data suffixes (`.md`,
+  `.yaml`, `.json`, `.toml`, `.lock` and a few more) unless the path is
+  high-stakes. Block-mode bounded reads allow a targeted read up to twice
+  the budget.
 - **oracle:** provisioning installs pyyaml only, since nothing imports
   onnxruntime yet. The daemon is shared by session refcount.
 - **parseltongue:** `"%s" % name` is no longer rewritten to an f-string.
