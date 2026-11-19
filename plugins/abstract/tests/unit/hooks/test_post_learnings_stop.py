@@ -351,3 +351,38 @@ class TestInsightLenses:
 
         assert lens_env["posted"] == []
         assert "skipping insight lenses" in capsys.readouterr().err
+
+
+class TestASkippedStageGoesFirstNextTime:
+    """A slow auto-promote spent the budget on every Stop, and the stages
+    ran in a fixed order, so post-learnings was skipped on every Stop.
+    """
+
+    @pytest.mark.unit
+    def test_the_stage_skipped_for_budget_runs_first_on_the_next_stop(
+        self,
+        pipeline_calls: list[str],
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        monkeypatch.setattr("sys.stdin", io.StringIO(""))
+
+        def slow_promote() -> None:
+            pipeline_calls.append("promote")
+            monkeypatch.setattr(_mod, "_START", _mod.time.monotonic() - 6.0)
+
+        monkeypatch.setattr(_mod, "_promote", slow_promote)
+        _mod.main()
+        assert pipeline_calls == ["promote"]
+        assert "skipping post-learnings" in capsys.readouterr().err
+
+        pipeline_calls.clear()
+        monkeypatch.setattr(_mod, "_START", _mod.time.monotonic())
+        monkeypatch.setattr(_mod, "_promote", lambda: pipeline_calls.append("promote"))
+        _mod.main()
+        assert pipeline_calls == ["post", "promote"]
+
+        pipeline_calls.clear()
+        monkeypatch.setattr(_mod, "_START", _mod.time.monotonic())
+        _mod.main()
+        assert pipeline_calls == ["promote", "post"]

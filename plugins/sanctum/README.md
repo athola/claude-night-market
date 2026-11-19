@@ -43,7 +43,6 @@ history and guides.
 | `/fix-workflow` | Improve the most recent workflow slice through a retrospective. |
 | `/fix-pr` | Address PR review comments, implement fixes, and resolve threads. |
 | `/fixit` | Fix broken functionality from pasted error output using research, TDD, and proof-of-work. |
-| `/pr` | Prepare PR description with quality gates. |
 | `/update-docs` | Update project documentation. |
 | `/update-readme` | Update README with recent changes. |
 | `/update-tests` | Update and maintain tests with TDD/BDD principles. |
@@ -112,7 +111,7 @@ Skill(sanctum:git-workspace-review)
 ### PR Preparation
 ```bash
 # Full PR prep with quality gates
-/pr
+/prepare-pr
 ```
 
 ### Documentation Updates

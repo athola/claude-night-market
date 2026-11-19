@@ -89,11 +89,12 @@ def _run_review(responses: dict, tmp_path: Path) -> dict:
     harness = tmp_path / "harness.mjs"
     harness.write_text(
         "const RESPONSES = " + json.dumps(responses) + ";\n"
-        "const logs = [];\nconst prompts = {};\n"
+        "const logs = [];\nconst prompts = {};\nconst schemas = {};\n"
         "function log(message) { logs.push(String(message)); }\n"
         "function phase() {}\n"
         "async function agent(prompt, options) {\n"
         "  prompts[options.label] = prompt;\n"
+        "  schemas[options.label] = options.schema;\n"
         "  if (options.label.startsWith('review:')) {\n"
         "    const key = options.label.slice('review:'.length);\n"
         "    return key in RESPONSES ? RESPONSES[key] : { findings: [] };\n"
@@ -109,7 +110,7 @@ def _run_review(responses: dict, tmp_path: Path) -> dict:
         "const args = {};\n"
         "async function run() {\n" + body + "\n}\n"
         "run().then((result) => "
-        "console.log(JSON.stringify({ result, logs, prompts })));\n",
+        "console.log(JSON.stringify({ result, logs, prompts, schemas })));\n",
         encoding="utf-8",
     )
     completed = subprocess.run(
@@ -241,6 +242,21 @@ class TestAReviewerCanDecline:
         dims = out["result"]["dimensions"]
         assert dims["declined"] == []
         assert "tests" in dims["reviewed"]
+
+    def test_the_review_schema_requires_a_non_empty_decline_reason(
+        self, tmp_path: Path
+    ) -> None:
+        """GIVEN the schema each reviewer answers against.
+
+        WHEN a reviewer sets declined
+        THEN the schema asks for at least one character
+
+        The runtime still reads an empty string as no decline, for a model
+        that answers outside the schema.
+        """
+        out = _run_review({}, tmp_path)
+        declined = out["schemas"]["review:tests"]["properties"]["declined"]
+        assert declined == {"type": "string", "minLength": 1}
 
     def test_the_skill_says_a_declined_dimension_is_unreviewed(self) -> None:
         """GIVEN the unified-review skill.

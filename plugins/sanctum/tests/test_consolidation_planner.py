@@ -501,6 +501,61 @@ def test_decision_fallback_takes_the_next_adr_number_without_a_date():
     assert route.destination == "docs/adr/0031-cli-naming.md"
 
 
+_TWO_DECISIONS = (
+    "## Decision on naming\nWe decided to name it x. Rationale chosen.\n\n"
+    "## Decision on storage\nWe decided to store in sqlite. Rationale chosen.\n\n"
+    "## Findings\nThe cache missed 40 percent of lookups.\n\n"
+    "## Action Items\n- fix the cache\n"
+)
+
+
+def _plan_in_repo(cp, tmp_path, monkeypatch):
+    _git("init", "-q", "-b", "main", str(tmp_path))
+    (tmp_path / "docs" / "adr").mkdir(parents=True)
+    (tmp_path / "docs" / "adr" / "0030-b.md").write_text("# b\n")
+    (tmp_path / "docs" / "guide.md").write_text("# guide\n")
+    (tmp_path / "AUDIT_REPORT.md").write_text(_TWO_DECISIONS)
+    monkeypatch.chdir(tmp_path)
+    return cp.generate_plan("AUDIT_REPORT.md")
+
+
+def test_two_decisions_in_one_plan_get_distinct_adr_numbers(tmp_path, monkeypatch):
+    """The number came from the docs on disk alone, so both were 0031."""
+    cp = _load_script()
+    plan = _plan_in_repo(cp, tmp_path, monkeypatch)
+    adrs = [r.destination for r in plan.routes if r.category == "decisions"]
+    assert adrs == [
+        "docs/adr/0031-decision-on-naming.md",
+        "docs/adr/0032-decision-on-storage.md",
+    ]
+
+
+def test_a_dated_adr_name_is_not_read_as_an_adr_number():
+    """``\\d{4}`` matched the year in ``2026-11-17-foo.md`` and gave 2027."""
+    cp = _load_script()
+    assert cp._next_adr_number(["docs/adr/2026-11-17-foo.md"]) == 1
+    assert (
+        cp._next_adr_number(["docs/adr/2026-11-17-foo.md", "docs/adr/0004-x.md"]) == 5
+    )
+
+
+def test_plan_probes_each_path_for_ignore_rules_once(tmp_path, monkeypatch):
+    """One ``git check-ignore`` per doc per chunk made 448 spawns for 4 chunks."""
+    cp = _load_script()
+    probed: list[str] = []
+    real_run = subprocess.run
+
+    def counting_run(cmd, *args, **kwargs):
+        if "check-ignore" in cmd:
+            probed.append(cmd[-1])
+        return real_run(cmd, *args, **kwargs)
+
+    monkeypatch.setattr(cp.subprocess, "run", counting_run)
+    _plan_in_repo(cp, tmp_path, monkeypatch)
+    assert probed
+    assert len(probed) == len(set(probed)), probed
+
+
 def test_git_ignored_probe_reads_the_repository_ignore_rules(tmp_path):
     cp = _load_script()
     subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)

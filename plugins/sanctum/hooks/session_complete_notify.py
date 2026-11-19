@@ -54,10 +54,20 @@ class NotificationState:
         try:
             data = json.loads(state_file.read_text()) if state_file.exists() else None
             if isinstance(data, dict):
+                # The file sits at a predictable path in a shared temp dir,
+                # so each field is parsed: a null time raised TypeError in
+                # should_notify on every Stop, and save wrote it back.
+                last = data.get("last_notify_time")
+                digest = data.get("last_content_hash")
+                flag = data.get("notified_since_input")
                 return cls(
-                    last_notify_time=data.get("last_notify_time", 0.0),
-                    last_content_hash=data.get("last_content_hash", ""),
-                    notified_since_input=data.get("notified_since_input", False),
+                    last_notify_time=(
+                        float(last)
+                        if isinstance(last, (int, float)) and type(last) is not bool
+                        else 0.0
+                    ),
+                    last_content_hash=digest if isinstance(digest, str) else "",
+                    notified_since_input=flag if type(flag) is bool else False,
                     session_id=session_id,
                 )
         except (OSError, json.JSONDecodeError) as e:

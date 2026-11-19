@@ -1343,3 +1343,53 @@ def test_title_is_recorded_before_the_discussion_is_created(monkeypatch) -> None
     mod._post_if_new(summary, _ENRICHED_LEARNINGS, "o", "n", "cat")
 
     assert seen_at_create and any(k.startswith("[Learning]") for k in seen_at_create[0])
+
+
+@pytest.mark.unit
+def test_a_pending_marker_left_by_a_killed_stop_is_retried(monkeypatch) -> None:
+    """A Stop killed between the pending save and the create left a None
+    marker, and every later Stop that day read it as already posted and
+    skipped both the duplicate check and the create.
+    """
+    title = f"[Learning] {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
+    record = PostedRecord(posted={title: None})
+    record.save = lambda: None
+    monkeypatch.setattr(PostedRecord, "load", classmethod(lambda cls: record))
+    checked: list[str] = []
+    monkeypatch.setattr(
+        mod, "check_existing_discussion", lambda t, *a: checked.append(t)
+    )
+    monkeypatch.setattr(mod, "get_repo_node_id", lambda *a: "R")
+    monkeypatch.setattr(
+        mod, "create_discussion", lambda *a: "https://example.invalid/d/2"
+    )
+    summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+
+    url = mod._post_if_new(summary, _ENRICHED_LEARNINGS, "o", "n", "cat")
+
+    assert checked == [title]
+    assert url == "https://example.invalid/d/2"
+    assert record.posted[title] == url
+
+
+@pytest.mark.unit
+def test_a_pending_marker_with_an_existing_discussion_records_it(monkeypatch) -> None:
+    """A create that succeeded before the kill is found, not posted twice."""
+    title = f"[Learning] {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
+    record = PostedRecord(posted={title: None})
+    record.save = lambda: None
+    monkeypatch.setattr(PostedRecord, "load", classmethod(lambda cls: record))
+    monkeypatch.setattr(
+        mod, "check_existing_discussion", lambda *a: "https://example.invalid/d/1"
+    )
+
+    def create(*_args: object) -> str:
+        raise AssertionError("posted a second time")
+
+    monkeypatch.setattr(mod, "create_discussion", create)
+    summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+
+    url = mod._post_if_new(summary, _ENRICHED_LEARNINGS, "o", "n", "cat")
+
+    assert url == "https://example.invalid/d/1"
+    assert record.posted[title] == url

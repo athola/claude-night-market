@@ -102,7 +102,7 @@ Finally, prepare a pull request description.
 ### Using the Command
 
 ```bash
-/pr
+/prepare-pr
 ```
 
 This runs the full PR preparation workflow:
@@ -203,7 +203,7 @@ git commit -m "<generated message>"
 make fmt && make lint && make test
 
 # Prepare PR
-/pr
+/prepare-pr
 
 # Create on GitHub
 gh pr create --title "<title>" --body "<generated body>"

@@ -45,11 +45,22 @@ _atomic_file = importlib.import_module("abstract._vendored_leyline_atomic_file")
 
 
 def _is_history(data: object) -> bool:
-    """Report whether ``data`` maps skill refs to accuracy and duration lists."""
+    """Report whether ``data`` maps skill refs to lists of numbers.
+
+    Every record the guard admits must be usable: a missing key raised
+    KeyError and a non-number raised TypeError on every later call, and
+    only a ValueError sets the file aside.
+    """
     return isinstance(data, dict) and all(
         isinstance(record, dict)
-        and isinstance(record.get("accuracies", []), list)
-        and isinstance(record.get("durations", []), list)
+        and all(
+            isinstance(record.get(key), list)
+            and all(
+                isinstance(entry, (int, float)) and not isinstance(entry, bool)
+                for entry in record[key]
+            )
+            for key in ("accuracies", "durations")
+        )
         for record in data.values()
     )
 

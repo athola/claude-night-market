@@ -10,7 +10,7 @@ and subagents for typical development tasks.
 | [Initialize a project](#initializing-a-new-project) | `/attune:arch-init` | attune |
 | [Review a PR](#reviewing-a-pull-request) | `/full-review` | pensive |
 | [Fix PR feedback](#fixing-pr-feedback) | `/fix-pr` | sanctum |
-| [Prepare a PR](#preparing-a-pull-request) | `/pr` | sanctum |
+| [Prepare a PR](#preparing-a-pull-request) | `/prepare-pr` | sanctum |
 | [Catch up on changes](#catching-up-on-changes) | `/catchup` | imbue |
 | [Write specifications](#writing-specifications) | `/speckit-specify` | spec-kit |
 | [Improve system](#meta-development) | `/speckit-analyze` | spec-kit |
@@ -239,7 +239,7 @@ make lint && make test
 
 ```bash
 # Full PR preparation
-/pr
+/prepare-pr
 
 # This handles:
 # - Branch status check
@@ -613,7 +613,7 @@ Skill(superpowers:test-driven-development)
 make lint && make test
 
 # 5. CREATE PR
-/pr
+/prepare-pr
 ```
 
 ---
@@ -630,7 +630,7 @@ make lint && make test
 
 ```bash
 # Command: Quick action
-/pr
+/prepare-pr
 
 # Skill: Detailed methodology
 Skill(sanctum:pr-prep)

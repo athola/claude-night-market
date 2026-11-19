@@ -131,3 +131,22 @@ def test_python39_gate_imports_every_registered_hook_under_3_9() -> None:
     )
     assert "tests/test_hooks_import_without_project_deps.py" in text
     assert "3.9" in text
+
+
+def test_every_python39_job_pins_a_runner_image_that_ships_3_9() -> None:
+    """``ubuntu-latest`` moved to 26.04, which has no setup-python 3.9 build.
+
+    Every 3.9 job then failed at setup, which reads as red rather than as
+    unverified. A job that installs 3.9 must name its image.
+    """
+    workflow = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    floating = []
+    for name, job in workflow["jobs"].items():
+        versions = [
+            str(step.get("with", {}).get("python-version", ""))
+            for step in job.get("steps", [])
+            if "setup-python" in str(step.get("uses", ""))
+        ]
+        if "3.9" in versions and job.get("runs-on") != "ubuntu-24.04":
+            floating.append(f"{name}: {job.get('runs-on')}")
+    assert not floating, floating

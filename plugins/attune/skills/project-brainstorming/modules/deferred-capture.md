@@ -40,10 +40,17 @@ If no response is received, treat it as **n** and continue.
 
 ## Capture Command
 
+`${CLAUDE_PLUGIN_ROOT}` is not substituted in a file loaded by
+Read, as it is in a SKILL.md body, and the Bash tool does not set it.
+Set it first to the attune plugin directory, the one that holds
+`skills/` and `scripts/`, three levels above this file. The `:?`
+form stops the command when it is unset, instead of running
+`/scripts/deferred_capture.py`.
+
 For each approach to be captured, run:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py" \
+python3 "${CLAUDE_PLUGIN_ROOT:?set it to the attune plugin root}/scripts/deferred_capture.py" \
   --title "Alternative: <approach-name>" \
   --source brainstorm \
   --context "<pros summary>. Not selected because: <user rationale>"

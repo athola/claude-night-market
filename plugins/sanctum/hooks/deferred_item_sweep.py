@@ -107,6 +107,22 @@ def _load_entries(ledger_path: Path) -> list[dict] | None:
     return entries
 
 
+def _capture_args(entry: dict) -> tuple[str, str] | None:
+    """Return the entry's title and source, or None when either is not text.
+
+    A hand-edited or older ledger can hold ``"title": null``. Passed into
+    argv it raised TypeError and lost the filed markers of earlier entries.
+    """
+    title = entry.get("title", "Untitled deferred item")
+    source = entry.get("source", "unknown")
+    if isinstance(title, str) and isinstance(source, str):
+        return title, source
+    sys.stderr.write(
+        "deferred_item_sweep: entry with a non-string title or source left unfiled\n"
+    )
+    return None
+
+
 def process_ledger(ledger_path: Path) -> dict:
     """Read ledger, retry unfiled entries, clean up.
 
@@ -146,10 +162,14 @@ def process_ledger(ledger_path: Path) -> dict:
             stats["deferred_to_next_sweep"] += 1
             continue
 
+        args = _capture_args(entry)
+        if args is None:
+            stats["failed"] += 1
+            all_filed = False
+            continue
+
         result = call_capture_script(
-            entry.get("title", "Untitled deferred item"),
-            entry.get("source", "unknown"),
-            timeout=min(_ITEM_TIMEOUT_SECONDS, remaining),
+            *args, timeout=min(_ITEM_TIMEOUT_SECONDS, remaining)
         )
         status = result.get("status", "error")
         if status == "created":

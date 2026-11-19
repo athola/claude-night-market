@@ -12,7 +12,8 @@ draft is written before the last commit:
 - not in diff: tracked but untouched. A warning, because a description
   may name the caller of a fixed function. ``--strict`` fails on it.
 - unfilled: an HTML comment outside code, left from the pr-prep
-  scaffold. Fails, as idr-tools' IDR002 does for a finished record.
+  scaffold. Fails, as idr-tools' IDR002 does for a finished record. A
+  linter directive such as ``<!-- markdownlint-disable -->`` is skipped.
 
 A token counts as a file only when its last segment has an extension
 with a letter in it, so branches (``feature/rc5``), addresses, versions,
@@ -48,6 +49,10 @@ _FILE_NAME = re.compile(r"^[\w.-]*\w\.[A-Za-z][A-Za-z0-9]{0,5}$")
 _SKIP_PREFIX = ("-", "~", "/", "...")
 _INLINE_CODE = re.compile(r"`[^`\n]*`")
 _COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
+# A linter directive is a deliberate comment, not a field nobody filled.
+_DIRECTIVE = re.compile(
+    r"<!--\s*(?:markdownlint|prettier|cspell|vale|textlint|remark|lint)\b"
+)
 
 
 @dataclass
@@ -93,7 +98,9 @@ def check(text: str, changed: list[str], tracked: list[str]) -> Report:
         # A bare name nothing tracks is an identifier such as
         # ``Dispatchers.IO``, so it is neither phantom nor untouched.
     prose = _INLINE_CODE.sub("", _FENCE.sub("", text))
-    report.placeholders = _COMMENT.findall(prose)
+    report.placeholders = [
+        comment for comment in _COMMENT.findall(prose) if not _DIRECTIVE.match(comment)
+    ]
     return report
 
 

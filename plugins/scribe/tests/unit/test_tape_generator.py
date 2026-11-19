@@ -724,6 +724,12 @@ class TestTapeHeaderCannotCarryDirectives:
         tape = generate_tape([], TapeConfig(output_path="/tmp/x y/out.gif"))
         assert tape.splitlines()[0] == 'Output "/tmp/x y/out.gif"'
 
+    def test_output_path_under_home_is_not_redacted(self) -> None:
+        """``~`` in an Output path makes VHS write to a literal ``./~/``."""
+        target = f"{Path.home()}/token=x/out.gif"
+        tape = generate_tape([], TapeConfig(output_path=target))
+        assert tape.splitlines()[0] == f'Output "{target}"'
+
 
 def test_secrets_and_home_paths_are_redacted_from_the_recording() -> None:
     """Transcript text went into the GIF verbatim: keys, tokens and the

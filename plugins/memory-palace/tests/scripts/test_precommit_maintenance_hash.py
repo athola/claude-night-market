@@ -16,6 +16,32 @@ PLUGIN = Path(__file__).resolve().parents[2]
 SCRIPT = PLUGIN / "scripts" / "precommit_palace_maintenance.sh"
 
 
+def _link_tools_except(dest: Path, system_dirs: tuple[Path, ...], skip: str) -> None:
+    """Link every tool in ``system_dirs`` into ``dest`` except ``skip``.
+
+    The guard is ``lexists``: ``exists`` follows the link, so a dangling
+    system symlink seen twice (``/bin`` is ``/usr/bin`` on merged-usr
+    images) reads as absent and ``symlink_to`` raises ``FileExistsError``.
+    """
+    for system_dir in system_dirs:
+        for tool in system_dir.iterdir():
+            link = dest / tool.name
+            if tool.name != skip and not os.path.lexists(link):
+                link.symlink_to(tool)
+
+
+def test_tool_linking_survives_a_dangling_symlink_seen_twice(tmp_path: Path) -> None:
+    """Ubuntu 26.04 ships a dangling ``/usr/bin/grub-ntldr-img``."""
+    system_dirs = (tmp_path / "usr-bin", tmp_path / "bin")
+    for system_dir in system_dirs:
+        system_dir.mkdir()
+        (system_dir / "dangling").symlink_to(tmp_path / "missing-target")
+    dest = tmp_path / "linked"
+    dest.mkdir()
+    _link_tools_except(dest, system_dirs, "md5sum")
+    assert os.path.islink(dest / "dangling")
+
+
 def test_the_hook_runs_without_md5sum(tmp_path: Path) -> None:
     hooks = tmp_path / "plugins" / "memory-palace" / "hooks"
     hooks.mkdir(parents=True)
@@ -31,11 +57,7 @@ def test_the_hook_runs_without_md5sum(tmp_path: Path) -> None:
     # on PATH as they are. Link every tool in them except md5sum instead.
     system = tmp_path / "system"
     system.mkdir()
-    for directory in (Path("/usr/bin"), Path("/bin")):
-        for tool in directory.iterdir():
-            link = system / tool.name
-            if tool.name != "md5sum" and not link.exists():
-                link.symlink_to(tool)
+    _link_tools_except(system, (Path("/usr/bin"), Path("/bin")), "md5sum")
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     env["PATH"] = f"{shims}:{system}"
     assert shutil.which("md5sum", path=env["PATH"]) is None

@@ -9,7 +9,7 @@ import sys
 import textwrap
 from typing import TYPE_CHECKING
 
-from pensive.harden.cli import run_cli
+from pensive.harden.cli import build_parser, run_cli
 from pensive.harden.scanner import scan_directory
 
 if TYPE_CHECKING:
@@ -281,3 +281,12 @@ class TestPy04SeverityFollowsTheCommand:
         )
         findings = [f for f in scan_directory(tmp_path) if f.id == "PY04"]
         assert [f.severity for f in findings] == ["HIGH"]
+
+
+def test_strict_help_names_both_exit_codes() -> None:
+    """``--strict`` exits 3 on an unparseable file, and the help said only
+    "non-zero" for HIGH findings, so a CI author could not tell them apart.
+    """
+    action = next(a for a in build_parser()._actions if "--strict" in a.option_strings)
+    assert "Exit 2 when any HIGH-or-above finding" in action.help
+    assert "3 when a file could not be analyzed" in action.help

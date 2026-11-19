@@ -172,8 +172,13 @@ class PostedRecord:
         )
 
     def is_posted(self, title: str) -> bool:
-        """Check if a discussion with this title was already posted."""
-        return title in self.posted
+        """Check if a discussion with this title was already posted.
+
+        A ``None`` value is the pending marker saved before the create. A
+        Stop killed after that save leaves it behind, so it is unconfirmed
+        and the caller checks GitHub for the discussion instead.
+        """
+        return isinstance(self.posted.get(title), str)
 
 
 @dataclass
@@ -823,8 +828,7 @@ def _post_if_new(
             f"Already posted for today ({title}). Skipping.",
             file=sys.stderr,
         )
-        cached = record.posted[title]
-        return cached if isinstance(cached, str) else None
+        return str(record.posted[title])
 
     existing_url = check_existing_discussion(title, owner, name)
     if existing_url:

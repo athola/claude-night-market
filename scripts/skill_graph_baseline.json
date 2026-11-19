@@ -1,6 +1,7 @@
 {
   "max_dangling_bugs": 0,
-  "max_uncalled_libraries": 0,
+  "max_uncalled_libraries": 1,
   "_comment": "Ratchet baselines for check_skill_graph_drift.py. max_dangling_bugs is the count of genuine broken Skill(plugin:name) references (the 'bugs' category from skill_graph.py, excluding external cross-marketplace refs and template placeholders). max_uncalled_libraries is the count of library-role skills with no inbound Skill() consumer (the AP-3 risk that shared-utility-consumer-rule.md targets). Lower either number whenever you fix refs or wire a consumer to lock in the win. The guard fails if a live count exceeds its baseline. A new library skill legitimately starts uncalled, so raising max_uncalled_libraries records the grace period the rule grants.",
-  "_recorded": "2026-08-16"
+  "_recorded": "2026-08-16",
+  "_grace": "leyline:ticket-writing, added 2026-11-10, is in the 30-day grace period. Its one consumer is minister's create-issue command, which this count does not read. Lower to 0 by 2026-12-10 or wire a skill consumer."
 }

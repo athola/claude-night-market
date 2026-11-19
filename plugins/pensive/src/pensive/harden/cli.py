@@ -58,8 +58,8 @@ def build_parser() -> argparse.ArgumentParser:
         "--strict",
         action="store_true",
         help=(
-            "Exit non-zero when any HIGH-or-above finding is reported. "
-            "Suitable for CI gates."
+            "Exit 2 when any HIGH-or-above finding is reported, and 3 when a "
+            "file could not be analyzed. Suitable for CI gates."
         ),
     )
     p.add_argument(

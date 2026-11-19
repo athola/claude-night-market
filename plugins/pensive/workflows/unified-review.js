@@ -65,7 +65,7 @@ const FINDINGS = {
   type: 'object',
   required: ['findings'],
   properties: {
-    declined: { type: 'string' },
+    declined: { type: 'string', minLength: 1 },
     findings: {
       type: 'array',
       items: {

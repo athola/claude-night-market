@@ -35,12 +35,29 @@ class CodeReviewWorkflow:
         else:
             self.config.update(settings)
 
+    @property
+    def _configuration(self) -> Configuration:
+        """Read the config through ``Configuration`` whatever shape it came in.
+
+        ``run_code_review`` passes a plain dict, and reading only a
+        ``Configuration`` dropped its exclude and skill settings.
+        """
+        if isinstance(self.config, Configuration):
+            return self.config
+        return Configuration(self.config)
+
     def _excluded(self, rel: Path) -> bool:
-        """Report whether ``rel`` matches a configured exclude pattern."""
-        if not isinstance(self.config, Configuration):
-            return False
+        """Report whether ``rel`` matches a configured exclude pattern.
+
+        fnmatch needs the separator in ``**/tests/**``, so the pattern is
+        also tried without its leading ``**/`` to match a top-level
+        ``tests/``.
+        """
+        path = str(rel)
         return any(
-            fnmatch(str(rel), pattern) for pattern in self.config.exclude_patterns
+            fnmatch(path, pattern)
+            or (pattern.startswith("**/") and fnmatch(path, pattern[3:]))
+            for pattern in self._configuration.exclude_patterns
         )
 
     def execute_full_review(self, repo_path: Path | str) -> dict[str, Any]:
@@ -189,9 +206,7 @@ class CodeReviewWorkflow:
         context = _ReviewContext(repo_path, files)
         selected = UnifiedReviewSkill().select_review_skills(context)
         named = ["unified-review" if s == "code-reviewer" else s for s in selected]
-        enabled = (
-            self.config.enabled_skills if isinstance(self.config, Configuration) else []
-        )
+        enabled = self._configuration.enabled_skills
         return [s for s in named if s in enabled] if enabled else named
 
     def _generate_summary(self, findings: list[dict[str, Any]]) -> str:

@@ -654,6 +654,45 @@ class TestTasksManagerFileBasedExtended:
         assert state_data["metrics"]["tasks_complete"] == 1
 
 
+_WRONG_SHAPES = [
+    pytest.param("[]", id="list"),
+    pytest.param("null", id="null"),
+    pytest.param('{"tasks": []}', id="tasks-list"),
+    pytest.param('{"tasks": {}}', id="no-metrics"),
+    pytest.param('{"tasks": {"T-1": "x"}, "metrics": []}', id="bad-entries"),
+]
+
+
+class TestWrongShapeStateReadsAsNoState:
+    """Only update_task_status tolerated a state file without metrics.
+
+    The other readers raised KeyError, TypeError or AttributeError on a
+    state file of the wrong shape.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("content", _WRONG_SHAPES)
+    def test_every_reader_treats_a_wrong_shape_file_as_no_state(
+        self, manager: TasksManager, content: str
+    ) -> None:
+        manager.fallback_state_file.write_text(content)
+        assert manager.get_state().total_count == 0
+        assert not manager.detect_resume_state().has_incomplete_tasks
+        assert manager.can_start_task("T-1")
+        assert not manager.update_task_status("T-1", "complete")
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("content", _WRONG_SHAPES)
+    def test_ensure_task_exists_replaces_a_wrong_shape_file(
+        self, manager: TasksManager, content: str
+    ) -> None:
+        manager.fallback_state_file.write_text(content)
+        task_id = manager.ensure_task_exists("Task A")
+        state_data = json.loads(manager.fallback_state_file.read_text())
+        assert state_data["metrics"]["tasks_total"] == 1
+        assert state_data["tasks"][str(task_id)]["description"] == "Task A"
+
+
 # ---------------------------------------------------------------------------
 # Tests: TasksManager Tasks-mode
 # ---------------------------------------------------------------------------

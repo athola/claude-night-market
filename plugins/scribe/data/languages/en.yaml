@@ -621,8 +621,8 @@ tier5:
       - '\bmark my words\b'
   identity_leak:
     # P0 in .claude/rules/slop-scan-for-docs.md: a model describing itself
-    # in a document escaped review. Case-sensitive "I" so "we cannot
-    # provide" passes.
+    # in a document escaped review. Case-sensitive "I": a lowercase
+    # "i cannot provide" is not a model speaking in a finished document.
     score: 5
     confidence: high
     patterns:

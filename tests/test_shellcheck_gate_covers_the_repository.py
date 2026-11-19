@@ -130,6 +130,32 @@ def test_gate_passes_on_a_clean_tree() -> None:
     )
 
 
+def _link_tools_except(dest: Path, system_dirs: tuple[Path, ...], skip: str) -> None:
+    """Link every tool in ``system_dirs`` into ``dest`` except ``skip``.
+
+    The guard is ``lexists``: ``exists`` follows the link, so a dangling
+    system symlink seen twice (``/bin`` is ``/usr/bin`` on merged-usr
+    images) reads as absent and ``symlink_to`` raises ``FileExistsError``.
+    """
+    for system_dir in system_dirs:
+        for tool in system_dir.iterdir():
+            link = dest / tool.name
+            if tool.name != skip and not os.path.lexists(link):
+                link.symlink_to(tool)
+
+
+def test_tool_linking_survives_a_dangling_symlink_seen_twice(tmp_path: Path) -> None:
+    """Ubuntu 26.04 ships a dangling ``/usr/bin/grub-ntldr-img``."""
+    system_dirs = (tmp_path / "usr-bin", tmp_path / "bin")
+    for system_dir in system_dirs:
+        system_dir.mkdir()
+        (system_dir / "dangling").symlink_to(tmp_path / "missing-target")
+    dest = tmp_path / "linked"
+    dest.mkdir()
+    _link_tools_except(dest, system_dirs, "shellcheck")
+    assert os.path.islink(dest / "dangling")
+
+
 def test_gate_fails_loudly_when_shellcheck_is_absent(tmp_path: Path) -> None:
     """A missing checker must not read as a pass.
 
@@ -139,11 +165,7 @@ def test_gate_fails_loudly_when_shellcheck_is_absent(tmp_path: Path) -> None:
     """
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
-    for system_dir in ("/usr/bin", "/bin"):
-        for tool in Path(system_dir).iterdir():
-            link = bin_dir / tool.name
-            if tool.name != "shellcheck" and not link.exists():
-                link.symlink_to(tool)
+    _link_tools_except(bin_dir, (Path("/usr/bin"), Path("/bin")), "shellcheck")
     env = os.environ.copy()
     env["PATH"] = str(bin_dir)
     result = _run_gate(env=env)

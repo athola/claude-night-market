@@ -19,7 +19,7 @@ import re
 import shutil
 import subprocess
 import sys
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass, field
 from datetime import date
 from pathlib import Path
@@ -441,11 +441,14 @@ def route_chunk(
     existing_docs: list[str],
     source_file: str,
     is_ignored: Callable[[str], bool] | None = None,
+    planned: Sequence[str] = (),
 ) -> Route:
     """Determine routing for a single chunk.
 
     ``is_ignored`` reports whether a path is gitignored. A fallback file
     there is never committed, so the item is routed to an issue instead.
+    ``planned`` holds destinations already routed in this plan. They count
+    toward the next ADR number, so two decisions do not share one.
     """
     # Find best semantic match
     best_match = None
@@ -480,7 +483,9 @@ def route_chunk(
 
     fallback_destinations = {
         "actionable": f"docs/plans/{today}-{topic}.md",
-        "decisions": f"docs/adr/{_next_adr_number(existing_docs):04d}-{topic}.md",
+        "decisions": (
+            f"docs/adr/{_next_adr_number([*existing_docs, *planned]):04d}-{topic}.md"
+        ),
         "findings": f"docs/{topic}.md",
         "metrics": "docs/benchmarks.md",
         "migration": "docs/migration-guide.md",
@@ -509,11 +514,19 @@ def route_chunk(
 
 
 def _next_adr_number(existing_docs: list[str]) -> int:
-    """Return the number after the highest ``docs/adr/NNNN-*.md`` present."""
+    """Return the number after the highest ``docs/adr/NNNN-*.md`` present.
+
+    A dated name such as ``2026-11-17-foo.md`` is not numbered: its year
+    would otherwise read as ADR 2026.
+    """
     numbers = [
         int(m.group(1))
         for doc in existing_docs
-        if (m := re.search(r"adr/(\d{4})-[^/]+\.md$", doc.replace("\\", "/")))
+        if (
+            m := re.search(
+                r"adr/(\d{4})-(?!\d{2}-\d{2}-)[^/]+\.md$", doc.replace("\\", "/")
+            )
+        )
     ]
     return max(numbers, default=0) + 1
 
@@ -522,22 +535,30 @@ def git_ignored(repo: str) -> Callable[[str], bool]:
     """Return a probe for whether ``repo``'s ignore rules exclude a path.
 
     Outside a git repository nothing is ignored, so the probe says False.
+    Each answer is cached: a plan asks about every doc once per chunk.
     """
+    answers: dict[str, bool] = {}
 
     def probe(path: str) -> bool:
-        try:
-            result = subprocess.run(
-                ["git", "-C", repo, "check-ignore", "-q", path],
-                capture_output=True,
-                timeout=10,
-                check=False,
-            )
-        except (OSError, subprocess.TimeoutExpired):
-            return False
-        # 0: ignored, 1: not ignored, 128: not a repository
-        return result.returncode == 0
+        if path not in answers:
+            answers[path] = _check_ignore(repo, path)
+        return answers[path]
 
     return probe
+
+
+def _check_ignore(repo: str, path: str) -> bool:
+    try:
+        result = subprocess.run(
+            ["git", "-C", repo, "check-ignore", "-q", path],
+            capture_output=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    # 0: ignored, 1: not ignored, 128: not a repository
+    return result.returncode == 0
 
 
 def slugify(text: str) -> str:
@@ -564,7 +585,13 @@ def generate_plan(source_file: str, docs_dir: str = "docs") -> ConsolidationPlan
             skipped.append({"header": chunk.header, "reason": "Low value content"})
             continue
 
-        route = route_chunk(chunk, existing_docs, source_file, is_ignored)
+        route = route_chunk(
+            chunk,
+            existing_docs,
+            source_file,
+            is_ignored,
+            planned=[r.destination for r in routes],
+        )
         routes.append(route)
 
     summary = {

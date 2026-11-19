@@ -257,9 +257,6 @@ This command implements the **Mandatory Post-Implementation Protocol**:
 # Full PR preparation (recommended)
 /prepare-pr
 
-# Also works as /pr (alias)
-/pr
-
 # Quick PR without updates (legacy behavior)
 /prepare-pr --skip-updates
 
@@ -319,10 +316,11 @@ The command orchestrates these commands/skills in sequence:
 
 ## Migration Notes
 
-- `/pr` is now aliased to `/prepare-pr` with full update workflow
-- Previous `/pr` behavior available with `--skip-updates` flag
+- `/pr` does not resolve: its alias was a frontmatter key nothing reads.
+  Run `/prepare-pr`
+- The old `/pr` behavior is available with the `--skip-updates` flag
 - `--no-code-review` preserves the lightweight behavior
-- **Breaking Change**: `/pr` now includes Phase 0 updates by default
+- **Breaking Change**: `/prepare-pr` includes Phase 0 updates by default
 - To opt out, use `--skip-updates` or update your workflow
 
 ## Configuration
@@ -385,7 +383,6 @@ Solution: Check file permissions, provide alternative path
 - Requires sanctum, abstract, superpowers, and scribe plugins
 - GitHub CLI (gh) recommended for full functionality
 - Supports custom quality gate commands
-- `/pr` alias maintains backward compatibility (with new defaults)
 - Phase 0 updates can be skipped with `--skip-updates` flag
 - Implements Mandatory Post-Implementation Protocol automatically
 - PR descriptions are verified with scribe to avoid AI-sounding content

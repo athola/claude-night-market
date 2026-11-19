@@ -423,8 +423,10 @@ class TasksManager:
         """
         self.fallback_state_file.parent.mkdir(parents=True, exist_ok=True)
 
-        empty_state = {"tasks": {}, "metrics": {"tasks_complete": 0, "tasks_total": 0}}
-        state = safe_json_load(self.fallback_state_file, default=empty_state)
+        state = self._load_fallback_state() or {
+            "tasks": {},
+            "metrics": {"tasks_complete": 0, "tasks_total": 0},
+        }
 
         # "Create or find": the Tasks path reuses a matching task, so this
         # one does too rather than minting a duplicate.
@@ -445,10 +447,31 @@ class TasksManager:
 
         return task_id
 
-    def _load_fallback_state(self) -> dict:
-        """Load state from the fallback JSON file, returning empty dict on any error."""
+    def _load_fallback_state(self) -> dict[str, Any]:
+        """Load the fallback state, or ``{}`` when it is missing or misshapen.
+
+        Every reader goes through here. A hand-edited or older file that is
+        not ``{"tasks": {id: {...}}}`` reads as no state instead of raising
+        in whichever reader touches it first. A missing ``metrics`` is
+        rebuilt from the tasks.
+        """
         state = safe_json_load(self.fallback_state_file)
-        return state if state is not None else {}
+        if not isinstance(state, dict):
+            return {}
+        tasks = state.get("tasks", {})
+        if not isinstance(tasks, dict) or not all(
+            isinstance(task, dict) for task in tasks.values()
+        ):
+            return {}
+        metrics = state.get("metrics")
+        if not isinstance(metrics, dict):
+            metrics = {
+                "tasks_complete": sum(
+                    1 for task in tasks.values() if task.get("status") == "complete"
+                ),
+                "tasks_total": len(tasks),
+            }
+        return {**state, "tasks": tasks, "metrics": metrics}
 
     def get_state(self) -> TaskState:
         """Get current task state.
@@ -552,9 +575,7 @@ class TasksManager:
         if self._use_tasks and self._task_list:
             tasks = self._task_list()
         else:
-            state = safe_json_load(self.fallback_state_file)
-            if state is None:
-                return True
+            state = self._load_fallback_state()
             tasks = [
                 {"id": tid, **tdata} for tid, tdata in state.get("tasks", {}).items()
             ]
@@ -593,9 +614,7 @@ class TasksManager:
         if self._use_tasks and self._task_update:
             return self._task_update(task_id, status=status, **kwargs)
         else:
-            state = safe_json_load(self.fallback_state_file)
-            if state is None:
-                return False
+            state = self._load_fallback_state()
             if task_id not in state.get("tasks", {}):
                 return False
 
@@ -603,7 +622,7 @@ class TasksManager:
             state["tasks"][task_id].update(kwargs)
 
             if status == "complete":
-                state.setdefault("metrics", {})["tasks_complete"] = len(
+                state["metrics"]["tasks_complete"] = len(
                     [
                         t
                         for t in state["tasks"].values()

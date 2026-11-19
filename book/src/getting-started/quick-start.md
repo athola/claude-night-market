@@ -110,7 +110,7 @@ sanctum depends on imbue (for some skills)
 | Command | Purpose |
 |---------|---------|
 | `/commit-msg` | Generate commit message |
-| `/pr` | Prepare pull request |
+| `/prepare-pr` | Prepare pull request |
 | `/fix-pr` | Address PR review comments |
 | `/do-issue` | Fix GitHub issues |
 | `/update-docs` | Update documentation |
@@ -212,7 +212,7 @@ Skill(sanctum:commit-messages)
 If superpowers is installed, commands gain enhanced capabilities:
 - `/create-skill` uses brainstorming
 - `/test-skill` uses TDD methodology
-- `/pr` uses code review patterns
+- `/prepare-pr` uses code review patterns
 
 ## Next Steps
 

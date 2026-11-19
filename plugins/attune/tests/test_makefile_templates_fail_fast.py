@@ -52,3 +52,20 @@ def test_a_failing_pipeline_stage_fails_the_recipe(
     assert result.returncode != 0
     assert "reached" not in result.stdout
     assert "ignores .SHELLFLAGS" not in result.stderr
+
+
+def test_the_hand_written_command_stub_fails_instead_of_passing() -> None:
+    """``test-attune`` printed "Validating..." and exited 0, which read as a
+    passing test for a command nothing tests.
+    """
+    plugin = Path(__file__).resolve().parents[1]
+    result = subprocess.run(
+        ["make", "-C", str(plugin), "test-attune"],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=60,
+    )
+    assert result.returncode != 0
+    assert "Validating" not in result.stdout
+    assert "No automated test" in result.stdout

@@ -638,6 +638,20 @@ class TestBugReviewSkill:
         assert self.skill.detect_logical_errors(mock_skill_context, "x.py") == []
 
     @pytest.mark.unit
+    def test_duplicate_elif_in_two_separate_chains_is_not_flagged(
+        self, mock_skill_context
+    ) -> None:
+        """Two chains within 20 lines that both test ``mode == 'b'`` read as
+        one chain with a dead branch.
+        """
+        mock_skill_context.get_file_content.return_value = (
+            "def f(mode):\n"
+            "    if mode == 'a':\n        x = 1\n    elif mode == 'b':\n        x = 2\n"
+            "    if mode == 'a':\n        y = 1\n    elif mode == 'b':\n        y = 2\n"
+        )
+        assert self.skill.detect_logical_errors(mock_skill_context, "x.py") == []
+
+    @pytest.mark.unit
     def test_duplicate_elif_in_one_chain_is_flagged(self, mock_skill_context) -> None:
         mock_skill_context.get_file_content.return_value = (
             "if mode == 'a':\n    pass\nelif mode == 'v':\n    pass\n"

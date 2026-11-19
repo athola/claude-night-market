@@ -392,7 +392,7 @@ instead: `modules/anti-patterns.md`.
 ## Integration with Other Tools
 
 - **`/fix-pr`**: After review identifies issues, use this to address them
-- **`/pr`**: To prepare a PR before review
+- **`/prepare-pr`**: To prepare a PR before review
 - **`pensive:unified-review`**: For the actual code analysis
 - **`pensive:bug-review`**: For deeper bug hunting if needed
 - **`scribe:slop-detector`**: For documentation AND commit message quality analysis

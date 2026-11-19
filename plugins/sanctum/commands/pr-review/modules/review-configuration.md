@@ -290,4 +290,4 @@ pr_review:
 
 - `/fix-pr` - Address PR review comments and resolve threads
 - `/resolve-threads` - Batch-resolve unresolved review threads
-- `/pr` - Prepare a PR for submission
+- `/prepare-pr` - Prepare a PR for submission

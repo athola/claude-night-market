@@ -453,6 +453,29 @@ class TestWorkflowHonorsConfiguration:
         )
         assert wf._determine_skills(tmp_path, ["Makefile"]) == ["makefile-review"]
 
+    def test_leading_double_star_exclude_matches_a_top_level_directory(self, tmp_path):
+        """fnmatch needs the separator, so ``tests/a.py`` slipped past."""
+        for rel in ("tests/a.py", "pkg/tests/b.py", "own.py"):
+            (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+            (tmp_path / rel).write_text("x = 1\n")
+        wf = CodeReviewWorkflow(
+            Configuration({"pensive": {"exclude": ["**/tests/**"]}})
+        )
+        assert wf._collect_files(tmp_path) == ["own.py"]
+
+    def test_a_dict_config_honors_exclude_and_skills(self, tmp_path):
+        """``run_code_review`` passes a plain dict, which dropped both settings."""
+        (tmp_path / "gen").mkdir()
+        (tmp_path / "gen" / "lib.py").write_text("x = 1\n")
+        (tmp_path / "app.py").write_text("x = 1\n")
+        (tmp_path / "Makefile").write_text("all:\n\ttrue\n")
+        wf = CodeReviewWorkflow(
+            {"pensive": {"exclude": ["gen/*"], "skills": ["makefile-review"]}}
+        )
+        files = wf._collect_files(tmp_path)
+        assert "gen/lib.py" not in files
+        assert wf._determine_skills(tmp_path, files) == ["makefile-review"]
+
     def test_configure_accepts_a_configuration(self):
 
         wf = CodeReviewWorkflow(Configuration({}))

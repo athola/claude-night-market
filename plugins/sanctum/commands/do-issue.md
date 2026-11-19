@@ -284,7 +284,7 @@ This command uses skills from multiple plugins:
 ## See Also
 
 - `/fix-pr` - Fix PR review feedback using same progressive workflow
-- `/pr` - Prepare a PR for submission
+- `/prepare-pr` - Prepare a PR for submission
 - `/pr-review` - Review a PR and post findings
 - `/attune:execute` - Execute implementation tasks systematically
 - `/attune:validate` - Validate project structure

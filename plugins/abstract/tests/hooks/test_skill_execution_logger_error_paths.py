@@ -155,6 +155,32 @@ class TestWrongShapeHistory:
         saved = json.loads(history.read_text())
         assert saved[SKILL]["accuracies"] == [1]
 
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "record",
+        [
+            pytest.param({}, id="missing-keys"),
+            pytest.param({"accuracies": ["a"], "durations": []}, id="non-number"),
+            pytest.param({"accuracies": [True], "durations": []}, id="bool"),
+        ],
+    )
+    def test_a_record_the_evaluator_cannot_use_is_set_aside(
+        self, hook: ModuleType, tmp_path: Path, record: dict
+    ) -> None:
+        """The guard admitted these, and evaluate_iteration then raised
+        KeyError or TypeError on every call without moving the file.
+        """
+        history = tmp_path / ".history.json"
+        body = json.dumps({SKILL: record})
+        history.write_text(body)
+        evaluator = hook.ContinualEvaluator(history)
+
+        evaluator.evaluate_iteration(SKILL, success=True, duration_ms=5)
+
+        assert (tmp_path / ".history.json.corrupt").read_text() == body
+        saved = json.loads(history.read_text())
+        assert saved[SKILL] == {"accuracies": [1], "durations": [5]}
+
 
 class TestOrphanPurge:
     """Orphan cleanup tolerates files that vanish or cannot be removed."""

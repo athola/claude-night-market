@@ -104,7 +104,11 @@ class AnalysisMixin:
         """Detect potential logical errors."""
         patterns = [
             (
-                r"elif\s+(\w+)\s*==\s*(['\"]\w+['\"]):[^\n]*\n(?:(?!\s*def\s)[^\n]*\n){0,20}?\s*elif\s+\1\s*==\s*\2",
+                # One chain: an `if` at the elif's own indentation starts a
+                # new chain, and the repeat must sit at that indentation too.
+                r"^([ \t]*)elif\s+(\w+)\s*==\s*(['\"]\w+['\"]):[^\n]*\n"
+                r"(?:(?![ \t]*def\s)(?!\1if\s)[^\n]*\n){0,20}?"
+                r"\1elif\s+\2\s*==\s*\3",
                 "Logic error: duplicate condition (dead code)",
             ),
             (

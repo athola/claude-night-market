@@ -94,10 +94,21 @@ def run_task(args: argparse.Namespace) -> None:
         print(result.final_text)
 
 
-def _shorten(value: Any, limit: int = 200) -> str:
-    """Render ``value`` for a prompt, cut to ``limit`` characters."""
+_PROMPT_FIELD_LIMIT = 200
+
+
+def _prompt_field(key: str, value: Any) -> str:
+    """Render one action field for the prompt, printing a long one in full.
+
+    ``type`` text runs to 4096 characters. Cutting it at the limit hid
+    whatever followed the cut, such as a command after 300 characters of
+    filler, so a long field is printed whole before the question.
+    """
     text = repr(value) if isinstance(value, str) else str(value)
-    return text if len(text) <= limit else text[:limit] + "..."
+    if len(text) <= _PROMPT_FIELD_LIMIT:
+        return f"{key}={text}"
+    print(f"{key} ({len(text)} characters):\n{text}")
+    return f"{key}={text[:_PROMPT_FIELD_LIMIT]}... (shown in full above)"
 
 
 def _ask_before_acting(action: dict[str, Any]) -> bool:
@@ -108,7 +119,7 @@ def _ask_before_acting(action: dict[str, Any]) -> bool:
     # Every field the action carries: "Run type?" alone hid the text to be
     # typed and the coordinates to be clicked, so a yes approved the unseen.
     details = ", ".join(
-        f"{key}={_shorten(value)}" for key, value in action.items() if key != "action"
+        _prompt_field(key, value) for key, value in action.items() if key != "action"
     )
     label = action.get("action", action)
     try:

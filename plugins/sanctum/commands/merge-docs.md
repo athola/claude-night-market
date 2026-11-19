@@ -121,4 +121,4 @@ python plugins/sanctum/scripts/consolidation_planner.py plan FILE.md
 
 - `/update-docs` - General documentation updates
 - `/git-catchup` - Understand recent git changes
-- `/pr` - PR preparation (warns about untracked reports)
+- `/prepare-pr` - PR preparation (warns about untracked reports)

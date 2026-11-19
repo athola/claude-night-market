@@ -36,7 +36,7 @@ needs no `marketplace add` step. The
 | **abstract** | `/create-command` | Command | `brainstorming` | Concept development |
 | **abstract** | `/create-hook` | Command | `brainstorming` | Security design |
 | **abstract** | `/test-skill` | Command | `test-driven-development` | TDD methodology |
-| **sanctum** | `/pr` | Command | `receiving-code-review`, `requesting-code-review` | PR validation |
+| **sanctum** | `/prepare-pr` | Command | `receiving-code-review`, `requesting-code-review` | PR validation |
 | **sanctum** | `/pr-review` | Command | `receiving-code-review` | PR analysis |
 | **sanctum** | `/fix-pr` | Command | `receiving-code-review` | Comment resolution |
 | **sanctum** | `/do-issue` | Command | `subagent-driven-development`, `dispatching-parallel-agents`, `using-git-worktrees` | Full workflow |

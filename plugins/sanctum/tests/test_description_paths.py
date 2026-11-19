@@ -291,6 +291,22 @@ class TestUnfilledPlaceholders:
         assert check(text, [], []).placeholders == ["<!-- the problem this solves -->"]
 
     @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "directive",
+        [
+            "<!-- markdownlint-disable MD013 -->",
+            "<!-- prettier-ignore -->",
+            "<!-- cspell:disable -->",
+            "<!-- vale off -->",
+        ],
+    )
+    def test_a_tool_directive_comment_is_not_an_unfilled_field(
+        self, directive: str
+    ) -> None:
+        text = f"## Why\n\n{directive}\nThe cache missed.\n"
+        assert check(text, [], []).placeholders == []
+
+    @pytest.mark.unit
     def test_comment_in_a_fence_or_inline_code_is_not_reported(self) -> None:
         text = "Use `<!-- x -->` markers.\n\n```markdown\n<!-- y -->\n```\n"
         assert check(text, [], []).placeholders == []

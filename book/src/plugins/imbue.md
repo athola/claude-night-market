@@ -63,7 +63,7 @@ Iron Law enforced through proof-of-work validation.
 |---------|-------------|
 | `/catchup` | Quick context recovery from recent changes |
 | `/structured-review` | Start structured review workflow with evidence logging |
-| `/justify` | >- |
+| `/justify` | Audit changes for additive bias, Iron Law compliance, and minimal intervention |
 | `/karpathy-check` | Pre-flight gate walking four Karpathy principles (think first, simplicity, surgical edits, goal-driven) |
 | `/stewardship-health` | Display stewardship health dimensions for one or all plugins |
 

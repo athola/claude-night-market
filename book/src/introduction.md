@@ -51,7 +51,7 @@ These plugins integrate with the [superpowers](https://github.com/obra/superpowe
 /plugin install sanctum@claude-night-market
 
 # 3. Use a command
-/pr
+/prepare-pr
 
 # 4. Invoke a skill
 Skill(sanctum:git-workspace-review)
