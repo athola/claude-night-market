@@ -21,6 +21,10 @@ a test written to fail first, or corrected text for a docs finding.
 - **abstract:** a skill history record missing a key or holding a
   non-number is set aside, not admitted and then raised on every Skill
   call.
+- **abstract:** the Skill execution logger imports on Windows, where
+  `fcntl` does not exist and every `Skill` call ended in
+  `ModuleNotFoundError` (#1259). The history lock uses `msvcrt.locking`
+  there and releases it explicitly.
 - **abstract:** every TasksManager reader treats a state file of the
   wrong shape as no state. Before, only `update_task_status` tolerated a
   missing `metrics`.
