@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.4] - 2026-11-18
+
 ### Added
 
 - **gauntlet:** each graph build records `gauntlet_version`. At session
