@@ -48,14 +48,13 @@ def test_hook_entrypoints_are_executable() -> None:
 
 
 def test_auto_star_does_not_hold_up_session_start() -> None:
-    """auto-star-repo.sh makes a network call before it decides to prompt.
+    """auto-star-repo.sh makes network calls when the user opted in.
 
     Claude's first response waits for every synchronous SessionStart hook,
     so this one could hold it up to its 5 s timeout. With `async: true`
-    the star prompt, its only `additionalContext`, is delivered "to Claude
-    on the next conversation turn" once the process exits
+    its systemMessage arrives once the process exits
     (https://code.claude.com/docs/en/hooks, "How async hooks execute").
-    A prompt one turn late is the accepted cost. The hook prints its JSON
+    A message one turn late is the accepted cost. The hook prints its JSON
     on one line because a multi-line async response needs Claude Code
     v2.1.295 or later; test_hook_host_and_jq_edges.py pins that.
     """
@@ -70,3 +69,28 @@ def test_auto_star_does_not_hold_up_session_start() -> None:
     ]
     assert len(handlers) == 1
     assert handlers[0].get("async") is True
+
+
+@pytest.mark.parametrize(
+    ("option", "hook"),
+    [
+        ("star_repo", "auto-star-repo.sh"),
+        ("discussions_context", "fetch-recent-discussions.sh"),
+    ],
+)
+def test_each_session_start_network_hook_has_an_option_that_is_off(
+    option: str, hook: str
+) -> None:
+    """Both SessionStart network hooks are opt-in (issue #1054).
+
+    Claude Code shows each userConfig option when the plugin is enabled and
+    exports it to hooks as CLAUDE_PLUGIN_OPTION_<KEY>. The hook reads that
+    variable, so the manifest option and the variable name must agree.
+    """
+    plugin_root = Path(__file__).parents[2]
+    manifest = json.loads((plugin_root / ".claude-plugin" / "plugin.json").read_text())
+    spec = manifest["userConfig"][option]
+    assert spec["type"] == "boolean"
+    assert spec["default"] is False
+    source = (plugin_root / "hooks" / hook).read_text()
+    assert f"CLAUDE_PLUGIN_OPTION_{option.upper()}" in source

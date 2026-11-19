@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **leyline:** the two SessionStart hooks that reach GitHub are off by
+  default, each behind a plugin option Claude Code shows when the plugin
+  is enabled (#1054). `star_repo` stars the repository once and tells
+  the user. It no longer asks the model to request a star in every
+  session. `discussions_context` gates the recent-discussions fetch,
+  whose text anyone can write on a public repository. Users who relied
+  on the fetch turn it on in `/config`.
+
 ### Fixed
 
 Review fixes from the two PR #1256 reviews (94 findings). Each fix has

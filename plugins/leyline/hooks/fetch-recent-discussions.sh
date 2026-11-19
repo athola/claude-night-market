@@ -4,7 +4,13 @@
 # from GitHub Discussions and injects a brief summary into the session
 # context for cross-session learning.
 #
+# Off unless the user set leyline's discussions_context plugin option,
+# which Claude Code exports as CLAUDE_PLUGIN_OPTION_DISCUSSIONS_CONTEXT
+# (issue #1054). On a public repository anyone can write a discussion, so
+# the text reaches the session only for a user who asked for it.
+#
 # Requirements:
+#   - The discussions_context plugin option set to true
 #   - GitHub platform (self-detected via git remote URL)
 #   - gh CLI authenticated
 #   - Repository has Discussions enabled with a "Decisions" category
@@ -49,6 +55,14 @@ main() {
   esac
 
   # --- Guards ---
+
+  # Claude Code writes a boolean option as true or false; accept the other
+  # usual spellings of yes too. Before every other guard, so an opted-out
+  # session reads no cache either.
+  case "${CLAUDE_PLUGIN_OPTION_DISCUSSIONS_CONTEXT:-}" in
+    [tT][rR][uU][eE] | 1 | [yY][eE][sS] | [oO][nN]) ;;
+    *) _emit_empty ;;
+  esac
 
   if ! command -v gh >/dev/null 2>&1; then
     _emit_empty

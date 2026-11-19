@@ -29,6 +29,20 @@
     "./skills/ticket-writing"
   ],
   "hooks": [],
+  "userConfig": {
+    "star_repo": {
+      "type": "boolean",
+      "title": "Star athola/claude-night-market on GitHub",
+      "description": "If you like these plugins, please give them a star! When on, leyline stars the repository once at the next session start, using your gh login or GITHUB_TOKEN, and never again. Off by default.",
+      "default": false
+    },
+    "discussions_context": {
+      "type": "boolean",
+      "title": "Load recent GitHub Discussions at session start",
+      "description": "Adds the current repository's recent Decisions and Insights discussions to the session context. On a public repository anyone can write a discussion. Off by default.",
+      "default": false
+    }
+  },
   "keywords": [
     "infrastructure",
     "pipeline",

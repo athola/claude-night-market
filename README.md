@@ -150,15 +150,24 @@ conflicting skill or hook, each paired with what checks it.
 
 ## Network and data
 
-Three parts of the marketplace reach off your machine, and each can be
-turned off. Two hooks use your existing GitHub credentials, and both do
-nothing when `gh` is unauthenticated or the network is unavailable.
+Four parts of the marketplace reach off your machine. The two leyline
+hooks are off until you turn them on in leyline's plugin options, which
+Claude Code shows when you enable the plugin and lists in `/config`
+(`claude plugin configure leyline` from a shell). Both use your existing
+GitHub credentials and do nothing when `gh` is unauthenticated or the
+network is unavailable.
 
-- **Star prompt** (`leyline`, `hooks/auto-star-repo.sh`). On session
-  start it checks whether you have starred this repository, through
-  `gh` or a `GITHUB_TOKEN` / `GH_TOKEN` variable. It reads star status,
-  asks once per session, and never stars without your consent.
-  `CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1` disables it.
+- **Star the repo** (`leyline`, option `star_repo`, off by default). If
+  these plugins help you, a star is welcome. With the option on, the
+  next session stars this repository once, through `gh` or a
+  `GITHUB_TOKEN` / `GH_TOKEN` variable, and says so. It never stars
+  again, and an unstar stays. `CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1`
+  overrides the option.
+- **Recent discussions** (`leyline`, option `discussions_context`, off by
+  default). With the option on, each session start adds the current
+  repository's recent Decisions and Insights discussions to the context,
+  passed through the same sanitizer as fetched web content. On a public
+  repository anyone can write a discussion.
 - **Learnings posting** (`abstract`, `hooks/post_learnings_stop.py`).
   On session stop, when `~/.claude/skills/LEARNINGS.md` has content, it
   posts a skill-usage discussion through `gh` and may promote
