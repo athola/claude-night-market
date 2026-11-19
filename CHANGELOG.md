@@ -101,9 +101,12 @@ a test written to fail first, or corrected text for a docs finding.
   gate off for the session.
 - **imbue:** A typosquat suspect stays a blocking finding when it exists
   in the registry, since a registered typosquat is the attack.
-- **imbue:** Past twice the read budget, the bounded-reads deny reason
-  names the real exits instead of a targeted read it would deny, and
-  denied reads no longer raise the count.
+- **imbue:** Past twice the read budget, a blocking session could not
+  read the file it meant to edit. The harness refuses an Edit of an
+  unread file, and without that Edit the count never reset. One short
+  read per discovery phase now goes through past that line, a successful
+  Write or Edit returns it, and each deny reason names the exit still
+  open. Denied reads no longer raise the count.
 - **imbue:** The no-AI-attribution vow reads a message piped into git
   commit -F -, including printf text with \n escapes.
 - **imbue:** The scope ramp gates RED and CRITICAL files of any suffix,

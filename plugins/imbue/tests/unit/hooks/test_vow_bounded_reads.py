@@ -1789,9 +1789,10 @@ class TestRepeatedIdenticalCallWarning:
                     with pytest.raises(SystemExit):
                         hook_module.main()
             outs.append(capsys.readouterr().out)
-        # 0.5 each: reads 1-4 reach 2.0 (= 2x budget); the 5th goes past it.
-        assert all('"deny"' not in o for o in outs[:4])
-        assert '"deny"' in outs[4]
+        # 0.5 each: reads 1-4 reach 2.0 (= 2x budget). The 5th goes past it
+        # and is the phase's one escape read. The 6th is denied.
+        assert all('"deny"' not in o for o in outs[:5])
+        assert '"deny"' in outs[5]
 
     @pytest.mark.unit
     def test_past_twice_the_budget_the_reason_does_not_offer_a_targeted_read(
@@ -1801,7 +1802,7 @@ class TestRepeatedIdenticalCallWarning:
         monkeypatch.setenv("VOW_SHADOW_MODE", "0")
         monkeypatch.setattr(hook_module, "_BUDGET", 1)
         counter_path = tmp_path / "vow_read_counter_spent.json"
-        counter_path.write_text(json.dumps({"count": 2.0}))
+        counter_path.write_text(json.dumps({"count": 2.0, "escape_used": True}))
         stdin_data = json.dumps(
             {
                 "tool_name": "Read",
@@ -1817,6 +1818,67 @@ class TestRepeatedIdenticalCallWarning:
         assert out["permissionDecision"] == "deny"
         assert "limit under" not in out["permissionDecisionReason"]
         assert "Write or Edit resets the count" in out["permissionDecisionReason"]
+
+    @staticmethod
+    def _run_read(hook_module, capsys, counter_path, tool_input):
+        stdin_data = json.dumps(
+            {"tool_name": "Read", "session_id": "e", "tool_input": tool_input}
+        )
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit):
+                    hook_module.main()
+        out = capsys.readouterr().out
+        return json.loads(out)["hookSpecificOutput"] if out else {}
+
+    @pytest.mark.unit
+    def test_past_twice_the_budget_one_short_read_reaches_the_edit_target(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """Past 2x budget no read went through, and an Edit of an unread file
+        is refused by the harness, so the session could not reach the edit
+        that resets the count (CR4).
+        """
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.setattr(hook_module, "_BUDGET", 1)
+        counter_path = tmp_path / "vow_read_counter_escape.json"
+        counter_path.write_text(json.dumps({"count": 2.0}))
+        short = {"offset": 1, "limit": 20}
+
+        first = self._run_read(
+            hook_module, capsys, counter_path, {"file_path": "/target.py", **short}
+        )
+        assert first.get("permissionDecision") != "deny"
+        assert "Write or Edit resets the count" in first["additionalContext"]
+
+        for path in ("/other.py", "/third.py"):
+            later = self._run_read(
+                hook_module, capsys, counter_path, {"file_path": path, **short}
+            )
+            assert later["permissionDecision"] == "deny"
+            assert "limit under" not in later["permissionDecisionReason"]
+
+    @pytest.mark.unit
+    def test_past_twice_the_budget_a_full_read_is_told_the_short_read_is_left(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """A denied full read must name the one exit still open, not spend it."""
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.setattr(hook_module, "_BUDGET", 1)
+        counter_path = tmp_path / "vow_read_counter_full.json"
+        counter_path.write_text(json.dumps({"count": 2.0}))
+
+        full = self._run_read(hook_module, capsys, counter_path, {"file_path": "/a.py"})
+        assert full["permissionDecision"] == "deny"
+        assert "limit under" in full["permissionDecisionReason"]
+
+        short = self._run_read(
+            hook_module,
+            capsys,
+            counter_path,
+            {"file_path": "/a.py", "offset": 1, "limit": 20},
+        )
+        assert short.get("permissionDecision") != "deny"
 
     @pytest.mark.unit
     def test_a_denied_read_does_not_raise_the_count(
