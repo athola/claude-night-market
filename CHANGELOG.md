@@ -29,6 +29,7 @@ Survive AI-Generated Text?" (2026):
 - **sanctum:** `pr-review` treats a slop score as a trigger to verify
   the document's claims. The finding is the false claim. The PR
   template marks the Why as the engineer's thinking text.
+- **conjure:** Keep Local names unpublished code under review.
 
 Six deterministic guards and one evidence rule, ported from NVIDIA
 auto-ontology (`3825917a`). Each holds an agent's claim to what its

@@ -69,7 +69,8 @@ Keep the work local when any of these hold:
 
 - The task is reasoning: architecture, design, trade-offs, judgment.
 - The prompt or context carries a secret, a credential, or data that
-  should not leave the machine.
+  should not leave the machine. That includes code someone else wrote
+  and has not published, such as a private pull request under review.
 - The task needs iteration with the operator turn by turn.
 - Correctness cannot be validated after the fact.
 
