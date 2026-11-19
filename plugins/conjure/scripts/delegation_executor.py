@@ -37,6 +37,7 @@ from scripts.delegation_services import (
     credential_file_issues,
     credential_issues,
     inherited_environment,
+    refused_credential_output,
     resolve_env_overlay,
 )
 from scripts.delegation_verify import verify_service
@@ -653,6 +654,17 @@ class Delegator:
         deadline = time.monotonic() + total_timeout if total_timeout else None
 
         for service_name in self._ordered_candidates(requirements):
+            # Checked before the probe, so no provider is probed once the
+            # deadline has passed. A probe that starts in time still runs to
+            # its own timeout: the bound covers provider calls, not probes.
+            remaining = None
+            if deadline is not None:
+                remaining = int(deadline - time.monotonic())
+                if remaining <= 0:
+                    attempts.append(
+                        Attempt(service=service_name, reason="total timeout reached")
+                    )
+                    break
             # A caller that already knows a service is up says so, and is
             # taken at its word. Probing it anyway would spend a subprocess
             # to re-learn what the caller just said, on every task, now that
@@ -665,15 +677,7 @@ class Delegator:
                     )
                     continue
 
-            call_timeout = timeout
-            if deadline is not None:
-                remaining = int(deadline - time.monotonic())
-                if remaining <= 0:
-                    attempts.append(
-                        Attempt(service=service_name, reason="total timeout reached")
-                    )
-                    break
-                call_timeout = min(timeout, remaining)
+            call_timeout = timeout if remaining is None else min(timeout, remaining)
             result = self.execute(
                 service_name,
                 prompt,
@@ -802,17 +806,8 @@ class Delegator:
 
 
 def _refused_credential(result: ExecutionResult, service: ServiceConfig) -> bool:
-    """Report output that says the provider rejected its credential.
-
-    qwen prints its 401 and exits 0, so neither the exit code nor a
-    non-empty stdout separates a refusal from an answer. The CLI puts that
-    error on stderr or as the first stdout line; a marker deeper in stdout
-    is an answer quoting one.
-    """
-    stdout_lines = [line for line in result.stdout.splitlines() if line.strip()]
-    lead = stdout_lines[0] if stdout_lines else ""
-    output = f"{lead}\n{result.stderr}".lower()
-    return any(marker.lower() in output for marker in service.auth_failure_markers)
+    """Report output that says the provider rejected its credential."""
+    return refused_credential_output(result.stdout, result.stderr, service)
 
 
 def _answered(result: ExecutionResult) -> bool:
@@ -910,7 +905,10 @@ def _create_parser() -> argparse.ArgumentParser:
         "--total-timeout",
         type=int,
         default=None,
-        help="With auto: seconds the whole provider chain may take",
+        help=(
+            "With auto: seconds the provider calls may take in total; "
+            "availability checks are not counted"
+        ),
     )
     parser.add_argument("--verify", action="store_true", help="Verify service only")
     parser.add_argument("--usage", action="store_true", help="Show usage summary")

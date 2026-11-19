@@ -120,7 +120,7 @@ input, per egregore's "never wait for human input" rule.
 For each such item, run:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py" \
+python3 "${CLAUDE_PLUGIN_ROOT:?set it to the egregore plugin root}/scripts/deferred_capture.py" \
   --title "<discovery title>" \
   --source egregore \
   --context "<discovery description>" \

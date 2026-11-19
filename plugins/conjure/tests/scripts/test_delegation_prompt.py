@@ -485,6 +485,30 @@ def test_inline_context_skips_dotenv_and_out_of_tree_symlinks(tmp_path) -> None:
     assert names == ["main.py"]
 
 
+def test_inline_context_skips_secrets_reached_through_an_in_tree_link(
+    tmp_path,
+) -> None:
+    """A filter must judge what is read, not the name it is read through.
+
+    `notes.txt -> .env` passed the name check, and the target sat inside
+    the root, so the secret reached a third-party prompt. `.ssh/` content
+    and `*.secrets` files slipped through on their names too.
+    """
+    tree = tmp_path / "tree"
+    tree.mkdir()
+    (tree / "main.py").write_text("x = 1\n")
+    (tree / ".env").write_text("SECRET\n")
+    (tree / "notes.txt").symlink_to(tree / ".env")
+    (tree / ".ssh").mkdir()
+    (tree / ".ssh" / "config_key_material").write_text("SECRET\n")
+    (tree / "cfg").mkdir()
+    (tree / "cfg" / "prod.secrets").write_text("SECRET\n")
+
+    names = [p.name for p in _iter_context_files([str(tree)])]
+
+    assert names == ["main.py"]
+
+
 def test_explicitly_named_file_is_still_read(tmp_path) -> None:
     """A file the caller names is the caller's choice, so it is read."""
     named = tmp_path / ".env.example"

@@ -345,6 +345,20 @@ def inherited_environment(service: ServiceConfig) -> dict[str, str]:
     }
 
 
+def refused_credential_output(stdout: str, stderr: str, service: ServiceConfig) -> bool:
+    """Report output that says the provider rejected its credential.
+
+    qwen prints its 401 and exits 0, so neither the exit code nor a
+    non-empty stdout separates a refusal from an answer. The CLI puts that
+    error on stderr or as the first stdout line; a marker deeper in stdout
+    is an answer quoting one.
+    """
+    stdout_lines = [line for line in stdout.splitlines() if line.strip()]
+    lead = stdout_lines[0] if stdout_lines else ""
+    output = f"{lead}\n{stderr}".lower()
+    return any(marker.lower() in output for marker in service.auth_failure_markers)
+
+
 def resolve_env_overlay(service: ServiceConfig) -> tuple[dict[str, str], list[str]]:
     """Expand ``${VAR}`` references in a service's environment overlay.
 

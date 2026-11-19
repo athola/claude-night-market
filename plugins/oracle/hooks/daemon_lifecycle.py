@@ -23,6 +23,8 @@ import signal
 import subprocess
 import sys
 import time
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
@@ -250,6 +252,15 @@ def _other_sessions_live(session_id: str) -> bool:
     return False
 
 
+@contextmanager
+def _start_lock() -> Iterator[None]:
+    data_dir = get_oracle_data_dir()
+    data_dir.mkdir(parents=True, exist_ok=True)
+    with open(data_dir / "daemon.start.lock", "a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        yield
+
+
 def main() -> None:
     """Dispatch on SessionStart / SessionEnd events."""
     payload = _read_payload()
@@ -265,21 +276,18 @@ def main() -> None:
         _register_session(str(payload.get("session_id", "")))
         # Held across the running check and the spawn inside _start_daemon,
         # so two sessions starting together launch one daemon, not two.
-        data_dir = get_oracle_data_dir()
-        data_dir.mkdir(parents=True, exist_ok=True)
-        with open(data_dir / "daemon.start.lock", "a") as start_lock:
-            fcntl.flock(start_lock, fcntl.LOCK_EX)
+        with _start_lock():
             _start_daemon()
 
-    # /clear ends a session and starts the next one in the same process.
-    # The stop runs async, so it could land after the new SessionStart
-    # and kill the daemon that session keeps; the next one reuses it.
     elif event == "SessionEnd":
-        live = _other_sessions_live(str(payload.get("session_id", "")))
-        # /clear ends this id and starts another in the same process; the
-        # stop runs async and could kill the daemon the next session keeps.
-        if not live and payload.get("reason") != "clear":
-            _stop_daemon()
+        # The same lock: a stop between another session's running check and
+        # its return would kill the daemon that session just confirmed.
+        with _start_lock():
+            live = _other_sessions_live(str(payload.get("session_id", "")))
+            # /clear ends this id and starts another in the same process; the
+            # stop runs async and could kill the daemon the next session keeps.
+            if not live and payload.get("reason") != "clear":
+                _stop_daemon()
 
 
 if __name__ == "__main__":

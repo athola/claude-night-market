@@ -570,6 +570,19 @@ class TestUsageLogRedaction:
         assert "<prompt: 27 chars>" in logged
         assert len(json.loads(logged.splitlines()[-1])["error"]) <= 500
 
+    def test_execute_redacts_the_prompt_in_the_usage_log(self, temp_config_dir) -> None:
+        """execute() must hand log_usage the prompt, or the log keeps it."""
+        delegator = Delegator(config_dir=temp_config_dir)
+        launched = ExecutionResult(
+            success=True, stdout="ok", stderr="", exit_code=0, duration=0.1
+        )
+        with patch.object(Delegator, "_launch_process", return_value=launched):
+            delegator.execute("gemini", "SECRET-PROMPT")
+
+        logged = delegator.usage_log.read_text()
+        assert "SECRET-PROMPT" not in logged
+        assert "<prompt: 13 chars>" in logged
+
 
 class TestExecuteRefusesUnsetOverlay:
     """A direct execute() refuses an unset overlay variable (CNJ-3).
@@ -675,6 +688,22 @@ def test_total_timeout_bounds_the_whole_chain(
     assert timeouts[0] == 300
     assert timeouts[1] == 50
     assert len(timeouts) == 2
+
+
+@patch.object(Delegator, "verify_service", return_value=(True, []))
+@patch.object(Delegator, "execute")
+def test_no_availability_probe_runs_after_the_total_timeout(
+    mock_execute: MagicMock, mock_verify: MagicMock, temp_config_dir
+) -> None:
+    """A probe for a provider past the deadline ran, and its result was dropped."""
+    clock = iter([0.0, 400.0, 400.0])
+    with patch("scripts.delegation_executor.time.monotonic", lambda: next(clock)):
+        result = Delegator(config_dir=temp_config_dir).smart_delegate(
+            "p", timeout=300, total_timeout=300
+        )
+    mock_verify.assert_not_called()
+    mock_execute.assert_not_called()
+    assert result.attempts[-1].reason == "total timeout reached"
 
 
 @patch("scripts.delegation_executor._refused_credential", return_value=True)

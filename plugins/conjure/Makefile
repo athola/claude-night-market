@@ -153,7 +153,11 @@ delegate-usage: ## Show usage analytics across services
 
 # PROMPT and FILES reach the recipes as environment variables and are
 # expanded by the shell as data. Pasted into the recipe text, a prompt
-# holding backticks or a quote ran as a command.
+# holding backticks or a quote ran as a command. $(value ...) into a simple
+# variable stops make itself from expanding them: a command-line
+# PROMPT='$(shell ...)' otherwise ran before any shell quoting applied.
+override PROMPT := $(value PROMPT)
+override FILES := $(value FILES)
 export PROMPT FILES
 
 # One rule for every provider: each recipe differed only in the name.

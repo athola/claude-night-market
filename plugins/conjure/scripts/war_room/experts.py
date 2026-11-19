@@ -175,6 +175,9 @@ def _optional_expert_installed(expert: ExpertConfig) -> bool:
 
 # Track which experts have been tested and their availability
 _expert_availability: dict[str, bool] = {}
+# Why an unavailable expert is unavailable, so the fallback notice can
+# tell a missing binary from a missing or refused key.
+_expert_unavailable_reason: dict[str, str] = {}
 _haiku_fallback_notices: list[str] = []
 
 
@@ -215,18 +218,30 @@ async def check_expert_availability(expert: ExpertConfig) -> bool:
     # provider gets the registry's own checks (PATH, environment,
     # credentials, version probe); the GLM wrapper gets a PATH check.
     service = SERVICES.get(expert.service) if expert.command else None
+    issues: list[str] = []
     try:
         if service is not None:
-            available, _issues = await asyncio.to_thread(verify_service, service)
+            available, issues = await asyncio.to_thread(verify_service, service)
         else:
-            available = shutil.which(get_expert_command(expert)[0]) is not None
+            command = get_expert_command(expert)[0]
+            available = shutil.which(command) is not None
+            if not available:
+                issues = [f"{command} not found on PATH"]
     except (OSError, RuntimeError, ValueError) as exc:
         # The billed probe these replaced also read a raising check as
         # "unavailable", so the panel falls back rather than failing.
-        logger.debug("availability check for %s raised: %s", expert.role, exc)
+        logger.warning("availability check for %s raised: %s", expert.role, exc)
         available = False
+        issues = [str(exc)]
     _expert_availability[cache_key] = available
+    if not available and issues:
+        _expert_unavailable_reason[cache_key] = issues[0]
     return available
+
+
+def unavailable_reason(expert: ExpertConfig) -> str | None:
+    """Return the first recorded reason an expert failed its availability check."""
+    return _expert_unavailable_reason.get(f"{expert.service}:{expert.model}")
 
 
 def get_fallback_notice() -> str:
@@ -240,6 +255,7 @@ def get_fallback_notice() -> str:
 def clear_availability_cache() -> None:
     """Clear the expert availability cache (useful for testing)."""
     _expert_availability.clear()
+    _expert_unavailable_reason.clear()
     _haiku_fallback_notices.clear()
 
 

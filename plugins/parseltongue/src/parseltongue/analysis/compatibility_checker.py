@@ -46,15 +46,12 @@ _NAMES_3_11 = {
 }
 
 
-def _feature_needing_3_11(
-    node: ast.AST, module_aliases: dict[str, str] | None = None
-) -> str | None:
+def _feature_needing_3_11(node: ast.AST, module_aliases: dict[str, str]) -> str | None:
     """Name the 3.11-only feature ``node`` uses, if any.
 
     ``module_aliases`` maps a local name to the module it is bound to, so
     ``import datetime as dt`` makes ``dt.UTC`` count.
     """
-    aliases = module_aliases or {name: name for name in _NAMES_3_11}
     if _TRY_STAR is not None and isinstance(node, _TRY_STAR):
         return "except_star"
     if isinstance(node, ast.Import) and any(a.name == "tomllib" for a in node.names):
@@ -67,7 +64,7 @@ def _feature_needing_3_11(
             if alias.name in names:
                 return names[alias.name]
     if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
-        module = aliases.get(node.value.id)
+        module = module_aliases.get(node.value.id)
         if module is not None:
             return _NAMES_3_11.get(module, {}).get(node.attr)
     return None

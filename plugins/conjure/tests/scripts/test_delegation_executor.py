@@ -691,6 +691,34 @@ class TestDelegatorCli:
     """Test CLI functionality of delegation executor."""
 
     @patch("delegation_executor.Delegator")
+    @patch(
+        "sys.argv",
+        [
+            "delegation_executor.py",
+            "auto",
+            "p",
+            "--timeout",
+            "7",
+            "--total-timeout",
+            "20",
+        ],
+    )
+    def test_cli_auto_forwards_both_timeouts_to_smart_delegate(
+        self, mock_delegator_class
+    ) -> None:
+        """`--total-timeout` was parsed and then ignored by the auto chain."""
+        mock_delegator = MagicMock()
+        mock_delegator.smart_delegate.return_value.fallback_reason = None
+        mock_delegator_class.return_value = mock_delegator
+
+        with patch("builtins.print"):
+            main()
+
+        kwargs = mock_delegator.smart_delegate.call_args.kwargs
+        assert kwargs["timeout"] == 7
+        assert kwargs["total_timeout"] == 20
+
+    @patch("delegation_executor.Delegator")
     @patch("sys.argv", ["delegation_executor.py", "--list-services"])
     def test_cli_list_services(self, mock_delegator_class) -> None:
         """Given --list-services flag when running CLI then should list services."""

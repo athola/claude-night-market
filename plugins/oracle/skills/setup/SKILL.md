@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Provisions the oracle ML inference daemon's venv via uv. Use when setting up local ONNX model inference for skill quality evaluation.
+description: Provisions the oracle daemon's venv via uv. Use when setting up local model scoring for skill quality evaluation.
 ---
 
 # Oracle Setup

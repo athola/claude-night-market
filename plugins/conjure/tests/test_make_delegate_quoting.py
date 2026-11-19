@@ -32,10 +32,9 @@ def test_make_delegate_target_passes_prompt_as_single_literal_argv(
     )
     fake_uv.chmod(0o755)
     marker = tmp_path / "marker"
-    # make expands `$` in a variable value itself, so a literal `$` must be
-    # written `$$`; the shell never sees `$(...)` as a command either way.
+    # Neither make nor the shell treats `$(...)` as anything but text.
     prompt = f'`touch {marker}`; "q" $(touch {marker})'
-    literal = f'`touch {marker}`; "q" '
+    literal = prompt
 
     subprocess.run(
         [
@@ -57,3 +56,35 @@ def test_make_delegate_target_passes_prompt_as_single_literal_argv(
     args = argv_log.read_text().splitlines()
     assert args[args.index("gemini") + 1] == literal
     assert "a.py;touch" in args  # FILES splits on spaces, never on ;
+
+
+def test_make_delegate_target_does_not_expand_make_functions_in_prompt(
+    tmp_path: Path,
+) -> None:
+    """`$(shell ...)` in a command-line PROMPT is text, not a make function.
+
+    make expands a command-line variable before any shell quoting applies,
+    so `$(shell touch x)` ran and `$HOME` lost its first letter (CWE-78).
+    """
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    argv_log = tmp_path / "argv"
+    fake_uv = fake_bin / "uv"
+    fake_uv.write_text(
+        f'#!/bin/sh\nfor a in "$@"; do printf "%s\\n" "$a"; done > "{argv_log}"\n'
+    )
+    fake_uv.chmod(0o755)
+    marker = tmp_path / "pwned"
+    prompt = f"review $(shell touch {marker}) cost $5 or $HOME"
+
+    subprocess.run(
+        ["make", "-s", "-C", str(PLUGIN), "delegate-gemini", f"PROMPT={prompt}"],
+        env={**os.environ, "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}"},
+        check=True,
+        capture_output=True,
+        timeout=60,
+    )
+
+    assert not marker.exists()
+    args = argv_log.read_text().splitlines()
+    assert args[args.index("gemini") + 1] == prompt

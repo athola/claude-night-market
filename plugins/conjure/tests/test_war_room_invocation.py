@@ -231,18 +231,24 @@ class TestParallelInvocation:
         """A `[Role command not found]` note was counted as a ballot (CNJ-9)."""
         session = WarRoomSession(session_id="note", problem_statement="x")
 
-        async def invoke(key: str, *_args: object) -> str:
-            if key == "chief_strategist":
-                return ExpertFailureNote("[Chief Strategist command not found: x]")
+        async def run(_cmd: object, label: str, *_args: object) -> str:
+            if label == "Scout":
+                return ExpertFailureNote("[Scout command not found: qwen]")
             return "1. A - best"
 
-        with patch.object(orchestrator, "_invoke_expert", side_effect=invoke):
+        with (
+            patch(
+                "scripts.war_room.experts.check_expert_availability",
+                new=AsyncMock(return_value=True),
+            ),
+            patch.object(orchestrator, "_run_subprocess", side_effect=run),
+        ):
             results = await orchestrator._invoke_parallel(
-                ["chief_strategist", "red_team"], {"default": "p"}, session, "voting"
+                ["scout", "red_team"], {"default": "p"}, session, "voting"
             )
 
         assert list(results) == ["red_team"]
-        assert "voting:chief_strategist" in session.artifacts["expert_failures"]
+        assert "voting:scout" in session.artifacts["expert_failures"]
 
     @pytest.mark.asyncio
     async def test_invoke_parallel_skips_unknown_experts(
@@ -480,7 +486,8 @@ async def test_failed_expert_is_not_recorded_as_a_contribution(
     ):
         result = await orchestrator._invoke_expert("scout", "p", session, "intel")
 
-    assert result.startswith("[")
+    assert result is None
+    assert session.artifacts["expert_failures"]["intel:scout"].startswith("[")
     assert session.merkle_dag.nodes == {}
 
 

@@ -38,3 +38,16 @@ def test_new_usage_log_is_private_to_the_user(tmp_path: Path) -> None:
     finally:
         os.umask(old_umask)
     assert stat.S_IMODE(log.stat().st_mode) == 0o600
+
+
+@pytest.mark.unit
+@pytest.mark.skipif(os.name != "posix", reason="POSIX permission bits")
+def test_existing_world_readable_usage_log_is_made_private(tmp_path: Path) -> None:
+    """0600 at O_CREAT left a log written before the fix readable by all."""
+    log = tmp_path / "usage.jsonl"
+    log.write_text("{}\n")
+    log.chmod(0o644)
+
+    usage_log_rotation.append_line(log, tmp_path / "usage.jsonl.1", "{}", 1024)
+
+    assert stat.S_IMODE(log.stat().st_mode) == 0o600

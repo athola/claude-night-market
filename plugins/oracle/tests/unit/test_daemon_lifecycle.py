@@ -783,6 +783,11 @@ class TestLifecycleErrorPaths:
 class TestStopWaitsForSessionEnd:
     """Stop fires after every assistant turn; the daemon lives for the session."""
 
+    @pytest.fixture(autouse=True)
+    def _data_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        # SessionEnd takes the start lock under the data dir; keep it out of $HOME.
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+
     @pytest.mark.unit
     def test_turn_level_stop_leaves_the_daemon_running(self) -> None:
         with (
@@ -815,6 +820,11 @@ class TestStopWaitsForSessionEnd:
 
 class TestClearKeepsTheDaemon:
     """/clear ends one session and starts the next in the same process."""
+
+    @pytest.fixture(autouse=True)
+    def _data_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        # SessionEnd takes the start lock under the data dir; keep it out of $HOME.
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
 
     @pytest.mark.unit
     def test_session_end_for_clear_leaves_the_daemon_running(self) -> None:
@@ -915,3 +925,33 @@ def test_clear_drops_the_session_marker_without_stopping(
         main()
     stop.assert_not_called()
     assert not marker.exists()
+
+
+def test_session_end_checks_and_stops_under_the_start_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A stop outside the start lock could SIGTERM a daemon that a starting
+    session had just confirmed running.
+    """
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    held: list[str] = []
+
+    def probe(step: str) -> None:
+        with open(tmp_path / "daemon.start.lock", "a") as other:
+            try:
+                fcntl.flock(other, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                held.append(step)
+
+    def live_probe(_session: str) -> bool:
+        probe("live")
+        return False
+
+    payload = json.dumps({"hook_event_name": "SessionEnd", "session_id": "A"})
+    with (
+        patch("sys.stdin", StringIO(payload)),
+        patch("daemon_lifecycle._other_sessions_live", side_effect=live_probe),
+        patch("daemon_lifecycle._stop_daemon", side_effect=lambda: probe("stop")),
+    ):
+        main()
+    assert held == ["live", "stop"]

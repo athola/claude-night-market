@@ -81,19 +81,29 @@ _MIN_INLINE_FILE_BYTES = 512
 # explicitly is still read.
 _SECRET_NAME = re.compile(
     r"\.env(\..*)?|.*\.(pem|key|p12|pfx)|id_(rsa|dsa|ecdsa|ed25519)(\.pub)?"
-    r"|credentials.*|\.netrc|\.npmrc|\.pypirc"
+    r"|credentials.*|.*\.secrets?|\.netrc|\.npmrc|\.pypirc"
 )
+# Directories whose every file is key material by convention.
+_SECRET_DIRS = {".ssh", ".gnupg"}
 
 
 def _expanded_file_is_safe(child: Path, root: Path) -> bool:
-    """Report whether a file found by directory expansion may be inlined."""
-    if _SECRET_NAME.fullmatch(child.name):
-        return False
+    """Report whether a file found by directory expansion may be inlined.
+
+    The filter judges the file that is read, not only the name it is read
+    through: an in-tree ``notes.txt -> .env`` link is a secret.
+    """
+    real_root = root.resolve()
+    target = child.resolve()
     # A symlink can point anywhere; only content under the root was asked for.
     try:
-        child.resolve().relative_to(root.resolve())
+        target_parts = target.relative_to(real_root).parts
     except ValueError:
         return False
+    link_parts = child.relative_to(root).parts
+    for parts in (link_parts, target_parts):
+        if _SECRET_NAME.fullmatch(parts[-1]) or _SECRET_DIRS.intersection(parts):
+            return False
     return child.is_file()
 
 

@@ -322,10 +322,11 @@ def _uncommit_since(runner: Runner, workdir: Path, base: str) -> None:
     The fence diffs against HEAD. An implementer that ran ``git commit``
     moved HEAD, so its edits, a denylisted ``.github/`` file included,
     were invisible. A soft reset keeps the edits and hands them to the
-    fence; the runner commits only what passes.
+    fence; the runner commits only what passes. A failed reset raises:
+    HEAD left on the implementer's commit would hide its edits again.
     """
     if _head(runner, workdir) != base:
-        runner.run(["git", "reset", "--soft", base], cwd=workdir)
+        _git_query(runner, workdir, "reset", "--soft", base)
 
 
 def _touched_files(runner: Runner, workdir: Path) -> list[str]:
@@ -840,11 +841,15 @@ def _is_registered_worktree(runner: Runner, root: Path, worktree: Path) -> bool:
 
 
 def _committed_task_ids(runner: Runner, worktree: Path, handoff: Handoff) -> set[str]:
-    """Task ids already committed on the item branch (subjects ``<tid>: ...``)."""
-    log = _git(runner, worktree, "log", "--format=%s", f"{handoff.base_branch}..HEAD")
-    if log.returncode != 0:
-        return set()
-    return {line.split(":", 1)[0] for line in log.output.splitlines() if ":" in line}
+    """Task ids already committed on the item branch (subjects ``<tid>: ...``).
+
+    Raises ``GitFailed`` when the range does not resolve: an empty answer
+    would dispatch every committed task again over its own changes.
+    """
+    log = _git_query(
+        runner, worktree, "log", "--format=%s", f"{handoff.base_branch}..HEAD"
+    )
+    return {line.split(":", 1)[0] for line in log.splitlines() if ":" in line}
 
 
 def _pending_tasks(
@@ -866,22 +871,22 @@ def _prepare_worktree(
     failed ``uv sync`` left every later test failing for a reason that
     had nothing to do with the task the babysitter was judging.
     """
-    if _is_registered_worktree(runner, root, worktree):
-        # A parked item resumes in the worktree it left; cutting the
-        # branch again failed with "a branch named ... already exists".
-        return None
-    added = _git(
-        runner,
-        root,
-        "worktree",
-        "add",
-        "-b",
-        handoff.branch,
-        str(worktree),
-        handoff.base_branch,
-    )
-    if added.returncode != 0:
-        return f"git worktree add exited {added.returncode}: {added.output[:200]}"
+    # A parked item resumes in the worktree it left; cutting the branch
+    # again failed with "a branch named ... already exists". Setup still
+    # runs on a resume, because the last run may have stopped on it.
+    if not _is_registered_worktree(runner, root, worktree):
+        added = _git(
+            runner,
+            root,
+            "worktree",
+            "add",
+            "-b",
+            handoff.branch,
+            str(worktree),
+            handoff.base_branch,
+        )
+        if added.returncode != 0:
+            return f"git worktree add exited {added.returncode}: {added.output[:200]}"
 
     setup = handoff.commands.get("setup")
     if not setup:
@@ -1012,7 +1017,7 @@ def _discard_at_park(runner: Runner, worktree: Path, result: ItemResult) -> None
         result.reason = f"{stopped}discarding the parked edits failed: {failed}"
 
 
-def run_item(  # noqa: PLR0913 - budget and budget_path travel together; bundling them into a holder would be ceremony for one call site
+def run_item(  # noqa: PLR0913, PLR0915 - budget and budget_path travel together; bundling them into a holder would be ceremony for one call site, and each stop path sets status and reason in the order they are checked
     handoff: Handoff,
     tasks: Sequence[Mapping[str, Any]],
     root: Path,
@@ -1055,7 +1060,13 @@ def run_item(  # noqa: PLR0913 - budget and budget_path travel together; bundlin
     spend = [0]
     # A resumed item keeps its committed tasks; running them again would
     # apply their changes twice.
-    for task in _pending_tasks(tasks, _committed_task_ids(runner, worktree, handoff)):
+    try:
+        done = _committed_task_ids(runner, worktree, handoff)
+    except GitFailed as unreadable:
+        result.status = "git_failed"
+        result.reason = f"cannot tell which tasks are committed: {unreadable}"
+        return result
+    for task in _pending_tasks(tasks, done):
         tid = str(task.get("id"))
 
         try:
