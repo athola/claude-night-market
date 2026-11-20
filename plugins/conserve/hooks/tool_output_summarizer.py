@@ -43,11 +43,6 @@ BLOAT_WARNING_THRESHOLD = 100_000
 # Override with CONSERVE_CCR_THRESHOLD.
 CCR_THRESHOLD_DEFAULT = 25_000
 CCR_HANDLE_HEX_LEN = 12
-DIGEST_HEAD_LINES = 20
-DIGEST_TAIL_LINES = 20
-# A digest is also bounded by characters: a tool result with few newlines
-# (minified JSON, one long log line) passes the line test whole.
-DIGEST_MAX_CHARS = 4_000
 # Resolved at import so the hint is a command the model's Bash can run; that
 # shell has no CLAUDE_PLUGIN_ROOT to expand.
 RETRIEVE_SCRIPT = (
@@ -185,47 +180,23 @@ def archive_large_output(text: str, archive_dir: Path | str | None = None) -> st
     return handle
 
 
-def build_digest(
-    text: str,
-    handle: str,
-    head: int = DIGEST_HEAD_LINES,
-    tail: int = DIGEST_TAIL_LINES,
-) -> str:
-    """Build a compact digest of an archived output plus its retrieval command.
+def build_handle_note(text: str, handle: str) -> str:
+    """Name the archive of an output that stays whole in context.
 
-    Shows the first *head* and last *tail* lines, the elided middle count, and
-    the exact ``context_retrieve.py`` invocation to fetch the original.
+    A head/tail digest here repeated up to 4,000 characters of a result the
+    model already holds. It added tokens to the turn and was gone after
+    ``/clear``. Only the handle outlives the turn, and the note carries just
+    the handle, the size, and the retrieve command. It calls the archive
+    verbatim because naming the authoritative copy kept models from
+    answering out of a summary (arXiv 2610.26836).
     """
-    lines = text.split("\n")
-    total_lines = len(lines)
-    total_chars = len(text)
     retrieve_cmd = f"python3 {shlex.quote(str(RETRIEVE_SCRIPT))} {handle}"
-
-    if total_lines <= head + tail:
-        body = text
-    else:
-        elided = total_lines - head - tail
-        body = "\n".join(
-            [
-                *lines[:head],
-                f"... [{elided} lines elided] ...",
-                *lines[-tail:],
-            ]
-        )
-
-    if len(body) > DIGEST_MAX_CHARS:
-        half = DIGEST_MAX_CHARS // 2
-        elided_chars = len(body) - 2 * half
-        body = f"{body[:half]}\n... [{elided_chars:,} chars elided] ...\n{body[-half:]}"
-
-    # Report characters, not bytes: total_chars is len(text) (a character
-    # count), so a "KB" label would overstate precision for multibyte UTF-8.
+    # Characters, not bytes: len(text) counts characters.
     return (
-        f"Large tool output archived (CCR): {total_lines} lines, "
-        f"{total_chars:,} chars, handle {handle}\n"
-        f"{body}\n"
-        f"Retrieve the full original on demand with:\n  {retrieve_cmd}\n"
-        f"  (add --grep PATTERN, --head N, --tail N, or --lines A:B to slice)"
+        f"CCR: the output above ({len(text.splitlines())} lines, "
+        f"{len(text):,} chars) is archived verbatim as {handle}. After /clear "
+        f"or in a handoff, read it with: {retrieve_cmd} "
+        "[--grep PATTERN | --head N | --tail N | --lines A:B]"
     )
 
 
@@ -387,13 +358,12 @@ def main() -> int:
 
     # CCR: archive this single oversized output so the original is retrievable
     # on demand (survives /clear and continuation-agent handoffs). The hook
-    # leaves the result in context and adds a bounded digest plus the
-    # retrieval handle.
+    # leaves the result in context and adds only the handle.
     output_text = extract_tool_response_text(hook_input)
     if should_archive(output_text):
         try:
             handle = archive_large_output(output_text)
-            context_blocks.append(build_digest(output_text, handle))
+            context_blocks.append(build_handle_note(output_text, handle))
             # Opportunistic retention sweep so archives do not grow unbounded
             # across sessions and /clears. Probabilistic to keep the directory
             # scan off the hot path. Over a session's many large outputs it

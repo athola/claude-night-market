@@ -71,6 +71,11 @@ detection criteria.
   roster, each agent's scope, and the output contract it returns.
   1-3 agents may dispatch directly.
 - `conserve:token-conservation` for session-level token budgeting
+- `scripts/session_cost.py <transcript.jsonl>` splits a session's
+  spend into cache writes, cache reads and output, and ranks tool
+  results by re-read cost. Run it before compressing anything:
+  cache traffic, not tool output, usually dominates
+  (`context-optimization` module `reversible-compression`)
 - `conjure:agent-teams` for dispatch coordination
 
 ## Exit Criteria

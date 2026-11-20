@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **conserve:** `scripts/session_cost.py` reads a session transcript and
+  splits its spend into uncached input, cache writes, cache reads and
+  output, weighted by each model's price multiples, and ranks tool
+  results by what re-reading them cost. Billed-run studies found token
+  reduction a weak predictor of cost (arXiv 2607.12161), and on one
+  472-request session here re-reading tool results was 5.6% of spend.
+
 ### Changed
+
+- **conserve:** the CCR hook adds one line naming the archive and its
+  retrieve command. It no longer appends a head and tail digest of up to
+  4,000 characters beside an output that was already whole in context,
+  which added tokens to every large result. The reversible-compression
+  module now says why the hook does not replace output through
+  `updatedToolOutput`, and cites independent measurements in place of
+  Headroom's own token counts.
 
 - **leyline:** the two SessionStart hooks that reach GitHub are off by
   default, each behind a plugin option Claude Code shows when the plugin

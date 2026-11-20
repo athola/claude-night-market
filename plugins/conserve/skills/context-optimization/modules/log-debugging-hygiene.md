@@ -70,6 +70,12 @@ on the original real-traffic snapshot. Filtering still wins on byte
 reduction, and by roughly 99x in absolute terms when `jq` can name
 the relevant rows.
 
+Filtering also held up on diagnosis quality. LogDx-CI scored 11 log
+reducers on 35 real GitHub Actions failures, and grep plus tail came
+near the best root-cause quality at about 4.5x fewer tokens than grep
+alone. In its agent loop, weaker reductions cost 2 to 4 times more
+tool calls ([arXiv 2605.28876](https://arxiv.org/abs/2605.28876)).
+
 ## Tier 2: Minimize Structurally (50-95% reduction)
 
 When you cannot filter to specific lines, switch your tool to

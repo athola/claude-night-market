@@ -1,15 +1,16 @@
 """Tests for CCR (reversible compression) in the conserve plugin.
 
-Ported from chopratejas/headroom's CCR idea: when a single tool output is
+Ported from headroomlabs-ai/headroom's CCR idea: when a single tool output is
 large, archive the original to an external cache keyed by a content-addressed
-handle, surface a compact digest + retrieval command, and let a later turn
-fetch the original (or a slice) on demand via context_retrieve.py.
+handle, add one line naming the archive and its retrieval command, and let a
+later turn fetch the original (or a slice) on demand via context_retrieve.py.
+The output itself stays whole in context, so the note echoes none of it.
 
 These tests are written before the implementation (TDD RED phase). They drive
 the public API of two modules:
 
 - hooks/tool_output_summarizer.py: get_ccr_threshold, should_archive,
-  archive_large_output, build_digest, extract_tool_response_text, main
+  archive_large_output, build_handle_note, extract_tool_response_text, main
 - scripts/context_retrieve.py: resolve_handle, slice_content, grep_content,
   main
 """
@@ -281,56 +282,47 @@ def test_cleanup_missing_dir_returns_zero(summarizer, tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Digest
+# Handle note
 # ---------------------------------------------------------------------------
 
 
-def test_build_digest_contains_head_tail_counts_and_retrieval(summarizer):
-    lines = [f"line-{i}" for i in range(100)]
-    text = "\n".join(lines)
+def test_handle_note_names_handle_counts_and_retrieval(summarizer):
+    text = "\n".join(f"line-{i}" for i in range(100))
     handle = "ccr-deadbeef0000"
 
-    digest = summarizer.build_digest(text, handle, head=HEAD_LINES, tail=TAIL_LINES)
+    note = summarizer.build_handle_note(text, handle)
 
-    # Head and tail content present.
-    assert "line-0" in digest
-    assert "line-99" in digest
-    # Middle content elided.
-    assert "line-50" not in digest
-    # Counts present.
-    assert "100 lines" in digest  # total line count, labeled (not a bare 100)
-    # Retrieval affordance present.
-    assert handle in digest
-    assert "context_retrieve.py" in digest
-    assert "retrieve" in digest.lower()
+    assert handle in note
+    assert "100 lines" in note
+    assert "verbatim" in note  # names the archive as the authoritative copy
+    assert "context_retrieve.py" in note
+    assert "--grep" in note
 
 
-def test_build_digest_short_text_is_not_elided(summarizer):
-    # Given text shorter than head+tail, Then the full body shows, no elision.
-    text = "only\ntwo lines"
-    digest = summarizer.build_digest(text, "ccr-aaaaaaaaaaaa", head=20, tail=20)
-    assert "only" in digest
-    assert "two lines" in digest
-    assert "elided" not in digest
+def test_handle_note_echoes_none_of_the_output(summarizer):
+    # Given an output that stays whole in context
+    text = "\n".join(f"line-{i}" for i in range(100))
+    # When the note is built, Then no line of it is repeated: a head/tail
+    # digest beside the full result only added tokens to the turn.
+    note = summarizer.build_handle_note(text, "ccr-aaaaaaaaaaaa")
+    assert "line-0" not in note
+    assert "line-99" not in note
 
 
-def test_build_digest_caps_a_single_long_line(summarizer):
-    # Given one 50K-character line (a JSON-shaped tool result has no newlines)
-    text = "x" * 50_000
-    # When digested, Then the body is bounded by characters, not only lines,
-    # so the digest cannot echo the whole output back into context.
-    digest = summarizer.build_digest(text, "ccr-aaaaaaaaaaaa")
-    assert len(digest) < summarizer.DIGEST_MAX_CHARS + 1_000
-    assert "chars elided" in digest
+def test_handle_note_stays_short_for_any_output_size(summarizer):
+    script = len(str(summarizer.RETRIEVE_SCRIPT))
+    for text in ("x" * 50_000, "\n".join(["y" * 300] * 2_000)):
+        note = summarizer.build_handle_note(text, "ccr-aaaaaaaaaaaa")
+        assert len(note) < script + 300
 
 
-def test_build_digest_retrieve_command_names_a_real_script(summarizer):
+def test_handle_note_retrieve_command_names_a_real_script(summarizer):
     # The model's Bash has no CLAUDE_PLUGIN_ROOT, so a literal placeholder in
     # the hint is a command that cannot run. The path must be resolved.
-    digest = summarizer.build_digest("a\nb", "ccr-aaaaaaaaaaaa")
-    assert "${CLAUDE_PLUGIN_ROOT}" not in digest
+    note = summarizer.build_handle_note("a\nb", "ccr-aaaaaaaaaaaa")
+    assert "${CLAUDE_PLUGIN_ROOT}" not in note
     script = next(
-        token for token in digest.split() if token.endswith("context_retrieve.py")
+        token for token in note.split() if token.endswith("context_retrieve.py")
     )
     assert Path(script).is_file()
 
@@ -406,11 +398,13 @@ def test_main_archives_large_single_output(summarizer, monkeypatch, tmp_path, ca
     archive_dir = tmp_path / ".claude" / "context-archive"
     archived = list(archive_dir.glob("ccr-*.txt"))
     assert len(archived) == 1, "large output should be archived to a handle"
-    # The digest/handle is surfaced to the model via additionalContext.
+    # The handle is surfaced to the model via additionalContext.
     payload = json.loads(out)
     ctx = payload["hookSpecificOutput"]["additionalContext"]
     assert archived[0].stem in ctx
     assert "context_retrieve.py" in ctx
+    assert "FATAL marker" not in ctx
+    assert "noise line" not in ctx
 
 
 def test_main_large_read_does_not_echo_the_file_back(
@@ -429,7 +423,8 @@ def test_main_large_read_does_not_echo_the_file_back(
 
     assert rc == 0
     ctx = json.loads(out)["hookSpecificOutput"]["additionalContext"]
-    assert len(ctx) < summarizer.DIGEST_MAX_CHARS + 1_000
+    assert len(ctx) < len(str(summarizer.RETRIEVE_SCRIPT)) + 300
+    assert "row 0 " not in ctx
     assert "row 100 " not in ctx
 
 
@@ -687,7 +682,7 @@ def test_retrieve_invalid_lines_returns_error(retriever, tmp_path):
 def test_retrieve_invalid_grep_returns_error(retriever, tmp_path):
     """An invalid `--grep` regex is a clean error (exit 2).
 
-    build_digest tells the model to pass --grep, so a malformed pattern is
+    build_handle_note tells the model to pass --grep, so a malformed pattern is
     a reachable input; it must not raise an uncaught re.error traceback.
     """
     handle = "ccr-feedface0011"
