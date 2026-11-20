@@ -98,6 +98,8 @@ class _Ledger:
         self.tool_names: dict[str, str] = {}
         self.results: list[dict[str, Any]] = []
         self.resident: list[dict[str, Any]] = []
+        # Cursor rows carry "role" and no "type", and no usage at all.
+        self.cursor_rows = 0
 
     def assistant(self, message: dict[str, Any]) -> None:
         content = message.get("content")
@@ -150,7 +152,9 @@ class _Ledger:
             units["output"] += counts["output"] * OUTPUT_RATE
         total = sum(units.values())
         ranked = sorted(self.results, key=lambda row: row["reread_units"], reverse=True)
+        cursor = self.cursor_rows > 0 and not self.usage_by_id
         return {
+            "format": "cursor" if cursor else "claude",
             "requests": len(self.usage_by_id),
             "skipped_lines": skipped,
             "tokens": tokens,
@@ -184,6 +188,8 @@ def summarize(lines: Iterable[str], top: int = 5) -> dict[str, Any]:
             continue
         kind = entry.get("type")
         message = entry.get("message")
+        if kind is None and "role" in entry:
+            ledger.cursor_rows += 1
         if kind == "system" and entry.get("subtype") == "compact_boundary":
             ledger.compacted()
         elif kind == "assistant" and isinstance(message, dict):
@@ -195,6 +201,11 @@ def summarize(lines: Iterable[str], top: int = 5) -> dict[str, Any]:
 
 def render(report: dict[str, Any]) -> str:
     """Format the report as a short table."""
+    if report["format"] == "cursor":
+        return (
+            "This is a Cursor transcript. Cursor records no token usage or tool "
+            "results in it. Per-request usage is in the Cursor dashboard."
+        )
     total = sum(report["units"].values())
     out = [f"Requests: {report['requests']}", ""]
     out.append(f"{'category':<16}{'tokens':>14}{'input units':>14}{'share':>8}")

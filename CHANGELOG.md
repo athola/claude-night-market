@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   module now says why the hook does not replace output through
   `updatedToolOutput`, and cites independent measurements in place of
   Headroom's own token counts.
+- **conserve:** in Cursor, which runs Claude plugin hooks, CCR returns
+  early: Cursor writes long tool output to files itself, sends the shell
+  tool as `Shell`, and puts its output in `tool_output`, not
+  `tool_response`. `session_cost.py` names a Cursor transcript, which
+  records no token usage, rather than reporting zero requests.
 
 - **leyline:** the two SessionStart hooks that reach GitHub are off by
   default, each behind a plugin option Claude Code shows when the plugin

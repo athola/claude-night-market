@@ -362,6 +362,12 @@ def main() -> int:
         logger.warning("Invalid hook input JSON; treating as empty: %s", exc)
         hook_input = {}
 
+    # Cursor runs Claude plugin hooks too, and writes long tool output to files
+    # itself (cursor.com/blog/dynamic-context-discovery). An archive there
+    # would copy output Cursor already offloads.
+    if "cursor_version" in hook_input:
+        return 0
+
     # Only process Bash, Read, Grep tools (verbose output tools)
     tool_name = hook_input.get("tool_name", "")
     if tool_name not in ("Bash", "Read", "Grep"):

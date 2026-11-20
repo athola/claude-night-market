@@ -110,6 +110,26 @@ cache writes at 33.3%, output at 13.1%, and re-reading tool results at
 ledger leaves in the cache-write row. It reads one transcript: subagent
 transcripts are separate files under `<session-id>/subagents/`.
 
+## In Cursor
+
+Cursor runs Claude Code plugin hooks, and skills copied into Cursor carry
+this module with them. Two things differ, both checked with a
+`cursor-agent` probe on 2026-11-20:
+
+- **CCR does not run.** Cursor writes long shell and MCP output to a file
+  and lets the agent `tail` or read it
+  ([dynamic context discovery](https://cursor.com/blog/dynamic-context-discovery)),
+  which is the job the archive does here. The hook returns early on any
+  payload carrying `cursor_version`. A Cursor hook can replace only MCP
+  output (`updated_mcp_tool_output`), not shell or file results
+  ([hooks](https://cursor.com/docs/hooks)).
+- **`session_cost.py` has nothing to count.** A Cursor transcript holds the
+  prompt, the tool calls and the replies, with no token usage and no tool
+  results. The script says so and points at the Cursor dashboard.
+
+Filtering at the source works the same in both: `grep` and `tail` in the
+command cut what reaches the model before any hook runs.
+
 ## When compression pays off, and when it does not
 
 Independent measurements put tool-output compression at a few percent of

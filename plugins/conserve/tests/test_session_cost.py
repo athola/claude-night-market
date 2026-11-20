@@ -281,3 +281,49 @@ class TestCommandLine:
         """An unreadable transcript is a usage error on stderr, exit 2."""
         assert ledger.main([str(tmp_path / "absent.jsonl")]) == 2
         assert "absent.jsonl" in capsys.readouterr().err
+
+
+# Probe-shaped Cursor transcript (cursor-agent 2026.11.19): role and message
+# only, with no usage and no tool results.
+_CURSOR_TRANSCRIPT = [
+    json.dumps(
+        {"role": "user", "message": {"content": [{"type": "text", "text": "q"}]}}
+    ),
+    json.dumps(
+        {
+            "role": "assistant",
+            "message": {
+                "content": [{"type": "tool_use", "name": "Shell", "input": {}}]
+            },
+        }
+    ),
+    json.dumps({"type": "turn_ended", "status": "success"}),
+]
+
+
+class TestCursorTranscripts:
+    """Cursor transcripts carry no usage, which must be said, not shown as zero."""
+
+    def test_a_cursor_transcript_is_named(self, ledger) -> None:
+        """A zero-request report from a Cursor file would read as a free session."""
+        report = ledger.summarize(_CURSOR_TRANSCRIPT)
+
+        assert report["format"] == "cursor"
+        assert report["requests"] == 0
+
+    def test_a_claude_transcript_is_named(self, ledger) -> None:
+        """Format is reported for every transcript, so --json readers can branch."""
+        assert ledger.summarize([_assistant("m1", out=1)])["format"] == "claude"
+
+    def test_the_table_points_a_cursor_user_at_the_dashboard(
+        self, ledger, tmp_path, capsys
+    ) -> None:
+        """The table says why there is nothing to count and where usage lives."""
+        transcript = tmp_path / "cursor.jsonl"
+        transcript.write_text("\n".join(_CURSOR_TRANSCRIPT))
+
+        assert ledger.main([str(transcript)]) == 0
+        out = capsys.readouterr().out
+        assert "Cursor" in out
+        assert "usage" in out.lower()
+        assert "cache read" not in out

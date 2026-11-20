@@ -438,6 +438,33 @@ def test_main_skips_a_bash_result_claude_code_already_persisted(
     assert "ccr-" not in out
 
 
+@pytest.mark.parametrize("tool_name", ["Shell", "Read"])
+def test_main_skips_a_cursor_payload(
+    summarizer, monkeypatch, tmp_path, capsys, tool_name
+):
+    """Cursor writes long tool output to files itself, so CCR has nothing to add.
+
+    Shape from a cursor-agent 2026.11.19 probe: tool_name "Shell", the output
+    in tool_output as a JSON string holding all 40,000 printed chars, and
+    cursor_version on every hook input.
+    """
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CONSERVE_CCR_THRESHOLD", str(SMALL_THRESHOLD))
+    hook_input = {
+        "hook_event_name": "postToolUse",
+        "cursor_version": "2026.11.19",
+        "tool_name": tool_name,
+        "tool_output": json.dumps({"output": "p" * 40_000}),
+        "tool_response": {"stdout": "p" * 40_000},
+    }
+
+    rc, out = _run_main(summarizer, hook_input, monkeypatch, capsys)
+
+    assert rc == 0
+    assert out.strip() == ""
+    assert not (tmp_path / ".claude" / "context-archive").exists()
+
+
 def test_main_large_read_does_not_echo_the_file_back(
     summarizer, monkeypatch, tmp_path, capsys
 ):
