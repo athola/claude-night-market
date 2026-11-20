@@ -333,8 +333,10 @@ class ProjectTracker:
         ]
 
         for initiative, metrics in report["initiatives"].items():
+            # A `|` in the name would split the row into extra cells.
+            name = initiative.replace("|", "\\|")
             lines.append(
-                f"| {initiative} | "
+                f"| {name} | "
                 f"{metrics['completed_tasks']}/{metrics['total_tasks']} | "
                 f"{metrics['in_progress_tasks']} | "
                 f"{metrics['completion_percentage']}% | "

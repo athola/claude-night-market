@@ -12,6 +12,7 @@ import psutil
 import pytest
 
 from pensive.analysis.repository_analyzer import RepositoryAnalyzer
+from pensive.config.configuration import Configuration
 from pensive.exceptions import AnalysisError
 from pensive.skills.base import AnalysisResult
 from pensive.skills.makefile_review import MakefileReviewSkill
@@ -403,3 +404,80 @@ class TestPen015AnalyzeDelegates:
             "file_count": 0,
             "findings": [],
         }
+
+
+class TestFullReviewSeesBuildFilesAndSkipsVendoredTrees:
+    """_collect_files kept only code suffixes, so `Makefile` and
+    `Cargo.toml` never reached selection, and `.venv` was walked.
+    """
+
+    def test_full_review_selects_makefile_review_for_repo_with_makefile(self, tmp_path):
+        (tmp_path / "Makefile").write_text("all:\n\ttrue\n")
+        (tmp_path / "a.py").write_text("x = 1\n")
+        wf = CodeReviewWorkflow()
+        files = wf._collect_files(tmp_path)
+        assert "makefile-review" in wf._determine_skills(tmp_path, files)
+
+    def test_nested_cargo_toml_selects_rust_review(self, tmp_path):
+        (tmp_path / "crates" / "x").mkdir(parents=True)
+        (tmp_path / "crates" / "x" / "Cargo.toml").write_text("[package]\n")
+        wf = CodeReviewWorkflow()
+        files = wf._collect_files(tmp_path)
+        assert "rust-review" in wf._determine_skills(tmp_path, files)
+
+    def test_collect_files_skips_venv(self, tmp_path):
+        (tmp_path / ".venv" / "lib").mkdir(parents=True)
+        (tmp_path / ".venv" / "lib" / "dep.py").write_text("x = 1\n")
+        (tmp_path / "own.py").write_text("x = 1\n")
+        assert CodeReviewWorkflow()._collect_files(tmp_path) == ["own.py"]
+
+
+class TestWorkflowHonorsConfiguration:
+    """Configuration's exclude and skills were read by nothing, and
+    configure() broke on a Configuration (PEN-8).
+    """
+
+    def test_workflow_honors_exclude_patterns(self, tmp_path):
+
+        (tmp_path / "vendor").mkdir()
+        (tmp_path / "vendor" / "a.py").write_text("x = 1\n")
+        (tmp_path / "own.py").write_text("x = 1\n")
+        wf = CodeReviewWorkflow(Configuration({"pensive": {"exclude": ["vendor/**"]}}))
+        assert wf._collect_files(tmp_path) == ["own.py"]
+
+    def test_enabled_skills_limit_the_selection(self, tmp_path):
+
+        (tmp_path / "Makefile").write_text("all:\n\ttrue\n")
+        wf = CodeReviewWorkflow(
+            Configuration({"pensive": {"skills": ["makefile-review"]}})
+        )
+        assert wf._determine_skills(tmp_path, ["Makefile"]) == ["makefile-review"]
+
+    def test_leading_double_star_exclude_matches_a_top_level_directory(self, tmp_path):
+        """fnmatch needs the separator, so ``tests/a.py`` slipped past."""
+        for rel in ("tests/a.py", "pkg/tests/b.py", "own.py"):
+            (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+            (tmp_path / rel).write_text("x = 1\n")
+        wf = CodeReviewWorkflow(
+            Configuration({"pensive": {"exclude": ["**/tests/**"]}})
+        )
+        assert wf._collect_files(tmp_path) == ["own.py"]
+
+    def test_a_dict_config_honors_exclude_and_skills(self, tmp_path):
+        """``run_code_review`` passes a plain dict, which dropped both settings."""
+        (tmp_path / "gen").mkdir()
+        (tmp_path / "gen" / "lib.py").write_text("x = 1\n")
+        (tmp_path / "app.py").write_text("x = 1\n")
+        (tmp_path / "Makefile").write_text("all:\n\ttrue\n")
+        wf = CodeReviewWorkflow(
+            {"pensive": {"exclude": ["gen/*"], "skills": ["makefile-review"]}}
+        )
+        files = wf._collect_files(tmp_path)
+        assert "gen/lib.py" not in files
+        assert wf._determine_skills(tmp_path, files) == ["makefile-review"]
+
+    def test_configure_accepts_a_configuration(self):
+
+        wf = CodeReviewWorkflow(Configuration({}))
+        wf.configure({"pensive": {"exclude": ["build/**"]}})
+        assert wf.config.exclude_patterns == ["build/**"]

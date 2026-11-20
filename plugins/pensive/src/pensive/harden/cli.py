@@ -20,6 +20,7 @@ from collections import Counter
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from ..reporting.formatters import SarifFormatter
 from .scanner import list_sources, scan_directory
 
 if TYPE_CHECKING:
@@ -42,17 +43,23 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path.cwd(),
         help="Directory to scan (default: current dir).",
     )
-    p.add_argument(
+    out = p.add_mutually_exclusive_group()
+    out.add_argument(
         "--json",
         action="store_true",
         help="Emit JSON instead of human-readable text.",
+    )
+    out.add_argument(
+        "--sarif",
+        action="store_true",
+        help="Emit SARIF 2.1.0, for code-scanning upload in CI.",
     )
     p.add_argument(
         "--strict",
         action="store_true",
         help=(
-            "Exit non-zero when any HIGH-or-above finding is reported. "
-            "Suitable for CI gates."
+            "Exit 2 when any HIGH-or-above finding is reported, and 3 when a "
+            "file could not be analyzed. Suitable for CI gates."
         ),
     )
     p.add_argument(
@@ -74,8 +81,15 @@ _SEVERITY_RANK = {
 
 
 def _filter_severity(findings: list[Finding], floor: str) -> list[Finding]:
+    # PYSX marks a file the scanner could not analyze. It is ADVISORY so it
+    # needs no citation, but dropping it under the floor reported a tree of
+    # unparseable files as clean.
     floor_rank = _SEVERITY_RANK[floor]
-    return [f for f in findings if _SEVERITY_RANK[f.severity] >= floor_rank]
+    return [
+        f
+        for f in findings
+        if f.id == "PYSX" or _SEVERITY_RANK[f.severity] >= floor_rank
+    ]
 
 
 def _render_text(findings: list[Finding], path: Path) -> str:
@@ -128,7 +142,9 @@ def run_cli(argv: list[str] | None = None) -> int:
             sys.stdout.write(message + "\n")
         return 3
 
-    if args.json:
+    if args.sarif:
+        print(SarifFormatter().format([f.to_dict() for f in findings], args.path))
+    elif args.json:
         payload = {
             "success": True,
             "data": {
@@ -150,6 +166,9 @@ def run_cli(argv: list[str] | None = None) -> int:
         ]
         if high_or_above:
             return 2
+        # A file that was not analyzed could hold a HIGH finding.
+        if any(f.id == "PYSX" for f in findings):
+            return 3
     return 0
 
 

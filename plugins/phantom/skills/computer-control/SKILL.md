@@ -75,7 +75,9 @@ uv run python -m phantom.cli "Open Firefox and search for Claude AI"
 `--confirm` asks before each action and runs it only on a reply that
 starts with `y` or `Y`. Any other reply, or a closed stdin, rejects it.
 `--budget-usd 0.50` stops the run with `budget_exceeded` once its
-estimated API cost passes that many dollars.
+estimated API cost passes that many dollars. `--no-bash` and
+`--no-editor` withhold the shell and file editor tools, which are on by
+default.
 
 ### Use in Python
 

@@ -48,6 +48,9 @@ def run_post_hook(skill_ref: str, iteration: int) -> dict | None:
         "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
         "CLAUDE_TOOL_OUTPUT": tool_output,
         "CLAUDE_SESSION_ID": "test-session",
+        "CLAUDE_HOOK_EVENT_NAME": (
+            "PostToolUseFailure" if tool_output.startswith("Error") else "PostToolUse"
+        ),
     }
     result = subprocess.run(
         [sys.executable, str(POST_HOOK)],
@@ -59,7 +62,16 @@ def run_post_hook(skill_ref: str, iteration: int) -> dict | None:
     if result.returncode != 0:
         print(f"✗ PostToolUse failed: {result.stderr}")
         return None
-    return json.loads(result.stdout)
+    if result.stdout.strip():
+        return json.loads(result.stdout)
+    # A PostToolUseFailure run logs its entry and prints nothing.
+    return {"hookSpecificOutput": _latest_log_entry()}
+
+
+def _latest_log_entry() -> dict:
+    home = Path(os.environ["CLAUDE_HOME"])
+    newest = max((home / "skills" / "logs").rglob("*.jsonl"), key=os.path.getmtime)
+    return json.loads(newest.read_text().strip().splitlines()[-1])
 
 
 def print_metrics(metrics: dict) -> None:

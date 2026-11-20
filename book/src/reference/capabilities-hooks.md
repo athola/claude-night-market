@@ -640,12 +640,12 @@ Logs skill executions for metrics.
 ### `auto-star-repo.sh`
 **Type**: SessionStart (async)
 
-Checks whether the user has starred the repository and, if not, asks Claude
-to offer a star. It stars only after the user agrees, by running itself with
-`--star`. Because the hook runs with `async: true`, the prompt reaches Claude
-on the next conversation turn
-([hooks reference](https://code.claude.com/docs/en/hooks), "How async hooks
-execute").
+Off unless the user turns on leyline's `star_repo` plugin option, which
+Claude Code exports to the hook as `CLAUDE_PLUGIN_OPTION_STAR_REPO`. With it
+on, the hook stars the repository once, writes a marker under
+`$XDG_STATE_HOME/claude-night-market/`, and tells the user in a
+`systemMessage`. Every later run stops at the marker and never undoes an
+unstar. The model is given no instruction. `--star` stars by hand.
 
 ### `detect-git-platform.sh`
 **Type**: SessionStart
@@ -658,8 +658,10 @@ and hooks.
 **Type**: SessionStart
 **Timeout**: 3 seconds
 
-Queries the 5 most recent "Decisions" discussions from GitHub Discussions
-and injects a summary into session context.
+Off unless the user turns on leyline's `discussions_context` plugin option
+(`CLAUDE_PLUGIN_OPTION_DISCUSSIONS_CONTEXT`). With it on, queries the 5 most
+recent "Decisions" discussions from GitHub Discussions and injects a
+summary into session context.
 Enables cross-session discovery of prior deliberations.
 Skips silently when `gh` CLI is unavailable, unauthenticated,
 or the repository lacks Discussions. Token budget: <600 tokens.
@@ -752,6 +754,14 @@ matcher, so it also runs after compaction.
 Auto-updates the code knowledge graph after git
 commits to keep the graph current with codebase
 changes.
+
+### `graph_version_rebuild.py`
+**Type**: SessionStart
+
+Rebuilds `.gauntlet/graph.db` in the background when
+an older gauntlet version built it, so each release's
+extraction changes reach existing graphs. Opt out with
+`rebuild_on_upgrade: false` in `.gauntlet/config.json`.
 
 ### `precommit_gate.py`
 **Type**: PreToolUse

@@ -196,6 +196,10 @@ class ServiceConfig:
     # text, so the exit code is not a signal for this CLI and the output
     # is the only honest one. Matched case-insensitively.
     auth_failure_markers: tuple[str, ...] = ()
+    # Parent variables the child must not inherit. An endpoint-swap service
+    # runs a stock CLI against a third-party URL, and a caller's own key for
+    # the real vendor would travel with it.
+    env_unset: tuple[str, ...] = ()
     # A check beyond "the binary exists". `ollama --version` answers
     # whenever ollama is installed, and says nothing about whether the
     # model named in `subcommand` was ever pulled, so `--verify` reported
@@ -332,6 +336,29 @@ def _env_ref(variable: str) -> str:
     return f"${{{variable}}}"
 
 
+def inherited_environment(service: ServiceConfig) -> dict[str, str]:
+    """Return the caller's environment minus the service's ``env_unset``."""
+    return {
+        name: value
+        for name, value in os.environ.items()
+        if name not in service.env_unset
+    }
+
+
+def refused_credential_output(stdout: str, stderr: str, service: ServiceConfig) -> bool:
+    """Report output that says the provider rejected its credential.
+
+    qwen prints its 401 and exits 0, so neither the exit code nor a
+    non-empty stdout separates a refusal from an answer. The CLI puts that
+    error on stderr or as the first stdout line; a marker deeper in stdout
+    is an answer quoting one.
+    """
+    stdout_lines = [line for line in stdout.splitlines() if line.strip()]
+    lead = stdout_lines[0] if stdout_lines else ""
+    output = f"{lead}\n{stderr}".lower()
+    return any(marker.lower() in output for marker in service.auth_failure_markers)
+
+
 def resolve_env_overlay(service: ServiceConfig) -> tuple[dict[str, str], list[str]]:
     """Expand ``${VAR}`` references in a service's environment overlay.
 
@@ -456,6 +483,7 @@ SERVICES: dict[str, ServiceConfig] = {
         # prompt is positional. Declaring it as prompt_flag worked by
         # coincidence and put glm in the wrong escaping group. As a
         # subcommand it takes `--` like the other positional providers.
+        env_unset=("ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN"),
         subcommand=("-p",),
         prompt_flag=None,
         temperature_flag=None,

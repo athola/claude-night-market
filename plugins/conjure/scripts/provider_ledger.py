@@ -173,6 +173,23 @@ class ProviderLedger:
             )
         )
 
+    def installed_unconfirmed(self, now: float | None = None) -> tuple[str, ...]:
+        """Return installed providers whose credential nobody has checked.
+
+        Fresh, with no recorded failure: unknown, neither ready nor broken.
+        """
+        stamp = time.time() if now is None else now
+        return tuple(
+            sorted(
+                name
+                for name, entry in self._records.items()
+                if entry.installed
+                and entry.auth_confirmed_at is None
+                and entry.last_error is None
+                and self.is_fresh(name, now=stamp)
+            )
+        )
+
     def save(self) -> None:
         """Write the ledger, creating its directory if needed.
 

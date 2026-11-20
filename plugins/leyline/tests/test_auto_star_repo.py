@@ -1,16 +1,17 @@
 """Tests for auto-star-repo.sh safety guarantees.
 
-Feature: Star Prompt on Session Start
+Feature: Opt-in star on session start (issue #1054)
 
-    As a project maintainer
-    I want sessions to prompt users to star athola/claude-night-market
-    So that contributors can support the project voluntarily
+    As a user who likes these plugins
+    I want to tick one plugin option and have the repo starred once
+    So that nothing asks me for a star, and nothing stars without my say
 
     CRITICAL SAFETY INVARIANTS:
-    - The check path must NEVER star automatically (no PUT calls)
+    - Nothing happens unless the user set leyline's star_repo option
     - The script must NEVER unstar (no DELETE calls)
-    - Already-starred repos must produce no output
-    - The --star flag enables starring (only called after user consent)
+    - It stars at most once per machine: a marker stops every later run
+    - The model is never told to ask for a star
+    - CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1 overrides the option
 """
 
 from __future__ import annotations
@@ -18,8 +19,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import shlex
-import shutil
 import stat
 import subprocess
 from pathlib import Path
@@ -227,44 +226,6 @@ class TestJsonOutputStructure:
         assert "_emit_empty" in block, "Opt-out path must call _emit_empty"
 
 
-class TestStarPromptOutputBehavior:
-    """Verify the script outputs a prompt only when not starred."""
-
-    @pytest.mark.unit
-    def test_outputs_prompt_context_for_not_starred(self, hook_source: str) -> None:
-        """
-        GIVEN the hook script
-        WHEN the repo is not starred
-        THEN it outputs a prompt message for Claude.
-        """
-        assert "star-prompt:" in hook_source, (
-            "Script must output star-prompt context for Claude"
-        )
-
-    @pytest.mark.unit
-    def test_prompt_gated_on_not_starred(self, hook_source: str) -> None:
-        """
-        GIVEN the hook script
-        WHEN the repo is already starred
-        THEN it produces no output.
-        """
-        assert '"not_starred"' in hook_source, (
-            "Script must gate prompt on not_starred status"
-        )
-
-    @pytest.mark.unit
-    def test_prompt_tells_claude_to_run_script(self, hook_source: str) -> None:
-        """
-        GIVEN the prompt output
-        WHEN Claude reads it
-        THEN it includes the command to star via the script.
-        """
-        body = _extract_function(hook_source, "star_command")
-        assert body is not None, "star_command function must exist"
-        assert "--star" in body, "Prompt must tell Claude to run the script with --star"
-        assert '"$(star_command)"' in hook_source, "Prompt must embed star_command"
-
-
 class TestStarPromptOptOut:
     """Verify the opt-out mechanism works."""
 
@@ -393,6 +354,9 @@ class TestXtraceKeepsTheTokenOut:
             "HOME": str(tmp_path),
             "PATH": f"{bin_dir}:/usr/bin:/bin",
             "GH_TOKEN": "sekrit-token-123",
+            # Opted in, so the check path reaches curl with the token.
+            "CLAUDE_PLUGIN_OPTION_STAR_REPO": "true",
+            "XDG_STATE_HOME": str(tmp_path / "state"),
         }
 
         run = subprocess.run(
@@ -414,8 +378,8 @@ def _run_with_shims(
 ) -> subprocess.CompletedProcess[str]:
     """Run the hook with *shims* (name to /bin/sh body) first on PATH.
 
-    CLAUDE_PLUGIN_ROOT is left unset, as it is in the Bash tool's
-    environment where the model runs the command the hook prints.
+    CLAUDE_PLUGIN_ROOT is left unset, as it is when a user runs --star
+    from their own shell.
     """
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
@@ -445,61 +409,6 @@ _CURL_403 = (
     "printf 403\nexit 0"
 )
 _GH_LOGGED_OUT = "exit 1"
-_GH_NOT_STARRED = (
-    'case "$1" in auth) exit 0 ;; esac\nprintf "HTTP/2.0 404 Not Found\\n"\nexit 1'
-)
-
-
-class TestStarPromptCommandRuns:
-    """The prompt's command must run from the Bash tool's environment."""
-
-    @pytest.mark.unit
-    def test_prompt_names_the_script_by_absolute_path(self, tmp_path: Path) -> None:
-        """
-        GIVEN a user who has not starred the repo and no CLAUDE_PLUGIN_ROOT
-        WHEN the hook emits the star prompt
-        THEN the command in it names this script by absolute path
-        and carries no unexpanded variable.
-        """
-        run = _run_with_shims(tmp_path, {"gh": _GH_NOT_STARRED}, [])
-
-        assert run.returncode == 0, run.stderr
-        context = json.loads(run.stdout)["hookSpecificOutput"]["additionalContext"]
-        assert "star-prompt" in context
-        assert "${" not in context
-        assert f"bash '{HOOK_PATH.resolve()}' --star" in context
-
-    @pytest.mark.unit
-    def test_a_path_with_an_apostrophe_names_the_same_script(
-        self, tmp_path: Path
-    ) -> None:
-        """
-        GIVEN the hook installed under a directory named o'brien
-        WHEN the hook emits the star prompt
-        THEN the shell reads the command's path as that script's path.
-        """
-        home = tmp_path / "o'brien"
-        home.mkdir()
-        hook = home / HOOK_PATH.name
-        shutil.copy2(HOOK_PATH, hook)
-        bin_dir = tmp_path / "bin"
-        bin_dir.mkdir()
-        gh = bin_dir / "gh"
-        gh.write_text(f"#!/bin/sh\n{_GH_NOT_STARRED}\n")
-        gh.chmod(0o755)
-        run = subprocess.run(
-            ["bash", str(hook)],
-            env={"HOME": str(tmp_path), "PATH": f"{bin_dir}:/usr/bin:/bin"},
-            capture_output=True,
-            text=True,
-            timeout=30,
-            check=False,
-        )
-
-        assert run.returncode == 0, run.stderr
-        context = json.loads(run.stdout)["hookSpecificOutput"]["additionalContext"]
-        command = context.split("run: ", 1)[1].split(". If they decline", 1)[0]
-        assert shlex.split(command) == ["bash", str(hook), "--star"]
 
 
 class TestStarFailureIsReported:
@@ -533,17 +442,185 @@ class TestStarFailureIsReported:
         assert run.returncode == 0, run.stderr
 
 
-class TestThePromptMatchesWhenItArrives:
-    """An async hook's context reaches Claude on the next turn, not this one."""
+# gh that logs each call to $GH_CALLS. STARRED=1 answers the status check
+# with 204, otherwise 404. PUT_EXIT sets how the PUT exits.
+_GH_LOGGING = """echo "$*" >> "$GH_CALLS"
+case "$1" in auth) exit 0 ;; esac
+case "$*" in *"-X PUT"*) exit "${PUT_EXIT:-0}" ;; esac
+case "${STARRED:-0}" in 1) printf 'HTTP/2.0 204 No Content\\n'; exit 0 ;; esac
+printf 'HTTP/2.0 404 Not Found\\n'
+exit 1"""
+
+
+def _run_opt_in(
+    tmp_path: Path, **extra: str
+) -> tuple[subprocess.CompletedProcess[str], list[str], Path]:
+    """Run the SessionStart path; return the run, gh's calls and the marker."""
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir(exist_ok=True)
+    gh = bin_dir / "gh"
+    gh.write_text(f"#!/bin/sh\n{_GH_LOGGING}\n")
+    gh.chmod(0o755)
+    calls = tmp_path / "gh-calls"
+    calls.write_text("")
+    state = tmp_path / "state"
+    env = {
+        "HOME": str(tmp_path),
+        "PATH": f"{bin_dir}:/usr/bin:/bin",
+        "GH_CALLS": str(calls),
+        "XDG_STATE_HOME": str(state),
+        **extra,
+    }
+    run = subprocess.run(
+        ["bash", str(HOOK_PATH)],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    marker = state / "claude-night-market" / "star-done"
+    return run, calls.read_text().splitlines(), marker
+
+
+def _output(run: subprocess.CompletedProcess[str]) -> dict[str, object]:
+    assert run.returncode == 0, run.stderr
+    lines = run.stdout.splitlines()
+    assert len(lines) == 1, run.stdout
+    parsed: dict[str, object] = json.loads(lines[0])
+    return parsed
+
+
+def _puts(calls: list[str]) -> list[str]:
+    return [call for call in calls if "-X PUT" in call]
+
+
+class TestStarIsOptIn:
+    """The star_repo plugin option is the only thing that turns it on."""
 
     @pytest.mark.unit
-    def test_the_prompt_does_not_claim_to_open_the_first_response(
+    @pytest.mark.parametrize("value", [None, "", "false", "0", "no"])
+    def test_without_the_option_gh_is_never_called(
+        self, tmp_path: Path, value: str | None
+    ) -> None:
+        """
+        GIVEN a user who has not starred the repo
+        WHEN the option is unset or false
+        THEN the hook calls nothing and adds nothing to the session.
+        """
+        extra = {} if value is None else {"CLAUDE_PLUGIN_OPTION_STAR_REPO": value}
+        run, calls, marker = _run_opt_in(tmp_path, **extra)
+
+        output = _output(run)
+        assert calls == []
+        assert not marker.exists()
+        assert "systemMessage" not in output
+        assert output["hookSpecificOutput"] == {
+            "hookEventName": "SessionStart",
+            "additionalContext": "",
+        }
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("value", ["true", "TRUE", "1", "yes", "on"])
+    def test_opted_in_and_not_starred_stars_once_and_tells_the_user(
+        self, tmp_path: Path, value: str
+    ) -> None:
+        """
+        GIVEN the option set and the repo not starred
+        WHEN the hook runs
+        THEN it stars with one PUT, leaves the marker, tells the user in a
+        systemMessage, and gives the model no instruction.
+        """
+        run, calls, marker = _run_opt_in(tmp_path, CLAUDE_PLUGIN_OPTION_STAR_REPO=value)
+
+        output = _output(run)
+        assert _puts(calls) == [
+            "api -X PUT /user/starred/athola/claude-night-market --silent"
+        ]
+        assert marker.exists()
+        assert "athola/claude-night-market" in str(output["systemMessage"])
+        assert output["hookSpecificOutput"] == {
+            "hookEventName": "SessionStart",
+            "additionalContext": "",
+        }
+
+    @pytest.mark.unit
+    def test_a_second_session_does_nothing(self, tmp_path: Path) -> None:
+        """
+        GIVEN a session that already starred the repo
+        WHEN the next session starts, even after the user unstarred it
+        THEN the marker stops the hook before any call.
+        """
+        _run_opt_in(tmp_path, CLAUDE_PLUGIN_OPTION_STAR_REPO="true")
+        run, calls, marker = _run_opt_in(
+            tmp_path, CLAUDE_PLUGIN_OPTION_STAR_REPO="true"
+        )
+
+        output = _output(run)
+        assert calls == []
+        assert marker.exists()
+        assert "systemMessage" not in output
+
+    @pytest.mark.unit
+    def test_already_starred_is_left_alone_and_never_checked_again(
         self, tmp_path: Path
     ) -> None:
-        """The old wording, start of your response, landed mid-conversation."""
-        run = _run_with_shims(tmp_path, {"gh": _GH_NOT_STARRED}, [])
+        """
+        GIVEN the option set and the repo already starred
+        WHEN the hook runs
+        THEN it sends no PUT, says nothing, and leaves the marker.
+        """
+        run, calls, marker = _run_opt_in(
+            tmp_path, CLAUDE_PLUGIN_OPTION_STAR_REPO="true", STARRED="1"
+        )
 
-        context = json.loads(run.stdout)["hookSpecificOutput"]["additionalContext"]
-        assert context.startswith("star-prompt:")
-        assert "START of your response" not in context
-        assert "async" in context
+        output = _output(run)
+        assert calls, "the status check should have run"
+        assert _puts(calls) == []
+        assert marker.exists()
+        assert "systemMessage" not in output
+
+    @pytest.mark.unit
+    def test_a_failed_star_leaves_no_marker_so_the_next_session_retries(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        GIVEN the option set and a PUT that fails
+        WHEN the hook runs
+        THEN it exits 0 with no message and no marker.
+        """
+        run, calls, marker = _run_opt_in(
+            tmp_path, CLAUDE_PLUGIN_OPTION_STAR_REPO="true", PUT_EXIT="1"
+        )
+
+        output = _output(run)
+        assert len(_puts(calls)) == 1
+        assert not marker.exists()
+        assert "systemMessage" not in output
+
+    @pytest.mark.unit
+    def test_the_env_opt_out_overrides_the_option(self, tmp_path: Path) -> None:
+        """
+        GIVEN the option set and CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1
+        WHEN the hook runs
+        THEN the opt-out wins and nothing is called.
+        """
+        run, calls, marker = _run_opt_in(
+            tmp_path,
+            CLAUDE_PLUGIN_OPTION_STAR_REPO="true",
+            CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT="1",
+        )
+
+        _output(run)
+        assert calls == []
+        assert not marker.exists()
+
+    @pytest.mark.unit
+    def test_the_source_never_instructs_the_model(self, hook_source: str) -> None:
+        """
+        GIVEN the hook source
+        WHEN scanning for the old prompt
+        THEN no text asks the model to request a star.
+        """
+        assert "star-prompt:" not in hook_source
+        assert "Would you like to star" not in hook_source

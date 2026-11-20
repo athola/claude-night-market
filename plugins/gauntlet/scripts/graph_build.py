@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -21,6 +22,33 @@ from gauntlet.incremental import (  # noqa: E402 - sys.path modified above
 )
 
 
+def _head_commit(root: Path) -> str | None:
+    """Commit the tree was at when this build read it, None outside git."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+#: Everything gauntlet writes under .gauntlet/ except config.
+_IGNORED = ("graph.db", "*.db-wal", "*.db-shm", "rebuild.*", "update.*")
+
+
+def _ensure_gitignore(gitignore: Path) -> None:
+    """Add any missing ignore line; a legacy file lacked the rebuild ones."""
+    present = gitignore.read_text().splitlines() if gitignore.exists() else []
+    missing = [line for line in _IGNORED if line not in present]
+    if missing:
+        gitignore.write_text("".join(f"{line}\n" for line in [*present, *missing]))
+
+
 def main() -> None:
     """Build or update the code knowledge graph."""
     parser = argparse.ArgumentParser(description="Build code knowledge graph")
@@ -32,8 +60,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--base-ref",
-        default="HEAD",
-        help="Git ref for incremental diff (default: HEAD)",
+        default=None,
+        help="Git ref for incremental diff (default: the commit of the "
+        "last successful build, else HEAD)",
     )
     args = parser.parse_args()
 
@@ -46,16 +75,28 @@ def main() -> None:
     db_dir.mkdir(exist_ok=True)
     db_path = db_dir / "graph.db"
 
-    # Write .gitignore if missing
-    gitignore = db_dir / ".gitignore"
-    if not gitignore.exists():
-        gitignore.write_text("graph.db\n*.db-wal\n*.db-shm\n")
+    _ensure_gitignore(db_dir / ".gitignore")
+    # Read before the build: a commit made during a long build is not in
+    # it, and stamping the later HEAD meant that commit was never parsed.
+    head = _head_commit(root)
 
     graph = GraphStore(db_path)
 
     try:
+        # The stamp claims the graph is current through HEAD. Only a full
+        # build or a diff from the stamped commit makes that true: a diff
+        # from any other ref skips the commits between it and the stamp.
+        covers_head = not args.incremental
         if args.incremental:
-            report = incremental_update(str(root), graph, args.base_ref)
+            stamped = graph.get_metadata("last_build_commit")
+            # HEAD alone covers uncommitted edits only: on a clean tree a
+            # graph many commits stale reported "no changes detected".
+            base_ref = args.base_ref or stamped or "HEAD"
+            covers_head = stamped is not None and base_ref == stamped
+            report = incremental_update(str(root), graph, base_ref)
+            if report.get("error"):
+                print(json.dumps(report, indent=2))
+                sys.exit(2)
         else:
             report = full_build(str(root), graph)
             if not report.get("nodes_created"):
@@ -71,6 +112,8 @@ def main() -> None:
                 sys.exit(2)
         # blast_radius scores a node by the stored flows that contain it. Tracing
         # without storing left that term at zero for every node.
+        if head and covers_head:
+            graph.set_metadata("last_build_commit", head)
         flows = trace_flows(graph)
         graph.store_flows(flows)
         report["flows_stored"] = len(flows)

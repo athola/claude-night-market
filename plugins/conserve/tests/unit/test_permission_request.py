@@ -1318,3 +1318,49 @@ class TestCatDevAnchor:
         """A device file never returns, read as an operand or a redirect."""
         decision = evaluate_permission("Bash", {"command": command})
         assert decision is None or decision.behavior != PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "cat ~/.config/gh/hosts.yml",
+        "cat ~/.docker/config.json",
+        "head -c 100 ~/.kube/config",
+        "grep -r . ~/.aws",
+        "rg token /home/u/.gnupg",
+        "cat $HOME/.kube/config",
+        "cat /Users/me/.docker/config.json",
+        "tail ~/.netrc",
+        # Container sessions run as root.
+        "cat /root/.kube/config",
+        "cat /root/.aws/config",
+        # `.` and empty segments resolve to the same directory.
+        "cat ~/.config/./gh/hosts.yml",
+        "cat ~/.config//gh/hosts.yml",
+        "cat ~//.aws/config",
+        "cat ~/.azure/accessTokens.json",
+        "cat ~/.config/glab-cli/config.yml",
+    ],
+)
+def test_reads_under_credential_directories_are_denied(command: str) -> None:
+    """Any file in a credential directory is denied (CON-1).
+
+    The guard listed file names only, so other files there were
+    auto-approved and printed into the transcript.
+    """
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision.behavior == PermissionDecision.DENY
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "cat README.md",
+        "grep -r config src/",
+        "cat ./.docker/nginx.conf",
+        "cat infra/.aws/task-definition.json",
+    ],
+)
+def test_ordinary_reads_stay_approved(command: str) -> None:
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision.behavior == PermissionDecision.ALLOW

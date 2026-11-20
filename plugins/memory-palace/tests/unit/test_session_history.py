@@ -753,6 +753,23 @@ class TestSessionHistoryManager:
         assert isinstance(mgr.get_session("new-sess"), SessionRecord)
 
     @pytest.mark.unit
+    def test_prune_old_sessions_keeps_rows_without_started_at(
+        self, tmp_path: Path
+    ) -> None:
+        """A row with no timestamp compared "" < cutoff and was deleted (MP-12)."""
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+        mgr.record_session(
+            _make_record("undated", started_at=datetime.now(timezone.utc).isoformat())
+        )
+        index = json.loads(mgr.index_path.read_text())
+        for row in index["sessions"]:
+            row.pop("started_at", None)
+        mgr.index_path.write_text(json.dumps(index))
+
+        assert mgr.prune_old_sessions(max_age_days=90) == 0
+        assert isinstance(mgr.get_session("undated"), SessionRecord)
+
+    @pytest.mark.unit
     def test_prune_returns_count_of_removed(self, tmp_path: Path) -> None:
         """Scenario: Prune return value.
 

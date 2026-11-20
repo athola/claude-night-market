@@ -1,5 +1,21 @@
 # Slop Detection Integration
 
+## What a Score Means
+
+A score decides where the reviewer reads closely. The thresholds below
+pick the documents. A high score sends the reviewer to the claims: run
+the cited commands, open the cited paths, and confirm the numbers. The
+finding to report is the false claim. Reworded prose that keeps a false
+claim is still wrong.
+
+The signal points one way. Text gets rewritten to pass a detector, and
+nobody rewrites careful text to fail one. A low score is weak evidence
+that anyone checked the text.
+
+One false claim in a high-scoring document makes hidden ones likely.
+After the first, check every claim in that document rather than
+sampling.
+
 ## Documentation Review
 
 For all changed `.md` files, invoke `Skill(scribe:slop-detector)`:

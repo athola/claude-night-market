@@ -332,3 +332,14 @@ class TestMainHook:
         assert exc.value.code == 0
         captured = capsys.readouterr()
         assert captured.out.strip() == ""
+
+
+def test_emoji_after_chain_separator_is_not_in_the_message(hook_module, capsys):
+    """Text after `&&` was read as the commit message (IMB-15)."""
+    stdin_data = _make_input(command="git commit -m 'clean' && echo 'done \U0001f389'")
+    with patch.dict("os.environ", {"VOW_SHADOW_MODE": "0"}):
+        with patch("sys.stdin", StringIO(stdin_data)):
+            with pytest.raises(SystemExit) as exc:
+                hook_module.main()
+    assert exc.value.code == 0
+    assert "deny" not in capsys.readouterr().out

@@ -93,6 +93,13 @@ grep -r "1\.2\.6" docs/ book/ --include="*.md" | grep -v node_modules
 ## Step 5: Verification (`verification`)
 - Run relevant builds or tests if version bumps require them (e.g., `cargo test`, `npm test`).
 - Show `git status -sb` and `git diff` excerpts to confirm the version bumps.
+- If the project keeps a gauntlet code graph (`.gauntlet/graph.db`),
+  rebuild it after the bump: `make graph` when the Makefile defines
+  it, otherwise a full build through `Skill(gauntlet:graph-build)`.
+  An incremental update does not record the new version. Without
+  the rebuild, gauntlet's SessionStart hook rebuilds the same graph
+  again after the plugin update. It can take minutes on a large
+  repository.
 
 ## Output Instructions
 - Summarize the files changed and the new version number.
@@ -109,6 +116,8 @@ grep -r "1\.2\.6" docs/ book/ --include="*.md" | grep -v node_modules
       (`pyproject.toml`, `Cargo.toml`, `package.json`, `plugin.json`)
       with no target file missing the update
 - [ ] `CHANGELOG.md` updated with a new version section dated today
+- [ ] When `.gauntlet/graph.db` exists, a full graph build ran after
+      the bump and its report shows nodes created
 - [ ] `git diff` output confirms version changes in all identified
       target files; a summary of files changed and new version number
       is reported to the user

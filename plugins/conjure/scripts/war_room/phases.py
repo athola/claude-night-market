@@ -121,8 +121,9 @@ async def phase_assessment(orch: WarRoomOrchestrator, session: WarRoomSession) -
         "chief_strategist", prompt, session, "assessment"
     )
 
+    # None: the provider failed and expert_failures says why.
     session.artifacts["assessment"] = {
-        "content": result,
+        "content": result if result is not None else "N/A",
     }
     session.phases_completed.append("assessment")
 
@@ -202,7 +203,8 @@ async def escalate(
         result = await orch._invoke_expert(
             "intelligence_officer", prompt, session, "intel"
         )
-        session.artifacts["intel"]["intel_report"] = result
+        if result is not None:
+            session.artifacts["intel"]["intel_report"] = result
 
     # Get additional COAs from new experts
     assessment = session.artifacts.get("assessment", {}).get("content", "N/A")
@@ -236,7 +238,7 @@ async def phase_red_team(orch: WarRoomOrchestrator, session: WarRoomSession) -> 
     result = await orch._invoke_expert("red_team", prompt, session, "red_team")
 
     session.artifacts["red_team"] = {
-        "challenges": result,
+        "challenges": result if result is not None else "N/A",
         "coas_reviewed": len(anonymized_coas),
     }
     session.phases_completed.append("red_team")
@@ -408,7 +410,7 @@ async def phase_synthesis(orch: WarRoomOrchestrator, session: WarRoomSession) ->
     )
 
     session.artifacts["synthesis"] = {
-        "decision": result,
+        "decision": result if result is not None else "N/A",
         "attribution_revealed": True,
     }
     session.phases_completed.append("synthesis")

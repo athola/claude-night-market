@@ -172,8 +172,13 @@ class PostedRecord:
         )
 
     def is_posted(self, title: str) -> bool:
-        """Check if a discussion with this title was already posted."""
-        return title in self.posted
+        """Check if a discussion with this title was already posted.
+
+        A ``None`` value is the pending marker saved before the create. A
+        Stop killed after that save leaves it behind, so it is unconfirmed
+        and the caller checks GitHub for the discussion instead.
+        """
+        return isinstance(self.posted.get(title), str)
 
 
 @dataclass
@@ -801,7 +806,7 @@ def has_substantive_findings(body: str) -> bool:
             heading = stripped.lower()
             in_issues = "top issues" in heading or "high-impact issue" in heading
             continue
-        if in_issues and stripped.startswith(("-", "###")):
+        if in_issues and stripped.startswith(("- ", "* ", "###")):
             return True
     return False
 
@@ -823,8 +828,7 @@ def _post_if_new(
             f"Already posted for today ({title}). Skipping.",
             file=sys.stderr,
         )
-        cached = record.posted[title]
-        return cached if isinstance(cached, str) else None
+        return str(record.posted[title])
 
     existing_url = check_existing_discussion(title, owner, name)
     if existing_url:
@@ -856,8 +860,18 @@ def _post_if_new(
         )
         return None
 
-    repo_id = get_repo_node_id(record, owner, name)
-    url = create_discussion(repo_id, category_id, title, body)
+    # Recorded as pending (None) before the create: the Stop hook can be
+    # killed after createDiscussion succeeds, and an unrecorded title was
+    # posted again by the next Stop. A failed create removes the marker.
+    record.posted[title] = None
+    record.save()
+    try:
+        repo_id = get_repo_node_id(record, owner, name)
+        url = create_discussion(repo_id, category_id, title, body)
+    except Exception:
+        record.posted.pop(title, None)
+        record.save()
+        raise
 
     record.posted[title] = url
     record.posted["_last_content_hash"] = content_hash

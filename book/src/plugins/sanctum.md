@@ -35,7 +35,6 @@ It's the plugin you'll use most during active coding.
 |---------|-------------|
 | `/git-catchup` | Git repository catchup |
 | `/commit-msg` | Draft conventional commit message |
-| `/pr` | Prepare PR with quality gates |
 | `/pr-review` | Enhanced PR review |
 | `/fix-pr` | Address PR review comments |
 | `/do-issue` | Fix GitHub issues systematically |
@@ -49,6 +48,12 @@ It's the plugin you'll use most during active coding.
 | `/update-dependencies` | Update project dependencies |
 | `/create-tag` | Create git tags for releases |
 | `/resolve-threads` | Resolve PR review threads |
+| `/acp` | Stage changes, generate conventional commit message, commit, and push to current branch |
+| `/fixit` | Fix broken functionality from pasted error output, stack traces, or failing-behavior descriptions using research, TDD, and proof-of-work evidence |
+| `/prepare-pr` | Prepare a PR end-to-end by updating documentation, running tests, dogfooding checks, and validating with code review |
+| `/sync-capabilities` | Detect and fix drift between plugin.json registrations and capabilities reference documentation |
+| `/update-ci` | Update pre-commit hooks and CI/CD workflows based on recent project changes |
+| `/validate-pr` | Generate and self-execute a diff-derived test plan for a PR |
 
 ## Agents
 
@@ -98,7 +103,7 @@ git commit -m "<generated message>"
 make fmt && make lint && make test
 
 # Prepare PR
-/pr
+/prepare-pr
 
 # Creates:
 # - Summary
@@ -212,7 +217,7 @@ git commit && git tag
 
 | Command | Enhancement |
 |---------|-------------|
-| `/pr` | Uses `receiving-code-review` for validation |
+| `/prepare-pr` | Uses `receiving-code-review` for validation |
 | `/pr-review` | Uses `receiving-code-review` for analysis |
 | `/fix-pr` | Uses `receiving-code-review` for resolution |
 | `/do-issue` | Uses multiple superpowers for full workflow |

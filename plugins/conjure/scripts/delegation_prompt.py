@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from pathlib import Path
 
 from scripts.delegation_services import ServiceConfig
@@ -75,6 +76,37 @@ _ARGV_OVERHEAD_BYTES = 256
 _MIN_INLINE_FILE_BYTES = 512
 
 
+# Names that hold secrets by convention. A directory expanded into a prompt
+# for a third-party provider must not carry them; a file the caller names
+# explicitly is still read.
+_SECRET_NAME = re.compile(
+    r"\.env(\..*)?|.*\.(pem|key|p12|pfx)|id_(rsa|dsa|ecdsa|ed25519)(\.pub)?"
+    r"|credentials.*|.*\.secrets?|\.netrc|\.npmrc|\.pypirc"
+)
+# Directories whose every file is key material by convention.
+_SECRET_DIRS = {".ssh", ".gnupg"}
+
+
+def _expanded_file_is_safe(child: Path, root: Path) -> bool:
+    """Report whether a file found by directory expansion may be inlined.
+
+    The filter judges the file that is read, not only the name it is read
+    through: an in-tree ``notes.txt -> .env`` link is a secret.
+    """
+    real_root = root.resolve()
+    target = child.resolve()
+    # A symlink can point anywhere; only content under the root was asked for.
+    try:
+        target_parts = target.relative_to(real_root).parts
+    except ValueError:
+        return False
+    link_parts = child.relative_to(root).parts
+    for parts in (link_parts, target_parts):
+        if _SECRET_NAME.fullmatch(parts[-1]) or _SECRET_DIRS.intersection(parts):
+            return False
+    return child.is_file()
+
+
 def _iter_context_files(files: list[str]) -> list[Path]:
     """Expand the requested paths into a stable list of readable files."""
     skip_dirs = {".git", ".venv", "venv", "node_modules", "__pycache__"}
@@ -92,7 +124,11 @@ def _iter_context_files(files: list[str]) -> list[Path]:
                 # before the filter could reject each file.
                 dirs[:] = [d for d in dirs if d not in skip_dirs]
                 children.extend(Path(root, name) for name in names)
-            resolved.extend(child for child in sorted(children) if child.is_file())
+            resolved.extend(
+                child
+                for child in sorted(children)
+                if _expanded_file_is_safe(child, path)
+            )
     return resolved
 
 
@@ -231,6 +267,9 @@ def _compose_prompt_with_files(
             elif path.is_dir():
                 # Use glob pattern for directories
                 file_refs.append(f"@{file_path}/**/*")
+        else:
+            # The model would be asked about a file it never receives.
+            logger.warning("context file not found, not sent: %s", file_path)
     if file_refs:
         return " ".join(file_refs) + " " + prompt
     return prompt

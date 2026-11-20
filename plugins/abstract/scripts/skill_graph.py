@@ -61,9 +61,6 @@ _FRONTMATTER_DEP_FIELDS: tuple[tuple[str, bool], ...] = (
 # docs/skill-integration-guide.md#skill-role-taxonomy.
 VALID_ROLES = frozenset({"entrypoint", "library", "hook-target"})
 
-# Expected number of path components for plugins/<plugin>/skills/<name>/SKILL.md
-_SKILL_PATH_PARTS = 4
-
 
 @dataclass(frozen=True)
 class SkillNode:
@@ -258,16 +255,8 @@ def _discover_skills(plugins_root: Path) -> list[SkillNode]:
     """Find all SKILL.md files under plugins_root and build SkillNodes."""
     nodes: list[SkillNode] = []
     for skill_md in plugins_root.glob("*/skills/*/SKILL.md"):
-        # path: plugins/<plugin>/skills/<name>/SKILL.md
-        try:
-            parts = skill_md.relative_to(plugins_root).parts
-            # parts = (<plugin>, "skills", <name>, "SKILL.md")
-            if len(parts) < _SKILL_PATH_PARTS or parts[1] != "skills":
-                continue
-            plugin = parts[0]
-            name = parts[2]
-        except ValueError:
-            continue
+        # The glob fixes the shape: (<plugin>, "skills", <name>, "SKILL.md").
+        plugin, _, name, _ = skill_md.relative_to(plugins_root).parts
         text = skill_md.read_text(encoding="utf-8", errors="replace")
         fm = _parse_frontmatter(text)
         # frontmatter name overrides directory name if present

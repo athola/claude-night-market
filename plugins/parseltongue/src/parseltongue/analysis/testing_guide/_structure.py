@@ -6,6 +6,7 @@ import ast
 import re
 from typing import Any
 
+from ..async_analysis._base import parse_code
 from ._constants import HEAVY_PARAMETRIZE_THRESHOLD, MIN_FUNCTIONS_FOR_PARAMETRIZE
 
 _FUNCTION_NODES = (ast.FunctionDef, ast.AsyncFunctionDef)
@@ -28,14 +29,14 @@ def _names_test(test_name: str, function_name: str) -> bool:
 class TestStructureMixin:
     """AST-based analysis of test structure, coverage, and performance."""
 
-    def _parse_code(self, code: str) -> tuple[ast.Module | None, dict | None]:
-        """Parse code into an AST, returning an error dict on failure."""
-        try:
-            return ast.parse(code), None
-        except SyntaxError:
-            return None, {"error": "Invalid Python syntax"}
-
     async def analyze_testing(self, code: str, test_code: str = "") -> dict[str, Any]:
+        # The helpers below drop a parse error, which read as "nothing to
+        # recommend". Report it, as every other command does.
+        for text in (code, test_code):
+            if text:
+                _, error = parse_code(text)
+                if error:
+                    return error
         recommendations: list[dict[str, Any]] = []
         findings: dict[str, Any] = {
             "source_analysis": {},
@@ -92,7 +93,7 @@ class TestStructureMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)
+            tree, err = parse_code(code)
             if tree is None:
                 return {"test_structure": structure, **(err or {})}
 
@@ -143,7 +144,7 @@ class TestStructureMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)
+            tree, err = parse_code(code)
             if tree is None:
                 return {"anti_patterns": anti_patterns, **(err or {})}
 
@@ -290,7 +291,7 @@ class TestStructureMixin:
 
         tree = _tree
         if tree is None:
-            tree, _ = self._parse_code(source_code)
+            tree, _ = parse_code(source_code)
             if tree is None:
                 return source_methods, branch_count
 
@@ -323,7 +324,7 @@ class TestStructureMixin:
 
         tree = _tree
         if tree is None:
-            tree, _ = self._parse_code(test_code)
+            tree, _ = parse_code(test_code)
             if tree is None:
                 return tested_methods
 
@@ -365,7 +366,7 @@ class TestStructureMixin:
 
     def _raised_exceptions(self, source_code: str) -> list[str]:
         """List exception class names raised in source, in first-seen order."""
-        tree, _ = self._parse_code(source_code)
+        tree, _ = parse_code(source_code)
         if tree is None:
             return []
         raised: list[str] = []
@@ -472,7 +473,7 @@ class TestStructureMixin:
 
         tree = _tree
         if tree is None:
-            tree, _ = self._parse_code(code)
+            tree, _ = parse_code(code)
             if tree is None:
                 return source_functions, source_classes
 
@@ -589,7 +590,7 @@ class TestStructureMixin:
 
         tree = _tree
         if tree is None:
-            tree, _ = self._parse_code(test_code)
+            tree, _ = parse_code(test_code)
             if tree is None:
                 return info
 

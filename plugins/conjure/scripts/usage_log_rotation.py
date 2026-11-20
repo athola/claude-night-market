@@ -49,7 +49,13 @@ def append_line(log: Path, backup: Path, line: str, max_bytes: int) -> None:
                 log.replace(backup)
             except OSError as e:
                 logger.warning("Could not rotate usage log %s: %s", log, e)
-        with open(log, "a") as f:
+        # 0600: entries carry prompt sizes and provider errors, which other
+        # local users had no business reading. The mode at O_CREAT covers a
+        # new log only; fchmod narrows one written before this rule.
+        fd = os.open(log, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+        if hasattr(os, "fchmod"):
+            os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "a") as f:
             f.write(line + "\n")
     finally:
         os.close(lock_fd)  # closing the descriptor releases the lock

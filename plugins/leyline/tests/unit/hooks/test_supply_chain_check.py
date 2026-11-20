@@ -583,3 +583,17 @@ class TestLockfileWalk:
         found = list(_mod._project_lockfiles(tmp_path))
 
         assert found == [tmp_path / "app" / "uv.lock"]
+
+
+def test_uv_lock_scan_matches_non_normalized_blocklist_key(tmp_path: Path) -> None:
+    """uv.lock holds normalized names; a `Foo_Bar` key was matched literally
+    and missed, while the requirements scan normalized it (LEY-7).
+    """
+    lockfile = tmp_path / "uv.lock"
+    lockfile.write_text('[[package]]\nname = "foo-bar"\nversion = "1.0.0"\n')
+    blocklist = {
+        "Foo_Bar": [
+            {"versions": ["1.0.0"], "date": "d", "description": "x", "severity": "high"}
+        ]
+    }
+    assert len(_scan_uv_lock(lockfile, blocklist)) == 1

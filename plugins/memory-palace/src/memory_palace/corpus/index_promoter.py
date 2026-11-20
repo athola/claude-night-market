@@ -35,7 +35,7 @@ try:
 except ImportError:  # pragma: no cover - yaml is a hard runtime dep
     yaml = None  # type: ignore[assignment]  # optional-import fallback sentinel
 
-from memory_palace._vendored_leyline_atomic_file import write_atomic
+from memory_palace._vendored_leyline_atomic_file import file_lock, write_atomic
 from memory_palace.corpus.index_analytics import (
     INERT_ROUTING_TYPE,
     _parse_timestamp,
@@ -217,6 +217,35 @@ def _write_index_atomic(index: dict[str, Any], index_path: Path) -> None:
     )
 
 
+def _backup_and_load(
+    index_path: Path, backup_dir: Path, name: str
+) -> tuple[Path, dict[str, Any]]:
+    """Copy the index aside, then load it. Call under ``file_lock(index_path)``.
+
+    ``name`` is the backup file name with ``{}`` where the timestamp goes.
+    """
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    backup_path = backup_dir / name.format(timestamp)
+    if index_path.exists():
+        shutil.copyfile(index_path, backup_path)
+    return backup_path, load_capture_index(index_path)
+
+
+def _update_entries(
+    entries: dict[str, Any], proposals: list[Proposal], kind: str
+) -> int:
+    """Merge each proposal's changes into its entry; return how many applied."""
+    applied = 0
+    for proposal in proposals:
+        entry = entries.get(proposal.key)
+        if entry is None:
+            logger.warning("%s key not in index, skipping: %s", kind, proposal.key)
+            continue
+        entry.update(proposal.changes)
+        applied += 1
+    return applied
+
+
 def apply_promotions(
     proposals: list[Proposal],
     index_path: Path,
@@ -241,24 +270,14 @@ def apply_promotions(
     backup_dir = Path(backup_dir)
     backup_dir.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    backup_path = backup_dir / f"memory-palace-index-{timestamp}.yaml"
-    if index_path.exists():
-        shutil.copyfile(index_path, backup_path)
-
-    index = load_capture_index(index_path)
-    entries = index.get("entries", {})
-
-    applied = 0
-    for proposal in proposals:
-        entry = entries.get(proposal.key)
-        if entry is None:
-            logger.warning("Proposal key not in index, skipping: %s", proposal.key)
-            continue
-        entry.update(proposal.changes)
-        applied += 1
-
-    _write_index_atomic(index, index_path)
+    # The capture hook holds this lock across its load-modify-write;
+    # writing without it dropped captures the hook had just indexed.
+    with file_lock(index_path):
+        backup_path, index = _backup_and_load(
+            index_path, backup_dir, "memory-palace-index-{}.yaml"
+        )
+        applied = _update_entries(index.get("entries", {}), proposals, "Proposal")
+        _write_index_atomic(index, index_path)
     return ApplyResult(applied=applied, backup_path=backup_path)
 
 
@@ -309,7 +328,6 @@ def propose_title_repairs(index: dict[str, Any]) -> list[Proposal]:
 
 
 def apply_title_repairs(
-    index: dict[str, Any],
     proposals: list[Proposal],
     index_path: Path,
     *,
@@ -317,13 +335,11 @@ def apply_title_repairs(
 ) -> ApplyResult:
     """Back up the index, apply retitle proposals, and persist.
 
-    Unlike :func:`apply_promotions`, the caller owns loading: this
-    mutates and writes the ``index`` it is handed. The repair is driven
-    from an already-loaded index in every caller, and reloading here
-    would silently discard edits the caller had made.
+    Like :func:`apply_promotions`, it reloads the index under the
+    capture hook's lock. Writing a caller-loaded copy dropped any capture
+    the hook indexed between that load and this write.
 
     Args:
-        index: The loaded index to mutate and persist.
         proposals: Retitle proposals from :func:`propose_title_repairs`.
         index_path: Path the index is persisted to.
         backup_dir: Directory for the pre-repair backup. Defaults to the
@@ -339,22 +355,12 @@ def apply_title_repairs(
     backup_dir = Path(backup_dir) if backup_dir is not None else index_path.parent
     backup_dir.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    backup_path = backup_dir / f"memory-palace-index-{timestamp}.pre-retitle.yaml"
-    if index_path.exists():
-        shutil.copyfile(index_path, backup_path)
-
-    entries = index.get("entries", {})
-    applied = 0
-    for proposal in proposals:
-        entry = entries.get(proposal.key)
-        if entry is None:
-            logger.warning("Retitle key not in index, skipping: %s", proposal.key)
-            continue
-        entry.update(proposal.changes)
-        applied += 1
-
-    _write_index_atomic(index, index_path)
+    with file_lock(index_path):
+        backup_path, index = _backup_and_load(
+            index_path, backup_dir, "memory-palace-index-{}.pre-retitle.yaml"
+        )
+        applied = _update_entries(index.get("entries", {}), proposals, "Retitle")
+        _write_index_atomic(index, index_path)
     return ApplyResult(applied=applied, backup_path=backup_path)
 
 
@@ -408,32 +414,32 @@ def apply_orphan_prunes(
     backup_dir = Path(backup_dir)
     backup_dir.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    backup_path = backup_dir / f"memory-palace-index-prune-{timestamp}.yaml"
-    if index_path.exists():
-        shutil.copyfile(index_path, backup_path)
-
-    index = load_capture_index(index_path)
-    entries = index.get("entries", {})
-    hashes = index.get("hashes", {})
-
-    applied = 0
-    for key in keys:
-        entry = entries.pop(key, None)
-        if entry is None:
-            continue
-        applied += 1
-        # Drop the hash mapping only when no surviving entry still points
-        # at this content. Two URLs can share one capture, and for the
-        # survivor that mapping is its dedup memory: removing it makes
-        # content already on disk look unseen, so the next fetch stores
-        # a second copy.
-        content_hash = entry.get("content_hash")
-        still_referenced = any(
-            other.get("content_hash") == content_hash for other in entries.values()
+    # The capture hook holds this lock across its load-modify-write;
+    # writing without it dropped captures the hook had just indexed.
+    with file_lock(index_path):
+        backup_path, index = _backup_and_load(
+            index_path, backup_dir, "memory-palace-index-prune-{}.yaml"
         )
-        if content_hash and not still_referenced:
-            hashes.pop(content_hash, None)
+        entries = index.get("entries", {})
+        hashes = index.get("hashes", {})
 
-    _write_index_atomic(index, index_path)
+        applied = 0
+        for key in keys:
+            entry = entries.pop(key, None)
+            if entry is None:
+                continue
+            applied += 1
+            # Drop the hash mapping only when no surviving entry still points
+            # at this content. Two URLs can share one capture, and for the
+            # survivor that mapping is its dedup memory: removing it makes
+            # content already on disk look unseen, so the next fetch stores
+            # a second copy.
+            content_hash = entry.get("content_hash")
+            still_referenced = any(
+                other.get("content_hash") == content_hash for other in entries.values()
+            )
+            if content_hash and not still_referenced:
+                hashes.pop(content_hash, None)
+
+        _write_index_atomic(index, index_path)
     return ApplyResult(applied=applied, backup_path=backup_path)

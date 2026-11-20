@@ -120,7 +120,7 @@ input, per egregore's "never wait for human input" rule.
 For each such item, run:
 
 ```bash
-python3 scripts/deferred_capture.py \
+python3 "${CLAUDE_PLUGIN_ROOT:?set it to the egregore plugin root}/scripts/deferred_capture.py" \
   --title "<discovery title>" \
   --source egregore \
   --context "<discovery description>" \
@@ -135,8 +135,8 @@ type.
 The item is then removed from the active pipeline queue so the
 orchestrator does not attempt to build or ship it.
 
-If `scripts/deferred_capture.py` is not present, log a warning
-and continue processing the queue.
+If `${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py` is not present,
+log a warning and continue processing the queue.
 
 ## Brainstorm Skip Logic
 

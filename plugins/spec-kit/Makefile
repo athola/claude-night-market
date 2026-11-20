@@ -161,9 +161,5 @@ demo-spec-kit-commands: $(SPECKIT_DEMOS) ## Run all spec-kit documented command 
 	@echo ""
 
 $(SPECKIT_TESTS): test-%:
-	@echo "=== Testing $* workflow ==="
-	@echo "Validating: /$*"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+	@echo "No automated test for /$*; run it by hand."
+	@exit 1

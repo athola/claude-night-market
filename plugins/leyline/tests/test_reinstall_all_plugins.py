@@ -593,3 +593,23 @@ class TestMain:
                 reinstall_all_plugins.main()
 
         assert excinfo.value.code == 1
+
+
+@pytest.mark.unit
+@patch("pathlib.Path.write_text")
+@patch("pathlib.Path.chmod")
+def test_generate_script_quotes_plugin_names(
+    mock_chmod: MagicMock, mock_write: MagicMock
+) -> None:
+    """Names went into double quotes, so `$(...)` in one ran when the user
+    executed the script (LEY-8).
+    """
+    evil = "x$(touch pwned)`id`@m"
+    reinstall_all_plugins.generate_script(
+        [{"full_name": evil, "name": "x", "marketplace": "m"}],
+        [{"full_name": "y@m", "name": 'y"$(id)', "marketplace": "m"}],
+    )
+    script = mock_write.call_args[0][0]
+    assert f'"{evil}"' not in script
+    assert f"'{evil}'" in script
+    assert '"(Excluded: y"$(id))"' not in script

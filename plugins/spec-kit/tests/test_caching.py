@@ -86,7 +86,7 @@ class TestGetCacheKey:
         assert result.startswith("k_")
         # Hash portion should be 8 hex chars
         hash_part = result.split("_", 1)[1]
-        assert len(hash_part) == 8
+        assert len(hash_part) == 16  # same width as the file-path digest
         assert all(c in "0123456789abcdef" for c in hash_part)
 
     def test_same_data_produces_same_key(self, tmp_path: Path) -> None:
@@ -845,3 +845,25 @@ class TestCacheWriteFailureIsVisible:
         cache.set("key", {"value": 1})
 
         assert cache.get("key") == {"value": 1}
+
+
+def test_cached_result_mutation_does_not_leak_into_next_call(tmp_path) -> None:
+    """The memory cache kept the caller's object, so mutating a result
+    changed every later hit (SPK-1).
+    """
+    cache = SpecKitCache(cache_dir=tmp_path)
+    cache.set("k", {"items": [1]})
+    first = cache.get("k")
+    first["items"].append(2)
+    assert cache.get("k") == {"items": [1]}
+
+
+def test_get_treats_non_utf8_cache_file_as_miss_and_removes_it(tmp_path) -> None:
+    """UnicodeDecodeError escaped the handler written to unlink a bad file (SPK-2)."""
+    cache = SpecKitCache(cache_dir=tmp_path)
+    cache.set("k", {"a": 1})
+    path = cache._get_cache_path(cache._get_cache_key("k", None))
+    cache._memory_cache.clear()
+    path.write_bytes(b"\xff\xfe not utf8")
+    assert cache.get("k", default="miss") == "miss"
+    assert not path.exists()

@@ -672,3 +672,57 @@ def test_an_unbreakable_url_is_left_whole() -> None:
 def test_fresh_scaffold_has_no_prose_past_80_columns(kind: str) -> None:
     overlong = [line for line in _prose_lines(new_file_content(kind)) if len(line) > 80]
     assert overlong == []
+
+
+def test_append_entry_neutralizes_heading_in_free_text() -> None:
+    """A context paragraph starting `## LL-999:` became a real heading, so
+    the next id jumped to LL-1000 (LEY-5).
+    """
+    content = append_entry(
+        new_file_content("lessons"),
+        "lessons",
+        {
+            "title": "Quote a heading",
+            "what_happened": "## LL-999: pasted\n\n## Archive",
+        },
+    )
+    assert next_id(content, "LL") == "LL-002"
+    assert content.count("\n## Archive") == 1
+
+
+@pytest.mark.parametrize("kind", ["lessons", "tradeoffs"])
+def test_meta_fields_cannot_start_a_heading(kind: str) -> None:
+    """A newline in `phase` put `## X-999:` at the start of a line (LEY-5)."""
+    prefix = "LL" if kind == "lessons" else "TR"
+    content = append_entry(
+        new_file_content(kind),
+        kind,
+        {"title": "t", "context": "c", "phase": f"x\n## {prefix}-999: forged"},
+    )
+    assert next_id(content, prefix) == f"{prefix}-002"
+
+
+@pytest.mark.parametrize("kind", ["lessons", "tradeoffs"])
+@pytest.mark.parametrize("field", ["status", "date"])
+def test_status_and_date_cannot_start_a_heading(kind: str, field: str) -> None:
+    """`status` and `date` reached the entry and the index row raw, so a
+    newline in either forged a heading the id allocator then matched.
+    """
+    prefix = "LL" if kind == "lessons" else "TR"
+    content = append_entry(
+        new_file_content(kind),
+        kind,
+        {"title": "real", "context": "c", field: f"open\n\n## {prefix}-999: forged"},
+    )
+    assert next_id(content, prefix) == f"{prefix}-002"
+    assert f"\n## {prefix}-999" not in content
+
+
+def test_status_cannot_add_a_column_to_the_index_row() -> None:
+    content = append_entry(
+        new_file_content("lessons"),
+        "lessons",
+        {"title": "real", "status": "open | forged"},
+    )
+    row = next(ln for ln in content.splitlines() if ln.startswith("| LL-001 "))
+    assert row.count(" | ") == 3

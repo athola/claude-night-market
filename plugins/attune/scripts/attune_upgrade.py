@@ -338,8 +338,10 @@ class ProjectUpgrader:
                 python_version = version_match.group(1) if version_match else "3.10"
 
                 # Extract author
+                # Inside `authors = [{ name = ... }]`: the first bare
+                # `name =` in the file is the project's own.
                 author_match = re.search(
-                    r'name\s*=\s*"([^"]+)".*?email', content, re.DOTALL
+                    r'authors\s*=\s*\[\s*\{[^}]*?\bname\s*=\s*"([^"]+)"', content
                 )
                 author = author_match.group(1) if author_match else "Your Name"
 
@@ -429,8 +431,11 @@ def main() -> None:
     upgrader.show_status()
 
     # Perform upgrade
-    if not args.dry_run:
-        response = input("Proceed with upgrade? [y/N]: ")
+    if not args.dry_run and not args.force:
+        try:
+            response = input("Proceed with upgrade? [y/N]: ")
+        except EOFError:
+            response = ""
         if response.lower() != "y":
             print("Upgrade cancelled.")
             sys.exit(0)

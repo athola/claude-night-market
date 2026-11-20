@@ -178,6 +178,18 @@ class ResearchSession:
     # and deliberately not stored: a stored status and the logs behind
     # it can drift apart, and then neither can be trusted.
     query_log: list[QueryLog] = field(default_factory=list)
+    # The products, projects or methods the question names. Stored so the
+    # report can list the ones no finding mentions.
+    entities: list[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        """Keep only non-blank string entities, stripped.
+
+        A stored ``"Rust"`` iterated into its letters, and ``null`` raised
+        on load. Anything that is not a list holds no entities.
+        """
+        raw = self.entities if isinstance(self.entities, list) else []
+        self.entities = [e.strip() for e in raw if isinstance(e, str) and e.strip()]
 
     def add_finding(self, finding: Finding) -> None:
         """Append a finding and update the modified timestamp."""
@@ -212,6 +224,7 @@ class ResearchSession:
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "query_log": [q.to_dict() for q in self.query_log],
+            "entities": list(self.entities),
         }
 
     @classmethod
@@ -233,6 +246,8 @@ class ResearchSession:
             # makes them load as "no record", which channel_outcomes
             # reads as unknown rather than as an empty field.
             query_log=[QueryLog.from_dict(q) for q in d.get("query_log", [])],
+            # Older sessions carry no entities and load with none.
+            entities=d.get("entities", []),
         )
 
 

@@ -11,8 +11,19 @@
 	mutation-test plugin-check precommit quota-status spellcheck status test test-plugin \
 	test-status test-suite usage-report validate-all validate-delegation demo-conjure-commands
 
+# PROMPT and FILES reach the recipes as environment variables and are
+# expanded by the shell as data. Pasted into the recipe text, a prompt
+# holding backticks or a quote ran as a command. $(value ...) into a simple
+# variable stops make itself from expanding them: a command-line
+# PROMPT='$(shell ...)' otherwise ran before any shell quoting applied.
+# It sits above the includes: GNU make 4 expands a command-line variable
+# whenever an earlier $(shell ...) builds its environment.
+override PROMPT := $(value PROMPT)
+override FILES := $(value FILES)
+export PROMPT FILES
+
 # Override source directories for this plugin
-SRC_DIRS := scripts hooks
+SRC_DIRS := scripts
 MYPY_TARGETS := scripts/
 BANDIT_TARGETS := $(SRC_DIRS)
 TYPECHECK_EXTRA = $(UV_RUN) ty check scripts/
@@ -28,6 +39,7 @@ help: ## Show this help message
 	@echo "=============================="
 	@echo ""
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@printf "  \033[36m%-20s\033[0m %s\n" "delegate-<provider>" "Delegate PROMPT (and FILES) to one of: $(PROVIDERS)"
 	@echo ""
 	@echo "Usage examples:"
 	@echo "  make delegate-gemini PROMPT='Analyze code' FILES='src/main.py'"
@@ -105,7 +117,6 @@ status: ## Show project overview
 	@echo "Conjure Plugin Status:"
 	@echo "Skills:  $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
 	@echo "Scripts: $$(find scripts/ -name '*.py' 2>/dev/null | wc -l)"
-	@echo "Hooks:   $$(find hooks/ -name '*.py' 2>/dev/null | wc -l)"
 
 # Delegation specific commands
 quota-status: ## Check delegation quota status
@@ -151,41 +162,14 @@ delegate-usage: ## Show usage analytics across services
 	@echo "Showing delegation usage analytics..."
 	uv run python scripts/delegation_executor.py --usage
 
-delegate-gemini: ## Delegate to Gemini
-	@echo "Delegating to Gemini..."
-	uv run python scripts/delegation_executor.py gemini "$(PROMPT)" $(if $(FILES),--files $(FILES))
 
-delegate-qwen: ## Delegate to Qwen
-	@echo "Delegating to Qwen..."
-	uv run python scripts/delegation_executor.py qwen "$(PROMPT)" $(if $(FILES),--files $(FILES))
+# One rule for every provider: each recipe differed only in the name.
+PROVIDERS := gemini qwen minimax glm muse codex opencode glimmer auto
+DELEGATE_TARGETS := $(addprefix delegate-,$(PROVIDERS))
 
-delegate-minimax: ## Delegate to MiniMax
-	@echo "Delegating to MiniMax..."
-	uv run python scripts/delegation_executor.py minimax "$(PROMPT)" $(if $(FILES),--files $(FILES))
-
-delegate-glm: ## Delegate to GLM-5.3 via Z.ai
-	@echo "Delegating to GLM..."
-	uv run python scripts/delegation_executor.py glm "$(PROMPT)" $(if $(FILES),--files $(FILES))
-
-delegate-muse: ## Delegate to Meta Muse Code
-	@echo "Delegating to Muse..."
-	uv run python scripts/delegation_executor.py muse "$(PROMPT)" $(if $(FILES),--files $(FILES))
-
-delegate-codex: ## Delegate to OpenAI Codex CLI
-	@echo "Delegating to Codex..."
-	uv run python scripts/delegation_executor.py codex "$(PROMPT)" $(if $(FILES),--files $(FILES))
-
-delegate-opencode: ## Delegate to OpenCode
-	@echo "Delegating to OpenCode..."
-	uv run python scripts/delegation_executor.py opencode "$(PROMPT)" $(if $(FILES),--files $(FILES))
-
-delegate-glimmer: ## Delegate to Muse Glimmer running locally via ollama
-	@echo "Delegating to Muse Glimmer (local)..."
-	uv run python scripts/delegation_executor.py glimmer "$(PROMPT)" $(if $(FILES),--files $(FILES))
-
-delegate-auto: ## Auto-select best delegation service
-	@echo "Auto-selecting best delegation service..."
-	uv run python scripts/delegation_executor.py auto "$(PROMPT)" $(if $(FILES),--files $(FILES))
+$(DELEGATE_TARGETS): delegate-%:
+	@echo "Delegating to $*..."
+	uv run python scripts/delegation_executor.py $* "$$PROMPT" $${FILES:+--files $$FILES}
 
 delegate-test: ## Test all delegation services
 	@echo "Testing delegation services..."

@@ -133,7 +133,7 @@ git checkout backup/unbloat-YYYYMMDD-HHMMSS -- path/to/file
 # With git workflows
 git checkout -b cleanup/unbloat-Q1
 /unbloat
-/pr "Unbloat: Reduce codebase by 14%"
+/prepare-pr "Unbloat: Reduce codebase by 14%"
 ```
 
 ## Unified Cleanup Mode

@@ -519,13 +519,16 @@ class TestGateFailsClosed:
         """Scenario: the gate is broken and the user takes the named bypass.
 
         The internal-error deny tells the user to set
-        GAUNTLET_PRECOMMIT_MODE=off. A config the gate cannot evaluate
-        (``precommit`` as a string) breaks main(); the env var must still
-        release the commit, or the advice in the message is a dead end.
+        GAUNTLET_PRECOMMIT_MODE=off. A config reader that raises breaks
+        main(); the env var must still release the commit, or the advice
+        in the message is a dead end. A malformed ``precommit`` value no
+        longer raises (it falls back to gate), so the break is injected.
         """
-        (tmp_gauntlet_dir / "config.json").write_text(
-            json.dumps({"precommit": "nudge"})
-        )
+
+        def broken_config(_gauntlet_dir: Path) -> dict:
+            raise RuntimeError("config reader broke")
+
+        monkeypatch.setattr(precommit_gate, "_load_config", broken_config)
         monkeypatch.chdir(tmp_gauntlet_dir.parent)
         event = {"tool_name": "Bash", "tool_input": {"command": "git commit -m x"}}
 

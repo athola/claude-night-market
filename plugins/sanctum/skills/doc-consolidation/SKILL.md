@@ -175,7 +175,7 @@ Phase 2 stays on the main model for careful merge execution.
 | Category | Description | Default Destination |
 |----------|-------------|---------------------|
 | Actionable Items | Tasks, TODOs, next steps | `docs/plans/YYYY-MM-DD-{topic}.md` |
-| Decisions Made | Architecture choices | `docs/adr/NNNN-{date}-{topic}.md` |
+| Decisions Made | Architecture choices | `docs/adr/NNNN-{topic}.md` |
 | Findings/Insights | Audit results, analysis | Best-match existing doc **of the same tier**, else `docs/` |
 | Metrics/Baselines | Before/after comparisons | `docs/benchmarks/` |
 | Migration Guides | Step-by-step procedures | `docs/migration-guide.md` |
@@ -246,7 +246,7 @@ Claude: **Phase 2: Executing**
 
 Created: docs/api-overview.md (1,247 bytes)
 Created: docs/plans/2025-12-06-api-consistency.md (892 bytes)
-Created: docs/adr/0002-2025-12-06-cli-naming.md (634 bytes)
+Created: docs/adr/0002-cli-naming.md (634 bytes)
 Deleted: API_REVIEW_REPORT.md
 
 Consolidation complete. Review the created files and commit when ready.

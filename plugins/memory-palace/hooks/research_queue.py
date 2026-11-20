@@ -58,7 +58,7 @@ RESEARCH_CUES = (
 # before it can be written to a file that outlives the session.
 SECRET_PATTERN = re.compile(
     r"((?<![A-Za-z0-9])sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}"
-    r"|api[_-]?key\s*[:=]\s*\S+)",
+    r"|api[_-]?key\s*[:=]\s*\S+|(?:pass(?:word|wd)?|secret|token)\s*[:=]\s*\S+)",
     re.IGNORECASE,
 )
 
@@ -229,7 +229,10 @@ def main() -> None:
 
     session_id = str(payload.get("session_id", ""))
     queue_dir = Path.cwd() / QUEUE_DIR
-    if _already_queued(queue_dir, session_id):
+    # Only a repo that keeps a knowledge corpus gets a queue: otherwise a
+    # session ending in $HOME or an unrelated repo got a new docs/ tree
+    # holding the user's prompt, where it could be committed.
+    if not queue_dir.parent.is_dir() or _already_queued(queue_dir, session_id):
         sys.exit(0)
 
     now = datetime.now(timezone.utc)

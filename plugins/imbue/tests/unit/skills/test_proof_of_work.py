@@ -374,3 +374,62 @@ class TestProofEnforcementIronLaw:
             "[E-TDD" in enforcement_doc_content
             or "TDD evidence" in enforcement_doc_content.lower()
         )
+
+
+class TestEvidenceLoggingStatesWhatEvidenceCanProve:
+    """Feature: capped and empty output do not prove absence or completeness.
+
+    As a reviewer reading an agent's claims
+    I want the evidence module to say what truncated or empty output supports
+    So that "none found" is not asserted from a capped search.
+    """
+
+    @pytest.fixture
+    def module_text(self) -> str:
+        """Load the evidence-logging module, whitespace-normalised."""
+        path = (
+            Path(__file__).parents[3]
+            / "skills"
+            / "proof-of-work"
+            / "modules"
+            / "evidence-logging.md"
+        )
+        return " ".join(path.read_text().split())
+
+    @pytest.mark.unit
+    def test_module_says_capped_output_cannot_prove_absence(
+        self, module_text: str
+    ) -> None:
+        assert "A capped result proves only what it shows." in module_text
+
+    @pytest.mark.unit
+    def test_module_says_empty_is_not_zero_without_coverage(
+        self, module_text: str
+    ) -> None:
+        assert "An empty result is not zero." in module_text
+
+    @pytest.mark.unit
+    def test_module_separates_the_four_claim_states(self, module_text: str) -> None:
+        for state in ("observed:", "inferred:", "recommended:", "executed:"):
+            assert state in module_text
+
+    @pytest.mark.unit
+    def test_skill_exit_criteria_require_marked_caps(self) -> None:
+        skill = (
+            Path(__file__).parents[3] / "skills" / "proof-of-work" / "SKILL.md"
+        ).read_text()
+        exit_section = skill.split("## Exit Criteria", 1)[1]
+        assert "capped" in exit_section
+        assert "modules/evidence-logging.md" in exit_section
+
+    @pytest.mark.unit
+    def test_validation_template_marks_truncation(self) -> None:
+        template = (
+            Path(__file__).parents[3]
+            / "skills"
+            / "proof-of-work"
+            / "modules"
+            / "validation-protocols.md"
+        ).read_text()
+        assert "truncated if long" not in template
+        assert "cannot prove absence" in template

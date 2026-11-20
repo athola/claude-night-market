@@ -515,3 +515,20 @@ class TestObservedReviewerEdits:
         THEN this fails, and the two disagree silently.
         """
         assert "Project template first" in _read(ADR)
+
+
+def test_the_why_is_the_engineers_thinking_text() -> None:
+    """GIVEN the Why section guidance.
+
+    WHEN an agent drafts a description
+    THEN the Why stays the engineer's to write or confirm
+
+    Writing the motivation is how an author finds out whether the
+    argument holds (Caldara and Fernandez-Villaverde 2026, section 5.1).
+    """
+    template = (
+        Path(__file__).resolve().parents[1] / "skills/pr-prep/modules/pr-template.md"
+    ).read_text(encoding="utf-8")
+    template = " ".join(template.split())
+    assert "The Why is thinking text." in template
+    assert "An agent may draft the What and the test plan" in template

@@ -20,6 +20,7 @@ import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
+import session_complete_notify as notify
 from session_complete_notify import (
     NotificationState,
     _get_tmux_session,
@@ -761,3 +762,21 @@ def test_burnttoast_command_neutralizes_powershell_expansion() -> None:
     assert "`$(calc)" in command
     assert "`$env:HOME" in command
     assert "``x" in command
+
+
+def test_save_refuses_to_write_through_a_symlink(tmp_path, monkeypatch) -> None:
+    """The state file at a predictable temp path followed a planted
+    symlink and truncated its target (SAN-8).
+    """
+
+    target = tmp_path / "victim.txt"
+    target.write_text("keep me")
+    link = tmp_path / "state.json"
+    link.symlink_to(target)
+    monkeypatch.setattr(
+        notify.NotificationState,
+        "state_file_path",
+        classmethod(lambda cls, session_id: link),
+    )
+    notify.NotificationState(session_id="s").save()
+    assert target.read_text() == "keep me"

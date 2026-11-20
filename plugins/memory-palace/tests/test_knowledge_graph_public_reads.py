@@ -20,25 +20,6 @@ def _entities(graph: KnowledgeGraph, *entity_ids: str) -> None:
         graph.upsert_entity(entity_id, "concept", f"Name {entity_id}")
 
 
-class TestGetEntityIds:
-    """get_entity_ids lists entity ids without callers reading _conn."""
-
-    def test_returns_one_dict_per_entity(self, graph: KnowledgeGraph) -> None:
-        """Each entity appears once, as a dict keyed by entity_id."""
-        _entities(graph, "a", "b")
-
-        rows = graph.get_entity_ids()
-
-        assert sorted(rows, key=lambda r: r["entity_id"]) == [
-            {"entity_id": "a"},
-            {"entity_id": "b"},
-        ]
-
-    def test_empty_graph_returns_empty_list(self, graph: KnowledgeGraph) -> None:
-        """A graph with no entities yields an empty list."""
-        assert graph.get_entity_ids() == []
-
-
 class TestGetEntitySummaries:
     """get_entity_summaries returns the fields a listing view needs."""
 

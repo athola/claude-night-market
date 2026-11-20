@@ -248,14 +248,26 @@ def _wrap(text: str, first: str = "", rest: str = "") -> str:
     return wrapped.replace(_NBSP, " ")
 
 
+_HEADING_LINE = re.compile(r"^(\s{0,3})(#{1,6}\s)", re.M)
+
+
+def _inert(text: str) -> str:
+    """Escape what would parse as structure: the file is found by heading.
+
+    A free-text line starting `## LL-999:` or `## Archive` became a real
+    heading that the id allocator and the archive lookup then matched.
+    """
+    return _HEADING_LINE.sub(r"\1\\\2", text).replace("<!--", "&lt;!--")
+
+
 def _wrap_prose(text: str) -> str:
     """Wrap each blank-line-separated paragraph, keeping the breaks between."""
     paragraphs = re.split(r"\n\s*\n", text.strip())
-    return "\n\n".join(_wrap(paragraph) for paragraph in paragraphs)
+    return _inert("\n\n".join(_wrap(paragraph) for paragraph in paragraphs))
 
 
 def _bullet(text: str) -> str:
-    return _wrap(text, first="- ", rest="  ")
+    return _inert(_wrap(text, first="- ", rest="  "))
 
 
 def _opt_section(heading: str, value: object) -> str:
@@ -292,10 +304,10 @@ def _render_tradeoff(
     status = fields.get("status", _KINDS["tradeoffs"]["default_status"])
     meta = [
         f"- Status: {status}",
-        f"- Date: {fields.get('date', _today())}",
-        f"- Phase: {fields.get('phase', '-')}",
-        f"- Deciders: {fields.get('deciders', '-')}",
-        f"- Links: {fields.get('links', '-')}",
+        f"- Date: {_oneline(str(fields.get('date', _today())))}",
+        f"- Phase: {_oneline(str(fields.get('phase', '-')))}",
+        f"- Deciders: {_oneline(str(fields.get('deciders', '-')))}",
+        f"- Links: {_oneline(str(fields.get('links', '-')))}",
     ]
     if supersedes:
         meta.append(f"- Supersedes: {supersedes}")
@@ -329,11 +341,11 @@ def _render_lesson(
     status = fields.get("status", _KINDS["lessons"]["default_status"])
     meta = [
         f"- Status: {status}",
-        f"- Date: {fields.get('date', _today())}",
-        f"- Phase: {fields.get('phase', '-')}",
-        f"- Category: {fields.get('category', '-')}",
-        f"- Owner: {fields.get('owner', '-')}",
-        f"- Links: {fields.get('links', '-')}",
+        f"- Date: {_oneline(str(fields.get('date', _today())))}",
+        f"- Phase: {_oneline(str(fields.get('phase', '-')))}",
+        f"- Category: {_oneline(str(fields.get('category', '-')))}",
+        f"- Owner: {_oneline(str(fields.get('owner', '-')))}",
+        f"- Links: {_oneline(str(fields.get('links', '-')))}",
     ]
     if supersedes:
         meta.append(f"- Supersedes: {supersedes}")
@@ -386,7 +398,10 @@ def _add_index_row(
 ) -> str:
     start, nxt = _index_bounds(content)
     section = content[start:nxt]
-    row = f"| {entry_id} | {status} | {_escape_cell(title)} | {date} |"
+    row = (
+        f"| {entry_id} | {_escape_cell(status)} | {_escape_cell(title)} "
+        f"| {_escape_cell(date)} |"
+    )
     lines = section.rstrip("\n").splitlines()
     # Append after the last table line (header/separator/existing rows).
     insert_at = max(i for i, ln in enumerate(lines) if ln.lstrip().startswith("|"))
@@ -431,6 +446,13 @@ def append_entry(
         if f"## {supersedes}:" not in content:
             raise ValueError(f"cannot supersede unknown entry {supersedes!r}")
 
+    # The renderers and the index row all read these, so they are made one
+    # line here, once: a newline in either forged a heading.
+    fields = {
+        **fields,
+        "status": _oneline(str(fields.get("status", cfg["default_status"]))),
+        "date": _oneline(str(fields.get("date", _today()))),
+    }
     entry_id = next_id(content, cfg["prefix"])
     render = _render_tradeoff if kind == "tradeoffs" else _render_lesson
     entry = render(entry_id, fields, supersedes)
@@ -441,9 +463,8 @@ def append_entry(
     new_content = content[:pos] + "\n" + entry + content[pos:]
 
     # Update the active index.
-    status = fields.get("status", cfg["default_status"])
     new_content = _add_index_row(
-        new_content, entry_id, status, fields["title"], fields.get("date", _today())
+        new_content, entry_id, fields["status"], fields["title"], fields["date"]
     )
 
     # Supersession: flip the old entry's status + index row.

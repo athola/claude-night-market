@@ -362,6 +362,24 @@ class ConfigLoader:
                 # abort loading every rule after this one.
                 raise ValueError(f"Malformed conditions: {e!r}") from e
 
+        # A non-string here raised TypeError deep in RuleConfig, which no
+        # caller catches, so one bad file silently disabled every rule.
+        # Truthiness filtering also kept `enabled: 0` or `"false"` live.
+        if type(frontmatter["enabled"]) is not bool:
+            raise ValueError("enabled must be true or false")
+        for key in ("name", "event", "action", "pattern"):
+            field_value = frontmatter.get(key)
+            if field_value is not None and not isinstance(field_value, str):
+                raise ValueError(f"{key} must be a string")
+        for condition in conditions:
+            if not all(
+                isinstance(part, str)
+                for part in (condition.field, condition.operator, condition.pattern)
+            ):
+                raise ValueError(
+                    "condition field, operator and pattern must be strings"
+                )
+
         return RuleConfig(
             name=frontmatter["name"],
             enabled=frontmatter["enabled"],
@@ -433,44 +451,3 @@ class ConfigLoader:
             List of bundled rule names.
         """
         return [f.stem for f in self._iter_bundled_rule_files()]
-
-    def get_rule_status(self) -> dict[str, dict[str, Any]]:
-        """Get status of all rules (bundled and user).
-
-        Returns:
-            Dict mapping rule names to their status info.
-        """
-        status: dict[str, dict[str, Any]] = {}
-
-        # Get bundled rules
-        if self.include_bundled:
-            for rule_file in self._iter_bundled_rule_files():
-                name = rule_file.stem
-                status[name] = {
-                    "source": "bundled",
-                    "category": rule_file.parent.name,
-                    "path": str(rule_file),
-                    "overridden": False,
-                }
-
-        # Check for user overrides
-        if self.user_rules_dir.exists():
-            pattern = f"{self.RULE_PREFIX}*{self.RULE_SUFFIX}"
-            for rule_file in self.user_rules_dir.glob(pattern):
-                # hookify.<name>.local.md: strip the prefix and the
-                # suffix, or the ".local" tail keeps the name from ever
-                # matching its bundled entry.
-                name = rule_file.name[len(self.RULE_PREFIX) : -len(self.RULE_SUFFIX)]
-
-                if name in status:
-                    status[name]["overridden"] = True
-                    status[name]["user_path"] = str(rule_file)
-                else:
-                    status[name] = {
-                        "source": "user",
-                        "category": "custom",
-                        "path": str(rule_file),
-                        "overridden": False,
-                    }
-
-        return status

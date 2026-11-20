@@ -127,6 +127,11 @@ This is the mechanical sequence.
 
    Expect a large diff of roughly 100 files. That is the design.
 
+   Then rebuild the code graph with `make graph`. It takes several
+   minutes. The bump changes `gauntlet.__version__`, and the rebuilt
+   graph records it, so the installed plugin's SessionStart hook does
+   not rebuild the same graph again after the release.
+
 3. **Add the CHANGELOG entry.** CHANGELOG.md follows Keep a Changelog
    1.1.0 with SemVer. Keep `## [Unreleased]` at the top. Insert
    `## [X.Y.Z] - YYYY-MM-DD` directly below it. Do not rewrite or
@@ -187,6 +192,7 @@ Release checklist:
       new version
 - [ ] CHANGELOG has the new section, `[Unreleased]` still on top
 - [ ] `make docs-sync-check` clean
+- [ ] `make graph` rebuilt `.gauntlet/graph.db` after the version bump
 - [ ] Tag pushed, both workflows green, release has 4 tarball assets
 
 ## Book publishing

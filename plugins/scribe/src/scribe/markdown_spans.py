@@ -31,6 +31,14 @@ __all__ = ["FENCED_CODE", "INLINE_CODE", "URL"]
 
 INLINE_CODE = re.compile(r"``[^`]*``|`[^`\n]*`")
 
-FENCED_CODE = re.compile(r"^ {0,3}(```|~~~).*?^ {0,3}\1", re.DOTALL | re.MULTILINE)
+# CommonMark: the opener is 3+ backticks or tildes; the closer is the same
+# character, at least as long, with nothing after it but spaces; a fence
+# with no closer runs to the end. Matching any line that began with the same
+# three characters closed a 4-backtick fence at an inner 3-backtick one.
+FENCED_CODE = re.compile(
+    r"^ {0,3}(?P<fence>`{3,}|~{3,})[^\n]*\n"
+    r"(?:.*?^ {0,3}(?P=fence)[`~]*[ \t]*$|.*\Z)",
+    re.DOTALL | re.MULTILINE,
+)
 
 URL = re.compile(r"\b(?:https?://|www\.)\S+")

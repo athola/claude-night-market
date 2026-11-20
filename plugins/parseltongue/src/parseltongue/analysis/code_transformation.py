@@ -123,8 +123,8 @@ def _segment(code: str, node: ast.expr) -> str:
 def _rewrite(node: ast.AST, code: str) -> _Edit | None:
     if isinstance(node, ast.Call):
         return _dict_call(node) or _format_call(node) or _generator_call(node, code)
-    if isinstance(node, ast.BinOp):
-        return _percent_s(node)
+    # No `"%s" % name` rewrite: a tuple name formats its elements there and
+    # its repr in an f-string, and nothing here proves the name's type.
     return None
 
 
@@ -165,22 +165,6 @@ def _format_call(node: ast.Call) -> _Edit | None:
         f"{{{name}}}{piece}" for name, piece in zip(names, pieces[1:])
     )
     return _Edit(node, f'f"{body}"', "fstring", "Converted .format() to f-string")
-
-
-def _percent_s(node: ast.BinOp) -> _Edit | None:
-    if (
-        isinstance(node.op, ast.Mod)
-        and isinstance(node.left, ast.Constant)
-        and node.left.value == "%s"
-        and isinstance(node.right, ast.Name)
-    ):
-        return _Edit(
-            node,
-            f"f'{{{node.right.id}}}'",
-            "fstring",
-            "Converted %-formatting to f-string",
-        )
-    return None
 
 
 def _generator_call(node: ast.Call, code: str) -> _Edit | None:

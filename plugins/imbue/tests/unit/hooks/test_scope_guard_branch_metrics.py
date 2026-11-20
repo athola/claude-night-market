@@ -113,3 +113,20 @@ def test_a_maintenance_command_is_still_skipped(repo: Path, prompt: str) -> None
     _commit_lines(repo, "feature.txt", 2500)
     stdin = json.dumps({"prompt": prompt}) + "\n"
     assert _context(repo, "user-prompt-submit.sh", stdin) == ""
+
+
+@pytest.mark.parametrize(
+    ("hook", "stdin"),
+    [
+        ("user-prompt-submit.sh", PROMPT),
+        ("session-start.sh", START),
+    ],
+)
+def test_session_start_and_prompt_hook_agree_on_zone_for_same_branch(
+    repo: Path, hook: str, stdin: str
+) -> None:
+    """SessionStart went yellow at 1000 lines while the prompt hook waited
+    for 1500, and SessionStart ignored the SCOPE_GUARD_* overrides (IMB-14).
+    """
+    _commit_lines(repo, "feature.txt", 1200)
+    assert "YELLOW" not in _context(repo, hook, stdin)

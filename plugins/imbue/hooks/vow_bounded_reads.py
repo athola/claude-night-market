@@ -23,6 +23,7 @@ remains an advisory signal there.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -36,6 +37,7 @@ from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path 
     fd_owned_by_us,
     read_counter_path,
     secure_open,
+    seen_calls_path,
     session_id_from,
     shadow_mode_active,
 )
@@ -82,6 +84,10 @@ _SHORT_READ_LINES = 50
 # counter is never reset by accident.
 _COUNTER_TTL_SECONDS = 8 * 60 * 60
 
+# Calls remembered per session for repeat detection. Oldest drop first, so
+# the file stays a few KB however long the session runs.
+_MAX_REMEMBERED_CALLS = 64
+
 
 def _read_weight(tool_name: str, tool_input: object) -> float:
     """Return what one call costs against the budget, per bounded-discovery.md.
@@ -125,11 +131,23 @@ def _read_with_lock(fd: int) -> float:
     return current
 
 
-def _write_with_fd(fd: int, count: float) -> None:
+def _escape_used(fd: int) -> bool:
+    """Return True when this phase's one read past twice the budget is spent."""
+    try:
+        os.lseek(fd, 0, os.SEEK_SET)
+        return json.loads(os.read(fd, 4096) or b"{}").get("escape_used") is True
+    except (OSError, json.JSONDecodeError, ValueError, TypeError, AttributeError):
+        return False
+
+
+def _write_with_fd(fd: int, count: float, escape_used: bool = False) -> None:
     """Write *count* as JSON to an open file descriptor, replacing prior content."""
+    state: dict[str, object] = {"count": count}
+    if escape_used:
+        state["escape_used"] = True
     os.lseek(fd, 0, os.SEEK_SET)
     os.ftruncate(fd, 0)
-    os.write(fd, json.dumps({"count": count}).encode("utf-8"))
+    os.write(fd, json.dumps(state).encode("utf-8"))
 
 
 def _atomic_increment(path: Path, weight: float = 1.0) -> float:  # noqa: PLR0912 - POSIX flock requires explicit branch per errno value; cannot reduce without losing error granularity
@@ -175,8 +193,10 @@ def _atomic_increment(path: Path, weight: float = 1.0) -> float:  # noqa: PLR091
         # discovery phase, so its count must not bleed forward.
         current = _read_with_lock(fd)
         new_count = current + weight
+        # A stale counter reads as 0, and its spent escape goes with it.
+        escape_used = current > 0 and _escape_used(fd)
         try:
-            _write_with_fd(fd, new_count)
+            _write_with_fd(fd, new_count, escape_used)
         except OSError as exc:
             print(
                 f"[vow-bounded-reads] WARN: counter write failed: {exc}",
@@ -209,6 +229,83 @@ def _atomic_increment(path: Path, weight: float = 1.0) -> float:  # noqa: PLR091
                 pass
 
 
+def _call_key(tool_name: str, tool_input: object) -> str:
+    """Return a short digest of the call, stable across dict key order."""
+    canonical = json.dumps([tool_name, tool_input], sort_keys=True, default=str)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+
+
+def _note_call(counter_path: Path, key: str, *, record: bool = True) -> bool:
+    """Record *key* and return True when an earlier call this phase had it.
+
+    ``record=False`` only looks: a call about to be denied must not be
+    remembered, or its retry is told to reuse a result that never arrived.
+
+    Shares the counter's lock discipline and TTL. Returns False on any
+    failure: a lost repeat warning is cheaper than a crashed hook.
+    """
+    fd = -1
+    try:
+        fd = secure_open(seen_calls_path(counter_path), os.O_RDWR | os.O_CREAT, 0o600)
+        if not fd_owned_by_us(fd):
+            return False
+        if _HAS_FCNTL and _fcntl is not None:
+            _fcntl.flock(fd, _fcntl.LOCK_EX)
+        seen: list[str] = []
+        stale = (time.time() - os.fstat(fd).st_mtime) > _COUNTER_TTL_SECONDS
+        if not stale:
+            try:
+                loaded = json.loads(os.read(fd, 65536) or b"{}").get("seen", [])
+                seen = [k for k in loaded if isinstance(k, str)]
+            except (json.JSONDecodeError, ValueError, TypeError, AttributeError):
+                seen = []
+        repeated = key in seen
+        if record and repeated:
+            # A call in use stays remembered: the TTL runs from last use.
+            os.utime(fd)
+        if record and not repeated:
+            seen = (seen + [key])[-_MAX_REMEMBERED_CALLS:]
+            os.lseek(fd, 0, os.SEEK_SET)
+            os.ftruncate(fd, 0)
+            os.write(fd, json.dumps({"seen": seen}).encode("utf-8"))
+        return repeated
+    except (OSError, RuntimeError, NotImplementedError) as exc:
+        print(f"[vow-bounded-reads] WARN: repeat check failed: {exc}", file=sys.stderr)
+        return False
+    finally:
+        if fd >= 0:
+            os.close(fd)  # closing releases the flock
+
+
+def _escape_left(counter_path: Path, *, claim: bool) -> bool:
+    """Return True when the one short read past twice the budget is unspent.
+
+    Past twice the budget every read is denied, and an Edit of a file the
+    session has not read is refused before the reset hook can run, so
+    without this read the count could only fall at the TTL. ``claim=True``
+    spends it. The reset rewrites the counter without the flag, so a
+    successful Write or Edit returns it. Returns False on any failure.
+    """
+    fd = -1
+    try:
+        fd = secure_open(counter_path, os.O_RDWR)
+        if not fd_owned_by_us(fd):
+            return False
+        if _HAS_FCNTL and _fcntl is not None:
+            _fcntl.flock(fd, _fcntl.LOCK_EX)
+        if _escape_used(fd):
+            return False
+        if claim:
+            _write_with_fd(fd, _read_with_lock(fd), escape_used=True)
+        return True
+    except (OSError, RuntimeError, NotImplementedError) as exc:
+        print(f"[vow-bounded-reads] WARN: escape check failed: {exc}", file=sys.stderr)
+        return False
+    finally:
+        if fd >= 0:
+            os.close(fd)  # closing releases the flock
+
+
 def _is_read_tool(tool_name: str) -> bool:
     """Return True if *tool_name* is a discovery read tool."""
     return tool_name in _READ_TOOLS
@@ -235,19 +332,92 @@ def main() -> None:
         if not _is_read_tool(tool_name):
             sys.exit(0)
 
-        weight = _read_weight(tool_name, data.get("tool_input"))
-        if not weight:
-            sys.exit(0)
+        tool_input = data.get("tool_input")
+        weight = _read_weight(tool_name, tool_input)
+        new_count = _atomic_increment(counter_file, weight) if weight else 0
+        shadow = _shadow_mode()
+        # A targeted read (under _SHORT_READ_LINES) is allowed up to twice
+        # the budget: an Edit needs the file read first. It still counts,
+        # and past twice the budget only one more is allowed per phase, so
+        # chunked reads cannot walk a tree the budget was meant to bound.
+        targeted_spent = new_count > 2 * _BUDGET
+        escape_left = (
+            targeted_spent
+            and not shadow
+            and _escape_left(counter_file, claim=weight < 1)
+        )
+        escape_granted = escape_left and weight < 1
+        denied = (
+            new_count > _BUDGET
+            and not shadow
+            and (weight >= 1 or (targeted_spent and not escape_granted))
+        )
+        if denied:
+            # A denied read read nothing, and counting it made every retry
+            # push the count further from the limit.
+            _atomic_increment(counter_file, -weight)
 
-        new_count = _atomic_increment(counter_file, weight)
+        repeat_note = ""
+        if _note_call(
+            counter_file, _call_key(tool_name, tool_input), record=not denied
+        ):
+            repeat_note = (
+                f"This {tool_name} call repeats an earlier identical call in this "
+                "discovery phase. Reuse the earlier result. Re-run only if it is "
+                "no longer in context or the target changed outside Edit/Write."
+            )
 
-        if new_count > _BUDGET:
-            shadow = _shadow_mode()
+        if escape_granted:
+            print(
+                json.dumps(
+                    {
+                        "hookSpecificOutput": {
+                            "hookEventName": "PreToolUse",
+                            "additionalContext": (
+                                "Bounded discovery vow: this short read is the one "
+                                "allowed past twice the budget. Edit next. A "
+                                "successful Write or Edit resets the count, and "
+                                "reads are denied until then."
+                            ),
+                        }
+                    }
+                )
+            )
+            print("[vow-bounded-reads] WARN: escape read granted", file=sys.stderr)
+        elif repeat_note and new_count <= _BUDGET:
+            print(
+                json.dumps(
+                    {
+                        "hookSpecificOutput": {
+                            "hookEventName": "PreToolUse",
+                            "additionalContext": repeat_note,
+                        }
+                    }
+                )
+            )
+            print("[vow-bounded-reads] WARN: repeated call", file=sys.stderr)
+        elif denied or (shadow and new_count > _BUDGET):
             decision = "warn" if shadow else "block"
+            short_read = (
+                "To read the file you are about to edit, pass offset "
+                f"and a limit under {_SHORT_READ_LINES}."
+            )
+            escape = (
+                "Targeted reads are spent too. A successful Write or Edit "
+                "resets the count. Until then, work from what is in context. "
+                "The user can also set VOW_SHADOW_MODE=1."
+                if targeted_spent and not escape_left
+                else (
+                    f"One short read is left in this phase. {short_read}"
+                    if targeted_spent
+                    else short_read
+                )
+            )
             reason = (
                 f"Bounded discovery vow: {new_count:g} reads in this discovery phase. "
                 f"Budget is {_BUDGET} for open exploration. "
-                "Consider starting implementation."
+                f"Consider starting implementation. {escape}"
+                + (f" {repeat_note}" if repeat_note else "")
                 + (
                     " Shadow mode active — will block once VOW_SHADOW_MODE=0."
                     if shadow

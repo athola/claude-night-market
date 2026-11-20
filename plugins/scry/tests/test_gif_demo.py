@@ -229,6 +229,15 @@ class TestGifDemoShellRules:
         assert "/tmp/scry-gif-test" not in source
         assert "mktemp -d" in source
 
+    def test_makefile_demo_dir_is_not_a_shared_temp_path(
+        self, gif_demo_script: Path
+    ) -> None:
+        """The recipe passed /tmp/scry-gif-test and rm -rf'd it: anyone who
+        made that path first chose what was removed (SCY-2).
+        """
+        makefile = gif_demo_script.parent.parent / "Makefile"
+        assert "/tmp/" not in makefile.read_text(encoding="utf-8")
+
     def test_parses_under_bash(self, gif_demo_script: Path) -> None:
         """Scenario: the restructured script is still syntactically valid."""
         result = subprocess.run(

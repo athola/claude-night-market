@@ -115,8 +115,6 @@ def check_mecw_compliance(
         action = "immediate_context_reset_required"
     elif pressure_level == "HIGH":
         action = "immediate_optimization_required"
-    elif pressure_level == "MODERATE" and not compliant:
-        action = "optimize_before_next_operation"
     elif pressure_level == "MODERATE":
         action = "monitor_closely"
     else:

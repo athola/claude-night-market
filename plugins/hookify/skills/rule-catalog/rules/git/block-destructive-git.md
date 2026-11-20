@@ -6,7 +6,7 @@ action: block
 conditions:
   - field: command
     operator: regex_match
-    pattern: git\s+(reset\s+--hard|checkout\s+--\s+\.|checkout\s+HEAD\s+--|checkout\s+\S+\s+--\s|restore\s+--source|clean\s+-[fd]+|stash\s+drop|branch\s+-D|reflog\s+expire|gc\s+--prune)
+    pattern: git\s+(reset\s+--hard|checkout\s+--\s+\.|checkout\s+\.(?=\s|$)|restore\s+\.(?=\s|$)|checkout\s+HEAD\s+--|checkout\s+\S+\s+--\s|restore\s+--source|clean\s+(?:-\w+\s+)*-(?![a-zA-Z]*n)[a-zA-Z]*f|stash\s+drop|branch\s+-D|reflog\s+expire|gc\s+--prune)
 ---
 
 Uncommitted work represents someone's thinking.
@@ -23,10 +23,13 @@ This command can cause **irreversible data loss** - uncommitted changes, local b
 |---------|------|------------------|
 | `git reset --hard` | 🔴 Critical | All uncommitted changes (staged and unstaged) |
 | `git checkout -- .` | 🔴 Critical | All unstaged changes in working directory |
+| `git checkout .` | 🔴 Critical | All unstaged changes in working directory |
+| `git restore .` | 🔴 Critical | All unstaged changes in working directory |
 | `git checkout HEAD -- <file>` | 🟡 High | Specific file's uncommitted changes |
 | `git checkout <branch> -- <path>` | 🔴 Critical | Overwrites files from another branch (undoes intentional changes) |
 | `git restore --source` | 🟡 High | Overwrites files from another ref |
 | `git clean -fd` | 🔴 Critical | All untracked files and directories |
+| `git clean -xdf` | 🔴 Critical | Untracked and ignored files, local config included |
 | `git stash drop` | 🟡 High | Stashed changes permanently |
 | `git branch -D` | 🟡 High | Force-deletes branch (even unmerged) |
 | `git reflog expire` | 🔴 Critical | Recovery points for lost commits |
@@ -53,18 +56,17 @@ git stash show -p stash@{0}      # Full diff of stash
 
 ### Instead of `git reset --hard`
 ```bash
-# Option 1: Save changes to a temporary branch first
-git stash                        # Stash current changes
-git reset --hard HEAD            # Now safe to reset
+# Option 1: Stash, which leaves the tree clean with no reset needed
+git stash push -u                # Save tracked and untracked changes
 # Later: git stash pop           # Recover if needed
 
-# Option 2: Create a backup branch
-git checkout -b backup/my-changes
-git checkout -                   # Return to original branch
-git reset --hard HEAD
+# Option 2: Commit the changes to a backup branch
+git switch -c backup/my-changes
+git add -A && git commit -m "wip: backup before reset"  # Untracked too
+git switch -                     # Original branch, clean tree
 
-# Option 3: Reset specific files only
-git checkout HEAD -- path/to/file
+# Option 3: Discard one file only, named explicitly
+git restore --staged --worktree -- path/to/file
 ```
 
 ### Instead of `git checkout -- .`

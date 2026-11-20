@@ -5,6 +5,7 @@ from __future__ import annotations
 import http.client
 import json
 import math
+import socket
 import threading
 import time
 import urllib.error
@@ -13,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from oracle.daemon import InferenceDaemon
+from oracle.daemon import InferenceDaemon, _InferenceHandler
 
 TEST_MODEL_YAML = """\
 schema_version: 1
@@ -663,3 +664,26 @@ class TestZeroBlendFallback:
         assert resp.status == 200
         assert abs(body["blend"]["word_overlap_weight"] - 0.5) < 1e-9
         assert abs(body["blend"]["ml_weight"] - 0.5) < 1e-9
+
+
+def test_handler_has_a_socket_timeout() -> None:
+    """One silent client blocked the single-threaded server forever (ORC-2)."""
+    assert _InferenceHandler.timeout is not None
+    assert 0 < _InferenceHandler.timeout <= 10
+
+
+def test_a_silent_client_does_not_block_the_next_request(
+    daemon_instance: InferenceDaemon,
+) -> None:
+    """A client that announced a body and sent none held the server (ORC-2)."""
+    with socket.create_connection(("127.0.0.1", daemon_instance.port)) as silent:
+        silent.sendall(
+            b"POST /infer HTTP/1.1\r\nHost: x\r\n"
+            b"Content-Type: application/json\r\nContent-Length: 100\r\n\r\n"
+        )
+        conn = http.client.HTTPConnection("127.0.0.1", daemon_instance.port, timeout=10)
+        try:
+            conn.request("GET", "/health")
+            assert conn.getresponse().status == 200
+        finally:
+            conn.close()

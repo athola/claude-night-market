@@ -40,8 +40,11 @@ def test_reversible_module_documents_handle_and_retrieval():
     text = REVERSIBLE.read_text(encoding="utf-8")
     assert "context_retrieve.py" in text
     assert "context-archive" in text
-    # Honest constraint must be stated, not just the upside.
-    assert "cannot redact" in text
+    # Honest constraint must be stated, not just the upside: the hook leaves
+    # the result whole, and the module says why it does not replace it.
+    assert "does not replace the result" in text
+    assert "updatedToolOutput" in text
+    assert "2607.12161" in text
 
 
 def test_cache_module_states_write_cost_caveat():

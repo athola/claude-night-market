@@ -33,7 +33,7 @@ are ready to go.
      `style`, `perf`, `ci`
    - Scope: from the changed directory or module
    - Summary: imperative mood, 50 chars max
-   - Body: what and why, wrapped at 72 chars
+   - Body: why, wrapped at 72 chars (the diff shows what)
    - No AI attribution, no emojis, no slop
 
 5. **Commit** with the drafted message. Record HEAD first, so step 6

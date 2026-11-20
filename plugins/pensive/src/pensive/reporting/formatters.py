@@ -123,7 +123,7 @@ class SarifFormatter:
                         "driver": {
                             "name": "pensive",
                             "version": _tool_version(),
-                            "informationUri": "https://github.com/pensive/pensive",
+                            "informationUri": "https://github.com/athola/claude-night-market",
                             "rules": self._generate_rules(findings),
                         }
                     },
@@ -161,7 +161,11 @@ class SarifFormatter:
         results = []
 
         for finding in findings:
-            location = finding.get("location", "unknown:1")
+            # harden findings name the file and line separately.
+            if "file" in finding:
+                location = f"{finding['file']}:{finding.get('line', 1)}"
+            else:
+                location = finding.get("location", "unknown:1")
             if ":" in location:
                 file_path, line = location.rsplit(":", 1)
                 try:
@@ -175,7 +179,10 @@ class SarifFormatter:
             results.append(
                 {
                     "ruleId": finding.get("id", "UNKNOWN"),
-                    "message": {"text": finding.get("issue", "No description")},
+                    "message": {
+                        "text": finding.get("issue")
+                        or finding.get("detection_signal", "No description")
+                    },
                     "locations": [
                         {
                             "physicalLocation": {

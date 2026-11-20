@@ -425,3 +425,24 @@ class TestMainInProcess:
         code, out, _ = self._main(monkeypatch, capsys, stdin_text)
         assert code == 0
         assert out is None
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "file_path",
+    ["CHANGELOG.md", "plugins/x/CHANGELOG.md", "docs/adr/0042-cache.md"],
+)
+def test_changelog_and_adr_are_exempt(file_path: str) -> None:
+    """Narrating history is the job of a changelog or an ADR; the rules
+    say so, and the vow denied those writes anyway (IMB-11).
+    """
+    completed = _run(
+        {
+            "tool_name": "Write",
+            "tool_input": {
+                "file_path": file_path,
+                "content": "We removed the fallback.",
+            },
+        }
+    )
+    assert completed.stdout.strip() == ""

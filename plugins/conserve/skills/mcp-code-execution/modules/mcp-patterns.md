@@ -3,7 +3,6 @@ name: mcp-patterns
 description: Apply Model Context Protocol patterns for tool chain transformation
   and efficient code execution.
 location: plugin
-token_budget: 200  # Optimized pattern application
 progressive_loading: true
 dependencies:
   hub: [mcp-code-execution]

@@ -426,7 +426,7 @@ confirm):
 
 ## See Also
 
-- `/pr` - Create pull request
+- `/prepare-pr` - Create pull request
 - `/pr-review` - Review pull request (also supports `--stack`)
 - `/sanctum:validate-pr` - Standalone diff-derived validation (called automatically at Step 5.7)
 - `/update-tests` - Update test suite

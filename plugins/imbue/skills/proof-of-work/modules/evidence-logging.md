@@ -61,6 +61,32 @@ Finding: Memory leak in connection pool [E3, C2]
 - Citation [C2]: PostgreSQL docs on connection lifecycle
 ```
 
+## What Evidence Can Prove
+
+A capped result proves only what it shows. Output cut by `head`,
+`head_limit`, a result-count limit, or a "truncated" notice supports
+no claim of absence, a complete list, a ranking, or a total. The
+missing rows may change the answer. Mark the cap in the
+evidence entry (`[E4] ... (capped at 20 rows)`) and either rerun
+uncapped or state the claim as "at least".
+
+An empty result is not zero. It means the query matched nothing, and
+that equals absence only when the query covers the space: right path,
+right pattern, right filters, no error swallowed. Show the coverage
+(for example a control query that finds a known item) before
+claiming none exist.
+
+Keep four states apart in a claim, because readers act on them
+differently:
+
+- observed: a command output you can cite
+- inferred: derived from observations, with the reasoning stated
+- recommended: a suggested action, not yet taken
+- executed: an action taken, with the command that took it
+
+A command that exited 0 shows it ran. It does not show the question
+was answered. Tie each claim to the output that answers it.
+
 ## Exit Criteria
 - All findings traceable to specific evidence references.
 - Downstream reports can cite evidence without re-running commands.

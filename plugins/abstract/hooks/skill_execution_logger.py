@@ -12,11 +12,6 @@ Issue: https://github.com/athola/claude-night-market/issues/69
 
 from __future__ import annotations
 
-try:
-    import fcntl
-except ImportError:  # Windows has no fcntl
-    fcntl = None
-    import msvcrt
 import importlib
 import json
 import os
@@ -25,10 +20,17 @@ import sys
 import time
 import traceback
 from collections import defaultdict
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
+
+if sys.platform == "win32":
+    import msvcrt
+else:
+    import fcntl
 
 import homeostatic_monitor  # same directory, so on sys.path when run as a hook
 
@@ -39,18 +41,57 @@ from shared.dir_utils import (
 )
 from shared.hook_io import read_hook_payload, tool_response_text
 from shared.skill_utils import parse_skill_name
+from shared.stability import STABILITY_GAP_THRESHOLD, worst_window_rate
 from shared.stability import stability_gap as windowed_stability_gap
-from shared.stability import worst_window_rate
 
 # By name, after shared.dir_utils has put src/ on sys.path; a plain
 # import would sort ahead of it and fail under the operator's python3.
 _experience = importlib.import_module("abstract.experience_library")
 _atomic_file = importlib.import_module("abstract._vendored_leyline_atomic_file")
 
-# Threshold for triggering stability gap warnings
-# Based on Avalanche paper: gap > 0.3 indicates significant instability
-# See: https://avalanche.continualai.org/
-STABILITY_GAP_THRESHOLD = 0.3
+
+def _is_history(data: object) -> bool:
+    """Report whether ``data`` maps skill refs to lists of numbers.
+
+    Every record the guard admits must be usable: a missing key raised
+    KeyError and a non-number raised TypeError on every later call, and
+    only a ValueError sets the file aside.
+    """
+    return isinstance(data, dict) and all(
+        isinstance(record, dict)
+        and all(
+            isinstance(record.get(key), list)
+            and all(
+                isinstance(entry, (int, float)) and not isinstance(entry, bool)
+                for entry in record[key]
+            )
+            for key in ("accuracies", "durations")
+        )
+        for record in data.values()
+    )
+
+
+@contextmanager
+def _history_lock(lock_file: Path) -> Iterator[None]:
+    """Hold an exclusive lock on ``lock_file``: msvcrt on Windows, flock elsewhere.
+
+    ``msvcrt.locking`` locks from the current offset, and an append open sits
+    at end of file, so both calls seek to byte 0 first. The unlock is explicit
+    because Windows may release a lock left on a closed handle late, and a
+    waiting ``LK_LOCK`` gives up after about ten seconds.
+    """
+    with open(lock_file, "a") as lock:
+        if sys.platform == "win32":
+            lock.seek(0)
+            msvcrt.locking(lock.fileno(), msvcrt.LK_LOCK, 1)
+            try:
+                yield
+            finally:
+                lock.seek(0)
+                msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            yield
 
 
 class ContinualEvaluator:
@@ -76,10 +117,14 @@ class ContinualEvaluator:
             try:
                 with open(self.history_file) as f:
                     data = json.load(f)
+                if not _is_history(data):
+                    # Valid JSON of another shape is as unreadable as a
+                    # decode error, and raised on `.items()` every call.
+                    raise ValueError("history is not a map of skill records")
                 # Merge into defaultdict to preserve default factory
                 for key, value in data.items():
                     self.skill_history[key] = value
-            except json.JSONDecodeError as e:
+            except ValueError as e:
                 if not set_aside_corrupt:
                     sys.stderr.write(
                         f"skill_execution_logger: failed to load history: {e}\n"
@@ -134,11 +179,7 @@ class ContinualEvaluator:
         # earlier one's execution, so reload under it.
         self.history_file.parent.mkdir(parents=True, exist_ok=True)
         lock_file = self.history_file.with_name(self.history_file.name + ".lock")
-        with open(lock_file, "a") as lock:
-            if fcntl:
-                fcntl.flock(lock, fcntl.LOCK_EX)
-            else:
-                msvcrt.locking(lock.fileno(), msvcrt.LK_LOCK, 1)
+        with _history_lock(lock_file):
             self.skill_history.clear()
             self._load_history(set_aside_corrupt=True)
             history = self.skill_history[skill_ref]
@@ -285,7 +326,7 @@ def _purge_orphan_states(state_files: list[Path]) -> list[Path]:
 
 def create_log_entry(
     tool_input: dict[str, Any],
-    tool_output: str,
+    failure_text: str | None,
     pre_state: dict[str, Any] | None,
     evaluator: ContinualEvaluator | None,
     session_id: str | None = None,
@@ -294,7 +335,7 @@ def create_log_entry(
 
     Args:
         tool_input: Tool input parameters
-        tool_output: Tool execution output
+        failure_text: The error of a failed call, or None for a success
         pre_state: Pre-execution state from pre_skill_execution.py
         evaluator: Continual evaluator for metrics
         session_id: Session id from the hook payload. Falls back to the
@@ -327,16 +368,11 @@ def create_log_entry(
         if measured >= 0:
             duration_ms = measured
 
-    # Determine outcome based on output
-    # Check warning first since warnings mentioning "failed" are still partial
-    outcome = "success"
-    error = None
-
-    if "warning" in tool_output.lower():
-        outcome = "partial"
-    elif "error" in tool_output.lower() or "failed" in tool_output.lower():
-        outcome = "failure"
-        error = tool_output[:500]  # Store first 500 chars of error
+    # The event decides, not the text: PostToolUse fires only on success and
+    # a failed call arrives as PostToolUseFailure. Scanning a skill's text for
+    # "error" logged every load of an error-handling skill as a failure.
+    outcome = "failure" if failure_text is not None else "success"
+    error = failure_text[:500] if failure_text is not None else None
 
     # Calculate continual evaluation metrics
     continual_metrics = None
@@ -347,11 +383,11 @@ def create_log_entry(
         )
 
     # Save minimal context on success to reduce log size, and full context on failure
-    if outcome in ["failure", "partial"]:
+    if failure_text is not None:
         context = {
             "session_id": resolved_session_id,
             "tool_input": tool_input,
-            "output_preview": sanitize_output(tool_output, max_length=200),
+            "output_preview": sanitize_output(failure_text, max_length=200),
         }
     else:
         context = {
@@ -494,7 +530,15 @@ def main() -> None:
             sys.exit(0)
 
         tool_input = payload["tool_input"]
-        tool_output = tool_response_text(payload)
+        # The env fallback serves the legacy CLAUDE_TOOL_* test harness.
+        event = payload.get("hook_event_name") or os.environ.get(
+            "CLAUDE_HOOK_EVENT_NAME", "PostToolUse"
+        )
+        failure_text = (
+            str(payload.get("error") or tool_response_text(payload))
+            if event == "PostToolUseFailure"
+            else None
+        )
         session_id = payload["session_id"]
 
         # Get skill reference
@@ -511,7 +555,7 @@ def main() -> None:
 
         # Create log entry with pre-execution state and metrics
         log_entry = create_log_entry(
-            tool_input, tool_output, pre_state, evaluator, session_id
+            tool_input, failure_text, pre_state, evaluator, session_id
         )
 
         # Save log entry
@@ -529,7 +573,7 @@ def main() -> None:
         # Output hook data
         output = {
             "hookSpecificOutput": {
-                "hookEventName": "PostToolUse",
+                "hookEventName": event,
                 "skill": skill_ref,
                 "outcome": log_entry["outcome"],
                 "duration_ms": log_entry["duration_ms"],
@@ -537,7 +581,10 @@ def main() -> None:
             }
         }
 
-        print(json.dumps(output))
+        # The failure event's output schema is unverified; it only needs the
+        # log entry, so it prints nothing the harness could reject.
+        if event != "PostToolUseFailure":
+            print(json.dumps(output))
         sys.exit(0)
 
     except Exception as e:

@@ -23,6 +23,16 @@ class RoutingDecision(enum.Enum):
     SEQUENTIAL = "sequential"
 
 
+def _file_name(name: str) -> str:
+    """Return ``name`` if it is one plain path component, else raise.
+
+    Topic names are chosen by a model, and ``../x`` wrote outside the tier.
+    """
+    if not name or name in {".", ".."} or Path(name).name != name or "\\" in name:
+        raise ValueError(f"{name!r} is not a plain file name")
+    return name
+
+
 class MemoryManager:
     """Manages three-tier memory for an agent.
 
@@ -67,7 +77,7 @@ class MemoryManager:
             content: Markdown content for the topic.
 
         """
-        topic_path = self.warm_dir / f"{topic_name}.md"
+        topic_path = self.warm_dir / f"{_file_name(topic_name)}.md"
         topic_path.write_text(content)
 
     def archive_to_cold(self, period: str, content: str) -> None:
@@ -78,7 +88,7 @@ class MemoryManager:
             content: Markdown content to archive.
 
         """
-        archive_path = self.cold_dir / f"{period}.md"
+        archive_path = self.cold_dir / f"{_file_name(period)}.md"
         # Append: a second archive in the same period must not erase the first.
         if archive_path.exists():
             content = f"{archive_path.read_text().rstrip()}\n\n{content}"

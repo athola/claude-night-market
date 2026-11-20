@@ -9,7 +9,7 @@ conditions:
     pattern: \.py$
   - field: new_text
     operator: regex_match
-    pattern: (^|\s)(exec|eval)\s*\(
+    pattern: ^(?!\s*#)[^\n]*?(?<![\w.])(?<!def\s)(?:exec|eval)\s*\(
 ---
 
 **SECURITY: Dynamic code execution detected!**

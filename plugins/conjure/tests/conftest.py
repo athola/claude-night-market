@@ -1,11 +1,24 @@
 """Pytest configuration and shared fixtures for conjure tests."""
 
 import json
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def _test_cli_binaries_are_installed(monkeypatch: pytest.MonkeyPatch) -> None:
+    """verify_service checks PATH first; the fake CLIs here are not on it.
+
+    Tests about a missing binary override this per test.
+    """
+    for name in ("delegation_verify", "scripts.delegation_verify"):
+        module = sys.modules.get(name)
+        if module is not None:
+            monkeypatch.setattr(module, "_binary_on_path", lambda _command: True)
 
 
 @pytest.fixture(autouse=True)

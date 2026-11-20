@@ -383,6 +383,11 @@ class TestGraphBuildStoresFlows:
         subprocess.run(
             ["git", "init", "-q", str(tmp_path)], capture_output=True, check=True
         )
+        # A commit gives the incremental diff a HEAD to read. Without one the
+        # diff fails, the update is an error, and the script now exits 2.
+        git = ["git", "-C", str(tmp_path), "-c", "user.email=t@t", "-c", "user.name=t"]
+        subprocess.run([*git, "add", "chain.py"], capture_output=True, check=True)
+        subprocess.run([*git, "commit", "-qm", "init"], capture_output=True, check=True)
         subprocess.run(
             [sys.executable, str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
             capture_output=True,

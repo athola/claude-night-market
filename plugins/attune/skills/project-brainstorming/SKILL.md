@@ -314,6 +314,10 @@ Final output saved to `docs/project-brief.md`:
 2. [Secondary goal]
 3. [Tertiary goal]
 
+## Out of Scope
+[From the Won't Have list: things that could reasonably be goals and
+were chosen not to be, each with its reason. Not negated goals]
+
 ## Constraints
 [From Phase 2]
 
@@ -474,7 +478,8 @@ review loop.
   and rejected alternatives.
 - [ ] The selection is recorded to `docs/tradeoffs.md` as a `proposed` entry
   (or the single-obvious-approach bypass condition is documented).
-- [ ] A project brief capturing the decision is produced.
+- [ ] A project brief capturing the decision is produced, with Problem
+  Statement, Goals and Out of Scope filled from the session's answers.
 
 ## Related Skills
 

@@ -6,6 +6,7 @@ import ast
 import re
 from typing import Any
 
+from ..async_analysis._base import parse_code
 from ._constants import (
     _OBSERVER_METHODS,
     MIN_FACTORY_RETURN_CLASSES,
@@ -19,13 +20,6 @@ class PatternMatchingCoreMixin:
     """AST parsing and structural pattern detection (singleton, observer,
     strategy, factory, decorator).
     """
-
-    def _parse_code(self, code: str) -> tuple[ast.Module | None, dict | None]:
-        """Parse code into an AST, returning an error dict on failure."""
-        try:
-            return ast.parse(code), None
-        except SyntaxError:
-            return None, {"error": "Invalid Python syntax"}
 
     # ------------------------------------------------------------------
     # Class-level pattern helpers
@@ -223,7 +217,7 @@ class PatternMatchingCoreMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)
+            tree, err = parse_code(code)
             if tree is None:
                 return {
                     "patterns": [],

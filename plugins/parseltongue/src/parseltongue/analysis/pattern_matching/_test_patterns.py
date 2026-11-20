@@ -6,6 +6,8 @@ import ast
 import re
 from typing import Any
 
+from ..async_analysis._base import parse_code
+
 __all__ = ["TestPatternMixin"]
 
 
@@ -43,7 +45,7 @@ class TestPatternMixin:
 
         tree = _tree
         if tree is None:
-            tree, _ = self._parse_code(code)
+            tree, _ = parse_code(code)
             if tree is None:
                 return {
                     "recognized_patterns": [],

@@ -451,7 +451,7 @@ Code quality findings are classified as:
 ## See Also
 
 - `/fix-pr` - Address PR review feedback (also supports `--stack`)
-- `/pr` - Create pull request
+- `/prepare-pr` - Create pull request
 - `/update-tests` - Update test suite
 - `/slop-scan` - Direct AI slop detection (scribe plugin)
 - `/doc-polish` - Interactive documentation cleanup (scribe plugin)

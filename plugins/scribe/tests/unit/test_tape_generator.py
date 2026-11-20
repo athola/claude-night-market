@@ -7,6 +7,7 @@ and duration management.
 from __future__ import annotations
 
 import re
+from pathlib import Path
 
 import pytest
 
@@ -46,7 +47,7 @@ class TestTapeHeader:
         config = TapeConfig(output_path="demo.gif")
         tape = generate_tape([], config)
         lines = tape.strip().split("\n")
-        assert lines[0] == "Output demo.gif"
+        assert lines[0] == 'Output "demo.gif"'
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -424,7 +425,7 @@ class TestOutputFormats:
         config = TapeConfig()
         tape = generate_tape([], config)
         first_line = tape.strip().split("\n")[0]
-        assert first_line.endswith(".gif")
+        assert first_line.endswith('.gif"')
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -438,7 +439,7 @@ class TestOutputFormats:
         config = TapeConfig(output_path="replay.mp4")
         tape = generate_tape([], config)
         first_line = tape.strip().split("\n")[0]
-        assert first_line == "Output replay.mp4"
+        assert first_line == 'Output "replay.mp4"'
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -452,7 +453,7 @@ class TestOutputFormats:
         config = TapeConfig(output_path="replay.webm")
         tape = generate_tape([], config)
         first_line = tape.strip().split("\n")[0]
-        assert first_line == "Output replay.webm"
+        assert first_line == 'Output "replay.webm"'
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -467,7 +468,7 @@ class TestOutputFormats:
         config = TapeConfig(output_path="replay.gif", output_format="mp4")
         tape = generate_tape([], config)
         first_line = tape.strip().split("\n")[0]
-        assert first_line == "Output replay.mp4"
+        assert first_line == 'Output "replay.mp4"'
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -682,8 +683,64 @@ class TestMultilineToolSummary:
             TapeConfig(),
         )
 
-        commands = ("Output", "Set", "Type", "Enter", "Sleep")
+        commands = ("Output", "Set", "Type", "Enter", "Sleep", "Hide", "Show")
         stray = [
             line for line in tape.splitlines() if line and not line.startswith(commands)
         ]
         assert stray == []
+
+
+class TestTranscriptLinesNeverReachTheShell:
+    """Each line is typed and followed by Enter in VHS's live shell, and a
+    transcript carries fetched web and issue text.
+    """
+
+    def test_generate_tape_never_emits_executable_line(self) -> None:
+        tape = generate_tape(
+            [AssistantTurn(text="rm -rf ~")], TapeConfig(output_path="out.gif")
+        )
+        lines = tape.splitlines()
+        reader = lines.index('Type "cat > /dev/null"')
+        first_transcript = next(i for i, line in enumerate(lines) if "rm -rf ~" in line)
+        assert lines[reader - 1] == "Hide"
+        assert lines[reader + 1 : reader + 3] == ["Enter", "Show"]
+        assert reader < first_transcript
+
+
+class TestTapeHeaderCannotCarryDirectives:
+    """A newline in the output path or theme started a new tape directive,
+    and an unquoted absolute path did not parse at all (SCR-2).
+    """
+
+    def test_tape_config_rejects_newline_in_output_path(self) -> None:
+        with pytest.raises(ValueError, match="control character"):
+            generate_tape([], TapeConfig(output_path="out.gif\nType rm"))
+
+    def test_theme_with_trailing_newline_is_rejected(self) -> None:
+        with pytest.raises(ValueError, match="Invalid theme"):
+            _sanitize_theme("Dracula\n")
+
+    def test_absolute_output_path_is_quoted(self) -> None:
+        tape = generate_tape([], TapeConfig(output_path="/tmp/x y/out.gif"))
+        assert tape.splitlines()[0] == 'Output "/tmp/x y/out.gif"'
+
+    def test_output_path_under_home_is_not_redacted(self) -> None:
+        """``~`` in an Output path makes VHS write to a literal ``./~/``."""
+        target = f"{Path.home()}/token=x/out.gif"
+        tape = generate_tape([], TapeConfig(output_path=target))
+        assert tape.splitlines()[0] == f'Output "{target}"'
+
+
+def test_secrets_and_home_paths_are_redacted_from_the_recording() -> None:
+    """Transcript text went into the GIF verbatim: keys, tokens and the
+    user's home directory included (SCR-1).
+    """
+    home = str(Path.home())
+    secret_text = (
+        f"export OPENAI_API_KEY=sk-abcdefghijklmnop1234 and ghp_{'a' * 36} "
+        f"in {home}/project/.env with password=hunter2"
+    )
+    tape = generate_tape([UserTurn(text=secret_text)], TapeConfig(output_path="o.gif"))
+    for leaked in ("sk-abcdefghijklmnop1234", "ghp_" + "a" * 36, "hunter2", home):
+        assert leaked not in tape, leaked
+    assert "~/project/.env" in tape

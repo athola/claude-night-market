@@ -357,3 +357,9 @@ class TestSessionStoreLoadUndecodable:
         (tmp_path / "abc123.json").write_bytes(b"\xff\xfe{}")
         assert store.load("abc123") is None
         assert "corrupt session" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("bad", ["skill\n", "a/b", "../x", "", "x" * 129])
+def test_safe_component_rejects_trailing_newline_and_separators(bad: str) -> None:
+    """`$` matched before a trailing newline, so a newline-ended id passed."""
+    assert validate_session_id(bad) is False

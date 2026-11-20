@@ -49,7 +49,7 @@ $(1):
 endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
-.PHONY: help all test lint fix typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan \
+.PHONY: help all test lint fix typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check graph demo verify-deferred-capture supply-chain-scan \
 	test-ecosystem test-mods validate-plugins check-json-utils check-discussions writeback-discussions validate-skills analyze-skills shellcheck
 
 # The plugin delegation rules above are generated with $(eval), so the first
@@ -254,6 +254,12 @@ check-examples: ## Verify all plugins have proper examples
 docs-sync-check: ## Verify capabilities docs match plugin registrations
 	@bash scripts/capabilities-sync-check.sh
 
+# A full build, not incremental: an incremental update diffs against HEAD
+# and re-parses nothing on a clean tree. Runs in gauntlet's environment
+# because a system python3 may lack tree-sitter. Run on each release.
+graph: ## Re-parse every source file into the gauntlet code graph (.gauntlet/graph.db)
+	@uv run --project plugins/gauntlet python plugins/gauntlet/scripts/graph_build.py .
+
 check-json-utils: ## Verify inlined JSON utilities match scripts/shared/json_utils.sh
 	@bash scripts/shared/check-json-utils-drift.sh
 
@@ -263,7 +269,7 @@ check-json-utils: ## Verify inlined JSON utilities match scripts/shared/json_uti
 check-discussions: ## Reconcile the Discussions board against the commit log
 	@uv run python scripts/reconcile_discussions.py
 
-writeback-discussions: ## Post resolution comments for trailered findings
+writeback-discussions: ## Preview (dry run) resolution comments for trailered findings
 	@uv run python scripts/reconcile_discussions.py --apply --dry-run
 	@echo ""
 	@echo "Dry run only. Re-run without --dry-run in the script to post:"

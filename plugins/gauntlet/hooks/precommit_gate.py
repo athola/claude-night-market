@@ -85,19 +85,12 @@ def check_pass_token(gauntlet_dir: Path, staged_hash: str) -> bool:
     except (json.JSONDecodeError, OSError):
         return False
 
-    if data.get("staged_hash") != staged_hash:
+    if not isinstance(data, dict) or data.get("staged_hash") != staged_hash:
         return False
 
-    expires_at_str = data.get("expires_at", "")
-    try:
-        expires_at = datetime.datetime.fromisoformat(expires_at_str)
-    except ValueError:
-        return False
-
-    issued_at_str = data.get("issued_at", "")
-    try:
-        issued_at = datetime.datetime.fromisoformat(issued_at_str)
-    except ValueError:
+    expires_at = _aware_time(data.get("expires_at"))
+    issued_at = _aware_time(data.get("issued_at"))
+    if expires_at is None or issued_at is None:
         return False
 
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -217,6 +210,43 @@ def _get_developer_id() -> str:
         return "unknown"
 
 
+def _aware_time(stamp: object) -> datetime.datetime | None:
+    """Parse a token timestamp, None unless it is an aware ISO string.
+
+    write_pass_token writes aware strings. A hand-edited token with a null
+    or naive time raised TypeError, and run_gate denied every commit.
+    """
+    if not isinstance(stamp, str):
+        return None
+    try:
+        parsed = datetime.datetime.fromisoformat(stamp)
+    except ValueError:
+        return None
+    return parsed if parsed.tzinfo is not None else None
+
+
+_MODES = ("off", "gate", "nudge")
+
+
+def _precommit_mode(config: dict[str, Any]) -> str:
+    """Read the user's ``precommit.mode`` as one of the three names.
+
+    YAML 1.1 reads a bare ``off`` as False, which matched no branch and
+    denied. An empty ``precommit:`` is None, and ``.get`` on it raised.
+    """
+    block = config.get("precommit")
+    mode = block.get("mode", "gate") if isinstance(block, dict) else "gate"
+    if mode is False:
+        return "off"
+    if mode in _MODES:
+        return mode
+    print(
+        f"warning: unknown gauntlet precommit.mode {mode!r}; using 'gate'",
+        file=sys.stderr,
+    )
+    return "gate"
+
+
 def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
     """Load config.yaml (preferred) or config.json from the gauntlet directory."""
     try:
@@ -225,7 +255,14 @@ def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
             safe_load,
         )
     except ImportError:
-        pass
+        if (gauntlet_dir / "config.yaml").exists():
+            # The hook runs on the first python3 on PATH, which may lack
+            # PyYAML; skipping the user's file in silence left the gate on.
+            print(
+                f"warning: PyYAML is not installed for {sys.executable}; "
+                f"{gauntlet_dir / 'config.yaml'} is ignored",
+                file=sys.stderr,
+            )
     else:
         yaml_path = gauntlet_dir / "config.yaml"
         if yaml_path.exists():
@@ -427,7 +464,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     config = _load_config(gauntlet_dir)
-    mode = config.get("precommit", {}).get("mode", "gate")
+    mode = _precommit_mode(config)
 
     if mode == "off":
         return None

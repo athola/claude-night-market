@@ -15,6 +15,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.delegation_prompt import _prompt_argv
+from scripts.delegation_services import (
+    SERVICES,
+    inherited_environment,
+    refused_credential_output,
+)
 from scripts.war_room import experts as _experts_mod
 from scripts.war_room.config import CLAUDE_HAIKU
 from scripts.war_room.delphi import (
@@ -29,6 +35,7 @@ from scripts.war_room.experts import (
     get_expert_command,
     get_fallback_notice,
     get_haiku_command,
+    unavailable_reason,
 )
 from scripts.war_room.hooks import should_suggest_war_room as _should_suggest_war_room
 from scripts.war_room.models import ExpertInfo, MerkleDAG, WarRoomSession
@@ -75,6 +82,15 @@ _PLAIN: dict[str, Any] = {
     "_compute_convergence": compute_convergence,
     "_compute_borda_scores": compute_borda_scores,
 }
+
+
+class ExpertFailureNote(str):
+    """A bracketed note that an expert's provider failed, not an answer.
+
+    Internal to the invocation path: ``_invoke_expert`` turns it into
+    ``None`` plus an entry in ``session.artifacts["expert_failures"]``, so
+    no caller can mistake it for an opinion.
+    """
 
 
 class WarRoomOrchestrator:
@@ -181,11 +197,13 @@ class WarRoomOrchestrator:
         prompt: str,
         session: WarRoomSession,
         phase: str,
-    ) -> str:
+    ) -> str | None:
         """Invoke a single expert and record contribution.
 
         For external LLMs (Gemini, Qwen, GLM), tests availability first.
-        Falls back to Haiku if external LLM is unavailable.
+        Falls back to Haiku if external LLM is unavailable. Returns None
+        when the provider failed: a failure is not an opinion, so it is
+        recorded in ``expert_failures`` and never in the DAG.
         """
         expert = EXPERT_CONFIGS[expert_key]
         actual_model = expert.model
@@ -199,12 +217,22 @@ class WarRoomOrchestrator:
         else:
             # Fallback to Haiku
             actual_model = CLAUDE_HAIKU
+            reason = unavailable_reason(expert)
+            because = f" ({reason})" if reason else ""
             notice = (
-                f"{expert.role} ({expert.model}) unavailable, using Haiku as fallback"
+                f"{expert.role} ({expert.model}) unavailable{because}, "
+                "using Haiku as fallback"
             )
             if notice not in _haiku_fallback_notices:
                 _haiku_fallback_notices.append(notice)
             result = await self._invoke_haiku_fallback(expert, prompt)
+
+        # A provider's error note is not an expert's answer, and the DAG is
+        # the sealed record of what experts said.
+        if isinstance(result, ExpertFailureNote):
+            failures = session.artifacts.setdefault("expert_failures", {})
+            failures[f"{phase}:{expert_key}"] = str(result)
+            return None
 
         # Record in Merkle-DAG
         session.merkle_dag.add_contribution(
@@ -216,19 +244,27 @@ class WarRoomOrchestrator:
 
         return result
 
-    async def _run_subprocess(self, cmd: list[str], label: str, not_found: str) -> str:
+    async def _run_subprocess(
+        self,
+        cmd: list[str],
+        label: str,
+        not_found: str,
+        service: Any = None,
+    ) -> str:
         """Run ``cmd`` and return its stdout, or a bracketed failure note.
 
         Both invocation paths share this: the same create_subprocess_exec
         call, the same timeout, the same returncode check and the same three
         failure modes. Only the wording differs, which is what ``label`` and
-        ``not_found`` carry.
+        ``not_found`` carry. A registry ``service`` adds its ``env_unset``
+        and its refused-credential markers, which an exit code of 0 hides.
         """
         try:
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                env=inherited_environment(service) if service is not None else None,
             )
             try:
                 stdout, stderr = await asyncio.wait_for(
@@ -241,15 +277,25 @@ class WarRoomOrchestrator:
                 raise
             # One stray byte from an external CLI is not a failed answer.
             if proc.returncode != 0:
-                return f"[{label} failed: {stderr.decode(errors='replace')[:500]}]"
-            return stdout.decode(errors="replace")
+                return ExpertFailureNote(
+                    f"[{label} failed: {stderr.decode(errors='replace')[:500]}]"
+                )
+            out = stdout.decode(errors="replace")
+            err = stderr.decode(errors="replace")
+            if service is not None and refused_credential_output(out, err, service):
+                return ExpertFailureNote(
+                    f"[{label} failed: credential refused: {(out + err)[:500]}]"
+                )
+            return out
         # Both names: they are distinct classes before Python 3.11.
         except (asyncio.TimeoutError, TimeoutError):
-            return f"[{label} timed out after {_SUBPROCESS_TIMEOUT_SECONDS:.0f}s]"
+            return ExpertFailureNote(
+                f"[{label} timed out after {_SUBPROCESS_TIMEOUT_SECONDS:.0f}s]"
+            )
         except FileNotFoundError:
-            return not_found
+            return ExpertFailureNote(not_found)
         except Exception as e:
-            return f"[{label} error: {e}]"
+            return ExpertFailureNote(f"[{label} error: {e}]")
 
     async def _invoke_haiku_fallback(self, expert: Any, prompt: str) -> str:
         """Invoke Haiku as fallback for unavailable external expert.
@@ -265,7 +311,7 @@ class WarRoomOrchestrator:
         try:
             cmd = get_haiku_command()
         except FileNotFoundError as e:
-            return f"[{expert.role} (Haiku fallback) error: {e}]"
+            return ExpertFailureNote(f"[{expert.role} (Haiku fallback) error: {e}]")
         cmd.append(full_prompt)
         return await self._run_subprocess(
             cmd,
@@ -280,11 +326,24 @@ class WarRoomOrchestrator:
         Arguments passed as list, not through shell.
         """
         cmd = get_expert_command(expert)
-        cmd.append(prompt)
+        # The GLM wrapper has no registry argv, but its env_unset and
+        # refusal markers still apply: it sends to Z.ai, and an inherited
+        # ANTHROPIC_API_KEY would go with it.
+        registry = SERVICES.get(expert.service)
+        service = registry if expert.command else None
+        if service is None:
+            cmd.append(prompt)
+        else:
+            # The registry's escaping, so a prompt starting with "-" is not
+            # read as a CLI flag: it needs `--prompt=<text>` or `-- <text>`.
+            if service.prompt_flag and cmd[-1] == service.prompt_flag:
+                cmd.pop()
+            cmd.extend(_prompt_argv(service, prompt))
         return await self._run_subprocess(
             cmd,
             expert.role,
             f"[{expert.role} command not found: {cmd[0]}]",
+            registry,
         )
 
     async def _invoke_parallel(
@@ -294,7 +353,7 @@ class WarRoomOrchestrator:
         session: WarRoomSession,
         phase: str,
     ) -> dict[str, str]:
-        """Invoke multiple experts in parallel."""
+        """Invoke multiple experts in parallel, keeping only real answers."""
         tasks = {
             key: self._invoke_expert(
                 key, prompts.get(key, prompts.get("default", "")), session, phase
@@ -305,13 +364,15 @@ class WarRoomOrchestrator:
 
         results = await asyncio.gather(*tasks.values(), return_exceptions=True)
 
+        # A failure is not an opinion: kept out of what the phases and the
+        # Borda count read. _invoke_expert has recorded a provider failure
+        # already (None); an exception is recorded here.
         output: dict[str, str] = {}
         for key, result in zip(tasks.keys(), results):
             if isinstance(result, BaseException):
-                output[key] = f"[Error: {result}]"
-            elif isinstance(result, str):
-                output[key] = result
-            else:
+                failures = session.artifacts.setdefault("expert_failures", {})
+                failures[f"{phase}:{key}"] = f"[Error: {result}]"
+            elif result is not None:
                 output[key] = str(result)
         return output
 

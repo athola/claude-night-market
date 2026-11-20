@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Callable
@@ -488,3 +489,43 @@ class TestCommandLine:
         )
         assert code == 3
         assert "--pending join" in capsys.readouterr().err
+
+
+def test_main_reports_cli_failure_without_traceback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A failing gh call escaped main as a traceback, possibly mid-post (SAN-10)."""
+
+    findings = tmp_path / "f.json"
+    findings.write_text(
+        json.dumps(
+            [
+                {
+                    "id": "X",
+                    "severity": "critical",
+                    "path": "a.py",
+                    "line": 1,
+                    "body": "b",
+                }
+            ]
+        )
+    )
+
+    def failing(argv, stdin=None):
+        raise subprocess.CalledProcessError(1, argv, stderr="HTTP 502")
+
+    monkeypatch.setattr(pfr, "run_cli", failing)
+    rc = pfr.main(
+        [
+            "--platform",
+            "github",
+            "--repo",
+            "o/r",
+            "--pr",
+            "7",
+            "--findings",
+            str(findings),
+        ]
+    )
+    assert rc != 0
+    assert "HTTP 502" in capsys.readouterr().err

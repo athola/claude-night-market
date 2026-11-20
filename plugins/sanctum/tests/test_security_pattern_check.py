@@ -138,15 +138,15 @@ class TestIsDocumentationFile:
     @pytest.mark.parametrize(
         "directory", ["docs", "doc", "documentation", "wiki", "examples", "commands"]
     )
-    def test_detects_doc_directories(self, directory: str) -> None:
-        """Given a file inside a documentation directory, returns True."""
-        assert is_documentation_file(f"{directory}/api.py") is True
+    def test_code_inside_a_doc_directory_is_still_code(self, directory: str) -> None:
+        """docs/conf.py runs; directory names silenced its checks (SAN-7)."""
+        assert is_documentation_file(f"{directory}/api.py") is False
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_detects_nested_doc_directory(self) -> None:
-        """Given a file nested under a doc directory, returns True."""
-        assert is_documentation_file("project/docs/api/endpoints.py") is True
+    def test_markdown_nested_under_a_doc_directory_is_documentation(self) -> None:
+        """Doc mode follows the suffix, wherever the file lives."""
+        assert is_documentation_file("project/docs/api/endpoints.md") is True
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -410,13 +410,12 @@ class TestCheckContent:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_doc_in_examples_dir_with_context(self) -> None:
-        """Given file in examples/ with negative context, skips match."""
+    def test_python_in_examples_dir_is_checked_as_code(self) -> None:
+        """examples/demo.py runs, so "bad example" no longer hides it (SAN-7)."""
         pattern = PATTERNS["os_system"]()
         content = f"# bad example: {pattern}"
-        rule, reminder = check_content("examples/demo.py", content)
-        assert rule is None
-        assert reminder is None
+        rule, _reminder = check_content("examples/demo.py", content)
+        assert rule == "os_system_call"
 
 
 # ============================================================================

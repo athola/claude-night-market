@@ -7,6 +7,573 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **conserve:** `scripts/session_cost.py` reads a session transcript and
+  splits its spend into uncached input, cache writes, cache reads and
+  output, weighted by each model's price multiples, and ranks tool
+  results by what re-reading them cost. Billed-run studies found token
+  reduction a weak predictor of cost (arXiv 2607.12161), and on one
+  472-request session here re-reading tool results was 5.6% of spend.
+
+### Changed
+
+- **conserve:** the CCR hook adds one line naming the archive and its
+  retrieve command. It no longer appends a head and tail digest of up to
+  4,000 characters beside an output already in context, which added
+  tokens to every large result. It skips a Bash result that Claude Code
+  already saved to a file, where its archive held only the first 30,000
+  characters. The reversible-compression
+  module now says why the hook does not replace output through
+  `updatedToolOutput`, and cites independent measurements in place of
+  Headroom's own token counts.
+- **conserve:** in Cursor, which runs Claude plugin hooks, CCR returns
+  early: Cursor writes long tool output to files itself, sends the shell
+  tool as `Shell`, and puts its output in `tool_output`, not
+  `tool_response`. `session_cost.py` names a Cursor transcript, which
+  records no token usage, rather than reporting zero requests, and reads
+  Cursor's usage data instead: `cusage --json` output, including on
+  standard input, and `cursor-agent -p --output-format json` result lines.
+  That report gives token shares, because Cursor's cost includes its
+  Token Rate and no cache-write duration is reported.
+
+- **leyline:** the two SessionStart hooks that reach GitHub are off by
+  default, each behind a plugin option Claude Code shows when the plugin
+  is enabled (#1054). `star_repo` stars the repository once and tells
+  the user. It no longer asks the model to request a star in every
+  session. `discussions_context` gates the recent-discussions fetch,
+  whose text anyone can write on a public repository. Users who relied
+  on the fetch turn it on in `/config`.
+
+### Fixed
+
+Review fixes from the two PR #1256 reviews (94 findings). Each fix has
+a test written to fail first, or corrected text for a docs finding.
+
+- **abstract:** a Stop-hook stage skipped for lack of time runs first on
+  the next Stop, so a slow auto-promote no longer blocks post-learnings
+  on every Stop.
+- **abstract:** a pending marker left by a killed Stop hook is checked
+  against GitHub, not read as already posted, so that day's learnings
+  post is no longer skipped.
+- **abstract:** a skill history record missing a key or holding a
+  non-number is set aside, not admitted and then raised on every Skill
+  call.
+- **abstract:** the Skill execution logger imports on Windows, where
+  `fcntl` does not exist and every `Skill` call ended in
+  `ModuleNotFoundError` (#1259). The history lock uses `msvcrt.locking`
+  there and releases it explicitly.
+- **abstract:** every TasksManager reader treats a state file of the
+  wrong shape as no state. Before, only `update_task_status` tolerated a
+  missing `metrics`.
+- **attune:** the deferred-capture modules stop with a message when
+  `CLAUDE_PLUGIN_ROOT` is unset, instead of skipping the capture because
+  `/scripts/deferred_capture.py` does not exist.
+- **book:** `/pr` is no longer documented as an alias for
+  `/sanctum:prepare-pr`. The alias was a frontmatter key nothing reads,
+  so `/pr` never resolved.
+- **book:** the `/fixit` row shows its whole description, not the first
+  line of it.
+- **book:** the `/justify` row shows its description, not the YAML `>-`
+  marker.
+- **ci:** the Python 3.9 jobs pin `ubuntu-24.04`, because
+  `ubuntu-latest` moved to 26.04, which has no 3.9 build, and every job
+  failed at setup.
+- **conjure:** A Red Team or escalation-intel provider failure is no
+  longer passed to the phases as that expert's answer. `_invoke_expert`
+  returns None and records the failure.
+- **conjure:** A War Room expert whose provider rejects its key but
+  exits 0 is recorded as a failure, not as the expert's answer.
+- **conjure:** An existing world-readable usage log is made 0600 on the
+  next append.
+- **conjure:** Directory expansion now leaves out a file whose resolved
+  target is a secret (an in-tree `notes.txt -> .env` link), anything
+  under `.ssh/` or `.gnupg/`, and `*.secrets` files.
+- **conjure:** The War Room GLM expert no longer inherits
+  `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN`, matching
+  delegation's `env_unset`.
+- **conjure:** The War Room fallback notice says why an expert is
+  unavailable (missing binary, unset key or refused key).
+- **conjure:** When the Haiku fallback cannot start because `claude` is
+  not on PATH, the War Room records a failure, not an expert opinion.
+- **conjure:** `--total-timeout` bounds provider calls and no longer
+  starts an availability probe after the deadline. The help text says
+  probes are not counted.
+- **conjure:** `make delegate-* PROMPT='...'` no longer runs `$(shell
+  ...)` or expands `$VAR` in the prompt; make passes it to the provider
+  verbatim.
+- **conserve:** Credential-directory reads are denied under /root, in
+  ~/.azure and ~/.config/glab-cli, and when the path is spelled with ./
+  or // segments.
+- **conserve:** the bloat-scan and unbloat examples name `/prepare-pr`.
+  `/pr` never resolved.
+- **egregore:** a failed `git reset --soft` after the implementer stops
+  the walk as git_failed instead of letting its committed edits pass the
+  scope fence unseen
+- **egregore:** a rerun of an item whose setup command failed runs setup
+  again instead of walking its tasks in an unprepared worktree
+- **egregore:** a resume whose base branch no longer resolves stops as
+  git_failed instead of dispatching already-committed tasks again
+- **gauntlet:** `.gauntlet/update.log` and `update.status` are
+  gitignored, so `git add -A` no longer picks them up
+- **gauntlet:** a failed background graph update is reported on the next
+  commit, naming `update.log`, instead of every commit claiming an
+  update is running
+- **gauntlet:** a failed background rebuild is reported, naming
+  `rebuild.log`, while its lock holds, instead of leaving sessions and
+  commit updates silent for two hours
+- **gauntlet:** a pass token with a null or timezone-naive timestamp
+  reads as no token, instead of denying every commit of that staged set
+- **gauntlet:** an edge's call resolution is parsed as one of `""`,
+  `exact` or `name_guess`, so an unknown value is rejected instead of
+  shown as a confirmed caller
+- **gauntlet:** an incremental build from an explicit `--base-ref` no
+  longer stamps HEAD, and the commit hook diffs from the last stamped
+  build, so a commit an earlier update missed is still parsed
+- **gauntlet:** an unquoted `mode: off` in `.gauntlet/config.yaml` turns
+  the pre-commit gate off, and an empty `precommit:` falls back to gate
+  mode instead of denying every commit
+- **herald:** a throttle file with a null or wrong-typed field reads as
+  fresh, so the continuation judge is no longer disabled until someone
+  deletes the file
+- **hookify:** block-force-push blocks force pushes to main inside bash
+  -c, ssh, subshells and backticks, and with a quoted branch name.
+- **imbue:** A scope-ramp state file with a null, non-numeric or
+  out-of-range field reads as the default rung instead of switching the
+  gate off for the session.
+- **imbue:** A typosquat suspect stays a blocking finding when it exists
+  in the registry, since a registered typosquat is the attack.
+- **imbue:** Past twice the read budget, a blocking session could not
+  read the file it meant to edit. The harness refuses an Edit of an
+  unread file, and without that Edit the count never reset. One short
+  read per discovery phase now goes through past that line, a successful
+  Write or Edit returns it, and each deny reason names the exit still
+  open. Denied reads no longer raise the count.
+- **imbue:** The no-AI-attribution vow reads a message piped into git
+  commit -F -, including printf text with \n escapes.
+- **imbue:** The scope ramp gates RED and CRITICAL files of any suffix,
+  including deploy manifests, CI workflows and prose on high-stakes
+  paths, and honors IMBUE_STAKES for them; only low-stakes prose and
+  data skip the rung.
+- **imbue, egregore, leyline:** module calls to `deferred_capture.py`
+  stop with a message when `CLAUDE_PLUGIN_ROOT` is unset, instead of
+  running `/scripts/deferred_capture.py`.
+- **leyline:** A decision-journal status or date containing a newline or
+  pipe can no longer forge a heading or an index column.
+- **leyline:** Payloads over 100 KB are blocked on every
+  ignore/disregard override pairing the regex blocks, including
+  "disregard previous" and "ignore the above".
+- **leyline:** The shared git commit detector recognizes commits inside
+  if/then, loops, brace groups, $( ) and backticks, after time, ! and
+  sudo -u, and with a quoted -C path.
+- **leyline:** The usage logger starts a new session instead of resuming
+  one whose session_id is null or not a string.
+- **memory-palace:** `intake_queue.jsonl.lock` is gitignored.
+- **memory-palace:** a capture index whose `entries` or `hashes` is a
+  list or empty is set aside like a corrupt one, instead of crashing
+  every WebFetch capture
+- **memory-palace:** a queue sync holds the intake lock only to read and
+  rewrite the queue, so a research query flagged during a long sync is
+  queued and survives the rewrite
+- **memory-palace:** an embedding index built by another model refuses
+  `add_to_room` and `export`, so its vectors are never re-stamped with
+  the current model id
+- **memory-palace:** fenced code blocks are now scanned for
+  code-execution patterns, so a page with a fenced `eval(...)` example
+  is no longer stored. Only one-line inline spans are exempt
+- **memory-palace:** project palace ids are validated before they become
+  file paths, so `load_project_palace("../../x")` raises instead of
+  reading outside the palace directory
+- **memory-palace:** the intake-pending check no longer misses a queued
+  query when the 64 KiB tail seek splits a multi-byte character
+- **oracle:** A session ending takes the start lock before it decides to
+  stop the daemon, so it cannot kill a daemon another session has just
+  confirmed running.
+- **oracle:** The setup skill no longer claims to set up ONNX inference,
+  which the provisioned venv cannot run.
+- **pensive:** `harden --strict --help` names both exit codes: 2 for a
+  HIGH finding, 3 for a file it could not analyze.
+- **pensive:** `run_code_review` honors `exclude` and `skills` from a
+  plain dict config, which it used to ignore.
+- **pensive:** a `**/tests/**` exclude pattern also excludes a top-level
+  `tests/` directory.
+- **pensive:** the duplicate-elif check compares conditions within one
+  if/elif chain, not across two chains a few lines apart.
+- **pensive:** the unified-review schema requires a non-empty `declined`
+  reason.
+- **phantom:** `--confirm` prints a field longer than the prompt limit
+  in full before asking, so text typed after 200 characters of filler is
+  no longer hidden from the approval.
+- **sanctum:** `description_paths.py` no longer fails a description for
+  a linter directive such as `<!-- markdownlint-disable MD013 -->`.
+- **sanctum:** a dated ADR file name is no longer read as ADR number
+  2026 when the next number is picked.
+- **sanctum:** a deferred-item ledger entry with a null title is skipped
+  and counted as failed. It no longer ends the sweep and loses the filed
+  markers of earlier entries.
+- **sanctum:** a null or mistyped field in the completion-notify state
+  file falls back to its default. It used to stop notifications for the
+  rest of the session.
+- **sanctum:** the consolidation planner asks git about each path's
+  ignore status once per plan, not once per chunk.
+- **sanctum:** two decisions in one consolidation plan get consecutive
+  ADR numbers rather than the same one.
+- **scribe:** a replay's `Output` path under the home directory is
+  written as given, not redacted to `~`, which VHS created as a literal
+  `./~/` directory.
+- **spec-kit:** a test pins that a `test-<command>` stub target exits 1.
+- **tests:** the PATH-trimming tests check `os.path.lexists`, so a
+  dangling system symlink such as Ubuntu 26.04's `grub-ntldr-img` no
+  longer crashes them.
+- **tome:** a stored session whose `entities` is a string or null loads
+  with no entities, instead of one entity per letter or a crash
+- **tome:** citation grounding no longer flags a retrieved source cited
+  with another scheme, a `www.` prefix or reordered query parameters,
+  and one malformed finding URL no longer aborts the check
+
+## [1.10.4] - 2026-11-18
+
+### Added
+
+- **gauntlet:** each full graph build records `gauntlet_version`. At session
+  start, a graph built by an older version is rebuilt once in the
+  background through `uv run --project` (log: `.gauntlet/rebuild.log`).
+  Opt out with `rebuild_on_upgrade: false` in `.gauntlet/config.json`.
+- `make graph` runs a full gauntlet graph build. The release runbook
+  calls it after the version bump.
+
+Review lessons from Caldara and Fernandez-Villaverde, "Can Peer Review
+Survive AI-Generated Text?" (2026):
+
+- **pensive:** a `unified-review` reviewer that cannot assess its
+  dimension returns `declined` with a reason. The return lists it under
+  `dimensions.declined` and leaves it out of `reviewed`. Before, an
+  empty list was the only exit and read as a clean dimension.
+- **pensive:** the architecture reviewer counts a departure from a
+  standard only when it names the cost. The workflow and skill state
+  that lens votes share one model and their errors correlate.
+- **sanctum:** `pr-review` treats a slop score as a trigger to verify
+  the document's claims. The finding is the false claim. The PR
+  template marks the Why as the engineer's thinking text.
+- **conjure:** Keep Local names unpublished code under review.
+
+Six deterministic guards and one evidence rule, ported from NVIDIA
+auto-ontology (`3825917a`). Each holds an agent's claim to what its
+tools returned.
+
+- **memory-palace:** an embedding index records the model that built
+  it. A search with a different model raises
+  `EmbeddingModelMismatchError`. An index saved before this stays
+  unattributed rather than being stamped with a guess.
+- **tome:** `find_ungrounded_urls` returns report URLs that no
+  finding carries. `identify_gaps(..., entities=)` reports question
+  entities that no finding mentions, with an `entity_coverage` ratio.
+- **gauntlet:** call edges record `resolution` (`exact`,
+  `name_guess`, or empty). An existing graph database gains the
+  column when opened. A bare call that matches several vendored copies
+  resolves to the caller's own plugin copy, as a `name_guess`. Blast radius
+  reports those guessed callers under `name_guess_callers`.
+- **imbue:** `vow_bounded_reads` warns when a Read, Grep or Glob call
+  repeats an identical earlier one. The repeat still counts against
+  the budget.
+- **phantom:** `--no-bash` and `--no-editor` withhold the shell and file
+  editor tools, which stay on by default.
+- **pensive:** `pensive-harden --sarif` emits SARIF 2.1.0 for code-scanning
+  upload.
+- **conjure:** `--total-timeout` (and `total_timeout=`) bounds the
+  provider calls of the `auto` chain. Availability checks are not counted,
+  and no provider is probed after the total has run out.
+- **phantom:** the `cursor_position` action reports the pointer.
+- **abstract:** failed Skill calls are logged through `PostToolUseFailure`.
+- **tome:** a session stores the entities its question names, and the
+  report lists the ones no finding mentions.
+
+### Changed
+
+- **imbue:** proof-of-work's evidence-logging module now says that
+  capped or empty output proves no absence, completeness or total. It
+  also separates observed, inferred, recommended and executed claims.
+
+Intent artifacts now ask for intent and leave the "what" to the diff,
+after "IDRs as records of intent" (Will Lachance, 2026-10-10).
+
+- **sanctum:** the pr-prep description scaffold is the pr-prep
+  template's Who/Where/When table, Why, What and how, and Test plan,
+  rendered in a fence. It used to list the changed paths. The
+  `describes_changes` gate is removed: paths cannot judge a description.
+- **sanctum:** commit-messages, `commit-msg`, `acp` and the commit agent
+  ask the body for why.
+- **attune:** both brief templates carry Out of Scope (things that could
+  reasonably be goals, chosen not to be). Blueprint tasks carry Decision
+  Notes in place of implementation detail.
+- **abstract:** a skill execution's outcome comes from the hook event,
+  not from searching its text for "error".
+  `AmbiguityType.SHARED_SERVICE` names the shared-service check, and
+  `CIRCULAR_DEPENDENCY` remains as an alias.
+- **conjure:** War Room checks expert availability with the registry's
+  verification, not a billed completion. Expert command lines come from
+  the delegation registry, and failed experts are kept out of votes and
+  synthesis. `--verify` reports a missing binary before a missing key.
+  The usage log is created 0600.
+- **egregore:** a ready item reverts stray uncommitted edits before its
+  final suite runs.
+- **imbue:** the scope ramp skips prose and data suffixes (`.md`,
+  `.yaml`, `.json`, `.toml`, `.lock` and a few more) unless the path is
+  high-stakes. Block-mode bounded reads allow a targeted read up to twice
+  the budget.
+- **oracle:** provisioning installs pyyaml only, since nothing imports
+  onnxruntime yet. The daemon is shared by session refcount.
+- **parseltongue:** `"%s" % name` is no longer rewritten to an f-string.
+- **sanctum:** the security hook decides documentation by file suffix.
+- **scribe:** `myriad`, `empower`, `actionable` and `seamless` score as
+  tier 1. Session replay redacts credentials and the home directory.
+
+### Removed
+
+- **memory-palace:** `KnowledgeGraph.get_entity_ids`, which lost its only
+  caller when the tier subsystem was deleted.
+- Frontmatter keys nothing reads: `token_budget` (conserve),
+  `optional_dependencies` (sanctum doc-updates), `aliases` (sanctum
+  prepare-pr) and one `trigger`. The `evaluation_criteria` weights in
+  abstract's rules-eval and skills-eval move into each skill body.
+- **conserve:** `scripts/safe_replacer.py`, a one-time migration tool with
+  no caller.
+- **hookify:** the `matchers` package (`PatternMatcher`) and
+  `ConfigLoader.get_rule_status`, neither with a production caller.
+- **conjure:** the unregistered gemini bridge hooks, which read a payload
+  key the harness never sends.
+- **sanctum:** `BreakingChanges.affected_apis`, which no producer filled.
+
+### Fixed
+
+Tier 3 review, high-severity findings (2026-11-17).
+
+- **hookify:** a rule file with a non-string `pattern`, `event`,
+  `action` or condition field is skipped and reported. It used to
+  raise past the loader and disable every rule. `enabled` must be a
+  boolean: `enabled: 0` and `enabled: "false"` kept a rule live.
+- **hookify:** `block-force-push` matches only within the push command,
+  allows `--force-with-lease`, and blocks a `+main` refspec. It used to
+  block `git push origin docs-fix && git checkout main`.
+- **pensive:** `harden` always reports files it could not parse, and
+  `--strict` exits 3 when any were skipped. They used to fall under the
+  default severity floor, so an unparseable tree passed.
+- **pensive:** the full-review workflow collects `Makefile` and
+  `Cargo.toml` at any depth and skips `.venv`, `node_modules` and build
+  trees, so makefile-review and rust-review are selected.
+- **pensive:** bug-review's timing-attack check matches secret-like
+  identifiers only, not every name containing `key`.
+- **parseltongue:** check-compat flags runtime `X | Y` unions, aliased
+  `datetime.UTC`, `StrEnum`, `typing.Self`, `zip(strict=)` and PEP 695
+  syntax. Bitwise `|` on values stays compatible.
+- **conjure:** output carrying a provider's auth-failure marker is a
+  refused credential, whatever the exit code, so the chain moves on.
+  Only stderr and the first stdout line are read, so an answer that
+  quotes such an error is kept.
+  glm's child process no longer inherits `ANTHROPIC_API_KEY` or
+  `CLAUDE_CODE_OAUTH_TOKEN` (`ServiceConfig.env_unset`), in delegation
+  or in `--verify` probes.
+- **egregore:** the handoff gate refuses duplicate task ids, and
+  `topo_sort` raises on them. The judge session started by
+  `claude_babysitter` (`EGREGORE_BABYSITTER_MODE=true`) is no longer
+  steered back into the loop by the Stop, SessionStart or
+  UserPromptSubmit hooks.
+- **egregore:** the watchdog stops relaunching after
+  `EGREGORE_MAX_STALLED_RELAUNCHES` (default 3) sessions in a row
+  leave the manifest unchanged. Any manifest change resets the count.
+- **scribe:** session-replay tapes start a hidden `cat > /dev/null`
+  before typing transcript lines, so a typed line plus Enter is never
+  run by VHS's shell.
+- **memory-palace:** without PyYAML, hooks still honor top-level
+  switches such as `enabled: false` in `memory-palace-config.yaml`, and
+  warn once on stderr that nested sections fall back to defaults.
+Tier 3 review, cross-plugin findings.
+
+- **leyline:** `atomic_file` gains `read_json_object` (a missing,
+  corrupt or non-object state file reads as the default) and
+  `file_lock` (the `<name>.lock` every writer of a file shares). The
+  vendored copies, plus a new conserve `scripts/` copy, carry both.
+- State readers in abstract, leyline, imbue, memory-palace, gauntlet,
+  herald and sanctum treat valid JSON or YAML of the wrong shape, such
+  as `[]`, as no state. They used to raise on it every call, and the
+  gauntlet pass token denied every commit until deleted.
+- **memory-palace:** the index promoter and orphan prune hold the
+  capture hook's index lock. Queue sync and the intake hook share a
+  lock on `intake_queue.jsonl`. conserve's coordination task manifest
+  is updated under a lock and written atomically.
+- **leyline:** `validate_session_id` rejects a trailing newline.
+  memory-palace refuses palace ids that leave `palaces_dir`, and
+  conserve refuses topic and period names that are not one file name.
+- **leyline:** `shell_command` is the one git-commit detector; gauntlet
+  and imbue carry generated copies. It recognizes `env`/`command`
+  wrappers, variable prefixes, a path-qualified `git`, `--git-dir` and a
+  subshell, and not `git commit-tree` or a commit inside quotes. The two
+  hand-kept copies disagreed on 3 of 10 commands.
+- Skills run `deferred_capture.py` from `${CLAUDE_PLUGIN_ROOT}`; the
+  cwd-relative path resolved nowhere and capture was skipped.
+- **abstract:** generated `test-<command>` targets say there is no
+  automated test and exit 1; the attune, scry and spec-kit stubs no
+  longer print "Validating" and exit 0. scry's `demo-skills` fails on a
+  missing `SKILL.md`.
+- **leyline:** `stewardship_tracker record` defaults to
+  `$CLAUDE_PROJECT_DIR/.claude/stewardship`, where the health report
+  reads.
+- **gauntlet:** the pre-commit gate and auto-update hooks warn when
+  `.gauntlet/config.yaml` exists but PyYAML is missing.
+Tier 3 review, medium findings.
+
+- **conserve:** the auto-approve hook denies reads under `~/.aws`,
+  `~/.config/gh`, `~/.docker`, `~/.kube` and `~/.gnupg`, not only
+  credential files by name.
+- **conjure:** `make delegate-*` passes PROMPT and FILES as environment
+  variables, so backticks, quotes and `;` reach the provider as text.
+  Directory expansion leaves out `.env`, keys and symlinks out of the
+  tree. The usage log records a prompt's length, not its text, and
+  caps stderr at 500 characters.
+- **leyline:** the external-content sanitizer covers `glab` and flags
+  before the subcommand (`gh -R o/r issue view`). Over the scan limit it
+  blocks on injection phrases, not the bare words "override" and
+  "disregard".
+- **memory-palace:** safety checks scan all captured content, not a
+  prefix.
+- **scribe:** tape `Output` paths are quoted, so absolute paths render.
+  A control character in the path or theme is rejected.
+- **tome:** `find_ungrounded_urls` matches URLs inside backticks, bold
+  and balanced parentheses, and counts a URL a finding's summary quotes
+  as grounded.
+- **gauntlet:** incremental diffs use `--no-renames`, so a renamed
+  file's old nodes are removed. A full build drops nodes of deleted
+  files. Without tree-sitter, auto-update runs in the plugin environment
+  in the background. A locked graph makes the rebuild hook wait, and an
+  unreadable one returns a hint instead of a traceback. A call on a
+  receiver named like a module is a `name_guess` when a same-named
+  method exists.
+- **sanctum:** pr-prep reads commit bodies, so a `BREAKING CHANGE:`
+  footer is detected. `pr_prep_analyze`, `description_paths`,
+  `review_routing` and `test_analyzer` read paths with spaces or
+  non-ASCII names correctly. Doc consolidation scans files inside new
+  untracked directories.
+- **herald:** the continuation cap counts one chain of continuations
+  and resets when the user starts a turn. Turns more than 300 s apart
+  used to reset it every time, so a slow loop never reached the cap.
+- **parseltongue:** test-guide reports a syntax error instead of an
+  empty, passing result.
+- **pensive:** tiered-audit flags fix-on-fix only when a fix touches
+  files an earlier fix in range touched. Bug-review's duplicate-`elif`
+  check stays within one chain. Makefile-review no longer reads
+  `CC := gcc` or `.PHONY` as targets, and reports a mutual dependency
+  once.
+- `scripts/slop_score.py` scans a root that sits under a `worktrees`
+  directory.
+- **memory-palace:** palace backups carry microseconds, so a burst of
+  saves keeps every backup. Capture pruning covers `websearch-` files.
+- **abstract:** the file-backed task manager reuses a task with the same
+  description, tolerates a state file without `metrics`, matches
+  cross-cutting keywords case-insensitively, and reports a shared
+  service without calling it circular. Auto-promote skips the `gh`
+  duplicate check for items below the threshold. The experience library
+  caps entries per project. `skrills-or-fallback` refuses to run when
+  `SKRILLS_VERIFY_HASH` is set without a pin, and exits 1, not 127, on a
+  hash mismatch. The learnings Stop hook skips a stage that cannot
+  finish inside its budget.
+- **conjure:** a direct `execute()` refuses to spawn when an environment
+  overlay variable is unset. A provider failure is not recorded in the
+  War Room audit DAG as an expert's answer.
+- **egregore:** a parked item resumes in its existing worktree and skips
+  committed tasks. Commits an implementer makes are soft-reset so the
+  scope fence sees them.
+- **imbue:** the AI-attribution vow reads only the commit segment, and
+  prose verbs count only at a line start. A package near a popular name
+  that the registry confirms warns instead of blocking.
+- **hookify:** `block-destructive-git` allows `git clean` dry runs and
+  blocks `-xdf`, `checkout .` and `restore .`. `block-dynamic-code`
+  matches any call position and skips definitions, methods and comment
+  lines. Both rules, and `block-force-push`, have behavior tests.
+- **pensive:** the full-review workflow honors a `Configuration`'s
+  `exclude` and `skills`. The SARIF formatter maps harden findings.
+  Harden rates `shell=True` on a constant command LOW.
+- **phantom:** the confirmation prompt shows the text and coordinates an
+  action carries. `zoom` has a handler.
+- **scribe:** identity leaks and AI citation artifacts are scored (P0).
+- The book's hook table matches every `hooks.json`, and the minister
+  page's CLI examples parse; tests hold both.
+- **imbue:** `IMBUE_RAMP_OK` widens the scope rung once per session; it
+  sat in every call's environment and widened it on every write. Days
+  on branch count from the branch's first commit, not the base commit.
+- **sanctum:** `description_paths.py` fails a PR description that still
+  holds a scaffold comment, reporting each as `unfilled`.
+- **sanctum:** doc-consolidation names new ADRs `NNNN-topic.md`, the
+  convention every committed ADR follows.
+- **sanctum:** doc-consolidation never routes content into a gitignored
+  file. A plan item with no committed home becomes a GitHub issue on
+  approval.
+- **gauntlet:** an incremental build with no tree-sitter parser now exits
+  2 with an `error` instead of reporting files it never parsed. The
+  graph-build skill runs the script in the plugin's own environment,
+  since a system `python3` may lack tree-sitter.
+- **gauntlet:** `graph_build.py --incremental` now diffs from the commit
+  of the last successful build, not `HEAD`. On a clean tree the `HEAD`
+  diff was empty and a stale graph reported "no changes detected".
+- **leyline:** prompt-injection screening catches "disregard previous" and
+  "ignore prior". The uv.lock scan normalizes blocklist names. A plugin
+  update whose output names no version is counted as unverified, neither
+  latest nor failed. The reinstall script quotes plugin names. Journal
+  entries escape lines that would parse as headings and keep metadata
+  fields on one line.
+- **spec-kit:** the data digest in a cache key is 16 hex characters,
+  matching the file-path digest.
+- **book:** plugin pages list every command the plugin ships.
+- **scribe:** contrastive patterns no longer scan unpunctuated text in
+  quadratic time, and `a + b` in arithmetic is not scored as a
+  conjunction. Fenced code follows CommonMark closing rules. Spelling
+  normalization bisects protected spans. One sentence matched by two
+  patterns of a category scores once.
+- **memory-palace:** multi-line backtick spans no longer hide code
+  execution from the safety check. URL keys keep `ref`. A `~/.ssh/` path
+  is unsafe and `foo..bar.md` is not traversal. Queued prompts redact
+  password, secret and token assignments. Long URLs sharing a prefix get
+  distinct graph entities, and pruning keeps index rows with no timestamp.
+- **conjure:** a missing `@path` context file logs a warning.
+  `auto` delegation passes `--timeout` to each provider. A null
+  `tokens_used` no longer drops that call's duration from the summary.
+- **attune:** `attune_upgrade.py --force` skips the prompt and a closed
+  stdin cancels. The author is read from `authors = [{ name = ... }]`.
+  `attune_init.py` rejects project names that would break Makefile
+  recipes. Template sync rewrites only the `[package]` name.
+- **pensive:** bug review categorizes severity with the shared mapper,
+  and the PR blast-radius hook reads `gh pr create -Bmain`.
+- **parseltongue:** async analysis results are sorted, so the JSON output
+  no longer depends on `PYTHONHASHSEED`.
+- **phantom:** typed text starting with `-` is not read as an xdotool
+  flag. A stuck abort keeps its tool results in the history and answers
+  every later tool call in that turn without running it.
+- **oracle:** the daemon times out a silent client after 5 seconds, and
+  the missing-models notice is logged once, not every session.
+- **abstract:** the homeostatic monitor reports `critical` when its queue
+  is unavailable, and the digest gate does not read a `---` rule as an
+  issue entry.
+- **minister:** a `|` in an initiative name is escaped in the GitHub
+  summary table. The book page lists the plugin's three commands.
+- **scry:** the GIF demo works in `plugins/scry/.gif-demo`, not a fixed
+  path in shared `/tmp`.
+- `make writeback-discussions` help says it previews. It posts nothing.
+- **memory-palace:** pruned captures leave the index, and title repair
+  takes the index lock. Search entries keep their query verbatim. The
+  research queue is written only where `docs/knowledge-corpus` exists,
+  and a missing PyYAML is reported once.
+- **gauntlet:** a stale rebuild lock is taken over under a guard, and a
+  failed launch releases it.
+- **hookify:** `block-destructive-git` no longer suggests commands it
+  blocks.
+- **pensive:** makefile review holds `main:` to `main.c` only in C
+  Makefiles and matches tool names as words.
+- **sanctum:** consolidation scans from a subdirectory correctly, and
+  the PR prep report names footer-marked breaking changes.
+- **imbue:** the package guard reads installs inside `bash -c` wrappers,
+  and the TDD gate exits quietly on a malformed payload.
+- **abstract:** a learnings post is recorded before it is created, so a
+  killed Stop hook cannot post it twice.
+
 ## [1.10.3] - 2026-11-13
 
 One entry below is marked Breaking, and this release ships it under a

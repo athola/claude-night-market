@@ -20,7 +20,9 @@ include $(ABSTRACT_DIR)/config/make/markdown-only.mk
 # Hard-assigned, not `?=`: the clean target below runs `rm -rf` on this,
 # and an exported GIF_DEMO_DIR would redirect it. A command-line
 # assignment still overrides, which is the deliberate escape hatch.
-GIF_DEMO_DIR := /tmp/scry-gif-test
+# Inside the plugin, not shared /tmp: whoever created a fixed /tmp path
+# first decided what the clean target removed.
+GIF_DEMO_DIR := $(CURDIR)/.gif-demo
 # TMP_DIR is hard-assigned for the same reason, and
 # TMP_DIR is a name a contributor may well have exported. scripts/
 # gif_demo.sh documents its own TMP_DIR default and still receives an
@@ -186,14 +188,14 @@ clean-gif-temp: ## Remove temp GIF demo files
 demo-skills: ## Validate scry skill and agent structure
 	@echo "=== Scry Skills Demo ==="
 	@echo "Media generation skills:"
-	@for dir in skills/*/; do \
+	@missing=0; for dir in skills/*/; do \
 		name=$$(basename "$$dir"); \
 		if [ -f "$$dir/SKILL.md" ]; then \
 			echo "  - $$name [OK]"; \
 		else \
-			echo "  - $$name [pending]"; \
+			echo "  - $$name [missing SKILL.md]"; missing=1; \
 		fi; \
-	done
+	done; [ "$$missing" -eq 0 ]
 	@echo ""
 	@echo "Skill coverage:"
 	@echo "  vhs-recording:      $$(test -f skills/vhs-recording/SKILL.md && echo '[OK]' || echo '[pending]')"
@@ -227,19 +229,13 @@ demo-scry-commands: demo-record-terminal demo-record-browser ## Run all scry doc
 	@echo "=== Scry All Commands Demo Complete ==="
 
 # ---------- Test Targets ----------
-test-record-terminal: ## Test record-terminal command workflow
-	@echo "=== Testing record-terminal workflow ==="
-	@echo "Validating: /record-terminal"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+test-record-terminal: ## No automated test for /record-terminal (exits 1)
+	@echo "No automated test for /record-terminal; run it by hand."
+	@exit 1
 
-test-record-browser: ## Test record-browser command workflow
-	@echo "=== Testing record-browser workflow ==="
-	@echo "Validating: /record-browser"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+test-record-browser: ## No automated test for /record-browser (exits 1)
+	@echo "No automated test for /record-browser; run it by hand."
+	@exit 1
 
 plugin-check: validate check-deps demo-vhs demo-playwright demo-skills ## Run all demo workflows
 	@echo ""

@@ -32,7 +32,12 @@ import sys
 import time
 from pathlib import Path
 
-from _manifest_utils import find_manifest, has_active_work, read_stdin_payload
+from _manifest_utils import (
+    find_manifest,
+    has_active_work,
+    in_judge_mode,
+    read_stdin_payload,
+)
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 from continuation_baton import (  # noqa: E402 - scripts/ joins sys.path above
@@ -142,6 +147,8 @@ def main() -> None:
     """Stop hook entry point."""
     payload = read_stdin_payload()
     session_id = str(payload.get("session_id") or "unknown")
+    if in_judge_mode():
+        approve()
 
     manifest_path = find_manifest()
 

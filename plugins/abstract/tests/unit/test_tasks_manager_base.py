@@ -654,6 +654,45 @@ class TestTasksManagerFileBasedExtended:
         assert state_data["metrics"]["tasks_complete"] == 1
 
 
+_WRONG_SHAPES = [
+    pytest.param("[]", id="list"),
+    pytest.param("null", id="null"),
+    pytest.param('{"tasks": []}', id="tasks-list"),
+    pytest.param('{"tasks": {}}', id="no-metrics"),
+    pytest.param('{"tasks": {"T-1": "x"}, "metrics": []}', id="bad-entries"),
+]
+
+
+class TestWrongShapeStateReadsAsNoState:
+    """Only update_task_status tolerated a state file without metrics.
+
+    The other readers raised KeyError, TypeError or AttributeError on a
+    state file of the wrong shape.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("content", _WRONG_SHAPES)
+    def test_every_reader_treats_a_wrong_shape_file_as_no_state(
+        self, manager: TasksManager, content: str
+    ) -> None:
+        manager.fallback_state_file.write_text(content)
+        assert manager.get_state().total_count == 0
+        assert not manager.detect_resume_state().has_incomplete_tasks
+        assert manager.can_start_task("T-1")
+        assert not manager.update_task_status("T-1", "complete")
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("content", _WRONG_SHAPES)
+    def test_ensure_task_exists_replaces_a_wrong_shape_file(
+        self, manager: TasksManager, content: str
+    ) -> None:
+        manager.fallback_state_file.write_text(content)
+        task_id = manager.ensure_task_exists("Task A")
+        state_data = json.loads(manager.fallback_state_file.read_text())
+        assert state_data["metrics"]["tasks_total"] == 1
+        assert state_data["tasks"][str(task_id)]["description"] == "Task A"
+
+
 # ---------------------------------------------------------------------------
 # Tests: TasksManager Tasks-mode
 # ---------------------------------------------------------------------------
@@ -908,3 +947,59 @@ class TestDefaultAskUser:
             assert result == ""
         finally:
             sys.stdin = old_stdin
+
+
+class TestTier3TaskManagerFindings:
+    """ABS-3, ABS-4, ABS-5, ABS-6."""
+
+    @pytest.mark.unit
+    def test_file_fallback_returns_same_id_for_same_description(
+        self, manager: TasksManager
+    ) -> None:
+        """The Tasks path reused a matching task; the file path made a new one."""
+        first = manager.ensure_task_exists("Write the parser")
+        assert manager.ensure_task_exists("Write the parser") == first
+
+    @pytest.mark.unit
+    def test_status_update_tolerates_a_state_file_without_metrics(
+        self, manager: TasksManager
+    ) -> None:
+        task_id = manager.ensure_task_exists("Write the parser")
+        state = json.loads(manager.fallback_state_file.read_text())
+        del state["metrics"]
+        manager.fallback_state_file.write_text(json.dumps(state))
+        manager.update_task_status(task_id, "complete")
+        state = json.loads(manager.fallback_state_file.read_text())
+        assert state["metrics"]["tasks_complete"] == 1
+
+    @pytest.mark.unit
+    def test_shared_service_is_not_called_circular(self) -> None:
+        result = detect_ambiguity(
+            "Refactor code that uses authmanager",
+            context={
+                "existing_tasks": [{"description": "Test code that uses authmanager"}]
+            },
+        )
+        assert "circular" not in result.message.lower()
+        assert "authmanager" in result.message
+
+    @pytest.mark.unit
+    def test_shared_service_has_a_type_named_for_it(self) -> None:
+        """The type still said CIRCULAR_DEPENDENCY for a shared service (ABS-5)."""
+        result = detect_ambiguity(
+            "Refactor code that uses authmanager",
+            context={
+                "existing_tasks": [{"description": "Test code that uses authmanager"}]
+            },
+        )
+        assert result.ambiguity_type is AmbiguityType.SHARED_SERVICE
+        assert AmbiguityType.CIRCULAR_DEPENDENCY is AmbiguityType.SHARED_SERVICE
+
+    @pytest.mark.unit
+    def test_cross_cutting_keyword_matches_case_insensitively(self) -> None:
+        result = detect_ambiguity(
+            "please UPDATE everything now",
+            context={},
+            cross_cutting_keywords=["Update Everything"],
+        )
+        assert result.ambiguity_type == AmbiguityType.CROSS_CUTTING

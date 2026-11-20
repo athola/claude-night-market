@@ -283,17 +283,20 @@ def _parse_markdown_or_raise(text: str) -> list[dict[str, Any]]:
 
 
 def _findings_from_json(data: Any) -> list[dict[str, Any]]:
-    """Normalize parsed JSON into a list of finding dicts."""
-    if isinstance(data, list):
-        return data
-    if isinstance(data, dict):
-        if "findings" in data:
-            findings = data["findings"]
-            if not isinstance(findings, list):
-                raise json.JSONDecodeError("'findings' must be a list", str(data), 0)
-            return findings
-        return [data]
-    raise json.JSONDecodeError("unexpected findings JSON shape", str(data), 0)
+    """Normalize parsed JSON into a list of finding dicts.
+
+    Every entry must be an object: a stray string raised AttributeError,
+    exit 1, the code reserved for a finding that failed.
+    """
+    if isinstance(data, dict) and "findings" in data:
+        data = data["findings"]
+        if not isinstance(data, list):
+            raise json.JSONDecodeError("'findings' must be a list", str(data), 0)
+    elif isinstance(data, dict):
+        data = [data]
+    if not isinstance(data, list) or not all(isinstance(e, dict) for e in data):
+        raise json.JSONDecodeError("findings must be JSON objects", str(data), 0)
+    return data
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -18,8 +18,8 @@ Lightweight inline assessment for determining whether a decision point within a 
 
 ## Verification
 
-Run `make attune-test` from the repository root to verify checkpoint
-logic still works after changes.
+Run `uv run pytest tests/unit/skills/test_war_room_checkpoint.py` from
+`plugins/attune` to verify checkpoint logic still works after changes.
 
 ## Purpose
 

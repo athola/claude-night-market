@@ -151,6 +151,35 @@ class TestFixOnFix:
         assert len(flags) == 3
 
 
+class TestFixOnFixNeedsAnEarlierFixToTheSameFiles:
+    """A single fix commit read as fix-on-fix and escalated to Tier 2 (PEN-5).
+
+    escalation-criteria.md defines the signal as a fix to files an earlier
+    fix in range already touched.
+    """
+
+    @pytest.mark.unit
+    def test_single_fix_commit_does_not_flag(self) -> None:
+        flags = check_fix_on_fix(
+            [("b", "fix: typo")], files_by_commit={"b": {"src/a.py"}}
+        )
+        assert flags == []
+
+    @pytest.mark.unit
+    def test_second_fix_to_the_same_file_flags(self) -> None:
+        # git log lists newest first.
+        commits = [("c", "fix: really fix it"), ("b", "feat: x"), ("a", "fix: first")]
+        files = {"c": {"src/a.py"}, "b": {"src/a.py"}, "a": {"src/a.py", "doc.md"}}
+        flags = check_fix_on_fix(commits, files_by_commit=files)
+        assert [f.detail for f in flags] == ["c: fix: really fix it"]
+
+    @pytest.mark.unit
+    def test_fixes_to_unrelated_files_do_not_flag(self) -> None:
+        commits = [("c", "fix: b"), ("a", "fix: a")]
+        files = {"c": {"src/b.py"}, "a": {"src/a.py"}}
+        assert check_fix_on_fix(commits, files_by_commit=files) == []
+
+
 # --------------- large diff tests ---------------
 
 

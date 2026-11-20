@@ -6,6 +6,7 @@ import ast
 import re
 from typing import Any
 
+from ..async_analysis._base import parse_code
 from ._constants import _OBSERVER_METHODS, MIN_OBSERVER_METHODS
 
 __all__ = ["GoFPatternMixin"]
@@ -69,7 +70,7 @@ class GoFPatternMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)
+            tree, err = parse_code(code)
             if tree is None:
                 return {"gof_patterns": gof_patterns, **(err or {})}
 

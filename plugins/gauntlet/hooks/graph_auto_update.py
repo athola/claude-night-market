@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -19,7 +20,15 @@ _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
+from graph_version_rebuild import (
+    _launch,
+    graph_build_argv,
+    last_run_failed,
+    status_command,
+)
+
 from gauntlet.git_commands import is_git_commit
+from gauntlet.treesitter_parser import parser_available
 
 
 def _get_gauntlet_dir() -> Path | None:
@@ -46,6 +55,11 @@ def _is_auto_update_enabled(gauntlet_dir: Path) -> bool:
 
                         data = safe_load(config_path.read_text())
                     except ImportError:
+                        print(
+                            f"warning: PyYAML is not installed for {sys.executable}; "
+                            f"{config_path} is ignored",
+                            file=sys.stderr,
+                        )
                         continue
                 if not isinstance(data, dict):
                     continue
@@ -53,6 +67,56 @@ def _is_auto_update_enabled(gauntlet_dir: Path) -> bool:
             except (json.JSONDecodeError, OSError, TypeError):
                 continue
     return False
+
+
+def _update_in_plugin_env(gauntlet_dir: Path) -> dict[str, Any] | None:
+    """Run the incremental update where tree-sitter is installed.
+
+    This hook runs on the first python3 on PATH, which usually lacks
+    tree-sitter, so every commit reported "Graph not updated". The plugin's
+    own environment has it. The update is detached because the hook has a
+    five-second timeout, the same way the version-rebuild hook launches.
+    """
+    uv = shutil.which("uv")
+    if uv is None:
+        return _context(
+            "Graph not updated: this python3 has no tree-sitter and uv is not "
+            "on PATH. Run /gauntlet-graph build."
+        )
+    if (gauntlet_dir / "rebuild.lock").exists():
+        # A version rebuild is already rewriting this graph, or failed and
+        # still holds the lock.
+        if last_run_failed(gauntlet_dir / "rebuild.status"):
+            return _context(
+                "Graph not updated: the background rebuild failed (log: "
+                f"{gauntlet_dir / 'rebuild.log'})."
+            )
+        return None
+    # The graph the hook found, which may sit above the cwd.
+    root = gauntlet_dir.parent
+    log_path = gauntlet_dir / "update.log"
+    status = gauntlet_dir / "update.status"
+    failed = last_run_failed(status)
+    status.unlink(missing_ok=True)
+    # No --base-ref: the build diffs from the last commit it stamped, so a
+    # commit an earlier update missed is still parsed.
+    build = graph_build_argv(uv, root, "--incremental")
+    _launch(["sh", "-c", status_command(build, status)], root, log_path)
+    if failed:
+        return _context(
+            "Graph not updated: the last background update failed (log: "
+            f"{log_path}). Retrying in the background."
+        )
+    return _context(f"Graph updating in the background (log: {log_path}).")
+
+
+def _context(message: str) -> dict[str, Any]:
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "PostToolUse",
+            "additionalContext": message,
+        }
+    }
 
 
 def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
@@ -88,6 +152,9 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     db_path = gauntlet_dir / "graph.db"
     if not db_path.exists():
         return None
+
+    if not parser_available():
+        return _update_in_plugin_env(gauntlet_dir)
 
     try:
         from gauntlet.graph import (

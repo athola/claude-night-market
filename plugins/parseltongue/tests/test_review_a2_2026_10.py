@@ -278,10 +278,11 @@ async def test_matching_placeholder_count_becomes_fstring() -> None:
 
 
 @pytest.mark.unit
-async def test_percent_s_becomes_fstring() -> None:
+async def test_percent_s_with_a_name_is_left_alone() -> None:
+    """`'%s' % args` with args=(1,) gives '1'; f'{args}' gives '(1,)' (PAR-5)."""
     result = await _transform("msg = '%s' % name\n")
 
-    assert result["transformed_code"] == "msg = f'{name}'\n"
+    assert result["transformed_code"] == "msg = '%s' % name\n"
 
 
 @pytest.mark.unit

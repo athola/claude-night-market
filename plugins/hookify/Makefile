@@ -4,14 +4,14 @@
 # Uses shared Make includes from abstract plugin
 
 .PHONY: help dev-setup clean status debug-variables \
-        demo-matchers demo-rules plugin-check test
+        demo-rules plugin-check test
 
 # Plugin-specific variables (must be before include)
-SRC_DIRS := core matchers scripts tests
-RUFF_TARGETS := core/ matchers/ scripts/ tests/
-MYPY_TARGETS := core/ matchers/ scripts/
-BANDIT_TARGETS := core/ matchers/ scripts/
-COV_DIRS := core matchers
+SRC_DIRS := core scripts tests
+RUFF_TARGETS := core/ scripts/ tests/
+MYPY_TARGETS := core/ scripts/
+BANDIT_TARGETS := core/ scripts/
+COV_DIRS := core
 PYTEST_TARGETS := tests/
 
 # Include shared configuration from abstract plugin
@@ -46,14 +46,6 @@ status: ## Show project overview
 	@echo "Python:   $$(find . -name '*.py' -not -path '*/__pycache__/*' 2>/dev/null | wc -l) files"
 
 # ---------- Demo/Dogfood Targets ----------
-demo-matchers: ## Demo pattern matcher functionality
-	@echo "=== Hookify Pattern Matchers Demo ==="
-	@echo "Available matchers:"
-	@for f in matchers/*.py; do \
-		name=$$(basename "$$f" .py); \
-		if [ "$$name" != "__init__" ]; then echo "  - $$name"; fi; \
-	done
-
 demo-rules: ## Demo rule engine functionality
 	@echo "=== Hookify Rule Engine Demo ==="
 	@echo "Core modules:"
@@ -62,7 +54,7 @@ demo-rules: ## Demo rule engine functionality
 		if [ "$$name" != "__init__" ]; then echo "  - $$name"; fi; \
 	done
 
-plugin-check: demo-matchers demo-rules status ## Run all demo workflows
+plugin-check: demo-rules status ## Run all demo workflows
 	@echo ""
 	@echo "=== Hookify Plugin Check Complete ==="
 

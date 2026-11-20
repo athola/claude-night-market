@@ -26,6 +26,17 @@ sys.modules["post_learnings_stop"] = _mod
 _spec.loader.exec_module(_mod)
 
 
+@pytest.fixture(autouse=True)
+def _fresh_budget(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Start each test with the hook's whole budget.
+
+    ``_START`` is taken at import, as it is for the one process a Stop
+    runs. In a long test session it is minutes old, and every stage would
+    read as out of budget.
+    """
+    monkeypatch.setattr(_mod, "_START", _mod.time.monotonic())
+
+
 class _BrokenStdin:
     """Stdin whose read() fails the way a closed pipe does."""
 
@@ -190,6 +201,24 @@ class TestPipelineIsolation:
     """One failing stage does not stop the next."""
 
     @pytest.mark.unit
+    def test_stop_hook_skips_post_when_budget_exhausted(
+        self,
+        pipeline_calls: list[str],
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        """A stage started near the 10 s Stop timeout is killed mid-write,
+        which can post a discussion and never record it (ABS-9).
+        """
+        monkeypatch.setattr("sys.stdin", io.StringIO(""))
+        monkeypatch.setattr(_mod, "_START", _mod.time.monotonic() - 60)
+
+        _mod.main()
+
+        assert pipeline_calls == []
+        assert "skipping post-learnings" in capsys.readouterr().err
+
+    @pytest.mark.unit
     def test_failed_promote_still_posts_learnings(
         self,
         pipeline_calls: list[str],
@@ -322,3 +351,38 @@ class TestInsightLenses:
 
         assert lens_env["posted"] == []
         assert "skipping insight lenses" in capsys.readouterr().err
+
+
+class TestASkippedStageGoesFirstNextTime:
+    """A slow auto-promote spent the budget on every Stop, and the stages
+    ran in a fixed order, so post-learnings was skipped on every Stop.
+    """
+
+    @pytest.mark.unit
+    def test_the_stage_skipped_for_budget_runs_first_on_the_next_stop(
+        self,
+        pipeline_calls: list[str],
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        monkeypatch.setattr("sys.stdin", io.StringIO(""))
+
+        def slow_promote() -> None:
+            pipeline_calls.append("promote")
+            monkeypatch.setattr(_mod, "_START", _mod.time.monotonic() - 6.0)
+
+        monkeypatch.setattr(_mod, "_promote", slow_promote)
+        _mod.main()
+        assert pipeline_calls == ["promote"]
+        assert "skipping post-learnings" in capsys.readouterr().err
+
+        pipeline_calls.clear()
+        monkeypatch.setattr(_mod, "_START", _mod.time.monotonic())
+        monkeypatch.setattr(_mod, "_promote", lambda: pipeline_calls.append("promote"))
+        _mod.main()
+        assert pipeline_calls == ["post", "promote"]
+
+        pipeline_calls.clear()
+        monkeypatch.setattr(_mod, "_START", _mod.time.monotonic())
+        _mod.main()
+        assert pipeline_calls == ["promote", "post"]

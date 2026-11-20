@@ -1508,3 +1508,478 @@ class TestIncrementAndResetShareOneDefinition:
         assert reset_module._counter_path is shared.read_counter_path
         assert hook_module._get_session_id is shared.session_id_from
         assert reset_module._get_session_id is shared.session_id_from
+
+
+class TestRepeatedIdenticalCallWarning:
+    """Feature: warn when a discovery call repeats an earlier identical one.
+
+    As the vow enforcement system
+    I want an identical tool_name and tool_input seen twice in a session flagged
+    So that the agent reuses the earlier result instead of paying for it again.
+    """
+
+    @pytest.fixture
+    def reset_module(self):
+        """Import vow_bounded_reads_reset via importlib."""
+        hooks_path = Path(__file__).resolve().parents[3] / "hooks"
+        spec = importlib.util.spec_from_file_location(
+            "vow_bounded_reads_reset", hooks_path / "vow_bounded_reads_reset.py"
+        )
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["vow_bounded_reads_reset"] = mod
+        spec.loader.exec_module(mod)
+        return mod
+
+    def _call(self, hook_module, counter_path, tool_name, tool_input, capsys):
+        """Run main() once and return the advisory text, or "" when silent."""
+        stdin_data = json.dumps(
+            {"tool_name": tool_name, "session_id": "rep", "tool_input": tool_input}
+        )
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit):
+                    hook_module.main()
+        out = capsys.readouterr().out.strip()
+        if not out:
+            return ""
+        return json.loads(out)["hookSpecificOutput"]["additionalContext"]
+
+    @pytest.mark.unit
+    def test_first_call_is_silent_and_identical_second_call_warns(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        args = ("Read", {"file_path": "/a.py"})
+
+        first = self._call(hook_module, counter_path, *args, capsys)
+        second = self._call(hook_module, counter_path, *args, capsys)
+
+        assert first == ""
+        assert "repeats an earlier" in second
+        assert "Reuse the earlier result" in second
+        # compaction or a Bash write can make the earlier result unusable
+        assert "no longer in context" in second
+
+    @pytest.mark.unit
+    def test_different_offset_is_not_a_repeat(self, hook_module, capsys, tmp_path):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        self._call(hook_module, counter_path, "Read", {"file_path": "/a.py"}, capsys)
+
+        later = self._call(
+            hook_module,
+            counter_path,
+            "Read",
+            {"file_path": "/a.py", "offset": 200},
+            capsys,
+        )
+
+        assert later == ""
+
+    @pytest.mark.unit
+    def test_same_input_under_another_tool_is_not_a_repeat(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        self._call(hook_module, counter_path, "Grep", {"pattern": "x"}, capsys)
+
+        later = self._call(hook_module, counter_path, "Glob", {"pattern": "x"}, capsys)
+
+        assert later == ""
+
+    @pytest.mark.unit
+    def test_key_order_in_tool_input_does_not_hide_a_repeat(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        self._call(
+            hook_module, counter_path, "Read", {"file_path": "/a", "limit": 9}, capsys
+        )
+
+        later = self._call(
+            hook_module, counter_path, "Read", {"limit": 9, "file_path": "/a"}, capsys
+        )
+
+        assert "repeats an earlier" in later
+
+    @pytest.mark.unit
+    def test_a_repeat_still_counts_against_the_budget(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        for _ in range(3):
+            self._call(
+                hook_module, counter_path, "Read", {"file_path": "/a.py"}, capsys
+            )
+
+        assert _counter_value(counter_path) == 3
+
+    @pytest.mark.unit
+    def test_a_repeated_free_call_is_flagged_without_counting(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        self._call(hook_module, counter_path, "Glob", {"pattern": "*.py"}, capsys)
+
+        later = self._call(
+            hook_module, counter_path, "Glob", {"pattern": "*.py"}, capsys
+        )
+
+        assert "repeats an earlier" in later
+        assert _counter_value(counter_path) == 0
+
+    @pytest.mark.unit
+    def test_repeat_note_joins_the_budget_warning_in_one_output(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        _seed_counter(counter_path, 15)
+        args = ("Read", {"file_path": "/a.py"})
+        self._call(hook_module, counter_path, *args, capsys)
+
+        later = self._call(hook_module, counter_path, *args, capsys)
+
+        assert "repeats an earlier" in later
+        assert "Bounded discovery vow" in later
+
+    @pytest.mark.unit
+    def test_repeat_is_advisory_when_blocking_is_enabled(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """A repeat is not a budget breach, so it never denies the call."""
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        args = ("Read", {"file_path": "/a.py"})
+        self._call(hook_module, counter_path, *args, capsys)
+
+        later = self._call(hook_module, counter_path, *args, capsys)
+
+        assert "repeats an earlier" in later
+
+    @pytest.mark.unit
+    def test_reset_forgets_earlier_calls(
+        self, hook_module, reset_module, capsys, tmp_path
+    ):
+        """A file edited since the first read is worth reading again."""
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        args = ("Read", {"file_path": "/a.py"})
+        self._call(hook_module, counter_path, *args, capsys)
+
+        reset_module._atomic_reset(counter_path)
+        later = self._call(hook_module, counter_path, *args, capsys)
+
+        assert later == ""
+
+    @pytest.mark.unit
+    def test_remembered_calls_are_bounded_and_oldest_is_evicted(
+        self, hook_module, capsys, tmp_path
+    ):
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        total = hook_module._MAX_REMEMBERED_CALLS + 20
+        for index in range(total):
+            self._call(
+                hook_module, counter_path, "Glob", {"pattern": f"p{index}"}, capsys
+            )
+
+        newest = self._call(
+            hook_module, counter_path, "Glob", {"pattern": f"p{total - 1}"}, capsys
+        )
+        oldest = self._call(
+            hook_module, counter_path, "Glob", {"pattern": "p0"}, capsys
+        )
+
+        assert "repeats an earlier" in newest
+        assert oldest == ""
+
+    @pytest.mark.unit
+    def test_unwritable_state_never_blocks_or_crashes(self, hook_module, capsys):
+        stdin_data = json.dumps(
+            {
+                "tool_name": "Glob",
+                "session_id": "rep-err",
+                "tool_input": {"pattern": "*"},
+            }
+        )
+        with patch.object(
+            hook_module.os, "open", side_effect=PermissionError("denied")
+        ):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit) as exc:
+                    hook_module.main()
+
+        assert exc.value.code == 0
+        assert capsys.readouterr().out.strip() == ""
+
+    @pytest.mark.unit
+    def test_a_denied_call_is_not_remembered_as_seen(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """The key was recorded before the block, so the retry was told to
+        reuse a result that never arrived (IMB-5).
+        """
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.setattr(hook_module, "_BUDGET", 1)
+        counter_path = tmp_path / "vow_read_counter_deny.json"
+
+        def raw(path: str) -> str:
+            stdin_data = json.dumps(
+                {
+                    "tool_name": "Read",
+                    "session_id": "d",
+                    "tool_input": {"file_path": path},
+                }
+            )
+            with patch.object(hook_module, "_counter_path", return_value=counter_path):
+                with patch("sys.stdin", StringIO(stdin_data)):
+                    with pytest.raises(SystemExit):
+                        hook_module.main()
+            return capsys.readouterr().out
+
+        raw("/a.py")
+        assert "deny" in raw("/b.py")
+
+        assert "repeats an earlier" not in raw("/b.py")
+
+    @pytest.mark.unit
+    def test_a_targeted_read_past_the_budget_is_allowed(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """Every Read was denied, so a file could not be read before its
+        Edit and the agent had to route around the vow (IMB-6).
+        """
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.setattr(hook_module, "_BUDGET", 2)
+        counter_path = tmp_path / "vow_read_counter_targeted.json"
+
+        def raw(tool_input: dict) -> str:
+            stdin_data = json.dumps(
+                {"tool_name": "Read", "session_id": "t", "tool_input": tool_input}
+            )
+            with patch.object(hook_module, "_counter_path", return_value=counter_path):
+                with patch("sys.stdin", StringIO(stdin_data)):
+                    with pytest.raises(SystemExit):
+                        hook_module.main()
+            return capsys.readouterr().out
+
+        raw({"file_path": "/a.py"})
+        raw({"file_path": "/b.py"})
+        assert "deny" in raw({"file_path": "/c.py"})  # 3 > budget 2
+        out = raw({"file_path": "/edit_target.py", "offset": 120, "limit": 30})
+        assert '"deny"' not in out  # 3.5, inside twice the budget
+        assert "deny" in raw({"file_path": "/d.py"})
+
+    @pytest.mark.unit
+    def test_targeted_reads_stop_at_twice_the_budget(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """Chunked 49-line reads walked a whole tree past the budget (IMB-6)."""
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.setattr(hook_module, "_BUDGET", 1)
+        counter_path = tmp_path / "vow_read_counter_chunks.json"
+        outs = []
+        for i in range(6):
+            stdin_data = json.dumps(
+                {
+                    "tool_name": "Read",
+                    "session_id": "c",
+                    "tool_input": {"file_path": f"/f{i}.py", "offset": 1, "limit": 40},
+                }
+            )
+            with patch.object(hook_module, "_counter_path", return_value=counter_path):
+                with patch("sys.stdin", StringIO(stdin_data)):
+                    with pytest.raises(SystemExit):
+                        hook_module.main()
+            outs.append(capsys.readouterr().out)
+        # 0.5 each: reads 1-4 reach 2.0 (= 2x budget). The 5th goes past it
+        # and is the phase's one escape read. The 6th is denied.
+        assert all('"deny"' not in o for o in outs[:5])
+        assert '"deny"' in outs[5]
+
+    @pytest.mark.unit
+    def test_past_twice_the_budget_the_reason_does_not_offer_a_targeted_read(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """The deny reason offered a short read that the same rule then denied."""
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.setattr(hook_module, "_BUDGET", 1)
+        counter_path = tmp_path / "vow_read_counter_spent.json"
+        counter_path.write_text(json.dumps({"count": 2.0, "escape_used": True}))
+        stdin_data = json.dumps(
+            {
+                "tool_name": "Read",
+                "session_id": "s",
+                "tool_input": {"file_path": "/target.py", "offset": 1, "limit": 20},
+            }
+        )
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit):
+                    hook_module.main()
+        out = json.loads(capsys.readouterr().out)["hookSpecificOutput"]
+        assert out["permissionDecision"] == "deny"
+        assert "limit under" not in out["permissionDecisionReason"]
+        assert "Write or Edit resets the count" in out["permissionDecisionReason"]
+
+    @staticmethod
+    def _run_read(hook_module, capsys, counter_path, tool_input):
+        stdin_data = json.dumps(
+            {"tool_name": "Read", "session_id": "e", "tool_input": tool_input}
+        )
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit):
+                    hook_module.main()
+        out = capsys.readouterr().out
+        return json.loads(out)["hookSpecificOutput"] if out else {}
+
+    @pytest.mark.unit
+    def test_past_twice_the_budget_one_short_read_reaches_the_edit_target(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """Past 2x budget no read went through, and an Edit of an unread file
+        is refused by the harness, so the session could not reach the edit
+        that resets the count (CR4).
+        """
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.setattr(hook_module, "_BUDGET", 1)
+        counter_path = tmp_path / "vow_read_counter_escape.json"
+        counter_path.write_text(json.dumps({"count": 2.0}))
+        short = {"offset": 1, "limit": 20}
+
+        first = self._run_read(
+            hook_module, capsys, counter_path, {"file_path": "/target.py", **short}
+        )
+        assert first.get("permissionDecision") != "deny"
+        assert "Write or Edit resets the count" in first["additionalContext"]
+
+        for path in ("/other.py", "/third.py"):
+            later = self._run_read(
+                hook_module, capsys, counter_path, {"file_path": path, **short}
+            )
+            assert later["permissionDecision"] == "deny"
+            assert "limit under" not in later["permissionDecisionReason"]
+
+    @pytest.mark.unit
+    def test_past_twice_the_budget_a_full_read_is_told_the_short_read_is_left(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """A denied full read must name the one exit still open, not spend it."""
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.setattr(hook_module, "_BUDGET", 1)
+        counter_path = tmp_path / "vow_read_counter_full.json"
+        counter_path.write_text(json.dumps({"count": 2.0}))
+
+        full = self._run_read(hook_module, capsys, counter_path, {"file_path": "/a.py"})
+        assert full["permissionDecision"] == "deny"
+        assert "limit under" in full["permissionDecisionReason"]
+
+        short = self._run_read(
+            hook_module,
+            capsys,
+            counter_path,
+            {"file_path": "/a.py", "offset": 1, "limit": 20},
+        )
+        assert short.get("permissionDecision") != "deny"
+
+    @pytest.mark.unit
+    def test_a_denied_read_does_not_raise_the_count(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """Each denied retry pushed the count further past the limit."""
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        monkeypatch.setattr(hook_module, "_BUDGET", 1)
+        counter_path = tmp_path / "vow_read_counter_retry.json"
+        counter_path.write_text(json.dumps({"count": 1.0}))
+        for _ in range(3):
+            stdin_data = json.dumps(
+                {
+                    "tool_name": "Read",
+                    "session_id": "r",
+                    "tool_input": {"file_path": "/x.py"},
+                }
+            )
+            with patch.object(hook_module, "_counter_path", return_value=counter_path):
+                with patch("sys.stdin", StringIO(stdin_data)):
+                    with pytest.raises(SystemExit):
+                        hook_module.main()
+            assert '"deny"' in capsys.readouterr().out
+        assert json.loads(counter_path.read_text())["count"] == 1.0
+
+
+@pytest.mark.unit
+def test_reset_is_registered_after_a_successful_write() -> None:
+    """On PreToolUse the reset fired for a Write that another hook or the
+    permission prompt then denied, clearing the budget for nothing (IMB-19).
+    """
+    hooks = json.loads(
+        (Path(__file__).resolve().parents[3] / "hooks" / "hooks.json").read_text()
+    )["hooks"]
+
+    def events_running_reset() -> set[str]:
+        return {
+            event
+            for event, groups in hooks.items()
+            for group in groups
+            for hook in group["hooks"]
+            if "vow_bounded_reads_reset" in hook["command"]
+        }
+
+    assert events_running_reset() == {"PostToolUse"}
+
+
+@pytest.mark.unit
+def test_subagent_reads_count_against_their_own_budget() -> None:
+    """A subagent shares the parent's session_id, so its reads spent the
+    parent's budget (IMB-7). The agent_id keeps the two apart.
+    """
+    hooks_dir = Path(__file__).resolve().parents[3] / "hooks"
+    sys.path.insert(0, str(hooks_dir))
+    from shared.vow_utils import read_counter_path, session_id_from
+
+    parent = session_id_from({"session_id": "s1"})
+    child = session_id_from({"session_id": "s1", "agent_id": "a7"})
+    assert parent == "s1"
+    assert read_counter_path(child) != read_counter_path(parent)
+
+
+@pytest.mark.unit
+def test_vow_utils_all_lists_every_public_helper_and_no_private_name() -> None:
+    """__all__ exported _OFF_VALUES and omitted four public helpers (IMB-18)."""
+    import ast
+
+    source = (
+        Path(__file__).resolve().parents[3] / "hooks" / "shared" / "vow_utils.py"
+    ).read_text()
+    tree = ast.parse(source)
+    public = {
+        node.name
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
+    }
+    exported = next(
+        ast.literal_eval(node.value)
+        for node in tree.body
+        if isinstance(node, ast.Assign) and node.targets[0].id == "__all__"
+    )
+    assert public <= set(exported)
+    assert not [name for name in exported if name.startswith("_")]
+
+
+@pytest.mark.unit
+def test_seen_calls_expire_and_a_repeat_refreshes_them(hook_module, tmp_path) -> None:
+    """The TTL had no test, and a repeat did not refresh it, so a call
+    used throughout a long phase aged out mid-phase (IMB-17).
+    """
+    import os
+
+    counter = tmp_path / "vow_read_counter_ttl.json"
+    seen = hook_module.seen_calls_path(counter)
+    ttl = hook_module._COUNTER_TTL_SECONDS
+
+    assert hook_module._note_call(counter, "k") is False
+    old = seen.stat().st_mtime - ttl + 5
+    os.utime(seen, (old, old))
+    assert hook_module._note_call(counter, "k") is True
+    assert seen.stat().st_mtime > old + 1
+
+    os.utime(seen, (old - 10, old - 10))
+    assert hook_module._note_call(counter, "k") is False

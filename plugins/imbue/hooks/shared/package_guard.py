@@ -41,14 +41,20 @@ __all__ = [
 
 # Ecosystem install-command signatures. Each entry maps a regex that
 # matches the command head to the ecosystem label used downstream.
+# `(?:\S*/)?` admits a path-qualified binary (.venv/bin/pip,
+# /usr/bin/python3); without it those installs parsed to nothing.
+_BIN = r"(?:\S*/)?"
 _INSTALL_HEADS: list[tuple[re.Pattern[str], str]] = [
-    (re.compile(r"^\s*(?:python[0-9.]*\s+-m\s+)?pip[0-9]*\s+install\b"), "pypi"),
-    (re.compile(r"^\s*uv\s+pip\s+install\b"), "pypi"),
-    (re.compile(r"^\s*uv\s+add\b"), "pypi"),
-    (re.compile(r"^\s*(?:poetry|pdm)\s+add\b"), "pypi"),
-    (re.compile(r"^\s*(?:npm|pnpm)\s+(?:install|i|add)\b"), "npm"),
-    (re.compile(r"^\s*yarn\s+add\b"), "npm"),
-    (re.compile(r"^\s*cargo\s+add\b"), "crates"),
+    (
+        re.compile(rf"^\s*(?:{_BIN}python[0-9.]*\s+-m\s+)?{_BIN}pip[0-9]*\s+install\b"),
+        "pypi",
+    ),
+    (re.compile(rf"^\s*{_BIN}uv\s+pip\s+install\b"), "pypi"),
+    (re.compile(rf"^\s*{_BIN}uv\s+add\b"), "pypi"),
+    (re.compile(rf"^\s*{_BIN}(?:poetry|pdm)\s+add\b"), "pypi"),
+    (re.compile(rf"^\s*{_BIN}(?:npm|pnpm)\s+(?:install|i|add)\b"), "npm"),
+    (re.compile(rf"^\s*{_BIN}yarn\s+add\b"), "npm"),
+    (re.compile(rf"^\s*{_BIN}cargo\s+add\b"), "crates"),
 ]
 
 # Tokens that are flags, not package names.
@@ -293,6 +299,11 @@ def typo_distance(a: str, b: str) -> int:
     return rows[-1][-1]
 
 
+_SHELL_WRAPPER_RE = re.compile(
+    r"(?:^|(?<=\s))(?:\S*/)?(?:ba|z|da)?sh\s+-[a-z]*c\s+(?P<q>['\"])(?P<script>.*?)(?P=q)"
+)
+
+
 def parse_packages(command: str) -> list[tuple[str, str]]:
     """Return ``(ecosystem, name)`` pairs an install command would fetch.
 
@@ -302,6 +313,9 @@ def parse_packages(command: str) -> list[tuple[str, str]]:
     # Each command in a chain ("a && b; c | d") runs, so each is parsed on
     # its own. "pip install x && pytest" reads only x; "pip install x &&
     # pip install y" reads both.
+    # A shell wrapper hides the install inside a quoted script; parse the
+    # script itself, before the separators inside its quotes are split.
+    command = _SHELL_WRAPPER_RE.sub(lambda m: m.group("script"), command)
     packages: list[tuple[str, str]] = []
     for segment in _SHELL_SEPARATOR_RE.split(_FD_DUP_RE.sub(" ", command)):
         text = _COMMAND_PREFIX_RE.sub("", segment).strip()
@@ -425,8 +439,9 @@ def assess_packages(
 
     ``registry_fn(name, ecosystem)`` returns True (exists), False
     (definitively absent), or None (could not determine / offline). It
-    is only called for names not in the known-popular set. When omitted,
-    no registry check is performed and unknown names are left implicit.
+    is only called for names that are neither popular nor a typosquat
+    suspect. When omitted, no registry check is performed and unknown
+    names are left implicit.
 
     ``budget_seconds`` bounds the total time spent in ``registry_fn``
     across the whole command. Without it a long install list multiplies
@@ -447,6 +462,8 @@ def assess_packages(
         if normalize_name(name, ecosystem) in known:
             continue
 
+        # Edit distance alone decides: a typosquat that is registered is
+        # the attack, so the registry is consulted only for unknown names.
         suspect = nearest_known(name, ecosystem)
         if suspect is not None:
             findings.append(

@@ -6,7 +6,7 @@ night-market CLI scripts.
 As a plugin author writing a CLI script with --output-json
 I want one canonical helper that produces the success/error
 envelope shape
-So that test_generator, quality_checker, safe_replacer (and
+So that test_generator, quality_checker (and
 future scripts) cannot drift on key names, ordering, or shape.
 """
 

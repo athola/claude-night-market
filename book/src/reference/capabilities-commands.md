@@ -455,13 +455,12 @@ Structured review workflow with methodology options.
 
 ## Sanctum Plugin
 
-### `/sanctum:prepare-pr` (alias: `/pr`)
+### `/sanctum:prepare-pr`
 Complete PR preparation workflow.
 
 ```bash
 # Usage
 /prepare-pr [--no-code-review] [--reviewer-scope SCOPE] [--skip-updates] [FILE]
-/pr [options...]  # Alias
 
 # Options
 --no-code-review           Skip automated code review (faster)
@@ -476,7 +475,6 @@ FILE                       Output file for PR description (default: pr_descripti
 
 # Examples
 /prepare-pr                                    # Full workflow
-/pr                                            # Alias for full workflow
 /prepare-pr --skip-updates                     # Skip Phase 0 updates
 /prepare-pr --no-code-review                   # Skip code review
 /prepare-pr --reviewer-scope strict            # Strict review for critical changes

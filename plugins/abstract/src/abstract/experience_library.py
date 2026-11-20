@@ -109,7 +109,7 @@ class ExperienceLibrary:
             )
             return False
 
-        self._prune(trajectory.skill_ref)
+        self._prune(trajectory.skill_ref, trajectory.project)
         return True
 
     def list_entries(self, skill_ref: str) -> list[dict[str, Any]]:
@@ -154,13 +154,29 @@ class ExperienceLibrary:
         entries.sort(key=lambda e: str(e.get("stored_at", "")), reverse=True)
         return entries[:limit]
 
-    def _prune(self, skill_ref: str) -> None:
-        """Keep only the most recent MAX_ENTRIES_PER_SKILL entries."""
+    def _prune(self, skill_ref: str, project: str) -> None:
+        """Keep only the most recent MAX_ENTRIES_PER_SKILL entries of ``project``.
+
+        Reads are scoped by project, so the cap is too: a skill-wide cap let
+        one busy project evict every entry another project stored.
+        """
         skill_dir = self._skill_dir(skill_ref)
-        files = sorted(skill_dir.glob("*.json"), key=lambda f: f.stat().st_mtime)
+        files = sorted(
+            (f for f in skill_dir.glob("*.json") if _project_of(f) == project),
+            key=lambda f: f.stat().st_mtime,
+        )
         while len(files) > MAX_ENTRIES_PER_SKILL:
             oldest = files.pop(0)
             oldest.unlink()
+
+
+def _project_of(entry_file: Path) -> str | None:
+    """Return the project an entry file was stored under, None if unreadable."""
+    try:
+        project = json.loads(entry_file.read_text()).get("project")
+    except (OSError, ValueError, AttributeError):
+        return None
+    return project if isinstance(project, str) else None
 
 
 def format_context(entries: list[dict[str, Any]], max_chars_each: int) -> str:

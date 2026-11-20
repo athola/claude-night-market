@@ -280,7 +280,7 @@ For each protocol step, capture:
 
 **Output:**
 ```
-<relevant output, truncated if long>
+<relevant output, with any truncation marked "... N more lines" because truncated output cannot prove absence or completeness>
 ```
 
 **Result:** PASS / FAIL / WARNING

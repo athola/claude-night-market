@@ -70,3 +70,13 @@ def has_active_work(manifest_path: Path) -> bool:
     if data is None:
         return False
     return any(item.get("status") in ACTIVE_STATUSES for item in get_items(data))
+
+
+def in_judge_mode() -> bool:
+    """Report whether this session is the judge claude_babysitter starts.
+
+    The judge runs in the same tree as the orchestrator, so without this
+    check the hooks treat it as the orchestrator and steer it back into
+    the loop.
+    """
+    return os.environ.get("EGREGORE_BABYSITTER_MODE") == "true"

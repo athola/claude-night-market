@@ -30,7 +30,7 @@ Rust source or download a CI-built release with SLSA attestation.
 |---------|------------|
 | Opaque compiled code | Build from source; Rust source is auditable |
 | Supply chain attack | Cargo.lock pins all dependencies; `cargo audit` runs in CI |
-| Tampered binary | SHA-256 hash pinned in `.skrills-version`; `make skrills-verify` checks it |
+| Tampered binary | `make skrills-install` pins the SHA-256 in `.skrills-version`; `make skrills-verify` checks it. At run time the wrapper checks only when `SKRILLS_VERIFY_HASH` and `SKRILLS_EXPECTED_HASH` are set, and refuses when the first is set without the second |
 | Stale binary | Version file tracks build; `make skrills-build` rebuilds from latest source |
 | Pre-2.1.91 users | All bin/ usage has a Python fallback and loses no functionality |
 

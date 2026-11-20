@@ -117,6 +117,15 @@ class FileContext(NamedTuple):
     file_hash: str
 
 
+def parser_available() -> bool:
+    """Whether tree-sitter can be loaded in this interpreter.
+
+    ``parse_file`` returns empty lists without it, which a caller cannot
+    tell apart from a file with nothing to extract.
+    """
+    return get_parser is not None
+
+
 def parse_file(file_path: str) -> tuple[list[GraphNode], list[GraphEdge]]:
     """Parse a source file and extract nodes and edges.
 

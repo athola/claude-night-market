@@ -25,6 +25,17 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/graph_version_rebuild.py\"",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   }
 }

@@ -184,18 +184,14 @@ class TestPrBlastRadiusHook:
         assert "exited with 128" in capsys.readouterr().err
 
     @pytest.mark.unit
-    def test_handles_gh_pr_submit(self, project_with_graph: Path) -> None:
-        """``gh pr submit`` triggers the same analysis as ``gh pr create``."""
+    def test_gh_pr_submit_is_not_a_pr_command(self, project_with_graph: Path) -> None:
+        """gh has no `pr submit` subcommand (gh 2.86 prints help) (PEN-13)."""
         with patch(
             "gauntlet.blast_radius.analyze_changes", return_value=_MEDIUM_REPORT
-        ):
-            result = main(
-                {
-                    "tool_input": {"command": "gh pr submit"},
-                }
-            )
-        assert result is not None
-        assert "medium risk" in result["hookSpecificOutput"]["additionalContext"]
+        ) as analyze:
+            result = main({"tool_input": {"command": "gh pr submit"}})
+        assert result is None
+        analyze.assert_not_called()
 
     @pytest.mark.unit
     @pytest.mark.parametrize("exc", [OSError("disk gone"), ValueError("bad weights")])
@@ -379,3 +375,8 @@ class TestScriptEntryPoint:
         proc = self._run(json.dumps({"tool_input": {"command": "ls"}}), tmp_path)
         assert proc.returncode == 0
         assert proc.stdout == ""
+
+
+def test_explicit_base_short_flag_attached() -> None:
+    """`-Bmain` is valid cobra; it fell back to origin/HEAD (PEN-12)."""
+    assert pr_blast_radius._explicit_base("gh pr create -Bmain") == "main"

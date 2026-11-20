@@ -243,7 +243,7 @@ Scribe integrates with other claude-night-market plugins:
 | `/pr-review` | Runs `slop-detector` on changed `.md` files, uses `doc-generator` principles for PR descriptions |
 | `/update-docs` | Runs `slop-detector` on edited docs, uses `doc-editor` for remediation |
 | `/update-readme` | Runs `slop-detector` on README, applies `doc-generator` principles |
-| `/prepare-pr` (`/pr`) | Verifies PR descriptions with `slop-detector` principles |
+| `/prepare-pr` | Verifies PR descriptions with `slop-detector` principles |
 
 ### Other Integrations
 

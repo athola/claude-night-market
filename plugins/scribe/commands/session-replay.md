@@ -103,6 +103,11 @@ Rendering via scry...
 Done: session-replay.mp4 (18s, 960x540)
 ```
 
+Text typed into the recording is redacted first: API keys, GitHub and
+Slack tokens, AWS key IDs, bearer tokens and `password=`-style values
+become `[redacted]`, and your home directory becomes `~`. Review the
+result before sharing it; redaction covers these shapes only.
+
 ## See Also
 
 - `Skill(scribe:session-replay)`: full skill reference

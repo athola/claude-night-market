@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Vow: Reset bounded-reads counter when implementation starts.
 
-PreToolUse hook triggered on Write/Edit/MultiEdit.  Truncates the
-per-session read counter file back to zero.
+PostToolUse hook on a successful Write/Edit/MultiEdit.  Truncates the
+per-session read counter to zero and deletes the remembered-calls file,
+so an edited file can be read again without a repeat warning.
 
-Intentionally minimal: reads only the session ID from stdin, then
-writes ``{"count": 0}`` to the counter file.  No JSON parsing of
-tool output, no pattern checks, no budget logic.
+Intentionally minimal: reads only the session ID from stdin, writes
+``{"count": 0}`` to the counter file and unlinks the remembered-calls
+file.  No JSON parsing of tool output, no pattern checks, no budget
+logic.
 
 Concurrency: acquires the same ``fcntl.flock(LOCK_EX)`` as the
 companion increment script so a Read in flight cannot clobber the
@@ -28,6 +30,7 @@ from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path 
     fd_owned_by_us,
     read_counter_path,
     secure_open,
+    seen_calls_path,
     session_id_from,
 )
 
@@ -51,6 +54,19 @@ except ImportError:  # pragma: no cover - exercised only on non-POSIX
         print(
             "[vow-bounded-reads] WARN: fcntl unavailable on this platform; "
             "counter resets are not atomic with concurrent increments",
+            file=sys.stderr,
+        )
+
+
+def _forget_seen_calls(counter_path: Path) -> None:
+    """Drop remembered discovery calls: an edited file is worth reading again."""
+    try:
+        seen_calls_path(counter_path).unlink()
+    except FileNotFoundError:
+        pass
+    except OSError as exc:
+        print(
+            f"[vow-bounded-reads] WARN: seen-calls reset failed: {exc}",
             file=sys.stderr,
         )
 
@@ -99,6 +115,7 @@ def _atomic_reset(path: Path) -> None:
                 f"[vow-bounded-reads] WARN: counter reset failed: {exc}",
                 file=sys.stderr,
             )
+        _forget_seen_calls(path)
     # Opening or chmod-ing the counter is the I/O left to fail here. The
     # write's own OSError is handled above. Anything else is a bug and
     # reaches main(), whose catch-all keeps the hook from crashing.
@@ -128,7 +145,7 @@ def _atomic_reset(path: Path) -> None:
 
 
 def main() -> None:
-    """Entry point for the PreToolUse hook."""
+    """Entry point for the PostToolUse hook."""
     try:
         raw = sys.stdin.read()
         data = json.loads(raw)

@@ -52,7 +52,8 @@ resolve_paths() {
   BUDGET="${EGREGORE_DIR}/budget.json"
   PIDFILE="${EGREGORE_DIR}/pid"
   LOG="${EGREGORE_DIR}/watchdog.log"
-  readonly EGREGORE_DIR MANIFEST BUDGET PIDFILE LOG
+  RELAUNCH_STATE="${EGREGORE_DIR}/relaunch-state"
+  readonly EGREGORE_DIR MANIFEST BUDGET PIDFILE LOG RELAUNCH_STATE
 }
 
 # Reports to the watchdog log, not stderr: nobody reads a timer's
@@ -127,6 +128,34 @@ check_running() {
   rm -f "${PIDFILE}"
 }
 
+# Exits 0 once EGREGORE_MAX_STALLED_RELAUNCHES sessions in a row left the
+# manifest unchanged. The Stop hook bounds stalls per session, and each
+# relaunch is a new session, so nothing else stops a stuck item from
+# relaunching every tick. Editing the manifest resets the count.
+check_progress() {
+  max_stalled="${EGREGORE_MAX_STALLED_RELAUNCHES:-3}"
+  # A session that ends on a usage limit records a new cooldown in
+  # budget.json and leaves the manifest alone; that is not a stall.
+  cooldown_mark=""
+  [ -f "${BUDGET}" ] && cooldown_mark="$(jq -r '.cooldown_until // empty' "${BUDGET}" 2>/dev/null)"
+  fingerprint="$(cksum <"${MANIFEST}") ${cooldown_mark}"
+  stalled=0
+  if [ -f "${RELAUNCH_STATE}" ]; then
+    prior_fingerprint="$(sed -n 1p "${RELAUNCH_STATE}")"
+    case "${prior_fingerprint}" in
+      "${fingerprint}") stalled="$(sed -n 2p "${RELAUNCH_STATE}")" ;;
+    esac
+  fi
+  case "${stalled}" in
+    "" | *[!0-9]*) stalled=0 ;;
+  esac
+  if [ "${stalled}" -ge "${max_stalled}" ]; then
+    wlog "Not relaunching: ${stalled} sessions ended without manifest progress. Change the manifest or delete ${RELAUNCH_STATE} to resume."
+    exit 0
+  fi
+  printf '%s\n%s\n' "${fingerprint}" "$((stalled + 1))" >"${RELAUNCH_STATE}"
+}
+
 relaunch() {
   # Read project dir from manifest
   project_dir=$(jq -r '.project_dir' "${MANIFEST}" 2>/dev/null)
@@ -193,7 +222,9 @@ main() {
 
   # A manifest that does not parse is an error. Reading it as zero items
   # logged a truncated write as "No active work items".
-  if ! remaining=$(jq '[.work_items[] | select(.status == "active" or .status == "paused")] | length' "${MANIFEST}" 2>/dev/null); then
+  # Same rule as hooks/_manifest_utils.py ACTIVE_STATUSES and get_items;
+  # tests/test_active_status_parity.py holds the two to one answer.
+  if ! remaining=$(jq '[(.work_items // .items // [])[] | select(.status == "active" or .status == "paused" or .status == "pending")] | length' "${MANIFEST}" 2>/dev/null); then
     wlog "ERROR: ${MANIFEST} does not parse; not relaunching"
     exit 1
   fi
@@ -206,6 +237,7 @@ main() {
 
   check_cooldown
   check_running
+  check_progress
   relaunch
 }
 

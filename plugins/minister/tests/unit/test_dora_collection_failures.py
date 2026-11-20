@@ -154,3 +154,29 @@ class TestGhRowParsing:
         assert [e.opened_at.day for e in result.events] == [21]
         assert result.partial is True
         assert any("malformed timestamp" in w for w in result.warnings)
+
+
+def test_gh_row_closed_before_opened_is_skipped_as_partial(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A row closed before it opened is skipped and marked partial (MIN-1).
+
+    FailureEvent rejects it, and that raise escaped the collector's
+    warn-and-continue contract.
+    """
+    rows = [
+        {"createdAt": "2026-04-20T10:00:00Z", "closedAt": "2026-04-19T10:00:00Z"},
+        {"createdAt": "2026-04-20T10:00:00Z", "closedAt": None},
+    ]
+
+    class FakeRun:
+        stdout = json.dumps(rows)
+
+    monkeypatch.setattr(_sub, "run", lambda *a, **k: FakeRun())
+
+    result = dora_metrics.collect_failures_from_gh(
+        failure_label="bug", window_days=30, window_end=_WINDOW_END
+    )
+
+    assert len(result.events) == 1
+    assert result.partial is True

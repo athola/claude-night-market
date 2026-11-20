@@ -15,35 +15,39 @@ in one audited place rather than triplicating it.
 from __future__ import annotations
 
 import os
-import re
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any
 
+# Tests load this file on its own as well as through `shared`, so the
+# copy is imported through the hooks directory rather than relatively.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from shared._vendored_leyline_shell_command import (
+    git_commit_end,
+    git_commit_message_offset,
+    git_commit_offset,
+    is_git_commit,
+)
+
 __all__ = [
+    "OFF_VALUES",
     "O_NOFOLLOW",
-    "_OFF_VALUES",
     "fd_owned_by_us",
+    "git_commit_end",
+    "git_commit_message_offset",
     "git_commit_offset",
     "is_git_commit",
+    "read_counter_path",
     "secure_open",
     "secure_state_dir",
+    "seen_calls_path",
+    "session_id_from",
     "shadow_mode_active",
+    "vow_output",
 ]
 
-# git, then any global options (-C <dir>, -c <k=v>, --no-pager, ...),
-# then the commit subcommand. Applied per shell segment, because the
-# harness `if` gate admits `git add . && git commit` segment by segment.
-_GIT_COMMIT_RE = re.compile(
-    r"git(?:\s+(?:-[Cc]\s+\S+|--(?:git-dir|work-tree|namespace)\s+\S+|-\S+))*"
-    r"\s+commit\b"
-)
-# A quoted string is one token, so a separator inside it splits nothing.
-_SHELL_TOKEN_RE = re.compile(
-    r"""'[^']*'?|"(?:\\.|[^"\\])*"?|&&|\|\||[;|\n]|[^'"&|;\n]+|&"""
-)
-_SEPARATORS = ("&&", "||", ";", "|", "\n")
-_OFF_VALUES = ("0", "false", "no")
+OFF_VALUES = ("0", "false", "no")
 
 # O_NOFOLLOW makes open() fail (ELOOP) when the final path component is a
 # symlink, so an attacker who plants a symlink at a predictable state
@@ -104,7 +108,7 @@ def shadow_mode_active() -> bool:
     Shadow mode is the default. Set VOW_SHADOW_MODE=0 to enable blocking.
     """
     val = os.environ.get("VOW_SHADOW_MODE", "1")
-    return val.strip() not in _OFF_VALUES
+    return val.strip() not in OFF_VALUES
 
 
 def vow_output(enforce: bool, reason: str) -> dict[str, Any]:
@@ -124,29 +128,6 @@ def vow_output(enforce: bool, reason: str) -> dict[str, Any]:
     return {"hookSpecificOutput": hook}
 
 
-def git_commit_offset(command: str) -> int | None:
-    """Return where the first git commit segment starts, or None.
-
-    The commit's message, heredoc included, follows this offset, and an
-    earlier command in the chain precedes it.
-    """
-    start = 0
-    for token in _SHELL_TOKEN_RE.finditer(command + "\n"):
-        if token.group(0) not in _SEPARATORS:
-            continue
-        segment = command[start : token.start()]
-        stripped = segment.lstrip()
-        if _GIT_COMMIT_RE.match(stripped):
-            return start + len(segment) - len(stripped)
-        start = token.end()
-    return None
-
-
-def is_git_commit(command: str) -> bool:
-    """Return True if any segment of the Bash command runs git commit."""
-    return git_commit_offset(command) is not None
-
-
 def read_counter_path(session_id: str) -> Path:
     """Return the session-scoped read-budget counter file.
 
@@ -163,6 +144,15 @@ def read_counter_path(session_id: str) -> Path:
     )
 
 
+def seen_calls_path(counter_path: Path) -> Path:
+    """Return the file listing discovery calls already made this phase.
+
+    It sits beside the counter so one definition lets vow_bounded_reads
+    record calls and vow_bounded_reads_reset forget them.
+    """
+    return counter_path.with_name(counter_path.stem + ".seen.json")
+
+
 def session_id_from(data: dict) -> str:
     """Extract the session id from hook stdin, the environment, or the pid.
 
@@ -174,7 +164,10 @@ def session_id_from(data: dict) -> str:
     """
     sid = data.get("session_id", "")
     if sid:
-        return str(sid)
+        # A subagent carries its parent's session_id; without its agent_id
+        # it spent the parent's read budget.
+        agent = data.get("agent_id")
+        return f"{sid}:{agent}" if agent else str(sid)
     sid = os.environ.get("CLAUDE_SESSION_ID", "")
     if sid:
         return sid

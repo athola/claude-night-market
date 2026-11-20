@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+
 import pytest
 
 from parseltongue.analysis.async_analysis.blocking_detection import (
@@ -55,3 +59,27 @@ async def test_self_call_flags_async_method_of_enclosing_class() -> None:
     report = await detect_missing_await(code)
 
     assert report["missing_awaits"]["run"]["line_numbers"] == [4]
+
+
+def test_blocking_recommendations_do_not_depend_on_hash_seed() -> None:
+    """`list(set(...))` ordered the JSON output by PYTHONHASHSEED (PAR-3)."""
+    probe = (
+        "import asyncio, json\n"
+        "from parseltongue.analysis.async_analysis.blocking_detection import"
+        " detect_blocking_calls as d\n"
+        "src = 'import time, requests\\nasync def f():\\n    time.sleep(1)\\n"
+        "    requests.get(1)\\n    open(1).read()\\n'\n"
+        "r = asyncio.run(d(src))\n"
+        "print(json.dumps(r['blocking_patterns']['recommendations']))\n"
+    )
+    outputs = {
+        subprocess.run(
+            [sys.executable, "-c", probe],
+            capture_output=True,
+            text=True,
+            check=True,
+            env={**os.environ, "PYTHONHASHSEED": seed},
+        ).stdout
+        for seed in ("1", "2", "3", "4", "5", "6")
+    }
+    assert len(outputs) == 1

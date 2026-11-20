@@ -64,7 +64,7 @@ class AnalysisMixin:
             if line.startswith("\t"):
                 cmd = line.strip()
                 if re.search(
-                    r"(rm|cp|mv|mkdir|gcc|make|wget|curl)", cmd
+                    r"\b(rm|cp|mv|mkdir|gcc|make|wget|curl)\b", cmd
                 ) and not re.search(r"(\|\||set -e|; exit|\?=|@-)", cmd):
                     error_handling.append(f"Line {i + 1}: {cmd[:50]}")
 
@@ -97,7 +97,9 @@ class AnalysisMixin:
     def _parse_target_deps(content: str) -> dict[str, list[str]]:
         """Parse `target: dep1 dep2` lines into a target-to-deps map."""
         target_deps: dict[str, list[str]] = {}
-        target_pattern = re.compile(r"^([a-zA-Z0-9_\-\.]+)\s*:\s*(.*)$", re.MULTILINE)
+        target_pattern = re.compile(
+            r"^([a-zA-Z0-9_\-][a-zA-Z0-9_\-\.]*)\s*:(?!=|:=)\s*(.*)$", re.MULTILINE
+        )
         for match in target_pattern.finditer(content):
             target_deps[match.group(1)] = match.group(2).split()
         return target_deps
@@ -106,17 +108,26 @@ class AnalysisMixin:
     def _find_circular_dependencies(target_deps: dict[str, list[str]]) -> list[str]:
         """Find target pairs that depend on each other directly."""
         circular_dependencies = []
+        seen: set[frozenset[str]] = set()
         for target, deps in target_deps.items():
             for dep in deps:
-                if dep in target_deps and target in target_deps[dep]:
+                pair = frozenset((target, dep))
+                if (
+                    dep in target_deps
+                    and target in target_deps[dep]
+                    and pair not in seen
+                ):
+                    seen.add(pair)
                     circular_dependencies.append(f"{target} <-> {dep}")
         return circular_dependencies
 
     def _find_missing_source_dependencies(self, lines: list[str]) -> list[str]:
         """Flag `main`/`parser.o` targets missing their expected source deps."""
         missing_dependencies: list[str] = []
+        # A C convention: in a Python or Rust Makefile `main` has no main.c.
+        is_c = re.search(r"\w\.c\b", "\n".join(lines)) is not None
         for i, line in enumerate(lines):
-            if re.match(r"^main:", line) and "main.c" not in line:
+            if is_c and re.match(r"^main:", line) and "main.c" not in line:
                 missing_dependencies.append(
                     f"Line {i + 1}: main target missing source dependencies"
                 )

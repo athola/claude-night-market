@@ -39,9 +39,8 @@ def _collect_sync_function_info(
 ) -> None:
     """Collect information about sync functions and their blocking calls."""
     for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef) and not isinstance(
-            node, ast.AsyncFunctionDef
-        ):
+        # AsyncFunctionDef is not a FunctionDef subclass.
+        if isinstance(node, ast.FunctionDef):
             for child in ast.walk(node):
                 if not isinstance(child, ast.Call):
                     continue
@@ -192,7 +191,7 @@ async def detect_blocking_calls(
                         recommendations,
                     )
 
-    blocking_patterns["recommendations"] = list(set(recommendations))
+    blocking_patterns["recommendations"] = sorted(set(recommendations))
     return {"blocking_patterns": blocking_patterns}
 
 

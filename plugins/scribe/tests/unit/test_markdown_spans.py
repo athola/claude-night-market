@@ -260,3 +260,22 @@ class TestFenceAndUrlPatternsAreShared:
 
         assert "_FENCED_CODE = re.compile" not in source
         assert "_URL = re.compile" not in source
+
+
+class TestFenceClosingFollowsCommonMark:
+    """Any line opening with the same three characters closed a fence (SCR-7)."""
+
+    def test_longer_fence_survives_an_inner_shorter_fence(self) -> None:
+        text = "````md\n```py\nx = 1\n```\nstill code\n````\nprose\n"
+        (span,) = [m.group(0) for m in markdown_spans.FENCED_CODE.finditer(text)]
+        assert "still code" in span and "prose" not in span
+
+    def test_unterminated_fence_runs_to_the_end(self) -> None:
+        text = "prose\n```\ncode with no closer\n"
+        (span,) = [m.group(0) for m in markdown_spans.FENCED_CODE.finditer(text)]
+        assert span.endswith("code with no closer\n")
+
+    def test_a_line_with_an_info_string_does_not_close(self) -> None:
+        text = "```\na\n```py\nb\n```\nprose\n"
+        (span,) = [m.group(0) for m in markdown_spans.FENCED_CODE.finditer(text)]
+        assert "b" in span and "prose" not in span

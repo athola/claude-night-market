@@ -1850,3 +1850,134 @@ class TestQueueLinesInAnUnexpectedShape:
 
         with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
             assert not _recent_intake_pending("python asyncio")
+
+
+def test_websearch_files_pruned_beyond_keep(tmp_path) -> None:
+    """Only webfetch- files were pruned, so websearch- captures grew
+    without bound (MP-6). Curated, unprefixed files stay.
+    """
+    import os
+
+    for i in range(6):
+        for prefix in ("webfetch", "websearch"):
+            f = tmp_path / f"{prefix}-{i}.md"
+            f.write_text("x")
+            os.utime(f, (1000 + i, 1000 + i))
+    (tmp_path / "curated.md").write_text("keep")
+
+    prune_queue(tmp_path, keep=4)
+
+    left = sorted(p.name for p in tmp_path.glob("*.md"))
+    assert "curated.md" in left
+    assert len([n for n in left if n != "curated.md"]) == 4
+
+
+def test_long_urls_sharing_a_prefix_get_distinct_entity_ids() -> None:
+    """The id was the first 40 chars of the URL, so two long same-site
+    paths upserted one graph entity (MP-12).
+    """
+    base = "https://docs.example.com/reference/api/v2/endpoints/"
+    first = web_research_handler._web_entity_id(base + "users")
+    second = web_research_handler._web_entity_id(base + "orders")
+    assert first != second
+    assert first.startswith("web_")
+
+
+def test_webfetch_graph_entities_differ_for_long_urls_sharing_a_prefix() -> None:
+    """The capture path built its own 40-char prefix id, so two long
+    same-site URLs registered as one graph entity.
+    """
+    base = "https://docs.example.com/reference/api/v2/endpoints/"
+    content = "Reference documentation for this endpoint. " * 5
+
+    def entity_for(url: str) -> str:
+        with (
+            patch.object(web_research_handler, "is_known", return_value=False),
+            patch.object(web_research_handler, "get_stored_at", return_value=None),
+            patch.object(
+                web_research_handler, "store_webfetch_content", return_value="/x.md"
+            ),
+            patch.object(web_research_handler, "prune_queue"),
+        ):
+            _, stored, register = web_research_handler._handle_webfetch(
+                {"url": url, "prompt": "p"},
+                {"result": content, "url": url},
+                _default_config(),
+                auto_capture=True,
+            )
+        assert stored == "/x.md"
+        return register["entity_id"]
+
+    assert entity_for(base + "users/list") != entity_for(base + "users/detail")
+
+
+def test_recent_intake_pending_survives_a_tail_seek_inside_a_character(
+    tmp_path: Path,
+) -> None:
+    """A strict decode of a tail that starts mid-character raised, and the
+    pending query read as not pending.
+    """
+    queue_file = tmp_path / "data" / "intake_queue.jsonl"
+    queue_file.parent.mkdir(parents=True)
+    filler = ('{"query": "' + "\u00e9" * 200 + '"}\n').encode("utf-8")
+    tail_bytes = web_research_handler._QUEUE_TAIL_BYTES
+    split = False
+    for pad in range(4):
+        last = ('{"query": "pytest fixtures' + " " * pad + '"}\n').encode()
+        body = filler * 400 + last
+        split = split or 0x80 <= body[len(body) - tail_bytes] <= 0xBF
+        queue_file.write_bytes(body)
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
+            assert _recent_intake_pending("pytest fixtures"), pad
+    assert split, "no pad put the seek inside a character"
+
+
+def test_recent_intake_pending_reads_only_the_tail(tmp_path: Path) -> None:
+    """The whole queue was read on every Web call to keep 20 lines (MP-12)."""
+    queue_file = tmp_path / "data" / "intake_queue.jsonl"
+    queue_file.parent.mkdir(parents=True)
+    filler = json.dumps({"query": "x" * 200}) + "\n"
+    queue_file.write_text(
+        filler * 5000 + json.dumps({"query": "recent topic"}) + "\n", encoding="utf-8"
+    )
+    with (
+        patch.object(web_research_handler, "DATA_ROOT", tmp_path),
+        patch.object(Path, "read_text", side_effect=AssertionError("full read")),
+    ):
+        assert _recent_intake_pending("recent topic")
+
+
+def test_prune_queue_forgets_the_index_entries_of_pruned_files(
+    tmp_path, monkeypatch
+) -> None:
+    """End to end: the stored_at prune computes matches what update_index
+    stored, so a pruned capture is no longer known (MP-6).
+    """
+    import os
+
+    import yaml as real_yaml
+
+    import shared.deduplication as dedup
+
+    monkeypatch.setattr(dedup, "_get_index_path", lambda: tmp_path / "i.yaml")
+    monkeypatch.setattr(dedup, "yaml", real_yaml)
+    monkeypatch.setattr(dedup, "_index_cache", None)
+    monkeypatch.setattr(dedup, "_index_mtime", 0)
+    monkeypatch.setattr(web_research_handler, "DATA_ROOT", tmp_path)
+    queue = tmp_path / "queue"
+    queue.mkdir()
+    for i in range(3):
+        capture = queue / f"webfetch-{i}.md"
+        capture.write_text("x")
+        os.utime(capture, (1000 + i, 1000 + i))
+        dedup.update_index(
+            f"h{i}",
+            str(capture.relative_to(tmp_path)),
+            50,
+            url=f"https://example.com/{i}",
+        )
+
+    prune_queue(queue, keep=1)
+
+    assert not dedup.is_known(url="https://example.com/0")
+    assert dedup.is_known(url="https://example.com/2")

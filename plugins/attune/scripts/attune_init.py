@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import importlib
+import re
 import shutil
 import subprocess
 import sys
@@ -470,6 +471,13 @@ def main() -> None:
     detector = ProjectDetector(project_path)
     language = _resolve_language(args.lang, detector)
     project_name = args.name or project_path.name
+    # Templates write the name verbatim into Makefile recipes and TOML.
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", project_name):
+        source = "--name" if args.name else "directory name; pass --name"
+        sys.exit(
+            f"error: project name {project_name!r} ({source}) must match "
+            "[A-Za-z0-9][A-Za-z0-9._-]*"
+        )
 
     _print_init_banner(project_name, language, project_path)
 

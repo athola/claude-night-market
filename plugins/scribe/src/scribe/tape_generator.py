@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -74,7 +74,7 @@ def _sanitize_theme(theme: str) -> str:
     (VHS built-in themes like "Catppuccin Mocha" use spaces).
     Raises ValueError if the theme name contains unsafe characters.
     """
-    if not re.match(r"^[A-Za-z0-9 _-]+$", theme):
+    if not re.fullmatch(r"[A-Za-z0-9 _-]+", theme):
         msg = (
             f"Invalid theme name: '{theme}'. "
             "Theme names may only contain alphanumeric characters, "
@@ -84,18 +84,56 @@ def _sanitize_theme(theme: str) -> str:
     return theme
 
 
+# Shapes of credentials a transcript can carry, replaced before anything is
+# typed into the recording. Every Type line passes through escape_vhs.
+_SECRET_RES = (
+    (re.compile(r"\b(?:sk|pk|rk)-[A-Za-z0-9_-]{16,}"), "[redacted]"),
+    (
+        re.compile(r"\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}|\bgithub_pat_\w{20,}"),
+        "[redacted]",
+    ),
+    (re.compile(r"\bxox[abprs]-[A-Za-z0-9-]{10,}"), "[redacted]"),
+    (re.compile(r"\bAKIA[0-9A-Z]{16}\b"), "[redacted]"),
+    (re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._~+/=-]{16,}"), "[redacted]"),
+    (
+        re.compile(r"(?i)\b(pass(?:word|wd)?|secret|token|api[_-]?key)(\s*[:=]\s*)\S+"),
+        r"\1\2[redacted]",
+    ),
+)
+
+
+def redact(text: str) -> str:
+    """Remove credentials and the home directory from recorded text.
+
+    A replay GIF is shared, and the transcript it types holds whatever the
+    session saw: keys, tokens, and paths naming the user's account.
+    """
+    for pattern, replacement in _SECRET_RES:
+        text = pattern.sub(replacement, text)
+    home = str(Path.home())
+    return text.replace(home, "~") if home not in ("", "/") else text
+
+
+def _quote_vhs(text: str) -> str:
+    """Escape backslash and double quote for a VHS double-quoted string.
+
+    The Output path takes this without redaction: VHS writes ``~`` in a
+    path to a literal ``./~/`` directory.
+    """
+    return text.replace("\\", "\\\\").replace('"', '\\"')
+
+
 def escape_vhs(text: str) -> str:
     """Escape a string for VHS Type double-quoted syntax.
 
     Rules:
+    - Credentials and the home directory are redacted first
     - Backslash becomes double backslash
     - Double quote becomes backslash double quote
     - Unicode passes through unchanged
     - Newlines are handled externally (split into lines)
     """
-    text = text.replace("\\", "\\\\")
-    text = text.replace('"', '\\"')
-    return text
+    return _quote_vhs(redact(text))
 
 
 # --- Timing helpers ---
@@ -124,6 +162,10 @@ def _resolve_output_path(config: TapeConfig) -> str:
     Raises:
         ValueError: If the resolved format is not supported.
     """
+    if any(ord(char) < 32 or ord(char) == 127 for char in config.output_path):
+        # A newline here would start a new tape directive.
+        msg = f"Output path contains a control character: {config.output_path!r}"
+        raise ValueError(msg)
     path = PurePosixPath(config.output_path)
 
     if config.output_format is not None:
@@ -160,12 +202,21 @@ def generate_tape(turns: list[Turn], config: TapeConfig) -> str:
     output_path = _resolve_output_path(config)
 
     # Header
-    lines.append(f"Output {output_path}")
+    # Quoted: VHS rejects an unquoted absolute path, and a space splits one.
+    lines.append(f'Output "{_quote_vhs(output_path)}"')
     lines.append("")
     lines.append(f"Set Width {config.width}")
     lines.append(f"Set Height {config.height}")
     lines.append(f"Set FontSize {config.font_size}")
     lines.append(f'Set Theme "{_sanitize_theme(config.theme)}"')
+    lines.append("")
+    # Every transcript line is typed and then Enter is pressed in VHS's live
+    # shell, and transcripts carry fetched web and issue text. A reader that
+    # discards its input takes those lines instead of the shell.
+    lines.append("Hide")
+    lines.append('Type "cat > /dev/null"')
+    lines.append("Enter")
+    lines.append("Show")
     lines.append("")
 
     # Duration tracking

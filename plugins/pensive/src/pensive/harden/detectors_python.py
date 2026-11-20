@@ -248,11 +248,18 @@ def _detect_PY04(call: ast.Call, ctx: _Context) -> None:
     shell_kw = _kw_value(call, "shell")
     if shell_kw is None or not _is_constant_true(shell_kw):
         return
+    # A constant command string has nothing to inject; only a built one
+    # (f-string, concatenation, a variable) is the CWE-78 case.
+    constant = (
+        bool(call.args)
+        and isinstance(call.args[0], ast.Constant)
+        and isinstance(call.args[0].value, str)
+    )
     ctx.add(
         FindingSpec(
             node=call,
             id_="PY04",
-            severity="HIGH",
+            severity="LOW" if constant else "HIGH",
             cwe="CWE-78",
             ssdf="PW.5.1",
             signal=f"{chain}(..., shell-mode flag set true)",

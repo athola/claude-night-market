@@ -16,6 +16,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
+import logging
+
 import delegation_prompt as prompt_module  # noqa: E402 - sys.path set above
 from delegation_executor import Delegator  # noqa: E402 - sys.path set above
 from delegation_prompt import (  # noqa: E402 - sys.path set above
@@ -26,7 +28,10 @@ from delegation_prompt import (  # noqa: E402 - sys.path set above
     _iter_context_files,
     _prompt_argv,
 )
-from delegation_services import ServiceConfig  # noqa: E402 - sys.path set above
+from delegation_services import (
+    SERVICES,
+    ServiceConfig,  # noqa: E402 - sys.path set above
+)
 
 _BASE = ServiceConfig(name="probe", command="probe", auth_method="none")
 
@@ -452,3 +457,71 @@ class TestInlineContextLeavesRoomForThePrompt:
         assert len(longest.encode("utf-8")) + 1 <= MAX_ARG_STRLEN
         assert delivered.endswith(prompt)
         assert "truncated" in delivered
+
+
+def test_inline_context_skips_dotenv_and_out_of_tree_symlinks(tmp_path) -> None:
+    """Directory expansion leaves out secrets and out-of-tree links (CNJ-6).
+
+    It inlined `.env`, keys and files outside the tree into a prompt sent
+    to a third-party provider.
+    """
+    tree = tmp_path / "tree"
+    tree.mkdir()
+    (tree / "main.py").write_text("x = 1\n")
+    for secret in (
+        ".env",
+        ".env.local",
+        "server.pem",
+        "id_ed25519",
+        "credentials.json",
+    ):
+        (tree / secret).write_text("SECRET\n")
+    outside = tmp_path / "outside.txt"
+    outside.write_text("SECRET\n")
+    (tree / "link.txt").symlink_to(outside)
+
+    names = [p.name for p in _iter_context_files([str(tree)])]
+
+    assert names == ["main.py"]
+
+
+def test_inline_context_skips_secrets_reached_through_an_in_tree_link(
+    tmp_path,
+) -> None:
+    """A filter must judge what is read, not the name it is read through.
+
+    `notes.txt -> .env` passed the name check, and the target sat inside
+    the root, so the secret reached a third-party prompt. `.ssh/` content
+    and `*.secrets` files slipped through on their names too.
+    """
+    tree = tmp_path / "tree"
+    tree.mkdir()
+    (tree / "main.py").write_text("x = 1\n")
+    (tree / ".env").write_text("SECRET\n")
+    (tree / "notes.txt").symlink_to(tree / ".env")
+    (tree / ".ssh").mkdir()
+    (tree / ".ssh" / "config_key_material").write_text("SECRET\n")
+    (tree / "cfg").mkdir()
+    (tree / "cfg" / "prod.secrets").write_text("SECRET\n")
+
+    names = [p.name for p in _iter_context_files([str(tree)])]
+
+    assert names == ["main.py"]
+
+
+def test_explicitly_named_file_is_still_read(tmp_path) -> None:
+    """A file the caller names is the caller's choice, so it is read."""
+    named = tmp_path / ".env.example"
+    named.write_text("A=1\n")
+    assert _iter_context_files([str(named)]) == [named]
+
+
+def test_missing_context_file_is_warned_for_at_path_providers(tmp_path, caplog) -> None:
+    """A mistyped path sent nothing and warned nothing (CNJ-7)."""
+    at_path = next(
+        s for s in SERVICES.values() if not s.inline_files and not s.stdin_prompt
+    )
+    missing = str(tmp_path / "nope.py")
+    with caplog.at_level(logging.WARNING):
+        _delivered_prompt(at_path, "explain", [missing])
+    assert missing in caplog.text

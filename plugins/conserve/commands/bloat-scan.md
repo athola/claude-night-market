@@ -233,7 +233,7 @@ git commit -m "Remove deprecated handler (bloat scan #1)"
 git checkout -b cleanup/pre-release
 /bloat-scan --level 2
 # Execute approved changes
-/pr "Reduce codebase bloat by 14%"
+/prepare-pr "Reduce codebase bloat by 14%"
 ```
 
 ### With Performance Monitoring

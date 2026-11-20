@@ -37,7 +37,7 @@ sys.modules[_spec.name] = pr_prep
 _spec.loader.exec_module(pr_prep)
 PRPrepAnalyzer = pr_prep.PRPrepAnalyzer
 
-_DOC_SUFFIXES = (".md", ".rst", ".txt", ".adoc")
+_DOC_SUFFIXES = pr_prep.DOC_SUFFIXES
 #: insertions, deletions, path
 _NUMSTAT_FIELDS = 3
 
@@ -61,7 +61,10 @@ def classify(path: str) -> str:
 def collect(base: str, cwd: Path | None = None) -> dict[str, Any]:
     """Read changed files and commits since ``base`` into analyzer input."""
     files: list[dict[str, Any]] = []
-    for line in _git(["diff", "--numstat", f"{base}...HEAD"], cwd).splitlines():
+    # -z keeps paths verbatim: without it git C-quotes non-ASCII names.
+    # --no-renames keeps one record per path instead of a three-field pair.
+    numstat = _git(["diff", "--numstat", "-z", "--no-renames", f"{base}...HEAD"], cwd)
+    for line in numstat.split("\x00"):
         parts = line.split("\t")
         if len(parts) != _NUMSTAT_FIELDS:
             continue
@@ -71,14 +74,14 @@ def collect(base: str, cwd: Path | None = None) -> dict[str, Any]:
         )
         files.append({"path": path, "type": classify(path), "changes": changes})
 
+    # %B, not %s: a BREAKING CHANGE footer lives in the body.
+    log = _git(["log", "--format=%H%x00%B%x1e", f"{base}..HEAD"], cwd)
     commits = [
-        {"hash": sha, "message": message}
+        {"hash": sha, "message": message.strip()}
         for sha, message in (
-            line.split("\x00", 1)
-            for line in _git(
-                ["log", "--format=%H%x00%s", f"{base}..HEAD"], cwd
-            ).splitlines()
-            if "\x00" in line
+            record.strip("\n").split("\x00", 1)
+            for record in log.split("\x1e")
+            if "\x00" in record
         )
     ]
     return {"changed_files": files, "commits": commits}
@@ -128,11 +131,11 @@ def render_markdown(report: dict[str, Any], base: str) -> str:
     lines += ["## Breaking changes", ""]
     if breaking["has_breaking_changes"]:
         lines += [
-            f"- commit {sha[:7]} carries a `!` marker"
+            f"- commit {sha[:7]} is marked breaking (`!` or a BREAKING CHANGE footer)"
             for sha in breaking["breaking_commits"]
         ]
     else:
-        lines.append("- none detected (no `!` in commit subjects)")
+        lines.append("- none detected (no `!` subject, no BREAKING CHANGE footer)")
     lines.append("")
 
     lines += ["## Quality gates", ""]
@@ -153,7 +156,16 @@ def render_markdown(report: dict[str, Any], base: str) -> str:
         lines += ["## Suggested reviewers", ""]
         lines += [f"- {name}" for name in report["reviewers"]] or ["- none matched"]
         lines.append("")
-    lines += ["## Description scaffold", "", report["description"].rstrip(), ""]
+    # Fenced: the scaffold's own ## headings would otherwise read as
+    # sections of this report.
+    lines += [
+        "## Description scaffold",
+        "",
+        "```markdown",
+        report["description"].rstrip(),
+        "```",
+        "",
+    ]
     return "\n".join(lines) + "\n"
 
 
