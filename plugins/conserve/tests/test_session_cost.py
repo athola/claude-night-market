@@ -14,6 +14,7 @@ Billed-run studies found token and cost reduction weakly correlated
 from __future__ import annotations
 
 import importlib.util
+import io
 import json
 from pathlib import Path
 
@@ -327,3 +328,125 @@ class TestCursorTranscripts:
         assert "Cursor" in out
         assert "usage" in out.lower()
         assert "cache read" not in out
+
+
+# Shapes from real files on 2026-11-20: `cusage --json` (~/cusage-rs, which
+# reads Cursor's dashboard API) and `cursor-agent -p --output-format json`.
+_CUSAGE = {
+    "events": [
+        {
+            "date": "2026-11-19",
+            "model": "claude-opus-5-5-high",
+            "requests": 19,
+            "input": 600,
+            "output": 200_000,
+            "cache_write": 3_000_000,
+            "cache_read": 60_000_000,
+            "cost_cents": 4_778.0,
+        },
+        {
+            "date": "2026-11-20",
+            "model": "claude-opus-5-5-high",
+            "requests": 5,
+            "input": 100,
+            "output": 40_000,
+            "cache_write": 500_000,
+            "cache_read": 11_000_000,
+            "cost_cents": 879.0,
+        },
+        {
+            "date": "2026-11-20",
+            "model": "grok-bot-default",
+            "requests": 17,
+            "input": 400,
+            "output": 10_000,
+            "cache_write": 278_000,
+            "cache_read": 1_400_000,
+            "cost_cents": 132.0,
+        },
+    ],
+    "summary": {"membershipType": "enterprise"},
+}
+
+
+def _agent_result(inp: int, out: int, read: int, write: int) -> str:
+    return json.dumps(
+        {
+            "type": "result",
+            "subtype": "success",
+            "result": "OK",
+            "usage": {
+                "inputTokens": inp,
+                "outputTokens": out,
+                "cacheReadTokens": read,
+                "cacheWriteTokens": write,
+            },
+        }
+    )
+
+
+class TestCursorUsage:
+    """Cursor's own usage data carries the cache split its transcripts lack."""
+
+    def test_cusage_json_is_summed_per_model(self, ledger) -> None:
+        """Rows for the same model on different days fold into one row."""
+        report = ledger.summarize_cursor_usage_text(json.dumps(_CUSAGE))
+
+        assert report["format"] == "cusage"
+        assert report["requests"] == 41
+        assert report["tokens"]["cache_read"] == 72_400_000
+        assert report["cost_cents"] == pytest.approx(5_789.0)
+        models = {row["model"]: row for row in report["by_model"]}
+        assert models["claude-opus-5-5-high"]["requests"] == 24
+        assert report["by_model"][0]["model"] == "claude-opus-5-5-high"
+
+    def test_shares_are_token_shares(self, ledger) -> None:
+        """Cursor folds its Token Rate into cost, so shares weigh tokens only."""
+        report = ledger.summarize_cursor_usage_text(json.dumps(_CUSAGE))
+        total = sum(report["tokens"].values())
+
+        assert report["token_shares"]["cache_read"] == pytest.approx(72_400_000 / total)
+        assert sum(report["token_shares"].values()) == pytest.approx(1.0)
+
+    def test_cursor_agent_results_are_summed(self, ledger) -> None:
+        """Each headless run ends in one result line whose usage excludes cache."""
+        text = "\n".join(
+            [_agent_result(4, 4, 9_342, 28_409), _agent_result(1, 2, 3, 4)]
+        )
+        report = ledger.summarize_cursor_usage_text(text)
+
+        assert report["format"] == "cursor-agent"
+        assert report["requests"] == 2
+        assert report["tokens"] == {
+            "input": 5,
+            "cache_write": 28_413,
+            "cache_read": 9_345,
+            "output": 6,
+        }
+        assert report["cost_cents"] is None
+
+    def test_a_claude_transcript_is_not_taken_for_cursor_usage(self, ledger) -> None:
+        """Only the two Cursor shapes match, so transcripts keep their path."""
+        assert ledger.summarize_cursor_usage_text(_assistant("m1", out=1)) is None
+
+    def test_main_reads_cusage_from_stdin(self, ledger, monkeypatch, capsys) -> None:
+        """`cusage --json | session_cost.py -` is the intended pipeline."""
+        monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(_CUSAGE)))
+
+        assert ledger.main(["-"]) == 0
+        out = capsys.readouterr().out
+        assert "cache read" in out
+        assert "claude-opus-5-5-high" in out
+        assert "$57.89" in out
+
+    def test_cursor_transcript_message_names_the_usage_sources(
+        self, ledger, tmp_path, capsys
+    ) -> None:
+        """The message says where the cache split can be read instead."""
+        transcript = tmp_path / "cursor.jsonl"
+        transcript.write_text("\n".join(_CURSOR_TRANSCRIPT))
+
+        ledger.main([str(transcript)])
+        out = capsys.readouterr().out
+        assert "--output-format json" in out
+        assert "filtered-usage-events" in out

@@ -123,9 +123,27 @@ this module with them. Two things differ, both checked with a
   payload carrying `cursor_version`. A Cursor hook can replace only MCP
   output (`updated_mcp_tool_output`), not shell or file results
   ([hooks](https://cursor.com/docs/hooks)).
-- **`session_cost.py` has nothing to count.** A Cursor transcript holds the
+- **The transcript has nothing to count.** A Cursor transcript holds the
   prompt, the tool calls and the replies, with no token usage and no tool
-  results. The script says so and points at the Cursor dashboard.
+  results. Cursor's usage data does carry the cache split, and
+  `session_cost.py` reads two shapes of it:
+
+  ```bash
+  cusage --json | python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session_cost.py -
+  cursor-agent -p --output-format json "..." >> runs.jsonl
+  python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session_cost.py runs.jsonl
+  ```
+
+  `cusage` reads Cursor's dashboard usage API with your login. A
+  `cursor-agent` result line carries `usage` with `inputTokens` (net of
+  cache), `outputTokens`, `cacheReadTokens` and `cacheWriteTokens`. That
+  field is undocumented and was read from CLI 2026.11.19. Team admins get
+  the same `tokenUsage` per event from the Admin API's
+  [`POST /teams/filtered-usage-events`](https://cursor.com/docs/account/teams/admin-api),
+  documented and keyed by `conversationId`. The report gives token shares,
+  not price-weighted ones: Cursor reports no cache-write duration and its
+  cost includes the Cursor Token Rate. One day of real usage put cache
+  reads at 94.0% of tokens, cache writes 5.2% and output 0.5%.
 
 Filtering at the source works the same in both: `grep` and `tail` in the
 command cut what reaches the model before any hook runs.

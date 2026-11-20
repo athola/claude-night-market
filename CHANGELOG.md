@@ -31,7 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   early: Cursor writes long tool output to files itself, sends the shell
   tool as `Shell`, and puts its output in `tool_output`, not
   `tool_response`. `session_cost.py` names a Cursor transcript, which
-  records no token usage, rather than reporting zero requests.
+  records no token usage, rather than reporting zero requests, and reads
+  Cursor's usage data instead: `cusage --json` output, including on
+  standard input, and `cursor-agent -p --output-format json` result lines.
+  That report gives token shares, because Cursor's cost includes its
+  Token Rate and no cache-write duration is reported.
 
 - **leyline:** the two SessionStart hooks that reach GitHub are off by
   default, each behind a plugin option Claude Code shows when the plugin

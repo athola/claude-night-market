@@ -11,6 +11,14 @@ compaction drops it.
 
 Usage:
     session_cost.py TRANSCRIPT.jsonl [--top N] [--json]
+    cusage --json | session_cost.py -
+    session_cost.py CURSOR_AGENT_RESULTS.jsonl
+
+Cursor transcripts record no usage, so for Cursor the ledger reads Cursor's
+own usage data instead: ``cusage --json`` output (the dashboard usage API)
+or the result lines of ``cursor-agent -p --output-format json``. Those carry
+the cache split but no write duration, and Cursor's cost includes its Token
+Rate, so that report gives token shares rather than price-weighted ones.
 
 The newest transcript for a project is the newest file in
 ``~/.claude/projects/<project-slug>/``. Subagents write their own
@@ -199,12 +207,134 @@ def summarize(lines: Iterable[str], top: int = 5) -> dict[str, Any]:
     return ledger.report(top, skipped)
 
 
+CURSOR_CATEGORIES = ("input", "cache_write", "cache_read", "output")
+_CURSOR_SOURCES = (
+    "`cursor-agent -p --output-format json` results, `cusage --json`, or the "
+    "Admin API's POST /teams/filtered-usage-events"
+)
+
+
+def _cusage_rows(rows: list[Any]) -> dict[str, Any]:
+    by_model: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        name = str(row.get("model") or "?")
+        acc = by_model.setdefault(
+            name,
+            {"model": name, "requests": 0, "cost_cents": 0.0}
+            | dict.fromkeys(CURSOR_CATEGORIES, 0),
+        )
+        acc["requests"] += int(row.get("requests") or 0)
+        acc["cost_cents"] += float(row.get("cost_cents") or 0)
+        for key in CURSOR_CATEGORIES:
+            acc[key] += int(row.get(key) or 0)
+    models = sorted(by_model.values(), key=lambda r: r["cost_cents"], reverse=True)
+    return {
+        "format": "cusage",
+        "requests": sum(r["requests"] for r in models),
+        "tokens": {k: sum(r[k] for r in models) for k in CURSOR_CATEGORIES},
+        "cost_cents": sum(r["cost_cents"] for r in models),
+        "by_model": models,
+    }
+
+
+def _agent_results(usages: list[dict[str, Any]]) -> dict[str, Any]:
+    names = {
+        "input": "inputTokens",
+        "cache_write": "cacheWriteTokens",
+        "cache_read": "cacheReadTokens",
+        "output": "outputTokens",
+    }
+    return {
+        "format": "cursor-agent",
+        "requests": len(usages),
+        "tokens": {
+            key: sum(int(u.get(field) or 0) for u in usages)
+            for key, field in names.items()
+        },
+        "cost_cents": None,
+        "by_model": [],
+    }
+
+
+def summarize_cursor_usage_text(text: str) -> dict[str, Any] | None:
+    """Report Cursor usage data, or return None when *text* is neither shape.
+
+    ``cusage --json`` is one object with an ``events`` list of per-model rows.
+    ``cursor-agent`` writes one ``{"type": "result", "usage": {...}}`` line per
+    run, its ``inputTokens`` already net of cache.
+    """
+    try:
+        whole = json.loads(text)
+    except ValueError:
+        whole = None
+    if isinstance(whole, dict) and isinstance(whole.get("events"), list):
+        report = _cusage_rows(whole["events"])
+    else:
+        usages = []
+        for line in text.splitlines():
+            try:
+                entry = json.loads(line)
+            except ValueError:
+                continue
+            if (
+                isinstance(entry, dict)
+                and entry.get("type") == "result"
+                and isinstance(entry.get("usage"), dict)
+            ):
+                usages.append(entry["usage"])
+        if not usages:
+            return None
+        report = _agent_results(usages)
+    total = sum(report["tokens"].values())
+    report["token_shares"] = (
+        {k: v / total for k, v in report["tokens"].items()} if total else {}
+    )
+    return report
+
+
+def render_cursor_usage(report: dict[str, Any]) -> str:
+    """Format a Cursor usage report as a short table."""
+    labels = {
+        "input": "uncached input",
+        "cache_write": "cache write",
+        "cache_read": "cache read",
+        "output": "output",
+    }
+    count = report["requests"]
+    noun = "request" if count == 1 else "requests"
+    out = [f"Cursor usage ({report['format']}): {count} {noun}", ""]
+    out.append(f"{'category':<16}{'tokens':>16}{'token share':>13}")
+    for key in CURSOR_CATEGORIES:
+        share = report["token_shares"].get(key, 0.0)
+        out.append(f"{labels[key]:<16}{report['tokens'][key]:>16,}{share:>13.1%}")
+    out.append("")
+    out.append(
+        "Shares weigh tokens, not price: Cursor reports no cache-write duration "
+        "and its cost includes the Cursor Token Rate."
+    )
+    if report["cost_cents"] is not None:
+        out.append(f"Cost: ${report['cost_cents'] / 100:,.2f}")
+    if report["by_model"]:
+        out.append("By model:")
+        for row in report["by_model"]:
+            out.append(
+                f"  {row['model'][:30]:<31}{row['requests']:>6} req  "
+                f"${row['cost_cents'] / 100:>9,.2f}  "
+                f"cache read {row['cache_read']:,}"
+            )
+    return "\n".join(out)
+
+
 def render(report: dict[str, Any]) -> str:
     """Format the report as a short table."""
     if report["format"] == "cursor":
         return (
             "This is a Cursor transcript. Cursor records no token usage or tool "
-            "results in it. Per-request usage is in the Cursor dashboard."
+            "results in it. Run this script on Cursor's usage data instead: "
+            + _CURSOR_SOURCES
+            + "."
         )
     total = sum(report["units"].values())
     out = [f"Requests: {report['requests']}", ""]
@@ -236,16 +366,25 @@ def render(report: dict[str, Any]) -> str:
 def main(argv: list[str] | None = None) -> int:
     """Print the spend report for one transcript."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("transcript", type=Path)
+    parser.add_argument("transcript", help="transcript, Cursor usage file, or -")
     parser.add_argument("--top", type=int, default=5)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
     try:
-        with args.transcript.open(encoding="utf-8", errors="replace") as handle:
-            report = summarize(handle, top=args.top)
+        if args.transcript == "-":
+            text = sys.stdin.read()
+        else:
+            text = Path(args.transcript).read_text(encoding="utf-8", errors="replace")
     except OSError as exc:
         print(f"session_cost: cannot read {args.transcript}: {exc}", file=sys.stderr)
         return 2
+    cursor = summarize_cursor_usage_text(text)
+    if cursor is not None:
+        print(
+            json.dumps(cursor, indent=2) if args.json else render_cursor_usage(cursor)
+        )
+        return 0
+    report = summarize(text.splitlines(), top=args.top)
     print(json.dumps(report, indent=2) if args.json else render(report))
     return 0
 
