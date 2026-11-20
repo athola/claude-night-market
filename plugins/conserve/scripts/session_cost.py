@@ -13,7 +13,9 @@ Usage:
     session_cost.py TRANSCRIPT.jsonl [--top N] [--json]
 
 The newest transcript for a project is the newest file in
-``~/.claude/projects/<project-slug>/``.
+``~/.claude/projects/<project-slug>/``. Subagents write their own
+transcripts under ``<session-id>/subagents/``. Run the ledger on each one to
+include their spend.
 """
 
 from __future__ import annotations

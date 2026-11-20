@@ -407,6 +407,37 @@ def test_main_archives_large_single_output(summarizer, monkeypatch, tmp_path, ca
     assert "noise line" not in ctx
 
 
+def test_main_skips_a_bash_result_claude_code_already_persisted(
+    summarizer, monkeypatch, tmp_path, capsys
+):
+    """A Bash result past the inline limit is already saved whole by Claude Code.
+
+    Measured on CLI 2.1.328: for 40,560 chars of output the hook received
+    the first 30,000 (the read-back window) plus persistedOutputPath, and the
+    model saw a 2,000-char preview and that path. An archive here would be a
+    truncated copy of a file that already holds the whole output.
+    """
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CONSERVE_CCR_THRESHOLD", str(SMALL_THRESHOLD))
+    hook_input = {
+        "tool_name": "Bash",
+        "tool_response": {
+            "stdout": "line\n" * 6_000,
+            "stderr": "",
+            "interrupted": False,
+            "isImage": False,
+            "persistedOutputPath": str(tmp_path / "tool-results" / "b1.txt"),
+            "persistedOutputSize": 40_560,
+        },
+    }
+
+    rc, out = _run_main(summarizer, hook_input, monkeypatch, capsys)
+
+    assert rc == 0
+    assert not (tmp_path / ".claude" / "context-archive").exists()
+    assert "ccr-" not in out
+
+
 def test_main_large_read_does_not_echo_the_file_back(
     summarizer, monkeypatch, tmp_path, capsys
 ):

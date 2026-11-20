@@ -20,8 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **conserve:** the CCR hook adds one line naming the archive and its
   retrieve command. It no longer appends a head and tail digest of up to
-  4,000 characters beside an output that was already whole in context,
-  which added tokens to every large result. The reversible-compression
+  4,000 characters beside an output already in context, which added
+  tokens to every large result. It skips a Bash result that Claude Code
+  already saved to a file, where its archive held only the first 30,000
+  characters. The reversible-compression
   module now says why the hook does not replace output through
   `updatedToolOutput`, and cites independent measurements in place of
   Headroom's own token counts.

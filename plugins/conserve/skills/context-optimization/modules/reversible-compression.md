@@ -37,7 +37,12 @@ Read, or Grep output at or above `CONSERVE_CCR_THRESHOLD` characters
 
 It then adds one line: the output's size, the handle, a statement that the
 archive is the verbatim output, and the retrieval command. It repeats none
-of the output, which is already whole in context. Fetch the original later
+of the output, which is already in context.
+
+A Bash result past Claude Code's inline limit (about 30,000 characters) is
+skipped. Claude Code has already saved the whole output to a file and given
+the model its path, and the hook sees only the first 30,000 characters, so
+its archive would be a truncated copy. Fetch an archived original later
 with:
 
 ```bash
@@ -71,6 +76,7 @@ three reasons:
 - Claude Code already moves a valid Bash result over roughly 30,000
   characters to a file and shows a 2,000-character preview
   ([tools reference](https://code.claude.com/docs/en/tools-reference)).
+  The largest results never reach the model whole.
 - In 2,908 billed Claude Code runs, the largest compression setup cut
   tool-output tokens 38.4% and raised billed cost 6.8%, and aggressive
   compression lowered successful patches
@@ -100,7 +106,9 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session_cost.py \
 
 On one 472-request session it reported cache reads at 53.6% of spend,
 cache writes at 33.3%, output at 13.1%, and re-reading tool results at
-5.6%. Removing every tool result would have saved little more than that.
+5.6%. The first send of each result is a cache write as well, which the
+ledger leaves in the cache-write row. It reads one transcript: subagent
+transcripts are separate files under `<session-id>/subagents/`.
 
 ## When compression pays off, and when it does not
 
@@ -126,8 +134,9 @@ Two cautions worth stating plainly:
 - **Retrieve-on-demand can miss context**, the same failure mode as RAG.
   After a `/clear` the handle is all that remains, and a model that never
   expands it proceeds on partial information. The note calls the archive
-  verbatim because naming the authoritative copy recovered 6-8 accuracy
-  points for models that otherwise answered from their own notes
+  verbatim because naming the authoritative output recovered 6.3-7.9
+  accuracy points for GPT-5.x models that otherwise answered from their own
+  notes. Claude Opus and Sonnet 4.6 showed no loss to recover
   ([arXiv 2610.26836](https://arxiv.org/abs/2610.26836)).
 - **Do not aggressively compress multi-step reasoning.** At roughly 2x
   compression, math and chained reasoning degrade even when surface

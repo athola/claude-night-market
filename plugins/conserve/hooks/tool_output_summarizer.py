@@ -187,8 +187,9 @@ def build_handle_note(text: str, handle: str) -> str:
     model already holds. It added tokens to the turn and was gone after
     ``/clear``. Only the handle outlives the turn, and the note carries just
     the handle, the size, and the retrieve command. It calls the archive
-    verbatim because naming the authoritative copy kept models from
-    answering out of a summary (arXiv 2610.26836).
+    verbatim because naming the authoritative output recovered accuracy for
+    GPT models that otherwise answered from their own notes (arXiv
+    2610.26836).
     """
     retrieve_cmd = f"python3 {shlex.quote(str(RETRIEVE_SCRIPT))} {handle}"
     # Characters, not bytes: len(text) counts characters.
@@ -340,6 +341,18 @@ def format_hook_output(assessment: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _persisted_by_claude_code(hook_input: dict[str, Any]) -> bool:
+    """Return True when Claude Code already saved this result to a file.
+
+    Past its inline limit Claude Code keeps the whole Bash output on disk and
+    shows the model a preview and the path. The hook then sees only the
+    first 30,000 chars (the read-back window), so an archive would be a
+    truncated copy of a complete file (measured on CLI 2.1.328).
+    """
+    response = hook_input.get("tool_response")
+    return isinstance(response, dict) and bool(response.get("persistedOutputPath"))
+
+
 def main() -> int:
     """Execute PostToolUse hook entry point."""
     # Read hook input from stdin
@@ -360,7 +373,7 @@ def main() -> int:
     # on demand (survives /clear and continuation-agent handoffs). The hook
     # leaves the result in context and adds only the handle.
     output_text = extract_tool_response_text(hook_input)
-    if should_archive(output_text):
+    if should_archive(output_text) and not _persisted_by_claude_code(hook_input):
         try:
             handle = archive_large_output(output_text)
             context_blocks.append(build_handle_note(output_text, handle))
