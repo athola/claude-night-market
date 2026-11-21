@@ -13,7 +13,20 @@ from gauntlet.models import EdgeKind, NodeKind  # noqa: E402 - must follow impor
 from gauntlet.treesitter_parser import (  # noqa: E402 - must follow importorskip
     detect_language,
     parse_file,
+    parser_available,
 )
+
+
+class TestParserAvailable:
+    """Callers need to tell 'no parser' apart from 'nothing to extract'."""
+
+    def test_reports_true_when_language_pack_loaded(self) -> None:
+        pytest.importorskip("tree_sitter_language_pack")
+        assert parser_available() is True
+
+    def test_reports_false_when_language_pack_missing(self) -> None:
+        with patch("gauntlet.treesitter_parser.get_parser", None):
+            assert parser_available() is False
 
 
 @pytest.fixture()

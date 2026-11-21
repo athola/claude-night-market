@@ -128,6 +128,38 @@ class TestPY04ShellMode:
         """)
         assert "PY04" not in _ids(_scan(src))
 
+    def test_constant_command_string_is_low_severity(self) -> None:
+        """A literal command has nothing for an attacker to inject.
+
+        GIVEN shell mode with a string constant as the command
+        WHEN the scanner runs
+        THEN PY04 still fires, at LOW rather than HIGH
+        """
+        kw = "shell" + "=True"
+        src = textwrap.dedent(f"""
+            import subprocess
+            def run_it():
+                return subprocess.run("ls -la", {kw})
+        """)
+        severities = [getattr(f, "severity", "?") for f in _scan(src) if f.id == "PY04"]
+        assert severities == ["LOW"]
+
+    def test_built_command_string_stays_high_severity(self) -> None:
+        """An f-string command is the CWE-78 injection case.
+
+        GIVEN shell mode with an f-string interpolating a parameter
+        WHEN the scanner runs
+        THEN PY04 fires at HIGH
+        """
+        kw = "shell" + "=True"
+        src = textwrap.dedent(f"""
+            import subprocess
+            def run_it(name):
+                return subprocess.run(f"ls {{name}}", {kw})
+        """)
+        severities = [getattr(f, "severity", "?") for f in _scan(src) if f.id == "PY04"]
+        assert severities == ["HIGH"]
+
 
 class TestPY08TLSDisabled:
     """PY08: requests.* with verify=False. CWE-295."""
