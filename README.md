@@ -150,7 +150,7 @@ conflicting skill or hook, each paired with what checks it.
 
 ## Network and data
 
-Four parts of the marketplace reach off your machine. The two leyline
+Five parts of the marketplace reach off your machine. The two leyline
 hooks are off until you turn them on in leyline's plugin options, which
 Claude Code shows when you enable the plugin and lists in `/config`
 (`claude plugin configure leyline` from a shell). Both use your existing
@@ -175,6 +175,13 @@ network is unavailable.
   `~/.claude/skills/discussions/config.json`, else the current repo.
   It is on by default. `auto_post_learnings: false` in that file
   disables it.
+- **Package lookups** (`imbue`, `hooks/guard_package_hallucination.py`).
+  Before a `pip`, `uv`, `npm`, `pnpm`, `yarn`, `cargo`, `poetry` or
+  `pdm` install runs, each package name that is not a known popular
+  package is looked up on PyPI, npm or crates.io to confirm it exists.
+  Only the name is sent. It is on by default.
+  `IMBUE_PKG_REGISTRY_CHECK=0` disables the lookups, and a failed lookup
+  never blocks the install.
 - **Delegation** (`conjure`, also reached by `attune` missions and
   `egregore` steps) sends the prompt and the file contents it carries to
   the first external model CLI that answers, in the order Gemini, Qwen,
