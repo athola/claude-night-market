@@ -1040,3 +1040,22 @@ def test_an_unreadable_marker_falls_back_to_the_ttl(
 ) -> None:
     (tmp_path / "sessions" / "other").mkdir(parents=True)
     assert not _session_end_stops(tmp_path, monkeypatch)
+
+
+def test_session_end_runs_where_fcntl_does_not_exist(tmp_path: Path) -> None:
+    """Windows has no fcntl, and the top-level import failed both events (U7)."""
+    hooks_dir = Path(__file__).resolve().parents[2] / "hooks"
+    runner = (
+        "import sys; sys.modules['fcntl'] = None; "
+        f"sys.path.insert(0, {str(hooks_dir)!r}); "
+        "import daemon_lifecycle; daemon_lifecycle.main()"
+    )
+    ended = subprocess.run(
+        [sys.executable, "-c", runner],
+        input=json.dumps({"hook_event_name": "SessionEnd", "session_id": "A"}),
+        capture_output=True,
+        text=True,
+        env={**os.environ, "CLAUDE_PLUGIN_DATA": str(tmp_path)},
+        check=False,
+    )
+    assert ended.returncode == 0, ended.stderr

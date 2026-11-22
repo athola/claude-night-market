@@ -287,6 +287,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **oracle:** a session counts toward the shared daemon while its process
   lives. A session longer than 24 hours no longer lets another session's
   end stop the daemon, and a crashed one no longer keeps it for a day.
+- **oracle:** the daemon lifecycle hook imports on Windows, where `fcntl`
+  does not exist and both SessionStart and SessionEnd failed. Session
+  starts are not serialized there.
 - **pensive:** `harden --strict --help` names both exit codes: 2 for a
   HIGH finding, 3 for a file it could not analyze.
 - **pensive:** `run_code_review` honors `exclude` and `skills` from a

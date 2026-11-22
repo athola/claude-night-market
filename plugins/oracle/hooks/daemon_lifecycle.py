@@ -15,7 +15,6 @@ subprocess.  The stop path sends SIGTERM if the daemon is running.
 
 from __future__ import annotations
 
-import fcntl
 import json
 import logging
 import os
@@ -26,6 +25,11 @@ import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+
+try:
+    import fcntl
+except ImportError:  # Windows: no advisory locks, session starts are not serialized
+    fcntl = None  # type: ignore[assignment]  # None sentinel: _start_lock branches on it
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PLUGIN_ROOT / "src"
@@ -306,7 +310,8 @@ def _start_lock() -> Iterator[None]:
     data_dir = get_oracle_data_dir()
     data_dir.mkdir(parents=True, exist_ok=True)
     with open(data_dir / "daemon.start.lock", "a") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
+        if fcntl is not None:
+            fcntl.flock(lock, fcntl.LOCK_EX)
         yield
 
 
