@@ -50,6 +50,13 @@ def test_non_commits_stay_undetected(command: str) -> None:
         ("printf 'fix' | git commit -F -", "printf"),
         ("cat msg | sed s/a/b/ | git commit --file=-", "cat"),
         ("git add -A && printf 'fix' | git commit --file - -q", "printf"),
+        ("printf 'fix' | git commit -F-", "printf"),
+        ("printf 'fix' | git commit -qF-", "printf"),
+        ("printf 'fix' | git commit --file=-", "printf"),
+        ("printf 'fix' | git commit --file -", "printf"),
+        ("git add -A; printf 'fix' | git commit -F -", "printf"),
+        ("git add -A && cat msg | git commit -F -", "cat"),
+        ("git add -A || true; echo fix | tr a b | git commit -F -", "echo"),
     ],
 )
 def test_message_read_from_stdin_starts_at_the_pipeline(
