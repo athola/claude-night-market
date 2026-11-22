@@ -755,3 +755,4 @@ def test_home_redaction_leaves_a_longer_sibling_directory_alone(
     assert redact("/Users/alex/x, /Users/al-2, /Users/al/y, /Users/al. /Users/al") == (
         "/Users/alex/x, /Users/al-2, ~/y, ~. ~"
     )
+    assert redact("/Users/al.bak/x") == "/Users/al.bak/x"

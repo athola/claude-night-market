@@ -114,7 +114,7 @@ def redact(text: str) -> str:
     if home in ("", "/"):
         return text
     # Only a whole path component: a home of /Users/al must leave /Users/alex.
-    return re.sub(re.escape(home) + r"(?![\w-])", "~", text)
+    return re.sub(re.escape(home) + r"(?![\w-]|\.\w)", "~", text)
 
 
 def _quote_vhs(text: str) -> str:
