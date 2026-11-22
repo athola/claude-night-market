@@ -44,7 +44,11 @@ _WRAPPERS: dict[str, tuple[frozenset[str], int]] = {
     "timeout": (frozenset(("-s", "-k", "--signal", "--kill-after")), 1),
     "xargs": (frozenset(("-a", "-d", "-E", "-I", "-L", "-n", "-P", "-s")), 0),
     "sudo": (
-        frozenset(("-u", "-g", "-C", "-D", "-h", "-p", "-r", "-t", "-U", "-T", "-R")),
+        frozenset(
+            ("-u", "-g", "-C", "-D", "-h", "-p", "-r", "-t", "-U", "-T", "-R")
+            + ("--user", "--group", "--chdir", "--host", "--prompt", "--role")
+            + ("--type", "--other-user", "--close-from", "--command-timeout")
+        ),
         0,
     ),
 }
@@ -54,6 +58,18 @@ _SHELL_VALUE_OPTIONS = frozenset(("-o", "+o", "-O", "+O", "--rcfile", "--init-fi
 _UNQUOTE_RE = re.compile(r"""'([^']*)'|"((?:\\.|[^"\\])*)"|\\(.)|(.)""", re.DOTALL)
 # `bash -c "bash -c '...'"` nests; deeper than this is not a real command.
 _MAX_SCRIPT_DEPTH = 3
+
+
+def _strip_opener(word: str) -> str:
+    """Drop a leading `(`, `$(`, backtick or `out=$(` that opens a command.
+
+    A substitution that closes inside the word (`X=$(pwd)`) is a value,
+    not an opener, and the word stays whole for the assignment check.
+    """
+    opener = _OPENER_RE.match(word)
+    if opener is None or any(closer in word[opener.end() :] for closer in ")`"):
+        return word
+    return word[opener.end() :]
 
 
 def _unquote(word: str) -> str:
@@ -91,7 +107,7 @@ def _segment_commits(segment: str, depth: int = 0) -> bool:
     words = _WORD_RE.findall(segment)
     index = 0
     while index < len(words):
-        word = _OPENER_RE.sub("", words[index], count=1)
+        word = _strip_opener(words[index])
         if not word or word in _KEYWORDS or _ASSIGNMENT_RE.match(word):
             index += 1
             continue
@@ -104,7 +120,7 @@ def _segment_commits(segment: str, depth: int = 0) -> bool:
         index += operands
     else:
         return False
-    head = _OPENER_RE.sub("", words[index], count=1)
+    head = _strip_opener(words[index])
     if head in ("eval", *_SHELLS) or head.rsplit("/", 1)[-1] in _SHELLS:
         if depth >= _MAX_SCRIPT_DEPTH:
             return False
