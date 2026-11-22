@@ -279,3 +279,12 @@ class TestFenceClosingFollowsCommonMark:
         text = "```\na\n```py\nb\n```\nprose\n"
         (span,) = [m.group(0) for m in markdown_spans.FENCED_CODE.finditer(text)]
         assert "b" in span and "prose" not in span
+
+    def test_an_inline_span_at_line_start_does_not_open_a_fence(self) -> None:
+        text = "```x``` is a span.\nprose after it\n"
+        assert list(markdown_spans.FENCED_CODE.finditer(text)) == []
+
+    def test_a_tilde_fence_info_string_may_hold_a_backtick(self) -> None:
+        text = "~~~ `py`\ncode\n~~~\nprose\n"
+        (span,) = [m.group(0) for m in markdown_spans.FENCED_CODE.finditer(text)]
+        assert "code" in span and "prose" not in span

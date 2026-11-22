@@ -339,6 +339,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **scribe:** a replay's `Output` path under the home directory is
   written as given, not redacted to `~`, which VHS created as a literal
   `./~/` directory.
+- **scribe:** a line that starts with an inline span such as ```` ```x``` ````
+  no longer opens a code fence, which had hidden the rest of the document
+  from the slop, spelling and negation checks.
 - **spec-kit:** a test pins that a `test-<command>` stub target exits 1.
 - **tests:** the PATH-trimming tests check `os.path.lexists`, so a
   dangling system symlink such as Ubuntu 26.04's `grub-ntldr-img` no

@@ -35,8 +35,11 @@ INLINE_CODE = re.compile(r"``[^`]*``|`[^`\n]*`")
 # character, at least as long, with nothing after it but spaces; a fence
 # with no closer runs to the end. Matching any line that began with the same
 # three characters closed a 4-backtick fence at an inner 3-backtick one.
+# A backtick opener's info string holds no backtick, so a line starting with
+# an inline span such as ```x``` opens nothing and cannot hide the prose after
+# it to the end of the document.
 FENCED_CODE = re.compile(
-    r"^ {0,3}(?P<fence>`{3,}|~{3,})[^\n]*\n"
+    r"^ {0,3}(?P<fence>`{3,}(?=[^`\n]*\n)|~{3,})[^\n]*\n"
     r"(?:.*?^ {0,3}(?P=fence)[`~]*[ \t]*$|.*\Z)",
     re.DOTALL | re.MULTILINE,
 )
