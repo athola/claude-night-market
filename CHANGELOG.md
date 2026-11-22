@@ -210,6 +210,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **imbue:** The no-AI-attribution vow reads a trailer after `-am`, an
   attached `-m"`, `--message` and `--trailer`, and ignores zero-width
   and other invisible format characters placed inside a tool name.
+- **imbue:** The no-AI-attribution vow scans a 50 KB message in
+  milliseconds. A 45 KB message took 7 seconds, past the 2s hook timeout
+  that the harness treats as allow.
 - **imbue, egregore, leyline:** module calls to `deferred_capture.py`
   stop with a message when `CLAUDE_PLUGIN_ROOT` is unset, instead of
   running `/scripts/deferred_capture.py`.

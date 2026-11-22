@@ -13,6 +13,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+import time
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
@@ -541,3 +542,29 @@ class TestEveryMessageFlagIsAnAnchor:
     ):
         command = 'git commit --message "docs: explain the --trailer flag"'
         assert not _blocked(hook_module, capsys, command)
+
+
+class TestLongMessagesFinishInsideTheHookTimeout:
+    """S8: lazy same-line scans were quadratic on one long line.
+
+    A 45 KB message took 7 seconds, and the harness treats a hook killed at
+    2 seconds as allow.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            'git commit -m "' + "by " * 17000 + '\nclaude.ai"',
+            'git commit -m "' + "Reviewed by x " * 3600 + '\nClaude"',
+            "printf '" + "\\nReviewed by x" * 3600 + "\nClaude' | git commit -F -",
+        ],
+        ids=["weak-verbs", "strong-verbs", "piped-trailers"],
+    )
+    def test_a_50kb_message_is_scanned_in_under_half_a_second(
+        self, hook_module, capsys, command
+    ):
+        """The tool name sits on a line of its own, so nothing matches."""
+        began = time.perf_counter()
+        assert not _blocked(hook_module, capsys, command)
+        assert time.perf_counter() - began < 0.5
