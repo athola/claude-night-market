@@ -111,7 +111,10 @@ def redact(text: str) -> str:
     for pattern, replacement in _SECRET_RES:
         text = pattern.sub(replacement, text)
     home = str(Path.home())
-    return text.replace(home, "~") if home not in ("", "/") else text
+    if home in ("", "/"):
+        return text
+    # Only a whole path component: a home of /Users/al must leave /Users/alex.
+    return re.sub(re.escape(home) + r"(?![\w-])", "~", text)
 
 
 def _quote_vhs(text: str) -> str:

@@ -24,6 +24,7 @@ from scribe.tape_generator import (
     _sanitize_theme,
     escape_vhs,
     generate_tape,
+    redact,
 )
 
 
@@ -744,3 +745,13 @@ def test_secrets_and_home_paths_are_redacted_from_the_recording() -> None:
     for leaked in ("sk-abcdefghijklmnop1234", "ghp_" + "a" * 36, "hunter2", home):
         assert leaked not in tape, leaked
     assert "~/project/.env" in tape
+
+
+def test_home_redaction_leaves_a_longer_sibling_directory_alone(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A home of /Users/al turned /Users/alex/x into ~ex/x."""
+    monkeypatch.setenv("HOME", "/Users/al")
+    assert redact("/Users/alex/x, /Users/al-2, /Users/al/y, /Users/al. /Users/al") == (
+        "/Users/alex/x, /Users/al-2, ~/y, ~. ~"
+    )

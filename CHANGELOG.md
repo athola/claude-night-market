@@ -342,6 +342,8 @@ a test written to fail first, or corrected text for a docs finding.
 - **scribe:** a line that starts with an inline span such as ```` ```x``` ````
   no longer opens a code fence, which had hidden the rest of the document
   from the slop, spelling and negation checks.
+- **scribe:** replay redaction replaces the home directory only as a whole
+  path component, so a home of `/Users/al` leaves `/Users/alex` intact.
 - **spec-kit:** a test pins that a `test-<command>` stub target exits 1.
 - **tests:** the PATH-trimming tests check `os.path.lexists`, so a
   dangling system symlink such as Ubuntu 26.04's `grub-ntldr-img` no
