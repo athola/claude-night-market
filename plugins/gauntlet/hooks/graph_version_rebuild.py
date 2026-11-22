@@ -19,13 +19,19 @@ import os
 import shlex
 import shutil
 import sqlite3
-import subprocess
 import sys
 import time
 from pathlib import Path
 from typing import Any
 
-_PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+from _graph_hook_common import (
+    PLUGIN_ROOT,
+    context,
+    graph_build_argv,
+    last_run_failed,
+    launch,
+    status_command,
+)
 
 # A full build of a large repository takes minutes; a lock older than this
 # belongs to a build that died, and blocking every later session on it
@@ -35,7 +41,7 @@ _LOCK_TTL_SECONDS = 2 * 60 * 60
 
 def _installed_version() -> str:
     """Version of the installed plugin, as the release bump writes it."""
-    manifest = _PLUGIN_ROOT / ".claude-plugin" / "plugin.json"
+    manifest = PLUGIN_ROOT / ".claude-plugin" / "plugin.json"
     return str(json.loads(manifest.read_text(encoding="utf-8"))["version"])
 
 
@@ -113,56 +119,8 @@ def _take_lock(lock: Path) -> bool:
         return True
 
 
-def _context(message: str) -> dict[str, Any]:
-    return {
-        "hookSpecificOutput": {
-            "hookEventName": "SessionStart",
-            "additionalContext": message,
-        }
-    }
-
-
-def graph_build_argv(uv: str, root: Path, *extra: str) -> list[str]:
-    """Run graph_build.py in the plugin's environment, which has tree-sitter."""
-    return [
-        uv,
-        "run",
-        "--project",
-        str(_PLUGIN_ROOT),
-        "python",
-        str(_PLUGIN_ROOT / "scripts" / "graph_build.py"),
-        str(root),
-        *extra,
-    ]
-
-
-def status_command(build: list[str], status: Path) -> str:
-    """Shell line that runs ``build`` and writes its exit code to ``status``.
-
-    The build is detached, so its exit code is otherwise lost and a failure
-    reads the same as a build still running.
-    """
-    return f"{shlex.join(build)}; echo $? > {shlex.quote(str(status))}"
-
-
-def last_run_failed(status: Path) -> bool:
-    """Whether the last detached build wrote a nonzero exit code."""
-    try:
-        return status.read_text(encoding="ascii").strip() != "0"
-    except FileNotFoundError:
-        return False
-
-
-def _launch(argv: list[str], root: Path, log_path: Path) -> None:
-    with open(log_path, "ab") as log:
-        subprocess.Popen(
-            argv,
-            cwd=str(root),
-            stdin=subprocess.DEVNULL,
-            stdout=log,
-            stderr=subprocess.STDOUT,
-            start_new_session=True,
-        )
+def _session_context(message: str) -> dict[str, Any]:
+    return context("SessionStart", message)
 
 
 def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
@@ -180,7 +138,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         # Locked by a build in progress: wait rather than start a second.
         return None
     except sqlite3.DatabaseError:
-        return _context(
+        return _session_context(
             f"gauntlet graph at {db_path} is unreadable, so it was not "
             "rebuilt. Run /gauntlet-graph build to replace it."
         )
@@ -190,7 +148,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     uv = shutil.which("uv")
     if uv is None:
-        return _context(
+        return _session_context(
             f"gauntlet graph was built by {built_label}, plugin is {installed}. "
             "uv is not on PATH, so it was not rebuilt. Install uv "
             "(https://docs.astral.sh/uv/), then run /gauntlet-graph build."
@@ -201,7 +159,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     log_path = gauntlet_dir / "rebuild.log"
     if not _take_lock(lock):
         if last_run_failed(status):
-            return _context(
+            return _session_context(
                 f"gauntlet graph rebuild failed (log: {log_path}). It is "
                 f"retried once {lock} is removed or two hours old."
             )
@@ -221,12 +179,12 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         argv = [nice, "-n", "10", *argv]
 
     try:
-        _launch(argv, root, log_path)
+        launch(argv, root, log_path)
     except OSError:
         # Nothing was started, so nothing will release the lock.
         lock.unlink(missing_ok=True)
         raise
-    return _context(
+    return _session_context(
         f"gauntlet graph was built by {built_label}, plugin is {installed}: "
         f"rebuilding in the background (log: {log_path})."
     )

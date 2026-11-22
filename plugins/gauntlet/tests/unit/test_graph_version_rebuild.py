@@ -7,6 +7,7 @@ import json
 import os
 import re
 import sqlite3
+import subprocess
 import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -39,7 +40,7 @@ def _run(which: dict[str, str | None] | None = None) -> tuple[dict | None, Magic
     tools = {"uv": "/usr/bin/uv", "nice": "/usr/bin/nice"}
     tools.update(which or {})
     with patch.object(hook.shutil, "which", side_effect=tools.get):
-        with patch.object(hook.subprocess, "Popen") as popen:
+        with patch.object(subprocess, "Popen") as popen:
             output = hook.main({"hook_event_name": "SessionStart"})
     return output, popen
 
@@ -191,7 +192,7 @@ def test_a_failed_launch_releases_the_lock(project: Path) -> None:
     tools = {"uv": "/usr/bin/uv", "nice": "/usr/bin/nice"}
     with (
         patch.object(hook.shutil, "which", side_effect=tools.get),
-        patch.object(hook.subprocess, "Popen", side_effect=OSError("exec format")),
+        patch.object(subprocess, "Popen", side_effect=OSError("exec format")),
         pytest.raises(OSError),
     ):
         hook.main({"hook_event_name": "SessionStart"})

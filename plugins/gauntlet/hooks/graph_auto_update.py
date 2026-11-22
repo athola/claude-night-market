@@ -20,10 +20,11 @@ _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
-from graph_version_rebuild import (
-    _launch,
+from _graph_hook_common import (
+    context,
     graph_build_argv,
     last_run_failed,
+    launch,
     status_command,
 )
 
@@ -101,7 +102,7 @@ def _update_in_plugin_env(gauntlet_dir: Path) -> dict[str, Any] | None:
     # No --base-ref: the build diffs from the last commit it stamped, so a
     # commit an earlier update missed is still parsed.
     build = graph_build_argv(uv, root, "--incremental")
-    _launch(["sh", "-c", status_command(build, status)], root, log_path)
+    launch(["sh", "-c", status_command(build, status)], root, log_path)
     if failed:
         return _context(
             "Graph not updated: the last background update failed (log: "
@@ -111,12 +112,7 @@ def _update_in_plugin_env(gauntlet_dir: Path) -> dict[str, Any] | None:
 
 
 def _context(message: str) -> dict[str, Any]:
-    return {
-        "hookSpecificOutput": {
-            "hookEventName": "PostToolUse",
-            "additionalContext": message,
-        }
-    }
+    return context("PostToolUse", message)
 
 
 def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
@@ -183,12 +179,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
             files = report.get("files_parsed", 0)
             nodes = report.get("nodes_created", 0)
             msg = f"Graph updated: {files} files, {nodes} nodes in {duration}s"
-        return {
-            "hookSpecificOutput": {
-                "hookEventName": "PostToolUse",
-                "additionalContext": msg,
-            }
-        }
+        return _context(msg)
     except Exception as exc:
         logging.getLogger(__name__).warning(
             "graph_auto_update failed: %s: %s",
