@@ -1,7 +1,7 @@
 # ADR-0009: Sidecar Service Discovery via Port Files
 
 **Date**: 2026-04-01
-**Status**: Accepted
+**Status**: Accepted, amended 2026-11-22 (see the amendment below)
 **Deciders**: Claude Night Market maintainers
 
 ## Context
@@ -126,8 +126,9 @@ The sentinel is created by a user-facing setup command
 
 ### 6. Lifecycle Management
 
-Daemon start and stop MUST be handled by SessionStart and Stop
-hooks respectively.
+Daemon start and stop MUST be handled by SessionStart and SessionEnd
+hooks respectively. Amended 2026-11-22: this read Stop, which fires
+after every assistant turn.
 The start hook MUST:
 
 - Check the sentinel file exists
@@ -158,7 +159,7 @@ isolation pattern:
 │  Lifecycle   │───────────────▶ │  daemon.pid  │
 │    Hook      │                 │  daemon.port │
 │ (SessionStart│                 │  .enabled    │
-│  / Stop)     │                 └──────┬───────┘
+│ / SessionEnd)│                 └──────┬───────┘
 └──────┬───────┘                        │
        │ launches / kills               │ reads
        ▼                                ▼
@@ -189,6 +190,42 @@ Tradeoffs:
   (stale files from crashes require cleanup)
 - Each consumer reimplements the HTTP client per ADR-0001
 - The 5-second hook timeout limits startup complexity
+
+## Amendment 2026-11-22: No onnxruntime, SessionEnd, shared daemon
+
+The constraint in Research Background no longer drives the sidecar.
+`oracle/src/oracle/provision.py` creates the venv with pyyaml only,
+and no ONNX model ships. The daemon serves YAML linear and sigmoid
+models with `math` and `yaml`. The sidecar is kept because the daemon
+needs pyyaml, which the system Python 3.9.6 that runs hooks does not
+have, and because the isolated venv is where onnxruntime goes if a
+model ships. Without a `models` directory the start hook logs one line
+and launches nothing.
+
+The stop hook is a SessionEnd hook. A Stop hook fires after every
+assistant turn and stopped the daemon after the session's first reply.
+
+One daemon serves every session on the machine. A session ending must
+not stop it while another session uses it, and the lifecycle hook
+counts sessions with marker files:
+
+- SessionStart writes `${CLAUDE_PLUGIN_DATA}/sessions/<session_id>`
+  holding the pid of the session's process. That is the first
+  ancestor of the hook that is not a shell, since a `sh -c` wrapper
+  exits with the hook.
+- SessionEnd deletes its own marker and stops the daemon only when no
+  other marker is live. A marker is live while its process runs. A
+  marker with no readable pid, and every marker on Windows, is live
+  for 24 hours after it was written.
+- A SessionEnd with reason `clear` never stops the daemon, because
+  the same process starts a new session at once.
+
+Both events hold an exclusive `flock` on
+`${CLAUDE_PLUGIN_DATA}/daemon.start.lock`. SessionStart holds it across
+the running check and the spawn, and two sessions starting together
+launch one daemon. SessionEnd holds it across the marker check and the
+stop. A daemon another session has just found running is not stopped
+under it. Windows has no `fcntl`, and there the lock is skipped.
 
 ## Related
 
