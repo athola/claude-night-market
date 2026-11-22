@@ -274,3 +274,24 @@ class TestVersionsThatDoNotParse:
         _graph(project, "1.10.4rc1")
         _, popen = _run()
         popen.assert_called_once()
+
+
+@pytest.mark.unit
+def test_hooks_import_and_take_the_lock_where_fcntl_is_missing(tmp_path: Path) -> None:
+    """A top-level `import fcntl` broke both graph hooks on Windows."""
+    hooks_dir = Path(hook.__file__).resolve().parent
+    script = (
+        "import sys\n"
+        "sys.modules['fcntl'] = None\n"
+        f"sys.path.insert(0, {str(hooks_dir)!r})\n"
+        "import graph_auto_update\n"
+        "import graph_version_rebuild\n"
+        "from pathlib import Path\n"
+        f"lock = Path({str(tmp_path / 'rebuild.lock')!r})\n"
+        "assert graph_version_rebuild._take_lock(lock)\n"
+        "assert not graph_version_rebuild._take_lock(lock)\n"
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", script], capture_output=True, text=True, check=False
+    )
+    assert completed.returncode == 0, completed.stderr

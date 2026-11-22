@@ -151,6 +151,8 @@ a test written to fail first, or corrected text for a docs finding.
 - **gauntlet:** the commit hook always runs the update through
   `graph_build.py`, also where the hook's python3 has tree-sitter, so a
   commit an earlier update skipped is still parsed
+- **gauntlet:** the SessionStart and post-commit graph hooks load on
+  Windows, where `fcntl` is missing, instead of failing on import
 - **herald:** a throttle file with a null or wrong-typed field reads as
   fresh, so the continuation judge is no longer disabled until someone
   deletes the file

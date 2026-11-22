@@ -14,7 +14,6 @@ Opt out with ``rebuild_on_upgrade: false`` in ``.gauntlet/config.yaml`` or
 
 from __future__ import annotations
 
-import fcntl
 import json
 import os
 import shlex
@@ -39,6 +38,13 @@ from _graph_hook_common import (
 # belongs to a build that died, and blocking every later session on it
 # would leave the graph stale for good.
 _LOCK_TTL_SECONDS = 2 * 60 * 60
+
+try:
+    import fcntl
+except ImportError:  # Windows: no advisory locks, the stale-lock check is unguarded
+    _HAS_FLOCK = False
+else:
+    _HAS_FLOCK = True
 
 
 def _installed_version() -> str:
@@ -108,10 +114,11 @@ def _take_lock(lock: Path) -> bool:
     A taker that finds the guard held gives way: someone else is deciding.
     """
     with open(_guard_path(lock), "a") as guard:
-        try:
-            fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError:
-            return False
+        if _HAS_FLOCK:
+            try:
+                fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                return False
         try:
             if time.time() - lock.stat().st_mtime > _LOCK_TTL_SECONDS:
                 lock.unlink()
