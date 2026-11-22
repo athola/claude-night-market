@@ -183,10 +183,16 @@ def _get_gauntlet_dir() -> Path | None:
 
 
 def _get_staged_hash() -> str:
-    """Return a hash of the currently staged file tree."""
+    """Return a hash of the currently staged tree, '' when git cannot say.
+
+    ``git write-tree`` names the index's content, so restaging different
+    content in the same files changes the hash. Hashing the file names
+    let a token earned for one change pass another. An unmerged index
+    makes write-tree fail, and '' matches no token, so the gate asks.
+    """
     try:
         result = subprocess.run(
-            ["git", "diff", "--cached", "--name-only"],
+            ["git", "write-tree"],
             capture_output=True,
             text=True,
             check=True,

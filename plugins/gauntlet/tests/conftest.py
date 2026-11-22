@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import textwrap
@@ -177,8 +178,8 @@ def fake_git(
 ) -> Callable[..., subprocess.CompletedProcess[str]]:
     """Return a ``subprocess.run`` stand-in answering the hooks' git calls.
 
-    ``staged_files=None`` makes ``git diff --cached`` fail the way a broken
-    repository does, with ``CalledProcessError``.
+    ``staged_files=None`` makes ``git diff --cached`` and ``git write-tree``
+    fail the way a broken repository does, with ``CalledProcessError``.
     """
 
     def run(argv: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
@@ -186,6 +187,12 @@ def fake_git(
             if staged_files is None:
                 raise subprocess.CalledProcessError(128, argv, "", "not a repo")
             return subprocess.CompletedProcess(argv, 0, "\n".join(staged_files), "")
+        if argv[:2] == ["git", "write-tree"]:
+            if staged_files is None:
+                raise subprocess.CalledProcessError(128, argv, "", "not a repo")
+            # Stands in for a git object id, which is 40 hex characters.
+            tree = hashlib.sha256("\n".join(staged_files).encode()).hexdigest()[:40]
+            return subprocess.CompletedProcess(argv, 0, tree + "\n", "")
         if argv[:3] == ["git", "config", "user.email"]:
             return subprocess.CompletedProcess(argv, 0, email + "\n", "")
         raise AssertionError(f"unexpected git call: {argv}")

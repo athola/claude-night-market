@@ -862,3 +862,33 @@ class TestNoChallengeStillWarns:
         output = result["hookSpecificOutput"]
         assert "permissionDecision" not in output
         assert "Graph is" in output["additionalContext"]
+
+
+@pytest.mark.unit
+def test_restaging_new_content_in_the_same_files_changes_the_staged_hash(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The hash covered staged file names only, so a token earned for one
+    staged change also passed different content staged in the same files
+    within the token's five minutes.
+    """
+    import subprocess  # noqa: PLC0415 - real git for this test only
+
+    def git(*args: str) -> None:
+        subprocess.run(
+            ["git", "-C", str(tmp_path), *args], check=True, capture_output=True
+        )
+
+    git("init", "-q")
+    (tmp_path / "a.py").write_text("x = 1\n")
+    git("add", "a.py")
+    monkeypatch.chdir(tmp_path)
+    first = precommit_gate._get_staged_hash()
+
+    (tmp_path / "a.py").write_text("x = 2\n")
+    git("add", "a.py")
+    second = precommit_gate._get_staged_hash()
+
+    assert first
+    assert second
+    assert first != second
