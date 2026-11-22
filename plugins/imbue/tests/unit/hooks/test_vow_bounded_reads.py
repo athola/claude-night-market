@@ -1159,9 +1159,9 @@ class TestAtomicIncrement:
         call_count = {"n": 0}
         original = hook_module._atomic_increment
 
-        def tracking(path, weight=1.0):
+        def tracking(path, weight=1.0, settle=None):
             call_count["n"] += 1
-            return original(path, weight)
+            return original(path, weight, settle)
 
         with patch.object(hook_module, "_counter_path", return_value=counter_path):
             with patch.object(hook_module, "_atomic_increment", side_effect=tracking):
@@ -1272,15 +1272,15 @@ class TestAtomicReset:
 
 
 # ---------------------------------------------------------------------------
-# IMB-017: extract _read_with_lock and _write_with_fd helpers
+# IMB-017: extract _read_state and _write_with_fd helpers
 # ---------------------------------------------------------------------------
 
 
 class TestReadWithLock:
-    """_read_with_lock(fd) returns the current count from an open fd.
+    """_read_state(fd) returns the current count first, from an open fd.
 
     GIVEN an open file descriptor
-    WHEN _read_with_lock is called
+    WHEN _read_state is called
     THEN it returns the integer count from the JSON content, or 0 on
          empty / invalid / TTL-expired content.
     """
@@ -1290,7 +1290,7 @@ class TestReadWithLock:
         counter_file.write_bytes(b'{"count": 7}')
         fd = os.open(str(counter_file), os.O_RDWR)
         try:
-            result = hook_module._read_with_lock(fd)
+            result = hook_module._read_state(fd)[0]
         finally:
             os.close(fd)
         assert result == 7
@@ -1300,7 +1300,7 @@ class TestReadWithLock:
         counter_file.write_bytes(b"")
         fd = os.open(str(counter_file), os.O_RDWR)
         try:
-            result = hook_module._read_with_lock(fd)
+            result = hook_module._read_state(fd)[0]
         finally:
             os.close(fd)
         assert result == 0
@@ -1310,7 +1310,7 @@ class TestReadWithLock:
         counter_file.write_bytes(b"not-json")
         fd = os.open(str(counter_file), os.O_RDWR)
         try:
-            result = hook_module._read_with_lock(fd)
+            result = hook_module._read_state(fd)[0]
         finally:
             os.close(fd)
         assert result == 0
@@ -1470,7 +1470,7 @@ class TestIncrementErrorPaths:
         monkeypatch.setattr(hook_module.os, "read", eio)
         fd = _os.open(str(path), _os.O_RDWR)
         try:
-            assert hook_module._read_with_lock(fd) == 0
+            assert hook_module._read_state(fd)[0] == 0
         finally:
             _os.close(fd)
 
@@ -1984,21 +1984,34 @@ def test_vow_utils_all_lists_every_public_helper_and_no_private_name() -> None:
 
 
 @pytest.mark.unit
-def test_seen_calls_expire_and_a_repeat_refreshes_them(hook_module, tmp_path) -> None:
+def test_seen_calls_expire_and_a_repeat_refreshes_them(
+    hook_module, tmp_path, capsys
+) -> None:
     """The TTL had no test, and a repeat did not refresh it, so a call
     used throughout a long phase aged out mid-phase (IMB-17).
+
+    The calls are kept in the counter's own file, under its TTL.
     """
     import os
 
     counter = tmp_path / "vow_read_counter_ttl.json"
-    seen = hook_module.seen_calls_path(counter)
     ttl = hook_module._COUNTER_TTL_SECONDS
+    stdin_data = json.dumps(
+        {"tool_name": "Glob", "session_id": "ttl", "tool_input": {"pattern": "*"}}
+    )
 
-    assert hook_module._note_call(counter, "k") is False
-    old = seen.stat().st_mtime - ttl + 5
-    os.utime(seen, (old, old))
-    assert hook_module._note_call(counter, "k") is True
-    assert seen.stat().st_mtime > old + 1
+    def repeated() -> bool:
+        with patch.object(hook_module, "_counter_path", return_value=counter):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit):
+                    hook_module.main()
+        return "repeats an earlier" in capsys.readouterr().out
 
-    os.utime(seen, (old - 10, old - 10))
-    assert hook_module._note_call(counter, "k") is False
+    assert repeated() is False
+    old = counter.stat().st_mtime - ttl + 5
+    os.utime(counter, (old, old))
+    assert repeated() is True
+    assert counter.stat().st_mtime > old + 1
+
+    os.utime(counter, (old - 10, old - 10))
+    assert repeated() is False

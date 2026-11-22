@@ -30,7 +30,6 @@ from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path 
     fd_owned_by_us,
     read_counter_path,
     secure_open,
-    seen_calls_path,
     session_id_from,
 )
 
@@ -54,19 +53,6 @@ except ImportError:  # pragma: no cover - exercised only on non-POSIX
         print(
             "[vow-bounded-reads] WARN: fcntl unavailable on this platform; "
             "counter resets are not atomic with concurrent increments",
-            file=sys.stderr,
-        )
-
-
-def _forget_seen_calls(counter_path: Path) -> None:
-    """Drop remembered discovery calls: an edited file is worth reading again."""
-    try:
-        seen_calls_path(counter_path).unlink()
-    except FileNotFoundError:
-        pass
-    except OSError as exc:
-        print(
-            f"[vow-bounded-reads] WARN: seen-calls reset failed: {exc}",
             file=sys.stderr,
         )
 
@@ -109,13 +95,15 @@ def _atomic_reset(path: Path) -> None:
         try:
             os.lseek(fd, 0, os.SEEK_SET)
             os.ftruncate(fd, 0)
+            # The remembered calls and the spent escape share this file, so
+            # one write forgets them too: an edited file is worth reading
+            # again.
             os.write(fd, b'{"count": 0}')
         except OSError as exc:
             print(
                 f"[vow-bounded-reads] WARN: counter reset failed: {exc}",
                 file=sys.stderr,
             )
-        _forget_seen_calls(path)
     # Opening or chmod-ing the counter is the I/O left to fail here. The
     # write's own OSError is handled above. Anything else is a bug and
     # reaches main(), whose catch-all keeps the hook from crashing.

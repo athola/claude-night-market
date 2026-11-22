@@ -43,7 +43,6 @@ __all__ = [
     "read_counter_path",
     "secure_open",
     "secure_state_dir",
-    "seen_calls_path",
     "session_id_from",
     "shadow_mode_active",
     "vow_output",
@@ -144,15 +143,6 @@ def read_counter_path(session_id: str) -> Path:
     return (
         secure_state_dir("imbue-vow-state") / f"vow_read_counter_{safe_id[:200]}.json"
     )
-
-
-def seen_calls_path(counter_path: Path) -> Path:
-    """Return the file listing discovery calls already made this phase.
-
-    It sits beside the counter so one definition lets vow_bounded_reads
-    record calls and vow_bounded_reads_reset forget them.
-    """
-    return counter_path.with_name(counter_path.stem + ".seen.json")
 
 
 def session_id_from(data: dict) -> str:
