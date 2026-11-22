@@ -373,10 +373,22 @@ class GraphStore(SqliteGraphBase):
                     continue
                 chosen, resolution = pick
                 duplicate = self._conn.execute(
-                    "SELECT 1 FROM edges WHERE kind = ? AND source_qn = ? AND target_qn = ?",
+                    "SELECT id, resolution FROM edges"
+                    " WHERE kind = ? AND source_qn = ? AND target_qn = ?",
                     (str(EdgeKind.CALLS), source_qn, chosen),
                 ).fetchone()
                 if duplicate:
+                    # Collapsing keeps the stronger label, whichever call
+                    # came first. Only a guess is upgraded: an unlabelled
+                    # survivor already named the target outright.
+                    if (
+                        duplicate[1] == str(Resolution.NAME_GUESS)
+                        and resolution is Resolution.EXACT
+                    ):
+                        self._conn.execute(
+                            "UPDATE edges SET resolution = ? WHERE id = ?",
+                            (str(resolution), duplicate[0]),
+                        )
                     self._conn.execute("DELETE FROM edges WHERE id = ?", (edge_id,))
                 else:
                     self._conn.execute(

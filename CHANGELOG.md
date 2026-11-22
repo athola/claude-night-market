@@ -159,6 +159,9 @@ a test written to fail first, or corrected text for a docs finding.
   holds commit updates back for two hours.
 - **gauntlet:** an edge stored through `store_file` or `upsert_edge`
   keeps its call resolution instead of reading back as unresolved
+- **gauntlet:** when two calls from one function resolve to the same
+  target, the surviving edge is `exact` if either call was, whatever
+  order the calls appear in
 - **herald:** a throttle file with a null or wrong-typed field reads as
   fresh, so the continuation judge is no longer disabled until someone
   deletes the file

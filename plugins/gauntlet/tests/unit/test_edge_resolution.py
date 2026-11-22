@@ -348,3 +348,30 @@ class TestStoredEdgesKeepTheirResolution:
         store.upsert_edge(self._exact_call())
         (edge,) = store.get_edges_by_source("a.py::main")
         assert edge.resolution is Resolution.EXACT
+
+
+class TestDuplicateCollapseKeepsTheStrongerResolution:
+    """Two call sites reaching one target collapse to one edge. The first
+    edge won, so source order decided whether name_guess or exact survived.
+    """
+
+    @staticmethod
+    def _seed(store: GraphStore, targets: tuple[str, ...]) -> None:
+        store.upsert_node(_node("a.py::main", "a.py"))
+        store.upsert_node(_node("c.py::helper", "c.py"))
+        # A same-named method makes the module-qualified call a name guess.
+        store.upsert_node(_node("s.py::S", "s.py", NodeKind.CLASS))
+        store.upsert_node(_node("s.py::S.helper", "s.py"))
+        for target in targets:
+            store.upsert_edge(_call("a.py::main", target, "a.py"))
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "targets", [("c.helper", "helper"), ("helper", "c.helper")]
+    )
+    def test_exact_survives_whichever_call_comes_first(
+        self, store: GraphStore, targets: tuple[str, ...]
+    ) -> None:
+        self._seed(store, targets)
+        store.resolve_call_targets()
+        assert _resolution(store, "a.py::main") == ["exact"]
