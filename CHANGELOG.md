@@ -282,8 +282,8 @@ a test written to fail first, or corrected text for a docs finding.
 - **memory-palace:** a queue sync rewrites the intake queue through a temp
   file and a rename, so a crash mid-rewrite no longer empties the queue.
 - **memory-palace:** an embedding index built by another model refuses
-  `add_to_room` and `export`, so its vectors are never re-stamped with
-  the current model id
+  `add_to_room` and an `export` of its stored vectors, so they are never
+  re-stamped with the current model id. `export(entries=...)` rebuilds it
 - **memory-palace:** fenced code blocks are now scanned for
   code-execution patterns, so a page with a fenced `eval(...)` example
   is no longer stored. Only one-line inline spans are exempt
