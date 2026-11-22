@@ -239,19 +239,21 @@ def _cusage_rows(rows: list[Any]) -> dict[str, Any]:
     }
 
 
+_AGENT_USAGE_FIELDS = {
+    "input": "inputTokens",
+    "cache_write": "cacheWriteTokens",
+    "cache_read": "cacheReadTokens",
+    "output": "outputTokens",
+}
+
+
 def _agent_results(usages: list[dict[str, Any]]) -> dict[str, Any]:
-    names = {
-        "input": "inputTokens",
-        "cache_write": "cacheWriteTokens",
-        "cache_read": "cacheReadTokens",
-        "output": "outputTokens",
-    }
     return {
         "format": "cursor-agent",
         "requests": len(usages),
         "tokens": {
             key: sum(int(u.get(field) or 0) for u in usages)
-            for key, field in names.items()
+            for key, field in _AGENT_USAGE_FIELDS.items()
         },
         "cost_cents": None,
         "by_model": [],
@@ -282,6 +284,8 @@ def summarize_cursor_usage_text(text: str) -> dict[str, Any] | None:
                 isinstance(entry, dict)
                 and entry.get("type") == "result"
                 and isinstance(entry.get("usage"), dict)
+                # Claude's stream-json result line has snake_case usage keys.
+                and any(f in entry["usage"] for f in _AGENT_USAGE_FIELDS.values())
             ):
                 usages.append(entry["usage"])
         if not usages:
@@ -378,7 +382,11 @@ def main(argv: list[str] | None = None) -> int:
     except OSError as exc:
         print(f"session_cost: cannot read {args.transcript}: {exc}", file=sys.stderr)
         return 2
-    cursor = summarize_cursor_usage_text(text)
+    try:
+        cursor = summarize_cursor_usage_text(text)
+    except (TypeError, ValueError) as exc:
+        print(f"session_cost: unreadable Cursor usage field: {exc}", file=sys.stderr)
+        return 2
     if cursor is not None:
         print(
             json.dumps(cursor, indent=2) if args.json else render_cursor_usage(cursor)

@@ -429,6 +429,29 @@ class TestCursorUsage:
         """Only the two Cursor shapes match, so transcripts keep their path."""
         assert ledger.summarize_cursor_usage_text(_assistant("m1", out=1)) is None
 
+    def test_a_claude_stream_json_result_line_is_not_cursor_usage(self, ledger) -> None:
+        """`claude -p --output-format stream-json` also ends in a result line.
+
+        Its usage keys are snake_case, so reading it as Cursor reported a
+        request with every category at zero.
+        """
+        result = json.dumps(
+            {"type": "result", "usage": {"input_tokens": 5, "output_tokens": 2}}
+        )
+        text = "\n".join([_assistant("m1", out=2), result])
+
+        assert ledger.summarize_cursor_usage_text(text) is None
+
+    def test_a_non_numeric_cursor_field_exits_2_with_a_message(
+        self, ledger, monkeypatch, capsys
+    ) -> None:
+        """A bad field is reported by name rather than as a traceback."""
+        rows = {"events": [{"model": "m", "requests": "n/a"}]}
+        monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(rows)))
+
+        assert ledger.main(["-"]) == 2
+        assert "n/a" in capsys.readouterr().err
+
     def test_main_reads_cusage_from_stdin(self, ledger, monkeypatch, capsys) -> None:
         """`cusage --json | session_cost.py -` is the intended pipeline."""
         monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(_CUSAGE)))
