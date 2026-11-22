@@ -83,6 +83,34 @@ def test_hook_gives_up_queueing_when_the_lock_stays_held(
     assert not (tmp_path / "data" / "intake_queue.jsonl").exists()
 
 
+def test_a_held_queue_lock_logs_busy_not_an_io_error(
+    tmp_path: Path, monkeypatch, caplog
+) -> None:
+    """TimeoutError is an OSError: a busy queue must not read as a disk fault."""
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "hooks"))
+    from shared import hook_output  # noqa: PLC0415 - hooks dir joins sys.path first
+
+    monkeypatch.setattr(hook_output, "_QUEUE_LOCK_TIMEOUT_SECONDS", 0.2)
+    (tmp_path / "data").mkdir()
+    decision = MagicMock(should_flag_for_intake=True)
+    decision.intake_payload.to_dict.return_value = {}
+    ctx = hook_output.IntakeContext(
+        query_id="q", tool_name="WebSearch", query="x", tool_input={}
+    )
+    with open(tmp_path / "data" / "intake_queue.jsonl.lock", "a") as held:
+        fcntl.flock(held, fcntl.LOCK_EX)
+        with caplog.at_level("WARNING"):
+            hook_output.queue_for_intake(tmp_path, decision, ctx)
+        fcntl.flock(held, fcntl.LOCK_UN)
+
+    levels = {(r.levelname, r.getMessage()) for r in caplog.records}
+    assert (
+        "WARNING",
+        "research_interceptor: intake queue busy; entry not queued",
+    ) in levels
+    assert not any(level == "ERROR" for level, _ in levels)
+
+
 def test_entry_queued_while_a_sync_processes_survives_the_rewrite(
     tmp_path: Path, monkeypatch
 ) -> None:

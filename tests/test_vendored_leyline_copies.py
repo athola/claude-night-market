@@ -186,6 +186,14 @@ def test_main_writes_the_copies_then_check_passes(
             "memory_palace._vendored_leyline_atomic_file",
         ),
         (
+            "plugins/memory-palace/hooks/shared/hook_output.py",
+            "memory_palace._vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/memory-palace/src/memory_palace/session_history.py",
+            "memory_palace._vendored_leyline_atomic_file",
+        ),
+        (
             "plugins/memory-palace/hooks/shared/deduplication.py",
             "memory_palace._vendored_leyline_atomic_file",
         ),

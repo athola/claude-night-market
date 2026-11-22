@@ -4,16 +4,21 @@ from __future__ import annotations
 
 import json
 import logging
-import time
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-try:
-    import fcntl
-except ImportError:  # Windows: appends are not serialized
-    fcntl = None  # type: ignore[assignment]  # None sentinel: queue_for_intake branches on it
+# hooks/shared/ -> the plugin root's src/, as in deduplication: tests and
+# hooks import this module before anything else has put src/ on the path.
+_SRC = str(Path(__file__).resolve().parents[2] / "src")
+if _SRC not in sys.path:
+    sys.path.insert(0, _SRC)
+
+from memory_palace._vendored_leyline_atomic_file import (  # noqa: E402 - src/ joins sys.path above
+    file_lock,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -94,21 +99,6 @@ def build_hook_payload(
 _QUEUE_LOCK_TIMEOUT_SECONDS = 2.0
 
 
-def _lock_within_timeout(lock: Any) -> bool:
-    """Take an exclusive lock on ``lock``, or report that it stayed held."""
-    if fcntl is None:
-        return True
-    deadline = time.monotonic() + _QUEUE_LOCK_TIMEOUT_SECONDS
-    while True:
-        try:
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            return True
-        except BlockingIOError:
-            if time.monotonic() >= deadline:
-                return False
-            time.sleep(0.05)
-
-
 def queue_for_intake(
     plugin_root: Path,
     decision: Any,
@@ -129,15 +119,11 @@ def queue_for_intake(
             "tool_input": ctx.tool_input,
         }
         # palace maintenance rewrites the queue under this lock.
-        lock_path = queue_path.with_name(queue_path.name + ".lock")
-        with open(lock_path, "a") as lock:
-            if not _lock_within_timeout(lock):
-                logger.warning(
-                    "research_interceptor: intake queue busy; entry not queued"
-                )
-                return
-            with queue_path.open("a", encoding="utf-8") as f:
-                f.write(json.dumps(queue_entry) + "\n")
+        lock = file_lock(queue_path, timeout=_QUEUE_LOCK_TIMEOUT_SECONDS)
+        with lock, queue_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(queue_entry) + "\n")
+    except TimeoutError:  # an OSError, so caught before the I/O handler
+        logger.warning("research_interceptor: intake queue busy; entry not queued")
     except (PermissionError, OSError) as e:
         logger.error(
             "research_interceptor: Failed to queue intake entry (I/O error): %s", e

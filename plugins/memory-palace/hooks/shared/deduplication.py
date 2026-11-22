@@ -11,7 +11,6 @@ import hashlib
 import os
 import subprocess
 import sys
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 from types import ModuleType
@@ -34,14 +33,8 @@ _SRC = str(Path(__file__).resolve().parents[2] / "src")
 if _SRC not in sys.path:
     sys.path.insert(0, _SRC)
 
-from memory_palace._vendored_leyline_atomic_file import write_atomic
+from memory_palace._vendored_leyline_atomic_file import file_lock, write_atomic
 from memory_palace.paths import persistent_root as _persistent_root
-
-fcntl: ModuleType | None
-try:
-    import fcntl
-except ImportError:  # Windows has no flock: index writes run unlocked there.
-    fcntl = None
 
 # Try to use xxhash for speed, fall back to hashlib
 try:
@@ -492,7 +485,6 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
 # file was written leaves that file with no index entry, so it gives up
 # first and lets the caller remove the file.
 _LOCK_TIMEOUT_SECONDS = 3.0
-_LOCK_POLL_SECONDS = 0.05
 
 
 @contextlib.contextmanager
@@ -502,30 +494,15 @@ def _index_lock() -> Iterator[None]:
     Parallel WebFetch calls run one hook process each. ``write_atomic``
     keeps the file whole but cannot stop the last writer from dropping
     entries the others added, which left staged captures no index entry
-    points at. On a platform without ``fcntl`` no lock is taken.
+    points at. On a platform with neither ``fcntl`` nor ``msvcrt`` no
+    lock is taken.
 
     Raises:
         TimeoutError: if the lock is still held by another process after
             ``_LOCK_TIMEOUT_SECONDS``.
 
     """
-    index_path = _get_index_path()
-    index_path.parent.mkdir(parents=True, exist_ok=True)
-    lock_path = index_path.with_name(index_path.name + ".lock")
-    with open(lock_path, "a") as lock_file:
-        if fcntl is not None:
-            deadline = time.monotonic() + _LOCK_TIMEOUT_SECONDS
-            while True:
-                try:
-                    fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                    break
-                except BlockingIOError:
-                    if time.monotonic() >= deadline:
-                        raise TimeoutError(
-                            f"index lock {lock_path} held for over"
-                            f" {_LOCK_TIMEOUT_SECONDS}s"
-                        ) from None
-                    time.sleep(_LOCK_POLL_SECONDS)
+    with file_lock(_get_index_path(), timeout=_LOCK_TIMEOUT_SECONDS):
         yield
 
 
