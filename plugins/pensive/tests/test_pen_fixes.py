@@ -476,6 +476,31 @@ class TestWorkflowHonorsConfiguration:
         assert "gen/lib.py" not in files
         assert wf._determine_skills(tmp_path, files) == ["makefile-review"]
 
+    def test_a_skills_filter_matching_nothing_falls_back_to_the_default(
+        self, tmp_path, caplog
+    ):
+        """``skills: ["bug-review"]`` filtered a plain repo's selection to
+        nothing, so the review ran no skill at all.
+        """
+        (tmp_path / "app.py").write_text("x = 1\n")
+        wf = CodeReviewWorkflow(Configuration({"pensive": {"skills": ["bug-review"]}}))
+        default = CodeReviewWorkflow()._determine_skills(tmp_path, ["app.py"])
+
+        with caplog.at_level("WARNING"):
+            report = wf.execute_full_review(tmp_path)
+
+        assert report["metrics"]["skills_executed"] == len(default) > 0
+        assert "bug-review" in caplog.text
+        (warning,) = report["warnings"]
+        assert "bug-review" in warning and "default selection" in warning
+
+    def test_a_matching_skills_filter_reports_no_warning(self, tmp_path):
+        (tmp_path / "Makefile").write_text("all:\n\ttrue\n")
+        wf = CodeReviewWorkflow(
+            Configuration({"pensive": {"skills": ["makefile-review"]}})
+        )
+        assert wf.execute_full_review(tmp_path)["warnings"] is None
+
     def test_configure_accepts_a_configuration(self):
 
         wf = CodeReviewWorkflow(Configuration({}))

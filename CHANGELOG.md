@@ -314,6 +314,9 @@ a test written to fail first, or corrected text for a docs finding.
   detection signal instead of "No description".
 - **pensive:** `run_code_review` honors `exclude` and `skills` from a
   plain dict config, which it used to ignore.
+- **pensive:** a `pensive.skills` list that matches none of the selected
+  skills runs the default selection with a warning in the report, instead
+  of running no skill.
 - **pensive:** a `**/tests/**` exclude pattern also excludes a top-level
   `tests/` directory.
 - **pensive:** the duplicate-elif check compares conditions within one

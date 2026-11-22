@@ -26,6 +26,7 @@ class CodeReviewWorkflow:
         self._skill_registry: dict[str, Any] = {}
         self._errors: list[str] = []
         self._skipped_skills: list[str] = []
+        self._warnings: list[str] = []
 
     def configure(self, settings: dict[str, Any]) -> None:
         """Configure workflow."""
@@ -80,6 +81,7 @@ class CodeReviewWorkflow:
         repo_path = Path(repo_path)
         self._errors = []
         self._skipped_skills = []
+        self._warnings = []
 
         # Collect all files to analyze
         files = self._collect_files(repo_path)
@@ -135,6 +137,7 @@ class CodeReviewWorkflow:
             },
             "errors": self._errors if self._errors else None,
             "skipped_skills": self._skipped_skills if self._skipped_skills else None,
+            "warnings": self._warnings if self._warnings else None,
         }
 
     def execute_skills(
@@ -207,7 +210,21 @@ class CodeReviewWorkflow:
         selected = UnifiedReviewSkill().select_review_skills(context)
         named = ["unified-review" if s == "code-reviewer" else s for s in selected]
         enabled = self._configuration.enabled_skills
-        return [s for s in named if s in enabled] if enabled else named
+        if not enabled:
+            return named
+        kept = [s for s in named if s in enabled]
+        if kept:
+            return kept
+        # An empty run would review nothing, which a configured skill list
+        # never means to ask for.
+        warning = (
+            f"pensive.skills {enabled} matched none of the skills selected "
+            f"for this repository ({', '.join(named)}); ran the default "
+            "selection instead"
+        )
+        logger.warning(warning)
+        self._warnings.append(warning)
+        return named
 
     def _generate_summary(self, findings: list[dict[str, Any]]) -> str:
         """Generate findings summary."""
