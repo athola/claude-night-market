@@ -33,6 +33,10 @@ on:
       - ".github/workflows/python39-compat.yml"
   workflow_dispatch:
 
+# Every job only checks out and runs checks.
+permissions:
+  contents: read
+
 concurrency:
   group: python39-${{ github.ref }}
   cancel-in-progress: true
