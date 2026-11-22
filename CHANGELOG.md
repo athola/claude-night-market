@@ -207,6 +207,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **imbue:** The no-emoji vow reads every commit in a chain and a message
   piped in with `-F -`. It missed an emoji in a `git commit --amend`
   chained after a clean commit.
+- **imbue:** The no-AI-attribution vow reads a trailer after `-am`, an
+  attached `-m"`, `--message` and `--trailer`, and ignores zero-width
+  and other invisible format characters placed inside a tool name.
 - **imbue, egregore, leyline:** module calls to `deferred_capture.py`
   stop with a message when `CLAUDE_PLUGIN_ROOT` is unset, instead of
   running `/scripts/deferred_capture.py`.
