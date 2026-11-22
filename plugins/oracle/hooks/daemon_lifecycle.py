@@ -138,16 +138,19 @@ def _start_daemon() -> None:
     # would write a pid for a process that is already gone.
     if not models_dir.is_dir():
         # No models ship, so this repeats every session: write it once.
+        # Bytes throughout: a non-ASCII path is longer in bytes than in
+        # characters, and a short seek never finds the line it wrote.
         line = f"oracle: not starting, models directory missing: {models_dir}\n"
+        encoded = line.encode()
         log_path = data_dir / "daemon.log"
         tail = b""
         if log_path.is_file():
             with open(log_path, "rb") as log:
-                log.seek(max(0, log_path.stat().st_size - len(line) - 1))
+                log.seek(max(0, log_path.stat().st_size - len(encoded) - 1))
                 tail = log.read()
-        if not tail.endswith(line.encode()):
-            with open(log_path, "a") as log:
-                log.write(line)
+        if not tail.endswith(encoded):
+            with open(log_path, "ab") as log:
+                log.write(encoded)
         return
 
     log_fh = open(str(data_dir / "daemon.log"), "a")  # noqa: SIM115 - fd duped into subprocess, closed on the parent side after Popen returns

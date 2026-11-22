@@ -290,6 +290,8 @@ a test written to fail first, or corrected text for a docs finding.
 - **oracle:** the daemon lifecycle hook imports on Windows, where `fcntl`
   does not exist and both SessionStart and SessionEnd failed. Session
   starts are not serialized there.
+- **oracle:** the missing-models line is written once when the plugin
+  path holds non-ASCII characters. It was appended on every SessionStart.
 - **pensive:** `harden --strict --help` names both exit codes: 2 for a
   HIGH finding, 3 for a file it could not analyze.
 - **pensive:** `run_code_review` honors `exclude` and `skills` from a

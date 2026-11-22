@@ -732,6 +732,32 @@ class TestLifecycleErrorPaths:
         assert log.count("models directory missing") == 1
 
     @pytest.mark.unit
+    def test_missing_models_line_with_a_non_ascii_path_is_logged_once(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """The tail seek counted characters, the comparison bytes (U11)."""
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        (tmp_path / ".oracle-enabled").touch()
+        python = tmp_path / "venv" / "bin" / "python"
+        python.parent.mkdir(parents=True)
+        python.touch()
+        payload = json.dumps({"hook_event_name": "SessionStart"})
+
+        for _ in range(3):
+            with (
+                patch("sys.stdin", StringIO(payload)),
+                patch(
+                    "daemon_lifecycle._get_models_dir",
+                    return_value=tmp_path / "modèles-données",
+                ),
+                patch("daemon_lifecycle.subprocess.Popen"),
+            ):
+                main()
+
+        log = (tmp_path / "daemon.log").read_text(encoding="utf-8")
+        assert log.count("models directory missing") == 1
+
+    @pytest.mark.unit
     def test_a_missing_models_directory_still_clears_stale_port_and_pid(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ):
