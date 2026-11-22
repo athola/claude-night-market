@@ -104,3 +104,20 @@ def test_repeated_options_and_prefixes_are_scanned_in_linear_time(
     began = time.perf_counter()
     assert is_git_commit(command)
     assert time.perf_counter() - began < 0.1
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "cat <<-EOF > notes\n\tit's\n\tEOF\ngit commit -m x",
+        "cat <<'EOF' > notes\nit's\nEOF\ngit commit -m x",
+        'cat <<"EOF" > notes\nit\'s\nEOF\ngit commit -m x',
+        "echo ${#x} # it's\ngit commit -m x",
+        "echo 'a # b'; git commit -m x",
+    ],
+)
+def test_quotes_in_comments_and_heredocs_do_not_hide_a_later_commit(
+    command: str,
+) -> None:
+    """An apostrophe in a comment or heredoc body swallowed the next lines."""
+    assert is_git_commit(command)

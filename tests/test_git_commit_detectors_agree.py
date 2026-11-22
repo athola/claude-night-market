@@ -52,6 +52,12 @@ TABLE = [
     ("git log --grep commit", False),
     ("gitk commit", False),
     ("git status", False),
+    ("git add . # it's\ngit commit -m x", True),
+    ("cat <<EOF > notes\nit's\nEOF\ngit commit -m x", True),
+    ("echo it's; git commit -m x", True),
+    ("# git commit -m x", False),
+    ("echo it's fine", False),
+    ("cat <<'EOF'\nit's\nEOF", False),
 ]
 
 
@@ -74,6 +80,10 @@ def test_git_commit_detectors_agree(plugin: str) -> None:
         ("git commit -m 'a; b' | cat", "git commit -m 'a; b' "),
         ("git commit -F - <<EOF\nmsg\nEOF", "git commit -F - <<EOF\nmsg\nEOF"),
         ("git add . && git commit -m y", "git commit -m y"),
+        (
+            "git commit -F - <<EOF\nfix: a; b\nEOF",
+            "git commit -F - <<EOF\nfix: a; b\nEOF",
+        ),
     ],
 )
 def test_git_commit_segment_stops_at_the_next_chain_operator(
