@@ -112,6 +112,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **conjure:** `make delegate-* PROMPT='...'` no longer runs `$(shell
   ...)` or expands `$VAR` in the prompt; make passes it to the provider
   verbatim.
+- **conjure:** the usage log redacts only the argument that carries the
+  prompt. A short prompt such as "hi" blanked every argument containing
+  it, `--thinking-budget` included.
 - **conserve:** Credential-directory reads are denied under /root, in
   ~/.azure and ~/.config/glab-cli, and when the path is spelled with ./
   or // segments.

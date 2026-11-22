@@ -502,15 +502,28 @@ class Delegator:
     ) -> None:
         """Log usage for tracking and analysis.
 
-        The log keeps the command's shape: an argument carrying ``prompt``
-        (and the inlined file bodies that travel with it) is replaced by its
-        length, and stderr is cut short. The prompt itself is not an audit
-        record and was being kept in plaintext.
+        The log keeps the command's shape: the argument build_command put the
+        prompt in (with the inlined file bodies that travel with it) is
+        replaced by the prompt's length, and stderr is cut short. The prompt
+        itself is not an audit record and was being kept in plaintext.
+
+        That argument is always the last, and ends with the prompt. Matching
+        any argument that merely contains it blanked `--thinking-budget`
+        for the prompt "hi".
         """
-        shown = [
-            f"<prompt: {len(prompt)} chars>" if prompt and prompt in arg else arg
-            for arg in command
-        ]
+        service = self.services.get(service_name)
+        carries_prompt = (
+            bool(prompt)
+            and service is not None
+            and not service.stdin_prompt
+            and bool(command)
+            and command[-1].endswith(prompt)
+        )
+        shown = (
+            [*command[:-1], f"<prompt: {len(prompt)} chars>"]
+            if carries_prompt
+            else command
+        )
         error = result.stderr[:_MAX_LOGGED_ERROR_CHARS] if not result.success else None
         log_entry = {
             "timestamp": datetime.now().isoformat(),

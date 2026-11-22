@@ -570,6 +570,35 @@ class TestUsageLogRedaction:
         assert "<prompt: 27 chars>" in logged
         assert len(json.loads(logged.splitlines()[-1])["error"]) <= 500
 
+    def test_a_short_prompt_blanks_only_the_argument_that_carries_it(
+        self, temp_config_dir
+    ) -> None:
+        """Prompt "hi" blanked `--thinking-budget`, which contains it (U8)."""
+        delegator = Delegator(config_dir=temp_config_dir)
+        result = ExecutionResult(
+            success=True, stdout="", stderr="", exit_code=0, duration=0.1
+        )
+        delegator.log_usage(
+            "gemini",
+            ["gemini", "--thinking-budget", "1024", "-p", "hi"],
+            result,
+            prompt="hi",
+        )
+        logged = json.loads(delegator.usage_log.read_text().splitlines()[-1])
+        assert logged["command"] == "gemini --thinking-budget 1024 -p <prompt: 2 chars>"
+
+    def test_a_stdin_service_logs_its_argv_unredacted(self, temp_config_dir) -> None:
+        """Its prompt never enters argv, so no argument is the prompt."""
+        delegator = Delegator(config_dir=temp_config_dir)
+        result = ExecutionResult(
+            success=True, stdout="", stderr="", exit_code=0, duration=0.1
+        )
+        delegator.log_usage(
+            "glimmer", ["ollama", "run", "muse-glimmer:30b"], result, prompt="muse"
+        )
+        logged = json.loads(delegator.usage_log.read_text().splitlines()[-1])
+        assert logged["command"] == "ollama run muse-glimmer:30b"
+
     def test_execute_redacts_the_prompt_in_the_usage_log(self, temp_config_dir) -> None:
         """execute() must hand log_usage the prompt, or the log keeps it."""
         delegator = Delegator(config_dir=temp_config_dir)
