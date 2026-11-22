@@ -177,6 +177,26 @@ def test_main_writes_the_copies_then_check_passes(
             "plugins/leyline/src/leyline/decision_journal.py",
             "leyline.atomic_file",
         ),
+        (
+            "plugins/imbue/hooks/shared/vow_utils.py",
+            "shared._vendored_leyline_shell_command",
+        ),
+        (
+            "plugins/gauntlet/hooks/precommit_gate.py",
+            "gauntlet._vendored_leyline_shell_command",
+        ),
+        (
+            "plugins/gauntlet/hooks/graph_auto_update.py",
+            "gauntlet._vendored_leyline_shell_command",
+        ),
+        (
+            "plugins/conserve/scripts/coordination_workspace.py",
+            "_vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/conserve/scripts/coordination_workspace.py",
+            "_vendored_leyline_sibling_plugins",
+        ),
     ],
 )
 def test_each_consumer_imports_the_vendored_copy(
