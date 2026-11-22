@@ -21,6 +21,18 @@ from typing import Any
 
 _MAX_SCAN_SIZE = 100 * 1024  # 100KB
 
+# "ignore all of the above", "disregard any prior": up to three words from
+# a closed set may sit between the verb and its object. A closed set keeps
+# "ignore the warning above" ordinary prose.
+_OVERRIDE_FILLERS = (
+    "all|any|the|of|these|those|your|my|every|everything|earlier|preceding"
+)
+_INSTRUCTION_OVERRIDE = (
+    rf"(?:ignore|disregard)\s+(?:(?:{_OVERRIDE_FILLERS})\s+){{0,3}}"
+    r"(?:previous|prior|above)\b"
+)
+_INSTRUCTION_OVERRIDE_RE = re.compile(_INSTRUCTION_OVERRIDE, re.IGNORECASE)
+
 _HIGH_SEVERITY = [
     re.compile(p)
     for p in [
@@ -35,7 +47,7 @@ _HIGH_SEVERITY = [
         r"(?i)you\s+are\s+now\b",
         # Either verb with either word: one pairing each let "disregard
         # previous" and "ignore prior" through.
-        r"(?i)(?:ignore|disregard)\s+(?:all\s+|the\s+)?(?:previous|prior|above)\b",
+        rf"(?i){_INSTRUCTION_OVERRIDE}",
         r"(?i)override\s+(your|the)\s+instructions",
         r"(?i)new\s+instructions\s*:",
         r"!!python/",
@@ -166,14 +178,6 @@ _FAST_CHECKS = [
     "__builtins__",
     "system-reminder",
     "you are now",
-    # Every pairing the override regex accepts, built from the same parts.
-    # A hand-written subset let "disregard previous" past the scan limit.
-    *(
-        f"{verb} {qualifier}{target}"
-        for verb in ("ignore", "disregard")
-        for qualifier in ("", "all ", "the ")
-        for target in ("previous", "prior", "above")
-    ),
     # Phrases, not the bare word: over the scan limit a hit blocks the
     # whole payload, and "override" alone is ordinary code vocabulary.
     "override your instructions",
@@ -236,7 +240,11 @@ def _sanitize_large_content(content: str) -> str:
         chunk = _WHITESPACE_RUN.sub(" ", chunk)
         chunk = _SPACE_BEFORE_PAREN.sub("(", chunk)
         chunk = _CLOSING_TAG_GAP.sub("</", chunk)
-        if any(check in chunk for check in _FAST_CHECKS):
+        # The override is the same regex as the regular path. A hand-written
+        # substring subset once let "disregard previous" past the limit.
+        if _INSTRUCTION_OVERRIDE_RE.search(chunk) or any(
+            check in chunk for check in _FAST_CHECKS
+        ):
             return _BLOCKED_LARGE_CONTENT_MESSAGE
         pos += chunk_size - overlap
     return _HIDDEN_CHARS.sub("", content)

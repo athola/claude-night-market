@@ -238,6 +238,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **leyline:** The git commit detector splits on a background `&`, skips
   the options of env, command, time, nice, timeout and xargs, and reads
   the script given to `sh -c`, `bash -c` and `eval`.
+- **leyline:** The external-content sanitizer blocks an override with up
+  to three filler words, such as "ignore all of the above" and "disregard
+  any prior instructions", and "ignore everything above".
 - **leyline:** The usage logger starts a new session instead of resuming
   one whose session_id is null or not a string.
 - **memory-palace:** `intake_queue.jsonl.lock` is gitignored.
