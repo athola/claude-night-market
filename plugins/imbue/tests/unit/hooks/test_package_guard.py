@@ -587,3 +587,9 @@ def test_installs_behind_versions_options_and_wrappers_are_parsed(
 def test_bun_and_uv_tool_commands_that_fetch_nothing_parse_to_nothing(pg) -> None:
     assert pg.parse_packages("bun run build") == []
     assert pg.parse_packages("uv tool list") == []
+
+
+def test_escaped_quotes_in_a_double_quoted_script_stay_in_one_token(pg) -> None:
+    """An escaped quote ended the script early and parsed a backslashed name (F4)."""
+    command = 'bash -c "pip install \\"evilpkg>=1\\" otherpkg"'
+    assert pg.parse_packages(command) == [("pypi", "evilpkg"), ("pypi", "otherpkg")]

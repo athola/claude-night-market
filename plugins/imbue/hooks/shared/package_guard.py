@@ -324,8 +324,15 @@ def typo_distance(a: str, b: str) -> int:
 _SHELL_WRAPPER_RE = re.compile(
     r"(?:^|(?<=\s))(?:\S*/)?(?:ba|z|da|k)?sh"
     r"(?:\s+[-+]o\s+\w+|\s+-(?![a-zA-Z]*c)[a-zA-Z]+)*\s+-[a-zA-Z]*c[a-zA-Z]*\s+"
-    r"(?P<q>['\"])(?P<script>.*?)(?P=q)"
+    r"""(?:'(?P<single>[^']*)'|"(?P<double>(?:\\.|[^"\\])*)")"""
 )
+
+
+def _shell_script(match: re.Match[str]) -> str:
+    """Return the script text the shell runs, escapes in double quotes undone."""
+    if match.group("single") is not None:
+        return match.group("single")
+    return re.sub(r'\\(["\\$`])', r"\1", match.group("double"))
 
 
 def parse_packages(command: str) -> list[tuple[str, str]]:
@@ -339,7 +346,7 @@ def parse_packages(command: str) -> list[tuple[str, str]]:
     # pip install y" reads both.
     # A shell wrapper hides the install inside a quoted script; parse the
     # script itself, before the separators inside its quotes are split.
-    command = _SHELL_WRAPPER_RE.sub(lambda m: m.group("script"), command)
+    command = _SHELL_WRAPPER_RE.sub(_shell_script, command)
     packages: list[tuple[str, str]] = []
     for segment in _SHELL_SEPARATOR_RE.split(_FD_DUP_RE.sub(" ", command)):
         text = _COMMAND_PREFIX_RE.sub("", segment).strip()

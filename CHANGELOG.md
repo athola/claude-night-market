@@ -216,6 +216,8 @@ a test written to fail first, or corrected text for a docs finding.
 - **imbue:** The package guard checks `pip3.11 install`, pip global
   options before `install`, installs behind `timeout`, `nice`, `xargs` and
   `bash -e -c`, and `pipx install`, `uv tool install` and `bun add`.
+- **imbue:** The package guard reads a `bash -c "..."` script past an
+  escaped quote, where `\"foo>=1\"` had parsed as the name `\foo`.
 - **imbue, egregore, leyline:** module calls to `deferred_capture.py`
   stop with a message when `CLAUDE_PLUGIN_ROOT` is unset, instead of
   running `/scripts/deferred_capture.py`.
