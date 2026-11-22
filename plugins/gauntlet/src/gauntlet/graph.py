@@ -152,7 +152,8 @@ def _pick_call_target(
     that pick is a ``name_guess``.
 
     A bare call prefers a unique definition in the calling file, then a
-    unique one anywhere, then a unique one in the caller's own plugin
+    unique one anywhere (a ``name_guess`` when it sits in another plugin
+    than the caller's), then a unique one in the caller's own plugin
     (a ``name_guess``, since vendored copies share a name), and never
     reaches a class method: a method needs a receiver. ``self.x`` and
     ``cls.x`` reach a class method in the calling file, never a
@@ -167,12 +168,17 @@ def _pick_call_target(
         local = [qn for qn, fp in free if fp == edge_file]
         if len(local) == 1:
             return local[0], Resolution.EXACT
+        plugin = _plugin_of(edge_file)
         if len(free) == 1:
-            return free[0][0], Resolution.EXACT
+            # Plugins are separate install units. A unique name in another
+            # plugin is reachable only if the caller imports that plugin,
+            # which nothing here checks.
+            target_plugin = _plugin_of(free[0][1])
+            crosses = bool(plugin) and target_plugin != plugin
+            return free[0][0], Resolution.NAME_GUESS if crosses else Resolution.EXACT
         # Vendored copies of one module share a name across plugins; only
         # the caller's own plugin copy is a candidate, and it is a name
         # match rather than an import-confirmed link.
-        plugin = _plugin_of(edge_file)
         own = [qn for qn, fp in free if plugin and _plugin_of(fp) == plugin]
         return (own[0], Resolution.NAME_GUESS) if len(own) == 1 else None
     if receiver in ("self", "cls"):

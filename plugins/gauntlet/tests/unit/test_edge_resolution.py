@@ -227,10 +227,25 @@ class TestVendoredCopyResolution:
         assert store.resolve_call_targets() == 0
 
     @pytest.mark.unit
-    def test_single_cross_plugin_definition_still_resolves_exact(
+    def test_single_cross_plugin_definition_resolves_as_a_name_guess(
         self, store: GraphStore
     ) -> None:
+        """One definition anywhere was labelled exact, though the caller's
+        plugin never imported the plugin that holds it.
+        """
         self._seed_copies(store, "plugins/leyline/src/leyline/atomic_file.py")
+        store.resolve_call_targets()
+        edge = store.get_edges_by_source(f"{self._CALLER}::main")[0]
+        assert (
+            edge.target_qn == "plugins/leyline/src/leyline/atomic_file.py::write_atomic"
+        )
+        assert _resolution(store, f"{self._CALLER}::main") == ["name_guess"]
+
+    @pytest.mark.unit
+    def test_single_definition_in_the_callers_plugin_resolves_exact(
+        self, store: GraphStore
+    ) -> None:
+        self._seed_copies(store, "plugins/herald/src/herald/atomic.py")
         store.resolve_call_targets()
         assert _resolution(store, f"{self._CALLER}::main") == ["exact"]
 

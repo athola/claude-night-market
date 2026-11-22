@@ -162,6 +162,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **gauntlet:** when two calls from one function resolve to the same
   target, the surviving edge is `exact` if either call was, whatever
   order the calls appear in
+- **gauntlet:** a bare call whose only definition sits in another plugin
+  is labelled `name_guess` instead of `exact`, so blast radius lists it
+  apart from confirmed callers
 - **herald:** a throttle file with a null or wrong-typed field reads as
   fresh, so the continuation judge is no longer disabled until someone
   deletes the file
