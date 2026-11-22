@@ -168,6 +168,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **gauntlet:** blast radius reports `graph_predates_resolution` when the
   last full build is older than 1.10.4, whose edges read as confirmed
   callers whether or not they were guesses
+- **gauntlet:** a full build removes rows only for gone files under its
+  own root, so building one directory no longer erases another root's
+  files from a shared graph
 - **herald:** a throttle file with a null or wrong-typed field reads as
   fresh, so the continuation judge is no longer disabled until someone
   deletes the file

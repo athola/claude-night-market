@@ -866,6 +866,44 @@ class TestRemovedFilesLeaveTheGraph:
         assert store.get_nodes_in_file(str(repo / "a.py")) == []
         assert store.get_nodes_in_file(str(repo / "keep.py")) != []
 
+    @pytest.mark.unit
+    def test_full_build_keeps_rows_of_files_outside_its_root(
+        self, tmp_path: Path, store: GraphStore
+    ) -> None:
+        """The sweep deleted every stored file not under the current root,
+        so building one subtree erased a sibling's rows.
+        """
+        for name in ("pkg", "pkg_sibling"):
+            (tmp_path / name).mkdir()
+            (tmp_path / name / "m.py").write_text("def helper():\n    pass\n")
+        full_build(str(tmp_path / "pkg_sibling"), store)
+
+        full_build(str(tmp_path / "pkg"), store)
+
+        assert store.get_nodes_in_file(str(tmp_path / "pkg_sibling" / "m.py")) != []
+        assert store.get_nodes_in_file(str(tmp_path / "pkg" / "m.py")) != []
+
+    @pytest.mark.unit
+    def test_stored_file_paths_are_listed_once_each(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        (repo / "a.py").write_text("def one():\n    pass\ndef two():\n    pass\n")
+        full_build(str(repo), store)
+        assert store.get_file_paths() == {str(repo / "a.py")}
+
+    @pytest.mark.unit
+    def test_delete_files_removes_only_the_named_files(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        (repo / "a.py").write_text("def one():\n    two()\ndef two():\n    pass\n")
+        (repo / "b.py").write_text("def keep():\n    pass\n")
+        full_build(str(repo), store)
+
+        store.delete_files([str(repo / "a.py")])
+
+        assert store.get_file_paths() == {str(repo / "b.py")}
+        assert all(e.file_path != str(repo / "a.py") for e in store.get_all_edges())
+
 
 @pytest.mark.unit
 def test_full_build_without_a_parser_leaves_the_graph_alone(

@@ -287,6 +287,20 @@ class GraphStore(SqliteGraphBase):
         rows = self._conn.execute("SELECT * FROM nodes").fetchall()
         return [self._row_to_node(r) for r in rows]
 
+    def get_file_paths(self) -> set[str]:
+        """Every file path that has stored nodes, without loading the nodes."""
+        return {
+            path
+            for (path,) in self._conn.execute("SELECT DISTINCT file_path FROM nodes")
+        }
+
+    def delete_files(self, file_paths: list[str]) -> None:
+        """Delete the nodes and edges of every listed file in one transaction."""
+        with self._conn:
+            for path in file_paths:
+                self._conn.execute("DELETE FROM nodes WHERE file_path = ?", (path,))
+                self._conn.execute("DELETE FROM edges WHERE file_path = ?", (path,))
+
     def node_count(self) -> int:
         """Return total node count."""
         row = self._conn.execute("SELECT COUNT(*) FROM nodes").fetchone()
