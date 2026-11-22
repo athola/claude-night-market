@@ -512,8 +512,7 @@ class Delegator:
         service = self.services.get(service_name)
         carries_prompt = (
             bool(prompt)
-            and service is not None
-            and not service.stdin_prompt
+            and not (service is not None and service.stdin_prompt)
             and bool(command)
             and command[-1].endswith(prompt)
         )

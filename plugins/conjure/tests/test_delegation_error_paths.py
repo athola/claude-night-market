@@ -599,6 +599,22 @@ class TestUsageLogRedaction:
         logged = json.loads(delegator.usage_log.read_text().splitlines()[-1])
         assert logged["command"] == "ollama run muse-glimmer:30b"
 
+    def test_an_unregistered_service_still_has_its_prompt_redacted(
+        self, temp_config_dir
+    ) -> None:
+        """Only a service known to read stdin is logged unredacted."""
+        delegator = Delegator(config_dir=temp_config_dir)
+        finished = ExecutionResult(
+            success=True, stdout="", stderr="", exit_code=0, duration=0.1
+        )
+        delegator.log_usage(
+            "unlisted",
+            ["tool", "-p", "SECRET-PROMPT"],
+            finished,
+            prompt="SECRET-PROMPT",
+        )
+        assert "SECRET-PROMPT" not in delegator.usage_log.read_text()
+
     def test_execute_redacts_the_prompt_in_the_usage_log(self, temp_config_dir) -> None:
         """execute() must hand log_usage the prompt, or the log keeps it."""
         delegator = Delegator(config_dir=temp_config_dir)
