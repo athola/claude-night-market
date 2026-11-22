@@ -27,8 +27,8 @@ from _graph_hook_common import (
     status_command,
 )
 
+from gauntlet._vendored_leyline_shell_command import is_git_commit
 from gauntlet.build_lock import BUSY_EXIT_CODE, writer_busy
-from gauntlet.git_commands import is_git_commit
 
 
 def _get_gauntlet_dir() -> Path | None:

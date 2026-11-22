@@ -27,7 +27,7 @@ if str(_src_path) not in sys.path:
 
 from _gauntlet_config import load_config
 
-from gauntlet.git_commands import is_git_commit
+from gauntlet._vendored_leyline_shell_command import is_git_commit
 from gauntlet.knowledge_store import KnowledgeStore
 from gauntlet.progress import ProgressTracker
 
