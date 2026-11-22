@@ -20,17 +20,10 @@ import sys
 import time
 import traceback
 from collections import defaultdict
-from collections.abc import Iterator
-from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
-
-if sys.platform == "win32":
-    import msvcrt
-else:
-    import fcntl
 
 import homeostatic_monitor  # same directory, so on sys.path when run as a hook
 
@@ -69,29 +62,6 @@ def _is_history(data: object) -> bool:
         )
         for record in data.values()
     )
-
-
-@contextmanager
-def _history_lock(lock_file: Path) -> Iterator[None]:
-    """Hold an exclusive lock on ``lock_file``: msvcrt on Windows, flock elsewhere.
-
-    ``msvcrt.locking`` locks from the current offset, and an append open sits
-    at end of file, so both calls seek to byte 0 first. The unlock is explicit
-    because Windows may release a lock left on a closed handle late, and a
-    waiting ``LK_LOCK`` gives up after about ten seconds.
-    """
-    with open(lock_file, "a") as lock:
-        if sys.platform == "win32":
-            lock.seek(0)
-            msvcrt.locking(lock.fileno(), msvcrt.LK_LOCK, 1)
-            try:
-                yield
-            finally:
-                lock.seek(0)
-                msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
-        else:
-            fcntl.flock(lock, fcntl.LOCK_EX)
-            yield
 
 
 class ContinualEvaluator:
@@ -177,9 +147,7 @@ class ContinualEvaluator:
         # Parallel subagents run this hook concurrently. Without the lock two
         # writers load the same snapshot and the later save drops the
         # earlier one's execution, so reload under it.
-        self.history_file.parent.mkdir(parents=True, exist_ok=True)
-        lock_file = self.history_file.with_name(self.history_file.name + ".lock")
-        with _history_lock(lock_file):
+        with _atomic_file.file_lock(self.history_file):
             self.skill_history.clear()
             self._load_history(set_aside_corrupt=True)
             history = self.skill_history[skill_ref]
