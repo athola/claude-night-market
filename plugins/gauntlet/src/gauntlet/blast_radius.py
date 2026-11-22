@@ -23,6 +23,10 @@ _DEFAULT_WEIGHTS = {
     "caller_count": 0.10,
 }
 
+#: The release that added the edges.resolution column. A graph whose last
+#: full build is older keeps '' on every edge it resolved, guesses included.
+_RESOLUTION_SINCE = (1, 10, 4)
+
 # Overall risk-band thresholds applied to the max per-node risk score.
 _RISK_HIGH_THRESHOLD = 0.7
 _RISK_MEDIUM_THRESHOLD = 0.4
@@ -321,4 +325,19 @@ def analyze_changes(
         "direct_changes": len(direct),
         "total_affected": len(all_affected),
         "name_guess_callers": name_guess_callers,
+        "graph_predates_resolution": _predates_resolution(graph),
     }
+
+
+def _predates_resolution(graph: GraphStore) -> bool:
+    """Whether the last full build ran before resolutions were recorded.
+
+    A stamp that does not parse as ``X.Y.Z`` is no evidence either way, so
+    the guessed-caller list is not vouched for.
+    """
+    stamp = graph.get_metadata("gauntlet_version")
+    try:
+        built = tuple(int(part) for part in (stamp or "").split("."))
+    except ValueError:
+        return True
+    return built < _RESOLUTION_SINCE

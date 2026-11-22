@@ -85,7 +85,10 @@ Ruby, and PHP.
   edge, external call, or a row from a graph built before the
   column existed). Treat `name_guess` edges as unconfirmed: blast
   radius lists them under `name_guess_callers`. A
-  database lacking the column gains it when opened.
+  database lacking the column gains it when opened. Its old edges
+  stay empty until a full build, and blast radius sets
+  `graph_predates_resolution` while the last full build is older
+  than 1.10.4.
 - Each full build that stores nodes records `gauntlet_version`
   in the `metadata` table; an incremental build leaves it
   alone. At session start, a graph built by an older

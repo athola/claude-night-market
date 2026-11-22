@@ -165,6 +165,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **gauntlet:** a bare call whose only definition sits in another plugin
   is labelled `name_guess` instead of `exact`, so blast radius lists it
   apart from confirmed callers
+- **gauntlet:** blast radius reports `graph_predates_resolution` when the
+  last full build is older than 1.10.4, whose edges read as confirmed
+  callers whether or not they were guesses
 - **herald:** a throttle file with a null or wrong-typed field reads as
   fresh, so the continuation judge is no longer disabled until someone
   deletes the file

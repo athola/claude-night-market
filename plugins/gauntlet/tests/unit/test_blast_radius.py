@@ -838,3 +838,42 @@ class TestAnalyzeChangesOnABuiltGraph:
         affected = {n["qualified_name"] for n in report["affected_nodes"]}
         assert report["direct_changes"] == 1
         assert any(qn.endswith("::foo") for qn in affected)
+
+
+class TestGraphThatPredatesResolution:
+    """Edges resolved before 1.10.4 read '' forever after the column was
+    added, so every guessed caller in such a graph looked confirmed.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("stamp", "predates"),
+        [
+            (None, True),
+            ("1.10.3", True),
+            ("dev", True),
+            ("1.10.4", False),
+            ("1.11.0", False),
+        ],
+    )
+    def test_report_says_whether_resolution_was_recorded(
+        self, store: GraphStore, stamp: str | None, predates: bool
+    ) -> None:
+        store.upsert_node(
+            GraphNode(
+                kind=NodeKind.FUNCTION,
+                qualified_name=f"{_TOP}/g.py::f",
+                file_path=f"{_TOP}/g.py",
+                line_start=1,
+                line_end=5,
+            )
+        )
+        if stamp is not None:
+            store.set_metadata("gauntlet_version", stamp)
+        diff = TestAnalyzeChangesPipeline._diff("g.py", 1, 5)
+        with patch(
+            "gauntlet.blast_radius.subprocess.run",
+            side_effect=TestAnalyzeChangesPipeline._git(diff),
+        ):
+            result = analyze_changes(store)
+        assert result["graph_predates_resolution"] is predates
