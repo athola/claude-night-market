@@ -11,13 +11,14 @@ edit this file, never a copy.
 from __future__ import annotations
 
 import contextlib
+import functools
 import json
 import os
 import stat
 import sys
 import tempfile
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from pathlib import Path
 from typing import Any
 
@@ -36,7 +37,7 @@ _LOCK_POLL_SECONDS = 0.05
 @contextlib.contextmanager
 def file_lock(
     path: str | os.PathLike[str], *, timeout: float | None = None
-) -> Iterator[None]:
+) -> Generator[None, None, None]:
     """Hold the exclusive lock every writer of ``path`` agrees on.
 
     The lock file is ``<name>.lock`` beside ``path``. ``write_atomic`` keeps
@@ -68,7 +69,9 @@ def file_lock(
                 msvcrt.locking(lock.fileno(), msvcrt.LK_LOCK, 1)
             else:
                 _poll(
-                    lambda: msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1),
+                    functools.partial(
+                        msvcrt.locking, lock.fileno(), msvcrt.LK_NBLCK, 1
+                    ),
                     OSError,
                     lock_path,
                     timeout,
@@ -84,7 +87,7 @@ def file_lock(
                 fcntl.flock(lock, fcntl.LOCK_EX)
             else:
                 _poll(
-                    lambda: fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB),
+                    functools.partial(fcntl.flock, lock, fcntl.LOCK_EX | fcntl.LOCK_NB),
                     BlockingIOError,
                     lock_path,
                     timeout,
