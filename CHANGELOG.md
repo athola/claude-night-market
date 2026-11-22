@@ -171,6 +171,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **gauntlet:** a full build removes rows only for gone files under its
   own root, so building one directory no longer erases another root's
   files from a shared graph
+- **gauntlet:** a full build keeps a file's earlier rows when the file
+  fails to parse, as the incremental update already did, instead of
+  erasing them
 - **herald:** a throttle file with a null or wrong-typed field reads as
   fresh, so the continuation judge is no longer disabled until someone
   deletes the file

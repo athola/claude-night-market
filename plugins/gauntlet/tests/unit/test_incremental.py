@@ -904,6 +904,30 @@ class TestRemovedFilesLeaveTheGraph:
         assert store.get_file_paths() == {str(repo / "b.py")}
         assert all(e.file_path != str(repo / "a.py") for e in store.get_all_edges())
 
+    @pytest.mark.unit
+    @pytest.mark.parametrize("build", ["full", "incremental"])
+    def test_a_failed_parse_keeps_the_rows_an_earlier_build_stored(
+        self, repo: Path, store: GraphStore, build: str
+    ) -> None:
+        """A successful parse always yields a File node, so an empty one is a
+        failure. The incremental update kept old rows and the full build
+        erased them.
+        """
+        (repo / "a.py").write_text("def helper():\n    pass\n")
+        _git(repo, "add", ".")
+        _git(repo, "commit", "-qm", "init")
+        full_build(str(repo), store)
+        (repo / "a.py").write_text("def helper():\n    return 1\n")
+        _git(repo, "commit", "-qam", "edit")
+
+        with patch("gauntlet.incremental.parse_file", return_value=([], [])):
+            if build == "full":
+                full_build(str(repo), store)
+            else:
+                incremental_update(str(repo), store, "HEAD~1")
+
+        assert store.get_nodes_in_file(str(repo / "a.py")) != []
+
 
 @pytest.mark.unit
 def test_full_build_without_a_parser_leaves_the_graph_alone(

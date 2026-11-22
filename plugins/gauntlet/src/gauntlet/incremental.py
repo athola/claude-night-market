@@ -223,8 +223,8 @@ def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
     total_edges = 0
 
     # A full build is the way to a clean graph, so it drops rows for files
-    # that are gone, and storing every file (an empty parse included)
-    # replaces whatever an earlier build kept for it. Only paths under this
+    # that are gone, and every parsed file replaces whatever an earlier
+    # build kept for it. Only paths under this
     # root are its to judge: a graph can hold another root's files. The
     # separator keeps ``pkg`` from claiming ``pkg_sibling``.
     under_root = os.path.join(root_dir, "")
@@ -238,10 +238,9 @@ def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
     )
 
     for fp in files:
-        nodes, edges = parse_file(fp)
-        graph.store_file(fp, nodes, edges)
-        total_nodes += len(nodes)
-        total_edges += len(edges)
+        nodes, edges = _store_parsed(graph, fp)
+        total_nodes += nodes
+        total_edges += edges
 
     edges_resolved = graph.resolve_call_targets()
     graph.rebuild_fts()
@@ -263,6 +262,22 @@ def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
         "edges_resolved": edges_resolved,
         "duration_sec": duration,
     }
+
+
+def _store_parsed(graph: GraphStore, file_path: str) -> tuple[int, int]:
+    """Parse one file and replace its rows; return (nodes, edges) stored.
+
+    A successful parse always yields the file's own File node, so an empty
+    result is a failed read or parse. The rows an earlier build stored are
+    kept then: stale rows still point a reader at the file, and erasing
+    them would hide it until the next good parse. A file that no longer
+    exists never reaches here, since its rows are deleted by the callers.
+    """
+    nodes, edges = parse_file(file_path)
+    if not nodes:
+        return 0, 0
+    graph.store_file(file_path, nodes, edges)
+    return len(nodes), len(edges)
 
 
 def _no_work_report(**reason: str) -> dict[str, Any]:
@@ -346,11 +361,9 @@ def incremental_update(
     total_edges = 0
 
     for fp in files_to_parse:
-        nodes, edges = parse_file(fp)
-        if nodes:
-            graph.store_file(fp, nodes, edges)
-            total_nodes += len(nodes)
-            total_edges += len(edges)
+        nodes, edges = _store_parsed(graph, fp)
+        total_nodes += nodes
+        total_edges += edges
 
     edges_resolved = graph.resolve_call_targets()
     graph.rebuild_fts()
