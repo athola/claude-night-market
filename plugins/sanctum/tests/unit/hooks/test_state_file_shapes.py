@@ -6,6 +6,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "hooks"))
 
 import deferred_item_sweep  # noqa: E402 - hooks dir joins sys.path above
@@ -91,3 +93,22 @@ def test_entry_with_a_null_title_does_not_stop_the_sweep(
     assert stats["failed"] == 1
     kept = json.loads(ledger.read_text())
     assert [e.get("filed") for e in kept] == [True, None, True]
+
+
+@pytest.mark.parametrize("stored", ["Infinity", "-Infinity", "NaN"])
+def test_a_non_finite_notify_time_does_not_debounce_forever(
+    tmp_path: Path, monkeypatch, stored: str
+) -> None:
+    """json loads `Infinity` as inf, so every Stop fell inside the debounce
+    and the bad value was saved back unchanged (F5).
+    """
+    state = tmp_path / "state.json"
+    state.write_text(f'{{"last_notify_time": {stored}}}')
+    monkeypatch.setattr(
+        session_complete_notify.NotificationState,
+        "state_file_path",
+        classmethod(lambda cls, session_id: state),
+    )
+    loaded = session_complete_notify.NotificationState.load("s1")
+    assert loaded.last_notify_time == 0.0
+    assert loaded.should_notify("h")[0] is True

@@ -329,6 +329,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **sanctum:** a null or mistyped field in the completion-notify state
   file falls back to its default. It used to stop notifications for the
   rest of the session.
+- **sanctum:** a completion-notify state file holding `Infinity` or `NaN`
+  as the last notify time falls back to zero. It debounced every later
+  Stop and was saved back unchanged.
 - **sanctum:** the consolidation planner asks git about each path's
   ignore status once per plan, not once per chunk.
 - **sanctum:** two decisions in one consolidation plan get consecutive
