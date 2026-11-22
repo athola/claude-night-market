@@ -106,6 +106,9 @@ class _Ledger:
         self.tool_names: dict[str, str] = {}
         self.results: list[dict[str, Any]] = []
         self.resident: list[dict[str, Any]] = []
+        # The cache-read rate of each request, in order. A result is sent by
+        # every request from the one after it arrives until a compaction.
+        self.request_rates: list[float] = []
         # Cursor rows carry "role" and no "type", and no usage at all.
         self.cursor_rows = 0
 
@@ -120,14 +123,7 @@ class _Ledger:
             return
         model = message.get("model") or ""
         if msg_id not in self.usage_by_id:
-            # A new request sends every resident result again: the first send
-            # writes it to the cache and each later one reads it back.
-            rate = cache_read_rate(model)
-            for row in self.resident:
-                if row["sends"] > 0:
-                    row["rereads"] += 1
-                    row["reread_units"] += row["tokens"] * rate
-                row["sends"] += 1
+            self.request_rates.append(cache_read_rate(model))
         self.usage_by_id[msg_id] = (model, _usage_tokens(usage))
 
     def user(self, message: dict[str, Any]) -> None:
@@ -137,7 +133,8 @@ class _Ledger:
                 row = {
                     "tool": self.tool_names.get(block.get("tool_use_id", ""), "?"),
                     "tokens": _result_chars(block.get("content")) // CHARS_PER_TOKEN,
-                    "sends": 0,
+                    "first_request": len(self.request_rates),
+                    "end_request": None,
                     "rereads": 0,
                     "reread_units": 0.0,
                 }
@@ -145,7 +142,25 @@ class _Ledger:
                 self.resident.append(row)
 
     def compacted(self) -> None:
+        for row in self.resident:
+            row["end_request"] = len(self.request_rates)
         self.resident = []
+
+    def _count_rereads(self) -> None:
+        # The first send writes a result to the cache and each later send
+        # reads it back, at the rate of the request that sends it.
+        cumulative = [0.0]
+        for rate in self.request_rates:
+            cumulative.append(cumulative[-1] + rate)
+        for row in self.results:
+            end = row["end_request"]
+            if end is None:
+                end = len(self.request_rates)
+            first_reread = min(row["first_request"] + 1, end)
+            row["rereads"] = end - first_reread
+            row["reread_units"] = row["tokens"] * (
+                cumulative[end] - cumulative[first_reread]
+            )
 
     def report(self, top: int, skipped: int) -> dict[str, Any]:
         tokens = dict.fromkeys(CATEGORIES, 0)
@@ -159,6 +174,7 @@ class _Ledger:
             units["cache_read"] += counts["cache_read"] * cache_read_rate(model)
             units["output"] += counts["output"] * OUTPUT_RATE
         total = sum(units.values())
+        self._count_rereads()
         ranked = sorted(self.results, key=lambda row: row["reread_units"], reverse=True)
         cursor = self.cursor_rows > 0 and not self.usage_by_id
         return {
