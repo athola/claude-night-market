@@ -698,7 +698,9 @@ class Delegator:
                 self._smart_options(service_name, requirements),
                 timeout=call_timeout,
             )
-            refused = _refused_credential(result, self.services[service_name])
+            refused = refused_credential_output(
+                result.stdout, result.stderr, self.services[service_name]
+            )
             if _answered(result) and not refused:
                 # The chain names the service rather than trusting the result
                 # to carry it: smart_delegate is what chose the provider, and
@@ -816,11 +818,6 @@ class Delegator:
         rest = [n for n in candidates if n not in asserted and n not in preferred]
 
         return asserted + preferred + rest
-
-
-def _refused_credential(result: ExecutionResult, service: ServiceConfig) -> bool:
-    """Report output that says the provider rejected its credential."""
-    return refused_credential_output(result.stdout, result.stderr, service)
 
 
 def _answered(result: ExecutionResult) -> bool:

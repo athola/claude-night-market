@@ -676,7 +676,7 @@ def test_smart_delegate_passes_the_timeout_to_each_provider(
     assert mock_execute.call_args.kwargs.get("timeout") == 30
 
 
-@patch("scripts.delegation_executor._refused_credential", return_value=True)
+@patch("scripts.delegation_executor.refused_credential_output", return_value=True)
 @patch.object(Delegator, "verify_service", return_value=(True, []))
 @patch.object(Delegator, "execute")
 def test_a_refused_credential_is_recorded_in_the_provider_ledger(
@@ -735,7 +735,7 @@ def test_no_availability_probe_runs_after_the_total_timeout(
     assert result.attempts[-1].reason == "total timeout reached"
 
 
-@patch("scripts.delegation_executor._refused_credential", return_value=True)
+@patch("scripts.delegation_executor.refused_credential_output", return_value=True)
 @patch.object(Delegator, "verify_service", return_value=(True, []))
 @patch.object(Delegator, "execute")
 def test_an_unwritable_ledger_does_not_stop_the_chain(
