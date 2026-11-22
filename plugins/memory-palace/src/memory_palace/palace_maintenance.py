@@ -11,12 +11,23 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from memory_palace._vendored_leyline_atomic_file import file_lock
+from memory_palace._vendored_leyline_atomic_file import file_lock, write_atomic
 from memory_palace._vendored_leyline_session_store import validate_session_id
 from memory_palace.palace_repository import PalaceRepository
 
 MIN_KEYWORD_LENGTH = 2
 LOW_QUALITY_THRESHOLD = 0.3
+
+
+def _empty_sync_results(dry_run: bool) -> dict[str, Any]:
+    return {
+        "processed": 0,
+        "skipped": 0,
+        "palaces_updated": [],
+        "palaces_created": [],
+        "unmatched": [],
+        "dry_run": dry_run,
+    }
 
 
 class PalaceMaintenance:
@@ -58,7 +69,7 @@ class PalaceMaintenance:
 
         """
         if not os.path.exists(queue_path):
-            return self._process_queue_lines([], auto_create, dry_run)[0]
+            return _empty_sync_results(dry_run)
         with file_lock(queue_path), open(queue_path, encoding="utf-8") as f:
             snapshot = f.read()
         results, entries_to_keep = self._process_queue_lines(
@@ -77,11 +88,10 @@ class PalaceMaintenance:
                 )
                 return results
             appended = [line for line in current[len(snapshot) :].splitlines() if line]
-            with open(queue_path, "w", encoding="utf-8") as f:
-                kept = entries_to_keep + appended
-                if kept:
-                    f.write("\n".join(kept))
-                    f.write("\n")
+            kept = entries_to_keep + appended
+            # Truncating in place lost the queue, hook appends included, to a
+            # crash between the truncate and the write.
+            write_atomic(queue_path, "".join(line + "\n" for line in kept), mode=None)
         return results
 
     def _process_queue_lines(  # noqa: PLR0912 - queue ingestion handles many content types and edge cases
@@ -91,14 +101,7 @@ class PalaceMaintenance:
         dry_run: bool,
     ) -> tuple[dict[str, Any], list[str]]:
         """Route queue lines into palaces; return results and lines to keep."""
-        results: dict[str, Any] = {
-            "processed": 0,
-            "skipped": 0,
-            "palaces_updated": [],
-            "palaces_created": [],
-            "unmatched": [],
-            "dry_run": dry_run,
-        }
+        results = _empty_sync_results(dry_run)
 
         if not lines:
             return results, []

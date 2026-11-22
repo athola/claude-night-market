@@ -279,6 +279,8 @@ a test written to fail first, or corrected text for a docs finding.
 - **memory-palace:** a queue sync holds the intake lock only to read and
   rewrite the queue, so a research query flagged during a long sync is
   queued and survives the rewrite
+- **memory-palace:** a queue sync rewrites the intake queue through a temp
+  file and a rename, so a crash mid-rewrite no longer empties the queue.
 - **memory-palace:** an embedding index built by another model refuses
   `add_to_room` and `export`, so its vectors are never re-stamped with
   the current model id
