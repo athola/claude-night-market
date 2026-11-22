@@ -222,7 +222,7 @@ class TestAmbiguityDetection:
 
         # Assert
         assert result.is_ambiguous is True
-        assert result.ambiguity_type == AmbiguityType.CIRCULAR_DEPENDENCY
+        assert result.ambiguity_type == AmbiguityType.SHARED_SERVICE
 
 
 class TestUserPromptOnAmbiguity:

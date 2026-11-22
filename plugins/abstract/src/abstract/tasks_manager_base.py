@@ -45,9 +45,6 @@ class AmbiguityType(Enum):
     CROSS_CUTTING = "cross_cutting"
     LARGE_SCOPE = "large_scope"
     SHARED_SERVICE = "shared_service"
-    # Old name for the same check, kept so existing callers still import;
-    # it never detected a cycle, only a service two tasks both touch.
-    CIRCULAR_DEPENDENCY = "shared_service"
 
 
 @dataclass

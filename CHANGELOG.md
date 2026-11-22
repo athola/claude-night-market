@@ -36,6 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   standard input, and `cursor-agent -p --output-format json` result lines.
   That report gives token shares, because Cursor's cost includes its
   Token Rate and no cache-write duration is reported.
+- **abstract:** `AmbiguityType.CIRCULAR_DEPENDENCY` is removed. Since
+  1.10.4 it was an alias of `SHARED_SERVICE`, with that member's value
+  and message, and no check detects a cycle. Use `SHARED_SERVICE`.
 
 - **leyline:** the two SessionStart hooks that reach GitHub are off by
   default, each behind a plugin option Claude Code shows when the plugin

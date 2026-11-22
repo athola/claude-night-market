@@ -369,7 +369,7 @@ class TestDetectAmbiguityEdgeCases:
         # No 'uses' keyword, so no circular dependency
         assert (
             not result.is_ambiguous
-            or result.ambiguity_type != AmbiguityType.CIRCULAR_DEPENDENCY
+            or result.ambiguity_type != AmbiguityType.SHARED_SERVICE
         )
 
     @pytest.mark.unit
@@ -993,7 +993,11 @@ class TestTier3TaskManagerFindings:
             },
         )
         assert result.ambiguity_type is AmbiguityType.SHARED_SERVICE
-        assert AmbiguityType.CIRCULAR_DEPENDENCY is AmbiguityType.SHARED_SERVICE
+
+    @pytest.mark.unit
+    def test_no_member_claims_to_detect_a_cycle(self) -> None:
+        """CIRCULAR_DEPENDENCY aliased SHARED_SERVICE: nothing detects a cycle."""
+        assert "CIRCULAR_DEPENDENCY" not in AmbiguityType.__members__
 
     @pytest.mark.unit
     def test_cross_cutting_keyword_matches_case_insensitively(self) -> None:
