@@ -367,6 +367,9 @@ def main() -> None:
                 "no longer in context or the target changed outside Edit/Write."
             )
 
+        # The budget warning carries the repeat note. With no warning to
+        # carry it, the note stands alone, past the budget included.
+        reported = denied or (shadow and new_count > _BUDGET)
         if escape_granted:
             print(
                 json.dumps(
@@ -384,7 +387,7 @@ def main() -> None:
                 )
             )
             print("[vow-bounded-reads] WARN: escape read granted", file=sys.stderr)
-        elif repeat_note and new_count <= _BUDGET:
+        elif repeat_note and not reported:
             print(
                 json.dumps(
                     {
@@ -396,7 +399,7 @@ def main() -> None:
                 )
             )
             print("[vow-bounded-reads] WARN: repeated call", file=sys.stderr)
-        elif denied or (shadow and new_count > _BUDGET):
+        elif reported:
             decision = "warn" if shadow else "block"
             short_read = (
                 "To read the file you are about to edit, pass offset "

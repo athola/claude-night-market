@@ -1656,6 +1656,25 @@ class TestRepeatedIdenticalCallWarning:
         assert "repeats an earlier" in later
 
     @pytest.mark.unit
+    def test_an_allowed_short_read_past_the_budget_still_gets_its_repeat_note(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """Between the budget and twice it, a short read is allowed and silent.
+
+        The repeat note was printed only at or under the budget, so an
+        allowed repeat there said nothing at all (F6).
+        """
+        monkeypatch.setenv("VOW_SHADOW_MODE", "0")
+        counter_path = tmp_path / "vow_read_counter_rep.json"
+        _seed_counter(counter_path, 20)
+        args = ("Read", {"file_path": "/a.py", "offset": 1, "limit": 10})
+        self._call(hook_module, counter_path, *args, capsys)
+
+        later = self._call(hook_module, counter_path, *args, capsys)
+
+        assert "repeats an earlier" in later
+
+    @pytest.mark.unit
     def test_reset_forgets_earlier_calls(
         self, hook_module, reset_module, capsys, tmp_path
     ):
