@@ -310,6 +310,8 @@ a test written to fail first, or corrected text for a docs finding.
   path holds non-ASCII characters. It was appended on every SessionStart.
 - **pensive:** `harden --strict --help` names both exit codes: 2 for a
   HIGH finding, 3 for a file it could not analyze.
+- **pensive:** a SARIF rule for a harden finding is described by its
+  detection signal instead of "No description".
 - **pensive:** `run_code_review` honors `exclude` and `skills` from a
   plain dict config, which it used to ignore.
 - **pensive:** a `**/tests/**` exclude pattern also excludes a top-level

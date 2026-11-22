@@ -145,7 +145,8 @@ class SarifFormatter:
                     "id": rule_id,
                     "name": finding.get("title", "Unknown Issue"),
                     "shortDescription": {
-                        "text": finding.get("issue", "No description")
+                        "text": finding.get("issue")
+                        or finding.get("detection_signal", "No description")
                     },
                     "defaultConfiguration": {
                         "level": self._severity_to_level(

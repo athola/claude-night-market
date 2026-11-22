@@ -312,6 +312,22 @@ def test_sarif_preserves_harden_file_and_line() -> None:
     assert result["level"] == "error"
 
 
+def test_sarif_rule_describes_a_harden_finding_by_its_detection_signal() -> None:
+    """The rule read only ``issue``, which harden findings lack, so every
+    harden rule's shortDescription was "No description".
+    """
+    finding = {
+        "id": "PY02",
+        "severity": "HIGH",
+        "file": "a.py",
+        "line": 2,
+        "detection_signal": "yaml.load without SafeLoader",
+    }
+    report = json.loads(SarifFormatter().format([finding], "."))
+    (rule,) = report["runs"][0]["tool"]["driver"]["rules"]
+    assert rule["shortDescription"]["text"] == "yaml.load without SafeLoader"
+
+
 def test_harden_sarif_flag_emits_a_sarif_report(tmp_path, capsys) -> None:
     """SarifFormatter had no caller, so no CI could consume harden (PEN-9)."""
     (tmp_path / "a.py").write_text("import yaml\nyaml.load(open('f'))\n")
