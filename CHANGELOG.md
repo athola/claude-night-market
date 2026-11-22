@@ -64,6 +64,10 @@ a test written to fail first, or corrected text for a docs finding.
   used a fixed `.json.tmp` sibling, which let two writers clobber each
   other's half-written file. None synced the file before the rename, and
   a crash could publish an empty one.
+- **egregore:** the continuation baton is written through leyline's
+  `write_atomic`. Its fixed `baton.json.tmp` let two writers clobber each
+  other's temp file, and the missing fsync let a crash publish an empty
+  baton, which a watcher reads as a finished run.
 - **egregore:** the watchdog's `EGREGORE_MAX_STALLED_RELAUNCHES` cap now
   fires. It compared a checksum of the whole manifest, and the
   orchestrator bumps `session_count` at the start of every session, so

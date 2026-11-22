@@ -52,6 +52,8 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from _vendored_leyline_atomic_file import write_atomic
+
 #: Bumped when the on-disk shape changes incompatibly. A reader that
 #: finds an unfamiliar version treats the baton as absent, which errs
 #: toward not relaunching.
@@ -105,16 +107,14 @@ def read_baton(path: Path | None = None) -> Baton | None:
 def write_baton(baton: Baton, path: Path | None = None) -> None:
     """Put the baton down where a process outside this session can see it.
 
-    Written to a sibling temporary file and renamed, because a watcher
-    may read at any moment and a half-written baton reads as no baton,
-    which would look like a finished run.
+    Written through ``write_atomic``, because a watcher may read at any
+    moment and a half-written baton reads as no baton, which would look
+    like a finished run.
     """
     target = Path(path) if path is not None else DEFAULT_BATON_PATH
     target.parent.mkdir(parents=True, exist_ok=True)
     payload = {"version": BATON_VERSION, "baton": asdict(baton)}
-    temporary = target.with_suffix(".json.tmp")
-    temporary.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    temporary.replace(target)
+    write_atomic(target, json.dumps(payload, indent=2) + "\n", mode=None)
 
 
 def advance_baton(

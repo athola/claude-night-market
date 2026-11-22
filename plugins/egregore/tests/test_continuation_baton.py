@@ -75,6 +75,23 @@ class TestRoundTrip:
 
         assert read_baton(baton_path).unit == "implement-the-parser"
 
+    def test_a_write_leaves_another_writers_temp_file_untouched(
+        self, baton_path: Path
+    ) -> None:
+        """A fixed ``baton.json.tmp`` let two writers clobber each other (R1).
+
+        GIVEN another writer's half-written temp beside the baton
+        WHEN this session writes its baton
+        THEN that temp is untouched and the baton reads back whole
+        """
+        in_flight = baton_path.with_suffix(".json.tmp")
+        in_flight.write_text("half written by another process")
+
+        write_baton(_baton(), baton_path)
+
+        assert in_flight.read_text() == "half written by another process"
+        assert read_baton(baton_path).unit == "implement-the-parser"
+
     def test_the_file_carries_a_version(self, baton_path: Path) -> None:
         """GIVEN a baton written by this version.
 

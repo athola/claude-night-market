@@ -154,6 +154,10 @@ def test_main_writes_the_copies_then_check_passes(
             "_vendored_leyline_atomic_file",
         ),
         (
+            "plugins/egregore/scripts/continuation_baton.py",
+            "_vendored_leyline_atomic_file",
+        ),
+        (
             "plugins/egregore/scripts/manifest.py",
             "_vendored_leyline_atomic_file",
         ),
