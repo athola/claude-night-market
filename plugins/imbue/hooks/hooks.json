@@ -133,6 +133,28 @@
         ]
       },
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
+            "timeout": 8,
+            "if": "Bash(*uv*tool*install*)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
+            "timeout": 8,
+            "if": "Bash(*bun*add*)"
+          }
+        ]
+      },
+      {
         "matcher": "Write|Edit|MultiEdit|StrReplace",
         "hooks": [
           {

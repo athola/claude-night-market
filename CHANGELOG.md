@@ -213,6 +213,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **imbue:** The no-AI-attribution vow scans a 50 KB message in
   milliseconds. A 45 KB message took 7 seconds, past the 2s hook timeout
   that the harness treats as allow.
+- **imbue:** The package guard checks `pip3.11 install`, pip global
+  options before `install`, installs behind `timeout`, `nice`, `xargs` and
+  `bash -e -c`, and `pipx install`, `uv tool install` and `bun add`.
 - **imbue, egregore, leyline:** module calls to `deferred_capture.py`
   stop with a message when `CLAUDE_PLUGIN_ROOT` is unset, instead of
   running `/scripts/deferred_capture.py`.

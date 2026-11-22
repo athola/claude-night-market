@@ -557,3 +557,33 @@ def test_path_qualified_installers_are_parsed(pg, command, expected):
 def test_shell_wrapped_installers_are_parsed(pg, command: str) -> None:
     """`bash -c "pip install x"` read as a bash command, not an install (IMB-4)."""
     assert any(name == "evilpkg" for _eco, name in pg.parse_packages(command))
+
+
+@pytest.mark.parametrize(
+    ("command", "expected"),
+    [
+        ("pip3.11 install evilpkg", [("pypi", "evilpkg")]),
+        ("pip -q install evilpkg", [("pypi", "evilpkg")]),
+        ("pip --proxy http://p:8080 install evilpkg", [("pypi", "evilpkg")]),
+        ("python3 -m pip --isolated install evilpkg", [("pypi", "evilpkg")]),
+        ("timeout 60 pip install evilpkg", [("pypi", "evilpkg")]),
+        ("nice -n 5 pip install evilpkg", [("pypi", "evilpkg")]),
+        ("xargs pip install evilpkg", [("pypi", "evilpkg")]),
+        ("xargs -n 1 pip install evilpkg", [("pypi", "evilpkg")]),
+        ('bash -e -c "pip install evilpkg"', [("pypi", "evilpkg")]),
+        ("bash -e -o pipefail -c 'pip install evilpkg'", [("pypi", "evilpkg")]),
+        ("pipx install evilpkg", [("pypi", "evilpkg")]),
+        ("uv tool install evilpkg", [("pypi", "evilpkg")]),
+        ("bun add evilpkg", [("npm", "evilpkg")]),
+    ],
+)
+def test_installs_behind_versions_options_and_wrappers_are_parsed(
+    pg, command, expected
+):
+    """Each of these fetched a package the guard never checked (S10)."""
+    assert pg.parse_packages(command) == expected
+
+
+def test_bun_and_uv_tool_commands_that_fetch_nothing_parse_to_nothing(pg) -> None:
+    assert pg.parse_packages("bun run build") == []
+    assert pg.parse_packages("uv tool list") == []

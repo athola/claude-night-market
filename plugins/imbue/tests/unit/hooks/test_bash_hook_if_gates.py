@@ -44,11 +44,14 @@ _SEGMENT_SEPARATORS = ("&&", "||", ";", "|")
 # assertion below is what fails when an ecosystem is added upstream.
 _INSTALL_COMMANDS = [
     "pip install reqeusts",
+    "pipx install reqeusts",
     "uv pip install reqeusts",
     "uv add reqeusts",
+    "uv tool install reqeusts",
     "poetry add reqeusts",
     "npm install lodahs",
     "yarn add lodahs",
+    "bun add lodahs",
     "cargo add serd",
 ]
 
@@ -58,6 +61,11 @@ _EXTRA_INSTALL_COMMANDS = [
     "pdm add reqeusts",
     "pnpm add lodahs",
     "npm i lodahs",
+    "pip3.11 install reqeusts",
+    "pip -q install reqeusts",
+    "timeout 60 pip install reqeusts",
+    "xargs pip install reqeusts",
+    'bash -e -c "pip install reqeusts"',
 ]
 
 _UNRELATED_COMMANDS = [

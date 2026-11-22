@@ -44,16 +44,33 @@ __all__ = [
 # `(?:\S*/)?` admits a path-qualified binary (.venv/bin/pip,
 # /usr/bin/python3); without it those installs parsed to nothing.
 _BIN = r"(?:\S*/)?"
+# pip's global options may precede `install` (`pip -q install x`). The
+# ones that take a value are excluded from the bare-flag branch, so each
+# option has one parse.
+_PIP_VALUE_OPTIONS = (
+    r"(?:proxy|log|cache-dir|timeout|retries|python|cert|client-cert"
+    r"|exists-action|trusted-host|keyring-provider|use-feature|use-deprecated)"
+)
+_PIP_GLOBAL_OPTIONS = (
+    rf"(?:\s+(?:--{_PIP_VALUE_OPTIONS}(?:=|\s+)\S+"
+    rf"|-(?!-{_PIP_VALUE_OPTIONS}[=\s])\S+))*"
+)
 _INSTALL_HEADS: list[tuple[re.Pattern[str], str]] = [
     (
-        re.compile(rf"^\s*(?:{_BIN}python[0-9.]*\s+-m\s+)?{_BIN}pip[0-9]*\s+install\b"),
+        re.compile(
+            rf"^\s*(?:{_BIN}python[0-9.]*\s+-m\s+)?{_BIN}pip[0-9.]*"
+            rf"{_PIP_GLOBAL_OPTIONS}\s+install\b"
+        ),
         "pypi",
     ),
+    (re.compile(rf"^\s*{_BIN}pipx\s+install\b"), "pypi"),
     (re.compile(rf"^\s*{_BIN}uv\s+pip\s+install\b"), "pypi"),
     (re.compile(rf"^\s*{_BIN}uv\s+add\b"), "pypi"),
+    (re.compile(rf"^\s*{_BIN}uv\s+tool\s+install\b"), "pypi"),
     (re.compile(rf"^\s*{_BIN}(?:poetry|pdm)\s+add\b"), "pypi"),
     (re.compile(rf"^\s*{_BIN}(?:npm|pnpm)\s+(?:install|i|add)\b"), "npm"),
     (re.compile(rf"^\s*{_BIN}yarn\s+add\b"), "npm"),
+    (re.compile(rf"^\s*{_BIN}bun\s+add\b"), "npm"),
     (re.compile(rf"^\s*{_BIN}cargo\s+add\b"), "crates"),
 ]
 
@@ -140,8 +157,13 @@ _REDIRECT_RE = re.compile(r"^\d*(?:>>?|<)")
 # Words that run the command after them: "sudo pip install x" fetches x.
 # Their flags and "NAME=value" assignments are skipped with them, and
 # the user, group and directory flags of sudo and env take a value.
+# timeout reads a duration first, and nice and xargs have flags that take
+# a value of their own.
 _COMMAND_PREFIX_RE = re.compile(
     r"^\s*(?:(?:sudo|env|nohup|time|command|exec)\s+(?:-[ugC]\s+\S+\s+|-\S+\s+)*"
+    r"|timeout\s+(?:-[sk]\s+\S+\s+|-\S+\s+)*\S+\s+"
+    r"|nice\s+(?:-n\s+\S+\s+|-\S+\s+)*"
+    r"|xargs\s+(?:-[adEILnPs]\s+\S+\s+|-\S+\s+)*"
     r"|[A-Za-z_][A-Za-z0-9_]*=\S*\s+)+"
 )
 # Targets that are local paths or VCS/URL references, never a registry name.
@@ -300,7 +322,9 @@ def typo_distance(a: str, b: str) -> int:
 
 
 _SHELL_WRAPPER_RE = re.compile(
-    r"(?:^|(?<=\s))(?:\S*/)?(?:ba|z|da)?sh\s+-[a-z]*c\s+(?P<q>['\"])(?P<script>.*?)(?P=q)"
+    r"(?:^|(?<=\s))(?:\S*/)?(?:ba|z|da|k)?sh"
+    r"(?:\s+[-+]o\s+\w+|\s+-(?![a-zA-Z]*c)[a-zA-Z]+)*\s+-[a-zA-Z]*c[a-zA-Z]*\s+"
+    r"(?P<q>['\"])(?P<script>.*?)(?P=q)"
 )
 
 
