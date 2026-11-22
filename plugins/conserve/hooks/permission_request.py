@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import json
 import logging
+import posixpath
 import re
 import shlex
 import sys
@@ -228,6 +229,30 @@ SAFE_PATTERNS: list[str] = [
 
 
 _REDUNDANT_PATH_SEGMENT = re.compile(r"/(?:\.?/)+")
+# A home directory as the shell spells one at the start of a word.
+_HOME_TOKEN = re.compile(r"^(?:~|\$\{?HOME\}?)(?=/|$)")
+_PSEUDO_HOME = "/home/~"
+
+
+def _resolve_path(word: str) -> str:
+    """Resolve `.` and `..` in a path word as the kernel would, on text only.
+
+    A home token stands for a directory one level under /home, so `~/..`
+    reaches a sibling home as it does on disk, and the outcome does not
+    depend on where this process's HOME points. Relative words are left
+    alone: their meaning depends on a working directory not known here.
+    """
+    home = _HOME_TOKEN.match(word)
+    if home:
+        word = _PSEUDO_HOME + word[home.end() :]
+    elif not word.startswith("/"):
+        return word
+    resolved = posixpath.normpath(word)
+    if word.endswith("/") and not resolved.endswith("/"):
+        resolved += "/"
+    if resolved == _PSEUDO_HOME or resolved.startswith(_PSEUDO_HOME + "/"):
+        resolved = "~" + resolved[len(_PSEUDO_HOME) :]
+    return resolved
 
 
 def check_dangerous(command: str) -> Decision | None:
@@ -517,11 +542,13 @@ def evaluate_permission(tool_name: str, tool_input: dict[str, Any]) -> Decision 
     dangerous = check_dangerous(command)
     if dangerous:
         return dangerous
-    words = _shell_words(command)
-    if words and " ".join(words) != command:
-        dangerous = check_dangerous(" ".join(words))
-        if dangerous:
-            return dangerous
+    # `..` is resolved in a third pass: `~/.config/../.config/gh` is gh.
+    words = _shell_words(command) or []
+    for rewritten in (words, [_resolve_path(word) for word in words]):
+        if rewritten and " ".join(rewritten) != command:
+            dangerous = check_dangerous(" ".join(rewritten))
+            if dangerous:
+                return dangerous
 
     # Then check safe patterns
     safe = check_safe(command)

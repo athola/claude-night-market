@@ -1397,3 +1397,32 @@ def test_files_beside_the_token_files_stay_approved(command: str) -> None:
     decision = evaluate_permission("Bash", {"command": command})
     assert decision is not None
     assert decision.behavior == PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "head ~/.config/../.config/gh/hosts.yml",
+        "cat ~/x/../.kube/config",
+        "cat /Users/me/src/../.aws/config",
+        'cat "$HOME"/../me/.docker/config.json',
+        "cat ~/../other/.aws/credentials",
+    ],
+)
+def test_dot_dot_segments_cannot_hide_a_credential_directory(command: str) -> None:
+    """`..` resolves before the deny list matches, as the shell resolves it."""
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.DENY
+
+
+def test_dot_dot_resolution_ignores_the_real_home(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A home outside /Users, /home and /root still resolves through `~`."""
+    monkeypatch.setenv("HOME", "/tmp/ci-home")
+    decision = evaluate_permission(
+        "Bash", {"command": "head ~/.config/../.config/gh/hosts.yml"}
+    )
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.DENY

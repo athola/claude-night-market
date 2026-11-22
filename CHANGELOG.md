@@ -118,6 +118,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **conserve:** reads of `~/.pgpass`, `~/.vault-token`, shell history,
   `~/.config/gcloud/` and the Hugging Face token file are denied. The
   permission hook auto-approved them.
+- **conserve:** a path that reaches a credential directory through `..`,
+  such as `~/.config/../.config/gh/hosts.yml`, is denied like the direct
+  path.
 - **conserve:** the bloat-scan and unbloat examples name `/prepare-pr`.
   `/pr` never resolved.
 - **egregore:** a failed `git reset --soft` after the implementer stops
