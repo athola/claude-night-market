@@ -174,7 +174,7 @@ export SCOPE_GUARD_DISABLE=1
 **Relaxed thresholds** (for larger projects):
 ```bash
 export SCOPE_GUARD_RED_LINES=5000
-export SCOPE_GUARD_YELLOW_LINES=3000
+export SCOPE_GUARD_GREEN_LINES=3000
 export SCOPE_GUARD_RED_COMMITS=50
 ```
 

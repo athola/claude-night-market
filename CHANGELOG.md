@@ -221,10 +221,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **imbue:** Scope-guard counts days on a branch from the author date of
   its first commit. A rebase resets the committer date, and a rebased
   20-day branch read 0 days.
-- **imbue:** The scope-guard hooks read `SCOPE_GUARD_GREEN_*` and turn
-  yellow above it, as `pre_pr_scope_check.sh` does. Yellow now starts at
-  1000 lines and 15 commits in every check, where the hooks waited for
-  1500 and 25.
+- **imbue:** The scope-guard hooks read `SCOPE_GUARD_GREEN_*` as the
+  pre-PR check does. Yellow starts above 1000 lines and 15 commits in
+  every check, where the hooks waited for 1500 and 25.
 - **imbue, egregore, leyline:** module calls to `deferred_capture.py`
   stop with a message when `CLAUDE_PLUGIN_ROOT` is unset, instead of
   running `/scripts/deferred_capture.py`.
