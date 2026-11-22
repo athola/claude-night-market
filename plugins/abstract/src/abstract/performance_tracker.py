@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from ._vendored_leyline_atomic_file import write_atomic
 from .stdlib_helpers import emit_warn, safe_json_load
 
 
@@ -59,19 +60,14 @@ class PerformanceTracker:
     def _save(self) -> None:
         """Persist history to disk using atomic write."""
         self.tracking_file.parent.mkdir(parents=True, exist_ok=True)
-        tmp_file = self.tracking_file.with_suffix(".tmp")
         try:
-            tmp_file.write_text(
-                json.dumps(
-                    {"history": self.history},
-                    indent=2,
-                )
+            write_atomic(
+                self.tracking_file,
+                json.dumps({"history": self.history}, indent=2),
+                mode=None,
             )
-            tmp_file.replace(self.tracking_file)
         except OSError as e:
             _warn(f"failed to save history to {self.tracking_file}: {e}")
-            if tmp_file.exists():
-                tmp_file.unlink(missing_ok=True)
 
     def record_generation(
         self,

@@ -130,6 +130,14 @@ def test_main_writes_the_copies_then_check_passes(
             "._vendored_leyline_atomic_file",
         ),
         (
+            "plugins/abstract/src/abstract/performance_tracker.py",
+            "._vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/abstract/src/abstract/improvement_memory.py",
+            "._vendored_leyline_atomic_file",
+        ),
+        (
             "plugins/abstract/hooks/skill_execution_logger.py",
             "abstract._vendored_leyline_atomic_file",
         ),

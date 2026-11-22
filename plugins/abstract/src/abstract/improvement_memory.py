@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from ._vendored_leyline_atomic_file import write_atomic
 from .stdlib_helpers import emit_warn, safe_json_load
 
 
@@ -90,19 +91,16 @@ class ImprovementMemory:
     def _save(self) -> None:
         """Persist memory to disk using atomic write."""
         self.memory_file.parent.mkdir(parents=True, exist_ok=True)
-        tmp_file = self.memory_file.with_suffix(".tmp")
         try:
-            tmp_file.write_text(
+            write_atomic(
+                self.memory_file,
                 json.dumps(
-                    {"insights": self.insights, "outcomes": self.outcomes},
-                    indent=2,
-                )
+                    {"insights": self.insights, "outcomes": self.outcomes}, indent=2
+                ),
+                mode=None,
             )
-            tmp_file.replace(self.memory_file)
         except OSError as e:
             _warn(f"failed to save memory to {self.memory_file}: {e}")
-            if tmp_file.exists():
-                tmp_file.unlink(missing_ok=True)
 
     def _prune_insights(self, skill_ref: str) -> None:
         """Keep only the most recent MAX_INSIGHTS_PER_SKILL entries."""
