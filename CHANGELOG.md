@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reduction a weak predictor of cost (arXiv 2607.12161), and on one
   472-request session here re-reading tool results was 5.6% of spend.
 
+- **leyline:** `file_lock(path, timeout=...)` polls for the lock until
+  the deadline and then raises `TimeoutError` naming the lock file, for
+  hooks that must give up before the harness kills them. On Windows the
+  lock is now `msvcrt.locking` on byte 0 where it used to be skipped, the
+  scheme the abstract skill logger already used.
+
 ### Changed
 
 - **conserve:** the CCR hook adds one line naming the archive and its
