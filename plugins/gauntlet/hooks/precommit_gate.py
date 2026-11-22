@@ -12,6 +12,7 @@ import json
 import os
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -350,6 +351,28 @@ def _graph_staleness_warning(
     )
 
 
+def _analyze_into(
+    db_path: Path,
+    budget: float,
+    outcome: list[dict[str, Any]],
+    failure: list[Exception],
+) -> None:
+    """Run the blast radius on its own thread, which owns the connection."""
+    try:
+        from gauntlet.blast_radius import analyze_changes
+        from gauntlet.graph import GraphStore
+
+        graph = GraphStore(str(db_path))
+        try:
+            # analyze_changes runs git diff, whose default budget is 10s
+            # against this hook's 2s cap in hooks.json.
+            outcome.append(analyze_changes(graph, base_ref="HEAD", timeout=budget))
+        finally:
+            graph.close()
+    except Exception as exc:  # advisory: the caller reports it and moves on
+        failure.append(exc)
+
+
 def _graph_risk_context(
     gauntlet_dir: Path, deadline: float | None = None
 ) -> str | None:
@@ -384,28 +407,35 @@ def _graph_risk_context(
         # busy timeout for it, past the hook's cap.
         return None
 
-    try:
-        from gauntlet.blast_radius import (
-            analyze_changes as _analyze,
-        )
-        from gauntlet.graph import (
-            GraphStore as _GS,
-        )
-
-        graph = _GS(str(db_path))
-        # analyze_changes runs git diff, whose default budget is 10s against
-        # this hook's 2s cap in hooks.json; a killed PreToolUse hook emits
-        # no deny, so a slow git would let the commit through the gate.
-        report = _analyze(graph, base_ref="HEAD", timeout=budget)
-        graph.close()
-    except Exception as exc:
+    # The analysis's own graph walk is unbounded, and took 2s on this
+    # repository's graph. It runs on a daemon thread that the gate stops
+    # waiting for at the budget; an abandoned walk ends with the process.
+    outcome: list[dict[str, Any]] = []
+    failure: list[Exception] = []
+    worker = threading.Thread(
+        target=_analyze_into,
+        args=(db_path, budget, outcome, failure),
+        daemon=True,
+    )
+    worker.start()
+    worker.join(budget)
+    if failure:
         # The warning is advisory: report the failure, never block the commit.
+        exc = failure[0]
         print(
             f"[gauntlet-precommit-gate] blast radius skipped: "
             f"{type(exc).__name__}: {exc}",
             file=sys.stderr,
         )
         return None
+    if not outcome:
+        print(
+            "[gauntlet-precommit-gate] blast radius skipped: the analysis did "
+            "not finish within the hook's time budget",
+            file=sys.stderr,
+        )
+        return None
+    report = outcome[0]
 
     if "error" in report:
         print(

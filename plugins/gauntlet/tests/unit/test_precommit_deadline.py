@@ -141,3 +141,32 @@ class TestAdvisoryBlastRadiusYieldsFirst:
         with writer_lock(gauntlet_dir):
             assert precommit_gate._graph_risk_context(gauntlet_dir) is None
         assert called == []
+
+
+@pytest.mark.unit
+def test_slow_graph_analysis_is_abandoned_at_its_budget(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Only the analysis's git calls were bounded. Its graph walk took 2s on
+    this repository's own graph, past the hook's whole cap.
+    """
+    import precommit_gate  # noqa: PLC0415 - hooks dir is on pytest's pythonpath
+
+    def slow_analysis(*args: object, **kwargs: object) -> dict[str, object]:
+        time.sleep(3)
+        return {"overall_risk": "high"}
+
+    monkeypatch.setattr("gauntlet.blast_radius.analyze_changes", slow_analysis)
+    gauntlet_dir = tmp_path / ".gauntlet"
+    gauntlet_dir.mkdir()
+    GraphStore(str(gauntlet_dir / "graph.db")).close()
+    deadline = time.monotonic() + precommit_gate._RUN_BUDGET_SECONDS
+    start = time.monotonic()
+    assert precommit_gate._graph_risk_context(gauntlet_dir, deadline) is None
+    elapsed = time.monotonic() - start
+    assert (
+        elapsed
+        < precommit_gate._RUN_BUDGET_SECONDS
+        - precommit_gate._DECISION_RESERVE_SECONDS
+        + 0.2
+    )
