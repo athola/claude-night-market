@@ -26,6 +26,14 @@ from unittest.mock import patch
 import pytest
 
 
+def _vow_utils(hook_module):
+    """Return the vow_utils instance the hook imported its lock helpers from.
+
+    The flock seam is there, so a patch on another copy changes nothing.
+    """
+    return sys.modules[hook_module.lock_fd.__module__]
+
+
 @pytest.fixture
 def hook_module():
     """Import vow_bounded_reads via importlib (hook is a standalone script)."""
@@ -849,7 +857,7 @@ class TestAtomicIncrement:
         were absent -- which the paired negative-control test below
         demonstrates.
         """
-        if not hook_module._HAS_FCNTL:
+        if not _vow_utils(hook_module)._HAS_FCNTL:
             pytest.skip("requires fcntl (POSIX-only)")
 
         path = tmp_path / "vow_read_counter_flocked_race.json"
@@ -906,7 +914,7 @@ class TestAtomicIncrement:
         ineffective and both tests must be revisited.
         """
         path = tmp_path / "vow_read_counter_unflocked_race.json"
-        monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
+        monkeypatch.setattr(_vow_utils(hook_module), "_HAS_FCNTL", False)
 
         n_threads = 20
         real_read = _os.read
@@ -954,7 +962,7 @@ class TestAtomicIncrement:
         Operators relying on flock for correctness need to know the
         Windows path degrades silently.
         """
-        monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
+        monkeypatch.setattr(_vow_utils(hook_module), "_HAS_FCNTL", False)
         path = tmp_path / "vow_read_counter_nofcntl_50_thread.json"
         n_threads = 50
         real_read = _os.read
@@ -1029,7 +1037,7 @@ class TestAtomicIncrement:
         Then it still increments correctly, just without OS-level locking
         """
         path = tmp_path / "vow_read_counter_nofcntl.json"
-        monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
+        monkeypatch.setattr(_vow_utils(hook_module), "_HAS_FCNTL", False)
         assert hook_module._atomic_increment(path) == 1
         assert hook_module._atomic_increment(path) == 2
         assert _counter_value(path) == 2
@@ -1045,13 +1053,13 @@ class TestAtomicIncrement:
         Then the increment still completes
         And a "[vow-bounded-reads] WARN: flock unavailable" line is on stderr
         """
-        if not hook_module._HAS_FCNTL:
+        if not _vow_utils(hook_module)._HAS_FCNTL:
             pytest.skip("fcntl unavailable; skipping fcntl warning test")
 
         def raising_flock(_fd, _op):
             raise OSError(errno.EWOULDBLOCK, "lock contention")
 
-        monkeypatch.setattr(hook_module._fcntl, "flock", raising_flock)
+        monkeypatch.setattr(_vow_utils(hook_module)._fcntl, "flock", raising_flock)
         path = tmp_path / "vow_read_counter_flock_warn.json"
         result = hook_module._atomic_increment(path)
         assert result == 1
@@ -1076,13 +1084,13 @@ class TestAtomicIncrement:
         only as the generic "counter increment failed" line, losing
         the specific flock-unavailability signal.
         """
-        if not hook_module._HAS_FCNTL:
+        if not _vow_utils(hook_module)._HAS_FCNTL:
             pytest.skip("fcntl unavailable; skipping non-OSError flock test")
 
         def raising_flock(_fd, _op):
             raise RuntimeError("simulated FUSE-layer flock not implemented")
 
-        monkeypatch.setattr(hook_module._fcntl, "flock", raising_flock)
+        monkeypatch.setattr(_vow_utils(hook_module)._fcntl, "flock", raising_flock)
         path = tmp_path / "vow_read_counter_flock_rt.json"
         result = hook_module._atomic_increment(path)
         assert result == 1
@@ -1109,18 +1117,18 @@ class TestAtomicIncrement:
         shutdown showed nothing in the operator log. This test pins
         the symmetric pattern.
         """
-        if not hook_module._HAS_FCNTL:
+        if not _vow_utils(hook_module)._HAS_FCNTL:
             pytest.skip("fcntl unavailable; skipping unlock warning test")
 
-        original_flock = hook_module._fcntl.flock
-        unlock_op = hook_module._fcntl.LOCK_UN
+        original_flock = _vow_utils(hook_module)._fcntl.flock
+        unlock_op = _vow_utils(hook_module)._fcntl.LOCK_UN
 
         def selective_flock(fd, op):
             if op == unlock_op:
                 raise OSError(9, "Bad file descriptor (simulated)")
             return original_flock(fd, op)
 
-        monkeypatch.setattr(hook_module._fcntl, "flock", selective_flock)
+        monkeypatch.setattr(_vow_utils(hook_module)._fcntl, "flock", selective_flock)
         path = tmp_path / "vow_read_counter_unlock_warn.json"
         result = hook_module._atomic_increment(path)
         assert result == 1

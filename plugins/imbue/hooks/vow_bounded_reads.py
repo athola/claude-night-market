@@ -36,10 +36,12 @@ from typing import Callable, NamedTuple
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
     fd_owned_by_us,
+    lock_fd,
     read_counter_path,
     secure_open,
     session_id_from,
     shadow_mode_active,
+    unlock_fd,
 )
 
 # One definition, shared with the other read-budget hook, so the reset
@@ -47,25 +49,6 @@ from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path 
 _counter_path = read_counter_path
 _get_session_id = session_id_from
 
-# fcntl is POSIX-only.  On Windows we fall back to unlocked RMW. The
-# small race window is acceptable for an advisory vow on non-POSIX
-# hosts.  See issue #418.
-try:
-    import fcntl as _fcntl  # type: ignore[import-not-found]  # POSIX-only; Windows takes the except branch
-
-    _HAS_FCNTL = True
-except ImportError:  # pragma: no cover - exercised only on non-POSIX
-    _fcntl = None  # type: ignore[assignment]  # intentional None sentinel; guarded by _HAS_FCNTL at call sites
-    _HAS_FCNTL = False
-    # One-shot operator signal so non-POSIX hosts see parity with the
-    # POSIX-side flock-failure warning. Suppressed under pytest so unit
-    # runs that exercise the no-fcntl path do not spam stderr.
-    if "PYTEST_CURRENT_TEST" not in os.environ:
-        print(
-            "[vow-bounded-reads] WARN: fcntl unavailable on this platform; "
-            "counter increments are not atomic under concurrent reads",
-            file=sys.stderr,
-        )
 
 _READ_TOOLS = frozenset({"Read", "Grep", "Glob"})
 _BUDGET = 15
@@ -180,21 +163,7 @@ def _atomic_increment(
             pass
         if not fd_owned_by_us(fd):
             return 0
-        if _HAS_FCNTL and _fcntl is not None:
-            try:
-                _fcntl.flock(fd, _fcntl.LOCK_EX)
-            except (OSError, RuntimeError, NotImplementedError) as exc:
-                # Lock unavailable (NFS quirks, exhausted fd table, OS
-                # limits, FUSE/Windows-shim layers that surface the
-                # condition as RuntimeError or NotImplementedError).
-                # Emit a warning so operators have a signal that the
-                # concurrency guarantee is absent on this invocation,
-                # then fall through to unlocked RMW.
-                print(
-                    f"[vow-bounded-reads] WARN: flock unavailable, "
-                    f"falling back to unlocked RMW: {exc}",
-                    file=sys.stderr,
-                )
+        lock_fd(fd)
         # Issue #580: discard a counter left over from a prior session. A
         # file untouched past the TTL cannot belong to the current
         # discovery phase, so its count must not bleed forward.
@@ -221,17 +190,7 @@ def _atomic_increment(
         return 0
     finally:
         if fd >= 0:
-            if _HAS_FCNTL and _fcntl is not None:
-                try:
-                    _fcntl.flock(fd, _fcntl.LOCK_UN)
-                except (OSError, RuntimeError, NotImplementedError) as exc:
-                    # Asymmetry with the acquire-side warning above
-                    # would hide a lock leak on shutdown. Surface the
-                    # failure so it shows up in operator triage.
-                    print(
-                        f"[vow-bounded-reads] WARN: flock unlock failed: {exc}",
-                        file=sys.stderr,
-                    )
+            unlock_fd(fd)
             try:
                 os.close(fd)
             except OSError:

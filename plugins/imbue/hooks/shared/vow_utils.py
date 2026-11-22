@@ -20,6 +20,16 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+# fcntl is POSIX-only. Without it lock_fd and unlock_fd do nothing and the
+# read-budget counter degrades to an unlocked read-modify-write, an
+# acceptable race for an advisory vow on non-POSIX hosts (issue #418).
+try:
+    import fcntl as _fcntl
+
+    _HAS_FCNTL = True
+except ImportError:  # pragma: no cover - exercised only on non-POSIX
+    _HAS_FCNTL = False
+
 # Tests load this file on its own as well as through `shared`, so the
 # copy is imported through the hooks directory rather than relatively.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -40,11 +50,13 @@ __all__ = [
     "git_commit_offset",
     "git_commit_spans",
     "is_git_commit",
+    "lock_fd",
     "read_counter_path",
     "secure_open",
     "secure_state_dir",
     "session_id_from",
     "shadow_mode_active",
+    "unlock_fd",
     "vow_output",
 ]
 
@@ -164,3 +176,46 @@ def session_id_from(data: dict) -> str:
     if sid:
         return sid
     return f"pid-{os.getppid()}"
+
+
+def lock_fd(fd: int, where: str = "") -> None:
+    """Take an exclusive flock on *fd*, or warn on stderr and go on unlocked.
+
+    *where* names the caller in the warning (" on reset"). A lock can be
+    unavailable on NFS, with an exhausted fd table, or on FUSE and Windows
+    shim layers that raise RuntimeError or NotImplementedError. The warning
+    tells operators the concurrency guarantee is absent for this call.
+    """
+    if not _HAS_FCNTL:
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            print(
+                "[vow-bounded-reads] WARN: fcntl unavailable on this platform; "
+                "counter updates are not atomic under concurrent calls",
+                file=sys.stderr,
+            )
+        return
+    try:
+        _fcntl.flock(fd, _fcntl.LOCK_EX)
+    except (OSError, RuntimeError, NotImplementedError) as exc:
+        print(
+            f"[vow-bounded-reads] WARN: flock unavailable{where}, "
+            f"falling back to unlocked access: {exc}",
+            file=sys.stderr,
+        )
+
+
+def unlock_fd(fd: int, where: str = "") -> None:
+    """Release the flock on *fd*, warning on stderr when that fails.
+
+    A silent unlock failure would hide a lock leak that the acquire-side
+    warning would have shown.
+    """
+    if not _HAS_FCNTL:
+        return
+    try:
+        _fcntl.flock(fd, _fcntl.LOCK_UN)
+    except (OSError, RuntimeError, NotImplementedError) as exc:
+        print(
+            f"[vow-bounded-reads] WARN: flock unlock failed{where}: {exc}",
+            file=sys.stderr,
+        )

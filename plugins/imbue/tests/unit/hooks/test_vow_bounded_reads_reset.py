@@ -22,6 +22,14 @@ from unittest.mock import patch
 import pytest
 
 
+def _vow_utils(hook_module):
+    """Return the vow_utils instance the hook imported its lock helpers from.
+
+    The flock seam is there, so a patch on another copy changes nothing.
+    """
+    return sys.modules[hook_module.lock_fd.__module__]
+
+
 @pytest.fixture
 def hook_module():
     """Import vow_bounded_reads_reset via importlib."""
@@ -252,24 +260,24 @@ class TestResetFlockObservability:
         And the function still completes without raising
         And the counter is reset to zero via the unlocked path.
         """
-        if not hook_module._HAS_FCNTL:
+        if not _vow_utils(hook_module)._HAS_FCNTL:
             pytest.skip("fcntl unavailable on this platform")
 
         path = tmp_path / "vow_read_counter_flock_reset.json"
         path.write_bytes(b'{"count": 7}')
 
-        original_flock = hook_module._fcntl.flock
+        original_flock = _vow_utils(hook_module)._fcntl.flock
         call_log = []
 
         def fake_flock(fd, op):
             call_log.append(op)
             # Raise on LOCK_EX, allow LOCK_UN to proceed (so finally
             # cleanup mirrors real behavior).
-            if op == hook_module._fcntl.LOCK_EX:
+            if op == _vow_utils(hook_module)._fcntl.LOCK_EX:
                 raise OSError(13, "Permission denied (simulated)")
             return original_flock(fd, op)
 
-        monkeypatch.setattr(hook_module._fcntl, "flock", fake_flock)
+        monkeypatch.setattr(_vow_utils(hook_module)._fcntl, "flock", fake_flock)
 
         hook_module._atomic_reset(path)
 
@@ -296,20 +304,20 @@ class TestResetFlockObservability:
         propagate to the outer handler and lose the specific
         "flock unavailable on reset" signal.
         """
-        if not hook_module._HAS_FCNTL:
+        if not _vow_utils(hook_module)._HAS_FCNTL:
             pytest.skip("fcntl unavailable on this platform")
 
         path = tmp_path / "vow_read_counter_flock_rt_reset.json"
         path.write_bytes(b'{"count": 3}')
 
-        original_flock = hook_module._fcntl.flock
+        original_flock = _vow_utils(hook_module)._fcntl.flock
 
         def fake_flock(fd, op):
-            if op == hook_module._fcntl.LOCK_EX:
+            if op == _vow_utils(hook_module)._fcntl.LOCK_EX:
                 raise RuntimeError("simulated FUSE-layer failure")
             return original_flock(fd, op)
 
-        monkeypatch.setattr(hook_module._fcntl, "flock", fake_flock)
+        monkeypatch.setattr(_vow_utils(hook_module)._fcntl, "flock", fake_flock)
 
         hook_module._atomic_reset(path)
 
@@ -365,16 +373,16 @@ class TestResetRefusesForeignFiles:
     def test_unlock_failure_is_reported(
         self, hook_module, tmp_path, monkeypatch, capsys
     ):
-        if not hook_module._HAS_FCNTL:
+        if not _vow_utils(hook_module)._HAS_FCNTL:
             pytest.skip("fcntl unavailable on this platform")
-        original_flock = hook_module._fcntl.flock
+        original_flock = _vow_utils(hook_module)._fcntl.flock
 
         def fail_unlock(fd, op):
-            if op == hook_module._fcntl.LOCK_UN:
+            if op == _vow_utils(hook_module)._fcntl.LOCK_UN:
                 raise OSError(5, "I/O error (simulated)")
             return original_flock(fd, op)
 
-        monkeypatch.setattr(hook_module._fcntl, "flock", fail_unlock)
+        monkeypatch.setattr(_vow_utils(hook_module)._fcntl, "flock", fail_unlock)
         hook_module._atomic_reset(tmp_path / "vow_read_counter_unlock.json")
         assert "flock unlock failed" in capsys.readouterr().err
 
