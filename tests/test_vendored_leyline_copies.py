@@ -198,6 +198,10 @@ def test_main_writes_the_copies_then_check_passes(
             "_vendored_leyline_atomic_file",
         ),
         (
+            "plugins/sanctum/hooks/deferred_item_watcher.py",
+            "_vendored_leyline_atomic_file",
+        ),
+        (
             "plugins/spec-kit/src/speckit/caching.py",
             "speckit._vendored_leyline_atomic_file",
         ),

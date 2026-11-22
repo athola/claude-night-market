@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from _ledger_utils import get_ledger_path as _get_ledger_path
-from _ledger_utils import ledger_lock
+from _vendored_leyline_atomic_file import file_lock
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -90,7 +90,7 @@ def write_ledger_entry(path: Path, entry: dict) -> None:
         entry = dict(entry)
         entry["title"] = _normalize_title(entry["title"])
 
-    with ledger_lock(path):
+    with file_lock(path):
         entries = read_ledger(path)
         entries.append(entry)
         path.parent.mkdir(parents=True, exist_ok=True)
