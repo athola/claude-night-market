@@ -350,12 +350,12 @@ def refused_credential_output(stdout: str, stderr: str, service: ServiceConfig) 
 
     qwen prints its 401 and exits 0, so neither the exit code nor a
     non-empty stdout separates a refusal from an answer. The CLI puts that
-    error on stderr or as the first stdout line; a marker deeper in stdout
-    is an answer quoting one.
+    error as the first stdout line, or on stderr with no answer at all. A
+    marker deeper in stdout is an answer quoting one, and a marker on
+    stderr beside an answer is a retry that succeeded.
     """
     stdout_lines = [line for line in stdout.splitlines() if line.strip()]
-    lead = stdout_lines[0] if stdout_lines else ""
-    output = f"{lead}\n{stderr}".lower()
+    output = (stdout_lines[0] if stdout_lines else stderr).lower()
     return any(marker.lower() in output for marker in service.auth_failure_markers)
 
 

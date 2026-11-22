@@ -920,3 +920,28 @@ class TestContradictoryPairingsDoNotConstruct:
     def test_every_registered_service_reconstructs(self, service) -> None:
         """A registry entry that broke a rule would fail here by name."""
         assert replace(service) == service
+
+
+_QWEN = delegation_services.SERVICES["qwen"]
+
+
+@pytest.mark.parametrize(
+    ("stdout", "stderr", "refused"),
+    [
+        # An answer is an answer, whatever a retry printed on the way.
+        ("The fix is to pin the version.\n", "retrying after API Error: 401\n", False),
+        ("", "API Error: 401 Incorrect API key provided\n", True),
+        ("\n  \n", "API Error: 401\n", True),
+        ("[API Error: 401 Incorrect API key provided]\n", "", True),
+    ],
+)
+def test_stderr_marks_a_refusal_only_when_stdout_holds_no_answer(
+    stdout: str, stderr: str, refused: bool
+) -> None:
+    """A successful run with a 401 retry line on stderr was a refusal (U9).
+
+    smart_delegate then recorded a provider failure for a call that answered.
+    """
+    assert (
+        delegation_services.refused_credential_output(stdout, stderr, _QWEN) is refused
+    )

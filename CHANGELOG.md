@@ -115,6 +115,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **conjure:** the usage log redacts only the argument that carries the
   prompt. A short prompt such as "hi" blanked every argument containing
   it, `--thinking-budget` included.
+- **conjure:** a delegation that answered is no longer counted as a
+  refused credential because its stderr mentions a 401 on a retry. A
+  stderr marker counts only when stdout holds no answer.
 - **conserve:** Credential-directory reads are denied under /root, in
   ~/.azure and ~/.config/glab-cli, and when the path is spelled with ./
   or // segments.
