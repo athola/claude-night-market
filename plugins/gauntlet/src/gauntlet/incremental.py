@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import logging
-import os
 import re
 import subprocess
 import time
@@ -225,15 +224,17 @@ def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
     # A full build is the way to a clean graph, so it drops rows for files
     # that are gone, and every parsed file replaces whatever an earlier
     # build kept for it. Only paths under this
-    # root are its to judge: a graph can hold another root's files. The
-    # separator keeps ``pkg`` from claiming ``pkg_sibling``.
-    under_root = os.path.join(root_dir, "")
+    # root are its to judge: a graph can hold another root's files. Path
+    # comparison matches the paths collect_files stored for a relative
+    # root, and compares whole segments, so ``pkg`` never claims
+    # ``pkg_sibling``.
+    root = Path(root_dir)
     current = set(files)
     graph.delete_files(
         sorted(
             path
             for path in graph.get_file_paths() - current
-            if path.startswith(under_root)
+            if Path(path).is_relative_to(root)
         )
     )
 

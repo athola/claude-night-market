@@ -884,6 +884,22 @@ class TestRemovedFilesLeaveTheGraph:
         assert store.get_nodes_in_file(str(tmp_path / "pkg" / "m.py")) != []
 
     @pytest.mark.unit
+    @pytest.mark.parametrize("root", [".", "./"])
+    def test_full_build_from_a_relative_root_drops_deleted_files(
+        self, repo: Path, store: GraphStore, monkeypatch: pytest.MonkeyPatch, root: str
+    ) -> None:
+        """A prefix built from the raw root string matched no stored path."""
+        monkeypatch.chdir(repo)
+        (repo / "a.py").write_text("def helper():\n    pass\n")
+        (repo / "keep.py").write_text("def keep():\n    pass\n")
+        full_build(root, store)
+        (repo / "a.py").unlink()
+
+        full_build(root, store)
+
+        assert store.get_file_paths() == {"keep.py"}
+
+    @pytest.mark.unit
     def test_stored_file_paths_are_listed_once_each(
         self, repo: Path, store: GraphStore
     ) -> None:
