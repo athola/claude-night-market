@@ -196,11 +196,10 @@ Tradeoffs:
 The constraint in Research Background no longer drives the sidecar.
 `oracle/src/oracle/provision.py` creates the venv with pyyaml only,
 and no ONNX model ships. The daemon serves YAML linear and sigmoid
-models with `math` and `yaml`. The sidecar is kept because the daemon
-needs pyyaml, which the system Python 3.9.6 that runs hooks does not
-have, and because the isolated venv is where onnxruntime goes if a
-model ships. Without a `models` directory the start hook logs one line
-and launches nothing.
+models with `math` and `yaml`. The system Python 3.9.6 that runs hooks
+has no pyyaml, and the `provision_venv` docstring defers onnxruntime
+until an ONNX model ships. Without a `models` directory the start hook
+logs one line and launches nothing.
 
 The stop hook is a SessionEnd hook. A Stop hook fires after every
 assistant turn and stopped the daemon after the session's first reply.
