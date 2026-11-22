@@ -121,6 +121,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **conserve:** a path that reaches a credential directory through `..`,
   such as `~/.config/../.config/gh/hosts.yml`, is denied like the direct
   path.
+- **conserve:** `ls`, `wc`, `stat`, `file` and `find` on a credential
+  directory such as `~/.aws` go to the permission dialog. They were
+  auto-approved, because only readers were checked there.
 - **conserve:** the bloat-scan and unbloat examples name `/prepare-pr`.
   `/pr` never resolved.
 - **egregore:** a failed `git reset --soft` after the implementer stops

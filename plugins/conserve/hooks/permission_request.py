@@ -255,6 +255,18 @@ def _resolve_path(word: str) -> str:
     return resolved
 
 
+_CREDENTIAL_PATH = re.compile(
+    rf"^(?:~|/root|/(?:Users|home)/[^/]+)/\.(?:{'|'.join(_CREDENTIAL_HOME_PATHS)})"
+    r"(?:/|$)",
+    re.IGNORECASE,
+)
+
+
+def _names_credential_path(word: str) -> bool:
+    """Whether a shell word is a path inside a credential directory."""
+    return bool(_CREDENTIAL_PATH.match(_resolve_path(word)))
+
+
 def check_dangerous(command: str) -> Decision | None:
     """Check if command matches dangerous patterns.
 
@@ -266,7 +278,9 @@ def check_dangerous(command: str) -> Decision | None:
 
     """
     # `~/.config/./gh` and `~/.config//gh` name the same directory as
-    # `~/.config/gh`. Collapse them so a path spelling cannot dodge a deny.
+    # `~/.config/gh`. This covers those two spellings in the raw text only:
+    # quotes and `..` are handled by the passes in evaluate_permission, and
+    # a glob or variable is caught only by check_safe refusing to approve.
     collapsed = _REDUNDANT_PATH_SEGMENT.sub("/", command)
     for pattern, message in DANGEROUS_PATTERNS:
         if re.search(pattern, collapsed, re.IGNORECASE):
@@ -509,6 +523,10 @@ def check_safe(command: str) -> Decision | None:
 
     words = _shell_words(candidate)
     if not words or any(_EXPANDING.search(op) for op in _path_operands(words)):
+        return None
+    # Readers there are denied outright. Any other command naming one
+    # (`ls ~/.aws`, `cp ~/.kube/config /tmp`) goes to the dialog.
+    if any(_names_credential_path(word) for word in words[1:]):
         return None
 
     for pattern in SAFE_PATTERNS:

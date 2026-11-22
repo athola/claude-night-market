@@ -1426,3 +1426,35 @@ def test_dot_dot_resolution_ignores_the_real_home(
     )
     assert decision is not None
     assert decision.behavior == PermissionDecision.DENY
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "ls ~/.aws",
+        'ls "$HOME"/.aws',
+        "wc -c ~/.kube/config",
+        "stat ~/.aws/credentials",
+        "file ~/.docker/config.json",
+        "find ~/.config/gh -name hosts.yml",
+        "ls ~/.config/'gh'",
+        "ls /Users/me/.config/x/../gh",
+        # Copying or archiving one is not a read, and was never approved.
+        "cp ~/.kube/config /tmp/k",
+        "tar czf x.tgz ~/.aws",
+        "rsync -a ~/.docker/ /tmp/d",
+    ],
+)
+def test_any_command_naming_a_credential_directory_is_not_approved(
+    command: str,
+) -> None:
+    """Only readers were checked, so `ls` and `stat` there were approved."""
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is None or decision.behavior != PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize("command", ["ls ~", "ls ~/.config", "stat ~/src/app.py"])
+def test_commands_beside_credential_directories_stay_approved(command: str) -> None:
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.ALLOW
