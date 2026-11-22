@@ -213,8 +213,8 @@ Check configuration integrity.
 
 ## Architecture
 
-Conjure is built around a Core Plugin that registers skills, commands,
-and hooks within Claude Code. Specialized Skills manage execution paths,
+Conjure is built around a Core Plugin that registers skills and commands
+within Claude Code. Specialized Skills manage execution paths,
 while a Delegation Executor provides a unified interface for task processing
 and token estimation. Resource Management is handled by a quota tracker
 and usage logger that monitor limits and record outcomes,
