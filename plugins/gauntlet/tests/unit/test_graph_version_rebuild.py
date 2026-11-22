@@ -295,3 +295,43 @@ def test_hooks_import_and_take_the_lock_where_fcntl_is_missing(tmp_path: Path) -
         [sys.executable, "-c", script], capture_output=True, text=True, check=False
     )
     assert completed.returncode == 0, completed.stderr
+
+
+@pytest.mark.unit
+class TestOneWriterAtATime:
+    """The rebuild defers to a live writer and never strands its own lock."""
+
+    def test_a_running_build_starts_no_rebuild(self, project: Path) -> None:
+        from gauntlet.build_lock import writer_lock  # noqa: PLC0415 - src on sys.path via pytest
+
+        gdir = _graph(project, "1.0.0")
+        with writer_lock(gdir):
+            output, popen = _run()
+        popen.assert_not_called()
+        assert output is None
+        assert not (gdir / "rebuild.lock").exists()
+
+    def test_a_busy_rebuild_releases_its_lock_and_records_no_failure(
+        self, project: Path
+    ) -> None:
+        """A rebuild that lost to another writer kept the lock for two hours."""
+        from gauntlet.build_lock import BUSY_EXIT_CODE  # noqa: PLC0415 - src on sys.path via pytest
+
+        gdir = _graph(project, "1.0.0")
+        stub = project / "uv-busy"
+        stub.write_text(f"#!/bin/sh\nexit {BUSY_EXIT_CODE}\n")
+        stub.chmod(0o755)
+        _, popen = _run({"uv": str(stub), "nice": None})
+        subprocess.run(popen.call_args.args[0], check=True)
+        assert not (gdir / "rebuild.lock").exists()
+        assert not hook.last_run_failed(gdir / "rebuild.status")
+
+    def test_a_failed_rebuild_keeps_its_lock(self, project: Path) -> None:
+        gdir = _graph(project, "1.0.0")
+        stub = project / "uv-fails"
+        stub.write_text("#!/bin/sh\nexit 2\n")
+        stub.chmod(0o755)
+        _, popen = _run({"uv": str(stub), "nice": None})
+        subprocess.run(popen.call_args.args[0], check=False)
+        assert (gdir / "rebuild.lock").exists()
+        assert hook.last_run_failed(gdir / "rebuild.status")

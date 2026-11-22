@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -14,6 +15,7 @@ from graph_auto_update import (
     main,
 )
 
+from gauntlet.build_lock import BUSY_EXIT_CODE, writer_lock
 from gauntlet.graph import GraphStore
 
 
@@ -304,16 +306,35 @@ class TestBackgroundUpdate:
         assert context.startswith("Graph updating in the background")
 
     @pytest.mark.unit
-    def test_failed_rebuild_holding_the_lock_is_reported(
+    def test_a_failed_rebuild_does_not_block_the_update(
         self, gauntlet_dir: Path
     ) -> None:
-        """The auto-update skipped in silence behind a dead rebuild's lock."""
+        """A failed rebuild kept rebuild.lock for two hours, and every commit
+        update skipped behind it. Only a live writer now holds updates back.
+        """
         (gauntlet_dir / "rebuild.lock").write_text("")
         (gauntlet_dir / "rebuild.status").write_text("1\n")
-        output, argv = self._launch(gauntlet_dir)
+        _, argv = self._launch(gauntlet_dir)
+        assert argv, "the update is launched"
+
+    @pytest.mark.unit
+    def test_a_running_build_holds_the_update_back(self, gauntlet_dir: Path) -> None:
+        with writer_lock(gauntlet_dir):
+            output, argv = self._launch(gauntlet_dir)
         assert argv == []
-        context = output["hookSpecificOutput"]["additionalContext"]
-        assert str(gauntlet_dir / "rebuild.log") in context
+        assert output is None
+
+    @pytest.mark.unit
+    def test_a_busy_update_records_no_failure(self, gauntlet_dir: Path) -> None:
+        """A build that lost the race exits busy, which is not a failure."""
+        stub = gauntlet_dir / "uv-busy"
+        stub.write_text(f"#!/bin/sh\nexit {BUSY_EXIT_CODE}\n")
+        stub.chmod(0o755)
+        with patch.object(graph_auto_update.shutil, "which", return_value=str(stub)):
+            with patch("subprocess.Popen") as popen:
+                graph_auto_update._update_in_plugin_env(gauntlet_dir)
+        subprocess.run(popen.call_args.args[0], check=True)
+        assert not graph_auto_update.last_run_failed(gauntlet_dir / "update.status")
 
 
 @pytest.mark.unit

@@ -153,6 +153,10 @@ a test written to fail first, or corrected text for a docs finding.
   commit an earlier update skipped is still parsed
 - **gauntlet:** the SessionStart and post-commit graph hooks load on
   Windows, where `fcntl` is missing, instead of failing on import
+- **gauntlet:** `graph_build.py` holds one writer lock for full and
+  incremental builds, so a manual build, a commit update and a version
+  rebuild no longer overlap on `graph.db`. A failed rebuild no longer
+  holds commit updates back for two hours.
 - **herald:** a throttle file with a null or wrong-typed field reads as
   fresh, so the continuation judge is no longer disabled until someone
   deletes the file

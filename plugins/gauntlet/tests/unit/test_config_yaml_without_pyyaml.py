@@ -77,11 +77,12 @@ def test_auto_update_waits_while_a_rebuild_holds_its_lock(
     """A second writer on the graph during a version rebuild races it."""
     from unittest.mock import MagicMock, patch  # noqa: PLC0415 - imported after pyyaml is blocked
 
+    from gauntlet.build_lock import writer_lock  # noqa: PLC0415 - imported after pyyaml is blocked
+
     gauntlet_dir = tmp_path / ".gauntlet"
     gauntlet_dir.mkdir()
-    (gauntlet_dir / "rebuild.lock").write_text("")
     monkeypatch.setattr(graph_auto_update.shutil, "which", lambda name: "/bin/uv")
     popen = MagicMock()
-    with patch("subprocess.Popen", popen):
+    with patch("subprocess.Popen", popen), writer_lock(gauntlet_dir):
         assert graph_auto_update._update_in_plugin_env(gauntlet_dir) is None
     popen.assert_not_called()

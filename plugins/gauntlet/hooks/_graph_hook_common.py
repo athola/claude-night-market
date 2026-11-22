@@ -38,13 +38,19 @@ def graph_build_argv(uv: str, root: Path, *extra: str) -> list[str]:
     ]
 
 
-def status_command(build: list[str], status: Path) -> str:
+def status_command(build: list[str], status: Path, busy_code: int) -> str:
     """Shell line that runs ``build`` and writes its exit code to ``status``.
 
     The build is detached, so its exit code is otherwise lost and a failure
-    reads the same as a build still running.
+    reads the same as a build still running. ``busy_code`` means another
+    build held the writer lock: nothing failed, so nothing is recorded. The
+    exit code stays in ``$code`` for a line that follows.
     """
-    return f"{shlex.join(build)}; echo $? > {shlex.quote(str(status))}"
+    quoted = shlex.quote(str(status))
+    return (
+        f"{shlex.join(build)}; code=$?; "
+        f'[ "$code" = {busy_code} ] || echo "$code" > {quoted}'
+    )
 
 
 def last_run_failed(status: Path) -> bool:

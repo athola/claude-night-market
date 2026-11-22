@@ -24,6 +24,10 @@ import time
 from pathlib import Path
 from typing import Any
 
+_src_path = Path(__file__).resolve().parent.parent / "src"
+if str(_src_path) not in sys.path:
+    sys.path.insert(0, str(_src_path))
+
 from _gauntlet_config import load_config
 from _graph_hook_common import (
     PLUGIN_ROOT,
@@ -168,6 +172,14 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
             "(https://docs.astral.sh/uv/), then run /gauntlet-graph build."
         )
 
+    # Imported here: most sessions have no graph and never pay for the
+    # gauntlet package import.
+    from gauntlet.build_lock import BUSY_EXIT_CODE, writer_busy
+
+    if writer_busy(gauntlet_dir):
+        # A build is writing the graph now; a rebuild would only wait on it.
+        return None
+
     lock = gauntlet_dir / "rebuild.lock"
     status = gauntlet_dir / "rebuild.status"
     log_path = gauntlet_dir / "rebuild.log"
@@ -180,11 +192,13 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     # A failed build keeps the lock, so sessions do not relaunch it until
-    # the lock goes stale; the status file and the log say it failed.
+    # the lock goes stale; the status file and the log say it failed. A
+    # build that found another writer failed at nothing, so it releases
+    # the lock for the next session to retry.
     status.unlink(missing_ok=True)
     script = (
-        f"{status_command(graph_build_argv(uv, root), status)}; "
-        f'[ "$(cat {shlex.quote(str(status))})" = 0 ] '
+        f"{status_command(graph_build_argv(uv, root), status, BUSY_EXIT_CODE)}; "
+        f'{{ [ "$code" = 0 ] || [ "$code" = {BUSY_EXIT_CODE} ]; }} '
         f"&& rm -f {shlex.quote(str(lock))}"
     )
     argv = ["sh", "-c", script]

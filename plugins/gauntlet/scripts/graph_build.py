@@ -14,6 +14,10 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _SRC_DIR = _SCRIPT_DIR.parent / "src"
 sys.path.insert(0, str(_SRC_DIR))
 
+from gauntlet.build_lock import (  # noqa: E402 - sys.path modified above
+    BUSY_EXIT_CODE,
+    writer_lock,
+)
 from gauntlet.flows import trace_flows  # noqa: E402 - sys.path modified above
 from gauntlet.graph import GraphStore  # noqa: E402 - sys.path modified above
 from gauntlet.incremental import (  # noqa: E402 - sys.path modified above
@@ -38,7 +42,14 @@ def _head_commit(root: Path) -> str | None:
 
 
 #: Everything gauntlet writes under .gauntlet/ except config.
-_IGNORED = ("graph.db", "*.db-wal", "*.db-shm", "rebuild.*", "update.*")
+_IGNORED = (
+    "graph.db",
+    "*.db-wal",
+    "*.db-shm",
+    "graph.lock",
+    "rebuild.*",
+    "update.*",
+)
 
 
 def _ensure_gitignore(gitignore: Path) -> None:
@@ -73,9 +84,28 @@ def main() -> None:
 
     db_dir = root / ".gauntlet"
     db_dir.mkdir(exist_ok=True)
-    db_path = db_dir / "graph.db"
 
     _ensure_gitignore(db_dir / ".gitignore")
+    # Two writers on graph.db fail with "database is locked", and the hooks
+    # cannot see a manual build, so the build itself takes the lock.
+    with writer_lock(db_dir) as acquired:
+        if not acquired:
+            print(
+                json.dumps(
+                    {
+                        "error": "another gauntlet graph build holds "
+                        f"{db_dir / 'graph.lock'}; retry when it finishes"
+                    }
+                )
+            )
+            sys.exit(BUSY_EXIT_CODE)
+        _build(root, db_dir, args.incremental, args.base_ref)
+
+
+def _build(
+    root: Path, db_dir: Path, incremental: bool, base_ref_arg: str | None
+) -> None:
+    db_path = db_dir / "graph.db"
     # Read before the build: a commit made during a long build is not in
     # it, and stamping the later HEAD meant that commit was never parsed.
     head = _head_commit(root)
@@ -86,12 +116,12 @@ def main() -> None:
         # The stamp claims the graph is current through HEAD. Only a full
         # build or a diff from the stamped commit makes that true: a diff
         # from any other ref skips the commits between it and the stamp.
-        covers_head = not args.incremental
-        if args.incremental:
+        covers_head = not incremental
+        if incremental:
             stamped = graph.get_metadata("last_build_commit")
             # HEAD alone covers uncommitted edits only: on a clean tree a
             # graph many commits stale reported "no changes detected".
-            base_ref = args.base_ref or stamped or "HEAD"
+            base_ref = base_ref_arg or stamped or "HEAD"
             covers_head = stamped is not None and base_ref == stamped
             report = incremental_update(str(root), graph, base_ref)
             if report.get("error"):

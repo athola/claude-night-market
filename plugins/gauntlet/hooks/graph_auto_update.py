@@ -27,6 +27,7 @@ from _graph_hook_common import (
     status_command,
 )
 
+from gauntlet.build_lock import BUSY_EXIT_CODE, writer_busy
 from gauntlet.git_commands import is_git_commit
 
 
@@ -59,14 +60,9 @@ def _update_in_plugin_env(gauntlet_dir: Path) -> dict[str, Any] | None:
             "Graph not updated: uv is not on PATH, so the plugin environment "
             "cannot run the build. Run /gauntlet-graph build."
         )
-    if (gauntlet_dir / "rebuild.lock").exists():
-        # A version rebuild is already rewriting this graph, or failed and
-        # still holds the lock.
-        if last_run_failed(gauntlet_dir / "rebuild.status"):
-            return _context(
-                "Graph not updated: the background rebuild failed (log: "
-                f"{gauntlet_dir / 'rebuild.log'})."
-            )
+    if writer_busy(gauntlet_dir):
+        # A running build reads HEAD itself, and the next update diffs from
+        # the commit that build stamps, so this commit is not lost.
         return None
     # The graph the hook found, which may sit above the cwd.
     root = gauntlet_dir.parent
@@ -77,7 +73,8 @@ def _update_in_plugin_env(gauntlet_dir: Path) -> dict[str, Any] | None:
     # No --base-ref: the build diffs from the last commit it stamped, so a
     # commit an earlier update missed is still parsed.
     build = graph_build_argv(uv, root, "--incremental")
-    launch(["sh", "-c", status_command(build, status)], root, log_path)
+    script = status_command(build, status, BUSY_EXIT_CODE)
+    launch(["sh", "-c", script], root, log_path)
     if failed:
         return _context(
             "Graph not updated: the last background update failed (log: "
