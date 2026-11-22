@@ -478,14 +478,14 @@ class TestShadowMode:
         """
         Scenario: Shadow mode is active when VOW_SHADOW_MODE is unset
         Given VOW_SHADOW_MODE is not in the environment
-        When _shadow_mode() is called
+        When shadow_mode_active() is called
         Then it returns True (warn-only)
         """
         env = {
             k: v for k, v in __import__("os").environ.items() if k != "VOW_SHADOW_MODE"
         }
         with patch.dict("os.environ", env, clear=True):
-            assert hook_module._shadow_mode() is True
+            assert hook_module.shadow_mode_active() is True
 
     @pytest.mark.unit
     @pytest.mark.parametrize("value", ["1", "true", "yes", "TRUE"])
@@ -493,11 +493,11 @@ class TestShadowMode:
         """
         Scenario: Shadow mode stays on for truthy env var values
         Given VOW_SHADOW_MODE=<truthy>
-        When _shadow_mode() is called
+        When shadow_mode_active() is called
         Then it returns True
         """
         with patch.dict("os.environ", {"VOW_SHADOW_MODE": value}):
-            assert hook_module._shadow_mode() is True
+            assert hook_module.shadow_mode_active() is True
 
     @pytest.mark.unit
     @pytest.mark.parametrize("value", ["0", "false", "no", " 0"])
@@ -505,11 +505,11 @@ class TestShadowMode:
         """
         Scenario: Shadow mode turns off for falsy env var values
         Given VOW_SHADOW_MODE=<falsy>
-        When _shadow_mode() is called
+        When shadow_mode_active() is called
         Then it returns False (blocking enabled)
         """
         with patch.dict("os.environ", {"VOW_SHADOW_MODE": value}):
-            assert hook_module._shadow_mode() is False
+            assert hook_module.shadow_mode_active() is False
 
     @pytest.mark.unit
     def test_warn_decision_in_shadow_mode(self, hook_module, capsys, tmp_path):

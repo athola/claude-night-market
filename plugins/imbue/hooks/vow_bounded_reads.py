@@ -255,11 +255,6 @@ def _is_read_tool(tool_name: str) -> bool:
     return tool_name in _READ_TOOLS
 
 
-def _shadow_mode() -> bool:
-    """Return True when shadow (warn-only) mode is active."""
-    return shadow_mode_active()
-
-
 def main() -> None:
     """Entry point for the PreToolUse hook."""
     try:
@@ -278,7 +273,7 @@ def main() -> None:
 
         tool_input = data.get("tool_input")
         weight = _read_weight(tool_name, tool_input)
-        shadow = _shadow_mode()
+        shadow = shadow_mode_active()
         key = _call_key(tool_name, tool_input)
         verdicts: list[_Verdict] = []
 

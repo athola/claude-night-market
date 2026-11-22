@@ -83,10 +83,6 @@ def _state_path(session_id: str) -> Path:
     return _state_dir() / f"scope_ramp_{safe_id}.json"
 
 
-def _is_int(field: object) -> bool:
-    return isinstance(field, int) and not isinstance(field, bool)
-
-
 def _is_valid_state(state: object) -> bool:
     """Check the shape ``{rung: int, increments: int, env_notch_used?: bool}``.
 
@@ -100,10 +96,10 @@ def _is_valid_state(state: object) -> bool:
     increments = state.get("increments")
     return (
         isinstance(rung, int)
-        and _is_int(rung)
+        and not isinstance(rung, bool)
         and 1 <= rung <= RUNG_CAP
         and isinstance(increments, int)
-        and _is_int(increments)
+        and not isinstance(increments, bool)
         and increments >= 0
         and isinstance(state.get("env_notch_used", False), bool)
     )
