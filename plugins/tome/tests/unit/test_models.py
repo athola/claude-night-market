@@ -8,6 +8,8 @@ So that classifiers, planners, and channels can exchange data reliably
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from tome.models import (
@@ -370,3 +372,16 @@ class TestResearchSessionEntities:
             entities=[" Zig", ""],
         )
         assert session.entities == ["Zig"]
+
+    def test_assigned_entities_are_normalized_like_constructed_ones(self) -> None:
+        """The skill told sessions to assign entities, which skipped the
+        constructor: a bare string saved as its letters and a number
+        crashed the gap check.
+        """
+        session = ResearchSession.from_dict(self._stored([]))
+        bare_string: Any = "Rust"
+        session.entities = bare_string
+        assert session.to_dict()["entities"] == []
+        mixed: Any = [" Rust ", 3, ""]
+        session.entities = mixed
+        assert session.entities == ["Rust"]

@@ -182,14 +182,19 @@ class ResearchSession:
     # report can list the ones no finding mentions.
     entities: list[str] = field(default_factory=list)
 
-    def __post_init__(self) -> None:
-        """Keep only non-blank string entities, stripped.
+    def __setattr__(self, name: str, value: Any) -> None:
+        """Keep only non-blank string entities, stripped, however they are set.
 
         A stored ``"Rust"`` iterated into its letters, and ``null`` raised
-        on load. Anything that is not a list holds no entities.
+        on load. Anything that is not a list holds no entities. Checking
+        here rather than in ``__post_init__`` covers a later
+        ``session.entities = ...`` too, which the research skill once
+        documented and which skipped the constructor.
         """
-        raw = self.entities if isinstance(self.entities, list) else []
-        self.entities = [e.strip() for e in raw if isinstance(e, str) and e.strip()]
+        if name == "entities":
+            raw = value if isinstance(value, list) else []
+            value = [e.strip() for e in raw if isinstance(e, str) and e.strip()]
+        super().__setattr__(name, value)
 
     def add_finding(self, finding: Finding) -> None:
         """Append a finding and update the modified timestamp."""

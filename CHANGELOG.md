@@ -355,6 +355,9 @@ a test written to fail first, or corrected text for a docs finding.
   longer crashes them.
 - **tome:** a stored session whose `entities` is a string or null loads
   with no entities, instead of one entity per letter or a crash
+- **tome:** `session.entities = ...`, the assignment the research skill
+  documents, is normalized like the constructor, so a bare string no longer
+  saves as its letters and a non-string no longer crashes the gap check.
 - **tome:** citation grounding no longer flags a retrieved source cited
   with another scheme, a `www.` prefix or reordered query parameters,
   and one malformed finding URL no longer aborts the check
