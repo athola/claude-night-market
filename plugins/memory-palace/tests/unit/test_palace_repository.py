@@ -352,14 +352,38 @@ class TestUnreadablePalaceFiles:
 def test_palace_ids_that_leave_the_directory_are_refused(
     repo: PalaceRepository, tmp_path: Path, bad_id: str
 ) -> None:
-    """A `../` id read, wrote or deleted JSON outside palaces_dir (MP-4)."""
+    """A `../` id read, wrote or deleted JSON outside palaces_dir (MP-4).
+
+    Reads and deletes report an invalid id as not found, the way the CLI
+    and search callers already handle a missing palace. Writes raise.
+    """
     outside = tmp_path / "escaped.json"
     outside.write_text("{}")
+    assert repo.delete_palace(bad_id) is False
+    assert repo.load_palace(bad_id) is None
     with pytest.raises(ValueError, match="palace id"):
-        repo.delete_palace(bad_id)
-    with pytest.raises(ValueError, match="palace id"):
-        repo.load_palace(bad_id)
+        repo.save_palace({"id": bad_id})
     assert outside.exists()
+
+
+@pytest.mark.parametrize("edited_id", ["my palace", 7])
+def test_master_index_skips_a_palace_file_whose_id_is_invalid(
+    repo: PalaceRepository, capsys: pytest.CaptureFixture[str], edited_id: object
+) -> None:
+    """A hand-edited id such as "my palace" went into the index unchecked,
+    and every loop loading list_palaces() ids then raised on it.
+    """
+    good = repo.create_palace("Palace A", "domain-a")
+    edited = dict(good, id=edited_id)
+    (Path(repo.palaces_dir) / "edited.json").write_text(
+        json.dumps(edited), encoding="utf-8"
+    )
+    capsys.readouterr()
+
+    repo.update_master_index()
+
+    assert [p["id"] for p in repo.list_palaces()] == [good["id"]]
+    assert "[WARN]" in capsys.readouterr().out
 
 
 def test_import_state_skips_a_bundle_palace_with_a_traversal_id(

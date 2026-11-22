@@ -155,8 +155,11 @@ class PalaceRepository:
 
         Returns:
             A dictionary representing the palace, or None if not found.
+            An id that could not name a palace file is not found.
 
         """
+        if not validate_session_id(palace_id):
+            return None
         palace_file = self.palace_file(palace_id)
         if os.path.exists(palace_file):
             try:
@@ -212,9 +215,12 @@ class PalaceRepository:
             palace_id: The ID of the palace to delete.
 
         Returns:
-            True if deleted successfully, False if the file did not exist.
+            True if deleted successfully, False if the file did not exist
+            or the id could not name one.
 
         """
+        if not validate_session_id(palace_id):
+            return False
         palace_file = self.palace_file(palace_id)
         if os.path.exists(palace_file):
             self.create_backup(palace_id)
@@ -271,8 +277,15 @@ class PalaceRepository:
             "global_stats": global_stats,
         }
 
-        for _file_path, palace in self._iter_palace_files(Path(self.palaces_dir)):
+        for file_path, palace in self._iter_palace_files(Path(self.palaces_dir)):
             try:
+                palace_id = palace["id"]
+                if not isinstance(palace_id, str) or not validate_session_id(palace_id):
+                    print(
+                        f"[WARN] Skipped palace {file_path} with invalid id "
+                        f"{palace_id!r}"
+                    )
+                    continue
                 palace_summary = {
                     "id": palace["id"],
                     "name": palace["name"],

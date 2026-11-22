@@ -288,6 +288,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **memory-palace:** project palace ids are validated before they become
   file paths, so `load_project_palace("../../x")` raises instead of
   reading outside the palace directory
+- **memory-palace:** `load_palace` and `delete_palace` report an invalid
+  id as not found instead of raising, and the master index skips a palace
+  file whose id is invalid, so `delete "bad id"` and `list` no longer crash.
 - **memory-palace:** the intake-pending check no longer misses a queued
   query when the 64 KiB tail seek splits a multi-byte character
 - **oracle:** A session ending takes the start lock before it decides to
