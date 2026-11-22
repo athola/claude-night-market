@@ -1364,3 +1364,36 @@ def test_reads_under_credential_directories_are_denied(command: str) -> None:
 def test_ordinary_reads_stay_approved(command: str) -> None:
     decision = evaluate_permission("Bash", {"command": command})
     assert decision.behavior == PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "cat ~/.pgpass",
+        "head ~/.vault-token",
+        "head ~/.config/gcloud/access_tokens.db",
+        "cat ~/.config/gcloud/credentials.db",
+        "cat ~/.cache/huggingface/token",
+        "tail ~/.zsh_history",
+        "cat ~/.bash_history",
+        "cat /home/u/.pgpass",
+    ],
+)
+def test_reads_of_token_and_history_files_are_denied(command: str) -> None:
+    """Postgres, Vault, gcloud and Hugging Face tokens and shell history.
+
+    They were auto-approved, and history holds secrets typed on a command
+    line.
+    """
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.DENY
+
+
+@pytest.mark.parametrize(
+    "command", ["cat ~/.cache/huggingface/hub/README.md", "cat docs/history.md"]
+)
+def test_files_beside_the_token_files_stay_approved(command: str) -> None:
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.ALLOW

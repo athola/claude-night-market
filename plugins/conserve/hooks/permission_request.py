@@ -76,14 +76,16 @@ _READER_START = (
 # A credential file named as a path token: bare, quoted, after a '/', a
 # `<` redirect, a `<rev>:` prefix or an `=`. The names are the files
 # cat's own rules below deny (`.env` variants, `*credentials*` files)
-# plus the netrc, npm and PyPI token files and private SSH keys (`.pub`
+# plus the netrc, npm, PyPI, Postgres and Vault token files, shell
+# history (secrets typed on a command line) and private SSH keys (`.pub`
 # is not one). A bare search word is not a file: `get_credentials` and
 # `os.environ` do not match, while `get_credentials.py` does, as it
 # does for cat.
 _CRED_NAME = (
     r"(?:[\w.-]*\.env(?:\.[\w.-]+)?|\.envrc"
     r"|(?:[\w.-]*[.-])?credentials(?:\.[\w.-]+)?|[\w.-]*credentials\.[\w.-]+"
-    r"|[._]netrc|\.npmrc|\.pypirc|id_(?:rsa|dsa|ecdsa|ed25519))"
+    r"|[._]netrc|\.npmrc|\.pypirc|\.pgpass|\.vault-token|\.(?:zsh|bash)_history"
+    r"|id_(?:rsa|dsa|ecdsa|ed25519))"
 )
 _CRED_PATH = rf"(?:(?<=\s)|(?<=/)|(?<=['\"<:=])){_CRED_NAME}(?=\s|$|['\"])"
 # `git diff` and `git log -p` print a file named as a pathspec, with or
@@ -94,6 +96,21 @@ _CRED_PATH = rf"(?:(?<=\s)|(?<=/)|(?<=['\"<:=])){_CRED_NAME}(?=\s|$|['\"])"
 _GIT_PATHSPEC = (
     r"(?:^|[|;&]\s*)git\s+(?:diff|log)\b[^|;&]*"
     r"(?<!--grep )(?<!--grep=)(?<!-S )(?<!-G )"
+)
+
+# Directories under a home directory, without their leading dot, whose
+# files hold tokens. Hugging Face's cache holds models too, so only its
+# token file is named.
+_CREDENTIAL_HOME_PATHS = (
+    "aws",
+    "azure",
+    "config/gh",
+    "config/glab-cli",
+    "config/gcloud",
+    "cache/huggingface/token",
+    "docker",
+    "kube",
+    "gnupg",
 )
 
 # DANGEROUS patterns - always deny these
@@ -131,7 +148,7 @@ DANGEROUS_PATTERNS: list[tuple[str, str]] = [
         # Anchored to a home directory: a project's own `.docker/` or
         # `infra/.aws/` holds config, not credentials.
         rf"{_READER_START}(?:~|\$\{{?HOME\}}?|/root|/(?:Users|home)/[^/\s]+)"
-        rf"/\.(?:aws|azure|config/gh|config/glab-cli|docker|kube|gnupg)"
+        rf"/\.(?:{'|'.join(_CREDENTIAL_HOME_PATHS)})"
         r"(?=/|\s|$|['\"])",
         "Blocked: credential directory exposure",
     ),

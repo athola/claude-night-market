@@ -115,6 +115,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **conserve:** Credential-directory reads are denied under /root, in
   ~/.azure and ~/.config/glab-cli, and when the path is spelled with ./
   or // segments.
+- **conserve:** reads of `~/.pgpass`, `~/.vault-token`, shell history,
+  `~/.config/gcloud/` and the Hugging Face token file are denied. The
+  permission hook auto-approved them.
 - **conserve:** the bloat-scan and unbloat examples name `/prepare-pr`.
   `/pr` never resolved.
 - **egregore:** a failed `git reset --soft` after the implementer stops
