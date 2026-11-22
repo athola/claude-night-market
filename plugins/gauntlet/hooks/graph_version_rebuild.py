@@ -72,10 +72,21 @@ def _older(built: str | None, installed: str) -> bool:
     A graph newer than the plugin is left alone: the release runbook builds
     with the bumped version before the installed plugin is updated.
     """
-    if built is None:
-        return True
-    # update_versions.py writes only X.Y.Z, so both sides parse.
-    return tuple(map(int, built.split("."))) < tuple(map(int, installed.split(".")))
+    installed_parts = _release_tuple(installed)
+    if installed_parts is None:
+        # A dev or prerelease plugin is not known to be newer than anything.
+        return False
+    built_parts = None if built is None else _release_tuple(built)
+    # A stamp that does not parse is no evidence the graph is current.
+    return built_parts is None or built_parts < installed_parts
+
+
+def _release_tuple(version: str) -> tuple[int, ...] | None:
+    """``X.Y.Z`` as integers, None for anything else (``1.10.4rc1``, ``dev``)."""
+    try:
+        return tuple(int(part) for part in version.split("."))
+    except ValueError:
+        return None
 
 
 def _opted_out(gauntlet_dir: Path) -> bool:

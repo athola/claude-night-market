@@ -146,6 +146,8 @@ a test written to fail first, or corrected text for a docs finding.
 - **gauntlet:** every hook reads `.gauntlet/config.yaml` first and
   `config.json` second, so `rebuild_on_upgrade: false` in config.yaml now
   stops the SessionStart rebuild, as does a config the hook cannot read
+- **gauntlet:** a graph stamped with a version such as `1.10.4rc1` or
+  `dev` is rebuilt at session start instead of crashing the hook
 - **herald:** a throttle file with a null or wrong-typed field reads as
   fresh, so the continuation judge is no longer disabled until someone
   deletes the file

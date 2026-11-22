@@ -254,3 +254,23 @@ class TestAFailedRebuildIsReported:
         (gdir / "rebuild.status").write_text("1\n")
         _run()
         assert not (gdir / "rebuild.status").exists()
+
+
+@pytest.mark.unit
+class TestVersionsThatDoNotParse:
+    """A version such as 1.10.4rc1 or dev raised ValueError at SessionStart."""
+
+    @pytest.mark.parametrize("built", ["1.10.4rc1", "dev", ""])
+    def test_unparseable_built_version_counts_as_older(self, built: str) -> None:
+        assert hook._older(built, "1.10.4") is True
+
+    @pytest.mark.parametrize("installed", ["1.10.5rc1", "dev"])
+    def test_unparseable_installed_version_is_not_newer(self, installed: str) -> None:
+        assert hook._older("1.10.4", installed) is False
+
+    def test_session_start_survives_a_prerelease_graph_stamp(
+        self, project: Path
+    ) -> None:
+        _graph(project, "1.10.4rc1")
+        _, popen = _run()
+        popen.assert_called_once()
