@@ -215,6 +215,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **leyline:** The shared git commit detector recognizes commits inside
   if/then, loops, brace groups, $( ) and backticks, after time, ! and
   sudo -u, and with a quoted -C path.
+- **leyline:** The git commit detector scans repeated global options such
+  as `git -C -C ...` in linear time. Overlapping patterns took 46 seconds
+  on 38 flags, and the 2s hook timeout let the commit through unchecked.
 - **leyline:** The usage logger starts a new session instead of resuming
   one whose session_id is null or not a string.
 - **memory-palace:** `intake_queue.jsonl.lock` is gitignored.

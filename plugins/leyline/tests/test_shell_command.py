@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import time
+
 import pytest
 
 from leyline.shell_command import git_commit_message_offset, is_git_commit
@@ -77,3 +79,28 @@ def test_message_offset_is_the_commit_when_stdin_is_not_the_message(
 
 def test_message_offset_is_none_without_a_commit() -> None:
     assert git_commit_message_offset("git status") is None
+
+
+@pytest.mark.parametrize(
+    "flags",
+    [
+        "git " + "-C " * 200 + "x",
+        "git " + "-C 'a' " * 200 + "x",
+        "git " + "-c a=b " * 200 + "x",
+        "git " + "--git-dir x " * 200 + "x",
+        "a=$( " * 200 + "x",
+        "sudo " + "-a sudo " * 200 + "x",
+    ],
+)
+def test_repeated_options_and_prefixes_are_scanned_in_linear_time(
+    flags: str,
+) -> None:
+    """Overlapping patterns made 38 repeated flags take 46 seconds.
+
+    A hook killed at 2s is treated as allow, so a slow scan let the commit
+    through unchecked.
+    """
+    command = f"{flags}; git commit -m fix"
+    began = time.perf_counter()
+    assert is_git_commit(command)
+    assert time.perf_counter() - began < 0.1

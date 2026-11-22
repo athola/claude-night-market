@@ -17,24 +17,62 @@ from __future__ import annotations
 
 import re
 
-# A segment may open with subshell parens, a brace group, a command
+# A segment is read as shell words, left to right, so every word has one
+# reading. It may open with subshell parens, a brace group, a command
 # substitution (`$(`, a backtick, or `out=$(`), shell keywords (`then`,
-# `do`, `!`, `time`), variable assignments and wrappers (sudo with its
-# options). Then git, bare or path-qualified, then global options with
+# `do`, `!`, `time`), variable assignments and wrappers with their
+# options. Then git, bare or path-qualified, then global options with
 # their values, quoted or not, then exactly the commit subcommand
 # (`commit-tree` is not a commit). A substitution after another word
-# (`echo $(git commit)`) is not recognized.
-_OPTION_VALUE = r"""(?:'[^']*'|"[^"]*"|\S+)"""
-_GIT_COMMIT_RE = re.compile(
-    r"(?:\$?\(\s*|\{\s+|`\s*|!\s+"
-    r"|[A-Za-z_][A-Za-z0-9_]*=(?=\$\(|`)"
-    r"|(?:[A-Za-z_][A-Za-z0-9_]*=\S*|if|then|elif|else|do|while|until|time"
-    r"|env|command|exec|nohup|sudo(?:\s+-\S+(?:\s+[^-\s]\S*)?)*)\s+)*"
-    r"(?:\S*/)?git"
-    rf"(?:\s+(?:-[Cc]\s+{_OPTION_VALUE}"
-    rf"|--(?:git-dir|work-tree|namespace)\s+{_OPTION_VALUE}|-\S+))*"
-    r"\s+commit(?![\w-])"
+# (`echo $(git commit)`) is not recognized. An earlier regex had two
+# parses per repeated flag and backtracked exponentially: 38 repeated
+# `-C` took 46 seconds, past the hook timeout the harness treats as allow.
+_WORD_RE = re.compile(r"""(?:'[^']*'|"(?:\\.|[^"\\])*"|\\.|\S)+""")
+_OPENER_RE = re.compile(r"(?:\$?\(|`|[A-Za-z_][A-Za-z0-9_]*=(?=\$\(|`))+")
+_ASSIGNMENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
+_GIT_RE = re.compile(r"(?:\S*/)?git")
+_COMMIT_RE = re.compile(r"commit(?![\w-])")
+_KEYWORDS = frozenset(
+    ("{", "!", "if", "then", "elif", "else", "do", "while", "until", "time")
 )
+# Wrapper to the options that take the next word as their value.
+_WRAPPERS = {
+    "env": frozenset(),
+    "command": frozenset(),
+    "exec": frozenset(),
+    "nohup": frozenset(),
+    "sudo": frozenset(
+        ("-u", "-g", "-C", "-D", "-h", "-p", "-r", "-t", "-U", "-T", "-R")
+    ),
+}
+_GIT_VALUE_OPTIONS = frozenset(("-C", "-c", "--git-dir", "--work-tree", "--namespace"))
+
+
+def _segment_commits(segment: str) -> bool:
+    """Return True if this one shell segment runs git commit."""
+    words = _WORD_RE.findall(segment)
+    index = 0
+    while index < len(words):
+        word = _OPENER_RE.sub("", words[index], count=1)
+        if not word or word in _KEYWORDS or _ASSIGNMENT_RE.match(word):
+            index += 1
+            continue
+        if word not in _WRAPPERS:
+            break
+        value_options = _WRAPPERS[word]
+        index += 1
+        while index < len(words) and words[index].startswith("-"):
+            index += 2 if words[index] in value_options else 1
+    else:
+        return False
+    if not _GIT_RE.fullmatch(_OPENER_RE.sub("", words[index], count=1)):
+        return False
+    index += 1
+    while index < len(words) and words[index].startswith("-"):
+        index += 2 if words[index] in _GIT_VALUE_OPTIONS else 1
+    return index < len(words) and bool(_COMMIT_RE.match(words[index]))
+
+
 _SHELL_TOKEN_RE = re.compile(
     r"""'[^']*'?|"(?:\\.|[^"\\])*"?|&&|\|\||[;|\n]|[^'"&|;\n]+|&"""
 )
@@ -53,7 +91,7 @@ def git_commit_offset(command: str) -> int | None:
             continue
         segment = command[start : token.start()]
         stripped = segment.lstrip()
-        if _GIT_COMMIT_RE.match(stripped):
+        if _segment_commits(stripped):
             return start + len(segment) - len(stripped)
         start = token.end()
     return None
