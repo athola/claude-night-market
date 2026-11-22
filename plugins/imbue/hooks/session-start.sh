@@ -126,7 +126,7 @@ EOF
         # Age of the branch's own first commit, not of the base it forked from:
         # a branch cut from a quiet base read RED on its first commit. tail, not
         # head, so pipefail never sees SIGPIPE.
-        merge_base_date=$(git log --format=%ct "${merge_base}..HEAD" 2>/dev/null | tail -1)
+        merge_base_date=$(git log --format=%at "${merge_base}..HEAD" 2>/dev/null | tail -1)
         merge_base_date=${merge_base_date:-$(date +%s)}
         current_date=$(date +%s)
         days_on_branch=$(((current_date - merge_base_date) / 86400))

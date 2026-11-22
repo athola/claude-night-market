@@ -15,8 +15,8 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from _git_repo import commit_authored_days_ago, forked_repo, git_env
 from _git_repo import commit_lines as _commit_lines
-from _git_repo import forked_repo, git_env
 
 HOOKS = Path(__file__).resolve().parents[3] / "hooks"
 PLUGIN_ROOT = HOOKS.parent
@@ -130,3 +130,18 @@ def test_session_start_and_prompt_hook_agree_on_zone_for_same_branch(
     """
     _commit_lines(repo, "feature.txt", 1200)
     assert "YELLOW" not in _context(repo, hook, stdin)
+
+
+@pytest.mark.parametrize(
+    ("hook", "stdin"),
+    [
+        ("user-prompt-submit.sh", PROMPT),
+        ("session-start.sh", START),
+    ],
+)
+def test_days_on_branch_count_from_the_author_date(
+    repo: Path, hook: str, stdin: str
+) -> None:
+    """A rebase reset the committer date, so a 20-day branch read 0 days (M3)."""
+    commit_authored_days_ago(repo, "old.txt", 20)
+    assert "RED" in _context(repo, hook, stdin)

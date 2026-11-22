@@ -12,8 +12,8 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from _git_repo import commit_authored_days_ago, forked_repo
 from _git_repo import commit_lines as _commit_lines
-from _git_repo import forked_repo
 from _git_repo import git as _git
 from _git_repo import git_env as _env
 
@@ -104,3 +104,12 @@ def test_a_base_branch_named_like_help_is_measured(repo: Path) -> None:
     result = _run(repo, "docs/help")
 
     assert "Base branch: docs/help" in result.stdout, result.stdout
+
+
+def test_days_on_branch_count_from_the_author_date(tmp_path: Path) -> None:
+    """A rebase reset the committer date, so a 20-day branch read 0 days (M3)."""
+    root = forked_repo(tmp_path)
+    commit_authored_days_ago(root, "old.txt", 20)
+    result = _run(root, "master")
+    assert result.returncode == 1, result.stdout
+    assert "RED ZONE" in result.stdout

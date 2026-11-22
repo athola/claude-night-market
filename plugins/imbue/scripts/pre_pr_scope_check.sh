@@ -142,7 +142,7 @@ get_days_on_branch() {
   # Age of the branch's own first commit, not of the base it forked from:
   # a branch cut from a quiet base read RED on its first commit. tail, not
   # head, so pipefail never sees SIGPIPE.
-  _db_base_date=$(git log --format=%ct "${MERGE_BASE}..HEAD" 2>/dev/null | tail -1)
+  _db_base_date=$(git log --format=%at "${MERGE_BASE}..HEAD" 2>/dev/null | tail -1)
   _db_base_date=${_db_base_date:-$(date +%s)}
   _db_now=$(date +%s)
   printf '%d\n' "$(((_db_now - _db_base_date) / 86400))"

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import time
 from pathlib import Path
 
 
@@ -49,3 +50,21 @@ def forked_repo(tmp_path: Path) -> Path:
     commit_lines(root, "upstream.txt", 3000)
     git(root, "checkout", "-q", "feature")
     return root
+
+
+def commit_authored_days_ago(repo: Path, name: str, days: int) -> None:
+    """Commit *name* with an author date *days* back and a committer date of now.
+
+    A rebase leaves commits in this state: it keeps the author date and
+    resets the committer date.
+    """
+    authored = int(time.time()) - days * 86400
+    (repo / name).write_text(f"{name}\n")
+    git(repo, "add", name)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", name],
+        cwd=repo,
+        env=git_env(repo, GIT_AUTHOR_DATE=f"@{authored} +0000"),
+        check=True,
+        capture_output=True,
+    )
