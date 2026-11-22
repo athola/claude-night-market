@@ -78,8 +78,9 @@ Ruby, and PHP.
   unchanged files
 - Each `edges` row has a `resolution` column recording how a
   CALLS target was found: `exact` (module qualifier, `self`/`cls`
-  scope, or a unique definition), `name_guess` (a method picked by
-  bare name on a receiver of unknown type, or a bare call that
+  scope, or a unique definition in the caller's plugin), `name_guess`
+  (a method picked by bare name on a receiver of unknown type, a
+  unique definition in another plugin, or a bare call that
   matched several definitions and only one sits in the caller's
   own `plugins/<name>/`, as with vendored copies), or empty (declared
   edge, external call, or a row from a graph built before the
@@ -94,8 +95,10 @@ Ruby, and PHP.
   alone. At session start, a graph built by an older
   version is rebuilt in the background (log:
   `.gauntlet/rebuild.log`). Opt out with
-  `{"rebuild_on_upgrade": false}` in
+  `rebuild_on_upgrade: false` in `.gauntlet/config.yaml` or
   `.gauntlet/config.json`.
+- A build holds `.gauntlet/graph.lock` while it runs. A second
+  build exits 75 without touching the graph.
 
 ## Exit Criteria
 
