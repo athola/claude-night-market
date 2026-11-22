@@ -257,6 +257,38 @@ class TestAdditionalPhases:
         assert "finalists" in session.artifacts["voting"]
 
     @pytest.mark.asyncio
+    async def test_voting_with_no_ballots_names_no_finalists(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Every voter failed, so no COA has a vote behind it.
+
+        All-zero Borda scores sorted stably made the first COA the winner,
+        and premortem and synthesis ran on it as if the panel chose it.
+        """
+        session = WarRoomSession(
+            session_id="voting-empty-test",
+            problem_statement="Test voting with failed voters",
+            mode="lightweight",
+        )
+        for content in ("COA A", "COA B"):
+            session.merkle_dag.add_contribution(
+                content=content,
+                phase="coa",
+                round_number=1,
+                expert=ExpertInfo(role="Strategist", model="model"),
+            )
+        session.artifacts["red_team"] = {"challenges": "Challenges text"}
+
+        with patch.object(
+            orchestrator, "_invoke_parallel", new_callable=AsyncMock
+        ) as mock_invoke:
+            mock_invoke.return_value = {}
+            await orchestrator._phase_voting(session)
+
+        assert session.artifacts["voting"]["finalists"] == []
+        assert "no voter" in session.artifacts["voting"]["error"].lower()
+
+    @pytest.mark.asyncio
     async def test_premortem_phase_no_finalists(
         self, orchestrator: WarRoomOrchestrator
     ) -> None:

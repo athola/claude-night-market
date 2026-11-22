@@ -272,6 +272,17 @@ async def phase_voting(orch: WarRoomOrchestrator, session: WarRoomSession) -> No
             )
 
     results = await orch._invoke_parallel(voting_experts, prompts, session, "voting")
+    if not results:
+        # Failed voters are dropped, and all-zero scores would crown the
+        # first COA. expert_failures says why each one failed.
+        session.artifacts["voting"] = {
+            "raw_votes": {},
+            "borda_scores": {},
+            "finalists": [],
+            "error": "No voter returned a ballot",
+        }
+        session.phases_completed.append("voting")
+        return
 
     # Parse votes and compute Borda count
     coa_labels = [coa["label"] for coa in anonymized_coas]
