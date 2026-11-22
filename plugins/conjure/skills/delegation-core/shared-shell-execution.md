@@ -403,14 +403,18 @@ unaffiliated npm package publishes.
    returns.
 2. `verify_service` probes the binary and its credentials, resolving the
    environment overlay first so an unset `${VAR}` is a named issue.
-3. `quota_tracker` checks the provider's limits.
-4. `_delivered_prompt` attaches file context by the provider's own
+3. `_delivered_prompt` attaches file context by the provider's own
    convention: `@path` references, or inlined contents under a byte
    ceiling.
-5. `build_command` assembles the argv from the contract fields.
-6. `execute` spawns the child with the overlay applied and the prompt on
+4. `build_command` assembles the argv from the contract fields.
+5. `execute` spawns the child with the overlay applied and the prompt on
    argv or stdin.
-7. `usage_logger` records the call.
+6. `Delegator.log_usage` appends the call to `usage.jsonl`.
+
+No step checks quota.
+Each service carries `quota_limits`, and `quota_tracker.py --status`
+reports usage when run, but nothing in this flow asks the quota tracker
+whether a task fits.
 
 ## Configuration
 
