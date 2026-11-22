@@ -8,11 +8,9 @@ Opt-in via .gauntlet/config.json: {"auto_update": true}
 from __future__ import annotations
 
 import json
-import logging
 import os
 import shutil
 import sys
-import time
 from pathlib import Path
 from typing import Any
 
@@ -30,7 +28,6 @@ from _graph_hook_common import (
 )
 
 from gauntlet.git_commands import is_git_commit
-from gauntlet.treesitter_parser import parser_available
 
 
 def _get_gauntlet_dir() -> Path | None:
@@ -51,15 +48,16 @@ def _update_in_plugin_env(gauntlet_dir: Path) -> dict[str, Any] | None:
     """Run the incremental update where tree-sitter is installed.
 
     This hook runs on the first python3 on PATH, which usually lacks
-    tree-sitter, so every commit reported "Graph not updated". The plugin's
-    own environment has it. The update is detached because the hook has a
-    five-second timeout, the same way the version-rebuild hook launches.
+    tree-sitter; the plugin's own environment has it. graph_build.py is the
+    one path even where this python3 has a parser, because only it diffs
+    from the last stamped build and stamps the new one. The update is
+    detached because the hook has a five-second timeout.
     """
     uv = shutil.which("uv")
     if uv is None:
         return _context(
-            "Graph not updated: this python3 has no tree-sitter and uv is not "
-            "on PATH. Run /gauntlet-graph build."
+            "Graph not updated: uv is not on PATH, so the plugin environment "
+            "cannot run the build. Run /gauntlet-graph build."
         )
     if (gauntlet_dir / "rebuild.lock").exists():
         # A version rebuild is already rewriting this graph, or failed and
@@ -126,44 +124,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if not db_path.exists():
         return None
 
-    if not parser_available():
-        return _update_in_plugin_env(gauntlet_dir)
-
-    try:
-        from gauntlet.graph import (
-            GraphStore,
-        )
-        from gauntlet.incremental import (
-            incremental_update,
-        )
-
-        start = time.monotonic()
-        graph = GraphStore(str(db_path))
-        try:
-            report = incremental_update(
-                str(Path(os.getcwd())), graph, base_ref="HEAD~1"
-            )
-        finally:
-            graph.close()
-        duration = round(time.monotonic() - start, 2)
-
-        # An error or skipped report did no work. Its counters are zeros
-        # that would otherwise read as a successful update.
-        reason = report.get("error") or report.get("skipped")
-        if reason:
-            msg = f"Graph not updated: {reason}"
-        else:
-            files = report.get("files_parsed", 0)
-            nodes = report.get("nodes_created", 0)
-            msg = f"Graph updated: {files} files, {nodes} nodes in {duration}s"
-        return _context(msg)
-    except Exception as exc:
-        logging.getLogger(__name__).warning(
-            "graph_auto_update failed: %s: %s",
-            type(exc).__name__,
-            exc,
-        )
-        return None
+    return _update_in_plugin_env(gauntlet_dir)
 
 
 if __name__ == "__main__":

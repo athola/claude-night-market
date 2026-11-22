@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import graph_auto_update
 import pytest
@@ -112,10 +112,12 @@ class TestMainHook:
     """
 
     @pytest.fixture(autouse=True)
-    def _parser_present(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        # The in-process update is under test here. A CI job without
-        # tree-sitter would take the plugin-environment path instead.
-        monkeypatch.setattr(graph_auto_update, "parser_available", lambda: True)
+    def _popen(self, monkeypatch: pytest.MonkeyPatch) -> MagicMock:
+        # Every update is a detached graph_build.py run; nothing is spawned.
+        popen = MagicMock()
+        monkeypatch.setattr(graph_auto_update.shutil, "which", lambda name: "/bin/uv")
+        monkeypatch.setattr("subprocess.Popen", popen)
+        return popen
 
     @pytest.mark.unit
     def test_ignores_non_bash_tools(self) -> None:
@@ -184,63 +186,30 @@ class TestMainHook:
 
     @pytest.mark.unit
     def test_ignores_when_graph_db_missing(
-        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch, _popen: MagicMock
     ) -> None:
         """Enabled auto-update without a built graph.db does nothing."""
         (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
         monkeypatch.chdir(gauntlet_dir.parent)
-        with patch("gauntlet.incremental.incremental_update") as update:
-            assert main(_COMMIT_EVENT) is None
-        update.assert_not_called()
+        assert main(_COMMIT_EVENT) is None
+        _popen.assert_not_called()
 
     @pytest.mark.unit
-    def test_update_failure_logs_and_returns_none(
-        self,
-        gauntlet_dir: Path,
-        monkeypatch: pytest.MonkeyPatch,
-        caplog: pytest.LogCaptureFixture,
+    def test_returns_context_on_a_launched_update(
+        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch, _popen: MagicMock
     ) -> None:
-        """A failing update is logged and the hook still exits quietly."""
+        """Enabled auto-update with graph.db launches the build and says so."""
         (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
         GraphStore(str(gauntlet_dir / "graph.db")).close()
         monkeypatch.chdir(gauntlet_dir.parent)
-        with patch(
-            "gauntlet.incremental.incremental_update",
-            side_effect=RuntimeError("git diff failed"),
-        ):
-            assert main(_COMMIT_EVENT) is None
-        assert "RuntimeError: git diff failed" in caplog.text
-
-    @pytest.mark.unit
-    def test_returns_context_on_successful_update(
-        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Enabled auto-update with graph.db returns context."""
-        # Enable auto-update
-        (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
-        # Create a dummy graph.db
-        gs = GraphStore(str(gauntlet_dir / "graph.db"))
-        gs.close()
-
-        mock_report = {
-            "files_parsed": 3,
-            "nodes_created": 12,
-            "edges_created": 8,
-        }
-        monkeypatch.chdir(gauntlet_dir.parent)
-        with patch(
-            "gauntlet.incremental.incremental_update",
-            return_value=mock_report,
-        ):
-            result = main(_COMMIT_EVENT)
-        assert result is not None
+        result = main(_COMMIT_EVENT)
+        _popen.assert_called_once()
         context = result["hookSpecificOutput"]["additionalContext"]
-        assert "Graph updated" in context
-        assert "3 files" in context
+        assert "Graph updating in the background" in context
 
     @pytest.mark.unit
     def test_a_chained_commit_also_refreshes_the_graph(
-        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch, _popen: MagicMock
     ) -> None:
         """`git add -A && git commit` is a commit, so the graph refreshes."""
         (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
@@ -250,13 +219,8 @@ class TestMainHook:
             "tool_input": {"command": "git add -A && git commit -m 'test'"},
         }
         monkeypatch.chdir(gauntlet_dir.parent)
-        with patch(
-            "gauntlet.incremental.incremental_update",
-            return_value={"files_parsed": 1, "nodes_created": 1, "edges_created": 0},
-        ):
-            result = main(event)
-        assert result is not None
-        assert "Graph updated" in result["hookSpecificOutput"]["additionalContext"]
+        assert main(event) is not None
+        _popen.assert_called_once()
 
     @pytest.mark.unit
     @pytest.mark.parametrize(
@@ -281,80 +245,15 @@ class TestMainHook:
         assert graph_auto_update._get_gauntlet_dir() == expected
 
 
-class TestUpdateOutcomeReporting:
-    """
-    Feature: the injected context matches what the update did
-
-    incremental_update returns an ``error`` or ``skipped`` report when it
-    did no work. Reading only the counters turned both into a success line.
-    """
-
-    @staticmethod
-    def _enable(gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-        (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
-        GraphStore(str(gauntlet_dir / "graph.db")).close()
-        monkeypatch.chdir(gauntlet_dir.parent)
-        # These cases cover the in-process update. Without a parser the hook
-        # hands off to the plugin environment, as it does on a CI job that
-        # lacks tree-sitter, so the parser is pinned present here.
-        monkeypatch.setattr(graph_auto_update, "parser_available", lambda: True)
-
-    @pytest.mark.unit
-    def test_failed_update_is_reported_as_not_updated(
-        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """First commit of a repo: HEAD~1 is missing, the report has an error."""
-        self._enable(gauntlet_dir, monkeypatch)
-        report = {
-            "files_parsed": 0,
-            "nodes_created": 0,
-            "error": "HEAD~1 unknown; run a full build",
-        }
-        with patch("gauntlet.incremental.incremental_update", return_value=report):
-            result = main(_COMMIT_EVENT)
-        assert result is not None
-        context = result["hookSpecificOutput"]["additionalContext"]
-        assert "Graph updated" not in context
-        assert "HEAD~1 unknown; run a full build" in context
-
-    @pytest.mark.unit
-    def test_skipped_update_is_reported_as_not_updated(
-        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """A skipped report names its reason instead of claiming an update."""
-        self._enable(gauntlet_dir, monkeypatch)
-        report = {"files_parsed": 0, "nodes_created": 0, "skipped": "no changes"}
-        with patch("gauntlet.incremental.incremental_update", return_value=report):
-            result = main(_COMMIT_EVENT)
-        assert result is not None
-        context = result["hookSpecificOutput"]["additionalContext"]
-        assert "Graph updated" not in context
-        assert "no changes" in context
-
-    @pytest.mark.unit
-    def test_graph_is_closed_when_the_update_raises(
-        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """The sqlite handle is released on the failure path too."""
-        self._enable(gauntlet_dir, monkeypatch)
-        with (
-            patch(
-                "gauntlet.incremental.incremental_update",
-                side_effect=RuntimeError("boom"),
-            ),
-            patch.object(GraphStore, "close", autospec=True) as close,
-        ):
-            assert main(_COMMIT_EVENT) is None
-        close.assert_called_once()
-
-
 class TestBackgroundUpdate:
-    """The detached update, used when this python3 has no tree-sitter."""
+    """The detached update, the one path every commit takes.
+
+    A failed update is reported from the exit status it wrote, on the next
+    commit, which replaces reading an in-process report.
+    """
 
     @staticmethod
     def _launch(gauntlet_dir: Path) -> tuple[dict[str, object] | None, list[str]]:
-        from unittest.mock import MagicMock  # noqa: PLC0415 - local to this helper
-
         popen = MagicMock()
         with (
             patch.object(graph_auto_update.shutil, "which", return_value="/bin/uv"),
@@ -415,3 +314,28 @@ class TestBackgroundUpdate:
         assert argv == []
         context = output["hookSpecificOutput"]["additionalContext"]
         assert str(gauntlet_dir / "rebuild.log") in context
+
+
+@pytest.mark.unit
+def test_commit_launches_the_stamped_build_even_where_a_parser_is_installed(
+    gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The in-process update diffed HEAD~1 and never stamped the build, so a
+    commit an earlier update missed was never parsed.
+    """
+    (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
+    GraphStore(str(gauntlet_dir / "graph.db")).close()
+    monkeypatch.chdir(gauntlet_dir.parent)
+    popen = MagicMock()
+    with (
+        patch("gauntlet.treesitter_parser.parser_available", return_value=True),
+        patch("gauntlet.incremental.incremental_update") as in_process,
+        patch.object(graph_auto_update.shutil, "which", return_value="/bin/uv"),
+        patch("subprocess.Popen", popen),
+    ):
+        output = main(_COMMIT_EVENT)
+    in_process.assert_not_called()
+    script = popen.call_args.args[0][-1]
+    assert "graph_build.py" in script
+    assert "--incremental" in script
+    assert "background" in output["hookSpecificOutput"]["additionalContext"]

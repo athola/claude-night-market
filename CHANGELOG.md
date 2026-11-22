@@ -148,6 +148,9 @@ a test written to fail first, or corrected text for a docs finding.
   stops the SessionStart rebuild, as does a config the hook cannot read
 - **gauntlet:** a graph stamped with a version such as `1.10.4rc1` or
   `dev` is rebuilt at session start instead of crashing the hook
+- **gauntlet:** the commit hook always runs the update through
+  `graph_build.py`, also where the hook's python3 has tree-sitter, so a
+  commit an earlier update skipped is still parsed
 - **herald:** a throttle file with a null or wrong-typed field reads as
   fresh, so the continuation judge is no longer disabled until someone
   deletes the file

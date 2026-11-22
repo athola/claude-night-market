@@ -38,7 +38,7 @@ def test_auto_update_warns_when_config_yaml_unreadable(
     assert "config.yaml" in capsys.readouterr().err
 
 
-def test_auto_update_without_a_parser_runs_in_the_plugin_environment(
+def test_auto_update_runs_in_the_plugin_environment(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Under a python3 without tree-sitter, every commit reported "Graph not
@@ -52,7 +52,6 @@ def test_auto_update_without_a_parser_runs_in_the_plugin_environment(
     (gauntlet_dir / "config.json").write_text('{"auto_update": true}')
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(graph_auto_update, "_get_gauntlet_dir", lambda: gauntlet_dir)
-    monkeypatch.setattr(graph_auto_update, "parser_available", lambda: False)
     monkeypatch.setattr(graph_auto_update.shutil, "which", lambda name: "/bin/uv")
     popen = MagicMock()
     with patch("subprocess.Popen", popen):
