@@ -8,7 +8,8 @@ the installed plugin, or missing, start one full build in the background. The bu
 needs tree-sitter, which the system python running hooks may lack, so it
 runs through ``uv run --project`` in the plugin's own environment.
 
-Opt out with ``{"rebuild_on_upgrade": false}`` in ``.gauntlet/config.json``.
+Opt out with ``rebuild_on_upgrade: false`` in ``.gauntlet/config.yaml`` or
+``.gauntlet/config.json``.
 """
 
 from __future__ import annotations
@@ -24,6 +25,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from _gauntlet_config import load_config
 from _graph_hook_common import (
     PLUGIN_ROOT,
     context,
@@ -77,15 +79,9 @@ def _older(built: str | None, installed: str) -> bool:
 
 
 def _opted_out(gauntlet_dir: Path) -> bool:
-    config = gauntlet_dir / "config.json"
-    if not config.exists():
-        return False
-    try:
-        data = json.loads(config.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        # An unreadable opt-out is not consent to a multi-minute rebuild.
-        return True
-    return isinstance(data, dict) and data.get("rebuild_on_upgrade") is False
+    config = load_config(gauntlet_dir)
+    # An unreadable opt-out is not consent to a multi-minute rebuild.
+    return config is None or config.get("rebuild_on_upgrade") is False
 
 
 def _guard_path(lock: Path) -> Path:

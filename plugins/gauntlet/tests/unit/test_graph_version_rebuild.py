@@ -8,6 +8,7 @@ import os
 import re
 import sqlite3
 import subprocess
+import sys
 import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -108,6 +109,25 @@ class TestGraphVersionRebuild:
     def test_opt_out_in_config_is_respected(self, project: Path) -> None:
         gdir = _graph(project, "1.0.0")
         (gdir / "config.json").write_text(json.dumps({"rebuild_on_upgrade": False}))
+        output, popen = _run()
+        popen.assert_not_called()
+        assert output is None
+
+    def test_opt_out_in_config_yaml_is_respected(self, project: Path) -> None:
+        """Only config.json was read, so a YAML opt-out still rebuilt."""
+        gdir = _graph(project, "1.0.0")
+        (gdir / "config.yaml").write_text("rebuild_on_upgrade: false\n")
+        output, popen = _run()
+        popen.assert_not_called()
+        assert output is None
+
+    def test_yaml_opt_out_unreadable_without_pyyaml_starts_nothing(
+        self, project: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A config the hook cannot read is not consent to a rebuild."""
+        gdir = _graph(project, "1.0.0")
+        (gdir / "config.yaml").write_text("rebuild_on_upgrade: false\n")
+        monkeypatch.setitem(sys.modules, "yaml", None)
         output, popen = _run()
         popen.assert_not_called()
         assert output is None

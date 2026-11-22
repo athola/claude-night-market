@@ -143,6 +143,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **gauntlet:** an unquoted `mode: off` in `.gauntlet/config.yaml` turns
   the pre-commit gate off, and an empty `precommit:` falls back to gate
   mode instead of denying every commit
+- **gauntlet:** every hook reads `.gauntlet/config.yaml` first and
+  `config.json` second, so `rebuild_on_upgrade: false` in config.yaml now
+  stops the SessionStart rebuild, as does a config the hook cannot read
 - **herald:** a throttle file with a null or wrong-typed field reads as
   fresh, so the continuation judge is no longer disabled until someone
   deletes the file

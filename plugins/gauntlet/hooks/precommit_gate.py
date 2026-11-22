@@ -21,6 +21,8 @@ _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
+from _gauntlet_config import load_config
+
 from gauntlet.git_commands import is_git_commit
 from gauntlet.knowledge_store import KnowledgeStore
 from gauntlet.progress import ProgressTracker
@@ -248,42 +250,8 @@ def _precommit_mode(config: dict[str, Any]) -> str:
 
 
 def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
-    """Load config.yaml (preferred) or config.json from the gauntlet directory."""
-    try:
-        from yaml import (
-            YAMLError,
-            safe_load,
-        )
-    except ImportError:
-        if (gauntlet_dir / "config.yaml").exists():
-            # The hook runs on the first python3 on PATH, which may lack
-            # PyYAML; skipping the user's file in silence left the gate on.
-            print(
-                f"warning: PyYAML is not installed for {sys.executable}; "
-                f"{gauntlet_dir / 'config.yaml'} is ignored",
-                file=sys.stderr,
-            )
-    else:
-        yaml_path = gauntlet_dir / "config.yaml"
-        if yaml_path.exists():
-            try:
-                data = safe_load(yaml_path.read_text())
-                if isinstance(data, dict):
-                    return data
-            except (OSError, YAMLError) as exc:
-                # Surface, do not silently swallow: a corrupt config.yaml
-                # falling back to defaults can otherwise mask a user typo.
-                print(f"warning: could not read {yaml_path}: {exc}", file=sys.stderr)
-
-    config_path = gauntlet_dir / "config.json"
-    if config_path.exists():
-        try:
-            data = json.loads(config_path.read_text())
-            if isinstance(data, dict):
-                return data
-        except (json.JSONDecodeError, OSError) as exc:
-            print(f"warning: could not read {config_path}: {exc}", file=sys.stderr)
-    return {}
+    """Load config.yaml (preferred) or config.json; unreadable reads as defaults."""
+    return load_config(gauntlet_dir) or {}
 
 
 def _get_staged_files() -> list[str] | None:

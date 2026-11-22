@@ -20,6 +20,7 @@ _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
+from _gauntlet_config import load_config
 from _graph_hook_common import (
     context,
     graph_build_argv,
@@ -42,32 +43,8 @@ def _get_gauntlet_dir() -> Path | None:
 
 def _is_auto_update_enabled(gauntlet_dir: Path) -> bool:
     """Check if auto_update is enabled in config."""
-    for name in ("config.json", "config.yaml"):
-        config_path = gauntlet_dir / name
-        if config_path.exists():
-            try:
-                if name.endswith(".json"):
-                    data = json.loads(config_path.read_text())
-                else:
-                    try:
-                        from yaml import (
-                            safe_load,
-                        )
-
-                        data = safe_load(config_path.read_text())
-                    except ImportError:
-                        print(
-                            f"warning: PyYAML is not installed for {sys.executable}; "
-                            f"{config_path} is ignored",
-                            file=sys.stderr,
-                        )
-                        continue
-                if not isinstance(data, dict):
-                    continue
-                return bool(data.get("auto_update", False))
-            except (json.JSONDecodeError, OSError, TypeError):
-                continue
-    return False
+    config = load_config(gauntlet_dir)
+    return bool(config and config.get("auto_update", False))
 
 
 def _update_in_plugin_env(gauntlet_dir: Path) -> dict[str, Any] | None:

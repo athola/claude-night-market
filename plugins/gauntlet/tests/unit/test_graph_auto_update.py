@@ -88,6 +88,13 @@ class TestIsAutoUpdateEnabled:
         assert _is_auto_update_enabled(gauntlet_dir) is True
 
     @pytest.mark.unit
+    def test_yaml_config_wins_over_json(self, gauntlet_dir: Path) -> None:
+        """The gate preferred config.yaml and this hook config.json."""
+        (gauntlet_dir / "config.yaml").write_text("auto_update: false\n")
+        (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
+        assert _is_auto_update_enabled(gauntlet_dir) is False
+
+    @pytest.mark.unit
     def test_yaml_config_is_skipped_without_pyyaml(self, gauntlet_dir: Path) -> None:
         """Without pyyaml (system Python 3.9) a YAML config reads as disabled."""
         (gauntlet_dir / "config.yaml").write_text("auto_update: true\n")
