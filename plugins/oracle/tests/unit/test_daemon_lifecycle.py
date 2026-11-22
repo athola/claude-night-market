@@ -1095,3 +1095,64 @@ def test_a_marker_for_another_users_live_process_keeps_the_daemon(
         pytest.skip("root may signal pid 1, so no PermissionError arises")
     _write_marker(tmp_path, "1", age_seconds=48 * 3600)
     assert not _session_end_stops(tmp_path, monkeypatch)
+
+
+class TestDaemonLivenessOnWindows:
+    """On Windows signal 0 is CTRL_C_EVENT, so ``os.kill(pid, 0)`` is no probe.
+
+    The liveness of a pid is unknown there. Stopping must not signal a
+    process it cannot identify, and starting falls back to the pid file's
+    age against the session-marker TTL, as the markers already do.
+    """
+
+    @staticmethod
+    def _windows(monkeypatch: pytest.MonkeyPatch) -> list[tuple[int, int]]:
+        signals: list[tuple[int, int]] = []
+        monkeypatch.setattr(os, "kill", lambda pid, sig: signals.append((pid, sig)))
+        monkeypatch.setattr(os, "name", "nt")
+        return signals
+
+    def test_the_probe_sends_no_signal_and_claims_no_daemon(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from daemon_lifecycle import _pid_is_daemon  # noqa: PLC0415 - private helper, imported where used
+
+        signals = self._windows(monkeypatch)
+
+        assert _pid_is_daemon(os.getpid()) is False
+        assert signals == []
+
+    def test_stop_signals_nothing_and_still_cleans_up(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        pid_file = tmp_path / "daemon.pid"
+        port_file = tmp_path / "daemon.port"
+        pid_file.write_text(str(os.getpid()))
+        port_file.write_text("9000")
+        # Built before os.name changes: pathlib cannot build a WindowsPath here.
+        monkeypatch.setattr("daemon_lifecycle._get_pid_file", lambda: pid_file)
+        monkeypatch.setattr("daemon_lifecycle._get_port_file", lambda: port_file)
+        signals = self._windows(monkeypatch)
+
+        _stop_daemon()
+
+        assert signals == []
+        assert not pid_file.exists()
+        assert not port_file.exists()
+
+    @pytest.mark.parametrize(("age_hours", "running"), [(1, True), (48, False)])
+    def test_a_pid_file_is_judged_by_its_age_against_the_ttl(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        age_hours: int,
+        running: bool,
+    ) -> None:
+        pid_file = tmp_path / "daemon.pid"
+        pid_file.write_text("4242")
+        stamp = time.time() - age_hours * 3600
+        os.utime(pid_file, (stamp, stamp))
+        signals = self._windows(monkeypatch)
+
+        assert _is_daemon_running(pid_file) is running
+        assert signals == []

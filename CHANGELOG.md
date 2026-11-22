@@ -72,6 +72,11 @@ a test written to fail first, or corrected text for a docs finding.
   `write_atomic`. Its fixed `baton.json.tmp` let two writers clobber each
   other's temp file, and the missing fsync let a crash publish an empty
   baton, which a watcher reads as a finished run.
+- **oracle:** on Windows the daemon lifecycle hook no longer calls
+  `os.kill(pid, 0)`, which there sends CTRL_C_EVENT rather than probing.
+  A session end signals nothing it cannot identify. A session start
+  treats a pid file younger than the session-marker TTL as a running
+  daemon, where before it launched a second one every session.
 - **sanctum:** the deferred-item sweep rewrites the ledger it keeps
   through leyline's `write_atomic`. It renamed a file it had never
   synced, and a crash could leave an empty ledger and lose every

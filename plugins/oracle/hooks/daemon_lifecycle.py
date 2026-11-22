@@ -85,7 +85,13 @@ def _pid_is_daemon(pid: int) -> bool:
     ``-ww`` is required on Linux: procps cuts the command column to 80
     characters when stdout is not a terminal, and the venv interpreter
     path alone can push the script path past the cut.
+
+    On Windows signal 0 is CTRL_C_EVENT and ``ps`` is absent, so the pid
+    cannot be identified and the answer is False without sending
+    anything: the stop path then signals nothing it cannot name.
     """
+    if os.name == "nt":
+        return False
     try:
         os.kill(pid, 0)
     except OSError:
@@ -104,11 +110,18 @@ def _pid_is_daemon(pid: int) -> bool:
 
 
 def _is_daemon_running(pid_file: Path) -> bool:
-    """Check if the daemon process is still alive."""
+    """Check if the daemon process is still alive.
+
+    Where the pid cannot be probed (Windows), a pid file younger than the
+    session-marker TTL counts as a running daemon, the same fallback the
+    session markers use, so each session start does not launch another.
+    """
     try:
         pid = int(pid_file.read_text().strip())
     except (OSError, ValueError):
         return False
+    if os.name == "nt":
+        return pid_file.stat().st_mtime > time.time() - _SESSION_MARKER_TTL_SECONDS
     return _pid_is_daemon(pid)
 
 
