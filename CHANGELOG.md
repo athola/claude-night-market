@@ -124,6 +124,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **conserve:** `ls`, `wc`, `stat`, `file` and `find` on a credential
   directory such as `~/.aws` go to the permission dialog. They were
   auto-approved, because only readers were checked there.
+- **conserve:** `grep -r`, `rg` and `ag` searches of a home directory,
+  `~/.config`, `~/.cache` or anything above them go to the permission
+  dialog. `grep -r oauth_token ~/.config` printed gh's token unprompted.
 - **conserve:** the bloat-scan and unbloat examples name `/prepare-pr`.
   `/pr` never resolved.
 - **egregore:** a failed `git reset --soft` after the implementer stops

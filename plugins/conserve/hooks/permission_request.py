@@ -267,6 +267,30 @@ def _names_credential_path(word: str) -> bool:
     return bool(_CREDENTIAL_PATH.match(_resolve_path(word)))
 
 
+_HOME_DIRECTORY = re.compile(r"^(?:~|/root|/(?:Users|home)/[^/]+)(?:/(.*))?$", re.I)
+# A home's own directories that hold a credential directory: `.config`
+# holds gh's, `.cache` holds Hugging Face's.
+_CREDENTIAL_ANCESTORS = frozenset(
+    {""}
+    | {
+        "." + "/".join(parts[:depth])
+        for parts in (path.split("/") for path in _CREDENTIAL_HOME_PATHS)
+        for depth in range(1, len(parts))
+    }
+)
+
+
+def _holds_credential_directory(word: str) -> bool:
+    """Whether a path word is a home, or a directory above a credential one."""
+    resolved = _resolve_path(word).rstrip("/") or "/"
+    if resolved.lower() in ("/", "/users", "/home"):
+        return True
+    home = _HOME_DIRECTORY.match(resolved)
+    if home is None:
+        return False
+    return (home.group(1) or "").lower() in _CREDENTIAL_ANCESTORS
+
+
 def check_dangerous(command: str) -> Decision | None:
     """Check if command matches dangerous patterns.
 
@@ -527,6 +551,13 @@ def check_safe(command: str) -> Decision | None:
     # Readers there are denied outright. Any other command naming one
     # (`ls ~/.aws`, `cp ~/.kube/config /tmp`) goes to the dialog.
     if any(_names_credential_path(word) for word in words[1:]):
+        return None
+    # A search of a directory above one reaches every token file below
+    # it: grep with -r, rg and ag by default. Every word is checked rather
+    # than the parsed operands, so a recursion flag cannot be missed.
+    if words[0].lower() in _SEARCHERS and any(
+        _holds_credential_directory(word) for word in words[1:]
+    ):
         return None
 
     for pattern in SAFE_PATTERNS:

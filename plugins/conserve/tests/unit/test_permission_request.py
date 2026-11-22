@@ -1458,3 +1458,44 @@ def test_commands_beside_credential_directories_stay_approved(command: str) -> N
     decision = evaluate_permission("Bash", {"command": command})
     assert decision is not None
     assert decision.behavior == PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "grep -r oauth_token ~/.config",
+        "grep -rh oauth_token /Users/bob/.config",
+        "rg -uu token ~",
+        "rg token ~/",
+        "rg --hidden token /home/u",
+        "grep -R token /root",
+        "ag token ~/.cache",
+        "rg token ~/.cache/huggingface",
+        "rg token /",
+        "grep -r token /Users",
+        # macOS runs GREP as grep, and its file system ignores case.
+        "GREP -r tok ~",
+        "grep -r tok /users/bob",
+        "rg token ~/src/..",
+    ],
+)
+def test_searching_a_directory_holding_credentials_is_not_approved(
+    command: str,
+) -> None:
+    """A recursive search of a home reaches every token file below it.
+
+    Only the leaf directories were denied, so `grep -r oauth_token
+    ~/.config` printed gh's token on auto-approval.
+    """
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is None or decision.behavior != PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize(
+    "command",
+    ["grep -r foo src/", "rg token ~/src/project", "rg foo", "grep -r x ~/notes"],
+)
+def test_searches_outside_credential_ancestors_stay_approved(command: str) -> None:
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.ALLOW
