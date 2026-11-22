@@ -82,9 +82,12 @@ _MIN_INLINE_FILE_BYTES = 512
 _SECRET_NAME = re.compile(
     r"\.env(\..*)?|.*\.(pem|key|p12|pfx)|id_(rsa|dsa|ecdsa|ed25519)(\.pub)?"
     r"|credentials.*|.*\.secrets?|\.netrc|\.npmrc|\.pypirc"
+    r"|\.git-credentials|\.pgpass|\.htpasswd|\.envrc",
+    # A case-insensitive filesystem opens `.ENV` as `.env`.
+    re.IGNORECASE,
 )
 # Directories whose every file is key material by convention.
-_SECRET_DIRS = {".ssh", ".gnupg"}
+_SECRET_DIRS = {".ssh", ".gnupg", ".aws", ".kube", ".docker"}
 
 
 def _expanded_file_is_safe(child: Path, root: Path) -> bool:

@@ -509,6 +509,26 @@ def test_inline_context_skips_secrets_reached_through_an_in_tree_link(
     assert names == ["main.py"]
 
 
+def test_inline_context_skips_tool_credential_files_and_dirs(tmp_path) -> None:
+    """git, Postgres, Apache, direnv, AWS, kube and Docker credentials.
+
+    Each kept a token in a file the name filter did not know, and
+    `.kube/config` carries a bearer token under a generic name.
+    """
+    tree = tmp_path / "tree"
+    tree.mkdir()
+    (tree / "main.py").write_text("x = 1\n")
+    for secret in (".git-credentials", ".pgpass", ".htpasswd", ".envrc", ".ENV"):
+        (tree / secret).write_text("SECRET\n")
+    for directory in (".aws", ".kube", ".docker"):
+        (tree / directory).mkdir()
+        (tree / directory / "config").write_text("SECRET\n")
+
+    names = [p.name for p in _iter_context_files([str(tree)])]
+
+    assert names == ["main.py"]
+
+
 def test_explicitly_named_file_is_still_read(tmp_path) -> None:
     """A file the caller names is the caller's choice, so it is read."""
     named = tmp_path / ".env.example"

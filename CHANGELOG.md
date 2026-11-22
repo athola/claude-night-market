@@ -96,7 +96,9 @@ a test written to fail first, or corrected text for a docs finding.
   next append.
 - **conjure:** Directory expansion now leaves out a file whose resolved
   target is a secret (an in-tree `notes.txt -> .env` link), anything
-  under `.ssh/` or `.gnupg/`, and `*.secrets` files.
+  under `.ssh/`, `.gnupg/`, `.aws/`, `.kube/` or `.docker/`, `*.secrets`
+  files, and `.git-credentials`, `.pgpass`, `.htpasswd` and `.envrc`.
+  Names match case-insensitively.
 - **conjure:** The War Room GLM expert no longer inherits
   `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN`, matching
   delegation's `env_unset`.
