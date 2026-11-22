@@ -204,6 +204,9 @@ a test written to fail first, or corrected text for a docs finding.
   including deploy manifests, CI workflows and prose on high-stakes
   paths, and honors IMBUE_STAKES for them; only low-stakes prose and
   data skip the rung.
+- **imbue:** The no-emoji vow reads every commit in a chain and a message
+  piped in with `-F -`. It missed an emoji in a `git commit --amend`
+  chained after a clean commit.
 - **imbue, egregore, leyline:** module calls to `deferred_capture.py`
   stop with a message when `CLAUDE_PLUGIN_ROOT` is unset, instead of
   running `/scripts/deferred_capture.py`.

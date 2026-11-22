@@ -15,6 +15,7 @@ token, so a separator inside it splits nothing.
 
 from __future__ import annotations
 
+import bisect
 import re
 
 # A segment is read as shell words, left to right, so every word has one
@@ -246,11 +247,15 @@ def _separators(command: str) -> list[tuple[int, int, str]]:
     return separators
 
 
-def _segments(command: str) -> list[tuple[int, int]]:
+def _segments(
+    command: str, separators: list[tuple[int, int, str]] | None = None
+) -> list[tuple[int, int]]:
     """Return (start, end) of every segment, leading whitespace skipped."""
+    if separators is None:
+        separators = _separators(command)
     segments = []
     start = 0
-    for sep_start, sep_end, _kind in [*_separators(command), (len(command), 0, "")]:
+    for sep_start, sep_end, _kind in [*separators, (len(command), 0, "")]:
         segment = command[start:sep_start]
         segments.append((start + len(segment) - len(segment.lstrip()), sep_start))
         start = sep_end
@@ -269,45 +274,52 @@ def git_commit_offset(command: str) -> int | None:
     return None
 
 
-def git_commit_end(command: str) -> int | None:
-    """Return where the first git commit segment ends, or None.
-
-    The end is the next unquoted ``&&``, ``||``, ``;`` or ``|``, so a
-    chained command is not read as the message. A newline does not end it,
-    nor does a separator inside a heredoc body: a heredoc message spans
-    lines.
-    """
-    start = git_commit_offset(command)
-    if start is None:
-        return None
-    for sep_start, _sep_end, kind in _separators(command):
-        if sep_start >= start and kind == _CHAIN:
-            return sep_start
-    return len(command)
-
-
 # `-F -`, `-qF-`, `--file=-` or `--file -`: the message is read from stdin.
 _STDIN_MESSAGE_RE = re.compile(r"\s(?:-[A-Za-z]*F\s*|--file(?:=|\s+))-(?=\s|$)")
 
 
-def git_commit_message_offset(command: str) -> int | None:
-    """Return where the first git commit's message text can start, or None.
+def git_commit_spans(command: str) -> list[tuple[int, int]]:
+    """Return (message start, end) for every git commit segment.
 
-    That is the commit segment itself, unless the commit reads its message
-    from stdin with ``-F -``. Then the message comes from the commands piped
-    into it, and the offset is the first command of that pipeline.
+    The end is the next unquoted ``&&``, ``||``, ``;``, ``|`` or ``&``, so
+    a chained command is not read as the message. A newline does not end
+    it, nor does a separator inside a heredoc body: a heredoc message spans
+    lines. The start is the commit segment, unless the commit reads its
+    message from stdin with ``-F -``. Then the message comes from the
+    commands piped into it, and the start is the first command of that
+    pipeline.
     """
-    start = git_commit_offset(command)
-    if start is None:
-        return None
-    if not _STDIN_MESSAGE_RE.search(command[start : git_commit_end(command)]):
-        return start
-    pipeline = 0
-    for sep_start, sep_end, _kind in _separators(command):
-        if sep_start < start and command[sep_start:sep_end] != "|":
-            pipeline = sep_end
-    feeders = command[pipeline:start]
-    return pipeline + len(feeders) - len(feeders.lstrip())
+    separators = _separators(command)
+    chain_starts = [start for start, _end, kind in separators if kind == _CHAIN]
+    pipeline_starts = [
+        (start, end) for start, end, _kind in separators if command[start:end] != "|"
+    ]
+    spans = []
+    for start, end in _segments(command, separators):
+        if not _segment_commits(command[start:end]):
+            continue
+        chain = bisect.bisect_left(chain_starts, start)
+        stop = chain_starts[chain] if chain < len(chain_starts) else len(command)
+        message_start = start
+        if _STDIN_MESSAGE_RE.search(command[start:stop]):
+            before = bisect.bisect_left(pipeline_starts, (start, -1))
+            pipeline = pipeline_starts[before - 1][1] if before else 0
+            feeders = command[pipeline:start]
+            message_start = pipeline + len(feeders) - len(feeders.lstrip())
+        spans.append((message_start, stop))
+    return spans
+
+
+def git_commit_end(command: str) -> int | None:
+    """Return where the first git commit segment ends, or None."""
+    spans = git_commit_spans(command)
+    return spans[0][1] if spans else None
+
+
+def git_commit_message_offset(command: str) -> int | None:
+    """Return where the first git commit's message text can start, or None."""
+    spans = git_commit_spans(command)
+    return spans[0][0] if spans else None
 
 
 def is_git_commit(command: str) -> bool:

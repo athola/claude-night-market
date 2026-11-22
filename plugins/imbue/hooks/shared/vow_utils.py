@@ -27,6 +27,7 @@ from shared._vendored_leyline_shell_command import (
     git_commit_end,
     git_commit_message_offset,
     git_commit_offset,
+    git_commit_spans,
     is_git_commit,
 )
 
@@ -37,6 +38,7 @@ __all__ = [
     "git_commit_end",
     "git_commit_message_offset",
     "git_commit_offset",
+    "git_commit_spans",
     "is_git_commit",
     "read_counter_path",
     "secure_open",

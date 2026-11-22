@@ -6,7 +6,11 @@ import time
 
 import pytest
 
-from leyline.shell_command import git_commit_message_offset, is_git_commit
+from leyline.shell_command import (
+    git_commit_message_offset,
+    git_commit_spans,
+    is_git_commit,
+)
 
 
 @pytest.mark.parametrize(
@@ -128,3 +132,14 @@ def test_quotes_in_comments_and_heredocs_do_not_hide_a_later_commit(
 ) -> None:
     """An apostrophe in a comment or heredoc body swallowed the next lines."""
     assert is_git_commit(command)
+
+
+def test_every_commit_in_a_chain_has_its_own_message_span() -> None:
+    """A vow that read only the first commit missed an amend chained after it."""
+    command = "git commit -m a && printf 'b' | git commit --amend -F - ; git status"
+    spans = [command[start:end] for start, end in git_commit_spans(command)]
+    assert spans == ["git commit -m a ", "printf 'b' | git commit --amend -F - "]
+
+
+def test_message_spans_are_empty_without_a_commit() -> None:
+    assert git_commit_spans("git status && echo commit") == []
