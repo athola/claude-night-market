@@ -1,6 +1,14 @@
 # Claude Night Market - Root Makefile
 # Delegates to plugin Makefiles for build operations
 
+# PROMPT and FILES reach conjure's delegate targets as data. GNU make 4
+# expands a command-line variable whenever a $(shell ...) builds its
+# environment, so this must come before the first one (see conjure's
+# Makefile for the same guard).
+override PROMPT := $(value PROMPT)
+override FILES := $(value FILES)
+export PROMPT FILES
+
 # Default shell with error handling
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c

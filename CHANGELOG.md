@@ -54,6 +54,10 @@ a test written to fail first, or corrected text for a docs finding.
   fires. It compared a checksum of the whole manifest, and the
   orchestrator bumps `session_count` at the start of every session, so
   each relaunch looked like progress. Only the work items are compared.
+- **make:** the root Makefile treats a command-line `PROMPT` or `FILES`
+  as text. Under GNU make 4, `make conjure-delegate-gemini
+  PROMPT='$(shell ...)'` ran the command while the root Makefile parsed,
+  before conjure's own guard was reached.
 - **abstract:** a Stop-hook stage skipped for lack of time runs first on
   the next Stop, so a slow auto-promote no longer blocks post-learnings
   on every Stop.
