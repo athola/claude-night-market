@@ -208,9 +208,15 @@ def _stop_daemon() -> None:
             pass
 
 
-#: A session that crashed never sends SessionEnd; its marker stops
-#: counting after this long so it cannot keep the daemon alive forever.
+#: A marker holds the pid of its session's process, and counts while that
+#: process lives. A marker with no readable pid, or one on Windows where
+#: ``os.kill(pid, 0)`` terminates the process, counts for this long.
 _SESSION_MARKER_TTL_SECONDS = 24 * 60 * 60
+
+# Claude Code may run the hook command through a shell that exits with the
+# hook. Its pid would read as a crashed session at once.
+_SHELLS = frozenset({"sh", "bash", "zsh", "dash", "ksh", "fish"})
+_MAX_SHELL_HOPS = 4
 
 
 def _sessions_dir() -> Path:
@@ -223,15 +229,58 @@ def _marker(session_id: str) -> Path | None:
     return _sessions_dir() / safe if safe else None
 
 
+def _session_pid() -> int:
+    """Return the pid of the first ancestor of this hook that is not a shell."""
+    pid = os.getppid()
+    for _ in range(_MAX_SHELL_HOPS):
+        try:
+            listing = subprocess.run(
+                ["ps", "-o", "ppid=", "-o", "comm=", "-p", str(pid)],
+                capture_output=True,
+                text=True,
+                timeout=_PS_TIMEOUT_SECONDS,
+                check=False,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return pid
+        fields = listing.stdout.split(None, 1)
+        if len(fields) != 2 or not fields[0].isdigit():
+            return pid
+        command = fields[1].strip().rsplit("/", 1)[-1].lstrip("-")
+        if command not in _SHELLS:
+            return pid
+        pid = int(fields[0])
+    return pid
+
+
 def _register_session(session_id: str) -> None:
     marker = _marker(session_id)
     if marker is not None:
         marker.parent.mkdir(parents=True, exist_ok=True)
-        marker.touch()
+        marker.write_text(str(_session_pid()))
+
+
+def _marker_is_live(marker: Path, cutoff: float) -> bool:
+    """Whether the marker's session process lives, or, with no pid, is fresh."""
+    try:
+        text = marker.read_bytes().strip()
+    except FileNotFoundError:
+        raise
+    except OSError:
+        text = b""  # unreadable: judged by its age below
+    if text.isdigit() and os.name != "nt":
+        try:
+            os.kill(int(text), 0)
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            return True  # alive, owned by another user
+        return True
+    return marker.stat().st_mtime > cutoff
 
 
 def _other_sessions_live(session_id: str) -> bool:
-    """Drop this session's marker; report whether a fresh one remains.
+    """Drop this session's marker; report whether a live one remains.
 
     One daemon serves every session, so a session ending must not stop it
     while another session still uses it.
@@ -245,7 +294,7 @@ def _other_sessions_live(session_id: str) -> bool:
     cutoff = time.time() - _SESSION_MARKER_TTL_SECONDS
     for marker in directory.iterdir():
         try:
-            if marker.stat().st_mtime > cutoff:
+            if _marker_is_live(marker, cutoff):
                 return True
         except FileNotFoundError:
             continue  # another session ended between iterdir and stat

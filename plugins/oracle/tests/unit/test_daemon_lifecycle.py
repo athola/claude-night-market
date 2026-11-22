@@ -8,6 +8,7 @@ import os
 import signal
 import subprocess
 import sys
+import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 from io import StringIO
@@ -955,3 +956,87 @@ def test_session_end_checks_and_stops_under_the_start_lock(
     ):
         main()
     assert held == ["live", "stop"]
+
+
+def _session_end_stops(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> bool:
+    """End session "ending" and report whether the shared daemon was stopped."""
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    payload = json.dumps({"hook_event_name": "SessionEnd", "session_id": "ending"})
+    with (
+        patch("sys.stdin", StringIO(payload)),
+        patch("daemon_lifecycle._stop_daemon") as stop,
+    ):
+        main()
+    return stop.called
+
+
+def _write_marker(tmp_path: Path, content: str, age_seconds: float = 0) -> Path:
+    marker = tmp_path / "sessions" / "other"
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    marker.write_text(content)
+    stamp = time.time() - age_seconds
+    os.utime(marker, (stamp, stamp))
+    return marker
+
+
+def test_a_session_older_than_the_ttl_keeps_the_daemon_while_its_process_lives(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A marker touched once at start looked expired after 24 h (U6)."""
+    with subprocess.Popen(
+        [sys.executable, "-c", "import time; time.sleep(30)"]
+    ) as live:
+        try:
+            _write_marker(tmp_path, str(live.pid), age_seconds=48 * 3600)
+            assert not _session_end_stops(tmp_path, monkeypatch)
+        finally:
+            live.kill()
+
+
+def test_a_crashed_session_does_not_keep_the_daemon_for_the_ttl(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A fresh marker whose process is gone counted as live for 24 h (U6)."""
+    gone = subprocess.Popen([sys.executable, "-c", "pass"])
+    gone.wait()
+    _write_marker(tmp_path, str(gone.pid))
+    assert _session_end_stops(tmp_path, monkeypatch)
+
+
+@pytest.mark.parametrize(("age_hours", "stops"), [(1, False), (48, True)])
+def test_a_marker_without_a_pid_falls_back_to_the_ttl(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, age_hours: int, stops: bool
+) -> None:
+    """Markers written before the pid was stored are judged by age."""
+    _write_marker(tmp_path, "", age_seconds=age_hours * 3600)
+    assert _session_end_stops(tmp_path, monkeypatch) is stops
+
+
+def test_session_start_records_the_process_that_outlives_a_shell_wrapper(
+    tmp_path: Path,
+) -> None:
+    """A hook run through `sh -c` must record the session, not the shell.
+
+    The shell exits with the hook, so its pid would read as a crashed
+    session at once.
+    """
+    hooks_dir = Path(__file__).resolve().parents[2] / "hooks"
+    probe = (
+        f"import sys; sys.path.insert(0, {str(hooks_dir)!r}); "
+        "import daemon_lifecycle; print(daemon_lifecycle._session_pid())"
+    )
+    # The trailing `; true` stops the shell from exec'ing the interpreter.
+    shell = subprocess.run(
+        ["/bin/sh", "-c", f'"{sys.executable}" -c "{probe}"; true'],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert int(shell.stdout.strip()) == os.getpid()
+
+
+def test_an_unreadable_marker_falls_back_to_the_ttl(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (tmp_path / "sessions" / "other").mkdir(parents=True)
+    assert not _session_end_stops(tmp_path, monkeypatch)

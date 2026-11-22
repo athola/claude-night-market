@@ -284,6 +284,9 @@ a test written to fail first, or corrected text for a docs finding.
   confirmed running.
 - **oracle:** The setup skill no longer claims to set up ONNX inference,
   which the provisioned venv cannot run.
+- **oracle:** a session counts toward the shared daemon while its process
+  lives. A session longer than 24 hours no longer lets another session's
+  end stop the daemon, and a crashed one no longer keeps it for a day.
 - **pensive:** `harden --strict --help` names both exit codes: 2 for a
   HIGH finding, 3 for a file it could not analyze.
 - **pensive:** `run_code_review` honors `exclude` and `skills` from a
