@@ -305,6 +305,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **phantom:** `--confirm` prints a field longer than the prompt limit
   in full before asking, so text typed after 200 characters of filler is
   no longer hidden from the approval.
+- **phantom:** `zoom` rejects a region that is not four integers with
+  `x1 > x0` and `y1 > y0`, and the ImageMagick crop resets its page so
+  the PNG has no screen-sized canvas offset.
 - **sanctum:** `description_paths.py` no longer fails a description for
   a linter directive such as `<!-- markdownlint-disable MD013 -->`.
 - **sanctum:** a dated ADR file name is no longer read as ADR number

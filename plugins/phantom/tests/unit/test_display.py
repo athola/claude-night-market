@@ -616,6 +616,40 @@ class TestEveryAdvertisedActionHasAHandler:
         assert argv[0] == "scrot"
         assert "10,20,100,50" in argv
 
+    @pytest.mark.parametrize(
+        "region",
+        [[100, 100, 50, 50], [0, 0, 0, 0], [0, 0, 10], [0, 0, "9", 9], None],
+    )
+    def test_zoom_rejects_a_region_that_is_not_a_box(self, toolkit, region):
+        """An inverted or empty box reached scrot as a negative size (U10)."""
+        action = (
+            {"action": "zoom"}
+            if region is None
+            else {"action": "zoom", "region": region}
+        )
+        with patch("phantom.display._run") as mock_run:
+            result = toolkit.execute(action)
+        assert not result.success
+        assert "region" in (result.error or "")
+        mock_run.assert_not_called()
+
+    def test_zoom_with_imagemagick_resets_the_crop_page(self, toolkit):
+        """Without +repage the PNG keeps the screen-sized canvas offset."""
+        with (
+            patch(
+                "phantom.display._check_command", side_effect=lambda c: c == "import"
+            ),
+            patch("phantom.display._run") as mock_run,
+        ):
+            mock_run.side_effect = lambda cmd, **kw: Path(cmd[-1]).write_bytes(b"png")
+            result = toolkit.execute({"action": "zoom", "region": [10, 20, 110, 70]})
+        assert result.success
+        argv = mock_run.call_args.args[0]
+        assert argv[argv.index("-crop") + 1 : argv.index("-crop") + 3] == [
+            "100x50+10+20",
+            "+repage",
+        ]
+
 
 def test_type_text_starting_with_dash_is_not_read_as_an_option() -> None:
     """`xdotool type -- text`: a leading `-` was parsed as a flag (PHA-4)."""

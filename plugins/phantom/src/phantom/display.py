@@ -151,7 +151,20 @@ class DisplayToolkit:
         ``enable_zoom`` advertises this action to the model; without a
         handler every zoom came back "Unknown action".
         """
-        x0, y0, x1, y1 = (int(v) for v in action.get("region", []))
+        region = action.get("region")
+        if not (
+            isinstance(region, list)
+            and len(region) == 4
+            and all(type(v) is int for v in region)
+            and region[2] > region[0]
+            and region[3] > region[1]
+        ):
+            return ActionResult(
+                success=False,
+                error=f"zoom region must be [x0, y0, x1, y1] integers with "
+                f"x1 > x0 and y1 > y0, got {region!r}",
+            )
+        x0, y0, x1, y1 = region
         return self._capture((x0, y0, x1 - x0, y1 - y0))
 
     def _capture(self, box: tuple[int, int, int, int] | None) -> ActionResult:
@@ -164,7 +177,12 @@ class DisplayToolkit:
                 area = ["-a", ",".join(map(str, box))] if box else []
                 _run(["scrot", "-o", *area, tmp_path])
             elif _check_command("import"):
-                crop = ["-crop", f"{box[2]}x{box[3]}+{box[0]}+{box[1]}"] if box else []
+                # +repage drops the screen-sized canvas the crop leaves behind.
+                crop = (
+                    ["-crop", f"{box[2]}x{box[3]}+{box[0]}+{box[1]}", "+repage"]
+                    if box
+                    else []
+                )
                 _run(["import", "-window", "root", *crop, tmp_path])
             else:
                 return ActionResult(
