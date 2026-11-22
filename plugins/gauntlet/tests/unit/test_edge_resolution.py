@@ -305,3 +305,29 @@ class TestResolutionIsOneOfThreeValues:
         store._conn.execute("UPDATE edges SET resolution = 'guessed'")
         with pytest.raises(ValueError, match="guessed"):
             store.get_edges_by_source("a.py::main")
+
+
+class TestStoredEdgesKeepTheirResolution:
+    """store_file and upsert_edge left the column out, so EXACT read back ''."""
+
+    @staticmethod
+    def _exact_call() -> GraphEdge:
+        return GraphEdge(
+            kind=EdgeKind.CALLS,
+            source_qn="a.py::main",
+            target_qn="c.py::helper",
+            file_path="a.py",
+            resolution=Resolution.EXACT,
+        )
+
+    @pytest.mark.unit
+    def test_store_file_keeps_an_edge_resolution(self, store: GraphStore) -> None:
+        store.store_file("a.py", [_node("a.py::main", "a.py")], [self._exact_call()])
+        (edge,) = store.get_edges_by_source("a.py::main")
+        assert edge.resolution is Resolution.EXACT
+
+    @pytest.mark.unit
+    def test_upsert_edge_keeps_an_edge_resolution(self, store: GraphStore) -> None:
+        store.upsert_edge(self._exact_call())
+        (edge,) = store.get_edges_by_source("a.py::main")
+        assert edge.resolution is Resolution.EXACT

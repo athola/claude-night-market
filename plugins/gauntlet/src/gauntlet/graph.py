@@ -299,8 +299,9 @@ class GraphStore(SqliteGraphBase):
     def upsert_edge(self, edge: GraphEdge) -> None:
         """Insert an edge, skipping duplicates."""
         self._conn.execute(
-            """INSERT INTO edges (kind, source_qn, target_qn, file_path, line)
-               SELECT ?, ?, ?, ?, ?
+            """INSERT INTO edges
+               (kind, source_qn, target_qn, file_path, line, resolution)
+               SELECT ?, ?, ?, ?, ?, ?
                WHERE NOT EXISTS (
                  SELECT 1 FROM edges
                  WHERE kind = ? AND source_qn = ? AND target_qn = ?
@@ -311,6 +312,7 @@ class GraphStore(SqliteGraphBase):
                 edge.target_qn,
                 edge.file_path,
                 edge.line,
+                str(edge.resolution),
                 str(edge.kind),
                 edge.source_qn,
                 edge.target_qn,
@@ -497,8 +499,8 @@ class GraphStore(SqliteGraphBase):
             batch = edges[i : i + self._batch_size]
             self._conn.executemany(
                 """INSERT INTO edges
-                   (kind, source_qn, target_qn, file_path, line)
-                   VALUES (?, ?, ?, ?, ?)""",
+                   (kind, source_qn, target_qn, file_path, line, resolution)
+                   VALUES (?, ?, ?, ?, ?, ?)""",
                 [
                     (
                         str(e.kind),
@@ -506,6 +508,7 @@ class GraphStore(SqliteGraphBase):
                         e.target_qn,
                         e.file_path,
                         e.line,
+                        str(e.resolution),
                     )
                     for e in batch
                 ],
