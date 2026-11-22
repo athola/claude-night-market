@@ -142,7 +142,9 @@ Gemini limits live in `GEMINI_QUOTA_CONFIG` in
 a day, 32,000 tokens a minute and 1,000,000 a day, the free-tier
 figures. A caller can pass its own `limits` dict with the same four
 keys (`requests_per_minute`, `requests_per_day`, `tokens_per_minute`,
-`tokens_per_day`). Usage is recorded under `~/.claude/hooks/gemini/`.
+`tokens_per_day`). The tracker keeps its counts in
+`~/.claude/hooks/gemini/usage.json`, and only a caller that runs
+`record_request` adds to them: conjure registers no hooks.
 
 ## Integration Patterns
 

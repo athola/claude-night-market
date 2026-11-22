@@ -232,8 +232,15 @@ Finally, **Integration** returns the results to the active Claude session.
 ## Configuration & Paths
 
 - Delegation config: `~/.claude/hooks/delegation/config.json`
-- Quota data: `~/.claude/hooks/gemini/usage.json`
-- Usage logs: `~/.claude/hooks/gemini/logs/usage.jsonl`
+- Delegation usage log, one line per call, read by
+  `delegation_executor.py --usage`: `~/.claude/hooks/delegation/usage.jsonl`
+- Gemini quota data, written when a caller runs
+  `GeminiQuotaTracker.record_request`: `~/.claude/hooks/gemini/usage.json`
+- Gemini usage log, written by `usage_logger.py --log`:
+  `~/.claude/hooks/gemini/logs/usage.jsonl`
+
+Conjure registers no hooks. The `hooks` segment in these paths is a
+directory name, and nothing records a Gemini call automatically.
 
 ## Development
 
