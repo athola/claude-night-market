@@ -86,6 +86,7 @@ VENDORED: dict[str, list[str]] = {
         "plugins/memory-palace/src/memory_palace/_vendored_leyline_atomic_file.py",
         "plugins/minister/src/minister/_vendored_leyline_atomic_file.py",
         "plugins/spec-kit/src/speckit/_vendored_leyline_atomic_file.py",
+        "plugins/sanctum/hooks/_vendored_leyline_atomic_file.py",
     ],
 }
 

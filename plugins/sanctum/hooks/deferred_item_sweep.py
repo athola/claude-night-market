@@ -9,14 +9,14 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import subprocess
 import sys
 import time
 import traceback
 from pathlib import Path
 
-from _ledger_utils import get_ledger_path, ledger_lock
+from _ledger_utils import get_ledger_path
+from _vendored_leyline_atomic_file import file_lock, write_atomic
 
 logger = logging.getLogger(__name__)
 
@@ -189,17 +189,14 @@ def process_ledger(ledger_path: Path) -> dict:
     # read above. Dropping them would lose a deferral nobody has filed.
     # The lock keeps a watcher append from landing between this re-read
     # and the unlink or replace below.
-    with ledger_lock(ledger_path):
+    with file_lock(ledger_path):
         late_entries = _read_entries_after(ledger_path, original_count)
         if all_filed and not late_entries:
             ledger_path.unlink(missing_ok=True)
         else:
             all_filed = False
             entries = [*entries, *late_entries]
-            staged = ledger_path.with_name(f"{ledger_path.name}.{os.getpid()}.tmp")
-            with open(staged, "w") as f:
-                json.dump(entries, f, indent=2)
-            os.replace(staged, ledger_path)
+            write_atomic(ledger_path, json.dumps(entries, indent=2), mode=None)
     if not all_filed:
         unfiled = stats["failed"] + stats["deferred_to_next_sweep"] + len(late_entries)
         sys.stderr.write(
