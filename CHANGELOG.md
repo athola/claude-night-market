@@ -77,6 +77,8 @@ a test written to fail first, or corrected text for a docs finding.
 - **abstract:** every TasksManager reader treats a state file of the
   wrong shape as no state. Before, only `update_task_status` tolerated a
   missing `metrics`.
+- **abstract:** experience-library entries that name no project are
+  capped at 20 per skill like any project's. Nothing ever pruned them.
 - **attune:** the deferred-capture modules stop with a message when
   `CLAUDE_PLUGIN_ROOT` is unset, instead of skipping the capture because
   `/scripts/deferred_capture.py` does not exist.

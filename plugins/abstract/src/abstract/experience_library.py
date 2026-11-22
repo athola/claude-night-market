@@ -158,16 +158,20 @@ class ExperienceLibrary:
         """Keep only the most recent MAX_ENTRIES_PER_SKILL entries of ``project``.
 
         Reads are scoped by project, so the cap is too: a skill-wide cap let
-        one busy project evict every entry another project stored.
+        one busy project evict every entry another project stored. Entries
+        naming no project, stored before the scoping, are capped as a group
+        of their own, or nothing would ever remove them.
         """
         skill_dir = self._skill_dir(skill_ref)
-        files = sorted(
-            (f for f in skill_dir.glob("*.json") if _project_of(f) == project),
-            key=lambda f: f.stat().st_mtime,
-        )
-        while len(files) > MAX_ENTRIES_PER_SKILL:
-            oldest = files.pop(0)
-            oldest.unlink()
+        groups: dict[str | None, list[Path]] = {project: [], None: []}
+        for f in skill_dir.glob("*.json"):
+            owner = _project_of(f)
+            if owner in groups:
+                groups[owner].append(f)
+        for files in groups.values():
+            files.sort(key=lambda f: f.stat().st_mtime)
+            while len(files) > MAX_ENTRIES_PER_SKILL:
+                files.pop(0).unlink()
 
 
 def _project_of(entry_file: Path) -> str | None:
