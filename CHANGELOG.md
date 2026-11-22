@@ -221,6 +221,9 @@ a test written to fail first, or corrected text for a docs finding.
 - **leyline:** An apostrophe in a `#` comment or a heredoc body no longer
   hides the git commit on a later line, and a separator in a heredoc
   message no longer ends the commit segment the vows read.
+- **leyline:** The git commit detector splits on a background `&`, skips
+  the options of env, command, time, nice, timeout and xargs, and reads
+  the script given to `sh -c`, `bash -c` and `eval`.
 - **leyline:** The usage logger starts a new session instead of resuming
   one whose session_id is null or not a string.
 - **memory-palace:** `intake_queue.jsonl.lock` is gitignored.

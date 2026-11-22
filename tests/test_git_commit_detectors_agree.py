@@ -58,6 +58,30 @@ TABLE = [
     ("# git commit -m x", False),
     ("echo it's fine", False),
     ("cat <<'EOF'\nit's\nEOF", False),
+    ("true & git commit -m x", True),
+    ("git commit -m x 2>&1 | cat", True),
+    ("env -i git commit -m x", True),
+    ("env -u HOME git commit -m x", True),
+    ("command -p git commit -m x", True),
+    ("time -p git commit -m x", True),
+    ("nice git commit -m x", True),
+    ("nice -n 5 git commit -m x", True),
+    ("timeout 60 git commit -m x", True),
+    ("timeout -s KILL 5s git commit -m x", True),
+    ("xargs git commit -m x", True),
+    ("xargs -n 1 git commit -m x", True),
+    ("sh -c 'git commit -m x'", True),
+    ('bash -c "git commit -m x"', True),
+    ("bash -e -c 'git add . && git commit -m x'", True),
+    ("bash -lc 'git commit -m x'", True),
+    ('sudo bash -c "git commit -m x"', True),
+    ('eval "git commit -m x"', True),
+    ("eval git commit -m x", True),
+    ("echo x >&2", False),
+    ("echo x &> log", False),
+    ("bash -c 'git status'", False),
+    ("bash script.sh", False),
+    ("echo \"bash -c 'git commit -m x'\"", False),
 ]
 
 
@@ -84,6 +108,11 @@ def test_git_commit_detectors_agree(plugin: str) -> None:
             "git commit -F - <<EOF\nfix: a; b\nEOF",
             "git commit -F - <<EOF\nfix: a; b\nEOF",
         ),
+        (
+            "bash -c \"git commit -m 'a; b'\" && echo",
+            "bash -c \"git commit -m 'a; b'\" ",
+        ),
+        ("git commit -m x & echo", "git commit -m x "),
     ],
 )
 def test_git_commit_segment_stops_at_the_next_chain_operator(
