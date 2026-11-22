@@ -184,16 +184,21 @@ class EmbeddingIndex:
         accepted as unknown, since refusing would orphan every existing
         index. ``export`` keeps it unknown rather than guess.
         """
+        if self._model_mismatch():
+            stored = self.raw_store["providers"][self.active_provider]["model_id"]
+            raise EmbeddingModelMismatchError(
+                f"Index was built with model {stored!r} but queries use "
+                f"{self.model_id!r}. Load the matching model, or rebuild "
+                "the index with export(entries=...) holding vectors from "
+                "the current model"
+            )
+
+    def _model_mismatch(self) -> bool:
         provider_block = self.raw_store.get("providers", {}).get(
             self.active_provider, {}
         )
         stored = provider_block.get("model_id")
-        if stored is not None and stored != self.model_id:
-            raise EmbeddingModelMismatchError(
-                f"Index was built with model {stored!r} but queries use "
-                f"{self.model_id!r}; rebuild the index or load the "
-                "matching model"
-            )
+        return stored is not None and stored != self.model_id
 
     @property
     def provider(self) -> str:
@@ -305,9 +310,15 @@ class EmbeddingIndex:
 
         Raises EmbeddingModelMismatchError when the loaded vectors came from
         another model: stamping the current id over them would hide the
-        mismatch that ``_check_model`` exists to catch.
+        mismatch that ``_check_model`` exists to catch. Explicit ``entries``
+        are the rebuild path for that case: they replace the stored block
+        under the current model, and the other model's room vectors are
+        dropped with it.
         """
-        self._check_model()
+        if entries is not None and self._model_mismatch():
+            self._room_entries = {}
+        else:
+            self._check_model()
         target_path = Path(path) if path else self.embeddings_path
         target_provider = provider or self.requested_provider or self.active_provider
         payload = entries if entries is not None else self.entries

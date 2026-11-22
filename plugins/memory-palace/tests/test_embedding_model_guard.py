@@ -149,3 +149,31 @@ def test_export_refuses_to_restamp_another_models_vectors(tmp_path: Path) -> Non
         index.export()
     store = yaml.safe_load(path.read_text(encoding="utf-8"))
     assert store["providers"]["hash"]["model_id"] == "some-other-16-dim-model"
+
+
+def test_export_with_explicit_entries_rebuilds_an_index_from_another_model(
+    tmp_path: Path,
+) -> None:
+    """The mismatch error said to rebuild the index, and no call could."""
+    path = tmp_path / "emb.yaml"
+    _built_hash_index(path)
+    _rewrite_model_id(path, "some-other-16-dim-model")
+    index = EmbeddingIndex(str(path), provider="hash")
+
+    index.export(entries={"alpha": index.vectorize("alpha beta")})
+
+    block = yaml.safe_load(path.read_text(encoding="utf-8"))["providers"]["hash"]
+    assert block["model_id"] == index.model_id
+    assert "rooms" not in block
+    reloaded = EmbeddingIndex(str(path), provider="hash")
+    assert reloaded.search("alpha")[0][0] == "alpha"
+
+
+def test_mismatch_error_names_the_rebuild_call(tmp_path: Path) -> None:
+    path = tmp_path / "emb.yaml"
+    _built_hash_index(path)
+    _rewrite_model_id(path, "some-other-16-dim-model")
+    index = EmbeddingIndex(str(path), provider="hash")
+
+    with pytest.raises(EmbeddingModelMismatchError, match=r"export\(entries="):
+        index.search("alpha")
