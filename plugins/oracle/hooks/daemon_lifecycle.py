@@ -22,14 +22,10 @@ import signal
 import subprocess
 import sys
 import time
-from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import AbstractContextManager
 from pathlib import Path
 
-try:
-    import fcntl
-except ImportError:  # Windows: no advisory locks, session starts are not serialized
-    fcntl = None  # type: ignore[assignment]  # None sentinel: _start_lock branches on it
+from _vendored_leyline_atomic_file import file_lock
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PLUGIN_ROOT / "src"
@@ -309,14 +305,9 @@ def _other_sessions_live(session_id: str) -> bool:
     return False
 
 
-@contextmanager
-def _start_lock() -> Iterator[None]:
-    data_dir = get_oracle_data_dir()
-    data_dir.mkdir(parents=True, exist_ok=True)
-    with open(data_dir / "daemon.start.lock", "a") as lock:
-        if fcntl is not None:
-            fcntl.flock(lock, fcntl.LOCK_EX)
-        yield
+def _start_lock() -> AbstractContextManager[None]:
+    """Lock ``daemon.start.lock``, the file every oracle hook version uses."""
+    return file_lock(get_oracle_data_dir() / "daemon.start")
 
 
 def main() -> None:

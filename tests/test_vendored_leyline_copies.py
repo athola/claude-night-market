@@ -202,6 +202,10 @@ def test_main_writes_the_copies_then_check_passes(
             "minister._vendored_leyline_atomic_file",
         ),
         (
+            "plugins/oracle/hooks/daemon_lifecycle.py",
+            "_vendored_leyline_atomic_file",
+        ),
+        (
             "plugins/sanctum/hooks/deferred_item_sweep.py",
             "_vendored_leyline_atomic_file",
         ),

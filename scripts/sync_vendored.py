@@ -87,6 +87,7 @@ VENDORED: dict[str, list[str]] = {
         "plugins/minister/src/minister/_vendored_leyline_atomic_file.py",
         "plugins/spec-kit/src/speckit/_vendored_leyline_atomic_file.py",
         "plugins/sanctum/hooks/_vendored_leyline_atomic_file.py",
+        "plugins/oracle/hooks/_vendored_leyline_atomic_file.py",
     ],
 }
 
