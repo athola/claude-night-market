@@ -177,6 +177,10 @@ a test written to fail first, or corrected text for a docs finding.
 - **gauntlet:** a pass token is keyed by the staged content (`git
   write-tree`), so restaging different changes in the same files within
   the token's five minutes asks for a new challenge
+- **gauntlet:** the pre-commit gate's git calls share one 1.5s deadline,
+  and the blast radius is skipped first when git is slow, so the gate
+  decides inside its 2s hook cap instead of being killed and letting the
+  commit through ungated
 - **herald:** a throttle file with a null or wrong-typed field reads as
   fresh, so the continuation judge is no longer disabled until someone
   deletes the file

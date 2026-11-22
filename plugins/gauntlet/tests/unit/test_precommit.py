@@ -700,7 +700,7 @@ class TestGraphRiskContextBudget:
             "analyze_changes was called without a timeout, so it used the "
             "10s library default against this hook's 2s cap"
         )
-        assert recorded["timeout"] == precommit_gate._GIT_TIMEOUT_SECONDS
+        assert 0 < recorded["timeout"] <= precommit_gate._GIT_TIMEOUT_SECONDS
 
     def test_the_library_default_is_documented_as_too_slow_for_a_hook(self) -> None:
         """The default exists for non-hook callers and must exceed the cap."""

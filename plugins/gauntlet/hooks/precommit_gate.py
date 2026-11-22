@@ -16,6 +16,10 @@ import time
 from pathlib import Path
 from typing import Any
 
+# Taken before the gauntlet imports, which cost a measurable share of the
+# hook's 2s cap on their own.
+_HOOK_START = time.monotonic()
+
 # Allow importing gauntlet modules when run as a hook script.
 _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
@@ -157,10 +161,38 @@ def generate_challenge_for_files(
 # ---------------------------------------------------------------------------
 
 
-# hooks.json caps this hook at 2s. A git call with no timeout can
-# outlive that, and a killed hook returns no deny, which releases the
-# gate as surely as a traceback does.
+# hooks.json caps this hook at 2s, and a killed hook returns no deny,
+# which releases the gate as surely as a traceback does. A cap per git
+# call was not enough: the gate makes four or more in sequence. Every
+# call shares one deadline, leaving the rest of the 2s for start-up and
+# for writing the decision.
 _GIT_TIMEOUT_SECONDS = 1
+_RUN_BUDGET_SECONDS = 1.5
+
+# Time kept back for the calls the gate decision needs (staged files and
+# the developer id). The advisory blast radius gets only what is left.
+_DECISION_RESERVE_SECONDS = 0.5
+
+
+def _new_deadline() -> float:
+    return time.monotonic() + _RUN_BUDGET_SECONDS
+
+
+def _run_git(
+    argv: list[str], deadline: float | None
+) -> subprocess.CompletedProcess[str]:
+    """Run one git call inside the shared deadline; raise TimeoutExpired past it."""
+    left = (deadline if deadline is not None else _new_deadline()) - time.monotonic()
+    if left <= 0:
+        raise subprocess.TimeoutExpired(argv, 0)
+    return subprocess.run(
+        argv,
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=min(left, _GIT_TIMEOUT_SECONDS),
+    )
+
 
 # CalledProcessError alone was not enough. FileNotFoundError fires
 # whenever git is absent from the hook's PATH, and needs no malformed
@@ -182,7 +214,7 @@ def _get_gauntlet_dir() -> Path | None:
     return None
 
 
-def _get_staged_hash() -> str:
+def _get_staged_hash(deadline: float | None = None) -> str:
     """Return a hash of the currently staged tree, '' when git cannot say.
 
     ``git write-tree`` names the index's content, so restaging different
@@ -191,28 +223,16 @@ def _get_staged_hash() -> str:
     makes write-tree fail, and '' matches no token, so the gate asks.
     """
     try:
-        result = subprocess.run(
-            ["git", "write-tree"],
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=_GIT_TIMEOUT_SECONDS,
-        )
+        result = _run_git(["git", "write-tree"], deadline)
         return hashlib.sha256(result.stdout.strip().encode()).hexdigest()[:12]
     except _GIT_FAILURES:
         return ""
 
 
-def _get_developer_id() -> str:
+def _get_developer_id(deadline: float | None = None) -> str:
     """Return the git user email, falling back to 'unknown'."""
     try:
-        result = subprocess.run(
-            ["git", "config", "user.email"],
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=_GIT_TIMEOUT_SECONDS,
-        )
+        result = _run_git(["git", "config", "user.email"], deadline)
         return result.stdout.strip() or "unknown"
     except _GIT_FAILURES:
         return "unknown"
@@ -260,7 +280,7 @@ def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
     return load_config(gauntlet_dir) or {}
 
 
-def _get_staged_files() -> list[str] | None:
+def _get_staged_files(deadline: float | None = None) -> list[str] | None:
     """Return a list of staged file paths, or None on git failure.
 
     ``gauntlet.incremental`` keeps its own copy, and both copies are
@@ -270,13 +290,7 @@ def _get_staged_files() -> list[str] | None:
     add its graph and parser modules, about 60 ms, to every call.
     """
     try:
-        result = subprocess.run(
-            ["git", "diff", "--cached", "--name-only"],
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=_GIT_TIMEOUT_SECONDS,
-        )
+        result = _run_git(["git", "diff", "--cached", "--name-only"], deadline)
         return [f for f in result.stdout.strip().splitlines() if f]
     except _GIT_FAILURES:
         return None
@@ -335,17 +349,38 @@ def _graph_staleness_warning(
     )
 
 
-def _graph_risk_context(gauntlet_dir: Path) -> str | None:
+def _graph_risk_context(
+    gauntlet_dir: Path, deadline: float | None = None
+) -> str | None:
     """Run blast radius analysis and return context if high-risk changes found.
 
     Returns a warning string for high-risk commits, or None if the graph
-    is unavailable or risk is low.
+    is unavailable, risk is low, or too little of the deadline is left.
     """
     if not _GRAPH_AVAILABLE:
         return None
 
     db_path = gauntlet_dir / "graph.db"
     if not db_path.exists():
+        return None
+
+    # The analysis is advisory, so it is the first thing to go when the
+    # gate is short of time: the decision itself needs the reserve.
+    left = (deadline if deadline is not None else _new_deadline()) - time.monotonic()
+    budget = min(left - _DECISION_RESERVE_SECONDS, _GIT_TIMEOUT_SECONDS)
+    if budget <= 0:
+        print(
+            "[gauntlet-precommit-gate] blast radius skipped: git is too slow "
+            "for the hook's time budget",
+            file=sys.stderr,
+        )
+        return None
+
+    from gauntlet.build_lock import writer_busy
+
+    if writer_busy(gauntlet_dir):
+        # A build is rewriting the graph. sqlite would wait up to its 5s
+        # busy timeout for it, past the hook's cap.
         return None
 
     try:
@@ -357,11 +392,10 @@ def _graph_risk_context(gauntlet_dir: Path) -> str | None:
         )
 
         graph = _GS(str(db_path))
-        # The same budget the gate's own git calls use. analyze_changes runs
-        # git diff, whose default budget is 10s against this hook's 2s cap in
-        # hooks.json; a killed PreToolUse hook emits no deny, so a slow git
-        # would let the commit through the gate that exists to stop it.
-        report = _analyze(graph, base_ref="HEAD", timeout=_GIT_TIMEOUT_SECONDS)
+        # analyze_changes runs git diff, whose default budget is 10s against
+        # this hook's 2s cap in hooks.json; a killed PreToolUse hook emits
+        # no deny, so a slow git would let the commit through the gate.
+        report = _analyze(graph, base_ref="HEAD", timeout=budget)
         graph.close()
     except Exception as exc:
         # The warning is advisory: report the failure, never block the commit.
@@ -417,7 +451,9 @@ def _context_only(text: str) -> dict[str, Any]:
     }
 
 
-def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
+def main(
+    hook_input: dict[str, Any], deadline: float | None = None
+) -> dict[str, Any] | None:
     """Process a PreToolUse hook event.
 
     Returns:
@@ -425,6 +461,9 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     - hookSpecificOutput with permissionDecision "allow" to allow.
     - hookSpecificOutput with permissionDecision "deny" to block.
     - hookSpecificOutput with additionalContext only, to nudge without blocking.
+
+    ``deadline`` is the monotonic time every git call must finish by. The
+    script passes one counted from its own start; None starts one now.
 
     """
     tool_input = hook_input.get("tool_input", {})
@@ -443,14 +482,16 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if mode == "off":
         return None
 
-    staged_hash = _get_staged_hash()
+    if deadline is None:
+        deadline = _new_deadline()
+    staged_hash = _get_staged_hash(deadline)
     if check_pass_token(gauntlet_dir, staged_hash):
         # A passed challenge lifts this gate; it does not approve the
         # commit, which stays subject to the user's permission settings.
         return None
 
     # Graph-aware checks (non-blocking, adds context)
-    risk_context = _graph_risk_context(gauntlet_dir)
+    risk_context = _graph_risk_context(gauntlet_dir, deadline)
     stale_warning = _graph_staleness_warning(gauntlet_dir)
     if stale_warning:
         risk_context = (
@@ -458,7 +499,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         )
 
     # No valid token: generate a challenge.
-    staged_files = _get_staged_files()
+    staged_files = _get_staged_files(deadline)
     if staged_files is None:
         if mode == "gate":
             return {
@@ -466,13 +507,14 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
                     "hookEventName": "PreToolUse",
                     "permissionDecision": "deny",
                     "permissionDecisionReason": (
-                        "Gauntlet: unable to read staged files (git failure)."
+                        "Gauntlet: unable to read staged files (git failure, "
+                        "or git did not answer within the hook's time budget)."
                     ),
                 }
             }
         return None
 
-    developer_id = _get_developer_id()
+    developer_id = _get_developer_id(deadline)
     challenge = generate_challenge_for_files(gauntlet_dir, staged_files, developer_id)
 
     if challenge is None:
@@ -515,7 +557,9 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 # ---------------------------------------------------------------------------
 
 
-def run_gate(hook_input: dict[str, Any]) -> dict[str, Any] | None:
+def run_gate(
+    hook_input: dict[str, Any], deadline: float | None = None
+) -> dict[str, Any] | None:
     """Run the gate, denying rather than raising on an internal error.
 
     Every other hook in this repository wraps `main()` to exit 0, so a
@@ -534,7 +578,7 @@ def run_gate(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if os.environ.get("GAUNTLET_PRECOMMIT_MODE") == "off":
         return None
     try:
-        return main(hook_input)
+        return main(hook_input, deadline)
     except Exception as exc:  # a gate must not fall open on a defect
         print(f"[gauntlet-precommit-gate] internal error: {exc}", file=sys.stderr)
         return {
@@ -557,6 +601,6 @@ if __name__ == "__main__":
     except (json.JSONDecodeError, OSError):
         hook_input = {}
 
-    output = run_gate(hook_input)
+    output = run_gate(hook_input, _HOOK_START + _RUN_BUDGET_SECONDS)
     if output is not None:
         print(json.dumps(output))
