@@ -12,16 +12,21 @@ readonly MAINTENANCE_PATTERNS='reinstall-all-plugins|update-all-plugins|update-p
 
 readonly CACHE_TTL="${SCOPE_GUARD_CACHE_TTL:-60}" # seconds
 
-# Thresholds (configurable via environment)
-readonly RED_LINES="${SCOPE_GUARD_RED_LINES:-2000}"
+# Thresholds, with the names, defaults and meaning of
+# scripts/pre_pr_scope_check.sh: above GREEN or YELLOW is yellow, above
+# RED is red. Documented in hooks/PERFORMANCE.md.
+readonly GREEN_LINES="${SCOPE_GUARD_GREEN_LINES:-1000}"
 readonly YELLOW_LINES="${SCOPE_GUARD_YELLOW_LINES:-1500}"
-readonly RED_COMMITS="${SCOPE_GUARD_RED_COMMITS:-30}"
+readonly RED_LINES="${SCOPE_GUARD_RED_LINES:-2000}"
+readonly GREEN_COMMITS="${SCOPE_GUARD_GREEN_COMMITS:-15}"
 readonly YELLOW_COMMITS="${SCOPE_GUARD_YELLOW_COMMITS:-25}"
+readonly RED_COMMITS="${SCOPE_GUARD_RED_COMMITS:-30}"
+readonly GREEN_DAYS="${SCOPE_GUARD_GREEN_DAYS:-3}"
+readonly YELLOW_DAYS="${SCOPE_GUARD_YELLOW_DAYS:-7}"
 readonly RED_DAYS="${SCOPE_GUARD_RED_DAYS:-7}"
-# Yellow below red: both at 7 made the yellow arm unreachable.
-readonly YELLOW_DAYS="${SCOPE_GUARD_YELLOW_DAYS:-3}"
-readonly RED_FILES="${SCOPE_GUARD_RED_FILES:-15}"
+readonly GREEN_FILES="${SCOPE_GUARD_GREEN_FILES:-8}"
 readonly YELLOW_FILES="${SCOPE_GUARD_YELLOW_FILES:-12}"
+readonly RED_FILES="${SCOPE_GUARD_RED_FILES:-15}"
 
 # Absolute directory of this script. A bare filename (no slash)
 # resolves against the working directory.
@@ -153,7 +158,8 @@ main() {
   if [ "${lines_changed}" -gt "${RED_LINES}" ]; then
     zone="red"
     warnings="${warnings}Lines: ${lines_changed} (RED > ${RED_LINES}). "
-  elif [ "${lines_changed}" -gt "${YELLOW_LINES}" ]; then
+  elif [ "${lines_changed}" -gt "${GREEN_LINES}" ] ||
+    [ "${lines_changed}" -gt "${YELLOW_LINES}" ]; then
     zone="yellow"
     warnings="${warnings}Lines: ${lines_changed} (YELLOW). "
   fi
@@ -161,7 +167,8 @@ main() {
   if [ "${commits}" -gt "${RED_COMMITS}" ]; then
     zone="red"
     warnings="${warnings}Commits: ${commits} (RED > ${RED_COMMITS}). "
-  elif [ "${commits}" -gt "${YELLOW_COMMITS}" ]; then
+  elif [ "${commits}" -gt "${GREEN_COMMITS}" ] ||
+    [ "${commits}" -gt "${YELLOW_COMMITS}" ]; then
     case "${zone}" in red) ;; *) zone="yellow" ;; esac
     warnings="${warnings}Commits: ${commits} (YELLOW). "
   fi
@@ -169,7 +176,8 @@ main() {
   if [ "${days_on_branch}" -gt "${RED_DAYS}" ]; then
     zone="red"
     warnings="${warnings}Days: ${days_on_branch} (RED > ${RED_DAYS}). "
-  elif [ "${days_on_branch}" -gt "${YELLOW_DAYS}" ]; then
+  elif [ "${days_on_branch}" -gt "${GREEN_DAYS}" ] ||
+    [ "${days_on_branch}" -gt "${YELLOW_DAYS}" ]; then
     case "${zone}" in red) ;; *) zone="yellow" ;; esac
     warnings="${warnings}Days: ${days_on_branch} (YELLOW). "
   fi
@@ -177,7 +185,8 @@ main() {
   if [ "${new_files}" -gt "${RED_FILES}" ]; then
     zone="red"
     warnings="${warnings}New files: ${new_files} (RED > ${RED_FILES}). "
-  elif [ "${new_files}" -gt "${YELLOW_FILES}" ]; then
+  elif [ "${new_files}" -gt "${GREEN_FILES}" ] ||
+    [ "${new_files}" -gt "${YELLOW_FILES}" ]; then
     case "${zone}" in red) ;; *) zone="yellow" ;; esac
     warnings="${warnings}New files: ${new_files} (YELLOW). "
   fi

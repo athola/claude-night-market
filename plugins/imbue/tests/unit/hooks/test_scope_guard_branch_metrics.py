@@ -22,12 +22,13 @@ HOOKS = Path(__file__).resolve().parents[3] / "hooks"
 PLUGIN_ROOT = HOOKS.parent
 
 
-def _env(home: Path) -> dict[str, str]:
+def _env(home: Path, **thresholds: str) -> dict[str, str]:
     return git_env(
         home,
         XDG_CACHE_HOME=str(home / "cache"),
         SCOPE_GUARD_CACHE_TTL="0",
         CLAUDE_PLUGIN_ROOT=str(PLUGIN_ROOT),
+        **thresholds,
     )
 
 
@@ -37,12 +38,12 @@ def repo(tmp_path: Path) -> Path:
     return forked_repo(tmp_path)
 
 
-def _context(repo: Path, hook: str, stdin: str) -> str:
+def _context(repo: Path, hook: str, stdin: str, **thresholds: str) -> str:
     result = subprocess.run(
         ["/bin/bash", str(HOOKS / hook)],
         input=stdin,
         cwd=repo,
-        env=_env(repo.parent),
+        env=_env(repo.parent, **thresholds),
         capture_output=True,
         text=True,
         timeout=30,
@@ -127,9 +128,15 @@ def test_session_start_and_prompt_hook_agree_on_zone_for_same_branch(
 ) -> None:
     """SessionStart went yellow at 1000 lines while the prompt hook waited
     for 1500, and SessionStart ignored the SCOPE_GUARD_* overrides (IMB-14).
+
+    Both now take pre_pr_scope_check.sh's meaning, where yellow begins
+    above SCOPE_GUARD_GREEN_LINES (1000), so the hooks and the pre-PR
+    check give one branch one zone (M4).
     """
-    _commit_lines(repo, "feature.txt", 1200)
+    _commit_lines(repo, "feature.txt", 900)
     assert "YELLOW" not in _context(repo, hook, stdin)
+    _commit_lines(repo, "more.txt", 300)
+    assert "YELLOW" in _context(repo, hook, stdin)
 
 
 @pytest.mark.parametrize(
@@ -145,3 +152,18 @@ def test_days_on_branch_count_from_the_author_date(
     """A rebase reset the committer date, so a 20-day branch read 0 days (M3)."""
     commit_authored_days_ago(repo, "old.txt", 20)
     assert "RED" in _context(repo, hook, stdin)
+
+
+@pytest.mark.parametrize(
+    ("hook", "stdin"),
+    [
+        ("user-prompt-submit.sh", PROMPT),
+        ("session-start.sh", START),
+    ],
+)
+def test_hooks_read_the_green_thresholds_the_pre_pr_check_reads(
+    repo: Path, hook: str, stdin: str
+) -> None:
+    """The hooks ignored SCOPE_GUARD_GREEN_*, which the pre-PR check uses (M4)."""
+    _commit_lines(repo, "feature.txt", 150)
+    assert "YELLOW" in _context(repo, hook, stdin, SCOPE_GUARD_GREEN_LINES="100")
