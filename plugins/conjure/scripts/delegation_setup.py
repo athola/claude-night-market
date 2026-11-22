@@ -27,8 +27,8 @@ from pathlib import Path
 from scripts.delegation_executor import Delegator
 from scripts.delegation_services import (
     VERIFIED_BINARIES,
+    child_environment,
     credential_file_issues,
-    resolve_env_overlay,
 )
 from scripts.provider_ledger import ProviderLedger, ProviderRecord
 
@@ -106,7 +106,7 @@ def _missing_credentials(delegator: Delegator, name: str) -> list[str]:
     """
     service = delegator.services[name]
 
-    _, missing_overlay = resolve_env_overlay(service)
+    _, missing_overlay = child_environment(service)
     candidates = list(missing_overlay)
 
     if (

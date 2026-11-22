@@ -386,6 +386,18 @@ def resolve_env_overlay(service: ServiceConfig) -> tuple[dict[str, str], list[st
     return resolved, missing
 
 
+def child_environment(service: ServiceConfig) -> tuple[dict[str, str], list[str]]:
+    """Return the environment a service's CLI runs with, and unset overlay names.
+
+    The caller's environment is extended, not replaced: a child spawned with
+    only the overlay would lose PATH. ``env_unset`` names are dropped from it
+    first, so a caller's own vendor key does not travel to a third-party
+    endpoint.
+    """
+    overlay, missing = resolve_env_overlay(service)
+    return {**inherited_environment(service), **overlay}, missing
+
+
 SERVICES: dict[str, ServiceConfig] = {
     "gemini": ServiceConfig(
         name="gemini",

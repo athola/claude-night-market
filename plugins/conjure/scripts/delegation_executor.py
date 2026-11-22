@@ -34,9 +34,9 @@ from scripts.delegation_services import (
     _apply_overrides,
     _missing_required_fields,
     _smart_delegate_model,
+    child_environment,
     credential_file_issues,
     credential_issues,
-    inherited_environment,
     refused_credential_output,
     resolve_env_overlay,
 )
@@ -463,7 +463,7 @@ class Delegator:
         command = self.build_command(
             service_name, prompt, files, options, delivered=delivered
         )
-        overlay, missing = resolve_env_overlay(service)
+        child_env, missing = child_environment(service)
         if missing:
             # An empty substitute would send an unauthenticated request.
             # verify_service refuses this; a direct call must too.
@@ -484,9 +484,7 @@ class Delegator:
                 files=files,
                 timeout=timeout,
                 start_time=start_time,
-                # Extend the caller's environment rather than replacing it: a
-                # child spawned with only the overlay would lose PATH.
-                env={**inherited_environment(service), **overlay},
+                env=child_env,
                 stdin_input=delivered if service.stdin_prompt else None,
             )
         )

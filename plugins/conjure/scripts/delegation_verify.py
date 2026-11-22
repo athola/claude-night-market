@@ -13,9 +13,8 @@ import subprocess  # nosec B404
 
 from scripts.delegation_services import (
     ServiceConfig,
+    child_environment,
     credential_issues,
-    inherited_environment,
-    resolve_env_overlay,
 )
 
 
@@ -48,7 +47,7 @@ def verify_service(service: ServiceConfig) -> tuple[bool, list[str]]:
     # An overlay naming an unset variable is reported here rather than at
     # spawn time, so `--verify` is the one place a misconfigured
     # endpoint-swap service is diagnosed.
-    overlay, missing_vars = resolve_env_overlay(service)
+    child_env, missing_vars = child_environment(service)
     issues: list[str] = [
         f"Environment variable {variable} is referenced by the "
         f"{service.name} environment overlay but is not set"
@@ -59,8 +58,6 @@ def verify_service(service: ServiceConfig) -> tuple[bool, list[str]]:
 
     if issues:
         return False, issues
-
-    child_env = {**inherited_environment(service), **overlay}
 
     # Check command availability with the service's own probe. Not every
     # CLI answers --version, so the argv comes from the config.
