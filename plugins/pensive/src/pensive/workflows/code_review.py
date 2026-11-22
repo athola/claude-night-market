@@ -10,11 +10,30 @@ from typing import Any
 
 from pensive.config.configuration import Configuration
 from pensive.exceptions import AnalysisError
-from pensive.harden.scanner import _should_skip
 from pensive.skills.unified_review import UnifiedReviewSkill
 from pensive.utils.severity_mapper import count_by_severity
 
 logger = logging.getLogger(__name__)
+
+# Dependency and cache directories only. The harden scanner also skips
+# build, dist and vendor, which in a code review can be the source itself.
+_REVIEW_SKIP_DIRS = frozenset(
+    {
+        ".git",
+        "node_modules",
+        ".venv",
+        "venv",
+        "site-packages",
+        ".eggs",
+        "__pycache__",
+        ".tox",
+        ".mypy_cache",
+        ".ruff_cache",
+        ".pytest_cache",
+        ".uv-cache",
+        ".cargo",
+    }
+)
 
 
 class CodeReviewWorkflow:
@@ -190,8 +209,7 @@ class CodeReviewWorkflow:
         for f in repo_path.rglob("*"):
             rel = f.relative_to(repo_path)
             if (
-                _should_skip(rel)
-                or ".git" in rel.parts
+                any(part in _REVIEW_SKIP_DIRS for part in rel.parts)
                 or self._excluded(rel)
                 or not f.is_file()
             ):

@@ -317,6 +317,8 @@ a test written to fail first, or corrected text for a docs finding.
 - **pensive:** a `pensive.skills` list that matches none of the selected
   skills runs the default selection with a warning in the report, instead
   of running no skill.
+- **pensive:** the code review skips only dependency and cache directories,
+  so a source package under `build/`, `dist/` or `vendor/` is reviewed.
 - **pensive:** a `**/tests/**` exclude pattern also excludes a top-level
   `tests/` directory.
 - **pensive:** the duplicate-elif check compares conditions within one

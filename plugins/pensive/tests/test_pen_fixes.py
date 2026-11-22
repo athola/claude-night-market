@@ -501,6 +501,18 @@ class TestWorkflowHonorsConfiguration:
         )
         assert wf.execute_full_review(tmp_path)["warnings"] is None
 
+    def test_collect_files_reviews_a_source_package_named_build(self, tmp_path):
+        """The harden skip list dropped ``build``, ``dist`` and ``vendor``,
+        so a source package ``src/build/`` was never reviewed.
+        """
+        for rel in ("src/build/m.py", "dist/d.py", "node_modules/x/i.js"):
+            (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+            (tmp_path / rel).write_text("x = 1\n")
+        assert sorted(CodeReviewWorkflow()._collect_files(tmp_path)) == [
+            "dist/d.py",
+            "src/build/m.py",
+        ]
+
     def test_configure_accepts_a_configuration(self):
 
         wf = CodeReviewWorkflow(Configuration({}))
