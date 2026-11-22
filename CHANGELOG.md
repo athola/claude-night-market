@@ -135,8 +135,8 @@ a test written to fail first, or corrected text for a docs finding.
 - **gauntlet:** a pass token with a null or timezone-naive timestamp
   reads as no token, instead of denying every commit of that staged set
 - **gauntlet:** an edge's call resolution is parsed as one of `""`,
-  `exact` or `name_guess`, so an unknown value is rejected instead of
-  shown as a confirmed caller
+  `exact` or `name_guess`, and an unknown value reads as `name_guess`
+  instead of being shown as a confirmed caller
 - **gauntlet:** an incremental build from an explicit `--base-ref` no
   longer stamps HEAD, and the commit hook diffs from the last stamped
   build, so a commit an earlier update missed is still parsed

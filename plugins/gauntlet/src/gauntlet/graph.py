@@ -781,7 +781,7 @@ class GraphStore(SqliteGraphBase):
             target_qn=row["target_qn"],
             file_path=row["file_path"] or "",
             line=row["line"] or 0,
-            resolution=Resolution(row["resolution"] or ""),
+            resolution=Resolution.from_stored(row["resolution"]),
         )
 
 

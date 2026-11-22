@@ -68,6 +68,21 @@ class Resolution(str, Enum):
         """Serialize as the raw string value for storage."""
         return self.value
 
+    @classmethod
+    def from_stored(cls, raw: object) -> Resolution:
+        """Parse a stored value; NULL is UNRESOLVED, an unknown one NAME_GUESS.
+
+        An unknown value comes from a graph a newer plugin wrote. Raising
+        made that graph unreadable here, and UNRESOLVED would list the
+        caller as confirmed, so it reads as a guess.
+        """
+        if raw is None:
+            return cls.UNRESOLVED
+        try:
+            return cls(raw)
+        except ValueError:
+            return cls.NAME_GUESS
+
 
 # ---------------------------------------------------------------------------
 # Graph data models
@@ -190,7 +205,7 @@ class GraphEdge:
             target_qn=data["target_qn"],
             file_path=data.get("file_path", ""),
             line=data.get("line", 0),
-            resolution=Resolution(data.get("resolution", "")),
+            resolution=Resolution.from_stored(data.get("resolution")),
         )
 
 
