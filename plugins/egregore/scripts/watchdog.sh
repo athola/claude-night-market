@@ -138,7 +138,10 @@ check_progress() {
   # budget.json and leaves the manifest alone; that is not a stall.
   cooldown_mark=""
   [ -f "${BUDGET}" ] && cooldown_mark="$(jq -r '.cooldown_until // empty' "${BUDGET}" 2>/dev/null)"
-  fingerprint="$(cksum <"${MANIFEST}") ${cooldown_mark}"
+  # Work items only: every session bumps session_count first thing, so a
+  # checksum of the whole file changed on each relaunch and never stalled.
+  items="$(jq -c '(.work_items // .items // [])' "${MANIFEST}" 2>/dev/null)"
+  fingerprint="$(printf '%s' "${items}" | cksum) ${cooldown_mark}"
   stalled=0
   if [ -f "${RELAUNCH_STATE}" ]; then
     prior_fingerprint="$(sed -n 1p "${RELAUNCH_STATE}")"

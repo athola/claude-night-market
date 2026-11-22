@@ -50,6 +50,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Review fixes from the two PR #1256 reviews (94 findings). Each fix has
 a test written to fail first, or corrected text for a docs finding.
 
+- **egregore:** the watchdog's `EGREGORE_MAX_STALLED_RELAUNCHES` cap now
+  fires. It compared a checksum of the whole manifest, and the
+  orchestrator bumps `session_count` at the start of every session, so
+  each relaunch looked like progress. Only the work items are compared.
 - **abstract:** a Stop-hook stage skipped for lack of time runs first on
   the next Stop, so a slow auto-promote no longer blocks post-learnings
   on every Stop.

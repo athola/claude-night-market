@@ -84,6 +84,28 @@ def test_watchdog_stops_relaunching_after_n_sessions_without_manifest_change(
     assert str(egregore_dir / "relaunch-state") in log
 
 
+def test_a_session_that_only_bumps_session_count_is_still_a_stall(
+    tmp_path: Path,
+) -> None:
+    """The orchestrator increments session_count first thing every session.
+
+    Fingerprinting the whole manifest read that bump as progress, so the
+    cap reset on every relaunch and never fired.
+    """
+    egregore_dir, launches, env = _setup(tmp_path)
+    manifest = egregore_dir / "manifest.json"
+    bump = (
+        f"jq '.session_count = ((.session_count // 0) + 1)' '{manifest}' "
+        f"> '{manifest}.new' && mv '{manifest}.new' '{manifest}'\n"
+    )
+    stub = tmp_path / "bin" / "claude"
+    stub.write_text(stub.read_text() + bump)
+    for _ in range(6):
+        _tick(egregore_dir, launches, env)
+    assert _launch_count(launches) == 3
+    assert json.loads(manifest.read_text())["session_count"] == 3
+
+
 def test_a_manifest_change_resets_the_relaunch_cap(tmp_path: Path) -> None:
     egregore_dir, launches, env = _setup(tmp_path)
     for _ in range(4):
