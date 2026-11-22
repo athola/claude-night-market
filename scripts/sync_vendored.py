@@ -78,6 +78,7 @@ VENDORED: dict[str, list[str]] = {
     ],
     _ATOMIC_FILE: [
         "plugins/abstract/src/abstract/_vendored_leyline_atomic_file.py",
+        "plugins/conjure/scripts/_vendored_leyline_atomic_file.py",
         "plugins/conserve/hooks/shared/_vendored_leyline_atomic_file.py",
         "plugins/conserve/scripts/_vendored_leyline_atomic_file.py",
         "plugins/egregore/scripts/_vendored_leyline_atomic_file.py",

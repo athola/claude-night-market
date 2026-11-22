@@ -116,6 +116,25 @@ class TestRoundTrip:
         assert ProviderLedger(ledger_path).names() == ()
 
 
+class TestConcurrentSaves:
+    """Two setup runs can save at once (R1)."""
+
+    def test_save_leaves_another_writers_temp_file_untouched(
+        self, ledger_path: Path
+    ) -> None:
+        """A fixed ``.json.tmp`` let one save clobber another's half-written file."""
+        ledger_path.parent.mkdir(parents=True, exist_ok=True)
+        in_flight = ledger_path.with_suffix(".json.tmp")
+        in_flight.write_text("half written by another process")
+        ledger = ProviderLedger(ledger_path)
+        ledger.record(_record("gemini"))
+
+        ledger.save()
+
+        assert in_flight.read_text() == "half written by another process"
+        assert ProviderLedger(ledger_path).get("gemini") is not None
+
+
 class TestADamagedLedgerDegradesToACacheMiss:
     """Whole-file and per-entry damage, which are different failures.
 

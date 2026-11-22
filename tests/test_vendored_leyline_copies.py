@@ -134,6 +134,18 @@ def test_main_writes_the_copies_then_check_passes(
             "abstract._vendored_leyline_atomic_file",
         ),
         (
+            "plugins/conjure/scripts/provider_ledger.py",
+            "scripts._vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/conjure/scripts/usage_logger.py",
+            "_vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/conjure/scripts/war_room/persistence.py",
+            "scripts._vendored_leyline_atomic_file",
+        ),
+        (
             "plugins/conserve/hooks/tool_output_summarizer.py",
             "shared._vendored_leyline_atomic_file",
         ),

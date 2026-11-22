@@ -59,6 +59,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Review fixes from the two PR #1256 reviews (94 findings). Each fix has
 a test written to fail first, or corrected text for a docs finding.
 
+- **conjure:** the provider ledger, the usage session file and the War
+  Room session file are written through leyline's `write_atomic`. Each
+  used a fixed `.json.tmp` sibling, which let two writers clobber each
+  other's half-written file. None synced the file before the rename, and
+  a crash could publish an empty one.
 - **egregore:** the watchdog's `EGREGORE_MAX_STALLED_RELAUNCHES` cap now
   fires. It compared a checksum of the whole manifest, and the
   orchestrator bumps `session_count` at the start of every session, so
