@@ -628,9 +628,9 @@ class TestEveryAdvertisedActionHasAHandler:
             else {"action": "zoom", "region": region}
         )
         with patch("phantom.display._run") as mock_run:
-            result = toolkit.execute(action)
-        assert not result.success
-        assert "region" in (result.error or "")
+            zoomed = toolkit.execute(action)
+        assert not zoomed.success
+        assert "region" in (zoomed.error or "")
         mock_run.assert_not_called()
 
     def test_zoom_with_imagemagick_resets_the_crop_page(self, toolkit):
@@ -642,8 +642,8 @@ class TestEveryAdvertisedActionHasAHandler:
             patch("phantom.display._run") as mock_run,
         ):
             mock_run.side_effect = lambda cmd, **kw: Path(cmd[-1]).write_bytes(b"png")
-            result = toolkit.execute({"action": "zoom", "region": [10, 20, 110, 70]})
-        assert result.success
+            zoomed = toolkit.execute({"action": "zoom", "region": [10, 20, 110, 70]})
+        assert zoomed.success
         argv = mock_run.call_args.args[0]
         assert argv[argv.index("-crop") + 1 : argv.index("-crop") + 3] == [
             "100x50+10+20",

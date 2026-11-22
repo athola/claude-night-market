@@ -575,13 +575,13 @@ class TestUsageLogRedaction:
     ) -> None:
         """Prompt "hi" blanked `--thinking-budget`, which contains it (U8)."""
         delegator = Delegator(config_dir=temp_config_dir)
-        result = ExecutionResult(
+        finished = ExecutionResult(
             success=True, stdout="", stderr="", exit_code=0, duration=0.1
         )
         delegator.log_usage(
             "gemini",
             ["gemini", "--thinking-budget", "1024", "-p", "hi"],
-            result,
+            finished,
             prompt="hi",
         )
         logged = json.loads(delegator.usage_log.read_text().splitlines()[-1])
@@ -590,11 +590,11 @@ class TestUsageLogRedaction:
     def test_a_stdin_service_logs_its_argv_unredacted(self, temp_config_dir) -> None:
         """Its prompt never enters argv, so no argument is the prompt."""
         delegator = Delegator(config_dir=temp_config_dir)
-        result = ExecutionResult(
+        finished = ExecutionResult(
             success=True, stdout="", stderr="", exit_code=0, duration=0.1
         )
         delegator.log_usage(
-            "glimmer", ["ollama", "run", "muse-glimmer:30b"], result, prompt="muse"
+            "glimmer", ["ollama", "run", "muse-glimmer:30b"], finished, prompt="muse"
         )
         logged = json.loads(delegator.usage_log.read_text().splitlines()[-1])
         assert logged["command"] == "ollama run muse-glimmer:30b"
