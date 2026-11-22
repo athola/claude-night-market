@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import logging
 import shutil
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -423,6 +424,9 @@ def apply_orphan_prunes(
         entries = index.get("entries", {})
         hashes = index.get("hashes", {})
 
+        # Counted once: rescanning every entry per pruned key held the
+        # capture lock for keys x entries.
+        references = Counter(entry.get("content_hash") for entry in entries.values())
         applied = 0
         for key in keys:
             entry = entries.pop(key, None)
@@ -435,10 +439,8 @@ def apply_orphan_prunes(
             # content already on disk look unseen, so the next fetch stores
             # a second copy.
             content_hash = entry.get("content_hash")
-            still_referenced = any(
-                other.get("content_hash") == content_hash for other in entries.values()
-            )
-            if content_hash and not still_referenced:
+            references[content_hash] -= 1
+            if content_hash and references[content_hash] <= 0:
                 hashes.pop(content_hash, None)
 
         _write_index_atomic(index, index_path)
