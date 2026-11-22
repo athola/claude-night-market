@@ -8,7 +8,9 @@ leyline/shell_command.py; both plugins carry a generated copy.
 
 from __future__ import annotations
 
+import fnmatch
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -84,3 +86,56 @@ def test_git_commit_segment_stops_at_the_next_chain_operator(
     start = CANONICAL.git_commit_offset(command)
     end = CANONICAL.git_commit_end(command)
     assert command[start:end] == segment
+
+
+# Every hook entry that runs on what is_git_commit accepts. A gate is the
+# harness `if` rule, measured on 2.1.245 as an fnmatch glob tested against
+# each segment of a compound command.
+_COMMIT_HOOKS = [
+    ("plugins/gauntlet/hooks/hooks.json", "precommit_gate.py"),
+    ("plugins/gauntlet/hooks/hooks.json", "graph_auto_update.py"),
+    ("plugins/imbue/hooks/hooks.json", "vow_no_ai_attribution.py"),
+    ("plugins/imbue/hooks/hooks.json", "vow_no_emoji_commits.py"),
+]
+
+
+def _gates(hooks_json: str, script: str) -> list[str]:
+    config = json.loads((ROOT / hooks_json).read_text())
+    return [
+        entry["if"]
+        for groups in config["hooks"].values()
+        for group in groups
+        for entry in group["hooks"]
+        if script in entry.get("command", "") and "if" in entry
+    ]
+
+
+def _segments(command: str) -> list[str]:
+    parts = [command]
+    for separator in ("&&", "||", ";", "|"):
+        parts = [piece for part in parts for piece in part.split(separator)]
+    return [part.strip() for part in parts if part.strip()]
+
+
+def _admitted(rule: str, command: str) -> bool:
+    glob = rule[len("Bash(") : -1]
+    return any(fnmatch.fnmatch(segment, glob) for segment in _segments(command))
+
+
+@pytest.mark.parametrize(("hooks_json", "script"), _COMMIT_HOOKS)
+def test_every_detected_commit_reaches_the_commit_hooks(
+    hooks_json: str, script: str
+) -> None:
+    """The detector accepts env-prefixed, path-qualified and wrapped commits.
+
+    A gate narrower than the detector keeps those from ever reaching the
+    hook, so `/usr/bin/git commit` skipped the attribution vow entirely.
+    """
+    rules = _gates(hooks_json, script)
+    assert rules, f"{script} has no if gate"
+    missed = [
+        command
+        for command, expected in TABLE
+        if expected and not any(_admitted(rule, command) for rule in rules)
+    ]
+    assert missed == []
