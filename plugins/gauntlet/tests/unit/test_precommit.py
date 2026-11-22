@@ -892,3 +892,21 @@ def test_restaging_new_content_in_the_same_files_changes_the_staged_hash(
     assert first
     assert second
     assert first != second
+
+
+@pytest.mark.unit
+def test_staged_hash_is_read_without_taking_the_index_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`git write-tree` takes .git/index.lock, and the gate kills a git call
+    that outlives its deadline, which can leave that lock behind and break
+    the commit the gate precedes. The hash is read with a read-only call.
+    """
+    import subprocess  # noqa: PLC0415 - real git for this test only
+
+    subprocess.run(["git", "-C", str(tmp_path), "init", "-q"], check=True)
+    (tmp_path / "a.py").write_text("x = 1\n")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "a.py"], check=True)
+    (tmp_path / ".git" / "index.lock").touch()
+    monkeypatch.chdir(tmp_path)
+    assert precommit_gate._get_staged_hash()

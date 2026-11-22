@@ -178,7 +178,7 @@ def fake_git(
 ) -> Callable[..., subprocess.CompletedProcess[str]]:
     """Return a ``subprocess.run`` stand-in answering the hooks' git calls.
 
-    ``staged_files=None`` makes ``git diff --cached`` and ``git write-tree``
+    ``staged_files=None`` makes ``git diff --cached`` and ``git ls-files --stage``
     fail the way a broken repository does, with ``CalledProcessError``.
     """
 
@@ -187,12 +187,15 @@ def fake_git(
             if staged_files is None:
                 raise subprocess.CalledProcessError(128, argv, "", "not a repo")
             return subprocess.CompletedProcess(argv, 0, "\n".join(staged_files), "")
-        if argv[:2] == ["git", "write-tree"]:
+        if argv[:3] == ["git", "ls-files", "--stage"]:
             if staged_files is None:
                 raise subprocess.CalledProcessError(128, argv, "", "not a repo")
-            # Stands in for a git object id, which is 40 hex characters.
-            tree = hashlib.sha256("\n".join(staged_files).encode()).hexdigest()[:40]
-            return subprocess.CompletedProcess(argv, 0, tree + "\n", "")
+            # One "mode blob-id stage<TAB>path" line per staged file.
+            listing = "".join(
+                f"100644 {hashlib.sha256(name.encode()).hexdigest()[:40]} 0\t{name}\n"
+                for name in staged_files
+            )
+            return subprocess.CompletedProcess(argv, 0, listing, "")
         if argv[:3] == ["git", "config", "user.email"]:
             return subprocess.CompletedProcess(argv, 0, email + "\n", "")
         raise AssertionError(f"unexpected git call: {argv}")

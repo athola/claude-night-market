@@ -27,7 +27,7 @@ _HOOK_CAP_SECONDS = 2.0
 _SLOW_GIT = """#!/bin/sh
 sleep 0.9
 case "$1" in
-  write-tree) echo 4b825dc642cb6eb9a060e54bf8d69288fbee4904 ;;
+  ls-files) printf '100644 4b825dc642cb6eb9a060e54bf8d69288fbee4904 0\tbilling\n' ;;
   diff) echo billing ;;
   config) echo dev@example.com ;;
   rev-parse) pwd ;;

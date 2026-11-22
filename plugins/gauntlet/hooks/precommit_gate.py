@@ -217,13 +217,14 @@ def _get_gauntlet_dir() -> Path | None:
 def _get_staged_hash(deadline: float | None = None) -> str:
     """Return a hash of the currently staged tree, '' when git cannot say.
 
-    ``git write-tree`` names the index's content, so restaging different
-    content in the same files changes the hash. Hashing the file names
-    let a token earned for one change pass another. An unmerged index
-    makes write-tree fail, and '' matches no token, so the gate asks.
+    ``git ls-files --stage`` lists each staged blob id, so restaging
+    different content in the same files changes the hash. Hashing the
+    file names let a token earned for one change pass another. It is a
+    read-only call: ``git write-tree`` takes .git/index.lock, and a call
+    killed at the deadline could leave that lock and break the commit.
     """
     try:
-        result = _run_git(["git", "write-tree"], deadline)
+        result = _run_git(["git", "ls-files", "--stage"], deadline)
         return hashlib.sha256(result.stdout.strip().encode()).hexdigest()[:12]
     except _GIT_FAILURES:
         return ""
