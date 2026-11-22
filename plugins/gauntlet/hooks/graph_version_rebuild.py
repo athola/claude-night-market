@@ -99,12 +99,6 @@ def _release_tuple(version: str) -> tuple[int, ...] | None:
         return None
 
 
-def _opted_out(gauntlet_dir: Path) -> bool:
-    config = load_config(gauntlet_dir)
-    # An unreadable opt-out is not consent to a multi-minute rebuild.
-    return config is None or config.get("rebuild_on_upgrade") is False
-
-
 def _guard_path(lock: Path) -> Path:
     return lock.with_name(lock.name + ".guard")
 
@@ -146,7 +140,10 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     root = Path(os.getcwd())
     gauntlet_dir = root / ".gauntlet"
     db_path = gauntlet_dir / "graph.db"
-    if not db_path.exists() or _opted_out(gauntlet_dir):
+    if not db_path.exists():
+        return None
+    config = load_config(gauntlet_dir)
+    if config is not None and config.get("rebuild_on_upgrade") is False:
         return None
 
     installed = _installed_version()
@@ -163,6 +160,15 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if not _older(built, installed):
         return None
     built_label = built or "an unrecorded version"
+    if config is None:
+        # An unreadable opt-out is not consent to a multi-minute rebuild.
+        # The hook's python3 often lacks PyYAML, which makes any
+        # config.yaml unreadable here, so the skip is said out loud.
+        return _session_context(
+            f"gauntlet graph was built by {built_label}, plugin is {installed}. "
+            f"The config in {gauntlet_dir} could not be read here, so it was "
+            "not rebuilt. Run /gauntlet-graph build."
+        )
 
     uv = shutil.which("uv")
     if uv is None:

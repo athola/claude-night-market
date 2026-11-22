@@ -130,6 +130,30 @@ class TestGraphVersionRebuild:
         monkeypatch.setitem(sys.modules, "yaml", None)
         output, popen = _run()
         popen.assert_not_called()
+        assert not (gdir / "rebuild.lock").exists()
+
+    def test_an_old_graph_behind_an_unreadable_config_is_named(
+        self, project: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The hook's python3 usually lacks PyYAML, so any config.yaml reads
+        as unreadable there. The skipped rebuild only warned on stderr.
+        """
+        gdir = _graph(project, "1.0.0")
+        (gdir / "config.yaml").write_text("precommit:\n  mode: gate\n")
+        monkeypatch.setitem(sys.modules, "yaml", None)
+        output, popen = _run()
+        popen.assert_not_called()
+        context = output["hookSpecificOutput"]["additionalContext"]
+        assert "1.0.0" in context
+        assert "/gauntlet-graph build" in context
+
+    def test_an_unreadable_config_with_a_current_graph_stays_silent(
+        self, project: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        gdir = _graph(project, "2.0.0")
+        (gdir / "config.yaml").write_text("precommit:\n  mode: gate\n")
+        monkeypatch.setitem(sys.modules, "yaml", None)
+        output, _ = _run()
         assert output is None
 
     def test_no_graph_starts_nothing(self, project: Path) -> None:
@@ -189,9 +213,8 @@ class TestRebuildFailsSafe:
     def test_unreadable_opt_out_config_starts_nothing(self, project: Path) -> None:
         gdir = _graph(project, "1.0.0")
         (gdir / "config.json").write_text("{not json")
-        output, popen = _run()
+        _, popen = _run()
         popen.assert_not_called()
-        assert output is None
 
 
 def test_stale_lock_takeover_waits_for_a_concurrent_taker(tmp_path: Path) -> None:

@@ -145,7 +145,8 @@ a test written to fail first, or corrected text for a docs finding.
   mode instead of denying every commit
 - **gauntlet:** every hook reads `.gauntlet/config.yaml` first and
   `config.json` second, so `rebuild_on_upgrade: false` in config.yaml now
-  stops the SessionStart rebuild, as does a config the hook cannot read
+  stops the SessionStart rebuild. A config the hook cannot read also
+  stops it, and the session is told the graph is old
 - **gauntlet:** a graph stamped with a version such as `1.10.4rc1` or
   `dev` is rebuilt at session start instead of crashing the hook
 - **gauntlet:** the commit hook always runs the update through
