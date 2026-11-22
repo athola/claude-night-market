@@ -56,8 +56,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-Review fixes from the two PR #1256 reviews (94 findings). Each fix has
-a test written to fail first, or corrected text for a docs finding.
+Review fixes from the two PR #1256 reviews (94 findings) and a later
+full review of the branch. Each fix has a test written to fail first, or
+corrected text for a docs finding.
 
 - **abstract:** the performance tracker and the improvement memory are
   written through leyline's `write_atomic`. Each staged its save in a
