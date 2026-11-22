@@ -216,8 +216,9 @@ def _stop_daemon() -> None:
 
 
 #: A marker holds the pid of its session's process, and counts while that
-#: process lives. A marker with no readable pid, or one on Windows where
-#: ``os.kill(pid, 0)`` terminates the process, counts for this long.
+#: process lives. A marker with no readable pid counts for this long, as
+#: does every marker on Windows, where signal 0 is CTRL_C_EVENT and
+#: ``os.kill(pid, 0)`` is not a liveness probe.
 _SESSION_MARKER_TTL_SECONDS = 24 * 60 * 60
 
 # Claude Code may run the hook command through a shell that exits with the

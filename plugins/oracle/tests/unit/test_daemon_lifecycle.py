@@ -1085,3 +1085,13 @@ def test_session_end_runs_where_fcntl_does_not_exist(tmp_path: Path) -> None:
         check=False,
     )
     assert ended.returncode == 0, ended.stderr
+
+
+def test_a_marker_for_another_users_live_process_keeps_the_daemon(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Signal 0 to pid 1 is refused, not failed: the process is alive."""
+    if os.geteuid() == 0:
+        pytest.skip("root may signal pid 1, so no PermissionError arises")
+    _write_marker(tmp_path, "1", age_seconds=48 * 3600)
+    assert not _session_end_stops(tmp_path, monkeypatch)
