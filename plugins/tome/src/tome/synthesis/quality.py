@@ -25,7 +25,7 @@ import re
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
-from tome.models import Finding, QueryLog
+from tome.models import Finding, QueryLog, clean_entities
 
 if TYPE_CHECKING:
     from tome.models import ResearchSession
@@ -344,7 +344,7 @@ def identify_gaps(
         "recency_gap": recency_gap,
     }
 
-    named = [e.strip() for e in (entities or []) if e.strip()]
+    named = clean_entities(entities)
     if named:
         uncovered = [e for e in named if not _entity_is_mentioned(e, findings)]
         gaps["uncovered_entities"] = uncovered

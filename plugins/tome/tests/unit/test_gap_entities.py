@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from tests.factories import make_finding
@@ -58,6 +60,17 @@ class TestEntityCoverage:
     def test_blank_entities_are_ignored(self) -> None:
         gaps = identify_gaps([make_finding()], ["code"], entities=["  ", ""])
         assert set(gaps) == _BASE_KEYS
+
+    def test_a_bare_string_or_non_string_entities_are_ignored(self) -> None:
+        """The skill passes its own list straight in: "Rust" split into
+        letters and a number raised at ``e.strip()``.
+        """
+        finding = make_finding()
+        bare: Any = "Rust"
+        mixed: Any = [3, None, " Rust "]
+        assert set(identify_gaps([finding], ["code"], entities=bare)) == _BASE_KEYS
+        gaps = identify_gaps([finding], ["code"], entities=mixed)
+        assert gaps["uncovered_entities"] == ["Rust"]
 
     def test_entity_named_only_in_url_is_covered(self) -> None:
         # research.js matches title, url and why; the Python rule must agree

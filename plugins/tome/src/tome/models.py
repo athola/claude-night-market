@@ -158,6 +158,18 @@ class SessionSummary:
         )
 
 
+def clean_entities(raw: object) -> list[str]:
+    """Return the non-blank string names in ``raw``, stripped.
+
+    Entity lists arrive from stored sessions and from the research skill.
+    A bare string would iterate into its letters, so anything that is not
+    a list holds no entities.
+    """
+    if not isinstance(raw, list):
+        return []
+    return [e.strip() for e in raw if isinstance(e, str) and e.strip()]
+
+
 @dataclass
 class ResearchSession:
     """A full research session with findings."""
@@ -192,8 +204,7 @@ class ResearchSession:
         documented and which skipped the constructor.
         """
         if name == "entities":
-            raw = value if isinstance(value, list) else []
-            value = [e.strip() for e in raw if isinstance(e, str) and e.strip()]
+            value = clean_entities(value)
         super().__setattr__(name, value)
 
     def add_finding(self, finding: Finding) -> None:
