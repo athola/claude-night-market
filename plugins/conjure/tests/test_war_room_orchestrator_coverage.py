@@ -510,7 +510,11 @@ class TestInvokeParallel:
             )
 
         assert results["supreme_commander"] == "Good response"
-        assert "[Error:" in results["chief_strategist"]
+        assert "chief_strategist" not in results  # recorded as a failure (CNJ-9)
+        assert any(
+            key.endswith(":chief_strategist")
+            for key in session.artifacts["expert_failures"]
+        )
 
     @pytest.mark.asyncio
     async def test_parallel_unknown_expert_skipped(

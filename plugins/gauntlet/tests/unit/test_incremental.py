@@ -829,3 +829,134 @@ class TestIncrementalAgainstARealRepo:
             and e.target_qn not in node_names
         ]
         assert dangling == []
+
+
+class TestRemovedFilesLeaveTheGraph:
+    """Ghost nodes from renamed or deleted files (GAU-1, GAU-2)."""
+
+    @pytest.mark.unit
+    def test_incremental_after_rename_drops_old_path_nodes(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        """Git reported only the new path of a rename, so the old one stayed."""
+        (repo / "a.py").write_text("def helper():\n    pass\n")
+        _git(repo, "add", ".")
+        _git(repo, "commit", "-qm", "init")
+        full_build(str(repo), store)
+        _git(repo, "mv", "a.py", "b.py")
+        _git(repo, "commit", "-qm", "rename")
+
+        incremental_update(str(repo), store, "HEAD~1")
+
+        assert store.get_nodes_in_file(str(repo / "a.py")) == []
+        assert store.get_nodes_in_file(str(repo / "b.py")) != []
+
+    @pytest.mark.unit
+    def test_full_build_drops_nodes_of_deleted_files(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        """A full build stored current files and never removed gone ones."""
+        (repo / "a.py").write_text("def helper():\n    pass\n")
+        (repo / "keep.py").write_text("def keep():\n    pass\n")
+        full_build(str(repo), store)
+        (repo / "a.py").unlink()
+
+        full_build(str(repo), store)
+
+        assert store.get_nodes_in_file(str(repo / "a.py")) == []
+        assert store.get_nodes_in_file(str(repo / "keep.py")) != []
+
+    @pytest.mark.unit
+    def test_full_build_keeps_rows_of_files_outside_its_root(
+        self, tmp_path: Path, store: GraphStore
+    ) -> None:
+        """The sweep deleted every stored file not under the current root,
+        so building one subtree erased a sibling's rows.
+        """
+        for name in ("pkg", "pkg_sibling"):
+            (tmp_path / name).mkdir()
+            (tmp_path / name / "m.py").write_text("def helper():\n    pass\n")
+        full_build(str(tmp_path / "pkg_sibling"), store)
+
+        full_build(str(tmp_path / "pkg"), store)
+
+        assert store.get_nodes_in_file(str(tmp_path / "pkg_sibling" / "m.py")) != []
+        assert store.get_nodes_in_file(str(tmp_path / "pkg" / "m.py")) != []
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("root", [".", "./"])
+    def test_full_build_from_a_relative_root_drops_deleted_files(
+        self, repo: Path, store: GraphStore, monkeypatch: pytest.MonkeyPatch, root: str
+    ) -> None:
+        """A prefix built from the raw root string matched no stored path."""
+        monkeypatch.chdir(repo)
+        (repo / "a.py").write_text("def helper():\n    pass\n")
+        (repo / "keep.py").write_text("def keep():\n    pass\n")
+        full_build(root, store)
+        (repo / "a.py").unlink()
+
+        full_build(root, store)
+
+        assert store.get_file_paths() == {"keep.py"}
+
+    @pytest.mark.unit
+    def test_stored_file_paths_are_listed_once_each(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        (repo / "a.py").write_text("def one():\n    pass\ndef two():\n    pass\n")
+        full_build(str(repo), store)
+        assert store.get_file_paths() == {str(repo / "a.py")}
+
+    @pytest.mark.unit
+    def test_delete_files_removes_only_the_named_files(
+        self, repo: Path, store: GraphStore
+    ) -> None:
+        (repo / "a.py").write_text("def one():\n    two()\ndef two():\n    pass\n")
+        (repo / "b.py").write_text("def keep():\n    pass\n")
+        full_build(str(repo), store)
+
+        store.delete_files([str(repo / "a.py")])
+
+        assert store.get_file_paths() == {str(repo / "b.py")}
+        assert all(e.file_path != str(repo / "a.py") for e in store.get_all_edges())
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("build", ["full", "incremental"])
+    def test_a_failed_parse_keeps_the_rows_an_earlier_build_stored(
+        self, repo: Path, store: GraphStore, build: str
+    ) -> None:
+        """A successful parse always yields a File node, so an empty one is a
+        failure. The incremental update kept old rows and the full build
+        erased them.
+        """
+        (repo / "a.py").write_text("def helper():\n    pass\n")
+        _git(repo, "add", ".")
+        _git(repo, "commit", "-qm", "init")
+        full_build(str(repo), store)
+        (repo / "a.py").write_text("def helper():\n    return 1\n")
+        _git(repo, "commit", "-qam", "edit")
+
+        with patch("gauntlet.incremental.parse_file", return_value=([], [])):
+            if build == "full":
+                full_build(str(repo), store)
+            else:
+                incremental_update(str(repo), store, "HEAD~1")
+
+        assert store.get_nodes_in_file(str(repo / "a.py")) != []
+
+
+@pytest.mark.unit
+def test_full_build_without_a_parser_leaves_the_graph_alone(
+    repo: Path, store: GraphStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Every parse is empty without tree-sitter, and storing those would
+    wipe the graph now that a full build replaces each file's rows.
+    """
+    (repo / "a.py").write_text("def helper():\n    pass\n")
+    full_build(str(repo), store)
+    monkeypatch.setattr("gauntlet.incremental.parser_available", lambda: False)
+
+    report = full_build(str(repo), store)
+
+    assert "error" in report
+    assert store.get_nodes_in_file(str(repo / "a.py")) != []

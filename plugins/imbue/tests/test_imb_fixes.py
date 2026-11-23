@@ -71,3 +71,16 @@ class TestIMB009LoadStateNarrowedExcept:
         result = guard_hook._load_state(state_file)
 
         assert result == {"rung": 3, "increments": 2}
+
+
+class TestNonObjectStateFile:
+    """`null` or `[]` reached `state.get` and the hook exited silently."""
+
+    @pytest.mark.parametrize("body", ["null", "[]", "3"])
+    def test_non_object_state_file_falls_back_to_default_rung(
+        self, guard_hook, tmp_path, body
+    ):
+        state_file = tmp_path / "state.json"
+        state_file.write_text(body)
+        state = guard_hook._load_state(state_file)
+        assert state == {"rung": guard_hook.RUNG_START, "increments": 0}

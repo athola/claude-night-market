@@ -9,7 +9,6 @@ Tests expert panel configuration:
 
 from __future__ import annotations
 
-import asyncio
 import dataclasses
 from pathlib import Path
 from unittest.mock import patch
@@ -348,47 +347,21 @@ class TestMuseExpert:
         assert EXPERT_CONFIGS["systems_engineer"].optional is True
 
 
-class TestAvailabilityProbeTimeout:
-    """The probe timeout is caught on every supported Python and kills the CLI."""
+class TestAvailabilityProbe:
+    """Availability comes from the registry's checks, not a completion."""
 
     @pytest.mark.asyncio
-    async def test_timed_out_probe_marks_expert_unavailable_and_kills_process(
+    async def test_unverified_registry_expert_is_unavailable(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """A probe that times out reports unavailable and leaves no orphan."""
-        expert = ExpertConfig(
-            role="Probe",
-            service="probe-svc",
-            model="probe-model",
-            description="Test",
-            phases=["test"],
-            command=["probe-cli", "-p"],
+        """A timed-out version probe surfaces as a verify issue, not a hang."""
+        experts_module._expert_availability.clear()
+        monkeypatch.setattr(
+            experts_module,
+            "verify_service",
+            lambda _service: (False, ["Command 'qwen' not found or not working"]),
         )
-        monkeypatch.setitem(experts_module._expert_availability, "sentinel", True)
-        experts_module._expert_availability.pop("probe-svc:probe-model", None)
-
-        class FakeProc:
-            returncode = None
-            killed = False
-
-            async def communicate(self) -> tuple[bytes, bytes]:
-                # What asyncio.wait_for raises when the 10s budget expires,
-                # which on 3.9 and 3.10 is not the builtin TimeoutError.
-                raise asyncio.TimeoutError()
-
-            def kill(self) -> None:
-                self.killed = True
-
-            async def wait(self) -> int:
-                return -9
-
-        proc = FakeProc()
-
-        async def fake_exec(*_args: object, **_kwargs: object) -> FakeProc:
-            return proc
-
-        monkeypatch.setattr(asyncio, "create_subprocess_exec", fake_exec)
-
-        assert await experts_module.check_expert_availability(expert) is False
-        assert proc.killed is True
-        assert experts_module._expert_availability["probe-svc:probe-model"] is False
+        assert (
+            await experts_module.check_expert_availability(EXPERT_CONFIGS["scout"])
+            is False
+        )

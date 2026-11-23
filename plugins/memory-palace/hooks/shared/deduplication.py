@@ -11,7 +11,6 @@ import hashlib
 import os
 import subprocess
 import sys
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 from types import ModuleType
@@ -34,14 +33,8 @@ _SRC = str(Path(__file__).resolve().parents[2] / "src")
 if _SRC not in sys.path:
     sys.path.insert(0, _SRC)
 
-from memory_palace._vendored_leyline_atomic_file import write_atomic
+from memory_palace._vendored_leyline_atomic_file import file_lock, write_atomic
 from memory_palace.paths import persistent_root as _persistent_root
-
-fcntl: ModuleType | None
-try:
-    import fcntl
-except ImportError:  # Windows has no flock: index writes run unlocked there.
-    fcntl = None
 
 # Try to use xxhash for speed, fall back to hashlib
 try:
@@ -104,11 +97,21 @@ def get_content_hash(content: str | bytes) -> str:
     return f"sha256:{hashlib.sha256(content).hexdigest()[:16]}"
 
 
-_TRACKING_PARAMS = frozenset({"utm_source", "utm_medium", "utm_campaign", "ref"})
+# `ref` is not tracking: it selects a git ref on GitHub and many doc sites.
+_TRACKING_PARAMS = frozenset({"utm_source", "utm_medium", "utm_campaign"})
+
+
+SEARCH_KEY_PREFIX = "search:"
 
 
 def get_url_key(url: str) -> str:
-    """Normalize URL for consistent keying."""
+    """Normalize URL for consistent keying.
+
+    A ``search:`` key holds a query, not a URL, and is returned as given:
+    the normalizer would drop a trailing ``?`` and query-like pairs.
+    """
+    if url.startswith(SEARCH_KEY_PREFIX):
+        return url
     # Fragment first: a trailing slash before "#" is still a trailing slash.
     url = url.split("#", 1)[0]
 
@@ -196,6 +199,15 @@ def _load_index() -> dict[str, Any]:
         try:
             with open(index_path) as f:
                 _index_cache = yaml.safe_load(f) or {"entries": {}, "hashes": {}}
+            if not isinstance(_index_cache, dict):
+                # A list parses fine and then raised on `.setdefault`,
+                # outside this set-aside path.
+                raise yaml.YAMLError("index is not a mapping")
+            for section in ("entries", "hashes"):
+                # `entries: []` or a bare `entries:` passed the check above,
+                # and every caller then raised on `.items()` or `.get()`.
+                if not isinstance(_index_cache.get(section, {}), dict):
+                    raise yaml.YAMLError(f"index {section} is not a mapping")
         except yaml.YAMLError as exc:
             # Issue #528: a corrupt index file must not take down web-research
             # store calls. Reads proceed on an empty index and leave the file
@@ -311,6 +323,41 @@ def needs_update(
         return True  # Not indexed yet
 
     return entry.get("content_hash") != content_hash
+
+
+def forget_stored(stored_paths: set[str]) -> None:
+    """Drop the entries and hashes of capture files that were deleted.
+
+    Pruning a capture file left its entry behind, so ``is_known`` kept
+    answering True for content nothing can retrieve, and the page was
+    never captured again. Same lock and write-back as ``update_index``.
+    """
+    global _index_cache, _index_mtime  # noqa: PLW0603 - same module cache update_index refreshes
+    if not stored_paths or yaml is None:
+        return
+    with _index_lock():
+        _index_cache = None
+        index = _load_index()
+        if _index_load_failed:
+            # update_index sets a corrupt index aside before writing; a prune
+            # has nothing to add, so it leaves the file for that path.
+            return
+        index["entries"] = {
+            key: entry
+            for key, entry in index["entries"].items()
+            if entry.get("stored_at") not in stored_paths
+        }
+        index["hashes"] = {
+            digest: where
+            for digest, where in index["hashes"].items()
+            if where not in stored_paths
+        }
+        index_path = _get_index_path()
+        write_atomic(
+            index_path, yaml.safe_dump(index, default_flow_style=False, sort_keys=False)
+        )
+        _index_cache = index
+        _index_mtime = index_path.stat().st_mtime
 
 
 def update_index(  # noqa: PLR0913 - index entries have many metadata fields
@@ -438,7 +485,6 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
 # file was written leaves that file with no index entry, so it gives up
 # first and lets the caller remove the file.
 _LOCK_TIMEOUT_SECONDS = 3.0
-_LOCK_POLL_SECONDS = 0.05
 
 
 @contextlib.contextmanager
@@ -448,30 +494,15 @@ def _index_lock() -> Iterator[None]:
     Parallel WebFetch calls run one hook process each. ``write_atomic``
     keeps the file whole but cannot stop the last writer from dropping
     entries the others added, which left staged captures no index entry
-    points at. On a platform without ``fcntl`` no lock is taken.
+    points at. On a platform with neither ``fcntl`` nor ``msvcrt`` no
+    lock is taken.
 
     Raises:
         TimeoutError: if the lock is still held by another process after
             ``_LOCK_TIMEOUT_SECONDS``.
 
     """
-    index_path = _get_index_path()
-    index_path.parent.mkdir(parents=True, exist_ok=True)
-    lock_path = index_path.with_name(index_path.name + ".lock")
-    with open(lock_path, "a") as lock_file:
-        if fcntl is not None:
-            deadline = time.monotonic() + _LOCK_TIMEOUT_SECONDS
-            while True:
-                try:
-                    fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                    break
-                except BlockingIOError:
-                    if time.monotonic() >= deadline:
-                        raise TimeoutError(
-                            f"index lock {lock_path} held for over"
-                            f" {_LOCK_TIMEOUT_SECONDS}s"
-                        ) from None
-                    time.sleep(_LOCK_POLL_SECONDS)
+    with file_lock(_get_index_path(), timeout=_LOCK_TIMEOUT_SECONDS):
         yield
 
 

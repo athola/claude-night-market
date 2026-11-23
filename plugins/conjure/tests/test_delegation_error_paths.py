@@ -459,3 +459,310 @@ class TestTheAuditTrailAndTheOverridesAreNotSilent:
             delegator.log_usage("gemini", ["gemini"], result)
 
         assert any("audit trail" in r.message for r in caplog.records)
+
+
+class TestRefusedCredentialIsNotAnAnswer:
+    """A provider's refusal text at exit 0 is not an answer.
+
+    qwen prints its 401 and exits 0. The markers were read only by the
+    auth probe, which qwen does not have.
+    """
+
+    @patch.object(Delegator, "execute")
+    @patch.object(Delegator, "verify_service")
+    def test_smart_delegate_skips_qwen_when_exit0_stdout_carries_auth_failure_marker(
+        self, mock_verify: MagicMock, mock_execute: MagicMock, temp_config_dir
+    ) -> None:
+        """The chain records the refusal and does not stop at qwen."""
+        mock_verify.side_effect = lambda name: (name == "qwen", [])
+        mock_execute.return_value = ExecutionResult(
+            success=True,
+            stdout="[API Error: 401 Incorrect API key provided: sk-xx]",
+            stderr="",
+            exit_code=0,
+            duration=1.0,
+        )
+
+        result = Delegator(config_dir=temp_config_dir).smart_delegate("p")
+
+        assert not result.success
+        qwen_attempt = next(a for a in result.attempts if a.service == "qwen")
+        assert "credential refused" in qwen_attempt.reason
+
+
+class TestAnswerQuotingAMarkerIsStillAnAnswer:
+    """The refusal check reads where the CLI puts its error, not the body."""
+
+    @patch.object(Delegator, "execute")
+    @patch.object(Delegator, "verify_service")
+    def test_answer_that_quotes_an_auth_error_is_kept(
+        self, mock_verify: MagicMock, mock_execute: MagicMock, temp_config_dir
+    ) -> None:
+        """An explanation of a 401 is an answer, not a refusal."""
+        mock_verify.side_effect = lambda name: (name == "qwen", [])
+        mock_execute.return_value = ExecutionResult(
+            success=True,
+            stdout="The log shows:\n\n    API Error: 401 Incorrect API key\n",
+            stderr="",
+            exit_code=0,
+            duration=1.0,
+        )
+
+        result = Delegator(config_dir=temp_config_dir).smart_delegate("p")
+
+        assert result.success
+        assert result.service == "qwen"
+
+
+class TestEndpointSwapChildEnvironment:
+    """An endpoint-swap child does not inherit the real vendor's key.
+
+    glm runs the stock claude binary against Z.ai.
+    """
+
+    def test_glm_child_env_excludes_anthropic_api_key(
+        self, temp_config_dir, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The overlay token stays; the parent's Anthropic credentials go."""
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-parent")
+        monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", "oauth-parent")
+        zai_key = "zai-test-value"
+        monkeypatch.setenv("ZAI_API_KEY", zai_key)
+        delegator = Delegator(config_dir=temp_config_dir)
+        launched = []
+
+        def capture(spec):
+            launched.append(spec)
+            return ExecutionResult(
+                success=True, stdout="ok", stderr="", exit_code=0, duration=0.1
+            )
+
+        with patch.object(Delegator, "_launch_process", side_effect=capture):
+            delegator.execute("glm", "p")
+
+        env = launched[0].env
+        assert "ANTHROPIC_API_KEY" not in env
+        assert "CLAUDE_CODE_OAUTH_TOKEN" not in env
+        assert env["ANTHROPIC_AUTH_TOKEN"] == zai_key
+
+
+class TestUsageLogRedaction:
+    """The usage log keeps no prompt text (CNJ-5).
+
+    It joined the whole argv, prompt and inlined files included.
+    """
+
+    def test_usage_log_does_not_contain_prompt_text(self, temp_config_dir) -> None:
+        """The log keeps the shape of the command, not the prompt."""
+        delegator = Delegator(config_dir=temp_config_dir)
+        result = ExecutionResult(
+            success=False, stdout="", stderr="e" * 5000, exit_code=1, duration=0.1
+        )
+        delegator.log_usage(
+            "gemini",
+            ["gemini", "-p", "SECRET-PROMPT-TEXT and more"],
+            result,
+            prompt="SECRET-PROMPT-TEXT and more",
+        )
+
+        logged = delegator.usage_log.read_text()
+        assert "SECRET-PROMPT-TEXT" not in logged
+        assert "<prompt: 27 chars>" in logged
+        assert len(json.loads(logged.splitlines()[-1])["error"]) <= 500
+
+    def test_a_short_prompt_blanks_only_the_argument_that_carries_it(
+        self, temp_config_dir
+    ) -> None:
+        """Prompt "hi" blanked `--thinking-budget`, which contains it (U8)."""
+        delegator = Delegator(config_dir=temp_config_dir)
+        finished = ExecutionResult(
+            success=True, stdout="", stderr="", exit_code=0, duration=0.1
+        )
+        delegator.log_usage(
+            "gemini",
+            ["gemini", "--thinking-budget", "1024", "-p", "hi"],
+            finished,
+            prompt="hi",
+        )
+        logged = json.loads(delegator.usage_log.read_text().splitlines()[-1])
+        assert logged["command"] == "gemini --thinking-budget 1024 -p <prompt: 2 chars>"
+
+    def test_a_stdin_service_logs_its_argv_unredacted(self, temp_config_dir) -> None:
+        """Its prompt never enters argv, so no argument is the prompt."""
+        delegator = Delegator(config_dir=temp_config_dir)
+        finished = ExecutionResult(
+            success=True, stdout="", stderr="", exit_code=0, duration=0.1
+        )
+        delegator.log_usage(
+            "glimmer", ["ollama", "run", "muse-glimmer:30b"], finished, prompt="muse"
+        )
+        logged = json.loads(delegator.usage_log.read_text().splitlines()[-1])
+        assert logged["command"] == "ollama run muse-glimmer:30b"
+
+    def test_an_unregistered_service_still_has_its_prompt_redacted(
+        self, temp_config_dir
+    ) -> None:
+        """Only a service known to read stdin is logged unredacted."""
+        delegator = Delegator(config_dir=temp_config_dir)
+        finished = ExecutionResult(
+            success=True, stdout="", stderr="", exit_code=0, duration=0.1
+        )
+        delegator.log_usage(
+            "unlisted",
+            ["tool", "-p", "SECRET-PROMPT"],
+            finished,
+            prompt="SECRET-PROMPT",
+        )
+        assert "SECRET-PROMPT" not in delegator.usage_log.read_text()
+
+    def test_execute_redacts_the_prompt_in_the_usage_log(self, temp_config_dir) -> None:
+        """execute() must hand log_usage the prompt, or the log keeps it."""
+        delegator = Delegator(config_dir=temp_config_dir)
+        launched = ExecutionResult(
+            success=True, stdout="ok", stderr="", exit_code=0, duration=0.1
+        )
+        with patch.object(Delegator, "_launch_process", return_value=launched):
+            delegator.execute("gemini", "SECRET-PROMPT")
+
+        logged = delegator.usage_log.read_text()
+        assert "SECRET-PROMPT" not in logged
+        assert "<prompt: 13 chars>" in logged
+
+
+class TestExecuteRefusesUnsetOverlay:
+    """A direct execute() refuses an unset overlay variable (CNJ-3).
+
+    It skipped verify_service and spawned glm with an empty auth token.
+    """
+
+    def test_execute_refuses_to_spawn_when_overlay_variable_unset(
+        self, temp_config_dir, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """No process starts, and the result names the variable."""
+        monkeypatch.delenv("ZAI_API_KEY", raising=False)
+        launch = MagicMock()
+        with patch.object(Delegator, "_launch_process", launch):
+            result = Delegator(config_dir=temp_config_dir).execute("glm", "p")
+        launch.assert_not_called()
+        assert not result.success
+        assert "ZAI_API_KEY" in result.stderr
+
+
+def test_usage_summary_tolerates_null_tokens(temp_config_dir) -> None:
+    """A null tokens_used lost that call's duration from the total (CNJ-11)."""
+    now = datetime.now().isoformat()
+    delegator = Delegator(config_dir=temp_config_dir)
+    delegator.usage_log.write_text(
+        json.dumps(
+            {
+                "timestamp": now,
+                "service": "gemini",
+                "success": False,
+                "tokens_used": None,
+                "duration": 5,
+            }
+        )
+        + "\n"
+        + json.dumps(
+            {
+                "timestamp": now,
+                "service": "gemini",
+                "success": True,
+                "tokens_used": 7,
+                "duration": 2,
+            }
+        )
+        + "\n"
+    )
+    summary = delegator.get_usage_summary()
+    assert summary["services"]["gemini"]["tokens_used"] == 7
+    assert summary["services"]["gemini"]["total_duration"] == 7
+
+
+@patch.object(Delegator, "verify_service", return_value=(True, []))
+@patch.object(Delegator, "execute")
+def test_smart_delegate_passes_the_timeout_to_each_provider(
+    mock_execute: MagicMock, _verify: MagicMock, temp_config_dir
+) -> None:
+    """`auto` dropped --timeout, so each of up to eight providers got 300 s (CNJ-12)."""
+    mock_execute.return_value = ExecutionResult(
+        success=True, stdout="ok", stderr="", exit_code=0, duration=0.1
+    )
+    Delegator(config_dir=temp_config_dir).smart_delegate("p", timeout=30)
+    assert mock_execute.call_args.kwargs.get("timeout") == 30
+
+
+@patch("scripts.delegation_executor.refused_credential_output", return_value=True)
+@patch.object(Delegator, "verify_service", return_value=(True, []))
+@patch.object(Delegator, "execute")
+def test_a_refused_credential_is_recorded_in_the_provider_ledger(
+    mock_execute: MagicMock, _verify: MagicMock, _refused: MagicMock, temp_config_dir
+) -> None:
+    """record_failure had no caller, so a 401 never reached it (CNJ-13)."""
+    mock_execute.return_value = ExecutionResult(
+        success=True,
+        stdout="401 Incorrect API key provided",
+        stderr="",
+        exit_code=0,
+        duration=0.1,
+    )
+    delegator = Delegator(config_dir=temp_config_dir)
+    delegator.smart_delegate("p")
+
+    ledger = json.loads((temp_config_dir / "provider-state.json").read_text())
+    errors = [entry["last_error"] for entry in ledger["providers"].values()]
+    assert errors and all(errors), ledger
+
+
+@patch.object(Delegator, "verify_service", return_value=(True, []))
+@patch.object(Delegator, "execute")
+def test_total_timeout_bounds_the_whole_chain(
+    mock_execute: MagicMock, _verify: MagicMock, temp_config_dir
+) -> None:
+    """Eight providers at 300 s each could run 40 minutes (CNJ-12)."""
+    mock_execute.return_value = ExecutionResult(
+        success=False, stdout="", stderr="boom", exit_code=1, duration=0.1
+    )
+    # start, before provider 1, before provider 2, before provider 3
+    clock = iter([0.0, 0.0, 250.0, 400.0, 400.0, 400.0, 400.0, 400.0])
+    with patch("scripts.delegation_executor.time.monotonic", lambda: next(clock)):
+        Delegator(config_dir=temp_config_dir).smart_delegate(
+            "p", timeout=300, total_timeout=300
+        )
+    timeouts = [c.kwargs["timeout"] for c in mock_execute.call_args_list]
+    assert timeouts[0] == 300
+    assert timeouts[1] == 50
+    assert len(timeouts) == 2
+
+
+@patch.object(Delegator, "verify_service", return_value=(True, []))
+@patch.object(Delegator, "execute")
+def test_no_availability_probe_runs_after_the_total_timeout(
+    mock_execute: MagicMock, mock_verify: MagicMock, temp_config_dir
+) -> None:
+    """A probe for a provider past the deadline ran, and its result was dropped."""
+    clock = iter([0.0, 400.0, 400.0])
+    with patch("scripts.delegation_executor.time.monotonic", lambda: next(clock)):
+        result = Delegator(config_dir=temp_config_dir).smart_delegate(
+            "p", timeout=300, total_timeout=300
+        )
+    mock_verify.assert_not_called()
+    mock_execute.assert_not_called()
+    assert result.attempts[-1].reason == "total timeout reached"
+
+
+@patch("scripts.delegation_executor.refused_credential_output", return_value=True)
+@patch.object(Delegator, "verify_service", return_value=(True, []))
+@patch.object(Delegator, "execute")
+def test_an_unwritable_ledger_does_not_stop_the_chain(
+    mock_execute: MagicMock, _verify: MagicMock, _refused: MagicMock, temp_config_dir
+) -> None:
+    """Recording a refusal must not turn a disk error into a lost fallback (CNJ-13)."""
+    mock_execute.return_value = ExecutionResult(
+        success=True, stdout="401", stderr="", exit_code=0, duration=0.1
+    )
+    with patch(
+        "scripts.delegation_executor.ProviderLedger.save", side_effect=OSError("ro")
+    ):
+        Delegator(config_dir=temp_config_dir).smart_delegate("p")
+    assert mock_execute.call_count > 1

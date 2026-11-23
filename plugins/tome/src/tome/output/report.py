@@ -126,12 +126,18 @@ def _format_coverage(session: ResearchSession, outcomes: dict[str, str]) -> str:
         status = outcomes.get(channel, OUTCOME_UNKNOWN)
         lines.append(f"| {channel} | {status} | {counts.get(channel, 0)} |")
 
-    gaps = identify_gaps(session.findings, session.channels)
+    gaps = identify_gaps(session.findings, session.channels, session.entities)
     notes: list[str] = []
     if gaps["source_diversity_warning"]:
         notes.append(
             "One channel holds most of the findings, so the result rests "
             "on a single source's coverage."
+        )
+    if gaps.get("uncovered_entities"):
+        notes.append(
+            "No finding mentions "
+            + ", ".join(gaps["uncovered_entities"])
+            + ", which the question names."
         )
     if gaps["recency_gap"]:
         notes.append(

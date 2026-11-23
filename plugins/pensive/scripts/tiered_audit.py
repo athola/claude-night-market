@@ -84,6 +84,21 @@ def _parse_numstat(raw: str) -> list[tuple[str, str, int, int]]:
     return stats
 
 
+def _files_by_commit(raw: str) -> dict[str, set[str]]:
+    """Map each commit in ``git log --format=%H%x00%s --numstat`` to its files."""
+    files: dict[str, set[str]] = {}
+    sha = ""
+    for line in raw.splitlines():
+        if "\x00" in line:
+            sha = line.split("\x00", 1)[0]
+            files[sha] = set()
+            continue
+        parts = line.split("\t")
+        if sha and len(parts) == _NUMSTAT_FIELDS:
+            files[sha].add(parts[2])
+    return files
+
+
 def collect(base: str, cwd: Path | None = None) -> tuple[Tier1Results, dict[str, str]]:
     """Run the four git queries and apply the Tier 1 thresholds.
 
@@ -111,7 +126,8 @@ def collect(base: str, cwd: Path | None = None) -> tuple[Tier1Results, dict[str,
         for line in _git(commands["fix-on-fix"], cwd).splitlines()
         if "\x00" in line
     ]
-    diff_stats = _parse_numstat(_git(commands["large-diff"], cwd))
+    numstat = _git(commands["large-diff"], cwd)
+    diff_stats = _parse_numstat(numstat)
     new_files = [
         line.split("\t", 1)[1]
         for line in _git(commands["new-file-cluster"], cwd).splitlines()
@@ -120,7 +136,9 @@ def collect(base: str, cwd: Path | None = None) -> tuple[Tier1Results, dict[str,
 
     results = _checks.Tier1Results(
         churn_flags=_checks.check_churn_hotspots(file_changes),
-        fix_flags=_checks.check_fix_on_fix([(sha, msg) for sha, msg in commits]),
+        fix_flags=_checks.check_fix_on_fix(
+            [(sha, msg) for sha, msg in commits], _files_by_commit(numstat)
+        ),
         large_diff_flags=_checks.check_large_diffs(diff_stats),
         new_cluster_flags=_checks.check_new_file_clusters(new_files),
     )

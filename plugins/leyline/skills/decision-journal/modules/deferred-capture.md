@@ -95,9 +95,11 @@ Error: `{"status": "error", "message": "..."}`
 
 ## Compliance Test
 
-Any wrapper can verify conformance with:
+Any wrapper can verify conformance with the command below. Set
+`CLAUDE_PLUGIN_ROOT` to the root of the plugin whose wrapper you check.
+The `:?` form stops the command when it is unset.
 
-    python3 scripts/deferred_capture.py \
+    python3 "${CLAUDE_PLUGIN_ROOT:?}/scripts/deferred_capture.py" \
       --title "Test: compliance check" \
       --source test \
       --context "Automated compliance verification" \

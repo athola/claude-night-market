@@ -15,10 +15,10 @@ import re
 import sys
 from pathlib import Path
 
-# D-06: shadow_mode and git_commit_offset are in shared/vow_utils.
+# D-06: shadow_mode and git_commit_spans are in shared/vow_utils.
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
-    git_commit_offset,
+    git_commit_spans,
     shadow_mode_active,
     vow_output,
 )
@@ -65,13 +65,12 @@ def main() -> None:
             sys.exit(0)
 
         command = data.get("tool_input", {}).get("command", "")
-        offset = git_commit_offset(command)
-        if offset is None:
-            sys.exit(0)
-
-        # An emoji in an earlier command ("echo ... && git commit") is not
-        # in the commit message.
-        if not _has_emoji(command[offset:]):
+        # Each commit's message runs from its segment, or from the commands
+        # piped into it for `-F -`, to the next chain operator. An emoji in
+        # another command ("echo ... && git commit", "... && echo 🎉") is
+        # not in a message, but one in a chained `git commit --amend` is.
+        spans = git_commit_spans(command)
+        if not any(_has_emoji(command[start:end]) for start, end in spans):
             sys.exit(0)
 
         shadow = shadow_mode_active()

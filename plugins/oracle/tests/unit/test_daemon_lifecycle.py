@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import signal
 import subprocess
 import sys
+import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 from io import StringIO
@@ -705,6 +707,56 @@ class TestLifecycleErrorPaths:
         assert not (tmp_path / "daemon.pid").exists()
         assert "models directory" in (tmp_path / "daemon.log").read_text()
 
+    def test_missing_models_line_is_logged_once_across_sessions(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """Every SessionStart appended the same line without bound (ORC-4)."""
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        (tmp_path / ".oracle-enabled").touch()
+        python = tmp_path / "venv" / "bin" / "python"
+        python.parent.mkdir(parents=True)
+        python.touch()
+        payload = json.dumps({"hook_event_name": "SessionStart"})
+
+        for _ in range(3):
+            with (
+                patch("sys.stdin", StringIO(payload)),
+                patch(
+                    "daemon_lifecycle._get_models_dir", return_value=tmp_path / "none"
+                ),
+                patch("daemon_lifecycle.subprocess.Popen"),
+            ):
+                main()
+
+        log = (tmp_path / "daemon.log").read_text()
+        assert log.count("models directory missing") == 1
+
+    @pytest.mark.unit
+    def test_missing_models_line_with_a_non_ascii_path_is_logged_once(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """The tail seek counted characters, the comparison bytes (U11)."""
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        (tmp_path / ".oracle-enabled").touch()
+        python = tmp_path / "venv" / "bin" / "python"
+        python.parent.mkdir(parents=True)
+        python.touch()
+        payload = json.dumps({"hook_event_name": "SessionStart"})
+
+        for _ in range(3):
+            with (
+                patch("sys.stdin", StringIO(payload)),
+                patch(
+                    "daemon_lifecycle._get_models_dir",
+                    return_value=tmp_path / "modèles-données",
+                ),
+                patch("daemon_lifecycle.subprocess.Popen"),
+            ):
+                main()
+
+        log = (tmp_path / "daemon.log").read_text(encoding="utf-8")
+        assert log.count("models directory missing") == 1
+
     @pytest.mark.unit
     def test_a_missing_models_directory_still_clears_stale_port_and_pid(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -758,6 +810,11 @@ class TestLifecycleErrorPaths:
 class TestStopWaitsForSessionEnd:
     """Stop fires after every assistant turn; the daemon lives for the session."""
 
+    @pytest.fixture(autouse=True)
+    def _data_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        # SessionEnd takes the start lock under the data dir; keep it out of $HOME.
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+
     @pytest.mark.unit
     def test_turn_level_stop_leaves_the_daemon_running(self) -> None:
         with (
@@ -791,6 +848,11 @@ class TestStopWaitsForSessionEnd:
 class TestClearKeepsTheDaemon:
     """/clear ends one session and starts the next in the same process."""
 
+    @pytest.fixture(autouse=True)
+    def _data_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        # SessionEnd takes the start lock under the data dir; keep it out of $HOME.
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+
     @pytest.mark.unit
     def test_session_end_for_clear_leaves_the_daemon_running(self) -> None:
         """The async stop could land after the new SessionStart and kill it."""
@@ -812,3 +874,285 @@ class TestClearKeepsTheDaemon:
         ):
             main()
         stop.assert_called_once()
+
+
+def test_one_session_ending_keeps_the_daemon_another_session_uses(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Any SessionEnd stopped the shared daemon under a live session (ORC-3)."""
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    (tmp_path / ".oracle-enabled").touch()
+    python = tmp_path / "venv" / "bin" / "python"
+    python.parent.mkdir(parents=True)
+    python.touch()
+
+    def fire(event: str, session: str) -> None:
+        payload = json.dumps({"hook_event_name": event, "session_id": session})
+        with patch("sys.stdin", StringIO(payload)):
+            main()
+
+    with (
+        patch("daemon_lifecycle._start_daemon"),
+        patch("daemon_lifecycle._stop_daemon") as stop,
+    ):
+        fire("SessionStart", "A")
+        fire("SessionStart", "B")
+        fire("SessionEnd", "A")
+        stop.assert_not_called()
+        fire("SessionEnd", "B")
+        stop.assert_called_once()
+
+
+def test_daemon_start_runs_under_an_exclusive_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Two sessions starting together both passed the running check and
+    spawned two daemons (ORC-3).
+    """
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    (tmp_path / ".oracle-enabled").touch()
+    python = tmp_path / "venv" / "bin" / "python"
+    python.parent.mkdir(parents=True)
+    python.touch()
+    held: list[bool] = []
+
+    def probe() -> None:
+        with open(tmp_path / "daemon.start.lock", "a") as other:
+            try:
+                fcntl.flock(other, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                held.append(True)
+
+    payload = json.dumps({"hook_event_name": "SessionStart", "session_id": "A"})
+    with (
+        patch("sys.stdin", StringIO(payload)),
+        patch("daemon_lifecycle._start_daemon", side_effect=probe),
+    ):
+        main()
+    assert held == [True]
+
+
+def test_clear_drops_the_session_marker_without_stopping(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """/clear ends one session id and starts another; the old marker kept the
+    daemon alive for the 24 h TTL (ORC-3).
+    """
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    marker = tmp_path / "sessions" / "A"
+    marker.parent.mkdir(parents=True)
+    marker.touch()
+    payload = json.dumps(
+        {"hook_event_name": "SessionEnd", "session_id": "A", "reason": "clear"}
+    )
+    with (
+        patch("sys.stdin", StringIO(payload)),
+        patch("daemon_lifecycle._stop_daemon") as stop,
+    ):
+        main()
+    stop.assert_not_called()
+    assert not marker.exists()
+
+
+def test_session_end_checks_and_stops_under_the_start_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A stop outside the start lock could SIGTERM a daemon that a starting
+    session had just confirmed running.
+    """
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    held: list[str] = []
+
+    def probe(step: str) -> None:
+        with open(tmp_path / "daemon.start.lock", "a") as other:
+            try:
+                fcntl.flock(other, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                held.append(step)
+
+    def live_probe(_session: str) -> bool:
+        probe("live")
+        return False
+
+    payload = json.dumps({"hook_event_name": "SessionEnd", "session_id": "A"})
+    with (
+        patch("sys.stdin", StringIO(payload)),
+        patch("daemon_lifecycle._other_sessions_live", side_effect=live_probe),
+        patch("daemon_lifecycle._stop_daemon", side_effect=lambda: probe("stop")),
+    ):
+        main()
+    assert held == ["live", "stop"]
+
+
+def _session_end_stops(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> bool:
+    """End session "ending" and report whether the shared daemon was stopped."""
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    payload = json.dumps({"hook_event_name": "SessionEnd", "session_id": "ending"})
+    with (
+        patch("sys.stdin", StringIO(payload)),
+        patch("daemon_lifecycle._stop_daemon") as stop,
+    ):
+        main()
+    return stop.called
+
+
+def _write_marker(tmp_path: Path, content: str, age_seconds: float = 0) -> Path:
+    marker = tmp_path / "sessions" / "other"
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    marker.write_text(content)
+    stamp = time.time() - age_seconds
+    os.utime(marker, (stamp, stamp))
+    return marker
+
+
+def test_a_session_older_than_the_ttl_keeps_the_daemon_while_its_process_lives(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A marker touched once at start looked expired after 24 h (U6)."""
+    with subprocess.Popen(
+        [sys.executable, "-c", "import time; time.sleep(30)"]
+    ) as live:
+        try:
+            _write_marker(tmp_path, str(live.pid), age_seconds=48 * 3600)
+            assert not _session_end_stops(tmp_path, monkeypatch)
+        finally:
+            live.kill()
+
+
+def test_a_crashed_session_does_not_keep_the_daemon_for_the_ttl(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A fresh marker whose process is gone counted as live for 24 h (U6)."""
+    gone = subprocess.Popen([sys.executable, "-c", "pass"])
+    gone.wait()
+    _write_marker(tmp_path, str(gone.pid))
+    assert _session_end_stops(tmp_path, monkeypatch)
+
+
+@pytest.mark.parametrize(("age_hours", "stops"), [(1, False), (48, True)])
+def test_a_marker_without_a_pid_falls_back_to_the_ttl(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, age_hours: int, stops: bool
+) -> None:
+    """Markers written before the pid was stored are judged by age."""
+    _write_marker(tmp_path, "", age_seconds=age_hours * 3600)
+    assert _session_end_stops(tmp_path, monkeypatch) is stops
+
+
+def test_session_start_records_the_process_that_outlives_a_shell_wrapper(
+    tmp_path: Path,
+) -> None:
+    """A hook run through `sh -c` must record the session, not the shell.
+
+    The shell exits with the hook, so its pid would read as a crashed
+    session at once.
+    """
+    hooks_dir = Path(__file__).resolve().parents[2] / "hooks"
+    probe = (
+        f"import sys; sys.path.insert(0, {str(hooks_dir)!r}); "
+        "import daemon_lifecycle; print(daemon_lifecycle._session_pid())"
+    )
+    # The trailing `; true` stops the shell from exec'ing the interpreter.
+    shell = subprocess.run(
+        ["/bin/sh", "-c", f'"{sys.executable}" -c "{probe}"; true'],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert int(shell.stdout.strip()) == os.getpid()
+
+
+def test_an_unreadable_marker_falls_back_to_the_ttl(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (tmp_path / "sessions" / "other").mkdir(parents=True)
+    assert not _session_end_stops(tmp_path, monkeypatch)
+
+
+def test_session_end_runs_where_fcntl_does_not_exist(tmp_path: Path) -> None:
+    """Windows has no fcntl, and the top-level import failed both events (U7)."""
+    hooks_dir = Path(__file__).resolve().parents[2] / "hooks"
+    runner = (
+        "import sys; sys.modules['fcntl'] = None; "
+        f"sys.path.insert(0, {str(hooks_dir)!r}); "
+        "import daemon_lifecycle; daemon_lifecycle.main()"
+    )
+    ended = subprocess.run(
+        [sys.executable, "-c", runner],
+        input=json.dumps({"hook_event_name": "SessionEnd", "session_id": "A"}),
+        capture_output=True,
+        text=True,
+        env={**os.environ, "CLAUDE_PLUGIN_DATA": str(tmp_path)},
+        check=False,
+    )
+    assert ended.returncode == 0, ended.stderr
+
+
+def test_a_marker_for_another_users_live_process_keeps_the_daemon(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Signal 0 to pid 1 is refused, not failed: the process is alive."""
+    if os.geteuid() == 0:
+        pytest.skip("root may signal pid 1, so no PermissionError arises")
+    _write_marker(tmp_path, "1", age_seconds=48 * 3600)
+    assert not _session_end_stops(tmp_path, monkeypatch)
+
+
+class TestDaemonLivenessOnWindows:
+    """On Windows signal 0 is CTRL_C_EVENT, so ``os.kill(pid, 0)`` is no probe.
+
+    The liveness of a pid is unknown there. Stopping must not signal a
+    process it cannot identify, and starting falls back to the pid file's
+    age against the session-marker TTL, as the markers already do.
+    """
+
+    @staticmethod
+    def _windows(monkeypatch: pytest.MonkeyPatch) -> list[tuple[int, int]]:
+        signals: list[tuple[int, int]] = []
+        monkeypatch.setattr(os, "kill", lambda pid, sig: signals.append((pid, sig)))
+        monkeypatch.setattr(os, "name", "nt")
+        return signals
+
+    def test_the_probe_sends_no_signal_and_claims_no_daemon(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from daemon_lifecycle import _pid_is_daemon  # noqa: PLC0415 - private helper, imported where used
+
+        signals = self._windows(monkeypatch)
+
+        assert _pid_is_daemon(os.getpid()) is False
+        assert signals == []
+
+    def test_stop_signals_nothing_and_still_cleans_up(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        pid_file = tmp_path / "daemon.pid"
+        port_file = tmp_path / "daemon.port"
+        pid_file.write_text(str(os.getpid()))
+        port_file.write_text("9000")
+        # Built before os.name changes: pathlib cannot build a WindowsPath here.
+        monkeypatch.setattr("daemon_lifecycle._get_pid_file", lambda: pid_file)
+        monkeypatch.setattr("daemon_lifecycle._get_port_file", lambda: port_file)
+        signals = self._windows(monkeypatch)
+
+        _stop_daemon()
+
+        assert signals == []
+        assert not pid_file.exists()
+        assert not port_file.exists()
+
+    @pytest.mark.parametrize(("age_hours", "running"), [(1, True), (48, False)])
+    def test_a_pid_file_is_judged_by_its_age_against_the_ttl(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        age_hours: int,
+        running: bool,
+    ) -> None:
+        pid_file = tmp_path / "daemon.pid"
+        pid_file.write_text("4242")
+        stamp = time.time() - age_hours * 3600
+        os.utime(pid_file, (stamp, stamp))
+        signals = self._windows(monkeypatch)
+
+        assert _is_daemon_running(pid_file) is running
+        assert signals == []

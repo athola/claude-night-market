@@ -62,6 +62,14 @@ tier1:
     - underscoring
     - highlighting
     - epitomizing
+  # Named tier 1 in .claude/rules/slop-scan-for-docs.md.
+  rule_named:
+    - myriad
+    - empower
+    - empowers
+    - actionable
+    - seamless
+    - seamlessly
 tier2:
   transition_overuse:
     - moreover
@@ -102,7 +110,6 @@ tier2:
     - optimize
     - streamline
     - scalability
-    - actionable
     - deliverables
     - stakeholders
     - bandwidth
@@ -117,7 +124,6 @@ tier2:
     - game-changing
     - innovative
     - transformative
-    - seamless
     - user-friendly
     - best-in-class
 phrases:
@@ -183,14 +189,14 @@ tier5:
     ignore_case: true
     patterns:
       - '\bNot\s+just\s+\w+,?\s+but(?:\s+also)?\s+\w+'
-      - '\bIt''s not [\w\s]+?,\s+it''s \w+'
+      - '\bIt''s not [\w\s]{1,80}?,\s+it''s \w+'
       - '\bNo \w+\.\s+No \w+\.\s+Just \w+'
       - '\bNo \w+,\s+no \w+(?:,\s+no \w+)*'
       - '\bAnd that''s okay\.'
       # Copula-led trailing corrective: "It's X, not Y" / "This is X,
       # not Y". The opener marks a definitional statement, so this is
       # high-precision even mid-sentence and with articles before Y.
-      - '\b(?:It''s|It is|This is|That''s|That is|These are|Those are)\s+[\w\s]+?,\s+not\b'
+      - '\b(?:It''s|It is|This is|That''s|That is|These are|Those are)\s+[\w\s]{1,80}?,\s+not\b'
       # Bare trailing corrective: "Y, not X." The negated term may carry
       # an article or possessive and run a few words ("clear, not a
       # gimmick.", "records, not the model's judgment."). A reason
@@ -431,7 +437,7 @@ tier5:
     ignore_case: false
     patterns:
       - '\b(?:Less|More)\s+\w+,\s+(?:less|more)\s+\w+'
-      - '\bWhere\s+[\w\s]+?,\s+(?:we|you|they|it)\b'
+      - '\bWhere\s+[\w\s]{1,80}?,\s+(?:we|you|they|it)\b'
   three_fragment_burst:
     score: 2
     confidence: high
@@ -492,7 +498,7 @@ tier5:
     confidence: high
     ignore_case: false
     patterns:
-      - '\w\s\+\s\w'
+      - '[A-Za-z]{2,}\s\+\s[A-Za-z]{2,}'
   arrow_connector:
     score: 1
     confidence: high
@@ -613,6 +619,27 @@ tier5:
       - '\bmake no mistake\b'
       - '\bread that again\.?'
       - '\bmark my words\b'
+  identity_leak:
+    # P0 in .claude/rules/slop-scan-for-docs.md: a model describing itself
+    # in a document escaped review. Case-sensitive "I": a lowercase
+    # "i cannot provide" is not a model speaking in a finished document.
+    score: 5
+    confidence: high
+    patterns:
+      - '(?i:\bas an? (?:large )?language model\b)'
+      - '(?i:\bas an ai (?:language )?(?:model|assistant)\b)'
+      - '(?i:\bas of my (?:training|knowledge) cut-?off\b)'
+      - '\bI cannot provide\b'
+  ai_artifact:
+    # P0: citation residue pasted from a chat UI. Nothing a person types.
+    score: 5
+    confidence: high
+    patterns:
+      - 'contentReference\[oaicite:'
+      - '\boaicite:\d'
+      - '\bturn\d+(?:search|news|view)\d+\b'
+      - '\boai_citation:'
+      - '【\d+†source】'
   significance_cluster:
     # Manufactured historical weight. The surrounding facts carry
     # significance better than an assertion that they are significant.

@@ -22,15 +22,12 @@ provides:
   - content-quality
   - organization-analysis
 estimated_tokens: 400
-evaluation_criteria:
-  frontmatter_validity: 25
-  glob_pattern_quality: 20
-  content_quality: 25
-  organization: 15
-  token_efficiency: 15
 role: entrypoint
 ---
 # Rules Evaluation Framework
+
+Scoring weights (out of 100): frontmatter_validity 25, glob_pattern_quality
+20, content_quality 25, organization 15, token_efficiency 15.
 
 ## When NOT To Use
 

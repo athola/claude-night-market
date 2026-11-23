@@ -6,6 +6,9 @@ Tests the PRPrepAnalyzer class from src/sanctum/pr_prep.py.
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
+
 import pytest
 
 from sanctum.pr_prep import (
@@ -38,7 +41,6 @@ class TestBreakingChanges:
         changes = BreakingChanges(has_breaking_changes=False)
         assert changes.has_breaking_changes is False
         assert changes.breaking_commits == []
-        assert changes.affected_apis == []
 
 
 class TestMergeStrategy:
@@ -148,11 +150,11 @@ class TestPRPrepAnalyzer:
         result = PRPrepAnalyzer.detect_breaking_changes(context)
         assert result.breaking_commits == ["b2", "c3", "d4"]
 
-    def test_detect_breaking_changes_with_breaking_file_type(self) -> None:
+    def test_file_type_alone_does_not_mark_a_change_breaking(self) -> None:
         """
-        GIVEN files marked as breaking type
+        GIVEN a file dict typed "breaking", a type no producer emits
         WHEN detect_breaking_changes is called
-        THEN affected_apis contains those files
+        THEN only commit messages decide (SAN-14)
         """
         context = {
             "commits": [],
@@ -161,8 +163,7 @@ class TestPRPrepAnalyzer:
             ],
         }
         result = PRPrepAnalyzer.detect_breaking_changes(context)
-        assert result.has_breaking_changes is True
-        assert "src/api.py" in result.affected_apis
+        assert result.has_breaking_changes is False
 
     def test_detect_breaking_changes_with_no_breaking_changes(self) -> None:
         """
@@ -184,7 +185,9 @@ class TestPRPrepAnalyzer:
         THEN every gate is None, meaning not evaluated
         """
         gates = PRPrepAnalyzer.initialize_quality_gates()
-        assert len(gates) == 5
+        assert (
+            len(gates) == 4
+        )  # describes_changes removed: paths cannot judge a description
         assert all(v is None for v in gates.values())
         assert "has_tests" in gates
         assert "has_documentation" in gates
@@ -252,7 +255,9 @@ class TestPRPrepAnalyzer:
         }
         gates = PRPrepAnalyzer.initialize_quality_gates()
         result = PRPrepAnalyzer.validate_quality_gates(context, gates)
-        assert result["describes_changes"] is True
+        # Paths cannot say whether the description states intent, so the
+        # analyzer offers no gate for it.
+        assert "describes_changes" not in result
         assert result["has_documentation"] is True
         assert result["has_tests"] is True
 
@@ -310,12 +315,39 @@ class TestPRPrepAnalyzer:
         """
         GIVEN context with changed files
         WHEN generate_pr_description is called
-        THEN description is generated
+        THEN it is an intent skeleton, not the changed-file list
+
+        A list of paths restates the diff, which the report already shows
+        by bucket. The skeleton asks for why before what.
         """
-        context = {"changed_files": [{"path": "src/feature.py"}]}
+        context = {
+            "changed_files": [{"path": "src/feature.py"}, {"path": "src/other.py"}]
+        }
         result = PRPrepAnalyzer.generate_pr_description(context)
-        assert "src/feature.py" in result
-        assert "1 files" in result
+        assert result.index("## Why") < result.index("## What and how")
+        assert "## Test plan" in result
+        assert "2 files" in result
+        assert "src/feature.py" not in result
+        # Only the file count is known; the merge timing is the author's call.
+        assert "| **When** | on merge |" not in result
+
+    def test_generated_scaffold_matches_the_pr_template(self) -> None:
+        """The scaffold is the pr-prep template's shape, not a second copy of it."""
+        template = (
+            Path(__file__).resolve().parents[1]
+            / "skills"
+            / "pr-prep"
+            / "modules"
+            / "pr-template.md"
+        ).read_text(encoding="utf-8")
+        result = PRPrepAnalyzer.generate_pr_description(
+            {"changed_files": [{"path": "a.py"}]}
+        )
+        headings = [line for line in result.splitlines() if line.startswith("## ")]
+        labels = re.findall(r"\| (\*\*\w+\*\*) \|", result)
+        assert headings
+        for item in headings + labels:
+            assert item in template, item
 
     def test_generate_pr_description_without_changes(self) -> None:
         """
@@ -346,3 +378,15 @@ class TestIsTestPath:
 
     def test_a_name_merely_containing_test_is_not_a_test(self) -> None:
         assert not _is_test_path("plugins/latest/config.py")
+
+
+def test_has_documentation_true_for_rst_change() -> None:
+    """The gate counted only .md while classify buckets .rst/.txt/.adoc as
+    docs, so one report said both "docs" and has_documentation False (SAN-6).
+    """
+
+    gates = PRPrepAnalyzer.validate_quality_gates(
+        {"changed_files": [{"path": "docs/a.rst", "type": "docs"}], "commits": []},
+        PRPrepAnalyzer.initialize_quality_gates(),
+    )
+    assert gates["has_documentation"] is True

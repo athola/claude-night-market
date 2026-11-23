@@ -158,3 +158,42 @@ def test_watcher_append_racing_the_final_rewrite_survives(tmp_path: Path) -> Non
     assert process_ledger_result["failed"] == 1
     titles = [e["title"] for e in json.loads(ledger.read_text())]
     assert titles == ["A", "Raced"]
+
+
+def test_preserved_ledger_reaches_disk_before_the_rename(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The rewrite renamed an unsynced file, so a crash could empty it (R2).
+
+    Given a sweep whose capture fails, so the ledger is rewritten
+    When the rewrite replaces the ledger
+    Then the new file is fsynced before the rename and its directory after
+    """
+    import os
+
+    from deferred_item_sweep import process_ledger
+
+    ledger = tmp_path / "deferred-items-session.json"
+    ledger.write_text(json.dumps([{"title": "A", "source": "s", "filed": False}]))
+    events: list[str] = []
+    real_fsync, real_replace = os.fsync, os.replace
+
+    def fsync(fd: int) -> None:
+        events.append("fsync")
+        real_fsync(fd)
+
+    def replace(src, dst) -> None:
+        if Path(dst) == ledger:
+            events.append("replace")
+        real_replace(src, dst)
+
+    monkeypatch.setattr(os, "fsync", fsync)
+    monkeypatch.setattr(os, "replace", replace)
+    with patch(
+        "deferred_item_sweep.call_capture_script",
+        return_value={"status": "error"},
+    ):
+        process_ledger(ledger)
+
+    assert events == ["fsync", "replace", "fsync"]
+    assert json.loads(ledger.read_text())[0]["title"] == "A"

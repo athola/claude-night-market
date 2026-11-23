@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 import pensive
+from pensive.harden.cli import run_cli
 from pensive.plugin.loader import discover_plugins
 from pensive.reporting import formatters
 from pensive.reporting.formatters import SarifFormatter
@@ -289,3 +290,52 @@ class TestLazyPackageExports:
     @pytest.mark.unit
     def test_dir_lists_lazy_exports(self) -> None:
         assert set(pensive._EXPORTS) <= set(dir(pensive))
+
+
+def test_sarif_preserves_harden_file_and_line() -> None:
+    """Harden findings carry file/line/detection_signal, not location/issue,
+    and every result came out as unknown:1 with no message (PEN-9).
+    """
+    finding = {
+        "id": "PY02",
+        "severity": "HIGH",
+        "file": "a.py",
+        "line": 2,
+        "detection_signal": "yaml.load without SafeLoader",
+    }
+    report = json.loads(SarifFormatter().format([finding], "."))
+    result = report["runs"][0]["results"][0]
+    location = result["locations"][0]["physicalLocation"]
+    assert location["artifactLocation"]["uri"] == "a.py"
+    assert location["region"]["startLine"] == 2
+    assert result["message"]["text"] == "yaml.load without SafeLoader"
+    assert result["level"] == "error"
+
+
+def test_sarif_rule_describes_a_harden_finding_by_its_detection_signal() -> None:
+    """The rule read only ``issue``, which harden findings lack, so every
+    harden rule's shortDescription was "No description".
+    """
+    finding = {
+        "id": "PY02",
+        "severity": "HIGH",
+        "file": "a.py",
+        "line": 2,
+        "detection_signal": "yaml.load without SafeLoader",
+    }
+    report = json.loads(SarifFormatter().format([finding], "."))
+    (rule,) = report["runs"][0]["tool"]["driver"]["rules"]
+    assert rule["shortDescription"]["text"] == "yaml.load without SafeLoader"
+
+
+def test_harden_sarif_flag_emits_a_sarif_report(tmp_path, capsys) -> None:
+    """SarifFormatter had no caller, so no CI could consume harden (PEN-9)."""
+    (tmp_path / "a.py").write_text("import yaml\nyaml.load(open('f'))\n")
+    run_cli(["--path", str(tmp_path), "--sarif"])
+    report = json.loads(capsys.readouterr().out)
+    assert report["version"] == "2.1.0"
+    uris = [
+        r["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+        for r in report["runs"][0]["results"]
+    ]
+    assert any(uri.endswith("a.py") for uri in uris)

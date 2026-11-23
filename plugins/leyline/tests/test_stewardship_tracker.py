@@ -660,3 +660,31 @@ class TestRecordCommand:
         (tmp_path / "actions.jsonl").mkdir()
 
         assert self._record_into(tmp_path) == 1
+
+
+def test_record_default_dir_follows_claude_project_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """After a `cd`, a cwd-relative default wrote where the report never reads."""
+    project = tmp_path / "project"
+    elsewhere = project / "plugins" / "foo"
+    elsewhere.mkdir(parents=True)
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(project))
+    monkeypatch.chdir(elsewhere)
+
+    stewardship_tracker.main(
+        [
+            "record",
+            "--plugin",
+            "foo",
+            "--type",
+            "fix",
+            "--file",
+            "a.py",
+            "--description",
+            "tidy",
+        ]
+    )
+
+    assert (project / ".claude" / "stewardship" / "actions.jsonl").exists()
+    assert not (elsewhere / ".claude").exists()

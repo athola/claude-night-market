@@ -453,18 +453,26 @@ A workflow only runs when it is asked for. None starts implicitly.
 
 | Hook | Plugin | Type | Description |
 |------|--------|------|-------------|
+| `agent_dispatch_guard.py` | abstract | PreToolUse | Block a subagent dispatch that names no agent |
 | `aggregate_learnings_daily.py` | abstract | UserPromptSubmit | Daily learning aggregation (24h cadence) into LEARNINGS.md |
 | `auto-star-repo.sh` | leyline | SessionStart | Ask Claude to offer a repo star when not starred (async) |
-| `config_change_audit.py` | sanctum | ConfigChange | Audit configuration changes |
+| `background_agent_notice.py` | conserve | Notification | Record notifications so a stalled background agent is visible |
+| `brainstorm_session_warn.py` | sanctum | SessionStart | Warn about abandoned brainstorm sessions |
+| `config_change_audit.py` | sanctum | ConfigChange, PreToolUse | Audit configuration changes |
 | `context_warning.py` | conserve | PreToolUse | Context utilization monitoring |
-| `daemon_lifecycle.py` | oracle | SessionStart, Stop | Oracle daemon lifecycle management |
+| `daemon_lifecycle.py` | oracle | SessionStart, SessionEnd | Oracle daemon lifecycle management |
 | `deferred_item_sweep.py` | sanctum | Stop | Sweep session ledger and file deferred items as GitHub issues |
 | `deferred_item_watcher.py` | sanctum | PostToolUse | Detect deferred items in Skill output and write to session ledger |
 | `detect-git-platform.sh` | leyline | SessionStart | Detect git forge platform from remote URL |
+| `double_shot_latte.py` | herald | Stop | Continuation judge: continue a turn that stated a next step, with a per-chain cap |
 | `fetch-recent-discussions.sh` | leyline | SessionStart | Fetch recent GitHub Discussions |
 | `graph_auto_update.py` | gauntlet | PostToolUse | Auto-update code graph after git commits |
 | `graph_community_refresh.py` | cartograph | PostToolUse | Refresh community detection after graph builds |
+| `graph_version_rebuild.py` | gauntlet | SessionStart | Rebuild the code graph in the background when an older gauntlet version built it |
+| `guard_package_hallucination.py` | imbue | PreToolUse | Flag installs of nonexistent or typosquatted packages |
+| `guard_scope_ramp.py` | imbue | PreToolUse | Bound each write to the current scope rung |
 | `homeostatic_monitor.py` | abstract | PostToolUse | Stability gap monitoring, queues degrading skills for improvement |
+| `index_surfacer.py` | memory-palace | SessionStart | Surface promoted captures at session start |
 | `local_doc_processor.py` | memory-palace | PostToolUse | Processes local docs |
 | `noqa_guard.py` | leyline | PreToolUse | Block inline lint suppression directives |
 | `permission_denied_logger.py` | conserve | PermissionDenied | Log auto-mode permission denials for observability |
@@ -475,7 +483,10 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `pre_compact_preserve.py` | conserve | PreCompact | Preserve critical context before compression |
 | `pre_skill_execution.py` | abstract | PreToolUse | Skill execution tracking |
 | `precommit_gate.py` | gauntlet | PreToolUse | Pre-commit quality gate for gauntlet |
+| `rate_limit_hook.py` | egregore | StopFailure | Record a rate limit in budget.json |
 | `research_interceptor.py` | memory-palace | PreToolUse | Cache lookup before web |
+| `research_queue.py` | memory-palace | SessionEnd | Queue research-heavy sessions for knowledge-corpus review |
+| `rule_guard.py` | hookify | PreToolUse, Stop, UserPromptSubmit | Evaluate hookify rules against the event about to run |
 | `sanitize_external_content.py` | leyline | PostToolUse | Sanitize external content for prompt injection |
 | `security_pattern_check.py` | sanctum | PreToolUse | Security anti-pattern detection |
 | `session-start.sh` | conserve, imbue | SessionStart | Session initialization |
@@ -485,17 +496,18 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `session_start_hook.py` | egregore | SessionStart | Inject manifest context into new sessions |
 | `setup.sh` | conserve | Setup | Environment initialization |
 | `setup.sh` | memory-palace | Setup | Palace directory initialization |
-| `skill_execution_logger.py` | abstract | PostToolUse | Skill metrics logging |
+| `skill_execution_logger.py` | abstract | PostToolUse, PostToolUseFailure | Skill metrics logging; the event, not the output text, decides success |
 | `stop_hook.py` | egregore | Stop | Prevent early exit while work items remain |
 | `supply_chain_check.py` | leyline | SessionStart | Warn about known-compromised package versions in lockfiles |
-| `task_created_tracker.py` | sanctum | TaskCreated | Track task creation for workflow completeness monitoring |
+| `task_created_tracker.py` | sanctum | PostToolUse | Track task creation for workflow completeness monitoring |
 | `tdd_bdd_gate.py` | imbue | PreToolUse | Iron Law enforcement at write-time |
 | `tool_output_summarizer.py` | conserve | PostToolUse | Monitor and warn about tool output bloat |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
 | `user_prompt.py` | memory-palace | UserPromptSubmit | URL detection and `+recall` |
 | `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
 | `verify_workflow_complete.py` | sanctum | Stop | Post-implementation checklist after a turn that edited files |
-| `vow_bounded_reads.py` | imbue | PreToolUse | Warns when discovery read budget (15 reads) is exceeded per session |
+| `vow_bounded_reads.py` | imbue | PreToolUse | Warns when discovery read budget (15 reads) is exceeded per session, or a call repeats an identical one |
+| `vow_bounded_reads_reset.py` | imbue | PostToolUse | Reset the bounded-reads counter when implementation starts |
 | `vow_no_ai_attribution.py` | imbue | PreToolUse | Blocks AI attribution strings (Co-authored-by: Claude, etc.) in commits |
 | `vow_no_edit_narration.py` | imbue | PreToolUse | Flags text that narrates the edit being made, in inserted content only |
 | `vow_no_emoji_commits.py` | imbue | PreToolUse | Blocks emoji characters in git commit messages |

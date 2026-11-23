@@ -1318,3 +1318,184 @@ class TestCatDevAnchor:
         """A device file never returns, read as an operand or a redirect."""
         decision = evaluate_permission("Bash", {"command": command})
         assert decision is None or decision.behavior != PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "cat ~/.config/gh/hosts.yml",
+        "cat ~/.docker/config.json",
+        "head -c 100 ~/.kube/config",
+        "grep -r . ~/.aws",
+        "rg token /home/u/.gnupg",
+        "cat $HOME/.kube/config",
+        "cat /Users/me/.docker/config.json",
+        "tail ~/.netrc",
+        # Container sessions run as root.
+        "cat /root/.kube/config",
+        "cat /root/.aws/config",
+        # `.` and empty segments resolve to the same directory.
+        "cat ~/.config/./gh/hosts.yml",
+        "cat ~/.config//gh/hosts.yml",
+        "cat ~//.aws/config",
+        "cat ~/.azure/accessTokens.json",
+        "cat ~/.config/glab-cli/config.yml",
+    ],
+)
+def test_reads_under_credential_directories_are_denied(command: str) -> None:
+    """Any file in a credential directory is denied (CON-1).
+
+    The guard listed file names only, so other files there were
+    auto-approved and printed into the transcript.
+    """
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision.behavior == PermissionDecision.DENY
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "cat README.md",
+        "grep -r config src/",
+        "cat ./.docker/nginx.conf",
+        "cat infra/.aws/task-definition.json",
+    ],
+)
+def test_ordinary_reads_stay_approved(command: str) -> None:
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision.behavior == PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "cat ~/.pgpass",
+        "head ~/.vault-token",
+        "head ~/.config/gcloud/access_tokens.db",
+        "cat ~/.config/gcloud/credentials.db",
+        "cat ~/.cache/huggingface/token",
+        "tail ~/.zsh_history",
+        "cat ~/.bash_history",
+        "cat /home/u/.pgpass",
+    ],
+)
+def test_reads_of_token_and_history_files_are_denied(command: str) -> None:
+    """Postgres, Vault, gcloud and Hugging Face tokens and shell history.
+
+    They were auto-approved, and history holds secrets typed on a command
+    line.
+    """
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.DENY
+
+
+@pytest.mark.parametrize(
+    "command", ["cat ~/.cache/huggingface/hub/README.md", "cat docs/history.md"]
+)
+def test_files_beside_the_token_files_stay_approved(command: str) -> None:
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "head ~/.config/../.config/gh/hosts.yml",
+        "cat ~/x/../.kube/config",
+        "cat /Users/me/src/../.aws/config",
+        'cat "$HOME"/../me/.docker/config.json',
+        "cat ~/../other/.aws/credentials",
+    ],
+)
+def test_dot_dot_segments_cannot_hide_a_credential_directory(command: str) -> None:
+    """`..` resolves before the deny list matches, as the shell resolves it."""
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.DENY
+
+
+def test_dot_dot_resolution_ignores_the_real_home(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A home outside /Users, /home and /root still resolves through `~`."""
+    monkeypatch.setenv("HOME", "/tmp/ci-home")
+    decision = evaluate_permission(
+        "Bash", {"command": "head ~/.config/../.config/gh/hosts.yml"}
+    )
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.DENY
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "ls ~/.aws",
+        'ls "$HOME"/.aws',
+        "wc -c ~/.kube/config",
+        "stat ~/.aws/credentials",
+        "file ~/.docker/config.json",
+        "find ~/.config/gh -name hosts.yml",
+        "ls ~/.config/'gh'",
+        "ls /Users/me/.config/x/../gh",
+        # Copying or archiving one is not a read, and was never approved.
+        "cp ~/.kube/config /tmp/k",
+        "tar czf x.tgz ~/.aws",
+        "rsync -a ~/.docker/ /tmp/d",
+    ],
+)
+def test_any_command_naming_a_credential_directory_is_not_approved(
+    command: str,
+) -> None:
+    """Only readers were checked, so `ls` and `stat` there were approved."""
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is None or decision.behavior != PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize("command", ["ls ~", "ls ~/.config", "stat ~/src/app.py"])
+def test_commands_beside_credential_directories_stay_approved(command: str) -> None:
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "grep -r oauth_token ~/.config",
+        "grep -rh oauth_token /Users/bob/.config",
+        "rg -uu token ~",
+        "rg token ~/",
+        "rg --hidden token /home/u",
+        "grep -R token /root",
+        "ag token ~/.cache",
+        "rg token ~/.cache/huggingface",
+        "rg token /",
+        "grep -r token /Users",
+        # macOS runs GREP as grep, and its file system ignores case.
+        "GREP -r tok ~",
+        "grep -r tok /users/bob",
+        "rg token ~/src/..",
+    ],
+)
+def test_searching_a_directory_holding_credentials_is_not_approved(
+    command: str,
+) -> None:
+    """A recursive search of a home reaches every token file below it.
+
+    Only the leaf directories were denied, so `grep -r oauth_token
+    ~/.config` printed gh's token on auto-approval.
+    """
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is None or decision.behavior != PermissionDecision.ALLOW
+
+
+@pytest.mark.parametrize(
+    "command",
+    ["grep -r foo src/", "rg token ~/src/project", "rg foo", "grep -r x ~/notes"],
+)
+def test_searches_outside_credential_ancestors_stay_approved(command: str) -> None:
+    decision = evaluate_permission("Bash", {"command": command})
+    assert decision is not None
+    assert decision.behavior == PermissionDecision.ALLOW

@@ -132,7 +132,8 @@ def parse_reset(
     if retry_after:
         try:
             return moment + timedelta(seconds=int(float(retry_after)))
-        except (TypeError, ValueError):
+        # OverflowError: "inf" or "1e12" scraped from error text.
+        except (TypeError, ValueError, OverflowError):
             pass
 
     match = _SPEND_TIME.search(text or "")

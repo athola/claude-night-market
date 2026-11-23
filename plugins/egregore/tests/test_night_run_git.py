@@ -12,6 +12,7 @@ walk rather than a finished one.
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import replace
 from pathlib import Path
 
 import night_run
@@ -272,3 +273,245 @@ class TestStagedChangesAreFenced:
 
         assert night_run._revert_offenders(runner, repo, ["new.txt"]) == []
         assert not (repo / "new.txt").exists()
+
+
+class TestImplementerCommitsStayFenced:
+    """The fence diffed against HEAD, so an implementer that committed
+    moved HEAD and its edits were invisible to the fence (EGR-5).
+    """
+
+    def test_fence_sees_commits_made_by_implementer(self, tmp_path: Path) -> None:
+        runner = night_run.SubprocessRunner()
+        for argv in (
+            ("git", "init", "-q"),
+            ("git", "config", "user.email", "t@example.com"),
+            ("git", "config", "user.name", "t"),
+        ):
+            runner.run(list(argv), cwd=tmp_path)
+        (tmp_path / "a.txt").write_text("one\n")
+        runner.run(["git", "add", "a.txt"], cwd=tmp_path)
+        runner.run(["git", "commit", "-q", "-m", "init"], cwd=tmp_path)
+        base = night_run._head(runner, tmp_path)
+        (tmp_path / ".github").mkdir()
+        (tmp_path / ".github" / "x.yml").write_text("on: push\n")
+        runner.run(["git", "add", "-A"], cwd=tmp_path)
+        runner.run(["git", "commit", "-q", "-m", "sneaky"], cwd=tmp_path)
+
+        night_run._uncommit_since(runner, tmp_path, base)
+
+        assert night_run._head(runner, tmp_path) == base
+        assert ".github/x.yml" in night_run._touched_files(runner, tmp_path)
+
+
+class TestAParkedItemResumes:
+    """After a park the branch and worktree already exist, and a rerun died
+    on `git worktree add -b` with setup_failed (EGR-4).
+    """
+
+    @staticmethod
+    def _repo(tmp_path: Path) -> tuple[night_run.SubprocessRunner, Path]:
+
+        runner = night_run.SubprocessRunner()
+        root = tmp_path / "repo"
+        root.mkdir()
+        for argv in (
+            ("git", "init", "-q", "-b", "main"),
+            ("git", "config", "user.email", "t@example.com"),
+            ("git", "config", "user.name", "t"),
+        ):
+            runner.run(list(argv), cwd=root)
+        (root / "a.txt").write_text("one\n")
+        runner.run(["git", "add", "a.txt"], cwd=root)
+        runner.run(["git", "commit", "-q", "-m", "init"], cwd=root)
+        handoff = replace(HANDOFF, commands={})
+        return runner, root, handoff
+
+    def test_rerun_after_park_reuses_existing_worktree(self, tmp_path: Path) -> None:
+        runner, root, handoff = self._repo(tmp_path)
+        worktree = tmp_path / "wt"
+        assert night_run._prepare_worktree(runner, root, worktree, handoff) is None
+        assert night_run._prepare_worktree(runner, root, worktree, handoff) is None
+
+    def test_committed_task_ids_are_read_from_the_branch(self, tmp_path: Path) -> None:
+        runner, root, handoff = self._repo(tmp_path)
+        worktree = tmp_path / "wt"
+        night_run._prepare_worktree(runner, root, worktree, handoff)
+        (worktree / "b.txt").write_text("b\n")
+        runner.run(["git", "add", "b.txt"], cwd=worktree)
+        runner.run(["git", "commit", "-q", "-m", "T1: add b"], cwd=worktree)
+
+        assert night_run._committed_task_ids(runner, worktree, handoff) == {"T1"}
+
+
+class ScriptedImplementer:
+    """Real git, with the implementer and the evidence command scripted.
+
+    ``edits`` maps a task id to the files its implementer writes; when
+    ``commit`` is set the implementer also runs ``git commit``, which is
+    the move EGR-5 was about. ``fail`` names argv prefixes to answer with
+    exit 1 instead of running them.
+    """
+
+    def __init__(
+        self,
+        edits: dict[str, dict[str, str]],
+        *,
+        commit: bool = False,
+        fail: tuple[tuple[str, ...], ...] = (),
+    ) -> None:
+        """Script the implementer's edits; run every other git command for real."""
+        self.git = night_run.SubprocessRunner()
+        self.edits = edits
+        self.commit = commit
+        self.fail = fail
+        self.dispatched: list[str] = []
+        self.calls: list[tuple[str, ...]] = []
+
+    def run(
+        self,
+        command: Sequence[str],
+        cwd: Path | None = None,
+        timeout: int = 0,
+        env=None,
+    ) -> night_run.Completed:
+        argv = tuple(command)
+        self.calls.append(argv)
+        if any(argv[: len(prefix)] == prefix for prefix in self.fail):
+            return night_run.Completed(returncode=1, output=f"{argv[0]} failed")
+        if argv[:2] == ("python3", night_run.CONJURE_EXECUTOR):
+            tid = argv[3].split(":", 1)[0].removeprefix("Task ")
+            self.dispatched.append(tid)
+            assert cwd is not None
+            for rel, text in self.edits.get(tid, {}).items():
+                (cwd / rel).parent.mkdir(parents=True, exist_ok=True)
+                (cwd / rel).write_text(text)
+            if self.commit:
+                self.git.run(["git", "add", "-A"], cwd=cwd)
+                self.git.run(["git", "commit", "-q", "-m", "implementer"], cwd=cwd)
+            return night_run.Completed(returncode=0, output="done")
+        if argv[0] == "pytest":
+            return night_run.Completed(returncode=0, output="1 passed")
+        if argv[0] != "git":
+            return night_run.Completed(returncode=0, output="")
+        return self.git.run(list(argv), cwd=cwd, timeout=timeout or 60, env=env)
+
+
+def _git_repo(path: Path) -> night_run.SubprocessRunner:
+    runner = night_run.SubprocessRunner()
+    path.mkdir(parents=True, exist_ok=True)
+    for argv in (
+        ("git", "init", "-q", "-b", "main"),
+        ("git", "config", "user.email", "t@example.com"),
+        ("git", "config", "user.name", "t"),
+    ):
+        runner.run(list(argv), cwd=path)
+    (path / "a.txt").write_text("one\n")
+    runner.run(["git", "add", "a.txt"], cwd=path)
+    runner.run(["git", "commit", "-q", "-m", "init"], cwd=path)
+    return runner
+
+
+class TestRunTaskUncommitsTheImplementer:
+    """run_task itself must hand implementer commits back to the fence."""
+
+    def test_implementer_commit_of_github_file_is_fenced(self, tmp_path: Path) -> None:
+        _git_repo(tmp_path)
+        runner = ScriptedImplementer(
+            {"T1": {".github/x.yml": "on: push\n", "a/T1.py": "x = 1\n"}},
+            commit=True,
+        )
+        base = night_run._head(runner.git, tmp_path)
+
+        result = night_run.run_task(
+            mktask("T1", []), HANDOFF, tmp_path, runner, babysitter=_passing_sitter
+        )
+
+        assert night_run._head(runner.git, tmp_path) == base
+        assert result.verdict != "PASS"
+        assert ".github/x.yml" in result.reason
+        assert not (tmp_path / ".github" / "x.yml").exists()
+
+    def test_failed_soft_reset_raises_instead_of_hiding_the_commit(
+        self, tmp_path: Path
+    ) -> None:
+        _git_repo(tmp_path)
+        runner = ScriptedImplementer(
+            {"T1": {".github/x.yml": "on: push\n"}},
+            commit=True,
+            fail=(("git", "reset", "--soft"),),
+        )
+
+        with pytest.raises(night_run.GitFailed, match="reset --soft"):
+            night_run.run_task(
+                mktask("T1", []), HANDOFF, tmp_path, runner, babysitter=_passing_sitter
+            )
+
+
+class TestAResumedItem:
+    """A rerun of an item picks up where the last night stopped."""
+
+    @staticmethod
+    def _handoff(**commands: str) -> night_run.Handoff:
+        return replace(HANDOFF, commands=dict(commands))
+
+    def test_resumed_item_dispatches_only_uncommitted_tasks(
+        self, tmp_path: Path
+    ) -> None:
+        root = tmp_path / "repo"
+        git = _git_repo(root)
+        handoff = self._handoff()
+        worktree = root / ".egregore" / "worktrees" / "NS-001"
+        assert night_run._prepare_worktree(git, root, worktree, handoff) is None
+        (worktree / "a").mkdir()
+        (worktree / "a" / "T1.py").write_text("t1 = 1\n")
+        git.run(["git", "add", "-A"], cwd=worktree)
+        git.run(["git", "commit", "-q", "-m", "T1: task T1"], cwd=worktree)
+        runner = ScriptedImplementer({"T2": {"a/T2.py": "t2 = 2\n"}})
+
+        result = night_run.run_item(
+            handoff,
+            [mktask("T1", []), mktask("T2", ["T1"])],
+            root,
+            runner,
+            babysitter=_passing_sitter,
+        )
+
+        assert runner.dispatched == ["T2"]
+        assert result.committed == ["T2"]
+
+    def test_resume_with_unresolvable_base_stops_instead_of_replaying(
+        self, tmp_path: Path
+    ) -> None:
+        root = tmp_path / "repo"
+        git = _git_repo(root)
+        handoff = self._handoff()
+        worktree = root / ".egregore" / "worktrees" / "NS-001"
+        night_run._prepare_worktree(git, root, worktree, handoff)
+        (worktree / "a").mkdir()
+        (worktree / "a" / "T1.py").write_text("t1 = 1\n")
+        git.run(["git", "add", "-A"], cwd=worktree)
+        git.run(["git", "commit", "-q", "-m", "T1: task T1"], cwd=worktree)
+        gone = replace(handoff, base_branch="main-deleted")
+        runner = ScriptedImplementer({"T1": {"a/T1.py": "t1 = 1\n"}})
+
+        result = night_run.run_item(
+            gone, [mktask("T1", [])], root, runner, babysitter=_passing_sitter
+        )
+
+        assert runner.dispatched == []
+        assert result.status == "git_failed"
+        assert "main-deleted" in result.reason
+
+    def test_rerun_after_failed_setup_runs_setup_again(self, tmp_path: Path) -> None:
+        root = tmp_path / "repo"
+        _git_repo(root)
+        handoff = self._handoff(setup="uv sync")
+        worktree = root / ".egregore" / "worktrees" / "NS-001"
+        failing = ScriptedImplementer({}, fail=(("uv",),))
+
+        first = night_run._prepare_worktree(failing, root, worktree, handoff)
+        second = night_run._prepare_worktree(failing, root, worktree, handoff)
+
+        assert first is not None and "uv sync exited 1" in first
+        assert second is not None and "uv sync exited 1" in second
+        assert failing.calls.count(("uv", "sync")) == 2

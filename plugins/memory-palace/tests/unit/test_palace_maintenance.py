@@ -9,6 +9,7 @@ Feature: Palace Maintenance
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -186,6 +187,43 @@ class TestSyncFromQueue:
 
         assert results["processed"] == 1
         mock_repo.save_palace.assert_called_once()
+
+    @pytest.mark.unit
+    def test_sync_from_queue_keeps_the_queue_when_the_rewrite_fails(
+        self,
+        mock_repo: MagicMock,
+        maintenance: PalaceMaintenance,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Scenario: the process dies while the queue is rewritten
+        Given a queue whose one entry is processed
+        When writing the rewritten queue fails before it is durable
+        Then the queue file still holds the original entry.
+
+        The rewrite opened the queue with "w", which truncates first.
+        """
+        palace = {
+            "id": "py001",
+            "name": "Python Palace",
+            "domain": "python",
+            "associations": {},
+            "metadata": {"concept_count": 0},
+        }
+        mock_repo.list_palaces.return_value = [{"id": "py001"}]
+        mock_repo.load_palace.return_value = palace
+        queue_file = tmp_path / "queue.jsonl"
+        original = json.dumps({"query": "python decorators"}) + "\n"
+        queue_file.write_text(original)
+
+        def crash(_fd: int) -> None:
+            raise OSError("disk went away")
+
+        monkeypatch.setattr(os, "fsync", crash)
+        with pytest.raises(OSError, match="disk went away"):
+            maintenance.sync_from_queue(str(queue_file))
+
+        assert queue_file.read_text() == original
 
     @pytest.mark.unit
     def test_sync_from_queue_unmatched_goes_to_skipped(

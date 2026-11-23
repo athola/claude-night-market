@@ -445,3 +445,21 @@ class TestCorruptFile:
         captured = capsys.readouterr()
         assert "corrupt" in captured.err
         assert tracker.get_statistics()["total_generations"] == 0
+
+
+class TestConcurrentSaves:
+    """Parallel skill runs save the tracker at once (R1)."""
+
+    @pytest.mark.unit
+    def test_save_leaves_another_writers_temp_file_untouched(
+        self, tmp_path: Path
+    ) -> None:
+        """A fixed ``<stem>.tmp`` let one save clobber another's half file."""
+        tracking_file = tmp_path / "performance_history.json"
+        in_flight = tracking_file.with_suffix(".tmp")
+        in_flight.write_text("half written by another process")
+
+        PerformanceTracker(tracking_file)
+
+        assert in_flight.read_text() == "half written by another process"
+        assert tracking_file.read_text().startswith("{")

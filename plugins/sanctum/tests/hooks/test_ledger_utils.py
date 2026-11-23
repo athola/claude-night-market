@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
-import _ledger_utils
+import _vendored_leyline_atomic_file
 import pytest
 from _ledger_utils import get_ledger_path
+from deferred_item_watcher import write_ledger_entry
 
 
 class TestGetLedgerPath:
@@ -47,17 +49,18 @@ class TestGetLedgerPath:
 
 
 class TestLedgerLockWithoutFlock:
-    """On a platform without fcntl the lock is a no-op, not an error."""
+    """On a platform without fcntl or msvcrt the lock is a no-op, not an error.
 
-    def test_lock_yields_and_creates_no_sidecar_without_fcntl(
+    The ledger takes leyline's file_lock, which still opens the
+    ``<ledger>.lock`` sidecar there: it is the file Windows locks.
+    """
+
+    def test_watcher_append_succeeds_without_fcntl(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
-        monkeypatch.setattr(_ledger_utils, "fcntl", None)
+        monkeypatch.setattr(_vendored_leyline_atomic_file, "fcntl", None)
         ledger = tmp_path / "state" / "ledger.json"
-        entered = []
 
-        with _ledger_utils.ledger_lock(ledger):
-            entered.append(True)
+        write_ledger_entry(ledger, {"title": "[Deferred] A", "source": "s"})
 
-        assert entered == [True]
-        assert not (tmp_path / "state").exists()
+        assert [e["title"] for e in json.loads(ledger.read_text())] == ["A"]

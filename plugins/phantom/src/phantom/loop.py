@@ -341,11 +341,25 @@ def _process_iteration(
     )
 
     tool_results: list[dict[str, Any]] = []
-    for block in response_content:
+    for index, block in enumerate(response_content):
         tool_result, abort_stuck = _run_tool_block(block, ctx, result)
         if tool_result is not None:
             tool_results.append(tool_result)
         if abort_stuck:
+            # Every tool_use needs a tool_result or the history cannot be
+            # resent: keep the one that tripped the abort, and answer the
+            # blocks after it without running them.
+            tool_results.extend(
+                {
+                    "type": "tool_result",
+                    "tool_use_id": later.id,
+                    "content": "Not run: the loop stopped on a stuck screen.",
+                    "is_error": True,
+                }
+                for later in response_content[index + 1 :]
+                if getattr(later, "type", None) == "tool_use"
+            )
+            messages.append({"role": "user", "content": tool_results})
             return "stuck"
 
     if not tool_results:
@@ -533,6 +547,8 @@ def _format_tool_result(
             }
         )
 
+    if result.metadata.get("text"):
+        content.append({"type": "text", "text": str(result.metadata["text"])})
     if not content:
         content.append({"type": "text", "text": "Action completed"})
 

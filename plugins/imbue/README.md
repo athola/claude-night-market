@@ -108,10 +108,11 @@ the code is, such as "We renamed the handler". It reads inserted content
 only, so a session is never charged for prose it inherited.
 `vow_bounded_reads.py` fires on Read, Grep, and Glob calls and warns (or
 blocks, with `VOW_SHADOW_MODE=0`) when more than 15 consecutive discovery
-reads occur without an intervening write.
-`vow_bounded_reads_reset.py` fires on Write, Edit, and MultiEdit calls and
-resets the counter with minimal overhead: no budget logic, just a counter
-truncation.
+reads occur without an intervening write. It also warns when a call
+repeats an identical earlier one. The repeat still counts.
+`vow_bounded_reads_reset.py` fires after a Write, Edit, or MultiEdit
+succeeds and resets the counter and the remembered calls: no budget
+logic, just a truncation.
 
 The four enforcement hooks (`vow_no_emoji_commits.py`,
 `vow_no_ai_attribution.py`, `vow_no_edit_narration.py`,
@@ -119,7 +120,7 @@ The four enforcement hooks (`vow_no_emoji_commits.py`,
 `VOW_SHADOW_MODE`.
 Set `VOW_SHADOW_MODE=0` to switch to blocking.
 `vow_bounded_reads_reset.py` is unconditional: it always resets the counter
-when a write tool fires.
+when a write tool succeeds.
 
 > **Why is shadow mode the default rather than blocking?**
 > Per [docs/inclusive-defaults.md][inc] (TRUE-exception
@@ -182,7 +183,7 @@ imbue/
 │   ├── guard_package_hallucination.py # PreToolUse (Bash): block hallucinated/typosquat installs
 │   ├── guard_scope_ramp.py       # PreToolUse (Write/Edit/MultiEdit): hold increment to the current rung
 │   ├── vow_bounded_reads.py      # PreToolUse (Read/Grep/Glob): warn/block past 15 reads
-│   ├── vow_bounded_reads_reset.py # PreToolUse (Write/Edit/MultiEdit): reset read counter
+│   ├── vow_bounded_reads_reset.py # PostToolUse (Write/Edit/MultiEdit): reset read counter
 │   ├── vow_no_ai_attribution.py  # PreToolUse: block AI attribution in commits
 │   ├── vow_no_edit_narration.py  # PreToolUse (Write/Edit/MultiEdit): flag edit narration in new text
 │   └── vow_no_emoji_commits.py   # PreToolUse: block emoji in commit messages

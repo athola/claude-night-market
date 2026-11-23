@@ -83,7 +83,7 @@ async def analyze_error_handling(
 
             functions[function_name] = {
                 "has_error_handling": has_error_handling,
-                "exception_types": list(set(exception_types)),
+                "exception_types": sorted(set(exception_types)),
                 "graceful_degradation": graceful_degradation,
             }
 
@@ -203,7 +203,7 @@ async def analyze_timeouts(
     return {
         "timeout_analysis": {
             "wait_for_usage": {
-                "functions": list(set(wait_for_functions)),
+                "functions": sorted(set(wait_for_functions)),
             },
             "functions": functions,
         }

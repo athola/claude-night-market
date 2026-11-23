@@ -414,3 +414,28 @@ def test_source_file_whose_name_contains_test_is_counted_as_source(
     results = module.TestAnalyzer(tmp_path).scan_for_test_gaps()
 
     assert [f.name for f in results["source_files"]] == ["latest_config.py"]
+
+
+def test_analyze_git_changes_reads_a_non_ascii_path(tmp_path: Path) -> None:
+    """Git C-quoted the name, so `"café.py"` failed the .py filter (SAN-3)."""
+    module = _load_script()
+
+    def git(*args: str) -> None:
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", *args],
+            cwd=tmp_path,
+            check=True,
+            capture_output=True,
+        )
+
+    git("init", "-q")
+    (tmp_path / "seed.py").write_text("x = 1\n")
+    git("add", "-A")
+    git("commit", "-qm", "seed")
+    (tmp_path / "café.py").write_text("y = 1\n")
+    git("add", "-A")
+    git("commit", "-qm", "cafe")
+
+    report = module.TestAnalyzer(tmp_path).analyze_git_changes()
+
+    assert any(path.endswith("café.py") for path in report["changed_files"])

@@ -376,14 +376,14 @@ class TestOutcomeDetection:
         assert entry["outcome"] == "failure"
         assert entry["error"] is not None, "Should store error message"
 
-    def test_should_detect_partial_in_warning_output(
+    def test_warning_text_in_a_successful_call_is_success(
         self, skill_tool_env_partial: dict[str, str], tmp_path: Path
     ) -> None:
-        """Test partial outcome is detected from warning output.
+        """PostToolUse fires only on success; text is not a verdict (ABS-14).
 
-        Given: Tool output containing "warning"
+        Given: a successful Skill call whose output contains "warning"
         When: The hook executes
-        Then: Outcome should be "partial"
+        Then: Outcome is "success"
         """
         # Given
         skill_ref = "abstract:skill-auditor"
@@ -402,7 +402,7 @@ class TestOutcomeDetection:
         log_text = _log_text(log_dir)
         entry = json.loads(log_text.strip())
 
-        assert entry["outcome"] == "partial"
+        assert entry["outcome"] == "success"
 
 
 class TestContinualMetrics:
@@ -463,6 +463,9 @@ class TestContinualMetrics:
                 "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
                 "CLAUDE_TOOL_OUTPUT": output,
                 "CLAUDE_HOME": str(tmp_path),
+                "CLAUDE_HOOK_EVENT_NAME": (
+                    "PostToolUseFailure" if i % 2 == 0 else "PostToolUse"
+                ),
             }
             run_hook(hook_path, env)
 
@@ -650,6 +653,7 @@ class TestOutputSanitization:
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
             "CLAUDE_TOOL_OUTPUT": long_output,
             "CLAUDE_HOME": str(tmp_path),
+            "CLAUDE_HOOK_EVENT_NAME": "PostToolUseFailure",
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
 
@@ -764,3 +768,75 @@ class TestOverlappingInvocationsPairByToolUseId:
         entries = [json.loads(line) for line in _log_text(log_dir).splitlines()]
         assert entries[-1]["duration_ms"] is not None
         assert all(entry["duration_ms"] is not None for entry in entries)
+
+
+# Runs in a child interpreter so the faked platform cannot leak into the
+# suite. sys.modules["fcntl"] = None makes `import fcntl` raise ImportError,
+# as it does on Windows. The hook's dependencies are imported before
+# sys.platform is changed, because stdlib modules such as subprocess pick
+# their implementation from sys.platform at import time.
+_WINDOWS_LOCK_PROBE = """
+import importlib.util, json, os, sys, types
+from pathlib import Path
+
+hooks, src, history = sys.argv[1], sys.argv[2], Path(sys.argv[3])
+sys.path[:0] = [hooks, src]
+sys.modules["fcntl"] = None
+import homeostatic_monitor, shared.dir_utils, shared.hook_io
+import shared.skill_utils, shared.stability, abstract.experience_library
+
+calls = []
+msvcrt = types.ModuleType("msvcrt")
+msvcrt.LK_LOCK, msvcrt.LK_UNLCK = 1, 0
+def locking(fd, mode, nbytes):
+    calls.append([mode, os.lseek(fd, 0, os.SEEK_CUR), nbytes])
+msvcrt.locking = locking
+sys.modules["msvcrt"] = msvcrt
+sys.platform = "win32"
+
+spec = importlib.util.spec_from_file_location(
+    "logger_under_win32", Path(hooks) / "skill_execution_logger.py"
+)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+evaluator = module.ContinualEvaluator(history)
+evaluator.evaluate_iteration("abstract:skill-auditor", True, 10)
+evaluator.evaluate_iteration("abstract:skill-auditor", False, 20)
+print(json.dumps({"calls": calls, "history": json.loads(history.read_text())}))
+"""
+
+
+class TestHistoryLockOnWindows:
+    """The history lock must work where fcntl does not exist."""
+
+    def test_windows_takes_and_releases_a_byte_zero_lock_per_update(
+        self, tmp_path: Path
+    ) -> None:
+        """Each history update locks byte 0 with msvcrt and unlocks it.
+
+        Given: a Windows interpreter, where fcntl cannot be imported
+        When: the evaluator records two executions
+        Then: the hook imports, both executions land in the history, and
+              each update takes LK_LOCK on byte 0 and releases it with
+              LK_UNLCK, because Windows releases a lock left on a closed
+              handle late and LK_LOCK gives up after about ten seconds
+        """
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                _WINDOWS_LOCK_PROBE,
+                str(_PLUGIN_ROOT / "hooks"),
+                str(_PLUGIN_ROOT / "src"),
+                str(tmp_path / ".history.json"),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        assert result.returncode == 0, result.stderr
+        report = json.loads(result.stdout)
+        lock, unlock = [1, 0, 1], [0, 0, 1]
+        assert report["calls"] == [lock, unlock, lock, unlock]
+        assert report["history"]["abstract:skill-auditor"]["accuracies"] == [1, 0]

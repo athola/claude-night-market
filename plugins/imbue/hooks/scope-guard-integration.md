@@ -110,16 +110,6 @@ Add to your `.claude/settings.json` to auto-remind:
 
 ## Environment Variables
 
-Customize thresholds via environment:
-
-```bash
-export SCOPE_GUARD_GREEN_LINES=1000
-export SCOPE_GUARD_YELLOW_LINES=1500
-export SCOPE_GUARD_RED_LINES=2000
-export SCOPE_GUARD_GREEN_FILES=8
-export SCOPE_GUARD_YELLOW_FILES=12
-export SCOPE_GUARD_RED_FILES=15
-export SCOPE_GUARD_GREEN_COMMITS=15
-export SCOPE_GUARD_YELLOW_COMMITS=25
-export SCOPE_GUARD_RED_COMMITS=30
-```
+The `SCOPE_GUARD_{GREEN,YELLOW,RED}_{LINES,FILES,COMMITS,DAYS}`
+thresholds, their defaults and their meaning are listed in
+[PERFORMANCE.md](PERFORMANCE.md#environment-variables).

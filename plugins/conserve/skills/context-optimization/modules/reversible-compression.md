@@ -1,9 +1,9 @@
 ---
 name: reversible-compression
 description: |
-  Archive a large tool output to an external cache, keep only a digest and a
-  retrievable handle in context, and fetch the original (or a slice) on
-  demand. The CCR pattern, ported from chopratejas/headroom.
+  Archive a large tool output to an external cache under a retrievable
+  handle, and fetch the original (or a slice) on demand after /clear or a
+  handoff. The CCR pattern, after headroomlabs-ai/headroom.
 category: conservation
 ---
 
@@ -35,9 +35,15 @@ Read, or Grep output at or above `CONSERVE_CCR_THRESHOLD` characters
 .claude/context-archive/ccr-<sha256[:12]>.txt
 ```
 
-It then surfaces a digest (first and last 20 lines, total line and
-character counts) and the exact retrieval command. Fetch the original
-later with:
+It then adds one line: the output's size, the handle, a statement that the
+archive is the verbatim output, and the retrieval command. It repeats none
+of the output, which is already in context.
+
+A Bash result past Claude Code's inline limit (about 30,000 characters) is
+skipped. Claude Code has already saved the whole output to a file and given
+the model its path, and the hook sees only the first 30,000 characters, so
+its archive would be a truncated copy. Fetch an archived original later
+with:
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/context_retrieve.py ccr-<hash> \
@@ -52,49 +58,124 @@ handoffs.
 
 A 67 KB log dump (2,401 lines) is archived to an `ccr-<hash>.txt` handle.
 The handle below is illustrative. Yours is the SHA-256
-prefix of the actual output. The model sees a ~2 KB digest. Later, one
-command pulls back only the line that matters:
+prefix of the actual output. After a `/clear`, one command pulls back only
+the line that matters:
 
 ```bash
 context_retrieve.py ccr-e722db719ab6 --grep FATAL
 # FATAL: database connection refused
 ```
 
-## Honest constraint: what the hook does not do
+## What the hook does not do, and why
 
-A `PostToolUse` hook runs after the tool result is already in context. It
-can add a digest, but it cannot redact the result it just saw, so it does
-not shrink the current turn. Its value is the durable external cache plus
-retrieve-on-demand: a later turn, or a fresh continuation agent after
-`/clear`, reads the handle instead of re-running the expensive command.
+The hook does not replace the result it just saw. Claude Code allows it: a
+PostToolUse hook can return `updatedToolOutput` with the tool's output
+shape, and the model then sees the replacement. conserve does not, for
+three reasons:
 
-To save tokens in the current turn you still need the usual moves: `/clear`,
-a continuation agent (`Skill(conserve:clear-context)`), or not dumping the
-output in the first place. CCR makes those moves cheap to undo.
+- Claude Code already moves a valid Bash result over roughly 30,000
+  characters to a file and shows a 2,000-character preview
+  ([tools reference](https://code.claude.com/docs/en/tools-reference)).
+  The largest results never reach the model whole.
+- In 2,908 billed Claude Code runs, the largest compression setup cut
+  tool-output tokens 38.4% and raised billed cost 6.8%, and aggressive
+  compression lowered successful patches
+  ([arXiv 2607.12161](https://arxiv.org/abs/2607.12161)). Compressed
+  observations changed the agent's path: more retrieval, testing and turns.
+- Placeholder-with-restore helped some models and not others
+  ([arXiv 2609.26121](https://arxiv.org/abs/2609.26121)). A gain on one
+  model does not transfer to the next.
+
+The archive's value is the durable copy: a later turn, or a continuation
+agent after `/clear`, reads the handle instead of re-running the command.
+To save tokens in the current turn, use `/clear`, a continuation agent
+(`Skill(conserve:clear-context)`), or do not dump the output at all.
+
+## Measure before compressing
+
+Tool output is rarely where a session's money goes. Prompt-cache writes
+and reads are. `plugins/conserve/scripts/session_cost.py` reads a
+transcript and splits spend into uncached input, cache writes, cache reads
+and output, in base-input units, and ranks tool results by what
+re-reading them cost:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session_cost.py \
+  ~/.claude/projects/<project-slug>/<session-id>.jsonl [--top N] [--json]
+```
+
+On one 472-request session it reported cache reads at 53.6% of spend,
+cache writes at 33.3%, output at 13.1%, and re-reading tool results at
+5.6%. The first send of each result is a cache write as well, which the
+ledger leaves in the cache-write row. It reads one transcript: subagent
+transcripts are separate files under `<session-id>/subagents/`.
+
+## In Cursor
+
+Cursor runs Claude Code plugin hooks, and skills copied into Cursor carry
+this module with them. Two things differ, both checked with a
+`cursor-agent` probe on 2026-11-20:
+
+- **CCR does not run.** Cursor writes long shell and MCP output to a file
+  and lets the agent `tail` or read it
+  ([dynamic context discovery](https://cursor.com/blog/dynamic-context-discovery)),
+  which is the job the archive does here. The hook returns early on any
+  payload carrying `cursor_version`. A Cursor hook can replace only MCP
+  output (`updated_mcp_tool_output`), not shell or file results
+  ([hooks](https://cursor.com/docs/hooks)).
+- **The transcript has nothing to count.** A Cursor transcript holds the
+  prompt, the tool calls and the replies, with no token usage and no tool
+  results. Cursor's usage data does carry the cache split, and
+  `session_cost.py` reads two shapes of it:
+
+  ```bash
+  cusage --json | python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session_cost.py -
+  cursor-agent -p --output-format json "..." >> runs.jsonl
+  python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session_cost.py runs.jsonl
+  ```
+
+  `cusage` reads Cursor's dashboard usage API with your login. A
+  `cursor-agent` result line carries `usage` with `inputTokens` (net of
+  cache), `outputTokens`, `cacheReadTokens` and `cacheWriteTokens`. That
+  field is undocumented and was read from CLI 2026.11.19. Team admins get
+  the same `tokenUsage` per event from the Admin API's
+  [`POST /teams/filtered-usage-events`](https://cursor.com/docs/account/teams/admin-api),
+  documented and keyed by `conversationId`. The report gives token shares,
+  not price-weighted ones: Cursor reports no cache-write duration and its
+  cost includes the Cursor Token Rate. One day of real usage put cache
+  reads at 94.0% of tokens, cache writes 5.2% and output 0.5%.
+
+Filtering at the source works the same in both: `grep` and `tail` in the
+command cut what reaches the model before any hook runs.
 
 ## When compression pays off, and when it does not
 
-Savings are content-type-dependent. Do not quote a single headline number.
-Measured reductions, from Headroom's own benchmarks (see Evidence):
+Independent measurements put tool-output compression at a few percent of
+a Claude Code bill, and sometimes below zero:
 
-| Workload                     | Before  | After  | Reduction |
-|------------------------------|--------:|-------:|----------:|
-| Code search (100 results)    | 17,765  | 1,408  | 92%       |
-| SRE incident debugging       | 65,694  | 5,118  | 92%       |
-| GitHub issue triage          | 54,174  | 14,761 | 73%       |
-| Codebase exploration         | 78,502  | 41,254 | 47%       |
+| Source | Setup | Result |
+|--------|-------|--------|
+| [arXiv 2607.12161](https://arxiv.org/abs/2607.12161) | 2,908 billed runs, 103 tasks | -38.4% tool-output tokens, +6.8% billed cost, token and cost reduction correlated at r = 0.15 |
+| [codepointer.dev replay](https://codepointer.dev/p/cutting-llm-token-costs-with-rtk) | 500 sessions, $926 | Headroom 2.8%, RTK 0.5%, caveman 0.4% of spend, quality not measured |
+| [headroom#4918](https://github.com/headroomlabs-ai/headroom/issues/4918) | Claude Code, Headroom 0.44.0 | about 1% of input tokens |
+| [arXiv 2508.21433](https://arxiv.org/abs/2508.21433) | SWE-agent, SWE-bench Verified | masking old observations roughly halved cost at a similar solve rate; LLM summaries lengthened runs 13-15% |
+| [arXiv 2605.28876](https://arxiv.org/abs/2605.28876) | 35 CI failures, 11 log reducers | grep plus tail near-best at about 4.5x fewer tokens than grep alone; weak contexts cost 2-4x more tool calls |
 
-Logs and structured tool output compress hard. Dense prose compresses by
-roughly nothing (one practitioner report measured -0.3%), and encrypted or
-high-entropy data not at all. Archive verbose, repetitive output and leave
-prose answers alone.
+Headroom's own table (21-57% fewer tokens on four agent scenarios) counts
+tokens with no model call and no answer check
+(`benchmarks/index_proof_table.py`). Logs and repetitive structured output
+compress hard. Dense prose compresses by roughly nothing. Filter verbose
+logs at the source (`/conserve:filter-log`) and leave prose alone.
 
 Two cautions worth stating plainly:
 
-- **Retrieve-on-demand can miss context**, the same failure mode as RAG. If
-  the digest hides the span that mattered and nobody expands the handle, the
-  model proceeds on partial information. Keep the digest honest (head, tail,
-  and counts), and retrieve when a task depends on the body.
+- **Retrieve-on-demand can miss context**, the same failure mode as RAG.
+  After a `/clear` the handle is all that remains, and a model that never
+  expands it proceeds on partial information. The note calls the archive
+  verbatim because naming the authoritative output recovered 6.3-7.9
+  accuracy points for GPT-5.x models that otherwise answered from their own
+  notes. Claude Opus and Sonnet 4.6 showed no loss to recover
+  ([arXiv 2610.26836](https://arxiv.org/abs/2610.26836)).
 - **Do not aggressively compress multi-step reasoning.** At roughly 2x
   compression, math and chained reasoning degrade even when surface
   similarity stays high (arXiv 2605.17932, 2602.15843). Code, extraction,
@@ -135,5 +216,5 @@ a single headline percentage. And retrieve-on-demand inherits RAG's failure
 mode: the model may never expand the handle that mattered
 ([Lobsters](https://lobste.rs/s/xankns/cutting_llm_token_usage_by_80_using_repl)).
 
-Benchmark numbers above are otherwise sourced to the Headroom README
-(`github.com/chopratejas/headroom`).
+Headroom moved from `github.com/chopratejas/headroom` to
+`github.com/headroomlabs-ai/headroom`, which the old address redirects to.

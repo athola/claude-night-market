@@ -10,9 +10,10 @@ import time
 from pathlib import Path
 from typing import Any
 
+from gauntlet import __version__
 from gauntlet.graph import GraphStore
 from gauntlet.models import EdgeKind
-from gauntlet.treesitter_parser import detect_language, parse_file
+from gauntlet.treesitter_parser import detect_language, parse_file, parser_available
 
 _log = logging.getLogger(__name__)
 
@@ -96,7 +97,7 @@ def get_changed_files(
     ref = _validate_ref(base_ref)
     try:
         result = subprocess.run(
-            ["git", "diff", "--name-only", "--relative", ref],
+            ["git", "diff", "--name-only", "--no-renames", "--relative", ref],
             capture_output=True,
             text=True,
             timeout=10,
@@ -138,7 +139,7 @@ def _get_staged_files(cwd: str | None = None) -> list[str]:
     """Fallback: get staged files, relative to ``cwd`` like the diff."""
     try:
         result = subprocess.run(
-            ["git", "diff", "--cached", "--name-only", "--relative"],
+            ["git", "diff", "--cached", "--name-only", "--no-renames", "--relative"],
             capture_output=True,
             text=True,
             timeout=10,
@@ -207,18 +208,40 @@ def collect_files(root_dir: str) -> list[str]:
 
 def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
     """Parse all source files and build the graph from scratch."""
+    if not parser_available():
+        # Every parse would be empty, and storing those replaces each
+        # file's rows: the build would erase the graph it meant to refresh.
+        return _no_work_report(
+            error="tree-sitter parser unavailable in this interpreter; "
+            "run with the gauntlet environment (uv run --project <plugin>)"
+        )
     start = time.monotonic()
     files = collect_files(root_dir)
 
     total_nodes = 0
     total_edges = 0
 
+    # A full build is the way to a clean graph, so it drops rows for files
+    # that are gone, and every parsed file replaces whatever an earlier
+    # build kept for it. Only paths under this
+    # root are its to judge: a graph can hold another root's files. Path
+    # comparison matches the paths collect_files stored for a relative
+    # root, and compares whole segments, so ``pkg`` never claims
+    # ``pkg_sibling``.
+    root = Path(root_dir)
+    current = set(files)
+    graph.delete_files(
+        sorted(
+            path
+            for path in graph.get_file_paths() - current
+            if Path(path).is_relative_to(root)
+        )
+    )
+
     for fp in files:
-        nodes, edges = parse_file(fp)
-        if nodes:
-            graph.store_file(fp, nodes, edges)
-            total_nodes += len(nodes)
-            total_edges += len(edges)
+        nodes, edges = _store_parsed(graph, fp)
+        total_nodes += nodes
+        total_edges += edges
 
     edges_resolved = graph.resolve_call_targets()
     graph.rebuild_fts()
@@ -228,6 +251,9 @@ def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
     graph.set_metadata("last_build_type", "full")
     graph.set_metadata("last_build_duration", str(duration))
     graph.set_metadata("last_build_files", str(len(files)))
+    if total_nodes:
+        # Only a full re-parse gives every row this version's shape.
+        graph.set_metadata("gauntlet_version", __version__)
 
     return {
         "build_type": "full",
@@ -237,6 +263,22 @@ def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
         "edges_resolved": edges_resolved,
         "duration_sec": duration,
     }
+
+
+def _store_parsed(graph: GraphStore, file_path: str) -> tuple[int, int]:
+    """Parse one file and replace its rows; return (nodes, edges) stored.
+
+    A successful parse always yields the file's own File node, so an empty
+    result is a failed read or parse. The rows an earlier build stored are
+    kept then: stale rows still point a reader at the file, and erasing
+    them would hide it until the next good parse. A file that no longer
+    exists never reaches here, since its rows are deleted by the callers.
+    """
+    nodes, edges = parse_file(file_path)
+    if not nodes:
+        return 0, 0
+    graph.store_file(file_path, nodes, edges)
+    return len(nodes), len(edges)
 
 
 def _no_work_report(**reason: str) -> dict[str, Any]:
@@ -274,6 +316,13 @@ def incremental_update(
     changed, early_report = _changed_or_report(base_ref, root_dir)
     if early_report is not None:
         return early_report
+    if not parser_available():
+        # Parsing would yield nothing and the report would still count the
+        # files, so a stale graph would read as freshly updated.
+        return _no_work_report(
+            error="tree-sitter parser unavailable in this interpreter; "
+            "run with the gauntlet environment (uv run --project <plugin>)"
+        )
 
     # Hash-based skip: a reported file whose content the graph already
     # holds is not re-parsed.
@@ -313,11 +362,9 @@ def incremental_update(
     total_edges = 0
 
     for fp in files_to_parse:
-        nodes, edges = parse_file(fp)
-        if nodes:
-            graph.store_file(fp, nodes, edges)
-            total_nodes += len(nodes)
-            total_edges += len(edges)
+        nodes, edges = _store_parsed(graph, fp)
+        total_nodes += nodes
+        total_edges += edges
 
     edges_resolved = graph.resolve_call_targets()
     graph.rebuild_fts()

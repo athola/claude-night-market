@@ -16,7 +16,11 @@ class HelpersMixin:
 
     def _extract_targets(self, content: str) -> list[str]:
         """Extract target names from makefile content."""
-        target_pattern = re.compile(r"^([a-zA-Z0-9_\-\.]+)\s*:", re.MULTILINE)
+        # A leading dot is a special target (.PHONY), and `:=`/`::=` is an
+        # assignment, not a rule.
+        target_pattern = re.compile(
+            r"^([a-zA-Z0-9_\-][a-zA-Z0-9_\-\.]*)\s*:(?!=|:=)", re.MULTILINE
+        )
         return target_pattern.findall(content)
 
     def _extract_phony_targets(self, content: str) -> list[str]:

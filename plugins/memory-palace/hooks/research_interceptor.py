@@ -51,6 +51,8 @@ from memory_palace.paths import persistent_root
 DATA_ROOT = persistent_root(PLUGIN_ROOT)
 
 _HAS_MEMORY_PALACE = False
+# The module whose absence disabled the package, when an import failed.
+_MISSING_MODULE: str | None = None
 try:
     from memory_palace.corpus.cache_lookup import CacheLookup
     from memory_palace.corpus.marginal_value import RedundancyLevel
@@ -68,6 +70,7 @@ try:
     _HAS_MEMORY_PALACE = True
 except (ImportError, ModuleNotFoundError) as e:
     logger.debug("memory_palace package not available: %s", e)
+    _MISSING_MODULE = getattr(e, "name", None)
     from shared.fallback_stubs import (  # type: ignore[assignment]  # conditional stubs for graceful degradation
         AutonomyProfile,
         AutonomyStateStore,
@@ -195,6 +198,39 @@ def _load_autonomy(
     return store, profile
 
 
+def _report_missing_pyyaml_once() -> None:
+    """Say once that the interceptor is off because PyYAML is missing.
+
+    It exited 0 with a debug log, so cache lookups stopped and nobody knew.
+    A marker under the data root keeps this from repeating every call.
+    """
+    if _MISSING_MODULE != "yaml":
+        return
+    marker = DATA_ROOT / ".interceptor-no-pyyaml-reported"
+    if marker.exists():
+        return
+    try:
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        marker.touch()
+    except OSError:
+        return  # unrecorded means it would repeat; stay quiet instead
+    message = (
+        "memory-palace: the research cache interceptor is off because PyYAML "
+        f"is not installed for {sys.executable}. Install it to enable cache "
+        f"lookups: {sys.executable} -m pip install --user pyyaml"
+    )
+    print(
+        json.dumps(
+            {
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "additionalContext": message,
+                }
+            }
+        )
+    )
+
+
 def main() -> None:
     """Intercept research requests through the hook."""
     try:
@@ -205,7 +241,10 @@ def main() -> None:
 
     tool_name = payload.get("tool_name", "")
     tool_input = payload.get("tool_input", {})
-    if tool_name not in ("WebFetch", "WebSearch") or not _HAS_MEMORY_PALACE:
+    if tool_name not in ("WebFetch", "WebSearch"):
+        sys.exit(0)
+    if not _HAS_MEMORY_PALACE:
+        _report_missing_pyyaml_once()
         sys.exit(0)
 
     config = shared_config.get_config()

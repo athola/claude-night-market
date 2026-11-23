@@ -17,7 +17,7 @@ _MAX_SESSION_ID_LENGTH = 128
 def validate_session_id(session_id: str) -> bool:
     """Check if session ID is safe for use as a filename."""
     return (
-        bool(_SAFE_ID_RE.match(session_id))
+        bool(_SAFE_ID_RE.fullmatch(session_id))
         and len(session_id) <= _MAX_SESSION_ID_LENGTH
         and ".." not in session_id
     )

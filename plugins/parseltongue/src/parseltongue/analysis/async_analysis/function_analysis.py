@@ -232,14 +232,16 @@ async def analyze_concurrency_patterns(
 
     if gather_functions:
         patterns["gather_usage"] = {
-            "functions": list(set(gather_functions)),
+            "functions": sorted(set(gather_functions)),
             "error_handling": gather_error_handling,
         }
 
     if create_task_functions:
-        patterns["create_task_usage"] = {"functions": list(set(create_task_functions))}
+        patterns["create_task_usage"] = {
+            "functions": sorted(set(create_task_functions))
+        }
 
     if task_group_functions:
-        patterns["task_group_usage"] = {"functions": list(set(task_group_functions))}
+        patterns["task_group_usage"] = {"functions": sorted(set(task_group_functions))}
 
     return {"concurrency_patterns": patterns}

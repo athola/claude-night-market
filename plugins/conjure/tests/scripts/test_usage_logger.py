@@ -281,6 +281,32 @@ class TestGeminiUsageLogger:
         assert updated_session["total_tokens"] == 1200
         assert updated_session["successful_requests"] == 5
 
+    def test_update_session_stats_leaves_another_writers_temp_file_untouched(
+        self, tmp_path
+    ) -> None:
+        """Parallel delegations each update the session file (R1).
+
+        A fixed ``.json.tmp`` let one update clobber another's half-written
+        file before the rename.
+        """
+        with patch("pathlib.Path.home", return_value=tmp_path):
+            logger = GeminiUsageLogger()
+        logger.session_file.parent.mkdir(parents=True, exist_ok=True)
+        logger.session_file.write_text(json.dumps({"session_id": "s"}))
+        in_flight = logger.session_file.with_suffix(".json.tmp")
+        in_flight.write_text("half written by another process")
+
+        logger._update_session_stats(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "actual_tokens": 1,
+                "success": True,
+            }
+        )
+
+        assert in_flight.read_text() == "half written by another process"
+        assert json.loads(logger.session_file.read_text())["total_requests"] == 1
+
     def test_update_session_stats_no_file(self, tmp_path) -> None:
         """Given no session file when updating stats then should create new.
 

@@ -848,3 +848,18 @@ class TestMainSilentPaths:
         """A payload of the wrong shape exits 0 rather than raising."""
         assert self._run(tdd_gate_module, monkeypatch, payload) == 0
         assert capsys.readouterr().out == ""
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("tool_input", ["a string", ["a", "list"], 7])
+def test_non_dict_tool_input_exits_quietly(tool_input: object) -> None:
+    """`tool_input.get` raised AttributeError and printed a traceback (IMB-12)."""
+    proc = subprocess.run(
+        [sys.executable, str(_GATE)],
+        input=json.dumps({"tool_name": "Write", "tool_input": tool_input}),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0
+    assert "Traceback" not in proc.stderr

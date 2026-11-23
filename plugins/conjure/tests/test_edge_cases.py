@@ -12,7 +12,6 @@ import sys
 import threading
 from datetime import datetime
 from pathlib import Path
-from typing import IO
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -378,11 +377,12 @@ class TestSessionStatsAtomicity:
         logger.log_usage(UsageEntry("cmd", 10, success=True))
         before = logger.session_file.read_bytes()
 
-        def dump_then_fail(obj: object, fp: IO[str], **_kwargs: object) -> None:
-            fp.write('{"total_requests": ')
+        # The new stats reach the temp file, then the sync to disk fails
+        # before the rename can publish them.
+        def fsync_fails(_fd: int) -> None:
             raise OSError("disk full")
 
-        monkeypatch.setattr(json, "dump", dump_then_fail)
+        monkeypatch.setattr(os, "fsync", fsync_fails)
         logger.log_usage(UsageEntry("cmd", 5, success=True))
 
         assert logger.session_file.read_bytes() == before

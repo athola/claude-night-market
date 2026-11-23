@@ -20,6 +20,10 @@ from pathlib import Path
 # The repo keeps plugins side by side, the install cache nests them by
 # version: resolve leyline in either, falling back to the repo path.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vendored_leyline_atomic_file import (
+    file_lock,
+    write_atomic,
+)
 from _vendored_leyline_sibling_plugins import (  # noqa: E402 - after sys.path setup
     add_sibling_src_to_path,
 )
@@ -146,7 +150,7 @@ class WorkspaceManager:
 
     def _save_tasks(self, tasks: list[dict[str, str]]) -> None:
         """Save the task manifest to tasks.json."""
-        self.tasks_file.write_text(json.dumps(tasks, indent=2))
+        write_atomic(self.tasks_file, json.dumps(tasks, indent=2))
 
     def add_task(
         self,
@@ -167,6 +171,12 @@ class WorkspaceManager:
             match, so a duplicate would never leave pending.
 
         """
+        # Parallel agents call this; the lock stops the last writer from
+        # dropping another agent's change.
+        with file_lock(self.tasks_file):
+            return self._add_task_locked(task_id, agent, contract_ref)
+
+    def _add_task_locked(self, task_id: str, agent: str, contract_ref: str) -> bool:
         tasks = self.load_tasks()
         if any(task["id"] == task_id for task in tasks):
             return False
@@ -197,6 +207,10 @@ class WorkspaceManager:
             moved, which the caller must not report as a transition.
 
         """
+        with file_lock(self.tasks_file):
+            return self._update_task_status_locked(task_id, status)
+
+    def _update_task_status_locked(self, task_id: str, status: str) -> bool:
         tasks = self.load_tasks()
         for task in tasks:
             if task["id"] == task_id:

@@ -6,10 +6,7 @@ action: block
 conditions:
   - field: command
     operator: regex_match
-    pattern: git\s+push\s+.*(-f|--force)
-  - field: command
-    operator: regex_match
-    pattern: (main|master)
+    pattern: git\s+push\b(?:(?=[^;&|\n]*\s["']?(?:-[A-Za-z]*f[A-Za-z]*|--force)(?=[\s;&|'"`)]|$))(?=[^;&|\n]*\s["']?(?:\S*:)?(?:refs/heads/)?(?:main|master)(?=[\s;&|'"`)]|$))|[^;&|\n]*\s["']?\+(?:\S*:)?(?:refs/heads/)?(?:main|master)(?=[\s;&|'"`)]|$))
 ---
 
 Shared history belongs to every contributor who builds

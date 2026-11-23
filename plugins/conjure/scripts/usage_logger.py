@@ -21,8 +21,12 @@ from typing import Any
 # bin/status.sh imports this module with only scripts/ on the path.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 try:
+    from scripts._vendored_leyline_atomic_file import write_atomic
     from scripts.usage_log_rotation import MAX_LOG_BYTES, append_line, read_lines
 except ImportError:  # bin/status.sh puts only scripts/ on sys.path
+    from _vendored_leyline_atomic_file import (  # type: ignore[import-not-found,no-redef]  # same module, loaded by bare name
+        write_atomic,
+    )
     from usage_log_rotation import (  # type: ignore[import-not-found,no-redef]  # same module, loaded by bare name
         MAX_LOG_BYTES,
         append_line,
@@ -144,13 +148,11 @@ class GeminiUsageLogger:
             if log_entry["success"]:
                 session_data["successful_requests"] = successful_requests + 1
 
-            # Same pattern as provider_ledger.save: write beside, then
-            # rename, so an interrupted dump cannot leave a truncated file
-            # for the next read to discard.
-            temporary = self.session_file.with_suffix(".json.tmp")
-            with open(temporary, "w") as f:
-                json.dump(session_data, f, indent=2)
-            temporary.replace(self.session_file)
+            # An interrupted dump must not leave a truncated file for the
+            # next read to discard, nor clobber a concurrent update's temp.
+            write_atomic(
+                self.session_file, json.dumps(session_data, indent=2), mode=None
+            )
 
         except (json.JSONDecodeError, OSError, KeyError, TypeError) as e:
             # Don't let logging errors break the main flow, but say so at a

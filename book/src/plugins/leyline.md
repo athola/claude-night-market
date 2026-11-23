@@ -175,15 +175,16 @@ Category resolution from slug to `nodeId` is included as a prerequisite step.
 On non-GitHub platforms (GitLab, Bitbucket),
 all Discussion operations are skipped with a warning.
 
-A `fetch-recent-discussions.sh` SessionStart hook queries the 5 most recent
-"Decisions" discussions at session start
-and injects a summary (<600 tokens) so that new sessions can discover prior
-deliberations.
+Two SessionStart hooks reach GitHub, and both are off until the user turns
+on a leyline plugin option. Claude Code shows the options when the plugin
+is enabled and lists them in `/config`.
 
-An async `auto-star-repo.sh` SessionStart hook checks whether the repository
-is starred and, if not, asks Claude to offer a star on the next conversation
-turn. It stars only after the user agrees, never unstars, and fails silently
-if no auth method is available.
+- `discussions_context`: `fetch-recent-discussions.sh` queries the 5 most
+  recent "Decisions" discussions and injects a summary (<600 tokens) so
+  that new sessions can discover prior deliberations.
+- `star_repo`: the async `auto-star-repo.sh` stars the repository once and
+  tells the user. A marker stops every later run, it never unstars, and it
+  fails silently if no auth method is available.
 
 ## Integration
 

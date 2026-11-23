@@ -4,14 +4,36 @@ from __future__ import annotations
 
 import importlib
 import logging
+from fnmatch import fnmatch
 from pathlib import Path
 from typing import Any
 
+from pensive.config.configuration import Configuration
 from pensive.exceptions import AnalysisError
 from pensive.skills.unified_review import UnifiedReviewSkill
 from pensive.utils.severity_mapper import count_by_severity
 
 logger = logging.getLogger(__name__)
+
+# Dependency and cache directories only. The harden scanner also skips
+# build, dist and vendor, which in a code review can be the source itself.
+_REVIEW_SKIP_DIRS = frozenset(
+    {
+        ".git",
+        "node_modules",
+        ".venv",
+        "venv",
+        "site-packages",
+        ".eggs",
+        "__pycache__",
+        ".tox",
+        ".mypy_cache",
+        ".ruff_cache",
+        ".pytest_cache",
+        ".uv-cache",
+        ".cargo",
+    }
+)
 
 
 class CodeReviewWorkflow:
@@ -23,10 +45,40 @@ class CodeReviewWorkflow:
         self._skill_registry: dict[str, Any] = {}
         self._errors: list[str] = []
         self._skipped_skills: list[str] = []
+        self._warnings: list[str] = []
 
     def configure(self, settings: dict[str, Any]) -> None:
         """Configure workflow."""
-        self.config.update(settings)
+        if isinstance(self.config, Configuration):
+            for key, setting in settings.items():
+                self.config.set(key, setting)
+        else:
+            self.config.update(settings)
+
+    @property
+    def _configuration(self) -> Configuration:
+        """Read the config through ``Configuration`` whatever shape it came in.
+
+        ``run_code_review`` passes a plain dict, and reading only a
+        ``Configuration`` dropped its exclude and skill settings.
+        """
+        if isinstance(self.config, Configuration):
+            return self.config
+        return Configuration(self.config)
+
+    def _excluded(self, rel: Path) -> bool:
+        """Report whether ``rel`` matches a configured exclude pattern.
+
+        fnmatch needs the separator in ``**/tests/**``, so the pattern is
+        also tried without its leading ``**/`` to match a top-level
+        ``tests/``.
+        """
+        path = str(rel)
+        return any(
+            fnmatch(path, pattern)
+            or (pattern.startswith("**/") and fnmatch(path, pattern[3:]))
+            for pattern in self._configuration.exclude_patterns
+        )
 
     def execute_full_review(self, repo_path: Path | str) -> dict[str, Any]:
         """Execute full repository review.
@@ -48,6 +100,7 @@ class CodeReviewWorkflow:
         repo_path = Path(repo_path)
         self._errors = []
         self._skipped_skills = []
+        self._warnings = []
 
         # Collect all files to analyze
         files = self._collect_files(repo_path)
@@ -103,6 +156,7 @@ class CodeReviewWorkflow:
             },
             "errors": self._errors if self._errors else None,
             "skipped_skills": self._skipped_skills if self._skipped_skills else None,
+            "warnings": self._warnings if self._warnings else None,
         }
 
     def execute_skills(
@@ -146,14 +200,23 @@ class CodeReviewWorkflow:
     # is built once at class load instead of allocating a list per
     # call to _collect_files.
     _CODE_SUFFIXES = frozenset({".py", ".rs", ".js", ".ts", ".java", ".go"})
+    # Skill selection keys on these names, which have no code suffix.
+    _BUILD_FILE_NAMES = frozenset({"Makefile", "makefile", "Cargo.toml"})
 
     def _collect_files(self, repo_path: Path) -> list[str]:
         """Collect repository code files in a single tree walk."""
-        return [
-            str(f.relative_to(repo_path))
-            for f in repo_path.rglob("*")
-            if f.is_file() and f.suffix in self._CODE_SUFFIXES
-        ]
+        collected = []
+        for f in repo_path.rglob("*"):
+            rel = f.relative_to(repo_path)
+            if (
+                any(part in _REVIEW_SKIP_DIRS for part in rel.parts)
+                or self._excluded(rel)
+                or not f.is_file()
+            ):
+                continue
+            if f.suffix in self._CODE_SUFFIXES or f.name in self._BUILD_FILE_NAMES:
+                collected.append(str(rel))
+        return collected
 
     def _determine_skills(self, repo_path: Path, files: list[str]) -> list[str]:
         """Determine skills to run based on content.
@@ -163,7 +226,23 @@ class CodeReviewWorkflow:
         """
         context = _ReviewContext(repo_path, files)
         selected = UnifiedReviewSkill().select_review_skills(context)
-        return ["unified-review" if s == "code-reviewer" else s for s in selected]
+        named = ["unified-review" if s == "code-reviewer" else s for s in selected]
+        enabled = self._configuration.enabled_skills
+        if not enabled:
+            return named
+        kept = [s for s in named if s in enabled]
+        if kept:
+            return kept
+        # An empty run would review nothing, which a configured skill list
+        # never means to ask for.
+        warning = (
+            f"pensive.skills {enabled} matched none of the skills selected "
+            f"for this repository ({', '.join(named)}); ran the default "
+            "selection instead"
+        )
+        logger.warning(warning)
+        self._warnings.append(warning)
+        return named
 
     def _generate_summary(self, findings: list[dict[str, Any]]) -> str:
         """Generate findings summary."""

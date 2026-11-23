@@ -8,6 +8,8 @@ So that classifiers, planners, and channels can exchange data reliably
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from tome.models import (
@@ -332,3 +334,54 @@ class TestSessionSummary:
         assert summary.id == "sess-001"
         assert summary.finding_count == 12
         assert summary.created_at is None
+
+
+@pytest.mark.unit
+class TestResearchSessionEntities:
+    """``entities`` is a list of non-blank names wherever a session is built."""
+
+    @staticmethod
+    def _stored(entities: object) -> dict[str, object]:
+        return {
+            "id": "s1",
+            "topic": "t",
+            "domain": "d",
+            "triz_depth": "light",
+            "channels": ["code"],
+            "entities": entities,
+        }
+
+    def test_string_entities_load_as_no_entities_not_letters(self) -> None:
+        session = ResearchSession.from_dict(self._stored("Rust"))
+        assert session.entities == []
+
+    def test_null_entities_load_as_no_entities(self) -> None:
+        session = ResearchSession.from_dict(self._stored(None))
+        assert session.entities == []
+
+    def test_entities_are_stripped_and_blanks_dropped(self) -> None:
+        session = ResearchSession.from_dict(self._stored([" Rust ", "", "  ", 3, "Go"]))
+        assert session.entities == ["Rust", "Go"]
+
+    def test_constructor_normalizes_entities(self) -> None:
+        session = ResearchSession(
+            topic="t",
+            domain="d",
+            triz_depth="light",
+            channels=[],
+            entities=[" Zig", ""],
+        )
+        assert session.entities == ["Zig"]
+
+    def test_assigned_entities_are_normalized_like_constructed_ones(self) -> None:
+        """The skill told sessions to assign entities, which skipped the
+        constructor: a bare string saved as its letters and a number
+        crashed the gap check.
+        """
+        session = ResearchSession.from_dict(self._stored([]))
+        bare_string: Any = "Rust"
+        session.entities = bare_string
+        assert session.to_dict()["entities"] == []
+        mixed: Any = [" Rust ", 3, ""]
+        session.entities = mixed
+        assert session.entities == ["Rust"]

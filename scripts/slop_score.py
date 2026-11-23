@@ -373,15 +373,22 @@ def score_text(
 
     findings = []
     weighted = 0
+    scored_spans: dict[tuple[str, int], list[tuple[int, int]]] = {}
     for category, regex, weight in _RULES_CACHE[language]:
         # Raw-text categories read the whole file, fences included, so a
         # file with no prose words is still scanned for them.
         if not words and category not in _RAW_TEXT_CATEGORIES:
             continue
         body = text if category in _RAW_TEXT_CATEGORIES else prose
+        taken = scored_spans.setdefault((category, id(body)), [])
         for match in regex.finditer(body):
             if match.group(0).lower() in allow:
                 continue
+            # Two patterns of one category matching the same words are one
+            # finding: "It's a tool, not a toy." scored twice.
+            if any(s < match.end() and match.start() < e for s, e in taken):
+                continue
+            taken.append(match.span())
             findings.append(
                 Finding(category=category, match=match.group(0), weight=weight)
             )
@@ -443,7 +450,10 @@ def _iter_markdown(roots: list, python: bool = False) -> list:
             if python:
                 candidates += sorted(path.rglob("*.py"))
         for candidate in candidates:
-            if any(part in _SKIP_PARTS for part in candidate.parts):
+            # Only parts below the root: a checkout under `.../worktrees/`
+            # would otherwise skip every file it holds.
+            below = candidate.relative_to(path).parts if path.is_dir() else ()
+            if any(part in _SKIP_PARTS for part in below):
                 continue
             found.append(candidate)
     return found

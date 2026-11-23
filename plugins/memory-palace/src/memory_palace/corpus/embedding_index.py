@@ -18,6 +18,19 @@ class EmbeddingDimensionError(ValueError):
     """Two vectors from different embedding spaces were compared."""
 
 
+class EmbeddingModelMismatchError(EmbeddingDimensionError):
+    """The query model differs from the model that built the stored index.
+
+    Two models of the same width compare without error and rank noise, so
+    the length check in ``_dot`` cannot catch them. Subclassing the
+    dimension error lets callers that already degrade on that one (the
+    cache lookup) degrade on this one too.
+    """
+
+
+_LOCAL_MODEL_ID = "all-MiniLM-L6-v2"
+_HASH_MODEL_ID = "hash-sha256-16"
+
 try:
     import numpy as np
 
@@ -70,6 +83,16 @@ class EmbeddingIndex:
         self.active_provider, self.entries = self._select_entries()
         self._room_entries: dict[str, dict[str, list[float]]] = {}
         self._load_room_entries()
+        stored_id = (
+            self.raw_store.get("providers", {})
+            .get(self.active_provider, {})
+            .get("model_id")
+        )
+        # Vectors saved before model ids were recorded came from an unknown
+        # model; export must not attribute them to whichever one loads now.
+        self._unattributed = stored_id is None and bool(
+            self.entries or any(self._room_entries.values())
+        )
         self.model = None
         if self.active_provider == "local":
             self._maybe_load_model()
@@ -137,11 +160,45 @@ class EmbeddingIndex:
     def _maybe_load_model(self) -> None:
         if _HAS_ST and SentenceTransformer is not None:
             try:
-                self.model = SentenceTransformer("all-MiniLM-L6-v2")
+                self.model = SentenceTransformer(_LOCAL_MODEL_ID)
             except (OSError, RuntimeError):
                 self.model = None
         else:
             self.model = None
+
+    @property
+    def model_id(self) -> str:
+        """Identify the model ``vectorize`` uses right now.
+
+        Follows the model that actually loaded, not the requested provider:
+        a local provider whose model failed to load embeds with hashes.
+        """
+        if self.active_provider == "local" and self.model is not None:
+            return _LOCAL_MODEL_ID
+        return _HASH_MODEL_ID
+
+    def _check_model(self) -> None:
+        """Refuse to compare query vectors against another model's vectors.
+
+        A store written before model ids were recorded has no id. It is
+        accepted as unknown, since refusing would orphan every existing
+        index. ``export`` keeps it unknown rather than guess.
+        """
+        if self._model_mismatch():
+            stored = self.raw_store["providers"][self.active_provider]["model_id"]
+            raise EmbeddingModelMismatchError(
+                f"Index was built with model {stored!r} but queries use "
+                f"{self.model_id!r}. Load the matching model, or rebuild "
+                "the index with export(entries=...) holding vectors from "
+                "the current model"
+            )
+
+    def _model_mismatch(self) -> bool:
+        provider_block = self.raw_store.get("providers", {}).get(
+            self.active_provider, {}
+        )
+        stored = provider_block.get("model_id")
+        return stored is not None and stored != self.model_id
 
     @property
     def provider(self) -> str:
@@ -172,6 +229,7 @@ class EmbeddingIndex:
         """
         if not self.entries:
             return []
+        self._check_model()
         query_vec = self.vectorize(query)
         scores = []
         for entry, vector in self.entries.items():
@@ -186,6 +244,7 @@ class EmbeddingIndex:
 
     def add_to_room(self, room: str, entry_id: str, text: str) -> None:
         """Add an entry to a room-specific index partition."""
+        self._check_model()
         if room not in self._room_entries:
             self._room_entries[room] = {}
         vector = self.vectorize(text)
@@ -198,6 +257,7 @@ class EmbeddingIndex:
         room_data = self._room_entries.get(room, {})
         if not room_data:
             return []
+        self._check_model()
         query_vec = self.vectorize(query)
         scores: list[tuple[str, float]] = []
         for entry_id, vector in room_data.items():
@@ -214,6 +274,7 @@ class EmbeddingIndex:
     ) -> list[tuple[str, str, float]]:
         """Search across multiple rooms, returning (entry_id, room, score) tuples."""
         target_rooms = rooms if rooms is not None else list(self._room_entries.keys())
+        self._check_model()
         query_vec = self.vectorize(query)
         scores: list[tuple[str, str, float]] = []
         for room_name in target_rooms:
@@ -246,7 +307,18 @@ class EmbeddingIndex:
         When room-partitioned entries exist, they are serialized under a
         ``rooms`` key inside the provider block. Flat (non-room) entries
         are stored under the ``embeddings`` key as before.
+
+        Raises EmbeddingModelMismatchError when the loaded vectors came from
+        another model: stamping the current id over them would hide the
+        mismatch that ``_check_model`` exists to catch. Explicit ``entries``
+        are the rebuild path for that case: they replace the stored block
+        under the current model, and the other model's room vectors are
+        dropped with it.
         """
+        if entries is not None and self._model_mismatch():
+            self._room_entries = {}
+        else:
+            self._check_model()
         target_path = Path(path) if path else self.embeddings_path
         target_provider = provider or self.requested_provider or self.active_provider
         payload = entries if entries is not None else self.entries
@@ -258,6 +330,8 @@ class EmbeddingIndex:
         provider_block: dict[str, Any] = {
             "updated_at": datetime.now(timezone.utc).isoformat(),
         }
+        if not self._unattributed:
+            provider_block["model_id"] = self.model_id
 
         # Persist flat entries when present
         if payload:

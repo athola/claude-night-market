@@ -104,10 +104,12 @@ class TestContextRidesInHookSpecificOutput:
     ) -> None:
         (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
         (gauntlet_dir / "graph.db").touch()
-        report = {"files_parsed": 3, "nodes_created": 9}
         monkeypatch.chdir(gauntlet_dir.parent)
 
-        with patch("gauntlet.incremental.incremental_update", return_value=report):
+        with (
+            patch("shutil.which", return_value="/bin/uv"),
+            patch("subprocess.Popen"),
+        ):
             result = auto_update_main(
                 {
                     "tool_name": "Bash",
@@ -120,7 +122,7 @@ class TestContextRidesInHookSpecificOutput:
         assert "additionalContext" not in result
         output = result["hookSpecificOutput"]
         assert output["hookEventName"] == "PostToolUse"
-        assert "Graph updated: 3 files" in output["additionalContext"]
+        assert "Graph updating in the background" in output["additionalContext"]
 
 
 class TestStalenessConfigShape:

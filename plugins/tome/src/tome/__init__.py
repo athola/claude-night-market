@@ -1,3 +1,3 @@
 """Tome: Multi-source research plugin for Claude Code."""
 
-__version__ = "1.10.3"
+__version__ = "1.10.4"

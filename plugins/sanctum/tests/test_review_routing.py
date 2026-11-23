@@ -269,3 +269,11 @@ class TestMainPaths:
         repo, base = team_repo
         _commit_as(repo, "Ana", "README.md", "hi\n")
         assert [lane.directory for lane in lanes(repo, base)] == ["."]
+
+
+def test_non_ascii_path_lands_in_its_directory(team_repo: tuple[Path, str]) -> None:
+    """Git C-quoted the name, so its lane was `"app` (SAN-3)."""
+    repo, base = team_repo
+    _commit_as(repo, "Ana", "app/ui/café.py", "c = 1\n")
+    (lane,) = lanes(repo, base)
+    assert lane.directory == "app/ui"

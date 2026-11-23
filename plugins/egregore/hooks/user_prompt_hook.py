@@ -22,6 +22,7 @@ from _manifest_utils import (
     consume_stdin,
     find_manifest,
     get_items,
+    in_judge_mode,
     load_manifest_data,
 )
 
@@ -29,6 +30,8 @@ from _manifest_utils import (
 def main() -> None:
     """UserPromptSubmit hook entry point."""
     consume_stdin()
+    if in_judge_mode():
+        sys.exit(0)
 
     manifest_path = find_manifest()
     if not manifest_path.exists():

@@ -19,7 +19,6 @@ REPO = Path(__file__).resolve().parents[1]
 SCRIPTS = [
     "plugins/abstract/scripts/promote_discussion_to_issue.py",
     "plugins/conserve/scripts/coordination_workspace.py",
-    "plugins/conserve/scripts/safe_replacer.py",
     "plugins/sanctum/scripts/quality_checker.py",
     "plugins/sanctum/scripts/test_generator.py",
 ]

@@ -21,6 +21,9 @@ import yaml
 
 # The wiring test needs the fetch hook, which lives outside the package.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "hooks"))
+import fcntl
+import threading
+
 from web_research_handler import (  # noqa: E402 - needs the sys.path line above
     detect_null_capture,
 )
@@ -773,7 +776,7 @@ class TestApplyTitleRepairs:
         """Given a junk title on disk, apply writes the repaired one."""
         path = self._index_file(tmp_path, "- A loading state")
         index = yaml.safe_load(path.read_text())
-        result = apply_title_repairs(index, propose_title_repairs(index), path)
+        result = apply_title_repairs(propose_title_repairs(index), path)
         assert result.applied == 1
         written = yaml.safe_load(path.read_text())
         entry = written["entries"]["https://docs.example.com/user-guide"]
@@ -784,7 +787,7 @@ class TestApplyTitleRepairs:
         """Given an already-repaired index, a second pass changes nothing."""
         path = self._index_file(tmp_path, "- A loading state")
         index = yaml.safe_load(path.read_text())
-        apply_title_repairs(index, propose_title_repairs(index), path)
+        apply_title_repairs(propose_title_repairs(index), path)
 
         reloaded = yaml.safe_load(path.read_text())
         assert propose_title_repairs(reloaded) == []
@@ -794,7 +797,7 @@ class TestApplyTitleRepairs:
         """Given a repair, the pre-repair index is recoverable."""
         path = self._index_file(tmp_path, "- A loading state")
         index = yaml.safe_load(path.read_text())
-        result = apply_title_repairs(index, propose_title_repairs(index), path)
+        result = apply_title_repairs(propose_title_repairs(index), path)
         assert result.backup_path.exists()
         backed_up = yaml.safe_load(result.backup_path.read_text())
         entry = backed_up["entries"]["https://docs.example.com/user-guide"]
@@ -806,9 +809,71 @@ class TestApplyTitleRepairs:
         path = self._index_file(tmp_path, "- A loading state")
         index = yaml.safe_load(path.read_text())
         before = copy.deepcopy(index)
-        apply_title_repairs(index, propose_title_repairs(index), path)
+        apply_title_repairs(propose_title_repairs(index), path)
         written = yaml.safe_load(path.read_text())
         key = "https://docs.example.com/user-guide"
         for field_name, value in before["entries"][key].items():
             if field_name != "title":
                 assert written["entries"][key][field_name] == value
+
+
+def test_apply_promotions_waits_for_index_lock(tmp_path: Path) -> None:
+    """The promoter wrote without the hook's `<index>.lock`, so a capture
+    added under the lock was dropped by the promoter's write (MP-7).
+    """
+    index_path = tmp_path / "memory-palace-index.yaml"
+    index_path.write_text("entries: {}\nhashes: {}\n")
+    done = threading.Event()
+
+    def promote() -> None:
+        apply_promotions([], index_path, backup_dir=tmp_path / "backups")
+        done.set()
+
+    with open(tmp_path / "memory-palace-index.yaml.lock", "a") as held:
+        fcntl.flock(held, fcntl.LOCK_EX)
+        worker = threading.Thread(target=promote)
+        worker.start()
+        assert not done.wait(0.3)
+        fcntl.flock(held, fcntl.LOCK_UN)
+    worker.join(5)
+    assert done.is_set()
+
+
+def test_apply_title_repairs_waits_for_index_lock(tmp_path: Path) -> None:
+    """Title repair wrote a caller-loaded copy with no lock (MP-7)."""
+    index_path = tmp_path / "memory-palace-index.yaml"
+    index_path.write_text("entries: {}\nhashes: {}\n")
+    done = threading.Event()
+
+    def repair() -> None:
+        apply_title_repairs([], index_path, backup_dir=tmp_path / "backups")
+        done.set()
+
+    with open(tmp_path / "memory-palace-index.yaml.lock", "a") as held:
+        fcntl.flock(held, fcntl.LOCK_EX)
+        worker = threading.Thread(target=repair)
+        worker.start()
+        assert not done.wait(0.3)
+        fcntl.flock(held, fcntl.LOCK_UN)
+    worker.join(5)
+    assert done.is_set()
+
+
+def test_apply_orphan_prunes_waits_for_index_lock(tmp_path: Path) -> None:
+    """Pruning wrote the index without the hook's lock, as promotion did."""
+    index_path = tmp_path / "memory-palace-index.yaml"
+    index_path.write_text("entries: {}\nhashes: {}\n")
+    done = threading.Event()
+
+    def prune() -> None:
+        apply_orphan_prunes([], index_path, backup_dir=tmp_path / "backups")
+        done.set()
+
+    with open(tmp_path / "memory-palace-index.yaml.lock", "a") as held:
+        fcntl.flock(held, fcntl.LOCK_EX)
+        worker = threading.Thread(target=prune)
+        worker.start()
+        assert not done.wait(0.3)
+        fcntl.flock(held, fcntl.LOCK_UN)
+    worker.join(5)
+    assert done.is_set()

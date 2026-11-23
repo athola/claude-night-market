@@ -20,12 +20,16 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
 
+import time
+
 import slop_score  # noqa: E402 - scripts/ must join sys.path above before this resolves
 
 from scribe.pattern_loader import (
     get_phrase_patterns,
     get_ste_patterns,
     get_sycophantic_patterns,
+    get_tier1_words,
+    get_tier2_words,
     get_tier5_patterns,
     load_language_patterns,
 )
@@ -2372,3 +2376,79 @@ class TestTier5SoConnective:
     )
     def test_ignores_other_uses_of_so(self, text: str) -> None:
         assert _category_hits(self.CATEGORY, text) == 0
+
+
+class TestP0PatternsAreScored:
+    """The rule calls identity leaks and AI citation artifacts P0, yet no
+    pattern carried them, so a doc holding one scored 0 (SCR-3).
+    """
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "As a large language model, I cannot help with that.",
+            "As of my training cutoff, the API was stable.",
+            "I cannot provide legal advice here.",
+        ],
+    )
+    def test_identity_leak_phrase_is_scored(self, text: str) -> None:
+        assert _category_hits("identity_leak", text) == 1
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The study found this. :contentReference[oaicite:0]{index=0}",
+            "See the result turn0search3 for details.",
+            "Cited here oai_citation:1 in the draft.",
+        ],
+    )
+    def test_ai_artifact_is_scored(self, text: str) -> None:
+        assert _category_hits("ai_artifact", text) >= 1
+
+    def test_ordinary_prose_is_not_an_identity_leak(self) -> None:
+        assert _category_hits("identity_leak", "As a team we cannot provide SLAs.") == 0
+
+
+class TestTier3LowPatternFixes:
+    """SCR-4 and SCR-6."""
+
+    @pytest.mark.parametrize("unit", ["It is a ", "Where a "])
+    def test_unpunctuated_run_scans_in_linear_time(self, unit: str) -> None:
+        """`[\\w\\s]+?` scanned to the next comma from every start: 3.5 s on
+        96 KB with no punctuation (SCR-4).
+        """
+        text = unit * 12000
+        start = time.perf_counter()
+        _category_hits("negative_parallelism", text)
+        _category_hits("contrastive_parallelism", text)
+        # Fixed: ~0.04 s. Unbounded: ~3.4 s on the same machine.
+        assert time.perf_counter() - start < 1.5
+
+    @pytest.mark.parametrize("text", ["Add 1 + 1 to get two.", "Let a + b equal c."])
+    def test_plus_sign_in_arithmetic_is_not_a_conjunction(self, text: str) -> None:
+        """The rule allows `+` in math; `\\w\\s\\+\\s\\w` scored it (SCR-6)."""
+        assert _category_hits("plus_sign_conjunction", text) == 0
+
+    def test_plus_sign_joining_words_is_still_scored(self) -> None:
+        assert (
+            _category_hits("plus_sign_conjunction", "Tests + docs ship together.") == 1
+        )
+
+
+def test_one_contrastive_sentence_is_scored_once() -> None:
+    """The copula-led and bare-trailing patterns both matched "It's a tool,
+    not a toy." and each added the category score (SCR-8).
+    """
+    result = slop_score.score_text("It's a tool, not a toy. " + "word " * 200)
+    hits = [f for f in result.findings if f.category == "negative_parallelism"]
+    assert len(hits) == 1
+
+
+def test_words_the_rule_calls_tier_1_are_scored_as_tier_1() -> None:
+    """slop-scan-for-docs.md names these tier 1; actionable and seamless
+    sat in tier 2 and myriad/empower were absent (SCR-3).
+    """
+    patterns = load_language_patterns("en")
+    tier1 = set(get_tier1_words(patterns))
+    assert {"myriad", "empower", "actionable", "seamless"} <= tier1
+    assert not {"actionable", "seamless"} & set(get_tier2_words(patterns))

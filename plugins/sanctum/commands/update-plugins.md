@@ -147,7 +147,7 @@ Use `claude plugin update <plugin>@<marketplace>` to update individual plugins.
 
 - After adding new commands, skills, agents, or hooks
 - During version bumps to ensure completeness
-- As part of PR preparation (`/pr` workflow)
+- As part of PR preparation (`/prepare-pr` workflow)
 - When capabilities-reference.md seems out of sync
 - Periodically (weekly/monthly) to catch performance
   degradation early

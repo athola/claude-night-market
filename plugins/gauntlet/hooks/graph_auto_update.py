@@ -8,10 +8,9 @@ Opt-in via .gauntlet/config.json: {"auto_update": true}
 from __future__ import annotations
 
 import json
-import logging
 import os
+import shutil
 import sys
-import time
 from pathlib import Path
 from typing import Any
 
@@ -19,7 +18,17 @@ _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
-from gauntlet.git_commands import is_git_commit
+from _gauntlet_config import load_config
+from _graph_hook_common import (
+    context,
+    graph_build_argv,
+    last_run_failed,
+    launch,
+    status_command,
+)
+
+from gauntlet._vendored_leyline_shell_command import is_git_commit
+from gauntlet.build_lock import BUSY_EXIT_CODE, writer_busy
 
 
 def _get_gauntlet_dir() -> Path | None:
@@ -32,27 +41,50 @@ def _get_gauntlet_dir() -> Path | None:
 
 def _is_auto_update_enabled(gauntlet_dir: Path) -> bool:
     """Check if auto_update is enabled in config."""
-    for name in ("config.json", "config.yaml"):
-        config_path = gauntlet_dir / name
-        if config_path.exists():
-            try:
-                if name.endswith(".json"):
-                    data = json.loads(config_path.read_text())
-                else:
-                    try:
-                        from yaml import (
-                            safe_load,
-                        )
+    config = load_config(gauntlet_dir)
+    return bool(config and config.get("auto_update", False))
 
-                        data = safe_load(config_path.read_text())
-                    except ImportError:
-                        continue
-                if not isinstance(data, dict):
-                    continue
-                return bool(data.get("auto_update", False))
-            except (json.JSONDecodeError, OSError, TypeError):
-                continue
-    return False
+
+def _update_in_plugin_env(gauntlet_dir: Path) -> dict[str, Any] | None:
+    """Run the incremental update where tree-sitter is installed.
+
+    This hook runs on the first python3 on PATH, which usually lacks
+    tree-sitter; the plugin's own environment has it. graph_build.py is the
+    one path even where this python3 has a parser, because only it diffs
+    from the last stamped build and stamps the new one. The update is
+    detached because the hook has a five-second timeout.
+    """
+    uv = shutil.which("uv")
+    if uv is None:
+        return _context(
+            "Graph not updated: uv is not on PATH, so the plugin environment "
+            "cannot run the build. Run /gauntlet-graph build."
+        )
+    if writer_busy(gauntlet_dir):
+        # A running build reads HEAD itself, and the next update diffs from
+        # the commit that build stamps, so this commit is not lost.
+        return None
+    # The graph the hook found, which may sit above the cwd.
+    root = gauntlet_dir.parent
+    log_path = gauntlet_dir / "update.log"
+    status = gauntlet_dir / "update.status"
+    failed = last_run_failed(status)
+    status.unlink(missing_ok=True)
+    # No --base-ref: the build diffs from the last commit it stamped, so a
+    # commit an earlier update missed is still parsed.
+    build = graph_build_argv(uv, root, "--incremental")
+    script = status_command(build, status, BUSY_EXIT_CODE)
+    launch(["sh", "-c", script], root, log_path)
+    if failed:
+        return _context(
+            "Graph not updated: the last background update failed (log: "
+            f"{log_path}). Retrying in the background."
+        )
+    return _context(f"Graph updating in the background (log: {log_path}).")
+
+
+def _context(message: str) -> dict[str, Any]:
+    return context("PostToolUse", message)
 
 
 def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
@@ -89,46 +121,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if not db_path.exists():
         return None
 
-    try:
-        from gauntlet.graph import (
-            GraphStore,
-        )
-        from gauntlet.incremental import (
-            incremental_update,
-        )
-
-        start = time.monotonic()
-        graph = GraphStore(str(db_path))
-        try:
-            report = incremental_update(
-                str(Path(os.getcwd())), graph, base_ref="HEAD~1"
-            )
-        finally:
-            graph.close()
-        duration = round(time.monotonic() - start, 2)
-
-        # An error or skipped report did no work. Its counters are zeros
-        # that would otherwise read as a successful update.
-        reason = report.get("error") or report.get("skipped")
-        if reason:
-            msg = f"Graph not updated: {reason}"
-        else:
-            files = report.get("files_parsed", 0)
-            nodes = report.get("nodes_created", 0)
-            msg = f"Graph updated: {files} files, {nodes} nodes in {duration}s"
-        return {
-            "hookSpecificOutput": {
-                "hookEventName": "PostToolUse",
-                "additionalContext": msg,
-            }
-        }
-    except Exception as exc:
-        logging.getLogger(__name__).warning(
-            "graph_auto_update failed: %s: %s",
-            type(exc).__name__,
-            exc,
-        )
-        return None
+    return _update_in_plugin_env(gauntlet_dir)
 
 
 if __name__ == "__main__":

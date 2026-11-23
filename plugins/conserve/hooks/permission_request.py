@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import json
 import logging
+import posixpath
 import re
 import shlex
 import sys
@@ -76,14 +77,16 @@ _READER_START = (
 # A credential file named as a path token: bare, quoted, after a '/', a
 # `<` redirect, a `<rev>:` prefix or an `=`. The names are the files
 # cat's own rules below deny (`.env` variants, `*credentials*` files)
-# plus the netrc, npm and PyPI token files and private SSH keys (`.pub`
+# plus the netrc, npm, PyPI, Postgres and Vault token files, shell
+# history (secrets typed on a command line) and private SSH keys (`.pub`
 # is not one). A bare search word is not a file: `get_credentials` and
 # `os.environ` do not match, while `get_credentials.py` does, as it
 # does for cat.
 _CRED_NAME = (
     r"(?:[\w.-]*\.env(?:\.[\w.-]+)?|\.envrc"
     r"|(?:[\w.-]*[.-])?credentials(?:\.[\w.-]+)?|[\w.-]*credentials\.[\w.-]+"
-    r"|[._]netrc|\.npmrc|\.pypirc|id_(?:rsa|dsa|ecdsa|ed25519))"
+    r"|[._]netrc|\.npmrc|\.pypirc|\.pgpass|\.vault-token|\.(?:zsh|bash)_history"
+    r"|id_(?:rsa|dsa|ecdsa|ed25519))"
 )
 _CRED_PATH = rf"(?:(?<=\s)|(?<=/)|(?<=['\"<:=])){_CRED_NAME}(?=\s|$|['\"])"
 # `git diff` and `git log -p` print a file named as a pathspec, with or
@@ -94,6 +97,21 @@ _CRED_PATH = rf"(?:(?<=\s)|(?<=/)|(?<=['\"<:=])){_CRED_NAME}(?=\s|$|['\"])"
 _GIT_PATHSPEC = (
     r"(?:^|[|;&]\s*)git\s+(?:diff|log)\b[^|;&]*"
     r"(?<!--grep )(?<!--grep=)(?<!-S )(?<!-G )"
+)
+
+# Directories under a home directory, without their leading dot, whose
+# files hold tokens. Hugging Face's cache holds models too, so only its
+# token file is named.
+_CREDENTIAL_HOME_PATHS = (
+    "aws",
+    "azure",
+    "config/gh",
+    "config/glab-cli",
+    "config/gcloud",
+    "cache/huggingface/token",
+    "docker",
+    "kube",
+    "gnupg",
 )
 
 # DANGEROUS patterns - always deny these
@@ -125,6 +143,16 @@ DANGEROUS_PATTERNS: list[tuple[str, str]] = [
     (rf"{_READER_START}{_CRED_PATH}", "Blocked: potential credential exposure"),
     (rf"{_GIT_PATHSPEC}{_CRED_PATH}", "Blocked: potential credential exposure"),
     (rf"{_READER_START}/\.ssh(?=/|\s|$|['\"])", "Blocked: SSH key exposure"),
+    # Tools keep tokens in files with ordinary names (gh's hosts.yml,
+    # docker's config.json), so the directory is the signal, not the name.
+    (
+        # Anchored to a home directory: a project's own `.docker/` or
+        # `infra/.aws/` holds config, not credentials.
+        rf"{_READER_START}(?:~|\$\{{?HOME\}}?|/root|/(?:Users|home)/[^/\s]+)"
+        rf"/\.(?:{'|'.join(_CREDENTIAL_HOME_PATHS)})"
+        r"(?=/|\s|$|['\"])",
+        "Blocked: credential directory exposure",
+    ),
     # Git dangerous operations
     (r"git\s+push\s+.*--force\s+origin\s+(main|master)", "Blocked: force push to main"),
     (r"git\s+reset\s+--hard\s+origin/", "Blocked: hard reset from remote"),
@@ -200,6 +228,69 @@ SAFE_PATTERNS: list[str] = [
 ]
 
 
+_REDUNDANT_PATH_SEGMENT = re.compile(r"/(?:\.?/)+")
+# A home directory as the shell spells one at the start of a word.
+_HOME_TOKEN = re.compile(r"^(?:~|\$\{?HOME\}?)(?=/|$)")
+_PSEUDO_HOME = "/home/~"
+
+
+def _resolve_path(word: str) -> str:
+    """Resolve `.` and `..` in a path word as the kernel would, on text only.
+
+    A home token stands for a directory one level under /home, so `~/..`
+    reaches a sibling home as it does on disk, and the outcome does not
+    depend on where this process's HOME points. Relative words are left
+    alone: their meaning depends on a working directory not known here.
+    """
+    home = _HOME_TOKEN.match(word)
+    if home:
+        word = _PSEUDO_HOME + word[home.end() :]
+    elif not word.startswith("/"):
+        return word
+    resolved = posixpath.normpath(word)
+    if word.endswith("/") and not resolved.endswith("/"):
+        resolved += "/"
+    if resolved == _PSEUDO_HOME or resolved.startswith(_PSEUDO_HOME + "/"):
+        resolved = "~" + resolved[len(_PSEUDO_HOME) :]
+    return resolved
+
+
+_CREDENTIAL_PATH = re.compile(
+    rf"^(?:~|/root|/(?:Users|home)/[^/]+)/\.(?:{'|'.join(_CREDENTIAL_HOME_PATHS)})"
+    r"(?:/|$)",
+    re.IGNORECASE,
+)
+
+
+def _names_credential_path(word: str) -> bool:
+    """Whether a shell word is a path inside a credential directory."""
+    return bool(_CREDENTIAL_PATH.match(_resolve_path(word)))
+
+
+_HOME_DIRECTORY = re.compile(r"^(?:~|/root|/(?:Users|home)/[^/]+)(?:/(.*))?$", re.I)
+# A home's own directories that hold a credential directory: `.config`
+# holds gh's, `.cache` holds Hugging Face's.
+_CREDENTIAL_ANCESTORS = frozenset(
+    {""}
+    | {
+        "." + "/".join(parts[:depth])
+        for parts in (path.split("/") for path in _CREDENTIAL_HOME_PATHS)
+        for depth in range(1, len(parts))
+    }
+)
+
+
+def _holds_credential_directory(word: str) -> bool:
+    """Whether a path word is a home, or a directory above a credential one."""
+    resolved = _resolve_path(word).rstrip("/") or "/"
+    if resolved.lower() in ("/", "/users", "/home"):
+        return True
+    home = _HOME_DIRECTORY.match(resolved)
+    if home is None:
+        return False
+    return (home.group(1) or "").lower() in _CREDENTIAL_ANCESTORS
+
+
 def check_dangerous(command: str) -> Decision | None:
     """Check if command matches dangerous patterns.
 
@@ -210,8 +301,13 @@ def check_dangerous(command: str) -> Decision | None:
         Decision to deny if dangerous, None otherwise.
 
     """
+    # `~/.config/./gh` and `~/.config//gh` name the same directory as
+    # `~/.config/gh`. This covers those two spellings in the raw text only:
+    # quotes and `..` are handled by the passes in evaluate_permission, and
+    # a glob or variable is caught only by check_safe refusing to approve.
+    collapsed = _REDUNDANT_PATH_SEGMENT.sub("/", command)
     for pattern, message in DANGEROUS_PATTERNS:
-        if re.search(pattern, command, re.IGNORECASE):
+        if re.search(pattern, collapsed, re.IGNORECASE):
             logger.info("Dangerous pattern matched: %s", pattern)
             return Decision(PermissionDecision.DENY, message)
     return None
@@ -452,6 +548,17 @@ def check_safe(command: str) -> Decision | None:
     words = _shell_words(candidate)
     if not words or any(_EXPANDING.search(op) for op in _path_operands(words)):
         return None
+    # Readers there are denied outright. Any other command naming one
+    # (`ls ~/.aws`, `cp ~/.kube/config /tmp`) goes to the dialog.
+    if any(_names_credential_path(word) for word in words[1:]):
+        return None
+    # A search of a directory above one reaches every token file below
+    # it: grep with -r, rg and ag by default. Every word is checked rather
+    # than the parsed operands, so a recursion flag cannot be missed.
+    if words[0].lower() in _SEARCHERS and any(
+        _holds_credential_directory(word) for word in words[1:]
+    ):
+        return None
 
     for pattern in SAFE_PATTERNS:
         if re.match(pattern, candidate, re.IGNORECASE):
@@ -484,11 +591,13 @@ def evaluate_permission(tool_name: str, tool_input: dict[str, Any]) -> Decision 
     dangerous = check_dangerous(command)
     if dangerous:
         return dangerous
-    words = _shell_words(command)
-    if words and " ".join(words) != command:
-        dangerous = check_dangerous(" ".join(words))
-        if dangerous:
-            return dangerous
+    # `..` is resolved in a third pass: `~/.config/../.config/gh` is gh.
+    words = _shell_words(command) or []
+    for rewritten in (words, [_resolve_path(word) for word in words]):
+        if rewritten and " ".join(rewritten) != command:
+            dangerous = check_dangerous(" ".join(rewritten))
+            if dangerous:
+                return dangerous
 
     # Then check safe patterns
     safe = check_safe(command)

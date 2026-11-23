@@ -229,3 +229,17 @@ def test_egregore_names_the_subagent_fallback() -> None:
 
     assert "completes the work locally" not in text
     assert "subagent-fallback.md" in text
+
+
+def test_keep_local_names_unpublished_code_under_review() -> None:
+    """GIVEN the Keep Local list.
+
+    WHEN the task reviews code its owner has not published
+    THEN that code stays on the machine
+
+    Sending a manuscript under review to a third-party model breaches
+    the confidentiality a referee owes the author (Caldara and
+    Fernandez-Villaverde 2026, footnote 12).
+    """
+    text = " ".join(DELEGATION_CORE.read_text(encoding="utf-8").split())
+    assert "code someone else wrote and has not published" in text

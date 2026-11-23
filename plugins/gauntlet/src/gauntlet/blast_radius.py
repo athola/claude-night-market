@@ -13,7 +13,7 @@ from typing import Any
 from gauntlet.constants import SECURITY_KEYWORDS
 from gauntlet.graph import GraphStore
 from gauntlet.incremental import _validate_ref
-from gauntlet.models import EdgeKind, GraphNode, NodeKind
+from gauntlet.models import EdgeKind, GraphNode, NodeKind, Resolution
 
 _DEFAULT_WEIGHTS = {
     "test_gap": 0.30,
@@ -22,6 +22,10 @@ _DEFAULT_WEIGHTS = {
     "cross_community": 0.15,
     "caller_count": 0.10,
 }
+
+#: The release that added the edges.resolution column. A graph whose last
+#: full build is older keeps '' on every edge it resolved, guesses included.
+_RESOLUTION_SINCE = (1, 10, 4)
 
 # Overall risk-band thresholds applied to the max per-node risk score.
 _RISK_HIGH_THRESHOLD = 0.7
@@ -231,6 +235,7 @@ def _empty_report(overall_risk: str) -> dict[str, Any]:
         "review_priorities": [],
         "direct_changes": 0,
         "total_affected": 0,
+        "name_guess_callers": {},
     }
 
 
@@ -282,6 +287,18 @@ def analyze_changes(
         )
     ]
 
+    # A caller linked by a bare-name pick may not call this node at all, so
+    # the reviewer sees those links apart from confirmed ones.
+    name_guess_callers: dict[str, list[str]] = {}
+    for n in all_affected:
+        guessed = [
+            e.source_qn
+            for e in graph.get_edges_by_target(n.qualified_name)
+            if e.kind == EdgeKind.CALLS and e.resolution == Resolution.NAME_GUESS
+        ]
+        if guessed:
+            name_guess_callers[n.qualified_name] = guessed
+
     # Top 10 by risk
     sorted_nodes = sorted(
         all_affected,
@@ -307,4 +324,20 @@ def analyze_changes(
         "review_priorities": review_priorities,
         "direct_changes": len(direct),
         "total_affected": len(all_affected),
+        "name_guess_callers": name_guess_callers,
+        "graph_predates_resolution": _predates_resolution(graph),
     }
+
+
+def _predates_resolution(graph: GraphStore) -> bool:
+    """Whether the last full build ran before resolutions were recorded.
+
+    A stamp that does not parse as ``X.Y.Z`` is no evidence either way, so
+    the guessed-caller list is not vouched for.
+    """
+    stamp = graph.get_metadata("gauntlet_version")
+    try:
+        built = tuple(int(part) for part in (stamp or "").split("."))
+    except ValueError:
+        return True
+    return built < _RESOLUTION_SINCE

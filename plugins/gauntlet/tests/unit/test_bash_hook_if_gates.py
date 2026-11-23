@@ -17,7 +17,7 @@ from pathlib import Path
 
 import pytest
 
-from gauntlet.git_commands import is_git_commit
+from gauntlet._vendored_leyline_shell_command import is_git_commit
 
 _HOOKS_JSON = Path(__file__).resolve().parents[2] / "hooks" / "hooks.json"
 _SEGMENT_SEPARATORS = ("&&", "||", ";", "|")

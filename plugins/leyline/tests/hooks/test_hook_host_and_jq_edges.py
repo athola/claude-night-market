@@ -2,7 +2,7 @@
 
 detect-git-platform matched "github." anywhere
 in the remote URL, so a GitLab repo named alice.github.io was reported as
-GitHub. auto-star-repo built its prompt with jq and, on a machine without
+GitHub. auto-star-repo built its output with jq and, on a machine without
 jq, exited 127 with empty stdout instead of emitting the hook JSON.
 """
 
@@ -21,6 +21,8 @@ HOOKS = Path(__file__).resolve().parents[2] / "hooks"
 def _clean_env(**extra: str) -> dict[str, str]:
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     env.pop("CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT", None)
+    env.pop("CLAUDE_PLUGIN_OPTION_STAR_REPO", None)
+    env.pop("XDG_STATE_HOME", None)
     env.update(extra)
     return env
 
@@ -61,8 +63,8 @@ def test_platform_comes_from_the_host_not_the_path(
     assert _context(result.stdout).startswith(f"git_platform: {platform},")
 
 
-def test_star_prompt_is_emitted_without_jq(tmp_path: Path) -> None:
-    """The unstarred path must still print hook JSON when jq is absent."""
+def test_star_message_is_emitted_without_jq(tmp_path: Path) -> None:
+    """The opted-in, unstarred path must still print hook JSON without jq."""
     shims = tmp_path / "bin"
     shims.mkdir()
     for tool in ("head", "grep"):
@@ -70,24 +72,30 @@ def test_star_prompt_is_emitted_without_jq(tmp_path: Path) -> None:
     gh = shims / "gh"
     gh.write_text(
         "#!/bin/sh\n"
-        'case "$1" in\n'
-        "  auth) exit 0 ;;\n"
-        "  api) printf 'HTTP/2.0 404 Not Found\\n'; exit 1 ;;\n"
+        'case "$1 $2" in\n'
+        "  auth*) exit 0 ;;\n"
+        "  'api -X') exit 0 ;;\n"
+        "  api*) printf 'HTTP/2.0 404 Not Found\\n'; exit 1 ;;\n"
         "esac\n"
     )
     gh.chmod(0o755)
     result = subprocess.run(
         ["/bin/bash", str(HOOKS / "auto-star-repo.sh")],
-        env=_clean_env(PATH=f"{shims}:/bin", HOME=str(tmp_path)),
+        env=_clean_env(
+            PATH=f"{shims}:/bin",
+            HOME=str(tmp_path),
+            CLAUDE_PLUGIN_OPTION_STAR_REPO="true",
+            XDG_STATE_HOME=str(tmp_path / "state"),
+        ),
         capture_output=True,
         text=True,
         timeout=30,
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    context = _context(result.stdout)
-    assert context.startswith("star-prompt:")
-    assert '"Would you like to star' in context
+    output = json.loads(result.stdout)
+    assert "athola/claude-night-market" in output["systemMessage"]
+    assert output["hookSpecificOutput"]["additionalContext"] == ""
 
 
 def test_star_hook_prints_each_response_on_one_line(tmp_path: Path) -> None:
@@ -96,7 +104,7 @@ def test_star_hook_prints_each_response_on_one_line(tmp_path: Path) -> None:
     Claude Code reads a multi-line async response only from v2.1.295 on
     (https://code.claude.com/docs/en/hooks, "How async hooks execute").
     On an older harness a pretty-printed response is never parsed and the
-    star prompt is dropped.
+    message saying the repo was starred is dropped.
     """
     shims = tmp_path / "bin"
     shims.mkdir()
@@ -105,20 +113,34 @@ def test_star_hook_prints_each_response_on_one_line(tmp_path: Path) -> None:
     gh = shims / "gh"
     gh.write_text(
         "#!/bin/sh\n"
-        'case "$1" in\n'
-        "  auth) exit 0 ;;\n"
-        "  api) printf 'HTTP/2.0 404 Not Found\\n'; exit 1 ;;\n"
+        'case "$1 $2" in\n'
+        "  auth*) exit 0 ;;\n"
+        "  'api -X') exit 0 ;;\n"
+        "  api*) printf 'HTTP/2.0 404 Not Found\\n'; exit 1 ;;\n"
         "esac\n"
     )
     gh.chmod(0o755)
+    opted_in = {"CLAUDE_PLUGIN_OPTION_STAR_REPO": "true"}
     runs = {
-        "not_starred": _clean_env(PATH=f"{shims}:/bin", HOME=str(tmp_path)),
+        "not_starred": _clean_env(
+            PATH=f"{shims}:/bin",
+            HOME=str(tmp_path),
+            XDG_STATE_HOME=str(tmp_path / "state-a"),
+            **opted_in,
+        ),
+        "not_opted_in": _clean_env(PATH=f"{shims}:/bin", HOME=str(tmp_path)),
         "opted_out": _clean_env(
             PATH=f"{shims}:/bin",
             HOME=str(tmp_path),
             CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT="1",
+            **opted_in,
         ),
-        "status_unknown": _clean_env(PATH="/bin", HOME=str(tmp_path)),
+        "status_unknown": _clean_env(
+            PATH="/bin",
+            HOME=str(tmp_path),
+            XDG_STATE_HOME=str(tmp_path / "state-b"),
+            **opted_in,
+        ),
     }
     for label, env in runs.items():
         result = subprocess.run(

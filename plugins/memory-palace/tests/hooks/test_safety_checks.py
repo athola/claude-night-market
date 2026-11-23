@@ -335,6 +335,17 @@ class TestCodeExecutionRisk:
         result = check_code_execution_risk(content)
         assert result is None
 
+    def test_fenced_code_block_is_scanned(self) -> None:
+        """A fence spans lines, so stripping it would hide any payload.
+
+        Deliberate: a tutorial whose fenced example calls a flagged
+        function is not stored. Only one-line inline spans are exempt.
+        """
+        content = _payload("Example:\n```python\nev", "al(user_text)\n```\n")
+        result = check_code_execution_risk(content)
+        assert result is not None
+        assert result.is_safe is False
+
     def test_handles_empty_content(self) -> None:
         """Empty content should return None."""
         result = check_code_execution_risk("")
@@ -385,3 +396,29 @@ class TestPromptInjectionSanitizesEveryPattern:
         result = check_prompt_injection(content)
         assert result is not None
         assert "[REMOVED]" in (result.sanitized_content or "")
+
+
+class TestWholeContentIsScanned:
+    """Secrets, BiDi overrides and code patterns past a sampled prefix were
+    stored as safe (MP-2).
+    """
+
+    @pytest.mark.parametrize(
+        "content",
+        [
+            ("word " * 1500) + "a" + chr(0x202E) + " evil",
+            ("line\n" * 3000) + "token = ghp_" + "a" * 36 + "\n",
+            ("line\n" * 12000) + "eval(payload)\n",
+        ],
+        ids=["bidi-after-5000", "secret-after-10kb", "eval-after-50000"],
+    )
+    def test_payload_after_the_old_sample_is_rejected(self, content: str) -> None:
+        """Each payload sits past the prefix the old checks sampled."""
+        assert is_safe_content(content, {}).is_safe is False
+
+
+def test_code_exec_pattern_inside_multiline_backtick_span_still_flagged() -> None:
+    """Any two backticks hid what lay between, across lines (MP-3)."""
+    content = "Intro with a ` tick.\neval(payload)\nand another ` tick."
+    result = check_code_execution_risk(content)
+    assert result is not None and not result.is_safe

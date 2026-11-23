@@ -12,7 +12,7 @@ import sys
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -594,10 +594,7 @@ class TestDelegator:
 
     @patch("subprocess.run")
     @patch("delegation_executor.estimate_tokens")
-    @patch("builtins.open", new_callable=mock_open)
-    def test_log_usage(
-        self, mock_file, mock_estimate, mock_run, temp_config_dir
-    ) -> None:
+    def test_log_usage(self, mock_estimate, mock_run, temp_config_dir) -> None:
         """Given execution result when logging usage then should write to log file."""
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = "Success"
@@ -608,13 +605,8 @@ class TestDelegator:
 
         delegator.execute("gemini", "test prompt")
 
-        # Verify log file was opened and written to
-        mock_file.assert_called_with(delegator.usage_log, "a")
-        handle = mock_file()
-        written_data = handle.write.call_args[0][0]
-
-        # Parse and verify log entry
-        log_entry = json.loads(written_data.strip())
+        # Read what reached the log file, not how it was opened.
+        log_entry = json.loads(delegator.usage_log.read_text().strip())
         assert log_entry["service"] == "gemini"
         assert log_entry["success"] is True
         assert "timestamp" in log_entry
@@ -697,6 +689,34 @@ class TestDelegator:
 
 class TestDelegatorCli:
     """Test CLI functionality of delegation executor."""
+
+    @patch("delegation_executor.Delegator")
+    @patch(
+        "sys.argv",
+        [
+            "delegation_executor.py",
+            "auto",
+            "p",
+            "--timeout",
+            "7",
+            "--total-timeout",
+            "20",
+        ],
+    )
+    def test_cli_auto_forwards_both_timeouts_to_smart_delegate(
+        self, mock_delegator_class
+    ) -> None:
+        """`--total-timeout` was parsed and then ignored by the auto chain."""
+        mock_delegator = MagicMock()
+        mock_delegator.smart_delegate.return_value.fallback_reason = None
+        mock_delegator_class.return_value = mock_delegator
+
+        with patch("builtins.print"):
+            main()
+
+        kwargs = mock_delegator.smart_delegate.call_args.kwargs
+        assert kwargs["timeout"] == 7
+        assert kwargs["total_timeout"] == 20
 
     @patch("delegation_executor.Delegator")
     @patch("sys.argv", ["delegation_executor.py", "--list-services"])

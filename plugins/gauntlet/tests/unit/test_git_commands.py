@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from gauntlet.git_commands import is_git_commit
+from gauntlet._vendored_leyline_shell_command import is_git_commit
 
 
 @pytest.mark.unit

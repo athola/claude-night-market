@@ -77,10 +77,10 @@ class TestIsGitCommit:
         """
         Scenario: Correctly identify git commit invocations
         Given a Bash command string
-        When git_commit_offset is called
-        Then it finds an offset only for git commit commands
+        When git_commit_spans is called
+        Then it finds a message span only for git commit commands
         """
-        assert (hook_module.git_commit_offset(command) is not None) == expected
+        assert bool(hook_module.git_commit_spans(command)) == expected
 
 
 class TestHasEmoji:
@@ -244,8 +244,18 @@ class TestMainHook:
             ('echo "\u2705 tests pass" && git commit -m "fix: parser"', False),
             ("git commit -m 'fix: x; \u2705 done'", True),
             ("git commit -F - <<EOF\nfix: parser \u2705\nEOF", True),
+            ('git commit -m ok && git commit --amend -m "fix \U0001f389"', True),
+            ("printf 'fix \U0001f389' | git commit -F -", True),
+            ("printf '\U0001f389' > notes && git commit -m ok", False),
         ],
-        ids=["emoji-before-commit", "emoji-after-quoted-semicolon", "heredoc"],
+        ids=[
+            "emoji-before-commit",
+            "emoji-after-quoted-semicolon",
+            "heredoc",
+            "emoji-in-a-later-commit",
+            "emoji-piped-as-the-message",
+            "emoji-in-a-file-written-before",
+        ],
     )
     def test_only_the_commit_and_what_follows_it_is_scanned(
         self, hook_module, capsys, command, denied
@@ -332,3 +342,14 @@ class TestMainHook:
         assert exc.value.code == 0
         captured = capsys.readouterr()
         assert captured.out.strip() == ""
+
+
+def test_emoji_after_chain_separator_is_not_in_the_message(hook_module, capsys):
+    """Text after `&&` was read as the commit message (IMB-15)."""
+    stdin_data = _make_input(command="git commit -m 'clean' && echo 'done \U0001f389'")
+    with patch.dict("os.environ", {"VOW_SHADOW_MODE": "0"}):
+        with patch("sys.stdin", StringIO(stdin_data)):
+            with pytest.raises(SystemExit) as exc:
+                hook_module.main()
+    assert exc.value.code == 0
+    assert "deny" not in capsys.readouterr().out

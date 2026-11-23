@@ -139,6 +139,8 @@ docs/specification.md
 
 # Intake queue for memory palace artifacts
 plugins/memory-palace/data/intake_queue.jsonl
+# The hook and the queue sync flock this beside the queue on every append.
+plugins/memory-palace/data/intake_queue.jsonl.lock
 plugins/memory-palace/data/state/
 plugins/memory-palace/data/sessions/
 plugins/memory-palace/data/telemetry/

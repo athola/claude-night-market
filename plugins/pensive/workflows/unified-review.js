@@ -42,7 +42,7 @@ const DIMENSIONS = [
   {
     key: 'architecture',
     agentType: 'pensive:architecture-reviewer',
-    prompt: 'Assess the changed code against the ADRs in docs/adr/ and the invariants in .claude/rules/. Report coupling that the change introduces. Report each second model of a concern the codebase already models. Name the existing model and its file. Name the standard it departs from, if it departs from one.',
+    prompt: 'Assess the changed code against the ADRs in docs/adr/ and the invariants in .claude/rules/. Report coupling that the change introduces. Report each second model of a concern the codebase already models. Name the existing model and its file. Name the standard it departs from, if it departs from one. A departure is a finding only when you name its cost.',
   },
   {
     key: 'tests',
@@ -56,10 +56,16 @@ const DIMENSIONS = [
   },
 ]
 
+// An empty list reads as a clean dimension. A reviewer that cannot judge
+// the target needs a way to say so that the return keeps apart from clean.
+const DECLINE =
+  'If you cannot assess this dimension for this target, set declined to the reason and return an empty findings list. Report any finding you can still point at.'
+
 const FINDINGS = {
   type: 'object',
   required: ['findings'],
   properties: {
+    declined: { type: 'string', minLength: 1 },
     findings: {
       type: 'array',
       items: {
@@ -151,7 +157,7 @@ phase('Review')
 const perDimension = await pipeline(
   selected,
   (d) =>
-    agent(`${d.prompt}\n\nReview target: ${target}.`, {
+    agent(`${d.prompt}\n\n${DECLINE}\n\nReview target: ${target}.`, {
       label: `review:${d.key}`,
       phase: 'Review',
       agentType: d.agentType,
@@ -163,6 +169,9 @@ const perDimension = await pipeline(
       dimension.missing = true
       return []
     }
+    // A decline keeps the dimension out of reviewed. Findings sent with it
+    // are still verified, so a partial review loses nothing it found.
+    if (review.declined) dimension.declined = review.declined
     if (!review.findings || review.findings.length === 0) return []
     let toVerify = review.findings
     if (maxFindings > 0 && toVerify.length > maxFindings) {
@@ -230,16 +239,25 @@ const confirmed = [...byLocation.values()].sort(
 )
 
 const missing = selected.filter((d) => d.missing).map((d) => d.key)
+const declined = selected
+  .filter((d) => d.declined)
+  .map((d) => ({ dimension: d.key, reason: d.declined }))
 log(`${confirmed.length} findings survived adversarial verification`)
 if (missing.length) log(`no review from ${missing.join(', ')}. Those dimensions are unreviewed, not clean`)
+for (const d of declined) log(`${d.dimension} declined: ${d.reason}. That dimension is unreviewed, not clean`)
 if (unverified.length) log(`${unverified.length} findings heard by too few lenses to confirm. They are unverified, not refuted`)
 
 return {
   target,
-  dimensions: { selected: selected.map((d) => d.key), reviewed: selected.filter((d) => !d.missing).map((d) => d.key), missing },
+  dimensions: {
+    selected: selected.map((d) => d.key),
+    reviewed: selected.filter((d) => !d.missing && !d.declined).map((d) => d.key),
+    missing,
+    declined,
+  },
   bounded: { maxFindings, lenses: lenses.length },
   confirmed,
   unverified,
   note:
-    'Findings are agent claims that survived refutation. No command was run inside this workflow, so nothing here is proof-of-work evidence. Reproduce before acting.',
+    'Findings are agent claims that survived refutation. No command was run inside this workflow, so nothing here is proof-of-work evidence. Lens votes share one model and their errors correlate. Reproduce before acting.',
 }

@@ -532,3 +532,30 @@ class TestBundledRulesDoNotDenyOrdinaryEdits:
         output = json.loads(result.stdout or "{}")
         decision = output.get("hookSpecificOutput", {}).get("permissionDecision")
         assert decision != "deny", output
+
+
+class TestOneBadRuleDoesNotDisableTheRest:
+    """A non-string field raised past the loader into the hook's catch-all,
+    which allowed the event with `{}` for every rule.
+    """
+
+    def test_valid_block_rule_still_denies_beside_a_malformed_rule(
+        self, tmp_path: Path
+    ) -> None:
+        _install(tmp_path, "test-block-frobnicate", BLOCK_RULE)
+        _install(
+            tmp_path,
+            "chmod",
+            "---\nname: chmod\nenabled: true\nevent: bash\npattern: 777\n---\nm\n",
+        )
+        result = _run(
+            {
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Bash",
+                "tool_input": {"command": "frobnicate --hard ./x"},
+            },
+            tmp_path,
+        )
+        output = json.loads(result.stdout)
+        assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        assert "hookify.chmod.local.md" in output["systemMessage"]

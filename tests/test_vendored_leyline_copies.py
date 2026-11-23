@@ -130,8 +130,28 @@ def test_main_writes_the_copies_then_check_passes(
             "._vendored_leyline_atomic_file",
         ),
         (
+            "plugins/abstract/src/abstract/performance_tracker.py",
+            "._vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/abstract/src/abstract/improvement_memory.py",
+            "._vendored_leyline_atomic_file",
+        ),
+        (
             "plugins/abstract/hooks/skill_execution_logger.py",
             "abstract._vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/conjure/scripts/provider_ledger.py",
+            "scripts._vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/conjure/scripts/usage_logger.py",
+            "_vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/conjure/scripts/war_room/persistence.py",
+            "scripts._vendored_leyline_atomic_file",
         ),
         (
             "plugins/conserve/hooks/tool_output_summarizer.py",
@@ -139,6 +159,10 @@ def test_main_writes_the_copies_then_check_passes(
         ),
         (
             "plugins/egregore/scripts/budget.py",
+            "_vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/egregore/scripts/continuation_baton.py",
             "_vendored_leyline_atomic_file",
         ),
         (
@@ -162,6 +186,14 @@ def test_main_writes_the_copies_then_check_passes(
             "memory_palace._vendored_leyline_atomic_file",
         ),
         (
+            "plugins/memory-palace/hooks/shared/hook_output.py",
+            "memory_palace._vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/memory-palace/src/memory_palace/session_history.py",
+            "memory_palace._vendored_leyline_atomic_file",
+        ),
+        (
             "plugins/memory-palace/hooks/shared/deduplication.py",
             "memory_palace._vendored_leyline_atomic_file",
         ),
@@ -170,12 +202,44 @@ def test_main_writes_the_copies_then_check_passes(
             "minister._vendored_leyline_atomic_file",
         ),
         (
+            "plugins/oracle/hooks/daemon_lifecycle.py",
+            "_vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/sanctum/hooks/deferred_item_sweep.py",
+            "_vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/sanctum/hooks/deferred_item_watcher.py",
+            "_vendored_leyline_atomic_file",
+        ),
+        (
             "plugins/spec-kit/src/speckit/caching.py",
             "speckit._vendored_leyline_atomic_file",
         ),
         (
             "plugins/leyline/src/leyline/decision_journal.py",
             "leyline.atomic_file",
+        ),
+        (
+            "plugins/imbue/hooks/shared/vow_utils.py",
+            "shared._vendored_leyline_shell_command",
+        ),
+        (
+            "plugins/gauntlet/hooks/precommit_gate.py",
+            "gauntlet._vendored_leyline_shell_command",
+        ),
+        (
+            "plugins/gauntlet/hooks/graph_auto_update.py",
+            "gauntlet._vendored_leyline_shell_command",
+        ),
+        (
+            "plugins/conserve/scripts/coordination_workspace.py",
+            "_vendored_leyline_atomic_file",
+        ),
+        (
+            "plugins/conserve/scripts/coordination_workspace.py",
+            "_vendored_leyline_sibling_plugins",
         ),
     ],
 )

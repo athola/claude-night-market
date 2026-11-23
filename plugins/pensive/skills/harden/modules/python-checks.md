@@ -18,14 +18,14 @@ detector module under `plugins/pensive/skills/harden/detectors/`
 |----|-------|-----|-----------|------------------|
 | PY01 | Unsafe deserialization (the stdlib `pickle` family, `marshal`, `shelve`) | CWE-502 | PW.5.1 | `<unsafe-loader>.loads(` on bytes you do not control |
 | PY02 | YAML loaded without a safe Loader | CWE-502 | PW.9 | `yaml.load(` without `Loader=SafeLoader` |
-| PY03 | Code injection via `eval`/`exec`/`compile(...,'exec')` | CWE-94 | PW.5.1 | `<eval-family>(` with a non-constant argument |
-| PY04 | Shell-command injection in a child-process call | CWE-78 | PW.5.1 | bandit B602 / B605: child-process helper invoked with the shell-mode flag and a formatted string |
+| PY03 | Code injection via `eval`/`exec`/`compile(...,'exec')` | CWE-94 | PW.5.1 | `<eval-family>(` with a non-constant argument (`compile(...,'exec')` is not detected yet) |
+| PY04 | Shell-command injection in a child-process call | CWE-78 | PW.5.1 | bandit B602 / B605: child-process helper invoked with the shell-mode flag; HIGH for a built command string, LOW for a constant one |
 | PY05 | SQL injection via string formatting | CWE-89 | PW.5.1 | `cursor.execute(f"...")` or `% ` formatting in a query |
 | PY06 | Path traversal in user-supplied paths | CWE-22 | PW.5.1 | `open(user_input)` without `Path.resolve()` and `is_relative_to()` |
 | PY07 | Insecure RNG used for security purposes | CWE-330 | PW.5.1 | `import random` then a token/secret/key generated from it (use `secrets`) |
-| PY08 | TLS verification disabled | CWE-295 | PW.9 | `requests.*(verify=False)`, `ssl.CERT_NONE`, `disable_warnings(InsecureRequestWarning)` |
+| PY08 | TLS verification disabled | CWE-295 | PW.9 | `requests.*(verify=False)`, `disable_warnings(InsecureRequestWarning)` (`ssl.CERT_NONE` is not detected yet) |
 | PY09 | Hardcoded credentials | CWE-798 | PW.5.1 | regex match for `api[_-]?key`, `secret`, `token`, `passwd` literals; AWS prefixes (`AKIA...`) |
-| PY10 | Subprocess invocation without timeout | CWE-400 | PW.5.1 | `<child-proc>.run/Popen` without `timeout=` |
+| PY10 | Subprocess invocation without timeout | CWE-400 | PW.5.1 | `<child-proc>.run` without `timeout=` (`Popen` is not detected yet) |
 | PY11 | Tarfile extraction without member filter | CWE-22 | PW.9 | `tarfile.*extractall(` without `filter=` (PEP 706: default became safe in 3.12+) |
 | PY12 | XML XXE / billion-laughs | CWE-611, CWE-776 | PW.9 | `xml.etree.ElementTree.parse(` (use `defusedxml`) |
 | PY13 | Jinja autoescape off in HTML context | CWE-79 | PW.9 | `Environment(autoescape=False)` or `Markup(user_input)` |

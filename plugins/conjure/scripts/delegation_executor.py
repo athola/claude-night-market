@@ -34,11 +34,14 @@ from scripts.delegation_services import (
     _apply_overrides,
     _missing_required_fields,
     _smart_delegate_model,
+    child_environment,
     credential_file_issues,
     credential_issues,
+    refused_credential_output,
     resolve_env_overlay,
 )
 from scripts.delegation_verify import verify_service
+from scripts.provider_ledger import ProviderLedger
 from scripts.usage_log_rotation import MAX_LOG_BYTES, append_line, read_lines
 
 # Public names only. A private helper is imported from the module that
@@ -155,6 +158,10 @@ class ExecutionResult:
                 "a successful delegation carries no fallback_reason, and "
                 f"this one reports {self.fallback_reason!r}"
             )
+
+
+#: stderr kept in a usage-log entry; enough to classify the failure.
+_MAX_LOGGED_ERROR_CHARS = 500
 
 
 class Delegator:
@@ -456,7 +463,19 @@ class Delegator:
         command = self.build_command(
             service_name, prompt, files, options, delivered=delivered
         )
-        overlay, _ = resolve_env_overlay(service)
+        child_env, missing = child_environment(service)
+        if missing:
+            # An empty substitute would send an unauthenticated request.
+            # verify_service refuses this; a direct call must too.
+            return ExecutionResult(
+                success=False,
+                stdout="",
+                stderr=f"{service_name}: environment overlay needs "
+                f"{', '.join(missing)}, which is not set",
+                exit_code=2,
+                duration=time.time() - start_time,
+                service=service_name,
+            )
         execution_result = self._launch_process(
             LaunchSpec(
                 cmd=command,
@@ -465,13 +484,11 @@ class Delegator:
                 files=files,
                 timeout=timeout,
                 start_time=start_time,
-                # Extend the caller's environment rather than replacing it: a
-                # child spawned with only the overlay would lose PATH.
-                env={**os.environ, **overlay},
+                env=child_env,
                 stdin_input=delivered if service.stdin_prompt else None,
             )
         )
-        self.log_usage(service_name, command, execution_result)
+        self.log_usage(service_name, command, execution_result, prompt=prompt)
         return execution_result
 
     def log_usage(
@@ -479,17 +496,41 @@ class Delegator:
         service_name: str,
         command: list[str],
         result: ExecutionResult,
+        prompt: str = "",
     ) -> None:
-        """Log usage for tracking and analysis."""
+        """Log usage for tracking and analysis.
+
+        The log keeps the command's shape: the argument build_command put the
+        prompt in (with the inlined file bodies that travel with it) is
+        replaced by the prompt's length, and stderr is cut short. The prompt
+        itself is not an audit record and was being kept in plaintext.
+
+        That argument is always the last, and ends with the prompt. Matching
+        any argument that merely contains it blanked `--thinking-budget`
+        for the prompt "hi".
+        """
+        service = self.services.get(service_name)
+        carries_prompt = (
+            bool(prompt)
+            and not (service is not None and service.stdin_prompt)
+            and bool(command)
+            and command[-1].endswith(prompt)
+        )
+        shown = (
+            [*command[:-1], f"<prompt: {len(prompt)} chars>"]
+            if carries_prompt
+            else command
+        )
+        error = result.stderr[:_MAX_LOGGED_ERROR_CHARS] if not result.success else None
         log_entry = {
             "timestamp": datetime.now().isoformat(),
             "service": service_name,
-            "command": " ".join(command),
+            "command": " ".join(shown),
             "success": result.success,
             "duration": result.duration,
             "tokens_used": result.tokens_used,
             "exit_code": result.exit_code,
-            "error": result.stderr if not result.success else None,
+            "error": error,
         }
 
         try:
@@ -531,8 +572,10 @@ class Delegator:
         summary["services"][service]["requests"] += 1
         if entry["success"]:
             summary["services"][service]["successful"] += 1
-        summary["services"][service]["tokens_used"] += entry.get("tokens_used", 0)
-        summary["services"][service]["total_duration"] += entry.get("duration", 0)
+        # A timed-out or failed call logs null; `+= None` raised before the
+        # duration line, so that call's time was lost from the total.
+        summary["services"][service]["tokens_used"] += entry.get("tokens_used") or 0
+        summary["services"][service]["total_duration"] += entry.get("duration") or 0
 
     def _calculate_rates(self, summary: dict[str, Any]) -> None:
         """Calculate success rates and averages for summary."""
@@ -593,6 +636,8 @@ class Delegator:
         prompt: str,
         files: list[str] | None = None,
         requirements: dict[str, Any] | None = None,
+        timeout: int = 300,
+        total_timeout: int | None = None,
     ) -> ExecutionResult:
         """Work down the provider chain until one answers, or report that none did.
 
@@ -615,8 +660,21 @@ class Delegator:
 
         requirements = requirements or {}
         attempts: list[Attempt] = []
+        # Eight providers at `timeout` each had no caller-visible bound.
+        deadline = time.monotonic() + total_timeout if total_timeout else None
 
         for service_name in self._ordered_candidates(requirements):
+            # Checked before the probe, so no provider is probed once the
+            # deadline has passed. A probe that starts in time still runs to
+            # its own timeout: the bound covers provider calls, not probes.
+            remaining = None
+            if deadline is not None:
+                remaining = int(deadline - time.monotonic())
+                if remaining <= 0:
+                    attempts.append(
+                        Attempt(service=service_name, reason="total timeout reached")
+                    )
+                    break
             # A caller that already knows a service is up says so, and is
             # taken at its word. Probing it anyway would spend a subprocess
             # to re-learn what the caller just said, on every task, now that
@@ -629,13 +687,18 @@ class Delegator:
                     )
                     continue
 
+            call_timeout = timeout if remaining is None else min(timeout, remaining)
             result = self.execute(
                 service_name,
                 prompt,
                 files,
                 self._smart_options(service_name, requirements),
+                timeout=call_timeout,
             )
-            if _answered(result):
+            refused = refused_credential_output(
+                result.stdout, result.stderr, self.services[service_name]
+            )
+            if _answered(result) and not refused:
                 # The chain names the service rather than trusting the result
                 # to carry it: smart_delegate is what chose the provider, and
                 # a caller reading result.service after a fallback chain
@@ -653,10 +716,22 @@ class Delegator:
                     ),
                 )
 
+            if refused:
+                # --available reads the ledger; without this a provider that
+                # refuses its key stayed listed as ready until the TTL ran out.
+                ledger = ProviderLedger(self.config_dir / "provider-state.json")
+                ledger.record_failure(service_name, "credential refused")
+                try:
+                    ledger.save()
+                except OSError as exc:
+                    # The chain matters more than the cache: keep falling back.
+                    logger.warning("provider ledger not saved: %s", exc)
             attempts.append(
                 Attempt(
                     service=service_name,
-                    reason=_failure_reason(result),
+                    reason=(
+                        "credential refused" if refused else _failure_reason(result)
+                    ),
                     exit_code=result.exit_code,
                 )
             )
@@ -833,6 +908,15 @@ def _create_parser() -> argparse.ArgumentParser:
     parser.add_argument("--model", help="Model to use")
     parser.add_argument("--format", help="Output format")
     parser.add_argument("--timeout", type=int, default=300, help="Timeout in seconds")
+    parser.add_argument(
+        "--total-timeout",
+        type=int,
+        default=None,
+        help=(
+            "With auto: seconds the provider calls may take in total; "
+            "availability checks are not counted"
+        ),
+    )
     parser.add_argument("--verify", action="store_true", help="Verify service only")
     parser.add_argument("--usage", action="store_true", help="Show usage summary")
     parser.add_argument(
@@ -866,7 +950,12 @@ def main() -> None:
         parser.error("service and prompt are required for delegation execution")
 
     if args.service == "auto":
-        result = delegator.smart_delegate(args.prompt, args.files)
+        result = delegator.smart_delegate(
+            args.prompt,
+            args.files,
+            timeout=args.timeout,
+            total_timeout=args.total_timeout,
+        )
         if result.fallback_reason:
             _report_fallback(result)
             raise SystemExit(1)

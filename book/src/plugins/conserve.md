@@ -34,6 +34,8 @@ and provides tools for monitoring and reducing context usage.
 | `/filter-log` | Suggest tier-1 filter commands for a log file before any compression or paste |
 | `/unbloat` | Remove detected bloat with progressive analysis |
 | `/optimize-context` | Analyze context window usage and recommend reductions |
+| `/ai-hygiene-audit` | Audit codebase for AI-generated code quality issues (vibe coding, Tab bloat, slop) |
+| `/elegant-code-review` | Review the current working diff against the elegant-code decision ladder and propose deletions, honoring the negligence floor |
 
 ## Agents
 

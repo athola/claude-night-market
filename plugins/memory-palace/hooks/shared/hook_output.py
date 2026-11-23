@@ -4,10 +4,21 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+# hooks/shared/ -> the plugin root's src/, as in deduplication: tests and
+# hooks import this module before anything else has put src/ on the path.
+_SRC = str(Path(__file__).resolve().parents[2] / "src")
+if _SRC not in sys.path:
+    sys.path.insert(0, _SRC)
+
+from memory_palace._vendored_leyline_atomic_file import (  # noqa: E402 - src/ joins sys.path above
+    file_lock,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +94,11 @@ def build_hook_payload(
     return None
 
 
+#: A sync holds the queue lock only to read and to rewrite the queue; a
+#: hook waits this long and then skips queueing rather than stall the call.
+_QUEUE_LOCK_TIMEOUT_SECONDS = 2.0
+
+
 def queue_for_intake(
     plugin_root: Path,
     decision: Any,
@@ -102,8 +118,12 @@ def queue_for_intake(
             "intake_payload": decision.intake_payload.to_dict(),
             "tool_input": ctx.tool_input,
         }
-        with queue_path.open("a", encoding="utf-8") as f:
+        # palace maintenance rewrites the queue under this lock.
+        lock = file_lock(queue_path, timeout=_QUEUE_LOCK_TIMEOUT_SECONDS)
+        with lock, queue_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(queue_entry) + "\n")
+    except TimeoutError:  # an OSError, so caught before the I/O handler
+        logger.warning("research_interceptor: intake queue busy; entry not queued")
     except (PermissionError, OSError) as e:
         logger.error(
             "research_interceptor: Failed to queue intake entry (I/O error): %s", e

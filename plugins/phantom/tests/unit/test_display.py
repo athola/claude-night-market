@@ -196,7 +196,7 @@ class TestTypeAction:
         result = toolkit._do_type({"action": "type", "text": "Hello, world!"})
         assert result.success is True
         mock_run.assert_called_with(
-            ["xdotool", "type", "--clearmodifiers", "Hello, world!"]
+            ["xdotool", "type", "--clearmodifiers", "--", "Hello, world!"]
         )
 
     @patch("phantom.display._run")
@@ -561,6 +561,14 @@ class TestModelSuppliedInputsAreBounded:
         assert slept == [10]
 
     @patch("phantom.display._run")
+    def test_cursor_position_reports_the_pointer(self, mock_run, toolkit):
+        """cursor_position had no handler: "Unknown action" (PHA-2)."""
+        mock_run.return_value = MagicMock(stdout="X=10\nY=20\nSCREEN=0\nWINDOW=7\n")
+        result = toolkit.execute({"action": "cursor_position"})
+        assert result.success is True
+        assert result.metadata["text"] == "X=10, Y=20"
+
+    @patch("phantom.display._run")
     def test_mouse_move_moves_to_the_coordinate(self, mock_run, toolkit):
         assert toolkit._do_mouse_move({"coordinate": [3, 4]}).success is True
         mock_run.assert_called_once_with(["xdotool", "mousemove", "3", "4"])
@@ -589,3 +597,64 @@ class TestModelSuppliedInputsAreBounded:
     ):
         assert getattr(toolkit, handler)({}).success is True
         mock_run.assert_called_once_with(["xdotool", button_cmd, "1"])
+
+
+class TestEveryAdvertisedActionHasAHandler:
+    """enable_zoom advertised `zoom` to the model with no handler, so every
+    zoom came back "Unknown action" (PHA-2).
+    """
+
+    def test_zoom_captures_only_the_requested_region(self, toolkit):
+        with (
+            patch("phantom.display._check_command", side_effect=lambda c: c == "scrot"),
+            patch("phantom.display._run") as mock_run,
+        ):
+            mock_run.side_effect = lambda cmd, **kw: Path(cmd[-1]).write_bytes(b"png")
+            result = toolkit.execute({"action": "zoom", "region": [10, 20, 110, 70]})
+        assert result.success
+        argv = mock_run.call_args.args[0]
+        assert argv[0] == "scrot"
+        assert "10,20,100,50" in argv
+
+    @pytest.mark.parametrize(
+        "region",
+        [[100, 100, 50, 50], [0, 0, 0, 0], [0, 0, 10], [0, 0, "9", 9], None],
+    )
+    def test_zoom_rejects_a_region_that_is_not_a_box(self, toolkit, region):
+        """An inverted or empty box reached scrot as a negative size (U10)."""
+        action = (
+            {"action": "zoom"}
+            if region is None
+            else {"action": "zoom", "region": region}
+        )
+        with patch("phantom.display._run") as mock_run:
+            zoomed = toolkit.execute(action)
+        assert not zoomed.success
+        assert "region" in (zoomed.error or "")
+        mock_run.assert_not_called()
+
+    def test_zoom_with_imagemagick_resets_the_crop_page(self, toolkit):
+        """Without +repage the PNG keeps the screen-sized canvas offset."""
+        with (
+            patch(
+                "phantom.display._check_command", side_effect=lambda c: c == "import"
+            ),
+            patch("phantom.display._run") as mock_run,
+        ):
+            mock_run.side_effect = lambda cmd, **kw: Path(cmd[-1]).write_bytes(b"png")
+            zoomed = toolkit.execute({"action": "zoom", "region": [10, 20, 110, 70]})
+        assert zoomed.success
+        argv = mock_run.call_args.args[0]
+        assert argv[argv.index("-crop") + 1 : argv.index("-crop") + 3] == [
+            "100x50+10+20",
+            "+repage",
+        ]
+
+
+def test_type_text_starting_with_dash_is_not_read_as_an_option() -> None:
+    """`xdotool type -- text`: a leading `-` was parsed as a flag (PHA-4)."""
+    toolkit = DisplayToolkit(DisplayConfig())
+    with patch("phantom.display._run") as run:
+        toolkit.execute({"action": "type", "text": "-rf"})
+    args = run.call_args[0][0]
+    assert args[args.index("-rf") - 1] == "--"

@@ -120,7 +120,10 @@ def lanes(
     authors.discard("")
     files = [
         f
-        for f in _git(repo, "diff", "--name-only", f"{base}...{head}").split("\n")
+        # -z: git C-quotes a non-ASCII path in text output.
+        for f in _git(repo, "diff", "-z", "--name-only", f"{base}...{head}").split(
+            "\x00"
+        )
         if f
     ]
     rules = _read_codeowners(repo)

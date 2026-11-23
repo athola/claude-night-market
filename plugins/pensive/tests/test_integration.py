@@ -446,8 +446,16 @@ custom_rules:
         # Act
         result = workflow.execute_full_review(temp_repository)
 
-        # Assert
-        assert isinstance(result, dict)
+        # Assert: a review that ran no skill must not pass (PEN-11).
+        assert result["metrics"]["skills_executed"] >= 1
+        assert result["metrics"]["files_analyzed"] >= 1
+        # And the config's exclude list is honored: a vendored file added
+        # afterward is not analyzed (PEN-8, caught here since PEN-11).
+        vendored = temp_repository / "vendor" / "lib.rs"
+        vendored.parent.mkdir(parents=True, exist_ok=True)
+        vendored.write_text("pub fn f() { panic!() }\n")
+        again = CodeReviewWorkflow(config=config).execute_full_review(temp_repository)
+        assert again["metrics"]["files_analyzed"] == result["metrics"]["files_analyzed"]
         assert "unified-review" in config.enabled_skills
         assert "rust-review" in config.enabled_skills
         assert "api-review" in config.enabled_skills

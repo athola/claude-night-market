@@ -4,8 +4,10 @@ ONNX Runtime inference daemon for ML-enhanced plugin capabilities.
 
 Provides local model inference over HTTP with explicit opt-in
 activation. The daemon runs in an isolated Python 3.11+ venv so
-the inference stack (onnxruntime, aiohttp) does not affect the
-system Python 3.9 environment used by hooks.
+its dependencies do not affect the system Python 3.9
+environment used by hooks. The daemon serves YAML linear and
+sigmoid models with `math` and `yaml`; onnxruntime is added when
+the first ONNX model ships.
 
 ## Activation
 
@@ -15,7 +17,7 @@ Opt in by running the setup command:
 /oracle:setup
 ```
 
-This creates a venv, installs onnxruntime and pyyaml, and writes
+This creates a venv, installs pyyaml, and writes
 an `.oracle-enabled` sentinel. The `SessionStart` hook starts the
 daemon only when that sentinel is present.
 
@@ -31,15 +33,15 @@ opt-in activation.
 
 > **Why opt-in?** Per [docs/inclusive-defaults.md][inc],
 > oracle's install footprint is heavy: a separate
-> Python 3.11+ venv, ~50MB of onnxruntime, and a
-> background HTTP daemon. Defaulting any of that to ON
+> Python 3.11+ venv and a background HTTP
+> daemon. Defaulting any of that to ON
 > on `/plugin install oracle` would surprise users with
 > a long setup they did not ask for.
 
 [inc]: ../../docs/inclusive-defaults.md
 Installing the plugin does nothing until the user runs
 `/oracle:setup`, which provisions a Python 3.11+ venv via
-`uv` and installs `onnxruntime` into it.
+`uv` and installs `pyyaml` into it.
 The daemon runs as an HTTP server bound to `127.0.0.1` and
 writes its port number to `daemon.port` in its own plugin
 data directory, `~/.claude/plugins/data/oracle-<marketplace>/`.

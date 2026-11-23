@@ -497,3 +497,99 @@ class TestWorkspaceFlagPerInstaller:
     def test_npm_workspace_flag_still_consumes_its_value(self, pg) -> None:
         """`npm i -w ws pkgx` names workspace ws, then installs pkgx."""
         assert pg.parse_packages("npm i -w ws pkgx") == [("npm", "pkgx")]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "command",
+    ["pip install reqeusts", "npm i lodashh", "pip install nunpy"],
+)
+def test_typosquat_that_exists_in_registry_stays_hard(pg, command):
+    """A registered typosquat is the attack, so a registry hit is no excuse.
+
+    The registry check once downgraded these to a warning that blocking
+    mode never enforced.
+    """
+    findings = pg.assess_packages(command, registry_fn=lambda name, ecosystem: True)
+    assert [f["kind"] for f in findings] == ["typosquat"]
+
+
+@pytest.mark.unit
+def test_registered_package_with_no_popular_neighbor_is_not_flagged(pg):
+    """Only edit distance to a popular name makes a typosquat suspect."""
+    findings = pg.assess_packages(
+        "pip install zorblax-telemetry", registry_fn=lambda name, ecosystem: True
+    )
+    assert findings == []
+
+
+@pytest.mark.unit
+def test_typosquat_suspect_missing_from_registry_stays_hard(pg):
+    findings = pg.assess_packages(
+        "pip install reqeusts", registry_fn=lambda name, ecosystem: False
+    )
+    assert [f["kind"] for f in findings] == ["typosquat"]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("command", "expected"),
+    [
+        (".venv/bin/pip install reqeusts", [("pypi", "reqeusts")]),
+        ("/usr/bin/python3 -m pip install reqeusts", [("pypi", "reqeusts")]),
+        ("/opt/homebrew/bin/npm install lodsh", [("npm", "lodsh")]),
+        ("~/.cargo/bin/cargo add serdee", [("crates", "serdee")]),
+    ],
+)
+def test_path_qualified_installers_are_parsed(pg, command, expected):
+    """A path before pip/python/npm parsed to [], so nothing was checked (IMB-4)."""
+    assert pg.parse_packages(command) == expected
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        'bash -c "pip install evilpkg"',
+        "sh -c 'npm install evilpkg && echo ok'",
+        'zsh -lc "uv pip install evilpkg"',
+    ],
+)
+def test_shell_wrapped_installers_are_parsed(pg, command: str) -> None:
+    """`bash -c "pip install x"` read as a bash command, not an install (IMB-4)."""
+    assert any(name == "evilpkg" for _eco, name in pg.parse_packages(command))
+
+
+@pytest.mark.parametrize(
+    ("command", "expected"),
+    [
+        ("pip3.11 install evilpkg", [("pypi", "evilpkg")]),
+        ("pip -q install evilpkg", [("pypi", "evilpkg")]),
+        ("pip --proxy http://p:8080 install evilpkg", [("pypi", "evilpkg")]),
+        ("python3 -m pip --isolated install evilpkg", [("pypi", "evilpkg")]),
+        ("timeout 60 pip install evilpkg", [("pypi", "evilpkg")]),
+        ("nice -n 5 pip install evilpkg", [("pypi", "evilpkg")]),
+        ("xargs pip install evilpkg", [("pypi", "evilpkg")]),
+        ("xargs -n 1 pip install evilpkg", [("pypi", "evilpkg")]),
+        ('bash -e -c "pip install evilpkg"', [("pypi", "evilpkg")]),
+        ("bash -e -o pipefail -c 'pip install evilpkg'", [("pypi", "evilpkg")]),
+        ("pipx install evilpkg", [("pypi", "evilpkg")]),
+        ("uv tool install evilpkg", [("pypi", "evilpkg")]),
+        ("bun add evilpkg", [("npm", "evilpkg")]),
+    ],
+)
+def test_installs_behind_versions_options_and_wrappers_are_parsed(
+    pg, command, expected
+):
+    """Each of these fetched a package the guard never checked (S10)."""
+    assert pg.parse_packages(command) == expected
+
+
+def test_bun_and_uv_tool_commands_that_fetch_nothing_parse_to_nothing(pg) -> None:
+    assert pg.parse_packages("bun run build") == []
+    assert pg.parse_packages("uv tool list") == []
+
+
+def test_escaped_quotes_in_a_double_quoted_script_stay_in_one_token(pg) -> None:
+    """An escaped quote ended the script early and parsed a backslashed name (F4)."""
+    command = 'bash -c "pip install \\"evilpkg>=1\\" otherpkg"'
+    assert pg.parse_packages(command) == [("pypi", "evilpkg"), ("pypi", "otherpkg")]

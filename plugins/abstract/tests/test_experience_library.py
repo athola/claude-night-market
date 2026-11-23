@@ -236,3 +236,53 @@ class TestAtomicWrite:
         assert stored is False
         assert entry_file.read_text() == before
         assert list(skill_dir.glob("*.tmp")) == []
+
+
+def test_prune_keeps_other_projects_entries(tmp_path: Path) -> None:
+    """The cap was per skill across all projects, so a busy project
+    evicted every entry another project stored (ABS-2).
+    """
+    lib = ExperienceLibrary(tmp_path / "experience-library")
+
+    def store(project: str, n: int) -> None:
+        lib.store(
+            project=project,
+            skill_ref="abstract:s",
+            task_description=f"task {n}",
+            approach_taken="x",
+            outcome="success",
+            duration_ms=1,
+        )
+
+    store("A", 0)
+    for n in range(25):
+        store("B", n)
+
+    assert len(lib.recent_entries("abstract:s", 5, "A")) == 1
+
+
+def test_prune_caps_legacy_entries_that_name_no_project(tmp_path: Path) -> None:
+    """Entries stored before project scoping were never pruned (F3).
+
+    They belong to no project's group, so no store ever counted them.
+    """
+    lib = ExperienceLibrary(tmp_path / "experience-library")
+    skill_dir = tmp_path / "experience-library" / "abstract_s"
+    skill_dir.mkdir(parents=True)
+    for n in range(25):
+        legacy = skill_dir / f"legacy{n:02d}.json"
+        legacy.write_text('{"task_description": "old", "outcome": "success"}')
+        os.utime(legacy, (1_000 + n, 1_000 + n))
+
+    lib.store(
+        project="A",
+        skill_ref="abstract:s",
+        task_description="new",
+        approach_taken="x",
+        outcome="success",
+        duration_ms=1,
+    )
+
+    remaining = sorted(f.name for f in skill_dir.glob("legacy*.json"))
+    assert remaining == [f"legacy{n:02d}.json" for n in range(5, 25)]
+    assert len(lib.recent_entries("abstract:s", 5, "A")) == 1

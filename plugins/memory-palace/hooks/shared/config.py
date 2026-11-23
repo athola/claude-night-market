@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging as _logging
 import os
+import sys
 from fnmatch import fnmatch
 from pathlib import Path
 from types import ModuleType
@@ -119,6 +120,42 @@ def _get_config_path() -> Path:
     return plugin_root / "memory-palace-config.yaml"
 
 
+_warned_no_yaml = False
+
+_SWITCH_VALUES = {"true": True, "yes": True, "on": True}
+_SWITCH_VALUES.update({"false": False, "no": False, "off": False})
+
+
+def _top_level_switches(text: str) -> dict[str, bool]:
+    """Read unindented ``key: boolean`` lines, the part honored without PyYAML.
+
+    ``enabled: false`` is the user's off switch, so it holds even when the
+    nested sections cannot be read.
+    """
+    switches: dict[str, bool] = {}
+    for line in text.splitlines():
+        if not line or line[0] in " \t#":
+            continue
+        key, sep, raw = line.partition(":")
+        word = raw.split("#", 1)[0].strip().lower()
+        if sep and key.strip() in CONFIG_DEFAULTS and word in _SWITCH_VALUES:
+            switches[key.strip()] = _SWITCH_VALUES[word]
+    return switches
+
+
+def _warn_config_ignored_once(config_path: Path) -> None:
+    """Tell the operator once per process that their config is not read."""
+    global _warned_no_yaml  # noqa: PLW0603 - once-per-process latch
+    if not _warned_no_yaml:
+        _warned_no_yaml = True
+        print(
+            f"[memory-palace] WARNING: PyYAML is not installed for {sys.executable};"
+            f" only top-level true/false switches in {config_path} are read;"
+            " nested sections use defaults.",
+            file=sys.stderr,
+        )
+
+
 def get_config() -> dict[str, Any]:
     """Get configuration with caching.
 
@@ -135,9 +172,14 @@ def get_config() -> dict[str, Any]:
             return _config_cache
 
         if yaml is None:
-            # pyyaml not installed - use defaults
-            if _config_cache is None:
-                _config_cache = CONFIG_DEFAULTS.copy()
+            # The hooks run on the first python3 on PATH, which often lacks
+            # PyYAML. Defaults stand in for a file the user wrote, so say so.
+            _warn_config_ignored_once(config_path)
+            _config_cache = {
+                **CONFIG_DEFAULTS,
+                **_top_level_switches(config_path.read_text()),
+            }
+            _config_mtime = current_mtime
             return _config_cache
 
         with open(config_path) as f:
@@ -259,7 +301,7 @@ def is_path_safe(path: str) -> bool:
 
         # Check for path traversal indicators
         path_str = str(resolved)
-        if ".." in path or path_str != os.path.normpath(path_str):
+        if ".." in Path(path).parts or path_str != os.path.normpath(path_str):
             return False
 
         # validate path doesn't escape to sensitive locations
@@ -272,6 +314,9 @@ def is_path_safe(path: str) -> bool:
             "/private/etc/",
             "/private/var/log/",
         ]
+        # `/.ssh/` lives under a home directory, never at the root.
+        if "/.ssh/" in path_str + "/":
+            return False
         return all(not path_str.startswith(sensitive) for sensitive in sensitive_paths)
     except (ValueError, OSError):
         return False

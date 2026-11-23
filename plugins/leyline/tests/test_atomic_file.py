@@ -12,11 +12,14 @@ import os
 import stat
 import sys
 import threading
+import types
 from pathlib import Path
 
 import pytest
 
-from leyline.atomic_file import write_atomic
+from leyline import atomic_file
+from leyline.atomic_file import file_lock, read_json_object, write_atomic
+import fcntl
 
 GOOD = '{"session_count": 1}\n'
 
@@ -247,3 +250,153 @@ def test_directory_sync_is_skipped_on_windows(
 
     assert events == ["fsync"]
     assert target.exists()
+
+
+class TestReadJsonObject:
+    """State readers caught JSONDecodeError but not a valid non-object, so
+    `[]` in a state file raised AttributeError on the first `.get`.
+    """
+
+    @pytest.mark.parametrize("body", ["[]", "3", '"text"', "null", "{not json", ""])
+    def test_returns_default_for_anything_but_an_object(
+        self, tmp_path: Path, body: str
+    ) -> None:
+        state = tmp_path / "state.json"
+        state.write_text(body)
+        assert read_json_object(state, {"fresh": True}) == {"fresh": True}
+
+    def test_returns_default_when_missing(self, tmp_path: Path) -> None:
+        assert read_json_object(tmp_path / "absent.json", {}) == {}
+
+    def test_returns_the_object(self, tmp_path: Path) -> None:
+        state = tmp_path / "state.json"
+        state.write_text('{"a": 1}')
+        assert read_json_object(state, {}) == {"a": 1}
+
+
+class TestFileLock:
+    """Writers restated the lock convention, so a second writer could not
+    find the first writer's lock (ARCH-5).
+    """
+
+    def test_a_second_holder_waits_for_the_first(self, tmp_path: Path) -> None:
+
+        target = tmp_path / "index.yaml"
+        with open(tmp_path / "index.yaml.lock", "a") as held:
+            fcntl.flock(held, fcntl.LOCK_EX)
+            entered = threading.Event()
+
+            def contender() -> None:
+                with file_lock(target):
+                    entered.set()
+
+            worker = threading.Thread(target=contender)
+            worker.start()
+            assert not entered.wait(0.3)
+            fcntl.flock(held, fcntl.LOCK_UN)
+        worker.join(5)
+        assert entered.is_set()
+
+    def test_a_timed_wait_raises_timeout_error_while_the_lock_stays_held(
+        self, tmp_path: Path
+    ) -> None:
+        """A hook killed mid-wait loses its work, so a timed caller gives up."""
+        target = tmp_path / "index.yaml"
+        with open(tmp_path / "index.yaml.lock", "a") as held:
+            fcntl.flock(held, fcntl.LOCK_EX)
+            with pytest.raises(TimeoutError, match="index.yaml.lock"):
+                with file_lock(target, timeout=0.2):
+                    pytest.fail("entered a lock another holder still has")
+
+    def test_a_timed_wait_enters_once_the_holder_releases_in_time(
+        self, tmp_path: Path
+    ) -> None:
+        target = tmp_path / "index.yaml"
+        entered = threading.Event()
+        with open(tmp_path / "index.yaml.lock", "a") as held:
+            fcntl.flock(held, fcntl.LOCK_EX)
+
+            def contender() -> None:
+                with file_lock(target, timeout=5):
+                    entered.set()
+
+            worker = threading.Thread(target=contender)
+            worker.start()
+            assert not entered.wait(0.2)
+            fcntl.flock(held, fcntl.LOCK_UN)
+        worker.join(5)
+        assert entered.is_set()
+
+    def test_a_timed_wait_on_a_free_lock_enters_at_once(self, tmp_path: Path) -> None:
+        with file_lock(tmp_path / "index.yaml", timeout=0):
+            assert (tmp_path / "index.yaml.lock").exists()
+
+    def test_without_fcntl_off_windows_no_lock_is_taken(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A platform with neither lock still runs the caller's critical section."""
+        monkeypatch.setattr(atomic_file, "fcntl", None)
+        target = tmp_path / "index.yaml"
+        with open(tmp_path / "index.yaml.lock", "a") as held:
+            fcntl.flock(held, fcntl.LOCK_EX)
+            with file_lock(target, timeout=0.1):
+                entered = True
+        assert entered
+
+
+class TestFileLockOnWindows:
+    """Windows has no flock: the lock is msvcrt.locking on byte 0.
+
+    The abstract skill logger locked this way before the helper did, so a
+    second writer serializes on Windows too instead of dropping an update.
+    """
+
+    @staticmethod
+    def _fake_msvcrt(
+        monkeypatch: pytest.MonkeyPatch, busy: bool = False
+    ) -> list[tuple[int, int, int]]:
+        calls: list[tuple[int, int, int]] = []
+        fake = types.ModuleType("msvcrt")
+        fake.LK_UNLCK, fake.LK_LOCK, fake.LK_NBLCK = 0, 1, 2  # type: ignore[attr-defined]  # fake module built at runtime
+
+        def locking(fd: int, mode: int, nbytes: int) -> None:
+            calls.append((mode, os.lseek(fd, 0, os.SEEK_CUR), nbytes))
+            if busy and mode == fake.LK_NBLCK:  # type: ignore[attr-defined]  # fake module built at runtime
+                raise OSError(13, "Permission denied")
+
+        fake.locking = locking  # type: ignore[attr-defined]  # fake module built at runtime
+        monkeypatch.setitem(sys.modules, "msvcrt", fake)
+        monkeypatch.setattr(sys, "platform", "win32")
+        return calls
+
+    def test_an_untimed_lock_takes_and_releases_byte_zero(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        calls = self._fake_msvcrt(monkeypatch)
+        (tmp_path / "h.json.lock").write_text("previous bytes")
+
+        with file_lock(tmp_path / "h.json"):
+            assert calls == [(1, 0, 1)]
+
+        assert calls == [(1, 0, 1), (0, 0, 1)]
+
+    def test_a_timed_lock_polls_without_blocking_and_releases(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        calls = self._fake_msvcrt(monkeypatch)
+
+        with file_lock(tmp_path / "h.json", timeout=1):
+            pass
+
+        assert calls == [(2, 0, 1), (0, 0, 1)]
+
+    def test_a_timed_lock_held_elsewhere_raises_timeout_error(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        calls = self._fake_msvcrt(monkeypatch, busy=True)
+
+        with pytest.raises(TimeoutError):
+            with file_lock(tmp_path / "h.json", timeout=0.1):
+                pytest.fail("entered a lock another holder still has")
+
+        assert calls and all(mode == 2 for mode, _, _ in calls)

@@ -151,6 +151,19 @@ class TestDegradedDependencies:
         assert not (tmp_path / "skills" / "improvement-queue.json").exists()
 
     @pytest.mark.unit
+    def test_critical_without_queue_reports_critical(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys
+    ) -> None:
+        """Both fallback branches hardcoded "degrading" (ABS-8)."""
+        _seed(tmp_path, CRITICAL)
+        monkeypatch.setattr(hm, "_HAS_QUEUE", False)
+
+        code, out, _err = _run_main(monkeypatch, capsys, tmp_path, _skill_payload())
+
+        assert code == 0
+        assert json.loads(out)["hookSpecificOutput"]["status"] == "critical"
+
+    @pytest.mark.unit
     @pytest.mark.skipif(
         os.geteuid() == 0, reason="root ignores directory write permission"
     )

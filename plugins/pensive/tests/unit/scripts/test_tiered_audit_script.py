@@ -107,6 +107,42 @@ class TestCollect:
         assert results.all_flags() == []
 
 
+class TestFixOnFixUsesFileSets:
+    """Feature: the script feeds each commit's files to the fix-on-fix check.
+
+    Without them every fix-keyword commit flagged, and the skill-level
+    tests of ``check_fix_on_fix`` could not see the wiring was gone.
+    """
+
+    @staticmethod
+    def _two_fixes(tmp_path: Path, second_file: str) -> tuple[Path, str]:
+        repo = tmp_path / "fixes"
+        repo.mkdir()
+        _git(repo, "init", "-q", "-b", "main")
+        _git(repo, "config", "user.email", "audit@example.invalid")
+        _git(repo, "config", "user.name", "Audit")
+        (repo / "x").write_text("0\n")
+        (repo / "y").write_text("0\n")
+        base = _commit(repo, "chore: seed")
+        (repo / "x").write_text("1\n")
+        _commit(repo, "fix: x")
+        (repo / second_file).write_text("2\n")
+        _commit(repo, f"fix: {second_file}")
+        return repo, base
+
+    def test_fixes_on_disjoint_files_do_not_flag(self, tmp_path: Path) -> None:
+        repo, base = self._two_fixes(tmp_path, "y")
+        results, _ = collect(base, repo)
+        assert [f for f in results.all_flags() if f.reason == "fix-on-fix"] == []
+
+    def test_fixes_on_the_same_file_flag_the_later_commit(self, tmp_path: Path) -> None:
+        repo, base = self._two_fixes(tmp_path, "x")
+        later = _git(repo, "rev-parse", "HEAD")
+        results, _ = collect(base, repo)
+        flags = [f for f in results.all_flags() if f.reason == "fix-on-fix"]
+        assert [f.detail for f in flags] == [f"{later[:7]}: fix: x"]
+
+
 class TestNumstatParsing:
     """Feature: per-commit insertion and deletion totals."""
 

@@ -31,6 +31,8 @@ that use spatial metaphors for organization and retrieval.
 | `/palace` | Manage memory palaces |
 | `/garden` | Manage digital gardens |
 | `/navigate` | Search and traverse palaces |
+| `/review-room` | Capture and retrieve PR review knowledge in project memory palaces |
+| `/skill-logs` | View and manage skill execution memories stored by memory-palace |
 
 ## Agents
 

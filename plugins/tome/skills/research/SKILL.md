@@ -122,11 +122,15 @@ planner gates on, and a drift test holds the two together.
 
 **Named entities.** List every product, project, standard or
 method the question names or that a comparison will rank, and
-pass the list as the workflow's `entities` arg. The workflow
+pass the list as the workflow's `entities` arg. Store it on the
+session too (`session.entities = entities`, then `mgr.save(session)`)
+so the report lists the ones no finding mentions. The workflow
 searches each one no channel covered, and returns the rest as
 `coverage.unsearched`. When dispatching agents directly instead,
-run the same check yourself before synthesis: dispatch
-`tome:web-searcher` for each entity no finding mentions. Never
+run the same check yourself before synthesis: call
+`identify_gaps(findings, channels, entities=entities)` from
+`tome.synthesis.quality` and dispatch `tome:web-searcher` for each
+name in its `uncovered_entities`. Never
 rule an option in or out without a search behind it. A
 2026-10-05 report ruled Beartooth out on a description alone,
 because no channel happened to cover it. An entity still
@@ -200,6 +204,11 @@ mgr.save(session)
 ```
 
 ### Step 7: Present Results
+
+Before showing the summary, run
+`tome.output.citations.find_ungrounded_urls(summary, session.findings)`
+on its text. Drop or source each URL it returns: no channel retrieved
+it.
 
 Display a brief summary to the user:
 - The frontier verdict and its reason, from
@@ -278,5 +287,7 @@ Then offer interactive refinement:
       synthesis regardless of whether all agents succeeded
 - [ ] Top 3 findings by relevance score displayed to the user with
       the path to the saved report
+- [ ] `find_ungrounded_urls` returned an empty list for the summary
+      shown, or each URL it returned was dropped or sourced
 - [ ] If all agents fail, error reported and manual alternatives
       suggested; an empty report is never generated

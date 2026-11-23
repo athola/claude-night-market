@@ -470,3 +470,208 @@ def test_git_untracked_files_returns_names_with_spaces_and_unicode_unquoted(tmp_
 
     assert "audit report.md" in untracked
     assert "café notes.md" in untracked
+
+
+def test_ignored_fallback_destination_routes_to_an_issue():
+    """A file under a gitignored path is never committed, so the item is lost."""
+    cp = _load_script()
+    chunk = cp.ContentChunk(
+        header="Action Items",
+        content="todo list",
+        category="actionable",
+        value="medium",
+    )
+    route = cp.route_chunk(
+        chunk, [], "scratch.md", is_ignored=lambda p: p.startswith("docs/plans/")
+    )
+    assert route.strategy == "FILE_ISSUE"
+    assert route.destination == "github-issue"
+    assert "gitignored" in route.rationale
+
+
+def test_decision_fallback_takes_the_next_adr_number_without_a_date():
+    cp = _load_script()
+    chunk = cp.ContentChunk(
+        header="CLI Naming", content="we chose x", category="decisions", value="high"
+    )
+    existing = ["docs/adr/0029-a.md", "docs/adr/0030-b.md", "docs/guide.md"]
+    route = cp.route_chunk(chunk, [], "scratch.md")
+    assert route.destination == "docs/adr/0001-cli-naming.md"
+    route = cp.route_chunk(chunk, existing, "scratch.md")
+    assert route.destination == "docs/adr/0031-cli-naming.md"
+
+
+_TWO_DECISIONS = (
+    "## Decision on naming\nWe decided to name it x. Rationale chosen.\n\n"
+    "## Decision on storage\nWe decided to store in sqlite. Rationale chosen.\n\n"
+    "## Findings\nThe cache missed 40 percent of lookups.\n\n"
+    "## Action Items\n- fix the cache\n"
+)
+
+
+def _plan_in_repo(cp, tmp_path, monkeypatch):
+    _git("init", "-q", "-b", "main", str(tmp_path))
+    (tmp_path / "docs" / "adr").mkdir(parents=True)
+    (tmp_path / "docs" / "adr" / "0030-b.md").write_text("# b\n")
+    (tmp_path / "docs" / "guide.md").write_text("# guide\n")
+    (tmp_path / "AUDIT_REPORT.md").write_text(_TWO_DECISIONS)
+    monkeypatch.chdir(tmp_path)
+    return cp.generate_plan("AUDIT_REPORT.md")
+
+
+def test_two_decisions_in_one_plan_get_distinct_adr_numbers(tmp_path, monkeypatch):
+    """The number came from the docs on disk alone, so both were 0031."""
+    cp = _load_script()
+    plan = _plan_in_repo(cp, tmp_path, monkeypatch)
+    adrs = [r.destination for r in plan.routes if r.category == "decisions"]
+    assert adrs == [
+        "docs/adr/0031-decision-on-naming.md",
+        "docs/adr/0032-decision-on-storage.md",
+    ]
+
+
+def test_a_dated_adr_name_is_not_read_as_an_adr_number():
+    """``\\d{4}`` matched the year in ``2026-11-17-foo.md`` and gave 2027."""
+    cp = _load_script()
+    assert cp._next_adr_number(["docs/adr/2026-11-17-foo.md"]) == 1
+    assert (
+        cp._next_adr_number(["docs/adr/2026-11-17-foo.md", "docs/adr/0004-x.md"]) == 5
+    )
+
+
+def test_plan_probes_each_path_for_ignore_rules_once(tmp_path, monkeypatch):
+    """One ``git check-ignore`` per doc per chunk made 448 spawns for 4 chunks."""
+    cp = _load_script()
+    probed: list[str] = []
+    real_run = subprocess.run
+
+    def counting_run(cmd, *args, **kwargs):
+        if "check-ignore" in cmd:
+            probed.append(cmd[-1])
+        return real_run(cmd, *args, **kwargs)
+
+    monkeypatch.setattr(cp.subprocess, "run", counting_run)
+    _plan_in_repo(cp, tmp_path, monkeypatch)
+    assert probed
+    assert len(probed) == len(set(probed)), probed
+
+
+def test_git_ignored_probe_reads_the_repository_ignore_rules(tmp_path):
+    cp = _load_script()
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    (tmp_path / ".gitignore").write_text("docs/plans/\n")
+    is_ignored = cp.git_ignored(str(tmp_path))
+    assert is_ignored("docs/plans/2026-01-01-x.md") is True
+    assert is_ignored("docs/adr/0001-x.md") is False
+
+
+def test_git_ignored_probe_outside_a_repository_ignores_nothing(tmp_path):
+    cp = _load_script()
+    assert cp.git_ignored(str(tmp_path))("docs/plans/x.md") is False
+
+
+def test_ignored_existing_doc_is_never_a_semantic_match(tmp_path):
+    """Weaving into a gitignored file loses the content as surely as creating one."""
+    cp = _load_script()
+    plan_doc = tmp_path / "docs" / "plans" / "action-items-review.md"
+    plan_doc.parent.mkdir(parents=True)
+    plan_doc.write_text("# Action Items\n\nAction items todo list for the review.\n")
+    chunk = cp.ContentChunk(
+        header="Action Items",
+        content="action items todo list review",
+        category="actionable",
+        value="medium",
+    )
+    route = cp.route_chunk(
+        chunk, [str(plan_doc)], "scratch.md", is_ignored=lambda p: "/plans/" in p
+    )
+    assert route.strategy == "FILE_ISSUE"
+
+
+def test_scan_finds_report_in_untracked_subdirectory(tmp_path):
+    """Porcelain collapsed a new directory to `?? sub/`, hiding its files (SAN-2)."""
+    cp = _load_script()
+    _git("init", "-q", "-b", "main", str(tmp_path))
+    _git("-C", str(tmp_path), "config", "user.email", "t@example.com")
+    _git("-C", str(tmp_path), "config", "user.name", "Tester")
+    (tmp_path / "init.md").write_text("first")
+    _git("-C", str(tmp_path), "add", ".")
+    _git("-C", str(tmp_path), "commit", "-q", "-m", "first")
+    (tmp_path / "sub").mkdir()
+    (tmp_path / "sub" / "AUDIT_REPORT.md").write_text(
+        "**Date**: 2026-04-01\n## Findings\n## Action Items\n"
+    )
+    candidates = cp.scan_for_candidates(str(tmp_path))
+    assert any(c.path == "sub/AUDIT_REPORT.md" for c in candidates)
+
+
+def test_route_chunk_uses_fallback_name_when_header_slug_is_empty():
+    """A header like 概要 slugs to "", which routed to docs/.md (SAN-5)."""
+    cp = _load_script()
+    chunk = cp.ContentChunk(
+        header="概要", content="x", category="finding", value="high"
+    )
+    route = cp.route_chunk(chunk, [], "AUDIT_REPORT.md")
+    assert not route.destination.endswith("/.md")
+
+
+def test_extract_chunks_ignores_header_like_lines_inside_code_fences(tmp_path):
+    """A `## ` line in a fenced example split the real section (SAN-13)."""
+    cp = _load_script()
+    src = tmp_path / "R.md"
+    src.write_text("## Findings\ntext\n```bash\n## not a header\n```\nmore\n")
+    assert [c.header for c in cp.extract_chunks(str(src))] == ["Findings"]
+
+
+def test_plan_skips_gitignored_doc_under_nested_docs_dir(tmp_path, monkeypatch):
+    """The ignore probe ran in the docs dir's parent with cwd-relative paths,
+    so an ignored doc under pkg/docs read as not ignored (SAN-4).
+    """
+    cp = _load_script()
+    _git("init", "-q", "-b", "main", str(tmp_path))
+    (tmp_path / ".gitignore").write_text("pkg/docs/secret.md\n")
+    (tmp_path / "pkg" / "docs").mkdir(parents=True)
+    (tmp_path / "pkg" / "docs" / "secret.md").write_text("# Findings notes\n")
+    monkeypatch.chdir(tmp_path)
+    built_for: list[str] = []
+    real = cp.git_ignored
+
+    def spy(repo: str):
+        built_for.append(repo)
+        return real(repo)
+
+    monkeypatch.setattr(cp, "git_ignored", spy)
+    (tmp_path / "AUDIT_REPORT.md").write_text("## Findings\nx\n")
+    cp.generate_plan("AUDIT_REPORT.md", docs_dir="pkg/docs")
+    assert real(built_for[0])("pkg/docs/secret.md") is True
+
+
+def test_usage_lists_only_real_subcommands():
+    """The module docstring named a `route` command that does not exist (SAN-12)."""
+    cp = _load_script()
+    documented = {
+        line.split()[2]
+        for line in (cp.__doc__ or "").splitlines()
+        if line.strip().startswith("python consolidation_planner.py")
+    }
+    assert documented == {"scan", "analyze", "plan"}
+
+
+def test_scan_from_a_subdirectory_reads_files_relative_to_it(tmp_path):
+    """Status paths are root-relative, so joined to a subdirectory
+    --repo-path they named files that do not exist (SAN-2).
+    """
+    cp = _load_script()
+    _git("init", "-q", "-b", "main", str(tmp_path))
+    _git("-C", str(tmp_path), "config", "user.email", "t@example.com")
+    _git("-C", str(tmp_path), "config", "user.name", "Tester")
+    (tmp_path / "init.md").write_text("first")
+    _git("-C", str(tmp_path), "add", ".")
+    _git("-C", str(tmp_path), "commit", "-q", "-m", "first")
+    area = tmp_path / "area"
+    area.mkdir()
+    (area / "AUDIT_REPORT.md").write_text(
+        "**Date**: 2026-04-01\n## Findings\n## Action Items\n"
+    )
+    candidates = cp.scan_for_candidates(str(area))
+    assert [c.path for c in candidates] == ["AUDIT_REPORT.md"]

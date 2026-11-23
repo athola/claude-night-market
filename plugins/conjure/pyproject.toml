@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conjure-dev"
-version = "1.10.3"
+version = "1.10.4"
 description = "Development tools for the conjure Claude Code plugin - intelligent delegation framework for external LLM services"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -48,7 +48,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["scripts", "hooks"]
+packages = ["scripts"]
 
 [tool.ruff]
 # Inherit the repo-wide rule floor; this file may only add.
@@ -176,7 +176,6 @@ filterwarnings = [
 [tool.coverage.run]
 source = ["scripts"]
 omit = [
-    "hooks/*",
     "tests/*",
     "*/__pycache__/*",
     "scripts/delegation_executor.py",  # CLI entry point

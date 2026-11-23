@@ -519,13 +519,16 @@ class TestGateFailsClosed:
         """Scenario: the gate is broken and the user takes the named bypass.
 
         The internal-error deny tells the user to set
-        GAUNTLET_PRECOMMIT_MODE=off. A config the gate cannot evaluate
-        (``precommit`` as a string) breaks main(); the env var must still
-        release the commit, or the advice in the message is a dead end.
+        GAUNTLET_PRECOMMIT_MODE=off. A config reader that raises breaks
+        main(); the env var must still release the commit, or the advice
+        in the message is a dead end. A malformed ``precommit`` value no
+        longer raises (it falls back to gate), so the break is injected.
         """
-        (tmp_gauntlet_dir / "config.json").write_text(
-            json.dumps({"precommit": "nudge"})
-        )
+
+        def broken_config(_gauntlet_dir: Path) -> dict:
+            raise RuntimeError("config reader broke")
+
+        monkeypatch.setattr(precommit_gate, "_load_config", broken_config)
         monkeypatch.chdir(tmp_gauntlet_dir.parent)
         event = {"tool_name": "Bash", "tool_input": {"command": "git commit -m x"}}
 
@@ -697,7 +700,7 @@ class TestGraphRiskContextBudget:
             "analyze_changes was called without a timeout, so it used the "
             "10s library default against this hook's 2s cap"
         )
-        assert recorded["timeout"] == precommit_gate._GIT_TIMEOUT_SECONDS
+        assert 0 < recorded["timeout"] <= precommit_gate._GIT_TIMEOUT_SECONDS
 
     def test_the_library_default_is_documented_as_too_slow_for_a_hook(self) -> None:
         """The default exists for non-hook callers and must exceed the cap."""
@@ -859,3 +862,51 @@ class TestNoChallengeStillWarns:
         output = result["hookSpecificOutput"]
         assert "permissionDecision" not in output
         assert "Graph is" in output["additionalContext"]
+
+
+@pytest.mark.unit
+def test_restaging_new_content_in_the_same_files_changes_the_staged_hash(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The hash covered staged file names only, so a token earned for one
+    staged change also passed different content staged in the same files
+    within the token's five minutes.
+    """
+    import subprocess  # noqa: PLC0415 - real git for this test only
+
+    def git(*args: str) -> None:
+        subprocess.run(
+            ["git", "-C", str(tmp_path), *args], check=True, capture_output=True
+        )
+
+    git("init", "-q")
+    (tmp_path / "a.py").write_text("x = 1\n")
+    git("add", "a.py")
+    monkeypatch.chdir(tmp_path)
+    first = precommit_gate._get_staged_hash()
+
+    (tmp_path / "a.py").write_text("x = 2\n")
+    git("add", "a.py")
+    second = precommit_gate._get_staged_hash()
+
+    assert first
+    assert second
+    assert first != second
+
+
+@pytest.mark.unit
+def test_staged_hash_is_read_without_taking_the_index_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`git write-tree` takes .git/index.lock, and the gate kills a git call
+    that outlives its deadline, which can leave that lock behind and break
+    the commit the gate precedes. The hash is read with a read-only call.
+    """
+    import subprocess  # noqa: PLC0415 - real git for this test only
+
+    subprocess.run(["git", "-C", str(tmp_path), "init", "-q"], check=True)
+    (tmp_path / "a.py").write_text("x = 1\n")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "a.py"], check=True)
+    (tmp_path / ".git" / "index.lock").touch()
+    monkeypatch.chdir(tmp_path)
+    assert precommit_gate._get_staged_hash()

@@ -32,3 +32,11 @@ def test_only_the_release_job_can_write_contents() -> None:
         if (job.get("permissions") or {}).get("contents") == "write"
     )
     assert writers == ["build-and-release"]
+
+
+def test_the_python39_compat_workflow_is_read_only() -> None:
+    """With no block, its jobs ran with the repository's default token scope."""
+    compat = WORKFLOW.with_name("python39-compat.yml")
+    workflow = yaml.safe_load(compat.read_text())
+    assert workflow["permissions"] == {"contents": "read"}
+    assert all("permissions" not in job for job in workflow["jobs"].values())

@@ -186,32 +186,14 @@ else:
         print(f"  - {issue}")
 ```
 
-### Hook Integration
+### Recording Usage
 
-The tracker is integrated into Gemini hooks:
-
-```python
-# plugins/conjure/hooks/gemini/pre_execution.py
-
-from quota_tracker import GeminiQuotaTracker
-
-tracker = GeminiQuotaTracker()
-
-
-def check_quota_before_execution(command: str) -> tuple[bool, str]:
-    """Check if quota allows execution"""
-
-    # Parse command to estimate tokens
-    tokens = estimate_tokens_from_gemini_command(command)
-
-    # Check quota status
-    can_handle, issues = tracker.can_handle_task(tokens)
-
-    if not can_handle:
-        return False, f"Quota limit reached: {', '.join(issues)}"
-
-    return True, "Quota OK"
-```
+Conjure registers no hooks, so no Gemini call is checked or recorded
+automatically. A caller that wants the quota enforced checks
+`can_handle_task` before the call and records it with `record_request`
+afterward, as the example above does. `delegation_executor.py` keeps its
+own per-call log in `~/.claude/hooks/delegation/usage.jsonl`, which
+`--usage` summarizes, and does not write the tracker's file.
 
 ### CLI Interface
 
@@ -345,8 +327,8 @@ def test_quota_status_checking():
 
 ```python
 @pytest.mark.asyncio
-async def test_quota_enforcement_in_hook():
-    """Test that hook enforces quota limits"""
+async def test_quota_blocks_a_request_past_the_limit():
+    """A tracker near its RPM limit refuses the next request"""
 
     tracker = GeminiQuotaTracker()
 

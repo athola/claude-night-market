@@ -31,7 +31,7 @@ extends: "superpowers:receiving-code-review"
 
 ## Implemented Enhanced Commands
 
-### 1. `/pr` - Enhanced PR Preparation
+### 1. `/prepare-pr` - Enhanced PR Preparation
 
 **File**: `/commands/pr.md`
 
@@ -191,7 +191,7 @@ manual_review_mode: true
 ### For Existing Users
 
 **Gradual Adoption Path**:
-1. Continue using original commands (`/pr`, `/fix-pr`, `/pr-review`)
+1. Continue using original commands (`/prepare-pr`, `/fix-pr`, `/pr-review`)
 2. Try the enhanced command with `--dry-run` to preview enhancements
 3. Adopt enhanced features progressively
 4. Full migration when comfortable
@@ -206,7 +206,7 @@ manual_review_mode: true
 **Recommended Starting Points**:
 ```bash
 # New PR workflow
-/pr
+/prepare-pr
 
 # Addressing review feedback
 /fix-pr
@@ -311,7 +311,7 @@ main moves past the branch point.
 `finishing-a-development-branch` no longer hardcodes `gh pr
 create`, no longer offers to discard finished work, and stops
 to ask rather than force-removing a worktree that holds
-untracked files. Sanctum's `/pr` and `/prepare-pr` stay the
+untracked files. Sanctum's `/prepare-pr` stays the
 GitHub path.
 
 ### Worktrees (v5.1.0, v6.0.0)

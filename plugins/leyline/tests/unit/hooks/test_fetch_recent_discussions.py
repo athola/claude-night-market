@@ -1,11 +1,15 @@
 """Tests for leyline SessionStart hook: fetch-recent-discussions.sh.
 
 Feature: Fetch Recent Discussions Hook
-  As a Claude Code user on a GitHub repository
+  As a Claude Code user on a GitHub repository who opted in
   I want recent Decisions discussions injected into my session context
   So that I have cross-session awareness of architectural decisions
 
-Guard conditions are tested by controlling the subprocess environment.
+The fetch is off unless leyline's discussions_context plugin option is set
+(issue #1054): on a public repository anyone can write a discussion. The
+module fixture opts every test in, and TestDiscussionsAreOptIn runs
+without it. Guard conditions are tested by controlling the subprocess
+environment.
 GraphQL calls go to a fake gh put on PATH, so no test reaches GitHub.
 """
 
@@ -133,6 +137,15 @@ def github_checkout(path: Path) -> None:
         capture_output=True,
         check=False,
     )
+
+
+OPT_IN = "CLAUDE_PLUGIN_OPTION_DISCUSSIONS_CONTEXT"
+
+
+@pytest.fixture(autouse=True)
+def discussions_opted_in(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Opt in, as Claude Code exports the option to the hook's environment."""
+    monkeypatch.setenv(OPT_IN, "true")
 
 
 @pytest.fixture
@@ -814,3 +827,39 @@ class TestFetchRecentDiscussionsSanitizes:
         assert "ignore all previous" not in lowered
         assert "<system>" not in lowered
         assert "you are now" not in lowered
+
+
+class TestDiscussionsAreOptIn:
+    """Feature: the fetch does nothing until the user opts in."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("value", [None, "", "false", "0"])
+    def test_without_the_option_gh_is_never_called(
+        self, tmp_path: Path, isolated_cache: dict[str, str], value: str | None
+    ) -> None:
+        """Scenario: a GitHub checkout whose Discussions would answer
+        Given the discussions_context option unset or false
+        When the hook runs
+        Then gh is never called and the session gets no discussion text.
+        """
+        github_checkout(tmp_path)
+        env = fake_gh_env(tmp_path, isolated_cache, latency=0)
+        env.pop(OPT_IN, None)
+        if value is not None:
+            env[OPT_IN] = value
+
+        result = subprocess.run(
+            ["bash", str(HOOK_SCRIPT)],
+            capture_output=True,
+            text=True,
+            cwd=str(tmp_path),
+            timeout=HOOK_TIMEOUT,
+            env=env,
+            check=False,
+        )
+
+        assert result.returncode == 0, result.stderr
+        output = json.loads(result.stdout)
+        assert output["hookSpecificOutput"]["additionalContext"] == ""
+        assert not (tmp_path / "fake-gh" / "calls.log").exists()
+        assert not (tmp_path / "leyline-cache").exists()

@@ -293,6 +293,15 @@ class TestIncoherent:
         assert result.code == gate.INCOHERENT
         assert any("expect: fail" in p or "failing" in p for p in result.problems)
 
+    def test_gate_refuses_duplicate_task_ids(self, tmp_path: Path) -> None:
+        """A second T1 overwrote the first in every id-keyed map, so the
+        expect: fail guard could pass the gate and never run.
+        """
+        body = GOOD_TASKS.replace("  - id: T2", "  - id: T1")
+        result = gate.check_item(write_item(tmp_path, **{"tasks.md": body}))
+        assert result.code == gate.INCOHERENT
+        assert any("duplicate" in p and "T1" in p for p in result.problems)
+
     def test_dependency_cycle(self, tmp_path: Path) -> None:
         body = GOOD_TASKS.replace("depends_on: []", "depends_on: [T2]")
         result = gate.check_item(write_item(tmp_path, **{"tasks.md": body}))

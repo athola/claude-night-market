@@ -167,6 +167,23 @@ class TestPersistenceEdgeCases:
         assert first_data == second_data
 
     @pytest.mark.unit
+    def test_persist_session_leaves_another_writers_temp_file_untouched(
+        self, tmp_path: Path
+    ) -> None:
+        """A fixed ``session.json.tmp`` was overwritten, then unlinked (R1)."""
+        session = _minimal_session(session_id="concurrent-test")
+        session_dir = tmp_path / "war-table" / session.session_id
+        session_dir.mkdir(parents=True)
+        in_flight = session_dir / "session.json.tmp"
+        in_flight.write_text("half written by another process")
+
+        persist_session(tmp_path, session)
+
+        assert in_flight.read_text() == "half written by another process"
+        stored = json.loads((session_dir / "session.json").read_text())
+        assert stored["session_id"] == "concurrent-test"
+
+    @pytest.mark.unit
     def test_persist_partial_session(self, tmp_path: Path) -> None:
         """Scenario: Session with empty phases and artifacts persists without error.
 

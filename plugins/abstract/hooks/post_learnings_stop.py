@@ -15,11 +15,13 @@ import json
 import sys
 import time
 from pathlib import Path
+from typing import Callable
 
 _START = time.monotonic()
 _BUDGET_SECONDS = 8.5  # Leave headroom within 10s hook timeout
 # Skip the lens pass rather than start one that cannot finish in the budget.
 _MIN_LENS_SECONDS = 2.0
+_MIN_STAGE_SECONDS = 3.0
 
 # ------------------------------------------------------------------
 # Path setup: same pattern as aggregate_learnings_daily.py
@@ -41,6 +43,7 @@ if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
 
 from abstract.paths import (  # noqa: E402 - import after path setup
+    get_config_dir,
     get_learnings_path,
 )
 from shared.best_effort import best_effort  # noqa: E402 - import after path setup
@@ -90,6 +93,40 @@ def _learnings_have_content() -> bool:
         return False
 
 
+def _skipped_stage_file() -> Path:
+    return get_config_dir() / "stop-hook-skipped-stage"
+
+
+def _stage_order() -> list[tuple[str, Callable[[], object]]]:
+    """Return the gh stages, the one last skipped for budget first.
+
+    In a fixed order, an auto-promote slow enough to spend the budget
+    starved post-learnings on every Stop.
+    """
+    stages: list[tuple[str, Callable[[], object]]] = [
+        ("auto-promote", _promote),
+        ("post-learnings", _post_learnings),
+    ]
+    try:
+        skipped = _skipped_stage_file().read_text().strip()
+    except OSError:
+        skipped = ""
+    return sorted(stages, key=lambda stage: stage[0] != skipped)
+
+
+def _record_skipped(label: str | None) -> None:
+    """Remember the stage skipped this Stop, or forget it when none was."""
+    path = _skipped_stage_file()
+    try:
+        if label is None:
+            path.unlink(missing_ok=True)
+        else:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(label)
+    except OSError as exc:
+        print(f"[post_learnings_stop] stage order not saved: {exc}", file=sys.stderr)
+
+
 def main() -> None:
     """Stop-hook entry point: promote and post learnings."""
     # Read and discard stdin (hook protocol sends JSON payload)
@@ -103,11 +140,20 @@ def main() -> None:
     if not _HAS_SCRIPTS or not _learnings_have_content():
         return
 
-    # Auto-promote high-severity items to Issues
-    best_effort(_HOOK, "auto-promote", _promote)
-
-    # Post learnings summary to Discussions
-    best_effort(_HOOK, "post-learnings", _post_learnings)
+    # Each gh stage needs seconds; one started near the Stop timeout is
+    # killed mid-write, which can post a discussion and never record it.
+    skipped: list[str] = []
+    for label, stage in _stage_order():
+        remaining = _BUDGET_SECONDS - (time.monotonic() - _START)
+        if remaining <= _MIN_STAGE_SECONDS:
+            print(
+                f"[post_learnings_stop] skipping {label} ({remaining:.1f}s remaining)",
+                file=sys.stderr,
+            )
+            skipped.append(label)
+            continue
+        best_effort(_HOOK, label, stage)
+    _record_skipped(skipped[0] if skipped else None)
 
     # Run insight engine lenses if budget remains
     remaining = _BUDGET_SECONDS - (time.monotonic() - _START)

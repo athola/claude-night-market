@@ -55,7 +55,7 @@ def _scan_uv_lock(lockfile: Path, blocklist: Blocklist) -> list[dict[str, Any]]:
                 # ``{ name = "pkg" }`` dependency reference followed by some
                 # other package's identical version.
                 pattern = (
-                    rf'^name\s*=\s*"{re.escape(pkg)}"[ \t]*\r?\n'
+                    rf'^name\s*=\s*"{re.escape(_normalize(pkg))}"[ \t]*\r?\n'
                     rf'version\s*=\s*"{re.escape(ver)}"'
                 )
                 if re.search(pattern, content, re.MULTILINE):

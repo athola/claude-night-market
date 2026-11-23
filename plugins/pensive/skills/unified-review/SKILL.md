@@ -163,6 +163,12 @@ or auto session their edits land unreviewed. The shipped script scopes
 its prompts to reading. And it has
 no filesystem, so what it returns is a claim that survived refutation,
 not proof-of-work evidence. Reproduce before acting on a finding.
+Lens votes share one model and their errors correlate. Three standing
+votes are not three independent confirmations: ten LLM judges carried
+about 3.5 judges of independent information in arXiv 2609.22512. A
+command that reproduces the defect is the independent evidence.
+A reviewer that cannot assess its dimension returns `declined`, and
+the workflow reports that dimension as unreviewed.
 
 **Rules:**
 - Never use skill names as agent types (e.g., `pensive:math-review` is NOT an agent)
@@ -185,7 +191,7 @@ preserved so they are not lost between review cycles.
 For each finding assigned to the backlog, run:
 
 ```bash
-python3 scripts/deferred_capture.py \
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py" \
   --title "<finding title>" \
   --source review \
   --context "Review dimension: <dimension>. <finding description>"

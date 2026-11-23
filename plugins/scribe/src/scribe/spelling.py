@@ -24,7 +24,8 @@ and its design rules.
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from bisect import bisect_right
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -112,15 +113,29 @@ def _build_regex() -> re.Pattern[str]:
 
 
 def _protected_spans(text: str) -> list[tuple[int, int]]:
-    """Return character spans (code, inline code, URLs) to leave untouched."""
-    spans: list[tuple[int, int]] = []
-    for pattern in (_FENCED_CODE, _INLINE_CODE, _URL):
-        spans.extend((m.start(), m.end()) for m in pattern.finditer(text))
-    return spans
+    """Return sorted, merged spans (code, inline code, URLs) to leave untouched.
+
+    Merged so ``_in_protected`` can bisect: a linear scan per match made a
+    page with thousands of inline spans take seconds.
+    """
+    spans = sorted(
+        (m.start(), m.end())
+        for pattern in (_FENCED_CODE, _INLINE_CODE, _URL)
+        for m in pattern.finditer(text)
+    )
+    merged: list[tuple[int, int]] = []
+    for start, end in spans:
+        if merged and start <= merged[-1][1]:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+        else:
+            merged.append((start, end))
+    return merged
 
 
-def _in_protected(pos: int, spans: Iterable[tuple[int, int]]) -> bool:
-    return any(start <= pos < end for start, end in spans)
+def _in_protected(pos: int, spans: Sequence[tuple[int, int]]) -> bool:
+    """Report whether ``pos`` falls in one of the sorted, merged ``spans``."""
+    i = bisect_right(spans, (pos, float("inf"))) - 1
+    return i >= 0 and spans[i][0] <= pos < spans[i][1]
 
 
 def _match_case(source: str, replacement: str) -> str:

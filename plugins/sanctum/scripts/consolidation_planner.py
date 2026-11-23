@@ -7,7 +7,7 @@ Phase 2 execution remains on the main conversation model.
 Usage:
     python consolidation_planner.py scan [--repo-path PATH]
     python consolidation_planner.py analyze FILE [FILE...]
-    python consolidation_planner.py route --chunks CHUNKS_JSON --docs-dir PATH
+    python consolidation_planner.py plan FILE [--docs-dir PATH] [--json]
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ import re
 import shutil
 import subprocess
 import sys
+from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass, field
 from datetime import date
 from pathlib import Path
@@ -169,7 +170,7 @@ class Route:
     category: str
     value: str
     destination: str
-    strategy: str  # CREATE_NEW, INTELLIGENT_WEAVE, REPLACE_SECTION, APPEND_WITH_CONTEXT
+    strategy: str  # CREATE_NEW, INTELLIGENT_WEAVE, REPLACE_SECTION, APPEND_WITH_CONTEXT, FILE_ISSUE
     rationale: str
 
 
@@ -192,20 +193,17 @@ def git_untracked_files(repo_path: str = ".") -> list[str]:
 
         env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
         result = subprocess.run(
-            # -z: names with spaces or non-ASCII come back verbatim, not
-            # C-quoted ("caf\303\251.md" in quotes).
-            [git_path, "status", "--porcelain", "-z"],
+            # ls-files, not status: its paths are relative to cwd, which is
+            # what callers join to repo_path, and it lists every file inside
+            # a new directory. -z keeps unusual names verbatim, not C-quoted.
+            [git_path, "ls-files", "--others", "--exclude-standard", "-z"],
             cwd=repo_path,
             capture_output=True,
             text=True,
             check=True,
             env=env,
         )
-        untracked = []
-        for entry in result.stdout.split("\0"):
-            if entry.startswith("??"):
-                untracked.append(entry[3:])
-        return untracked
+        return [entry for entry in result.stdout.split("\0") if entry]
     except (subprocess.CalledProcessError, FileNotFoundError):
         return []
 
@@ -312,9 +310,12 @@ def extract_chunks(file_path: str) -> list[ContentChunk]:
     current_header = None
     current_lines: list[str] = []
 
+    in_fence = False
     for line in content.split("\n"):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
         # New section header
-        if line.startswith("## "):
+        if line.startswith("## ") and not in_fence:
             if current_header:
                 chunk = make_chunk(current_header, current_lines)
                 if chunk:
@@ -439,13 +440,23 @@ def route_chunk(
     chunk: ContentChunk,
     existing_docs: list[str],
     source_file: str,
+    is_ignored: Callable[[str], bool] | None = None,
+    planned: Sequence[str] = (),
 ) -> Route:
-    """Determine routing for a single chunk."""
+    """Determine routing for a single chunk.
+
+    ``is_ignored`` reports whether a path is gitignored. A fallback file
+    there is never committed, so the item is routed to an issue instead.
+    ``planned`` holds destinations already routed in this plan. They count
+    toward the next ADR number, so two decisions do not share one.
+    """
     # Find best semantic match
     best_match = None
     best_score = 0.0
 
     for doc_path in existing_docs:
+        if is_ignored is not None and is_ignored(doc_path):
+            continue
         relevance = compute_relevance(chunk, doc_path)
         if relevance > best_score and relevance >= RELEVANCE_MIN_SCORE:
             best_match = doc_path
@@ -463,12 +474,18 @@ def route_chunk(
         )
 
     # Fallback based on category
-    topic = slugify(chunk.header or Path(source_file).stem.replace("_REPORT", ""))
+    topic = (
+        slugify(chunk.header)
+        or slugify(Path(source_file).stem.replace("_REPORT", ""))
+        or "untitled"
+    )
     today = date.today().isoformat()
 
     fallback_destinations = {
         "actionable": f"docs/plans/{today}-{topic}.md",
-        "decisions": f"docs/adr/{today}-{topic}.md",
+        "decisions": (
+            f"docs/adr/{_next_adr_number([*existing_docs, *planned]):04d}-{topic}.md"
+        ),
         "findings": f"docs/{topic}.md",
         "metrics": "docs/benchmarks.md",
         "migration": "docs/migration-guide.md",
@@ -476,6 +493,15 @@ def route_chunk(
     }
 
     destination = fallback_destinations.get(chunk.category, f"docs/{topic}.md")
+    if is_ignored is not None and is_ignored(destination):
+        return Route(
+            chunk_header=chunk.header,
+            category=chunk.category,
+            value=chunk.value,
+            destination="github-issue",
+            strategy="FILE_ISSUE",
+            rationale=f"{destination} is gitignored: a file there is never committed",
+        )
 
     return Route(
         chunk_header=chunk.header,
@@ -485,6 +511,54 @@ def route_chunk(
         strategy="CREATE_NEW",
         rationale=f"No semantic match, using {chunk.category} fallback",
     )
+
+
+def _next_adr_number(existing_docs: list[str]) -> int:
+    """Return the number after the highest ``docs/adr/NNNN-*.md`` present.
+
+    A dated name such as ``2026-11-17-foo.md`` is not numbered: its year
+    would otherwise read as ADR 2026.
+    """
+    numbers = [
+        int(m.group(1))
+        for doc in existing_docs
+        if (
+            m := re.search(
+                r"adr/(\d{4})-(?!\d{2}-\d{2}-)[^/]+\.md$", doc.replace("\\", "/")
+            )
+        )
+    ]
+    return max(numbers, default=0) + 1
+
+
+def git_ignored(repo: str) -> Callable[[str], bool]:
+    """Return a probe for whether ``repo``'s ignore rules exclude a path.
+
+    Outside a git repository nothing is ignored, so the probe says False.
+    Each answer is cached: a plan asks about every doc once per chunk.
+    """
+    answers: dict[str, bool] = {}
+
+    def probe(path: str) -> bool:
+        if path not in answers:
+            answers[path] = _check_ignore(repo, path)
+        return answers[path]
+
+    return probe
+
+
+def _check_ignore(repo: str, path: str) -> bool:
+    try:
+        result = subprocess.run(
+            ["git", "-C", repo, "check-ignore", "-q", path],
+            capture_output=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    # 0: ignored, 1: not ignored, 128: not a repository
+    return result.returncode == 0
 
 
 def slugify(text: str) -> str:
@@ -499,6 +573,9 @@ def generate_plan(source_file: str, docs_dir: str = "docs") -> ConsolidationPlan
     """Generate complete consolidation plan for a source file."""
     chunks = extract_chunks(source_file)
     existing_docs = find_existing_docs(docs_dir)
+    # existing_docs are cwd-relative, so the probe runs from the cwd; from
+    # the docs dir's parent, `pkg/docs/x.md` named `pkg/pkg/docs/x.md`.
+    is_ignored = git_ignored(str(Path.cwd()))
 
     routes = []
     skipped = []
@@ -508,7 +585,13 @@ def generate_plan(source_file: str, docs_dir: str = "docs") -> ConsolidationPlan
             skipped.append({"header": chunk.header, "reason": "Low value content"})
             continue
 
-        route = route_chunk(chunk, existing_docs, source_file)
+        route = route_chunk(
+            chunk,
+            existing_docs,
+            source_file,
+            is_ignored,
+            planned=[r.destination for r in routes],
+        )
         routes.append(route)
 
     summary = {
@@ -516,7 +599,10 @@ def generate_plan(source_file: str, docs_dir: str = "docs") -> ConsolidationPlan
         "routed": len(routes),
         "skipped": len(skipped),
         "new_files": sum(1 for r in routes if r.strategy == "CREATE_NEW"),
-        "updates": sum(1 for r in routes if r.strategy != "CREATE_NEW"),
+        "issues": sum(1 for r in routes if r.strategy == "FILE_ISSUE"),
+        "updates": sum(
+            1 for r in routes if r.strategy not in ("CREATE_NEW", "FILE_ISSUE")
+        ),
     }
 
     return ConsolidationPlan(

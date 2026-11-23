@@ -1,6 +1,6 @@
 # Observability Warning Patterns
 
-When a hook surfaces actionable drift (state the user can resolve
+When a hook surfaces drift (state the user can resolve
 or keep), emit the **exact shell command** that resolves it.
 Listing paths or describing the resolution in prose forces the
 next agent to compose the command, adding latency, error surface,
@@ -32,7 +32,7 @@ When designing an observability hook, classify it into one of
 three categories. Only one of them takes the copy-pasteable
 resolution pattern.
 
-### Apply pattern: binary-actionable
+### Apply pattern: resolve-or-keep
 
 Hook surfaces drift with a clear resolve-or-keep choice. The
 user inspects the list, decides "yes, clean this up" or "no,
@@ -44,7 +44,7 @@ keep it", and a single command resolves the entire batch.
 
 The pattern is narrow. After the original audit, no other hook
 in the codebase emitted a multi-item drift warning with a single
-resolve-or-keep decision. Future binary-actionable hooks should
+resolve-or-keep decision. Future resolve-or-keep hooks should
 adopt the pattern from authorship.
 
 ### Skip pattern: observe-only
@@ -81,9 +81,9 @@ The pattern actively harms when:
 - The list contains paths the user explicitly chose to keep
   (which would imply the hook should not surface them at all)
 
-## Authoring checklist for binary-actionable hooks
+## Authoring checklist for resolve-or-keep hooks
 
-When adding a new binary-actionable observability hook:
+When adding a new resolve-or-keep observability hook:
 
 1. Emit a fenced block listing the items
 2. Follow with a single resolve-all command

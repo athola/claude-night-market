@@ -213,7 +213,15 @@ class TestAnalyzer:
             git_executable = shutil.which("git") or "git"
             # git binary validated
             result = subprocess.run(
-                [git_executable, "diff", "--name-status", "HEAD~1"],
+                # quotepath=off: git C-quotes a non-ASCII path otherwise.
+                [
+                    git_executable,
+                    "-c",
+                    "core.quotepath=off",
+                    "diff",
+                    "--name-status",
+                    "HEAD~1",
+                ],
                 check=False,
                 capture_output=True,
                 text=True,

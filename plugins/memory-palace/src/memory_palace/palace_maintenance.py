@@ -11,10 +11,23 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from memory_palace._vendored_leyline_atomic_file import file_lock, write_atomic
+from memory_palace._vendored_leyline_session_store import validate_session_id
 from memory_palace.palace_repository import PalaceRepository
 
 MIN_KEYWORD_LENGTH = 2
 LOW_QUALITY_THRESHOLD = 0.3
+
+
+def _empty_sync_results(dry_run: bool) -> dict[str, Any]:
+    return {
+        "processed": 0,
+        "skipped": 0,
+        "palaces_updated": [],
+        "palaces_created": [],
+        "unmatched": [],
+        "dry_run": dry_run,
+    }
 
 
 class PalaceMaintenance:
@@ -33,13 +46,18 @@ class PalaceMaintenance:
     # Queue ingestion
     # ------------------------------------------------------------------
 
-    def sync_from_queue(  # noqa: PLR0912 - queue ingestion handles many content types and edge cases
+    def sync_from_queue(
         self,
         queue_path: str,
         auto_create: bool = False,
         dry_run: bool = False,
     ) -> dict[str, Any]:
         """Process intake queue entries into palaces.
+
+        The intake hook appends under the queue's lock and gives up after a
+        short wait, so the lock is held only to read the queue and to
+        rewrite it, not while palaces are saved. The rewrite keeps whatever
+        the hook appended in between.
 
         Args:
             queue_path: Path to the intake_queue.jsonl file.
@@ -50,17 +68,43 @@ class PalaceMaintenance:
             Dictionary with sync results.
 
         """
-        results: dict[str, Any] = {
-            "processed": 0,
-            "skipped": 0,
-            "palaces_updated": [],
-            "palaces_created": [],
-            "unmatched": [],
-            "dry_run": dry_run,
-        }
-
         if not os.path.exists(queue_path):
+            return _empty_sync_results(dry_run)
+        with file_lock(queue_path), open(queue_path, encoding="utf-8") as f:
+            snapshot = f.read()
+        results, entries_to_keep = self._process_queue_lines(
+            snapshot.splitlines(), auto_create, dry_run
+        )
+        if dry_run:
             return results
+        with file_lock(queue_path):
+            with open(queue_path, encoding="utf-8") as f:
+                current = f.read()
+            if not current.startswith(snapshot):
+                # Another sync rewrote the queue meanwhile. Its rewrite
+                # stands; entries processed twice land under the same id.
+                sys.stderr.write(
+                    "palace_maintenance: queue rewritten during sync; left as is\n"
+                )
+                return results
+            appended = [line for line in current[len(snapshot) :].splitlines() if line]
+            kept = entries_to_keep + appended
+            # Truncating in place lost the queue, hook appends included, to a
+            # crash between the truncate and the write.
+            write_atomic(queue_path, "".join(line + "\n" for line in kept), mode=None)
+        return results
+
+    def _process_queue_lines(  # noqa: PLR0912 - queue ingestion handles many content types and edge cases
+        self,
+        lines: list[str],
+        auto_create: bool,
+        dry_run: bool,
+    ) -> tuple[dict[str, Any], list[str]]:
+        """Route queue lines into palaces; return results and lines to keep."""
+        results = _empty_sync_results(dry_run)
+
+        if not lines:
+            return results, []
 
         palace_by_domain: dict[str, dict[str, Any]] = {}
         for palace_summary in self._repo.list_palaces():
@@ -70,57 +114,48 @@ class PalaceMaintenance:
                 palace_by_domain[domain] = palace
 
         entries_to_keep = []
-        with open(queue_path, encoding="utf-8") as f:
-            for raw_line in f:
-                line = raw_line.strip()
-                if not line:
-                    continue
+        for raw_line in lines:
+            line = raw_line.strip()
+            if not line:
+                continue
 
-                try:
-                    entry = json.loads(line)
-                except json.JSONDecodeError:
-                    sys.stderr.write(
-                        f"palace_maintenance: dropping malformed queue entry: {line[:100]}\n"
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                sys.stderr.write(
+                    f"palace_maintenance: dropping malformed queue entry: {line[:100]}\n"
+                )
+                continue
+
+            query = entry.get("query", "")
+            domain = self._extract_domain(query)
+
+            if domain in palace_by_domain:
+                palace = palace_by_domain[domain]
+                if not dry_run:
+                    self._add_entry_to_palace(palace, entry)
+                    self._repo.save_palace(palace)
+                if palace["id"] not in results["palaces_updated"]:
+                    results["palaces_updated"].append(palace["id"])
+                results["processed"] += 1
+            elif auto_create and domain:
+                if not dry_run:
+                    new_palace = self._repo.create_palace(
+                        name=domain.title(),
+                        domain=domain,
+                        metaphor="library",
                     )
-                    continue
+                    self._add_entry_to_palace(new_palace, entry)
+                    self._repo.save_palace(new_palace)
+                    palace_by_domain[domain] = new_palace
+                results["palaces_created"].append(domain)
+                results["processed"] += 1
+            else:
+                results["unmatched"].append(query[:50])
+                results["skipped"] += 1
+                entries_to_keep.append(line)
 
-                query = entry.get("query", "")
-                domain = self._extract_domain(query)
-
-                if domain in palace_by_domain:
-                    palace = palace_by_domain[domain]
-                    if not dry_run:
-                        self._add_entry_to_palace(palace, entry)
-                        self._repo.save_palace(palace)
-                    if palace["id"] not in results["palaces_updated"]:
-                        results["palaces_updated"].append(palace["id"])
-                    results["processed"] += 1
-                elif auto_create and domain:
-                    if not dry_run:
-                        new_palace = self._repo.create_palace(
-                            name=domain.title(),
-                            domain=domain,
-                            metaphor="library",
-                        )
-                        self._add_entry_to_palace(new_palace, entry)
-                        self._repo.save_palace(new_palace)
-                        palace_by_domain[domain] = new_palace
-                    results["palaces_created"].append(domain)
-                    results["processed"] += 1
-                else:
-                    results["unmatched"].append(query[:50])
-                    results["skipped"] += 1
-                    entries_to_keep.append(line)
-
-        if not dry_run and entries_to_keep:
-            with open(queue_path, "w", encoding="utf-8") as f:
-                f.write("\n".join(entries_to_keep))
-                f.write("\n")
-        elif not dry_run and not entries_to_keep:
-            with open(queue_path, "w", encoding="utf-8") as f:
-                pass
-
-        return results
+        return results, entries_to_keep
 
     def _extract_domain(self, query: str) -> str:
         """Extract a domain keyword from a query string.
@@ -320,6 +355,10 @@ class PalaceMaintenance:
         imported = 0
         skipped = 0
         for palace in bundle.get("palaces", []):
+            # A bundle is outside input; `../x` wrote outside palaces_dir.
+            if not validate_session_id(palace["id"]):
+                skipped += 1
+                continue
             palace_file = Path(self._repo.palaces_dir) / f"{palace['id']}.json"
             if palace_file.exists() and keep_existing:
                 skipped += 1

@@ -134,6 +134,16 @@ def _defines_the_patterns(file_path: str) -> bool:
     return any(normalized.endswith(known) for known in _PATTERN_DEFINING_FILES)
 
 
+def _records_history(file_path: str) -> bool:
+    """Whether the file's job is narrating change: a changelog or an ADR.
+
+    slop-scan-for-docs.md calls temporal narration correct there, and the
+    vow denied those writes anyway.
+    """
+    path = Path(file_path.replace("\\", "/"))
+    return path.name.upper().startswith("CHANGELOG") or "adr" in path.parts
+
+
 def main() -> None:
     """Entry point for the PreToolUse hook."""
     try:
@@ -151,7 +161,7 @@ def main() -> None:
         file_path = tool_input.get("file_path", "") or ""
         if not file_path.endswith(_GUARDED_SUFFIXES):
             sys.exit(0)
-        if _defines_the_patterns(file_path):
+        if _defines_the_patterns(file_path) or _records_history(file_path):
             sys.exit(0)
 
         found = find_narration(inserted_text(tool_name, tool_input))

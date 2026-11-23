@@ -8,14 +8,19 @@ code that spawns a delegation. This module spawns only probes.
 
 from __future__ import annotations
 
-import os
+import shutil
 import subprocess  # nosec B404
 
 from scripts.delegation_services import (
     ServiceConfig,
+    child_environment,
     credential_issues,
-    resolve_env_overlay,
 )
+
+
+def _binary_on_path(command: str) -> bool:
+    """PATH lookup, no spawn: the one stage cheap enough to run first."""
+    return shutil.which(command) is not None
 
 
 def verify_service(service: ServiceConfig) -> tuple[bool, list[str]]:
@@ -27,15 +32,22 @@ def verify_service(service: ServiceConfig) -> tuple[bool, list[str]]:
     question answered by reading the environment must not wait behind
     a process spawn that cannot change the answer.
 
-    The order is environment, then credential files, then the binary,
-    then the CLI's own probe. Each stage short-circuits, so a provider
-    ruled out by a variable or a missing file costs no subprocess at
-    all.
+    The order is the binary on PATH, then environment, then credential
+    files, then the CLI's own probe. Each stage short-circuits, so a
+    provider ruled out before the probe costs no subprocess at all. The
+    binary comes first because its remedy does: setting a key for a CLI
+    that is not installed leaves the provider unusable.
     """
+    if not _binary_on_path(service.command):
+        remedy = (
+            f". Install with: {service.install_hint}" if service.install_hint else ""
+        )
+        return False, [f"Command '{service.command}' not found{remedy}"]
+
     # An overlay naming an unset variable is reported here rather than at
     # spawn time, so `--verify` is the one place a misconfigured
     # endpoint-swap service is diagnosed.
-    overlay, missing_vars = resolve_env_overlay(service)
+    child_env, missing_vars = child_environment(service)
     issues: list[str] = [
         f"Environment variable {variable} is referenced by the "
         f"{service.name} environment overlay but is not set"
@@ -46,8 +58,6 @@ def verify_service(service: ServiceConfig) -> tuple[bool, list[str]]:
 
     if issues:
         return False, issues
-
-    child_env = {**os.environ, **overlay}
 
     # Check command availability with the service's own probe. Not every
     # CLI answers --version, so the argv comes from the config.
@@ -102,12 +112,8 @@ def verify_service(service: ServiceConfig) -> tuple[bool, list[str]]:
                     f"Service not authenticated: the probe exited 0 and "
                     f"reported {refused[0]!r}"
                 )
-        except (
-            subprocess.CalledProcessError,
-            FileNotFoundError,
-            subprocess.TimeoutExpired,
-            OSError,
-        ):
+        except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+            # run(check=False) never raises CalledProcessError.
             issues.append("Could not verify authentication status")
 
     if issues:

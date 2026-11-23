@@ -15,35 +15,52 @@ in one audited place rather than triplicating it.
 from __future__ import annotations
 
 import os
-import re
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any
 
+# fcntl is POSIX-only. Without it lock_fd and unlock_fd do nothing and the
+# read-budget counter degrades to an unlocked read-modify-write, an
+# acceptable race for an advisory vow on non-POSIX hosts (issue #418).
+try:
+    import fcntl as _fcntl
+
+    _HAS_FCNTL = True
+except ImportError:  # pragma: no cover - exercised only on non-POSIX
+    _HAS_FCNTL = False
+
+# Tests load this file on its own as well as through `shared`, so the
+# copy is imported through the hooks directory rather than relatively.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from shared._vendored_leyline_shell_command import (
+    git_commit_end,
+    git_commit_message_offset,
+    git_commit_offset,
+    git_commit_spans,
+    is_git_commit,
+)
+
 __all__ = [
+    "OFF_VALUES",
     "O_NOFOLLOW",
-    "_OFF_VALUES",
     "fd_owned_by_us",
+    "git_commit_end",
+    "git_commit_message_offset",
     "git_commit_offset",
+    "git_commit_spans",
     "is_git_commit",
+    "lock_fd",
+    "read_counter_path",
     "secure_open",
     "secure_state_dir",
+    "session_id_from",
     "shadow_mode_active",
+    "unlock_fd",
+    "vow_output",
 ]
 
-# git, then any global options (-C <dir>, -c <k=v>, --no-pager, ...),
-# then the commit subcommand. Applied per shell segment, because the
-# harness `if` gate admits `git add . && git commit` segment by segment.
-_GIT_COMMIT_RE = re.compile(
-    r"git(?:\s+(?:-[Cc]\s+\S+|--(?:git-dir|work-tree|namespace)\s+\S+|-\S+))*"
-    r"\s+commit\b"
-)
-# A quoted string is one token, so a separator inside it splits nothing.
-_SHELL_TOKEN_RE = re.compile(
-    r"""'[^']*'?|"(?:\\.|[^"\\])*"?|&&|\|\||[;|\n]|[^'"&|;\n]+|&"""
-)
-_SEPARATORS = ("&&", "||", ";", "|", "\n")
-_OFF_VALUES = ("0", "false", "no")
+OFF_VALUES = ("0", "false", "no")
 
 # O_NOFOLLOW makes open() fail (ELOOP) when the final path component is a
 # symlink, so an attacker who plants a symlink at a predictable state
@@ -104,7 +121,7 @@ def shadow_mode_active() -> bool:
     Shadow mode is the default. Set VOW_SHADOW_MODE=0 to enable blocking.
     """
     val = os.environ.get("VOW_SHADOW_MODE", "1")
-    return val.strip() not in _OFF_VALUES
+    return val.strip() not in OFF_VALUES
 
 
 def vow_output(enforce: bool, reason: str) -> dict[str, Any]:
@@ -122,29 +139,6 @@ def vow_output(enforce: bool, reason: str) -> dict[str, Any]:
     else:
         hook["additionalContext"] = reason
     return {"hookSpecificOutput": hook}
-
-
-def git_commit_offset(command: str) -> int | None:
-    """Return where the first git commit segment starts, or None.
-
-    The commit's message, heredoc included, follows this offset, and an
-    earlier command in the chain precedes it.
-    """
-    start = 0
-    for token in _SHELL_TOKEN_RE.finditer(command + "\n"):
-        if token.group(0) not in _SEPARATORS:
-            continue
-        segment = command[start : token.start()]
-        stripped = segment.lstrip()
-        if _GIT_COMMIT_RE.match(stripped):
-            return start + len(segment) - len(stripped)
-        start = token.end()
-    return None
-
-
-def is_git_commit(command: str) -> bool:
-    """Return True if any segment of the Bash command runs git commit."""
-    return git_commit_offset(command) is not None
 
 
 def read_counter_path(session_id: str) -> Path:
@@ -174,8 +168,54 @@ def session_id_from(data: dict) -> str:
     """
     sid = data.get("session_id", "")
     if sid:
-        return str(sid)
+        # A subagent carries its parent's session_id; without its agent_id
+        # it spent the parent's read budget.
+        agent = data.get("agent_id")
+        return f"{sid}:{agent}" if agent else str(sid)
     sid = os.environ.get("CLAUDE_SESSION_ID", "")
     if sid:
         return sid
     return f"pid-{os.getppid()}"
+
+
+def lock_fd(fd: int, where: str = "") -> None:
+    """Take an exclusive flock on *fd*, or warn on stderr and go on unlocked.
+
+    *where* names the caller in the warning (" on reset"). A lock can be
+    unavailable on NFS, with an exhausted fd table, or on FUSE and Windows
+    shim layers that raise RuntimeError or NotImplementedError. The warning
+    tells operators the concurrency guarantee is absent for this call.
+    """
+    if not _HAS_FCNTL:
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            print(
+                "[vow-bounded-reads] WARN: fcntl unavailable on this platform; "
+                "counter updates are not atomic under concurrent calls",
+                file=sys.stderr,
+            )
+        return
+    try:
+        _fcntl.flock(fd, _fcntl.LOCK_EX)
+    except (OSError, RuntimeError, NotImplementedError) as exc:
+        print(
+            f"[vow-bounded-reads] WARN: flock unavailable{where}, "
+            f"falling back to unlocked access: {exc}",
+            file=sys.stderr,
+        )
+
+
+def unlock_fd(fd: int, where: str = "") -> None:
+    """Release the flock on *fd*, warning on stderr when that fails.
+
+    A silent unlock failure would hide a lock leak that the acquire-side
+    warning would have shown.
+    """
+    if not _HAS_FCNTL:
+        return
+    try:
+        _fcntl.flock(fd, _fcntl.LOCK_UN)
+    except (OSError, RuntimeError, NotImplementedError) as exc:
+        print(
+            f"[vow-bounded-reads] WARN: flock unlock failed{where}: {exc}",
+            file=sys.stderr,
+        )

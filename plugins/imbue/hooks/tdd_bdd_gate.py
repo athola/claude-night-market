@@ -215,6 +215,8 @@ def main() -> None:
         sys.exit(0)
     tool_name = input_data.get("tool_name", "")
     tool_input = input_data.get("tool_input") or {}
+    if not isinstance(tool_input, dict):
+        sys.exit(0)  # not a Write/Edit payload this gate can read
 
     # Only check Write and Edit operations
     if tool_name not in ["Write", "Edit", "MultiEdit"]:

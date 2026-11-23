@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 from typing import Any
 
+from ..async_analysis._base import parse_code
 from ._constants import MIN_REPO_METHODS
 
 __all__ = ["DDDPatternMixin"]
@@ -154,7 +155,7 @@ class DDDPatternMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)
+            tree, err = parse_code(code)
             if tree is None:
                 return {"ddd_patterns": {}, **(err or {})}
 

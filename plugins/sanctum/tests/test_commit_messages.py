@@ -222,3 +222,21 @@ class TestCommitMessageSlopDetection:
         assert {word: table.get(word) for word in alternatives} == alternatives
         missing = set(table) - _command_slop_list(command)
         assert not missing, f"/commit-msg does not reject: {sorted(missing)}"
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "path",
+    [
+        SKILL_FILE,
+        PLUGIN_ROOT / "commands" / "commit-msg.md",
+        PLUGIN_ROOT / "commands" / "acp.md",
+        PLUGIN_ROOT / "agents" / "commit-agent.md",
+    ],
+    ids=["skill", "command", "acp", "agent"],
+)
+def test_body_asks_for_why_and_leaves_what_to_the_diff(path: Path) -> None:
+    # An agent asked for "what and why" restates the diff in the body.
+    text = path.read_text(encoding="utf-8")
+    assert not re.search(r"what and why", text, re.IGNORECASE)
+    assert "the diff shows what" in text

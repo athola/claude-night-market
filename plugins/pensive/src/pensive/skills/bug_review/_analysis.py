@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Any
 
-from ...utils import content_parser
+from ...utils import content_parser, severity_mapper
 from ..base import PatternSearch
 
 _THREAD_LEAK = "Resource leak: Thread started - potential leak without join()"
@@ -104,7 +104,11 @@ class AnalysisMixin:
         """Detect potential logical errors."""
         patterns = [
             (
-                r"elif\s+(\w+)\s*==\s*['\"](\w+)['\"].*elif\s+\1\s*==\s*['\"]\2['\"]",
+                # One chain: an `if` at the elif's own indentation starts a
+                # new chain, and the repeat must sit at that indentation too.
+                r"^([ \t]*)elif\s+(\w+)\s*==\s*(['\"]\w+['\"]):[^\n]*\n"
+                r"(?:(?![ \t]*def\s)(?!\1if\s)[^\n]*\n){0,20}?"
+                r"\1elif\s+\2\s*==\s*\3",
                 "Logic error: duplicate condition (dead code)",
             ),
             (
@@ -126,7 +130,7 @@ class AnalysisMixin:
             filename,
             patterns,
             content_parser,
-            search=PatternSearch(patterns, "logical_error", re.MULTILINE | re.DOTALL),
+            search=PatternSearch(patterns, "logical_error", re.MULTILINE),
         )
 
     def detect_type_confusion(
@@ -174,7 +178,8 @@ class AnalysisMixin:
         """Detect potential timing attack vulnerabilities."""
         patterns = [
             (
-                r"(\w*password\w*|\w*secret\w*|\w*key\w*)\s*==",
+                r"\b(?:\w+_)?(?:password|passwd|secret|token|api_?key|hmac|digest)"
+                r"(?:_\w+)?\s*==(?!\s*(?:None\b|\d|[\"']))",
                 "Timing attack vulnerability: non-constant-time comparison of secrets",
             ),
             (
@@ -211,32 +216,12 @@ class AnalysisMixin:
         self,
         bugs: list[dict[str, str]],
     ) -> list[dict[str, str]]:
-        """Categorize bugs by severity level."""
-        severity_map = {
-            "sql_injection": "critical",
-            "timing_attack": "critical",
-            "security": "critical",
-            "null_pointer": "high",
-            "race_condition": "high",
-            "memory_leak": "high",
-            "resource_leak": "medium",
-            "off_by_one": "medium",
-            "logical_error": "medium",
-            "integer_overflow": "medium",
-            "type_confusion": "low",
-            "performance": "low",
-        }
+        """Categorize bugs by severity level.
 
-        categorized = []
-        for bug in bugs:
-            bug_copy = bug.copy()
-            bug_type = bug.get("type", "").lower()
-            bug_copy["severity"] = severity_map.get(bug_type, "low")
-            issue = bug.get("issue", "").lower()
-            if "sql injection" in issue or "security" in issue:
-                bug_copy["severity"] = "critical"
-            categorized.append(bug_copy)
-        return categorized
+        Delegates to the shared mapper: the copy here kept the substring
+        rule that escalated "insecurity" and missed "dangerous".
+        """
+        return severity_mapper.categorize(bugs)
 
     def generate_fix_recommendations(
         self,

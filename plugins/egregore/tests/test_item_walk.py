@@ -134,6 +134,11 @@ class TestTopoSort:
         assert order[-1] == "T4"
         assert order.index("T2") < order.index("T4")
 
+    def test_duplicate_ids_raise_rather_than_running_one_twice(self) -> None:
+        tasks = [mktask("T1", []), mktask("T1", [])]
+        with pytest.raises(ValueError, match="duplicate"):
+            night_run.topo_sort(tasks)
+
     def test_a_cycle_raises_rather_than_guessing(self) -> None:
         tasks = [mktask("T1", ["T2"]), mktask("T2", ["T1"])]
         with pytest.raises(ValueError, match="cycle"):
@@ -1059,3 +1064,27 @@ class TestTheProofRecordsABabysitterDissent:
         ).read_text()
 
         assert "Babysitter dissents" not in proof
+
+
+def test_a_stray_edit_is_reverted_before_the_full_suite_runs(tmp_path: Path) -> None:
+    """An allowed file in no task stayed dirty under the final suite (EGR-6)."""
+    runner = FakeRunner(
+        {
+            "pytest -q -k T1": (1, "1 failed"),
+            "diff HEAD --name-only": (0, "a/helper.py\n"),
+            "pytest": (0, "1 passed"),
+        }
+    )
+    result = night_run.run_item(
+        HANDOFF,
+        [mktask("T1", [], expect="fail")],
+        tmp_path,
+        runner,
+        babysitter=passing_sitter,
+    )
+    assert result.status == "ready", result.reason
+    restores = [i for i, c in enumerate(runner.calls) if c.endswith("-- .")]
+    suite = max(i for i, c in enumerate(runner.calls) if c == "pytest -q")
+    assert restores and restores[-1] < suite
+    assert result.discarded is not None
+    assert result.discarded.files == ["a/helper.py"]

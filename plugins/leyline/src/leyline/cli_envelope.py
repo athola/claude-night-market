@@ -1,6 +1,6 @@
 """Standard envelope shape for CLI scripts that emit JSON results.
 
-Plugin scripts (test_generator, quality_checker, safe_replacer)
+Plugin scripts (test_generator, quality_checker)
 wrap their results in ``{"success": bool, ...}`` envelopes so
 downstream tooling can detect success without parsing prose.
 This module exposes that contract so future scripts cannot drift
@@ -57,8 +57,7 @@ def success_envelope(data: Any) -> SuccessEnvelope:
     Callers that may pass non-serializable values (Path, datetime,
     custom objects) should pass ``default=str`` to
     ``json.dumps``. F4 from /pensive:full-review documented this
-    contract after observing a TypeError leak from
-    ``safe_replacer`` and ``test_generator``.
+    contract after observing a TypeError leak from ``test_generator``.
     """
     return {"success": True, "data": data}
 

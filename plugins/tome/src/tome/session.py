@@ -53,6 +53,7 @@ class SessionManager:
         domain: str,
         triz_depth: str,
         channels: list[str],
+        entities: list[str] | None = None,
     ) -> ResearchSession:
         """Create a new active session, persist it, and return it."""
         session = ResearchSession(
@@ -60,6 +61,7 @@ class SessionManager:
             domain=domain,
             triz_depth=triz_depth,
             channels=channels,
+            entities=list(entities or []),
             status="active",
             created_at=datetime.now(tz=timezone.utc),
         )

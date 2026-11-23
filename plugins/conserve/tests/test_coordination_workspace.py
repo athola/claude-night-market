@@ -6,9 +6,11 @@ selective synthesis, archive, and cleanup.
 
 from __future__ import annotations
 
+import fcntl
 import json
 import re
 import textwrap
+import threading
 from pathlib import Path
 
 import pytest
@@ -439,3 +441,55 @@ def test_every_documented_invocation_is_rooted_at_the_plugin() -> None:
         not in match.group(0)
     ]
     assert unrooted == []
+
+
+class TestTaskManifestLock:
+    """Task manifest writes are serialized across agents (CON-3).
+
+    Each agent loads, mutates and rewrites tasks.json, and without a lock
+    the last writer dropped the others' transitions.
+    """
+
+    @pytest.mark.unit
+    def test_update_task_status_waits_for_the_manifest_lock(
+        self, tmp_path: Path
+    ) -> None:
+        """A status update blocks while another writer holds the lock."""
+        ws = WorkspaceManager(tmp_path / ".coordination")
+        ws.init()
+        ws.add_task("t1", "agent-a")
+        done = threading.Event()
+
+        def update() -> None:
+            ws.update_task_status("t1", "done")
+            done.set()
+
+        with open(ws.tasks_file.with_name("tasks.json.lock"), "a") as held:
+            fcntl.flock(held, fcntl.LOCK_EX)
+            worker = threading.Thread(target=update)
+            worker.start()
+            assert not done.wait(0.3)
+            fcntl.flock(held, fcntl.LOCK_UN)
+        worker.join(5)
+        assert ws.load_tasks()[0]["status"] == "done"
+
+    @pytest.mark.unit
+    def test_add_task_waits_for_the_manifest_lock(self, tmp_path: Path) -> None:
+        """Adding a task blocks while another writer holds the lock."""
+        ws = WorkspaceManager(tmp_path / ".coordination")
+        ws.init()
+        ws.add_task("t1", "agent-a")
+        done = threading.Event()
+
+        def add() -> None:
+            ws.add_task("t2", "agent-b")
+            done.set()
+
+        with open(ws.tasks_file.with_name("tasks.json.lock"), "a") as held:
+            fcntl.flock(held, fcntl.LOCK_EX)
+            worker = threading.Thread(target=add)
+            worker.start()
+            assert not done.wait(0.3)
+            fcntl.flock(held, fcntl.LOCK_UN)
+        worker.join(5)
+        assert [task["id"] for task in ws.load_tasks()] == ["t1", "t2"]

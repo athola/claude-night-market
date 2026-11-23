@@ -100,6 +100,46 @@ class TestGuardScopeRampHook:
         assert out is None
 
     @pytest.mark.unit
+    @pytest.mark.parametrize("name", ["README.md", "data/fixture.json", "ci.yml"])
+    def test_prose_and_data_files_do_not_climb_the_rung(self, name: str):
+        """The rung gates implementation; a 500-line doc counted as code (IMB-10)."""
+        code, out = run_hook(
+            "Write",
+            {"file_path": name, "content": _big_content(500)},
+            f"sess-doc-{name}",
+            {"VOW_SHADOW_MODE": "0"},
+        )
+        assert code == 0
+        assert out is None
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("name", "env"),
+        [
+            ("infra/deploy.yaml", {}),
+            (".github/workflows/deploy.yml", {}),
+            ("Cargo.toml", {"IMBUE_STAKES": "CRITICAL"}),
+            # Prose on a high-stakes path is gated too, by design.
+            ("docs/security.md", {}),
+        ],
+    )
+    def test_high_stakes_data_file_is_still_gated(self, name: str, env: dict):
+        """The prose and data exemption covers the rung, not the RED/CRITICAL gate.
+
+        An 800-line deploy manifest printed nothing while the same lines in
+        deploy.py were denied, and IMBUE_STAKES was ignored for data files.
+        """
+        code, out = run_hook(
+            "Write",
+            {"file_path": name, "content": _big_content(800)},
+            f"sess-stakes-{name}",
+            {"VOW_SHADOW_MODE": "0", **env},
+        )
+        assert code == 0
+        assert out is not None
+        assert out["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+    @pytest.mark.unit
     def test_non_code_tool_is_silent(self):
         code, out = run_hook("Bash", {"command": "ls"}, "sess-bash")
         assert code == 0
@@ -381,6 +421,48 @@ class TestStateFileSecurity:
         hook._save_state(path, {"rung": 60, "increments": 2})
         assert hook._load_state(path) == {"rung": 60, "increments": 2}
 
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "raw",
+        [
+            '{"rung": null}',
+            '{"rung": 40, "increments": "many"}',
+            '{"rung": true, "increments": 0}',
+            '{"rung": 9999, "increments": 0}',
+            '{"rung": 40, "increments": -1}',
+            '{"rung": 40, "increments": 0, "env_notch_used": "yes"}',
+        ],
+    )
+    def test_malformed_state_fields_read_as_the_default(
+        self, hook, tmp_path, monkeypatch, raw
+    ):
+        monkeypatch.setenv("IMBUE_STATE_DIR", str(tmp_path))
+        path = hook._state_path("malformed")
+        path.write_text(raw)
+        assert hook._load_state(path) == {"rung": hook.RUNG_START, "increments": 0}
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "raw", ['{"rung": null}', '{"rung": 40, "increments": "many"}']
+    )
+    def test_malformed_state_does_not_turn_the_gate_off(
+        self, hook, tmp_path, monkeypatch, raw
+    ):
+        """A bad field raised inside the hook, whose catch-all allowed the write.
+
+        The state was never rewritten, so every later write went unchecked.
+        """
+        monkeypatch.setenv("IMBUE_STATE_DIR", str(tmp_path))
+        hook._state_path("bad-state").write_text(raw)
+        _, out = run_hook(
+            "Write",
+            {"file_path": "src/app.py", "content": _big_content(600)},
+            "bad-state",
+            {"VOW_SHADOW_MODE": "0", "IMBUE_STATE_DIR": str(tmp_path)},
+        )
+        assert out is not None
+        assert out["hookSpecificOutput"]["permissionDecision"] == "deny"
+
 
 class TestExplicitStakes:
     """Where the authoritative risk tier comes from."""
@@ -659,3 +741,19 @@ class TestMainInProcess:
         code, out, _ = self._main(hook, monkeypatch, capsys, stdin_text)
         assert code == 0
         assert out is None
+
+
+@pytest.mark.unit
+def test_env_ramp_token_widens_rung_once_per_session(tmp_path) -> None:
+    """The env token is in every call's environment, so it widened the rung
+    on every write instead of once (IMB-8).
+    """
+    for _ in range(4):
+        run_hook(
+            "Write",
+            {"file_path": "src/util.py", "content": _big_content(55)},
+            "sess-env-once",
+            {"IMBUE_RAMP_OK": "1", "VOW_SHADOW_MODE": "1"},
+        )
+    ledger = tmp_path / ".imbue" / "ramp-ledger.jsonl"
+    assert len(ledger.read_text().splitlines()) == 1

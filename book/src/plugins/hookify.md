@@ -31,6 +31,7 @@ or customized per project.
 | `/hookify:list` | List all hookify rules with status |
 | `/hookify:configure` | Interactive rule enable/disable interface |
 | `/hookify:help` | Display hookify help and documentation |
+| `/from-hook` | Convert Python SDK hooks to declarative rules |
 
 ## Usage Examples
 

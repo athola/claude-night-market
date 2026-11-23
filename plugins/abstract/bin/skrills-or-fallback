@@ -47,11 +47,16 @@ _find_skrills() {
 
 _verify_hash() {
   # Verification not requested
-  case "${SKRILLS_EXPECTED_HASH}" in
-    "") return 0 ;;
-  esac
   case "${SKRILLS_VERIFY_HASH:-}" in
     "") return 0 ;;
+  esac
+  # Requested with nothing to compare against: running the binary would
+  # report a check that never happened.
+  case "${SKRILLS_EXPECTED_HASH}" in
+    "")
+      printf '%s\n' "[skrills] SKRILLS_VERIFY_HASH is set but SKRILLS_EXPECTED_HASH is empty; refusing to run" >&2
+      return 1
+      ;;
   esac
   local actual
   # sha256sum is absent before macOS 14; shasum ships with every macOS.
@@ -89,11 +94,13 @@ run_skrills() {
 case "${0}" in
   "${BASH_SOURCE[0]}")
     set -euo pipefail
-    if _find_skrills && _verify_hash; then
-      exec "${SKRILLS_BIN}" "$@"
-    else
+    if ! _find_skrills; then
       printf '%s\n' "[skrills-or-fallback] skrills not found. Install: cargo install skrills" >&2
       exit 127
     fi
+    # 1, not 127: a binary that failed verification is present, and a
+    # caller must not read it as absent and fall back silently.
+    _verify_hash || exit 1
+    exec "${SKRILLS_BIN}" "$@"
     ;;
 esac

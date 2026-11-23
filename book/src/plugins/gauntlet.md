@@ -28,6 +28,7 @@ understanding through adaptive challenges.
 - `/gauntlet-progress` - Show accuracy stats and streak
 - `/gauntlet-onboard` - Start or resume onboarding
 - `/gauntlet-curate` - Add or edit a knowledge annotation
+- `/gauntlet-graph` - Build, search, and query the code knowledge graph
 
 ## ML Scoring
 

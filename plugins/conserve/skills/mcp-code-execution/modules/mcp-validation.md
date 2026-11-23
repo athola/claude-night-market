@@ -3,7 +3,6 @@ name: mcp-validation
 description: Monitor MECW compliance and hallucination prevention
   with validation checks.
 location: plugin
-token_budget: 150  # Streamlined validation focus
 progressive_loading: true
 dependencies:
   hub: [mcp-code-execution]

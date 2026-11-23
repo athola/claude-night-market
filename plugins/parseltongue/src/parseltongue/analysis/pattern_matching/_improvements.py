@@ -8,6 +8,7 @@ import ast
 import re
 from typing import Any
 
+from ..async_analysis._base import parse_code
 from ._constants import MIN_REPO_METHODS
 
 __all__ = ["ImprovementsMixin"]
@@ -127,7 +128,7 @@ class ImprovementsMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)
+            tree, err = parse_code(code)
             if tree is None:
                 return {
                     "consistency_analysis": consistency,
@@ -173,7 +174,7 @@ class ImprovementsMixin:
         """Detect singleton pattern variations."""
         tree = _tree
         if tree is None:
-            tree, _ = self._parse_code(code)
+            tree, _ = parse_code(code)
             if tree is None:
                 return
 
@@ -310,7 +311,7 @@ class ImprovementsMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)
+            tree, err = parse_code(code)
             if tree is None:
                 return {
                     "recognized_patterns": [],
@@ -358,7 +359,7 @@ class ImprovementsMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)
+            tree, err = parse_code(code)
             if tree is None:
                 return {"documentation": docs, **(err or {})}
 
@@ -432,7 +433,7 @@ class ImprovementsMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)
+            tree, err = parse_code(code)
             if tree is None:
                 return {
                     "comparison": {

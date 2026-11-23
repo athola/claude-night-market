@@ -23,21 +23,25 @@ remains an advisory signal there.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
 import time
 from pathlib import Path
+from typing import Callable, NamedTuple
 
 # D-06: the shadow_mode helper is in shared/vow_utils, which is also the
 # home of the symlink-safe state primitives (CWE-59 defense).
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
     fd_owned_by_us,
+    lock_fd,
     read_counter_path,
     secure_open,
     session_id_from,
     shadow_mode_active,
+    unlock_fd,
 )
 
 # One definition, shared with the other read-budget hook, so the reset
@@ -45,25 +49,6 @@ from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path 
 _counter_path = read_counter_path
 _get_session_id = session_id_from
 
-# fcntl is POSIX-only.  On Windows we fall back to unlocked RMW. The
-# small race window is acceptable for an advisory vow on non-POSIX
-# hosts.  See issue #418.
-try:
-    import fcntl as _fcntl  # type: ignore[import-not-found]  # POSIX-only; Windows takes the except branch
-
-    _HAS_FCNTL = True
-except ImportError:  # pragma: no cover - exercised only on non-POSIX
-    _fcntl = None  # type: ignore[assignment]  # intentional None sentinel; guarded by _HAS_FCNTL at call sites
-    _HAS_FCNTL = False
-    # One-shot operator signal so non-POSIX hosts see parity with the
-    # POSIX-side flock-failure warning. Suppressed under pytest so unit
-    # runs that exercise the no-fcntl path do not spam stderr.
-    if "PYTEST_CURRENT_TEST" not in os.environ:
-        print(
-            "[vow-bounded-reads] WARN: fcntl unavailable on this platform; "
-            "counter increments are not atomic under concurrent reads",
-            file=sys.stderr,
-        )
 
 _READ_TOOLS = frozenset({"Read", "Grep", "Glob"})
 _BUDGET = 15
@@ -81,6 +66,10 @@ _SHORT_READ_LINES = 50
 # discovery phase reads happen far more often than the TTL, so a live
 # counter is never reset by accident.
 _COUNTER_TTL_SECONDS = 8 * 60 * 60
+
+# Calls remembered per session for repeat detection. Oldest drop first, so
+# the file stays a few KB however long the session runs.
+_MAX_REMEMBERED_CALLS = 64
 
 
 def _read_weight(tool_name: str, tool_input: object) -> float:
@@ -101,41 +90,60 @@ def _read_weight(tool_name: str, tool_input: object) -> float:
     return 1.0
 
 
-def _read_with_lock(fd: int) -> float:
-    """Read and parse the counter from an open, locked file descriptor.
+def _read_state(fd: int) -> tuple[float, bool, list[str]]:
+    """Parse the count, the spent escape and the remembered calls from *fd*.
 
-    Returns the current count, or 0 if the file is empty, unparseable,
-    or the mtime is older than _COUNTER_TTL_SECONDS.
+    One read serves all three. An empty, unparseable, or stale file (mtime
+    older than _COUNTER_TTL_SECONDS) reads as a fresh phase.
     """
     try:
         os.lseek(fd, 0, os.SEEK_SET)
-        raw = os.read(fd, 4096)
+        raw = os.read(fd, 65536)
     except OSError:
         raw = b""
     try:
-        current = float(json.loads(raw or b"{}").get("count", 0))
+        state = json.loads(raw or b"{}")
+        count = float(state.get("count", 0))
+        escape_used = state.get("escape_used") is True
+        seen = [key for key in state.get("seen", []) if isinstance(key, str)]
     except (json.JSONDecodeError, ValueError, TypeError, AttributeError):
-        current = 0.0
-    if current:
-        try:
-            if (time.time() - os.fstat(fd).st_mtime) > _COUNTER_TTL_SECONDS:
-                current = 0.0
-        except OSError:
-            pass
-    return current
+        return 0.0, False, []
+    try:
+        if (time.time() - os.fstat(fd).st_mtime) > _COUNTER_TTL_SECONDS:
+            return 0.0, False, []
+    except OSError:
+        pass
+    return count, escape_used, seen
 
 
-def _write_with_fd(fd: int, count: float) -> None:
-    """Write *count* as JSON to an open file descriptor, replacing prior content."""
+def _write_with_fd(
+    fd: int, count: float, escape_used: bool = False, seen: list[str] | None = None
+) -> None:
+    """Write the state as JSON to an open file descriptor, replacing prior content."""
+    state: dict[str, object] = {"count": count}
+    if escape_used:
+        state["escape_used"] = True
+    if seen:
+        state["seen"] = seen
     os.lseek(fd, 0, os.SEEK_SET)
     os.ftruncate(fd, 0)
-    os.write(fd, json.dumps({"count": count}).encode("utf-8"))
+    os.write(fd, json.dumps(state).encode("utf-8"))
 
 
-def _atomic_increment(path: Path, weight: float = 1.0) -> float:  # noqa: PLR0912 - POSIX flock requires explicit branch per errno value; cannot reduce without losing error granularity
+# Given the new count, whether the phase's escape is spent, and the calls
+# remembered, return the count, escape flag and calls to store.
+_Settle = Callable[[float, bool, "list[str]"], "tuple[float, bool, list[str]]"]
+
+
+def _atomic_increment(
+    path: Path, weight: float = 1.0, settle: _Settle | None = None
+) -> float:  # noqa: PLR0912 - POSIX flock requires explicit branch per errno value; cannot reduce without losing error granularity
     """Atomically read-modify-write the counter at *path*.
 
-    Returns the new count, *weight* higher than before.  Uses an exclusive POSIX
+    Returns the new count, *weight* higher than before. *settle*, when
+    given, runs between the one read and the one write and decides what is
+    stored, so a call is counted, judged and remembered under one lock.
+    Uses an exclusive POSIX
     file lock around the RMW so concurrent hook invocations cannot
     lose increments.  On systems without ``fcntl`` (Windows) the lock
     is skipped and the hook degrades to unlocked RMW.
@@ -155,28 +163,18 @@ def _atomic_increment(path: Path, weight: float = 1.0) -> float:  # noqa: PLR091
             pass
         if not fd_owned_by_us(fd):
             return 0
-        if _HAS_FCNTL and _fcntl is not None:
-            try:
-                _fcntl.flock(fd, _fcntl.LOCK_EX)
-            except (OSError, RuntimeError, NotImplementedError) as exc:
-                # Lock unavailable (NFS quirks, exhausted fd table, OS
-                # limits, FUSE/Windows-shim layers that surface the
-                # condition as RuntimeError or NotImplementedError).
-                # Emit a warning so operators have a signal that the
-                # concurrency guarantee is absent on this invocation,
-                # then fall through to unlocked RMW.
-                print(
-                    f"[vow-bounded-reads] WARN: flock unavailable, "
-                    f"falling back to unlocked RMW: {exc}",
-                    file=sys.stderr,
-                )
+        lock_fd(fd)
         # Issue #580: discard a counter left over from a prior session. A
         # file untouched past the TTL cannot belong to the current
         # discovery phase, so its count must not bleed forward.
-        current = _read_with_lock(fd)
+        current, escape_used, seen = _read_state(fd)
         new_count = current + weight
+        # A stale counter reads as 0, and its spent escape goes with it.
+        stored = (new_count, current > 0 and escape_used, seen)
+        if settle is not None:
+            stored = settle(*stored)
         try:
-            _write_with_fd(fd, new_count)
+            _write_with_fd(fd, *stored)
         except OSError as exc:
             print(
                 f"[vow-bounded-reads] WARN: counter write failed: {exc}",
@@ -192,31 +190,69 @@ def _atomic_increment(path: Path, weight: float = 1.0) -> float:  # noqa: PLR091
         return 0
     finally:
         if fd >= 0:
-            if _HAS_FCNTL and _fcntl is not None:
-                try:
-                    _fcntl.flock(fd, _fcntl.LOCK_UN)
-                except (OSError, RuntimeError, NotImplementedError) as exc:
-                    # Asymmetry with the acquire-side warning above
-                    # would hide a lock leak on shutdown. Surface the
-                    # failure so it shows up in operator triage.
-                    print(
-                        f"[vow-bounded-reads] WARN: flock unlock failed: {exc}",
-                        file=sys.stderr,
-                    )
+            unlock_fd(fd)
             try:
                 os.close(fd)
             except OSError:
                 pass
 
 
+def _call_key(tool_name: str, tool_input: object) -> str:
+    """Return a short digest of the call, stable across dict key order."""
+    canonical = json.dumps([tool_name, tool_input], sort_keys=True, default=str)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+
+
+class _Verdict(NamedTuple):
+    """How one call is judged, and the state it leaves behind."""
+
+    reads: float
+    escape_left: bool
+    escape_granted: bool
+    denied: bool
+    repeated: bool
+    stored: tuple[float, bool, list[str]] = (0.0, False, [])
+
+
+def _judge(
+    state: tuple[float, bool, list[str]],
+    *,
+    weight: float,
+    key: str,
+    shadow: bool,
+) -> _Verdict:
+    """Decide one call from the (count, escape spent, seen calls) state.
+
+    A targeted read (under _SHORT_READ_LINES) is allowed up to twice the
+    budget: an Edit needs the file read first. It still counts, and past
+    twice the budget only one more is allowed per phase, so chunked reads
+    cannot walk a tree the budget was meant to bound. A successful Write
+    or Edit resets the counter without the spent flag, which returns it.
+    """
+    count, escape_used, seen = state
+    # A free call is judged on 0 and leaves the count where it is.
+    judged = count if weight else 0.0
+    targeted_spent = judged > 2 * _BUDGET
+    escape_left = targeted_spent and not shadow and not escape_used
+    escape_granted = escape_left and weight < 1
+    denied = (
+        judged > _BUDGET
+        and not shadow
+        and (weight >= 1 or (targeted_spent and not escape_granted))
+    )
+    repeated = key in seen
+    # A denied read read nothing. It is not counted, so a retry does not
+    # push the count further from the limit, and not remembered, so its
+    # retry is not told to reuse a result that never arrived.
+    if not denied and not repeated:
+        seen = (seen + [key])[-_MAX_REMEMBERED_CALLS:]
+    stored = (count - weight if denied else count, escape_used or escape_granted, seen)
+    return _Verdict(judged, escape_left, escape_granted, denied, repeated, stored)
+
+
 def _is_read_tool(tool_name: str) -> bool:
     """Return True if *tool_name* is a discovery read tool."""
     return tool_name in _READ_TOOLS
-
-
-def _shadow_mode() -> bool:
-    """Return True when shadow (warn-only) mode is active."""
-    return shadow_mode_active()
 
 
 def main() -> None:
@@ -235,19 +271,90 @@ def main() -> None:
         if not _is_read_tool(tool_name):
             sys.exit(0)
 
-        weight = _read_weight(tool_name, data.get("tool_input"))
-        if not weight:
-            sys.exit(0)
+        tool_input = data.get("tool_input")
+        weight = _read_weight(tool_name, tool_input)
+        shadow = shadow_mode_active()
+        key = _call_key(tool_name, tool_input)
+        verdicts: list[_Verdict] = []
 
-        new_count = _atomic_increment(counter_file, weight)
+        def settle(
+            count: float, escape_used: bool, seen: list[str]
+        ) -> tuple[float, bool, list[str]]:
+            verdicts.append(
+                _judge(
+                    (count, escape_used, seen), weight=weight, key=key, shadow=shadow
+                )
+            )
+            return verdicts[0].stored
 
-        if new_count > _BUDGET:
-            shadow = _shadow_mode()
+        _atomic_increment(counter_file, weight, settle)
+        # A failed read-modify-write never ran settle: allow, say nothing.
+        verdict = verdicts[0] if verdicts else _Verdict(0.0, False, False, False, False)
+        new_count = verdict.reads
+        targeted_spent = new_count > 2 * _BUDGET
+
+        repeat_note = ""
+        if verdict.repeated:
+            repeat_note = (
+                f"This {tool_name} call repeats an earlier identical call in this "
+                "discovery phase. Reuse the earlier result. Re-run only if it is "
+                "no longer in context or the target changed outside Edit/Write."
+            )
+
+        # The budget warning carries the repeat note. With no warning to
+        # carry it, the note stands alone, past the budget included.
+        reported = verdict.denied or (shadow and new_count > _BUDGET)
+        if verdict.escape_granted:
+            print(
+                json.dumps(
+                    {
+                        "hookSpecificOutput": {
+                            "hookEventName": "PreToolUse",
+                            "additionalContext": (
+                                "Bounded discovery vow: this short read is the one "
+                                "allowed past twice the budget. Edit next. A "
+                                "successful Write or Edit resets the count, and "
+                                "reads are verdict.denied until then."
+                            ),
+                        }
+                    }
+                )
+            )
+            print("[vow-bounded-reads] WARN: escape read granted", file=sys.stderr)
+        elif repeat_note and not reported:
+            print(
+                json.dumps(
+                    {
+                        "hookSpecificOutput": {
+                            "hookEventName": "PreToolUse",
+                            "additionalContext": repeat_note,
+                        }
+                    }
+                )
+            )
+            print("[vow-bounded-reads] WARN: repeated call", file=sys.stderr)
+        elif reported:
             decision = "warn" if shadow else "block"
+            short_read = (
+                "To read the file you are about to edit, pass offset "
+                f"and a limit under {_SHORT_READ_LINES}."
+            )
+            escape = (
+                "Targeted reads are spent too. A successful Write or Edit "
+                "resets the count. Until then, work from what is in context. "
+                "The user can also set VOW_SHADOW_MODE=1."
+                if targeted_spent and not verdict.escape_left
+                else (
+                    f"One short read is left in this phase. {short_read}"
+                    if targeted_spent
+                    else short_read
+                )
+            )
             reason = (
                 f"Bounded discovery vow: {new_count:g} reads in this discovery phase. "
                 f"Budget is {_BUDGET} for open exploration. "
-                "Consider starting implementation."
+                f"Consider starting implementation. {escape}"
+                + (f" {repeat_note}" if repeat_note else "")
                 + (
                     " Shadow mode active — will block once VOW_SHADOW_MODE=0."
                     if shadow

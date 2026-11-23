@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -140,7 +141,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Record a stewardship action.")
     sub = parser.add_subparsers(dest="command", required=True)
     record = sub.add_parser("record", help="append one action")
-    record.add_argument("--dir", type=Path, default=DEFAULT_DIR)
+    # The health report reads under CLAUDE_PROJECT_DIR; a cwd-relative
+    # default followed any `cd` the session ran and wrote elsewhere.
+    project_root = Path(os.environ.get("CLAUDE_PROJECT_DIR") or ".")
+    record.add_argument("--dir", type=Path, default=project_root / DEFAULT_DIR)
     record.add_argument("--plugin", required=True)
     record.add_argument("--type", dest="action_type", required=True)
     record.add_argument("--file", dest="file_path", required=True)

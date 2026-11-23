@@ -44,7 +44,7 @@ class AmbiguityType(Enum):
     MULTIPLE_COMPONENTS = "multiple_components"
     CROSS_CUTTING = "cross_cutting"
     LARGE_SCOPE = "large_scope"
-    CIRCULAR_DEPENDENCY = "circular_dependency"
+    SHARED_SERVICE = "shared_service"
 
 
 @dataclass
@@ -165,7 +165,7 @@ def detect_ambiguity(
     # Check for cross-cutting concerns
     description_lower = task_description.lower()
     for keyword in keywords:
-        if keyword in description_lower:
+        if keyword.lower() in description_lower:
             return AmbiguityResult(
                 is_ambiguous=True,
                 ambiguity_type=AmbiguityType.CROSS_CUTTING,
@@ -195,23 +195,23 @@ def detect_ambiguity(
     existing_tasks = context.get("existing_tasks", [])
     task_lower = task_description.lower()
     task_services = set(_SERVICE_RE.findall(task_lower))
-    conflict = _has_circular_dependency(task_lower, task_services, existing_tasks)
+    conflict = _shared_service(task_lower, task_services, existing_tasks)
     if conflict is not None:
         return AmbiguityResult(
             is_ambiguous=True,
-            ambiguity_type=AmbiguityType.CIRCULAR_DEPENDENCY,
+            ambiguity_type=AmbiguityType.SHARED_SERVICE,
             message=conflict,
         )
 
     return AmbiguityResult(is_ambiguous=False)
 
 
-def _has_circular_dependency(
+def _shared_service(
     task_lower: str,
     task_services: set[str],
     existing_tasks: list[dict[str, Any]],
 ) -> str | None:
-    """Check whether a task creates a circular dependency with existing tasks.
+    """Name a service this task and an existing task both use, if any.
 
     Args:
         task_lower: Lowercased task description.
@@ -229,11 +229,13 @@ def _has_circular_dependency(
         if "uses" not in existing_desc:
             continue
         existing_services = set(_SERVICE_RE.findall(existing_desc))
-        # Circular = both tasks reference each other's services
+        # Text alone cannot show a cycle, only that both tasks use the same
+        # service, so the message says that and no more.
         task_svcs_lower = {s.lower() for s in task_services}
         existing_svcs_lower = {s.lower() for s in existing_services}
-        if task_svcs_lower & existing_svcs_lower:
-            return "Potential circular dependency detected"
+        shared = sorted(task_svcs_lower & existing_svcs_lower)
+        if shared:
+            return f"Shares {', '.join(shared)} with an existing task"
     return None
 
 
@@ -418,8 +420,16 @@ class TasksManager:
         """
         self.fallback_state_file.parent.mkdir(parents=True, exist_ok=True)
 
-        empty_state = {"tasks": {}, "metrics": {"tasks_complete": 0, "tasks_total": 0}}
-        state = safe_json_load(self.fallback_state_file, default=empty_state)
+        state = self._load_fallback_state() or {
+            "tasks": {},
+            "metrics": {"tasks_complete": 0, "tasks_total": 0},
+        }
+
+        # "Create or find": the Tasks path reuses a matching task, so this
+        # one does too rather than minting a duplicate.
+        for existing_id, task in state["tasks"].items():
+            if task.get("description") == task_description:
+                return str(existing_id)
 
         task_id = f"{self.config.task_prefix}-{len(state['tasks']) + 1:03d}"
 
@@ -434,10 +444,31 @@ class TasksManager:
 
         return task_id
 
-    def _load_fallback_state(self) -> dict:
-        """Load state from the fallback JSON file, returning empty dict on any error."""
+    def _load_fallback_state(self) -> dict[str, Any]:
+        """Load the fallback state, or ``{}`` when it is missing or misshapen.
+
+        Every reader goes through here. A hand-edited or older file that is
+        not ``{"tasks": {id: {...}}}`` reads as no state instead of raising
+        in whichever reader touches it first. A missing ``metrics`` is
+        rebuilt from the tasks.
+        """
         state = safe_json_load(self.fallback_state_file)
-        return state if state is not None else {}
+        if not isinstance(state, dict):
+            return {}
+        tasks = state.get("tasks", {})
+        if not isinstance(tasks, dict) or not all(
+            isinstance(task, dict) for task in tasks.values()
+        ):
+            return {}
+        metrics = state.get("metrics")
+        if not isinstance(metrics, dict):
+            metrics = {
+                "tasks_complete": sum(
+                    1 for task in tasks.values() if task.get("status") == "complete"
+                ),
+                "tasks_total": len(tasks),
+            }
+        return {**state, "tasks": tasks, "metrics": metrics}
 
     def get_state(self) -> TaskState:
         """Get current task state.
@@ -541,9 +572,7 @@ class TasksManager:
         if self._use_tasks and self._task_list:
             tasks = self._task_list()
         else:
-            state = safe_json_load(self.fallback_state_file)
-            if state is None:
-                return True
+            state = self._load_fallback_state()
             tasks = [
                 {"id": tid, **tdata} for tid, tdata in state.get("tasks", {}).items()
             ]
@@ -582,9 +611,7 @@ class TasksManager:
         if self._use_tasks and self._task_update:
             return self._task_update(task_id, status=status, **kwargs)
         else:
-            state = safe_json_load(self.fallback_state_file)
-            if state is None:
-                return False
+            state = self._load_fallback_state()
             if task_id not in state.get("tasks", {}):
                 return False
 

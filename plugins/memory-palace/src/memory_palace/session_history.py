@@ -8,7 +8,6 @@ subdirectory so they are co-located with palace data but clearly separated.
 from __future__ import annotations
 
 import contextlib
-import fcntl
 import fnmatch
 import json
 import logging
@@ -19,6 +18,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from memory_palace._vendored_leyline_atomic_file import file_lock
 from memory_palace.palace_repository import _atomic_write_json
 from memory_palace.paths import user_data_dir
 
@@ -303,9 +303,7 @@ class SessionHistoryManager:
         had just added, and the index is only rebuilt when it is corrupt.
         """
         self._ensure_dirs()
-        lock_path = self.index_path.with_name(SESSION_INDEX + ".lock")
-        with open(lock_path, "a", encoding="utf-8") as lock:
-            fcntl.flock(lock, fcntl.LOCK_EX)
+        with file_lock(self.index_path):
             index = self._load_index()
             yield index
             self._save_index(index)
@@ -570,7 +568,9 @@ class SessionHistoryManager:
             to_remove = [
                 s["session_id"]
                 for s in index["sessions"]
-                if s.get("started_at", "") < cutoff_str
+                # A row with no timestamp has no age: "" sorted before
+                # every cutoff, so a hand-edited row was always deleted.
+                if s.get("started_at") and s["started_at"] < cutoff_str
             ]
 
             for sid in to_remove:

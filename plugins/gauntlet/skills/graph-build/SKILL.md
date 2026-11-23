@@ -21,13 +21,27 @@ for the current codebase.
 
    For full build:
    ```bash
-   python3 ${CLAUDE_PLUGIN_ROOT}/scripts/graph_build.py <dir>
+   uv run --project ${CLAUDE_PLUGIN_ROOT} python \
+     ${CLAUDE_PLUGIN_ROOT}/scripts/graph_build.py <dir>
    ```
 
    For incremental update:
    ```bash
-   python3 ${CLAUDE_PLUGIN_ROOT}/scripts/graph_build.py <dir> --incremental
+   uv run --project ${CLAUDE_PLUGIN_ROOT} python \
+     ${CLAUDE_PLUGIN_ROOT}/scripts/graph_build.py <dir> --incremental
    ```
+
+   The build runs in the plugin's own environment because
+   a system `python3` may lack tree-sitter. Without it a
+   build exits 2 with an `error` key rather than reporting
+   files it did not parse.
+
+   An incremental update diffs against `--base-ref`, which
+   defaults to the commit of the last successful build.
+   Commits made since then are re-parsed. A graph built
+   before that commit was recorded falls back to `HEAD`,
+   which covers uncommitted changes only: run a full build
+   once.
 
 4. **Report results**: Show the JSON output including
    files parsed, nodes created, edges created, and
@@ -62,6 +76,29 @@ Ruby, and PHP.
 - Auto-creates `.gauntlet/.gitignore` to prevent commits
 - Incremental updates use SHA-256 hashing to skip
   unchanged files
+- Each `edges` row has a `resolution` column recording how a
+  CALLS target was found: `exact` (module qualifier, `self`/`cls`
+  scope, or a unique definition in the caller's plugin), `name_guess`
+  (a method picked by bare name on a receiver of unknown type, a
+  unique definition in another plugin, or a bare call that
+  matched several definitions and only one sits in the caller's
+  own `plugins/<name>/`, as with vendored copies), or empty (declared
+  edge, external call, or a row from a graph built before the
+  column existed). Treat `name_guess` edges as unconfirmed: blast
+  radius lists them under `name_guess_callers`. A
+  database lacking the column gains it when opened. Its old edges
+  stay empty until a full build, and blast radius sets
+  `graph_predates_resolution` while the last full build is older
+  than 1.10.4.
+- Each full build that stores nodes records `gauntlet_version`
+  in the `metadata` table; an incremental build leaves it
+  alone. At session start, a graph built by an older
+  version is rebuilt in the background (log:
+  `.gauntlet/rebuild.log`). Opt out with
+  `rebuild_on_upgrade: false` in `.gauntlet/config.yaml` or
+  `.gauntlet/config.json`.
+- A build holds `.gauntlet/graph.lock` while it runs. A second
+  build exits 75 without touching the graph.
 
 ## Exit Criteria
 

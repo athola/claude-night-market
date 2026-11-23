@@ -585,3 +585,20 @@ class TestPruning:
         stored = mem.outcomes["abstract:test-skill"]
         assert len(stored) == limit
         assert stored[-1]["change_summary"] == f"Change {limit + 4}"
+
+
+class TestConcurrentSaves:
+    """Parallel improvement runs save the memory at once (R1)."""
+
+    def test_save_leaves_another_writers_temp_file_untouched(
+        self, tmp_path: Path
+    ) -> None:
+        """A fixed ``<stem>.tmp`` let one save clobber another's half file."""
+        memory_file = tmp_path / "improvement_memory.json"
+        in_flight = memory_file.with_suffix(".tmp")
+        in_flight.write_text("half written by another process")
+
+        ImprovementMemory(memory_file)
+
+        assert in_flight.read_text() == "half written by another process"
+        assert memory_file.read_text().startswith("{")

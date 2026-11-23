@@ -213,8 +213,8 @@ Check configuration integrity.
 
 ## Architecture
 
-Conjure is built around a Core Plugin that registers skills, commands,
-and hooks within Claude Code. Specialized Skills manage execution paths,
+Conjure is built around a Core Plugin that registers skills and commands
+within Claude Code. Specialized Skills manage execution paths,
 while a Delegation Executor provides a unified interface for task processing
 and token estimation. Resource Management is handled by a quota tracker
 and usage logger that monitor limits and record outcomes,
@@ -232,8 +232,15 @@ Finally, **Integration** returns the results to the active Claude session.
 ## Configuration & Paths
 
 - Delegation config: `~/.claude/hooks/delegation/config.json`
-- Quota data: `~/.claude/hooks/gemini/usage.json`
-- Usage logs: `~/.claude/hooks/gemini/logs/usage.jsonl`
+- Delegation usage log, one line per call, read by
+  `delegation_executor.py --usage`: `~/.claude/hooks/delegation/usage.jsonl`
+- Gemini quota data, written when a caller runs
+  `GeminiQuotaTracker.record_request`: `~/.claude/hooks/gemini/usage.json`
+- Gemini usage log, written by `usage_logger.py --log`:
+  `~/.claude/hooks/gemini/logs/usage.jsonl`
+
+Conjure registers no hooks. The `hooks` segment in these paths is a
+directory name, and nothing records a Gemini call automatically.
 
 ## Development
 

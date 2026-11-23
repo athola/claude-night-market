@@ -21,10 +21,17 @@ session closes.
 
 For every COA that was eliminated during voting, check whether
 it received at least one Borda vote.
-If it did, capture it as a deferred item:
+If it did, capture it as a deferred item.
+
+`${CLAUDE_PLUGIN_ROOT}` is not substituted in a file loaded by
+Read, as it is in a SKILL.md body, and the Bash tool does not set it.
+Set it first to the attune plugin directory, the one that holds
+`skills/` and `scripts/`, three levels above this file. The `:?`
+form stops the command when it is unset, instead of running
+`/scripts/deferred_capture.py`.
 
 ```bash
-python3 scripts/deferred_capture.py \
+python3 "${CLAUDE_PLUGIN_ROOT:?set it to the attune plugin root}/scripts/deferred_capture.py" \
   --title "COA: <coa-title>" \
   --source war-room \
   --context "<rejection rationale from Supreme Commander>" \
@@ -44,7 +51,7 @@ such as "should revisit", "worth exploring", "consider in
 phase N"), capture it using the same script:
 
 ```bash
-python3 scripts/deferred_capture.py \
+python3 "${CLAUDE_PLUGIN_ROOT:?set it to the attune plugin root}/scripts/deferred_capture.py" \
   --title "COA: <coa-title>" \
   --source war-room \
   --context "<rejection rationale from Supreme Commander>" \
@@ -61,7 +68,7 @@ Omit `--artifact-path` if no coa file corresponds to the item.
   confirmation.
 - Capture every qualifying COA in a single pass before
   closing the session.
-- If `scripts/deferred_capture.py` is not present in the
+- If `${CLAUDE_PLUGIN_ROOT}/scripts/deferred_capture.py` is not present in the
   repository, log a warning and skip capture rather than
   blocking the war-room close.
 - The session ID must match the ID stored in

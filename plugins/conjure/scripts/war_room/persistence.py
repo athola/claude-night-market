@@ -12,6 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from scripts._vendored_leyline_atomic_file import write_atomic
 from scripts.war_room.audit_trail import AuditTrailManager
 from scripts.war_room.models import DeliberationNode, MerkleDAG, WarRoomSession
 
@@ -97,13 +98,7 @@ def persist_session(strategeion: Path, session: WarRoomSession) -> None:
     # the target for writing truncates it, so a value json cannot encode used
     # to destroy the copy of the session already on disk.
     encoded = json.dumps(session_data, indent=2)
-    session_file = session_dir / "session.json"
-    pending = session_file.with_suffix(".json.tmp")
-    try:
-        pending.write_text(encoded)
-        pending.replace(session_file)
-    finally:
-        pending.unlink(missing_ok=True)
+    write_atomic(session_dir / "session.json", encoded, mode=None)
 
     # Generate and save the audit report alongside the session file
     audit_manager = AuditTrailManager(strategeion_dir=strategeion)

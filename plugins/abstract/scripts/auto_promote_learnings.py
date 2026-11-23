@@ -631,6 +631,9 @@ def run_auto_promote() -> list[str]:
             continue
 
         score = calculate_priority(item)
+        if score < MEDIUM_PRIORITY_THRESHOLD:
+            # Nothing to promote, so no gh call to look for a duplicate.
+            continue
 
         # Check for duplicates before promoting
         duplicate = has_existing_issue(item, target_repo)

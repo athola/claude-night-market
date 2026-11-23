@@ -9,7 +9,7 @@ continuation agent after ``/clear``) can read the full content, or just the
 slice it needs, instead of re-running the expensive command.
 
 This is the "retrieve on demand" half of reversible compression (CCR),
-modelled on chopratejas/headroom's ``headroom_retrieve``.
+modelled on headroomlabs-ai/headroom's ``headroom_retrieve``.
 
 Usage::
 

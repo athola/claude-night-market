@@ -44,12 +44,6 @@ usage_patterns:
 - compliance-reporting
 - performance-benchmarking
 complexity: advanced
-evaluation_criteria:
-  structure_compliance: 25
-  metadata_quality: 20
-  token_efficiency: 25
-  tool_integration: 20
-  claude_sdk_compliance: 10
 modules:
 - modules/advanced-tool-use-analysis.md
 - modules/authoring-checklist.md
@@ -66,6 +60,9 @@ modules:
 role: entrypoint
 ---
 # Skills Evaluation and Improvement
+
+Scoring weights (out of 100): structure_compliance 25, metadata_quality 20,
+token_efficiency 25, tool_integration 20, claude_sdk_compliance 10.
 
 ## When NOT To Use
 

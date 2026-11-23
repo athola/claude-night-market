@@ -27,8 +27,8 @@ from pathlib import Path
 from scripts.delegation_executor import Delegator
 from scripts.delegation_services import (
     VERIFIED_BINARIES,
+    child_environment,
     credential_file_issues,
-    resolve_env_overlay,
 )
 from scripts.provider_ledger import ProviderLedger, ProviderRecord
 
@@ -106,7 +106,7 @@ def _missing_credentials(delegator: Delegator, name: str) -> list[str]:
     """
     service = delegator.services[name]
 
-    _, missing_overlay = resolve_env_overlay(service)
+    _, missing_overlay = child_environment(service)
     candidates = list(missing_overlay)
 
     if (
@@ -364,14 +364,28 @@ def write_ledger(
 
 
 def render_available(ledger: ProviderLedger) -> str:
-    """Name the harnesses conjure can call on this machine right now."""
+    """Name the harnesses conjure can call on this machine right now.
+
+    A CLI that keeps its own sign-in is never confirmed by the status
+    table, so it is named apart rather than left out.
+    """
     ready = ledger.available()
-    if not ready:
+    unchecked = ledger.installed_unconfirmed()
+    lines = []
+    if ready:
+        lines.append("Available to conjure: " + ", ".join(ready))
+    if unchecked:
+        lines.append(
+            "Installed, sign-in not checked: "
+            + ", ".join(unchecked)
+            + " (run --doctor to probe)"
+        )
+    if not lines:
         return (
             "No provider is confirmed ready. Run --doctor for the reason "
             "per provider, or --install <service> to add one."
         )
-    return "Available to conjure: " + ", ".join(ready)
+    return "\n".join(lines)
 
 
 def install_every_missing(states: Sequence[ProviderState]) -> int:

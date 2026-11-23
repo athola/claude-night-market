@@ -51,7 +51,7 @@ from _vendored_leyline_atomic_file import write_atomic
 
 # --- Tunables (named to satisfy PLR2004 and document intent) ---------------
 
-#: Default maximum CONTINUE decisions allowed inside the throttle window before
+#: Default maximum CONTINUE decisions allowed in one chain of continuations before
 #: the judge pauses and hands control back to the user. High enough to let a
 #: genuine long autonomous run proceed, low enough that a runaway loop is
 #: caught and surfaced for a human check-in rather than spinning unbounded.
@@ -65,18 +65,12 @@ MAX_CONTINUATIONS = 10
 #: a typo can never silently disable the runaway-loop guard.
 MAX_CONTINUATIONS_ENV = "DOUBLE_SHOT_LATTE_MAX_CONTINUATIONS"
 
-#: Inactivity window, in seconds: the CONTINUE count resets once this long
-#: passes with no CONTINUE. It is not a sliding window. A loop continuing every
-#: 120 s would never hold MAX_CONTINUATIONS inside a sliding 300 s window, so
-#: it would never be stopped. Counting until a quiet gap does stop it.
-THROTTLE_WINDOW_SECONDS = 300
-
 #: Filename prefix for per-session throttle state in the temp dir. Shared by
 #: the path builder and the orphan sweep so they stay in lock-step.
 _THROTTLE_PREFIX = "double-shot-latte-"
 
 #: Age, in seconds, after which an orphaned throttle file is reclaimed. Far
-#: larger than the throttle window so a live session's file is never swept;
+#: longer than any one turn so a live session's file is never swept;
 #: only files left by abandoned sessions age out.
 THROTTLE_TTL_SECONDS = 3600
 
@@ -309,7 +303,9 @@ def _read_throttle(path: Path) -> tuple[int, float]:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
         return int(data.get("count", 0)), float(data.get("last", 0.0))
-    except (OSError, ValueError, json.JSONDecodeError):
+    except (OSError, ValueError, AttributeError, TypeError):
+        # A non-object file, or a field of the wrong type, reads as fresh:
+        # raising here approved every turn until the file was deleted.
         return 0, 0.0
 
 
@@ -433,10 +429,9 @@ def decide(event: dict[str, object], now: float) -> dict[str, str]:
     stop_active = bool(event.get("stop_hook_active", False))
 
     if stop_active:
-        count, last = _read_throttle(throttle)
-        within_window = (now - last) <= THROTTLE_WINDOW_SECONDS
+        count, _ = _read_throttle(throttle)
         limit = _max_continuations()
-        if within_window and count >= limit:
+        if count >= limit:
             _clear_throttle(throttle)
             return _approve(_continuation_limit_reason(limit))
 
@@ -456,8 +451,11 @@ def decide(event: dict[str, object], now: float) -> dict[str, str]:
             should_continue, reason = second
 
     if should_continue:
-        count, last = _read_throttle(throttle)
-        if (now - last) > THROTTLE_WINDOW_SECONDS:
+        count, _ = _read_throttle(throttle)
+        # The count belongs to one chain of continuations. A turn the user
+        # started is a new chain; a time gap is not, because slow autonomous
+        # turns (builds, test runs) reset a time window on every step.
+        if not stop_active:
             count = 0
         if not _write_throttle(throttle, count + 1, now):
             return _approve(

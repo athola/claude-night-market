@@ -98,8 +98,8 @@ When semantic matching finds no suitable destination:
 
 | Category | Default Destination | Notes |
 |----------|---------------------|-------|
-| Actionable Items | `docs/plans/YYYY-MM-DD-{topic}.md` | New plan file |
-| Decisions Made | `docs/adr/NNNN-YYYY-MM-DD-{topic}.md` | New ADR |
+| Actionable Items | `docs/plans/YYYY-MM-DD-{topic}.md` | New plan file. A GitHub issue (`FILE_ISSUE`) when that path is gitignored |
+| Decisions Made | `docs/adr/NNNN-{topic}.md` | New ADR |
 | Findings/Insights | `docs/{topic}.md` | New doc or best-effort match |
 | Metrics/Baselines | `docs/benchmarks.md` or inline | Append if exists |
 | Migration Guides | `docs/migration-guide.md` | Append section |

@@ -83,6 +83,16 @@ class TestValidateSessionId:
         assert validate_session_id("../etc/passwd") is False
 
     @pytest.mark.unit
+    def test_rejects_trailing_newline(self) -> None:
+        """Scenario: A newline-terminated ID is rejected
+        Given a session ID 'abc123' followed by a newline
+        When validate_session_id is called
+        Then it returns False, because `$` also matches before a final
+        newline and only a full match excludes it
+        """
+        assert validate_session_id("abc123\n") is False
+
+    @pytest.mark.unit
     def test_rejects_slash(self) -> None:
         """Scenario: Forward slash is rejected
         Given a session ID 'a/b'
@@ -357,3 +367,9 @@ class TestSessionStoreLoadUndecodable:
         (tmp_path / "abc123.json").write_bytes(b"\xff\xfe{}")
         assert store.load("abc123") is None
         assert "corrupt session" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("bad", ["skill\n", "a/b", "../x", "", "x" * 129])
+def test_safe_component_rejects_trailing_newline_and_separators(bad: str) -> None:
+    """`$` matched before a trailing newline, so a newline-ended id passed."""
+    assert validate_session_id(bad) is False

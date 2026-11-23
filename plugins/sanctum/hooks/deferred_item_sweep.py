@@ -9,14 +9,14 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import subprocess
 import sys
 import time
 import traceback
 from pathlib import Path
 
-from _ledger_utils import get_ledger_path, ledger_lock
+from _ledger_utils import get_ledger_path
+from _vendored_leyline_atomic_file import file_lock, write_atomic
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +90,39 @@ def _read_entries_after(ledger_path: Path, count: int) -> list:
     return current[count:] if isinstance(current, list) else []
 
 
+def _load_entries(ledger_path: Path) -> list[dict] | None:
+    """Return the ledger's entries, or None when there is nothing to sweep."""
+    if not ledger_path.exists():
+        return None
+    try:
+        with open(ledger_path) as f:
+            entries = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(entries, list) or not all(isinstance(e, dict) for e in entries):
+        sys.stderr.write(
+            f"deferred_item_sweep: {ledger_path} is not a list of entries; left as is\n"
+        )
+        return None
+    return entries
+
+
+def _capture_args(entry: dict) -> tuple[str, str] | None:
+    """Return the entry's title and source, or None when either is not text.
+
+    A hand-edited or older ledger can hold ``"title": null``. Passed into
+    argv it raised TypeError and lost the filed markers of earlier entries.
+    """
+    title = entry.get("title", "Untitled deferred item")
+    source = entry.get("source", "unknown")
+    if isinstance(title, str) and isinstance(source, str):
+        return title, source
+    sys.stderr.write(
+        "deferred_item_sweep: entry with a non-string title or source left unfiled\n"
+    )
+    return None
+
+
 def process_ledger(ledger_path: Path) -> dict:
     """Read ledger, retry unfiled entries, clean up.
 
@@ -104,13 +137,8 @@ def process_ledger(ledger_path: Path) -> dict:
         "deferred_to_next_sweep": 0,
     }
 
-    if not ledger_path.exists():
-        return stats
-
-    try:
-        with open(ledger_path) as f:
-            entries = json.load(f)
-    except (OSError, json.JSONDecodeError):
+    entries = _load_entries(ledger_path)
+    if entries is None:
         return stats
 
     if not entries:
@@ -134,10 +162,14 @@ def process_ledger(ledger_path: Path) -> dict:
             stats["deferred_to_next_sweep"] += 1
             continue
 
+        args = _capture_args(entry)
+        if args is None:
+            stats["failed"] += 1
+            all_filed = False
+            continue
+
         result = call_capture_script(
-            entry.get("title", "Untitled deferred item"),
-            entry.get("source", "unknown"),
-            timeout=min(_ITEM_TIMEOUT_SECONDS, remaining),
+            *args, timeout=min(_ITEM_TIMEOUT_SECONDS, remaining)
         )
         status = result.get("status", "error")
         if status == "created":
@@ -157,17 +189,14 @@ def process_ledger(ledger_path: Path) -> dict:
     # read above. Dropping them would lose a deferral nobody has filed.
     # The lock keeps a watcher append from landing between this re-read
     # and the unlink or replace below.
-    with ledger_lock(ledger_path):
+    with file_lock(ledger_path):
         late_entries = _read_entries_after(ledger_path, original_count)
         if all_filed and not late_entries:
             ledger_path.unlink(missing_ok=True)
         else:
             all_filed = False
             entries = [*entries, *late_entries]
-            staged = ledger_path.with_name(f"{ledger_path.name}.{os.getpid()}.tmp")
-            with open(staged, "w") as f:
-                json.dump(entries, f, indent=2)
-            os.replace(staged, ledger_path)
+            write_atomic(ledger_path, json.dumps(entries, indent=2), mode=None)
     if not all_filed:
         unfiled = stats["failed"] + stats["deferred_to_next_sweep"] + len(late_entries)
         sys.stderr.write(

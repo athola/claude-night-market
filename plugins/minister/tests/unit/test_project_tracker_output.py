@@ -547,3 +547,32 @@ class TestEdgeCases:
         with open(csv_file, encoding="utf-8") as f:
             rows = list(csv.DictReader(f))
         assert len(rows) == 2
+
+
+def test_github_comment_escapes_pipe_in_initiative(
+    populated_tracker: ProjectTracker,
+) -> None:
+    """An unescaped `|` in a name split the table row (MIN-2)."""
+    metrics = {
+        "completed_tasks": 1,
+        "total_tasks": 2,
+        "in_progress_tasks": 1,
+        "completion_percentage": 50,
+        "average_task_completion": 60,
+    }
+    report = {
+        "last_updated": "now",
+        "initiatives": {"A|B": metrics},
+        "overall_metrics": {
+            "total_tasks": 2,
+            "overall_completion": 50,
+            "total_effort": 1,
+            "burn_rate": 1,
+        },
+    }
+    row = next(
+        line
+        for line in populated_tracker.format_github_comment(report).splitlines()
+        if "A\\|B" in line or "A|B" in line
+    )
+    assert row.startswith("| A\\|B |")

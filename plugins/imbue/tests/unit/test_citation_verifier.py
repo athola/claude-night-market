@@ -461,3 +461,12 @@ def test_line_numbers_ignore_form_feed_and_unicode_line_separators(
     )
 
     assert result.status == "VERIFIED", result.reason
+
+
+def test_non_dict_entries_exit_with_parse_error_code(tmp_path: Path) -> None:
+    """A list of strings raised AttributeError, exit 1, the code reserved
+    for "a finding failed"; malformed input is exit 2 (IMB-16).
+    """
+    findings = tmp_path / "f.json"
+    findings.write_text(json.dumps(["not a finding"]))
+    assert main(["--findings", str(findings), "--repo-root", str(tmp_path)]) == 2

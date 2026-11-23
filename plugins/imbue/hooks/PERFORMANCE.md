@@ -136,14 +136,23 @@ Each repository gets its own cache file based on the repository path hash.
 | `SCOPE_GUARD_DISABLE` | `0` | Set to `1` to completely bypass scope-guard checks |
 | `SCOPE_GUARD_CACHE_TTL` | `60` | Cache lifetime in seconds |
 | `SCOPE_GUARD_BASE_BRANCH` | `main` | Base branch for comparison |
-| `SCOPE_GUARD_RED_LINES` | `2000` | RED zone threshold for line changes |
-| `SCOPE_GUARD_YELLOW_LINES` | `1500` | YELLOW zone threshold for line changes |
-| `SCOPE_GUARD_RED_COMMITS` | `30` | RED zone threshold for commit count |
-| `SCOPE_GUARD_YELLOW_COMMITS` | `25` | YELLOW zone threshold for commit count |
-| `SCOPE_GUARD_RED_DAYS` | `7` | RED zone threshold for branch age (days) |
-| `SCOPE_GUARD_YELLOW_DAYS` | `7` | YELLOW zone threshold for branch age (days) |
-| `SCOPE_GUARD_RED_FILES` | `15` | RED zone threshold for new files |
-| `SCOPE_GUARD_YELLOW_FILES` | `12` | YELLOW zone threshold for new files |
+| `SCOPE_GUARD_GREEN_LINES` | `1000` | Most lines changed still green |
+| `SCOPE_GUARD_YELLOW_LINES` | `1500` | Yellow starts above this instead, when set below GREEN |
+| `SCOPE_GUARD_RED_LINES` | `2000` | Most lines changed before red |
+| `SCOPE_GUARD_GREEN_FILES` | `8` | Most new files still green |
+| `SCOPE_GUARD_YELLOW_FILES` | `12` | Yellow starts above this instead, when set below GREEN |
+| `SCOPE_GUARD_RED_FILES` | `15` | Most new files before red |
+| `SCOPE_GUARD_GREEN_COMMITS` | `15` | Most commits still green |
+| `SCOPE_GUARD_YELLOW_COMMITS` | `25` | Yellow starts above this instead, when set below GREEN |
+| `SCOPE_GUARD_RED_COMMITS` | `30` | Most commits before red |
+| `SCOPE_GUARD_GREEN_DAYS` | `3` | Most days since the first commit still green |
+| `SCOPE_GUARD_YELLOW_DAYS` | `7` | Yellow starts above this instead, when set below GREEN |
+| `SCOPE_GUARD_RED_DAYS` | `7` | Most days since the first commit before red |
+
+A value above the GREEN or the YELLOW bound is yellow, and above RED
+is red. The prompt hook, the session-start hook and
+`scripts/pre_pr_scope_check.sh` read these variables with these
+defaults. The session-start hook skips the new-files rung.
 
 ### Example Configurations
 
@@ -165,7 +174,7 @@ export SCOPE_GUARD_DISABLE=1
 **Relaxed thresholds** (for larger projects):
 ```bash
 export SCOPE_GUARD_RED_LINES=5000
-export SCOPE_GUARD_YELLOW_LINES=3000
+export SCOPE_GUARD_GREEN_LINES=3000
 export SCOPE_GUARD_RED_COMMITS=50
 ```
 

@@ -37,6 +37,8 @@ import time
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 
+from scripts._vendored_leyline_atomic_file import write_atomic
+
 #: Bumped when the on-disk shape changes incompatibly. A reader that
 #: finds an unfamiliar version treats the file as absent.
 LEDGER_VERSION = 1
@@ -173,12 +175,29 @@ class ProviderLedger:
             )
         )
 
+    def installed_unconfirmed(self, now: float | None = None) -> tuple[str, ...]:
+        """Return installed providers whose credential nobody has checked.
+
+        Fresh, with no recorded failure: unknown, neither ready nor broken.
+        """
+        stamp = time.time() if now is None else now
+        return tuple(
+            sorted(
+                name
+                for name, entry in self._records.items()
+                if entry.installed
+                and entry.auth_confirmed_at is None
+                and entry.last_error is None
+                and self.is_fresh(name, now=stamp)
+            )
+        )
+
     def save(self) -> None:
         """Write the ledger, creating its directory if needed.
 
-        Written to a sibling temporary file and renamed, so an
-        interrupted write leaves the previous ledger intact instead of a
-        truncated one. No permission is set: the file holds binary names,
+        Written through ``write_atomic``, so an interrupted write leaves the
+        previous ledger intact and two concurrent saves cannot clobber each
+        other's temp file. The file keeps its mode: it holds binary names,
         versions and timestamps, and nothing that would be a secret if
         read.
         """
@@ -189,6 +208,4 @@ class ProviderLedger:
                 name: asdict(entry) for name, entry in sorted(self._records.items())
             },
         }
-        temporary = self.path.with_suffix(".json.tmp")
-        temporary.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-        temporary.replace(self.path)
+        write_atomic(self.path, json.dumps(payload, indent=2) + "\n", mode=None)

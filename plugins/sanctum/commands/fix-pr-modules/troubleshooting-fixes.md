@@ -301,5 +301,5 @@ Attune Workflow        | /fix-pr Equivalent
 - `/do-issue` - Fix GitHub issues using same progressive workflow
 - `/resolve-threads` - Batch-resolve review threads (runs automatically in Step 6)
 - `/pr-review` - Review a PR and post findings as GitHub comments (generates test plan)
-- `/pr` - Prepare a PR for submission
+- `/prepare-pr` - Prepare a PR for submission
 - `/attune:validate` - Validate project structure (can be used as additional check)

@@ -9,14 +9,129 @@ edit this file, never a copy.
 from __future__ import annotations
 
 import contextlib
+import functools
+import json
 import os
 import stat
 import sys
 import tempfile
+import time
+from collections.abc import Callable, Generator
 from pathlib import Path
+from typing import Any
+
+try:
+    import fcntl
+except ImportError:  # Windows: file_lock takes msvcrt.locking instead
+    fcntl = None  # type: ignore[assignment]  # None sentinel: file_lock branches on it
 
 #: mkstemp's own mode: only the owner may read the file.
 PRIVATE = 0o600
+
+#: How often a timed ``file_lock`` retries a lock another process holds.
+_LOCK_POLL_SECONDS = 0.05
+
+
+@contextlib.contextmanager
+def file_lock(
+    path: str | os.PathLike[str], *, timeout: float | None = None
+) -> Generator[None, None, None]:
+    """Hold the exclusive lock every writer of ``path`` agrees on.
+
+    The lock file is ``<name>.lock`` beside ``path``. ``write_atomic`` keeps
+    a file whole but cannot stop a load-modify-write from dropping another
+    writer's change; holding this across the whole cycle does.
+
+    ``timeout=None`` waits as long as the holder keeps the lock. A number
+    polls without blocking until that many seconds have passed, then raises
+    ``TimeoutError`` naming the lock file, for a hook that would rather
+    give up than be killed mid-wait. ``TimeoutError`` is an ``OSError``, so
+    a caller that treats the two differently catches it first.
+
+    On Windows the lock is ``msvcrt.locking`` on byte 0, released
+    explicitly because Windows may free a lock on a closed handle late.
+    There an untimed wait is ``LK_LOCK``, which raises ``OSError`` after
+    about ten seconds of contention. A platform with neither ``fcntl`` nor
+    ``msvcrt`` takes no lock.
+    """
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = target.with_name(target.name + ".lock")
+    with open(lock_path, "a") as lock:
+        if sys.platform == "win32":
+            # Byte 0 of the file: an append open sits at end of file.
+            import msvcrt  # noqa: PLC0415 - Windows only: imported once the platform is known, so a faked platform in a test can supply it
+
+            lock.seek(0)
+            if timeout is None:
+                msvcrt.locking(lock.fileno(), msvcrt.LK_LOCK, 1)
+            else:
+                _poll(
+                    functools.partial(
+                        msvcrt.locking, lock.fileno(), msvcrt.LK_NBLCK, 1
+                    ),
+                    OSError,
+                    lock_path,
+                    timeout,
+                )
+            try:
+                yield
+            finally:
+                lock.seek(0)
+                msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+            return
+        if fcntl is not None:
+            if timeout is None:
+                fcntl.flock(lock, fcntl.LOCK_EX)
+            else:
+                _poll(
+                    functools.partial(fcntl.flock, lock, fcntl.LOCK_EX | fcntl.LOCK_NB),
+                    BlockingIOError,
+                    lock_path,
+                    timeout,
+                )
+        try:
+            yield
+        finally:
+            if fcntl is not None:
+                fcntl.flock(lock, fcntl.LOCK_UN)
+
+
+def _poll(
+    attempt: Callable[[], None],
+    busy: type[OSError],
+    lock_path: Path,
+    timeout: float,
+) -> None:
+    """Retry ``attempt`` while it raises ``busy``, up to ``timeout`` seconds."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            attempt()
+            return
+        except busy:
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    f"lock {lock_path} held for over {timeout}s"
+                ) from None
+            time.sleep(_LOCK_POLL_SECONDS)
+
+
+def read_json_object(
+    path: str | os.PathLike[str], default: dict[str, Any]
+) -> dict[str, Any]:
+    """Return the JSON object at ``path``, or ``default``.
+
+    A state file that is missing, unreadable, not JSON, or valid JSON of
+    another shape (``[]`` after a bad write) all mean "no state". Readers
+    that caught only the decode error raised on ``[].get`` instead.
+    """
+    try:
+        with open(path, encoding="utf-8") as handle:
+            loaded = json.load(handle)
+    except (OSError, ValueError):
+        return default
+    return loaded if isinstance(loaded, dict) else default
 
 
 def write_atomic(

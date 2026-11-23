@@ -775,6 +775,13 @@ def _check_tasks(
     """Check each task against the allowlist and against its siblings."""
     problems: list[str] = []
     task_ids = {t.get("id") for t in tasks}
+    # Every id-keyed map below keeps the last entry, so a repeated id hides
+    # a task from the gate and from the runner.
+    seen_ids: set[Any] = set()
+    for tid in (t.get("id") for t in tasks):
+        if tid in seen_ids:
+            problems.append(f"duplicate task id {tid}; ids must be unique")
+        seen_ids.add(tid)
 
     for task in tasks:
         tid = task.get("id")

@@ -143,21 +143,47 @@ class DisplayToolkit:
 
     def _do_screenshot(self, action: dict[str, Any]) -> ActionResult:
         """Capture the display."""
+        return self._capture(None)
+
+    def _do_zoom(self, action: dict[str, Any]) -> ActionResult:
+        """Capture one region at full resolution.
+
+        ``enable_zoom`` advertises this action to the model; without a
+        handler every zoom came back "Unknown action".
+        """
+        region = action.get("region")
+        if not (
+            isinstance(region, list)
+            and len(region) == 4
+            and all(type(v) is int for v in region)
+            and region[2] > region[0]
+            and region[3] > region[1]
+        ):
+            return ActionResult(
+                success=False,
+                error=f"zoom region must be [x0, y0, x1, y1] integers with "
+                f"x1 > x0 and y1 > y0, got {region!r}",
+            )
+        x0, y0, x1, y1 = region
+        return self._capture((x0, y0, x1 - x0, y1 - y0))
+
+    def _capture(self, box: tuple[int, int, int, int] | None) -> ActionResult:
+        """Capture the display, or the ``(x, y, width, height)`` box of it."""
         with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
             tmp_path = tmp.name
 
         try:
             if _check_command("scrot"):
-                _run(["scrot", "-o", tmp_path])
+                area = ["-a", ",".join(map(str, box))] if box else []
+                _run(["scrot", "-o", *area, tmp_path])
             elif _check_command("import"):
-                _run(
-                    [
-                        "import",
-                        "-window",
-                        "root",
-                        tmp_path,
-                    ]
+                # +repage drops the screen-sized canvas the crop leaves behind.
+                crop = (
+                    ["-crop", f"{box[2]}x{box[3]}+{box[0]}+{box[1]}", "+repage"]
+                    if box
+                    else []
                 )
+                _run(["import", "-window", "root", *crop, tmp_path])
             else:
                 return ActionResult(
                     success=False,
@@ -238,6 +264,16 @@ class DisplayToolkit:
         _run(["xdotool", "mousemove", str(x), str(y)])
         return ActionResult(success=True)
 
+    def _do_cursor_position(self, action: dict[str, Any]) -> ActionResult:
+        """Report the pointer position as text for the model."""
+        del action
+        out = _run(["xdotool", "getmouselocation", "--shell"]).stdout
+        fields = dict(line.split("=", 1) for line in out.splitlines() if "=" in line)
+        return ActionResult(
+            success=True,
+            metadata={"text": f"X={fields.get('X', '?')}, Y={fields.get('Y', '?')}"},
+        )
+
     def _do_left_click_drag(self, action: dict[str, Any]) -> ActionResult:
         """Click and drag from start to end coordinate."""
         start = action.get("start_coordinate")
@@ -274,7 +310,8 @@ class DisplayToolkit:
         if len(text) > _MAX_TYPE_LEN:
             text = text[:_MAX_TYPE_LEN]
         # xdotool type handles special characters
-        _run(["xdotool", "type", "--clearmodifiers", text])
+        # `--` ends options: text starting with `-` was parsed as a flag.
+        _run(["xdotool", "type", "--clearmodifiers", "--", text])
         return ActionResult(success=True)
 
     def _do_key(self, action: dict[str, Any]) -> ActionResult:

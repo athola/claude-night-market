@@ -23,6 +23,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from leyline.atomic_file import read_json_object, write_atomic
+
 _log = logging.getLogger(__name__)
 
 
@@ -88,18 +90,35 @@ class UsageLogger:
         else:
             self.session_id = self._get_or_create_session()
 
+    def _read_session(self) -> dict[str, Any] | None:
+        """Return the session file's object when it has a resumable shape.
+
+        That is a non-empty string ``session_id`` and a non-bool numeric
+        ``last_activity``. ``"session_id": null`` otherwise resumed as the
+        session ``'None'``, and both readers must apply the same rule.
+        """
+        session = read_json_object(self.session_file, {})
+        session_id = session.get("session_id")
+        last_activity = session.get("last_activity")
+        if (
+            isinstance(session_id, str)
+            and session_id
+            and isinstance(last_activity, (int, float))
+            and not isinstance(last_activity, bool)
+        ):
+            return session
+        return None
+
     def _get_or_create_session(self) -> str:
         """Get existing session or create new one."""
-        if self.session_file.exists():
-            try:
-                session = json.loads(self.session_file.read_text())
-                # Check if session is still active
-                if time.time() - session.get("last_activity", 0) < self.SESSION_TIMEOUT:
-                    return str(session["session_id"])
-            except (json.JSONDecodeError, KeyError):
-                _log.warning(
-                    "Session file unreadable, resetting: %s", self.session_file
-                )
+        session = self._read_session()
+        if (
+            session is not None
+            and time.time() - session["last_activity"] < self.SESSION_TIMEOUT
+        ):
+            return str(session["session_id"])
+        if self.session_file.exists() and session is None:
+            _log.warning("Session file unreadable, resetting: %s", self.session_file)
 
         # Create new session
         session_id = f"session_{int(time.time())}"
@@ -117,20 +136,20 @@ class UsageLogger:
             "created_at": time.time(),
             "last_activity": time.time(),
         }
-        self.session_file.write_text(json.dumps(session))
+        write_atomic(self.session_file, json.dumps(session))
 
     def _update_session_activity(self) -> None:
         """Update session last activity timestamp."""
-        if self.session_file.exists():
-            try:
-                session = json.loads(self.session_file.read_text())
-                session["last_activity"] = time.time()
-                self.session_file.write_text(json.dumps(session))
-            except (json.JSONDecodeError, KeyError):
+        session = self._read_session()
+        if session is None:
+            if self.session_file.exists():
                 _log.warning(
                     "Session file corrupt during activity update: %s",
                     self.session_file,
                 )
+            return
+        session["last_activity"] = time.time()
+        write_atomic(self.session_file, json.dumps(session))
 
     def log_usage(self, event: UsageEvent) -> None:
         """Append ``event`` to ``<service>.jsonl`` and mark the session active.

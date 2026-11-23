@@ -123,16 +123,32 @@ EOF
         lines_changed=$((insertions + deletions))
         commits=$(git rev-list --count "${merge_base}"..HEAD 2>/dev/null || printf '%s\n' "0")
 
-        merge_base_date=$(git log -1 --format=%ct "${merge_base}" 2>/dev/null || date +%s)
+        # Age of the branch's own first commit, not of the base it forked from:
+        # a branch cut from a quiet base read RED on its first commit. tail, not
+        # head, so pipefail never sees SIGPIPE.
+        merge_base_date=$(git log --format=%at "${merge_base}..HEAD" 2>/dev/null | tail -1)
+        merge_base_date=${merge_base_date:-$(date +%s)}
         current_date=$(date +%s)
         days_on_branch=$(((current_date - merge_base_date) / 86400))
       fi
 
       # Determine zone
       zone="green"
-      if [ "${lines_changed}" -gt 2000 ] || [ "${commits}" -gt 30 ] || [ "${days_on_branch}" -gt 7 ]; then
+      # Same line, commit and day thresholds, defaults and meaning as
+      # user-prompt-submit.sh and scripts/pre_pr_scope_check.sh: above
+      # GREEN or YELLOW is yellow, above RED is red. The new-files rung is
+      # checked only on the prompt, so a branch over it alone reads green
+      # here.
+      if [ "${lines_changed}" -gt "${SCOPE_GUARD_RED_LINES:-2000}" ] ||
+        [ "${commits}" -gt "${SCOPE_GUARD_RED_COMMITS:-30}" ] ||
+        [ "${days_on_branch}" -gt "${SCOPE_GUARD_RED_DAYS:-7}" ]; then
         zone="red"
-      elif [ "${lines_changed}" -gt 1000 ] || [ "${commits}" -gt 15 ] || [ "${days_on_branch}" -gt 3 ]; then
+      elif [ "${lines_changed}" -gt "${SCOPE_GUARD_GREEN_LINES:-1000}" ] ||
+        [ "${lines_changed}" -gt "${SCOPE_GUARD_YELLOW_LINES:-1500}" ] ||
+        [ "${commits}" -gt "${SCOPE_GUARD_GREEN_COMMITS:-15}" ] ||
+        [ "${commits}" -gt "${SCOPE_GUARD_YELLOW_COMMITS:-25}" ] ||
+        [ "${days_on_branch}" -gt "${SCOPE_GUARD_GREEN_DAYS:-3}" ] ||
+        [ "${days_on_branch}" -gt "${SCOPE_GUARD_YELLOW_DAYS:-7}" ]; then
         zone="yellow"
       fi
 
