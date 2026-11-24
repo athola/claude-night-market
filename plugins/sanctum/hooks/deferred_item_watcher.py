@@ -32,6 +32,12 @@ WATCH_LIST = {
     "rollback-reviewer",
 }
 
+# Skills renamed off a command's shared id (#1055) keep their old name as
+# the deferral source, so the watch and the GitHub labels stay unchanged.
+RENAMED_SKILLS = {
+    "war-room-playbook": "war-room",
+}
+
 DEFERRAL_PATTERNS = re.compile(
     r"\[Deferred\]"
     r"|out of scope"
@@ -150,7 +156,7 @@ def _parse_skill_name(tool_input: dict) -> str:
     # Empty values are harmless (won't match WATCH_LIST); sanitize non-empty
     if skill_ref and not _SAFE_SKILL_COMPONENT.match(skill_ref):
         return "unknown"
-    return skill_ref
+    return RENAMED_SKILLS.get(skill_ref, skill_ref)
 
 
 def _coerce_tool_input(value: object) -> dict:

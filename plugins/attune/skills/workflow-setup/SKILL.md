@@ -174,7 +174,7 @@ To update workflows to latest versions:
 
 ## Related Skills
 
-- `Skill(attune:project-init)` - Full project initialization
+- `Skill(attune:project-init-playbook)` - Full project initialization
 - `Skill(sanctum:pr-prep)` - PR preparation with CI checks
 
 ## Exit Criteria

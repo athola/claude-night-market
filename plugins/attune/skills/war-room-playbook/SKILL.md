@@ -1,5 +1,5 @@
 ---
-name: war-room
+name: war-room-playbook
 description: Convenes a multi-LLM expert panel to pressure-test hard-to-reverse decisions. Use when reversibility score is low and adversarial review is warranted.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):

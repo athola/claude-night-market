@@ -70,7 +70,7 @@ demo-init: ## Demo project initialization workflow
 	@echo "  - Microservices (microservices-example.md)"
 	@echo ""
 	@echo "Step 2: Skill modules"
-	@for module in skills/project-init/modules/*.md; do \
+	@for module in skills/project-init-playbook/modules/*.md; do \
 		name=$$(basename "$$module" .md); \
 		echo "  - $$name"; \
 	done

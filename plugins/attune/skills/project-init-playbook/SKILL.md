@@ -1,5 +1,5 @@
 ---
-name: project-init
+name: project-init-playbook
 description: Scaffolds new projects with git, CI/CD workflows, pre-commit hooks, and build config. Use when starting a new Python, Rust, or TypeScript project from scratch.
 alwaysApply: false
 tools: []

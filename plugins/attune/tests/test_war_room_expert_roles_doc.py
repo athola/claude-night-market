@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[3]
-_DOC = _REPO / "plugins/attune/skills/war-room/modules/expert-roles.md"
+_DOC = _REPO / "plugins/attune/skills/war-room-playbook/modules/expert-roles.md"
 _EXPERTS = _REPO / "plugins/conjure/scripts/war_room/experts.py"
 
 

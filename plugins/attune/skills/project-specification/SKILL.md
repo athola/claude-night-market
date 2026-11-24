@@ -27,7 +27,8 @@ For detailed specification writing workflows, this skill delegates to `spec-kit:
 - Still exploring problem space (use `Skill(attune:project-brainstorming)` instead)
 - Already have detailed specification (use `Skill(attune:project-planning)` instead)
 - Refining existing implementation (use code review skills)
-- Making strategic decisions (use `Skill(attune:war-room)` for complex choices)
+- Making strategic decisions (use `Skill(attune:war-room-playbook)` for complex
+  choices)
 
 ## Integration
 

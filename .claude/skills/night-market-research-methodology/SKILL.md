@@ -32,7 +32,7 @@ tests.
 
 3. **Survive assigned adversarial refutation.** Assign a reviewer or
    agent whose explicit job is to break the claim. Use
-   `Skill(attune:war-room)` for hard-to-reverse decisions and
+   `Skill(attune:war-room-playbook)` for hard-to-reverse decisions and
    `Skill(imbue:rigorous-reasoning)` to counter agreement bias. A
    claim nobody tried to break is unproven.
 

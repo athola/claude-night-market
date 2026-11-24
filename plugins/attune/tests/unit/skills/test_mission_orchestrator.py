@@ -286,7 +286,7 @@ class TestPlanToExecuteGate:
     @pytest.mark.bdd
     def test_gate_requires_war_room_approval(self) -> None:
         """Execution waits on the war-room verdict for the plan."""
-        assert "Skill(attune:war-room)" in _body()
+        assert "Skill(attune:war-room-playbook)" in _body()
 
     @pytest.mark.bdd
     def test_review_missions_skip_the_gate(self) -> None:

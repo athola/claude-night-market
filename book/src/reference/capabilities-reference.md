@@ -168,7 +168,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `progressive-loading` | [leyline](../plugins/leyline.md) | Dynamic content loading |
 | `project-brainstorming` | [attune](../plugins/attune.md) | Socratic ideation workflow |
 | `project-execution` | [attune](../plugins/attune.md) | Systematic implementation |
-| `project-init` | [attune](../plugins/attune.md) | Interactive project initialization |
+| `project-init-playbook` | [attune](../plugins/attune.md) | Interactive project initialization |
 | `project-planning` | [attune](../plugins/attune.md) | Architecture and task breakdown |
 | `project-specification` | [attune](../plugins/attune.md) | Spec creation from brainstorm |
 | `proof-of-work` | [imbue](../plugins/imbue.md) | Evidence-based work validation |
@@ -239,7 +239,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `voice-learn` | [scribe](../plugins/scribe.md) | Learning loop from manual edits |
 | `voice-review` | [scribe](../plugins/scribe.md) | Dual-gate review against voice profile |
 | `vow-enforcement` | [imbue](../plugins/imbue.md) | Three-layer constraint enforcement with soft vows, hard vows, and external validators |
-| `war-room` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
+| `war-room-playbook` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
 | `war-room-checkpoint` | [attune](../plugins/attune.md) | Inline reversibility assessment for embedded escalation |
 | `web-search` | [tome](../plugins/tome.md) | Open-web search via You.com MCP or WebSearch |
 | `workflow-diagram` | [cartograph](../plugins/cartograph.md) | Process and state transition diagrams |
@@ -339,7 +339,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `/session-to-post` | scribe | Convert session into blog post or case study |
 | `/shell-review` | pensive | Shell script safety and portability review |
 | `/skill-history` | pensive | View recent skill executions with context |
-| `/skill-library` | attune | Build a project skill library as a resumable mission |
+| `/skill-library-session` | attune | Build a project skill library as a resumable mission |
 | `/skill-logs` | memory-palace | View skill execution logs |
 | `/skill-review` | pensive | Analyze skill metrics and stability gaps |
 | `/skills-eval` | abstract | Skill quality assessment |

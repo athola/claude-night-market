@@ -216,7 +216,7 @@ progressive disclosure (summary first, detail on failure).
 
 ## Related Skills
 
-- `Skill(attune:project-init)`: Full project initialization
+- `Skill(attune:project-init-playbook)`: Full project initialization
 - `Skill(attune:workflow-setup)`: GitHub Actions setup
 - `Skill(attune:makefile-generation)`: Generate component
   Makefiles

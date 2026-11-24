@@ -1,5 +1,5 @@
 ---
-name: skill-library
+name: skill-library-session
 description: "Build a project skill library under .claude/skills/ as a resumable mission: discover, author in parallel, review adversarially."
 ---
 
@@ -34,13 +34,13 @@ Avoid this command if:
 
 ```bash
 # Full mission: discover, author, review, report
-/attune:skill-library
+/attune:skill-library-session
 
 # Resume an interrupted mission from .attune/mission-state.json
-/attune:skill-library --resume
+/attune:skill-library-session --resume
 
 # Constrain the library size (default: adapt within 10-16)
-/attune:skill-library --max-skills 12
+/attune:skill-library-session --max-skills 12
 ```
 
 ## What This Command Does
