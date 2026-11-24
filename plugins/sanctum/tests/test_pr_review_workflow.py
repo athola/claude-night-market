@@ -1,7 +1,7 @@
 """Contract tests for the /pr-review workflow documents.
 
 The workflow is executed by the model from three shipped documents:
-`skills/pr-review/SKILL.md`, its `modules/`, and `commands/pr-review.md`.
+`skills/pr-review-playbook/SKILL.md`, its `modules/`, and `commands/pr-review.md`.
 Each test pins one rule those documents state, so editing the rule out
 (or contradicting it between files) turns the test red.
 """
@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-SKILL_DIR = PLUGIN_ROOT / "skills" / "pr-review"
+SKILL_DIR = PLUGIN_ROOT / "skills" / "pr-review-playbook"
 
 
 def _read(*parts: str) -> str:
@@ -23,7 +23,7 @@ def _read(*parts: str) -> str:
 
 @pytest.fixture(scope="module")
 def skill_text() -> str:
-    return _read("skills", "pr-review", "SKILL.md")
+    return _read("skills", "pr-review-playbook", "SKILL.md")
 
 
 @pytest.fixture(scope="module")
@@ -33,12 +33,12 @@ def command_text() -> str:
 
 @pytest.fixture(scope="module")
 def version_text() -> str:
-    return _read("skills", "pr-review", "modules", "version-validation.md")
+    return _read("skills", "pr-review-playbook", "modules", "version-validation.md")
 
 
 @pytest.fixture(scope="module")
 def slop_text() -> str:
-    return _read("skills", "pr-review", "modules", "slop-detection.md")
+    return _read("skills", "pr-review-playbook", "modules", "slop-detection.md")
 
 
 @pytest.fixture(scope="module")
@@ -223,7 +223,9 @@ class TestReportStructure:
             assert re.search(rf"^### {heading} \(\d+\)$", report, re.M)
 
     def test_every_finding_category_is_defined_in_the_scope_framework(self) -> None:
-        framework = _read("skills", "pr-review", "modules", "scope-classification.md")
+        framework = _read(
+            "skills", "pr-review-playbook", "modules", "scope-classification.md"
+        )
         for category in ("BLOCKING", "IN-SCOPE", "SUGGESTION", "BACKLOG", "IGNORE"):
             assert f"| **{category}** |" in framework
 

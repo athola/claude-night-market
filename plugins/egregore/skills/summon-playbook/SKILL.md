@@ -16,7 +16,7 @@ dependencies:
   - pensive:code-refinement
   - conserve:bloat-detector
   - sanctum:pr-prep
-  - sanctum:pr-review
+  - sanctum:pr-review-playbook
   - sanctum:commit-messages
   - conserve:clear-context
 tools: []
@@ -233,7 +233,7 @@ or a budget limit is reached.
 | quality | update-tests | `Skill(sanctum:test-updates)` |
 | quality | update-docs | `Skill(sanctum:doc-updates)` |
 | ship | prepare-pr | `Skill(sanctum:pr-prep)` |
-| ship | pr-review | `Skill(sanctum:pr-review)` |
+| ship | pr-review | `Skill(sanctum:pr-review-playbook)` |
 | ship | fix-pr | Apply review fixes |
 | ship | merge | `gh pr merge` (if auto_merge enabled) |
 

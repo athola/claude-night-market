@@ -57,7 +57,7 @@ TOP_SKILLS = [
     "parseltongue:python-performance",
     "sanctum:commit-messages",
     "sanctum:pr-prep",
-    "sanctum:pr-review",
+    "sanctum:pr-review-playbook",
     "abstract:skill-authoring",
     "abstract:skills-eval-playbook",
     "imbue:proof-of-work",

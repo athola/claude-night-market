@@ -155,7 +155,7 @@ cross-team behavior. A design-bearing change with no decision record (an
 issue with an agreed approach, an ADR, a design doc or a plan) should
 say so to the user now. Agreeing the approach before review is cheaper
 than redesigning in it. Routine changes need no record. Detail:
-`Skill(sanctum:pr-review)` module `review-questions.md`.
+`Skill(sanctum:pr-review-playbook)` module `review-questions.md`.
 
 Then use the notes from the workspace review and the analyzer's
 categories to identify the key points in the diffs, and group them

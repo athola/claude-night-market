@@ -104,7 +104,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `dig` | [tome](../plugins/tome.md) | Interactive research refinement |
 | `digital-garden-cultivator` | [memory-palace](../plugins/memory-palace.md) | Digital garden maintenance |
 | `discourse` | [tome](../plugins/tome.md) | Community discussion scanning |
-| `do-issue` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
+| `do-issue-playbook` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
 | `doc-consolidation` | [sanctum](../plugins/sanctum.md) | Document merging |
 | `doc-generator` | [scribe](../plugins/scribe.md) | Generate and remediate documentation |
 | `doc-updates` | [sanctum](../plugins/sanctum.md) | Documentation maintenance |
@@ -162,7 +162,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `performance-review-playbook` | [pensive](../plugins/pensive.md) | Time and space complexity hotspot detection |
 | `plugin-review-playbook` | [abstract](../plugins/abstract.md) | Tiered plugin quality review with dependency-aware scoping |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
-| `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
+| `pr-review-playbook` | [sanctum](../plugins/sanctum.md) | PR review workflows |
 | `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
 | `problem-bank` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank. Surveys coverage gaps and proposes YAML-valid entries |
 | `progressive-loading` | [leyline](../plugins/leyline.md) | Dynamic content loading |
@@ -231,7 +231,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `unified-review-playbook` | [pensive](../plugins/pensive.md) | Review orchestration |
 | `uninstall-watchdog-playbook` | [egregore](../plugins/egregore.md) | Remove crash-recovery watchdog |
 | `update-readme` | [sanctum](../plugins/sanctum.md) | README maintenance and updates |
-| `validate-pr` | [sanctum](../plugins/sanctum.md) | Diff-derived PR test plan with revert-test quality checks |
+| `validate-pr-playbook` | [sanctum](../plugins/sanctum.md) | Diff-derived PR test plan with revert-test quality checks |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
 | `voice-extract` | [scribe](../plugins/scribe.md) | SICO comparative extraction from writing samples |

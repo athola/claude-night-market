@@ -26,7 +26,7 @@ class TestCommentGuidelinesStructure:
         return (
             Path(__file__).parents[3]
             / "skills"
-            / "pr-review"
+            / "pr-review-playbook"
             / "modules"
             / "comment-guidelines.md"
         )
@@ -57,7 +57,7 @@ class TestCommentGuidelinesContent:
         module_path = (
             Path(__file__).parents[3]
             / "skills"
-            / "pr-review"
+            / "pr-review-playbook"
             / "modules"
             / "comment-guidelines.md"
         )
@@ -158,7 +158,7 @@ class TestCommentGuidelinesThresholds:
         module_path = (
             Path(__file__).parents[3]
             / "skills"
-            / "pr-review"
+            / "pr-review-playbook"
             / "modules"
             / "comment-guidelines.md"
         )

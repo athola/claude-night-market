@@ -216,7 +216,7 @@ For each active work item, execute this loop:
 | quality | update-tests     | `Skill(egregore:quality-gate)` step=update-tests |
 | quality | update-docs      | `Skill(egregore:quality-gate)` step=update-docs |
 | ship    | prepare-pr       | `Skill(sanctum:pr-prep)`                |
-| ship    | pr-review        | `Skill(sanctum:pr-review)`              |
+| ship    | pr-review        | `Skill(sanctum:pr-review-playbook)`              |
 | ship    | fix-pr           | `/sanctum:fix-pr` (a command, not a skill) |
 | ship    | merge            | Handle directly (gh pr merge)           |
 

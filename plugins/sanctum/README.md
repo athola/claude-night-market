@@ -28,8 +28,8 @@ history and guides.
 | **update-readme** | Update README with current project status. |
 | **version-updates** | Version bumping across configs and changelogs. |
 | **workflow-improvement** | Improve skills, agents, commands, and hooks based on the most recent session. |
-| **pr-review** | Scope-focused PR review with knowledge capture integration. |
-| **do-issue** | Fix GitHub issues using parallel execution via sub-agents. |
+| **pr-review-playbook** | Scope-focused PR review with knowledge capture integration. |
+| **do-issue-playbook** | Fix GitHub issues using parallel execution via sub-agents. |
 | **tutorial-updates** | Generate tutorials with GIF recordings. |
 | **session-management** | Manage named sessions with `/rename`, `/resume`, and checkpoints. |
 

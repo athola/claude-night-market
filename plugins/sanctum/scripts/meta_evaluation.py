@@ -64,7 +64,7 @@ class MetaEvaluator:
             "bug-review-playbook",
         ],
         # Sanctum plugin (validation skills)
-        "sanctum": ["pr-review", "test-updates", "git-workspace-review"],
+        "sanctum": ["pr-review-playbook", "test-updates", "git-workspace-review"],
         # Parseltongue plugin (testing skills)
         "parseltongue": ["python-testing", "python-performance"],
         # Conserve plugin (quality skills)

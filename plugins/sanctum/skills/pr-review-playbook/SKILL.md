@@ -1,5 +1,5 @@
 ---
-name: pr-review
+name: pr-review-playbook
 description: Reviews pull requests with scope validation, requirements compliance, and line comments. Use when reviewing GitHub or GitLab PRs.
 alwaysApply: false
 category: review

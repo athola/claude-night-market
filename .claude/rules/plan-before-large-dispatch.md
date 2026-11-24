@@ -198,7 +198,7 @@ for the full schema and templates.
 - After dispatch: verify with `git worktree list`
   and `git diff --stat`
 
-Reference: `do-issue/modules/parallel-execution.md`
+Reference: `do-issue-playbook/modules/parallel-execution.md`
 (Worktree Isolation section)
 
 **Why this rule exists:**
@@ -219,6 +219,6 @@ Reference: `do-issue/modules/parallel-execution.md`
 
 **References:**
 
-- `plugins/sanctum/skills/do-issue/modules/parallel-execution.md`
+- `plugins/sanctum/skills/do-issue-playbook/modules/parallel-execution.md`
 - `plugins/imbue/skills/proof-of-work/modules/output-contracts.md`
 - `plugins/pensive/skills/tiered-audit/SKILL.md`

@@ -1,5 +1,5 @@
 ---
-name: do-issue
+name: do-issue-playbook
 role: entrypoint
 description: Implements GitHub or GitLab issues via parallel subagents with review gates between task batches. Use when resolving multi-step issues end-to-end.
 alwaysApply: false

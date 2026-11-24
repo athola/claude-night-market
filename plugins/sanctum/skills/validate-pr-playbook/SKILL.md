@@ -1,5 +1,5 @@
 ---
-name: validate-pr
+name: validate-pr-playbook
 description: Generates and self-executes a diff-derived test plan for a PR.
   Use when validating PR changes before merge. Do not use for code review;
   use sanctum:pr-review.

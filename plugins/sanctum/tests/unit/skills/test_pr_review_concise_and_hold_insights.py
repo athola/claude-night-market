@@ -36,8 +36,10 @@ ENFORCEMENT = (
 PHASES_1_4 = (
     PLUGIN_ROOT / "commands" / "pr-review" / "modules" / "review-workflow-phases-1-4.md"
 )
-SKILL = PLUGIN_ROOT / "skills" / "pr-review" / "SKILL.md"
-MODULE = PLUGIN_ROOT / "skills" / "pr-review" / "modules" / "suggestion-comments.md"
+SKILL = PLUGIN_ROOT / "skills" / "pr-review-playbook" / "SKILL.md"
+MODULE = (
+    PLUGIN_ROOT / "skills" / "pr-review-playbook" / "modules" / "suggestion-comments.md"
+)
 FIX_PR = PLUGIN_ROOT / "commands" / "fix-pr.md"
 LEYLINE_MAPPING = (
     REPO_ROOT

@@ -43,7 +43,7 @@ using `Skill(scribe:slop-detector)` before code review.
 
 **Run PR hygiene checks BEFORE detailed code analysis.**
 
-See `plugins/sanctum/skills/pr-review/modules/pr-hygiene.md`
+See `plugins/sanctum/skills/pr-review-playbook/modules/pr-hygiene.md`
 for the full detection heuristics.
 
 1. **Atomicity check (one PR = one logical change)**

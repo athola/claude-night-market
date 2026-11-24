@@ -126,7 +126,7 @@ Implementation looks promising once core requirements are complete.
 
 In addition to scope and code quality, every review
 evaluates four hygiene principles. See
-`plugins/sanctum/skills/pr-review/modules/pr-hygiene.md`
+`plugins/sanctum/skills/pr-review-playbook/modules/pr-hygiene.md`
 for detection heuristics and classification tables.
 
 | Principle | Phase | Typical Severity |

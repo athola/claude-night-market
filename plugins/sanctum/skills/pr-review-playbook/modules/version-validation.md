@@ -342,7 +342,7 @@ fi
 
 ```bash
 # Test version validation manually
-Skill(sanctum:pr-review)
+Skill(sanctum:pr-review-playbook)
 
 # With bypass
 /pr-review 42 --skip-version-check

@@ -14,7 +14,7 @@ complexity: medium
 estimated_tokens: 800
 dependencies:
 - sanctum:git-workspace-review
-- sanctum:do-issue
+- sanctum:do-issue-playbook
 ---
 
 # Stack Create

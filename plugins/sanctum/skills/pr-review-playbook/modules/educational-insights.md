@@ -4,7 +4,7 @@ description: >-
   Enrich PR review findings with educational context:
   why the fix matters, proof via best-practice links,
   and teachable moments that grow the implementer.
-parent_skill: sanctum:pr-review
+parent_skill: sanctum:pr-review-playbook
 category: review-infrastructure
 tags: [education, insights, best-practices, teaching]
 estimated_tokens: 300

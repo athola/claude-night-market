@@ -352,7 +352,7 @@ Conventional commit formatting.
 ### `sanctum:do-issue`
 GitHub issue resolution workflow.
 
-**Invocation**: `Skill(sanctum:do-issue)`
+**Invocation**: `Skill(sanctum:do-issue-playbook)`
 
 Steps: fetch issue details, create branch, implement fix,
 create PR linking issue.
