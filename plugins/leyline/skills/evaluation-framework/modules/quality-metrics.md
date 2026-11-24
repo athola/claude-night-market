@@ -245,7 +245,7 @@ Missing fields fail validation in
 
 ## Worked Example: Scoring a Skill File
 
-A reviewer measures a fictional `tome:research` skill
+A reviewer measures a fictional `tome:research-playbook` skill
 against the metrics above.
 
 ```text

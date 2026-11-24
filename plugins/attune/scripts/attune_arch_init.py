@@ -275,7 +275,7 @@ def perform_online_research(
 
     print("\n" + "-" * 60)
     print("\nThis script cannot search. Run the queries in the session")
-    print("(Skill(tome:research) or WebSearch), write what they argue for as")
+    print("(Skill(tome:research-playbook) or WebSearch), write what they argue for as")
     print('{"preferred": [...], "avoid": [...]} and pass it with --research-file.')
     print("Without one, the recommendation is the decision matrix alone.")
 

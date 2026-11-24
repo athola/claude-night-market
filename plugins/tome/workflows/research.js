@@ -5,7 +5,7 @@
 // and it has to report which channels came back empty, which is only knowable
 // once they all have.
 //
-// This does not replace Skill(tome:research). The skill owns domain
+// This does not replace Skill(tome:research-playbook). The skill owns domain
 // classification, channel weights, session state, citation formatting and the
 // memory-palace export. This script owns the part that is only dispatch.
 //
@@ -18,7 +18,7 @@ export const meta = {
   description:
     'Fan out one research question across tome channels and merge the findings into a ranked, per-channel report',
   whenToUse:
-    'Run from /tome:research once the topic is classified and the channel plan exists. Requires an explicit request: a workflow never starts unasked. args carry topic, channels (code|discourse|academic|triz), domain, trizDepth, trizAnalysis (the JSON of tome.channels.triz analyze) and entities (the products, projects or methods the question names). Returns findings for the skill to rank, cite and store. It writes nothing.',
+    'Run from /tome:research-session once the topic is classified and the channel plan exists. Requires an explicit request: a workflow never starts unasked. args carry topic, channels (code|discourse|academic|triz), domain, trizDepth, trizAnalysis (the JSON of tome.channels.triz analyze) and entities (the products, projects or methods the question names). Returns findings for the skill to rank, cite and store. It writes nothing.',
   phases: [
     { title: 'Channels', detail: 'one agent per selected channel' },
     { title: 'Gap fill', detail: 'search each named entity no channel covered' },
@@ -33,7 +33,7 @@ if (!input.topic) {
   return {
     started: false,
     reason: 'no-topic',
-    next: 'This workflow needs a classified topic and a channel plan. Run /tome:research, which classifies the domain and picks channels before dispatching. Do not improvise a plan here.',
+    next: 'This workflow needs a classified topic and a channel plan. Run /tome:research-session, which classifies the domain and picks channels before dispatching. Do not improvise a plan here.',
   }
 }
 
@@ -170,5 +170,5 @@ return {
     skipped,
     unsearched,
   },
-  next: 'Rank, cite and store these through Skill(tome:research). An empty channel is reported above with what it searched for, so a thin topic and a broken channel stay distinguishable.',
+  next: 'Rank, cite and store these through Skill(tome:research-playbook). An empty channel is reported above with what it searched for, so a thin topic and a broken channel stay distinguishable.',
 }

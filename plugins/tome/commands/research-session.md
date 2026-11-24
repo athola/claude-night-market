@@ -1,8 +1,8 @@
 ---
-name: research
+name: research-session
 description: 'Run a multi-source research session searching GitHub, HN, Lobsters, Reddit, arXiv, and Semantic Scholar. Use for multi-channel topic surveys.'
 usage: >-
-  /tome:research "<topic>" [--format report|brief|transcript]
+  /tome:research-session "<topic>" [--format report|brief|transcript]
   [--resume] [--list] [--domain <override>]
 ---
 
@@ -14,19 +14,19 @@ Start an autonomous multi-source research session.
 
 ```bash
 # Full research session
-/tome:research "async python patterns"
+/tome:research-session "async python patterns"
 
 # Choose output format
-/tome:research "cache eviction policies" --format brief
+/tome:research-session "cache eviction policies" --format brief
 
 # Resume most recent session
-/tome:research --resume
+/tome:research-session --resume
 
 # List saved sessions
-/tome:research --list
+/tome:research-session --list
 
 # Override domain classification
-/tome:research "raft consensus" --domain architecture
+/tome:research-session "raft consensus" --domain architecture
 ```
 
 ## What Happens
@@ -44,7 +44,7 @@ Start an autonomous multi-source research session.
 Invoke the research skill:
 
 ```
-Skill(tome:research)
+Skill(tome:research-playbook)
 ```
 
 Pass the topic, format flag, and any overrides.

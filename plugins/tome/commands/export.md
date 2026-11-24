@@ -22,7 +22,7 @@ Export research findings for memory-palace ingestion.
 
 ## Implementation
 
-Runs `Skill(tome:export)`, which calls
+Runs `Skill(tome:export-playbook)`, which calls
 `tome.output.export.export_for_memory_palace` on the loaded session.
 
 ## What Happens

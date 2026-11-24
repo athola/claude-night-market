@@ -4,7 +4,7 @@ description: |
   Run a multi-source research session: classify the topic
   domain, dispatch parallel channel agents, synthesize their
   findings, and produce a formatted report. Delegates the
-  actual workflow to ``Skill(tome:research)``; this agent
+  actual workflow to ``Skill(tome:research-playbook)``; this agent
   exists so the harness exposes ``tome:research`` as a
   dispatchable subagent type.
 tools:
@@ -28,7 +28,7 @@ and return its output verbatim.
 2. Invoke the orchestration workflow:
 
    ```
-   Skill(tome:research)
+   Skill(tome:research-playbook)
    ```
 
    Pass the topic and flags as the skill's input. The skill
@@ -49,7 +49,7 @@ errors out before the skill can run.
 
 This wrapper preserves the call shape both ways:
 
-- `Skill(tome:research)` invokes the skill directly.
+- `Skill(tome:research-playbook)` invokes the skill directly.
 - `Agent(subagent_type="tome:research")` activates this agent,
   which then invokes the same skill.
 

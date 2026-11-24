@@ -7,6 +7,7 @@ description edit, a comparison cannot see which items changed.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from scripts.activation.inventory import (
     build_inventory,
@@ -83,6 +84,18 @@ def test_workflow_outranks_command_for_a_shared_id(plugin_tree):
     (item,) = [i for i in build_inventory(plugin_tree) if i.id == "beta:sweep"]
     assert item.kind == "workflow"
     assert item.shadowed == ("plugins/beta/commands/sweep.md",)
+
+
+def test_no_routing_id_in_the_repo_is_shared_by_two_files():
+    """A shadowed file's description never reaches routing (#1055).
+
+    The listing shows one description per id, so a skill that shares its
+    id with a command or workflow is invisible to the model. Rename the
+    hidden side instead of adding to this list.
+    """
+    root = Path(__file__).resolve().parents[2]
+    shared = {i.id: i.shadowed for i in build_inventory(root) if i.shadowed}
+    assert shared == {}
 
 
 def test_disabled_file_does_not_shadow(plugin_tree):

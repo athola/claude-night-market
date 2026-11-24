@@ -15,7 +15,7 @@ estimated_tokens: 200
 ## When To Use
 
 - Finding existing implementations or libraries on GitHub
-- Part of a `/tome:research` session or standalone search
+- Part of a `/tome:research-session` session or standalone search
 
 ## When NOT To Use
 
@@ -26,7 +26,7 @@ Search GitHub for implementations of a given topic.
 
 ## Usage
 
-Invoked as part of `/tome:research` or standalone.
+Invoked as part of `/tome:research-session` or standalone.
 
 ## Workflow
 

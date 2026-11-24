@@ -105,7 +105,7 @@ mechanism. Permit voluntary use." A documented no is a valid result.
 
 ## The research-to-rules pipeline
 
-1. Run multi-channel research (`Skill(tome:research)` or manual) into
+1. Run multi-channel research (`Skill(tome:research-playbook)` or manual) into
    a dated synthesis at `docs/research/YYYY-MM-DD-<topic>.md`. Match
    the shape of the existing docs: Thesis, What the evidence says,
    solution pattern, Mapping to the night-market ecosystem, Evidence

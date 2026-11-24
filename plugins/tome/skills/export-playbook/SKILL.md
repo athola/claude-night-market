@@ -1,5 +1,5 @@
 ---
-name: export
+name: export-playbook
 description: Export a research session into knowledge-intake compatible markdown. Use after a research session to hand findings to memory-palace.
 alwaysApply: false
 category: output
@@ -9,7 +9,7 @@ tags:
 - knowledge-transfer
 - memory-palace
 dependencies:
-- tome:research
+- tome:research-playbook
 - tome:synthesize
 scripts: []
 usage_patterns:
@@ -31,8 +31,9 @@ than merely reported.
 
 ## When NOT To Use
 
-- The session is still gathering findings: finish `Skill(tome:research)`
-  first, since an export of an empty session emits only frontmatter.
+- The session is still gathering findings: finish
+  `Skill(tome:research-playbook)` first, since an export of an empty session
+  emits only frontmatter.
 - You want a human-readable report: use `Skill(tome:synthesize)`, which
   produces the narrative form with coverage and gaps.
 

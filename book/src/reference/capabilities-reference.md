@@ -101,7 +101,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `dependency-graph` | [cartograph](../plugins/cartograph.md) | Import and dependency diagrams |
 | `dependency-verification` | [imbue](../plugins/imbue.md) | Package-hallucination and slopsquat defense: verifies a package exists before install |
 | `diff-analysis` | [imbue](../plugins/imbue.md) | Semantic changeset analysis |
-| `dig` | [tome](../plugins/tome.md) | Interactive research refinement |
+| `dig-playbook` | [tome](../plugins/tome.md) | Interactive research refinement |
 | `digital-garden-cultivator` | [memory-palace](../plugins/memory-palace.md) | Digital garden maintenance |
 | `discourse` | [tome](../plugins/tome.md) | Community discussion scanning |
 | `do-issue-playbook` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
@@ -115,7 +115,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
 | `evaluation-framework` | [leyline](../plugins/leyline.md) | Decision thresholds and utility-guided action selection |
-| `export` | [tome](../plugins/tome.md) | Export research findings for knowledge-intake |
+| `export-playbook` | [tome](../plugins/tome.md) | Export research findings for knowledge-intake |
 | `extract` | [gauntlet](../plugins/gauntlet.md) | Analyze codebase and build a knowledge base |
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring and optional research enrichment via tome (`--research`) |
 | `friction-detector` | [abstract](../plugins/abstract.md) | Detect friction signals and graduate recurring patterns into rules |
@@ -180,7 +180,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `quality-gate` | [egregore](../plugins/egregore.md) | Pre-merge quality validation for autonomous sessions |
 | `qwen-delegation` | [conjure](../plugins/conjure.md) | Qwen MCP integration |
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
-| `research` | [tome](../plugins/tome.md) | Multi-source research orchestration |
+| `research-playbook` | [tome](../plugins/tome.md) | Multi-source research orchestration |
 | `response-compression` | [conserve](../plugins/conserve.md) | Response compression patterns |
 | `review-chamber` | [memory-palace](../plugins/memory-palace.md) | PR review knowledge capture and retrieval |
 | `review-core` | [imbue](../plugins/imbue.md) | Scaffolding for detailed reviews |
@@ -365,7 +365,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `/tome:cite` | tome | Generate formatted bibliography |
 | `/tome:dig` | tome | Refine research results interactively |
 | `/tome:export` | tome | Export research findings |
-| `/tome:research` | tome | Run multi-source research session |
+| `/tome:research-session` | tome | Run multi-source research session |
 | `/unbloat` | conserve | Safe bloat remediation with interactive approval |
 | `/uninstall-watchdog` | egregore | Remove crash-recovery watchdog |
 | `/update-all-plugins` | leyline | Update all plugins |
@@ -430,7 +430,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `python-optimizer` | parseltongue | Performance optimization |
 | `python-pro` | parseltongue | Python 3.9+ expertise |
 | `python-tester` | parseltongue | Testing expertise |
-| `research` | tome | Multi-source research orchestrator (delegates to `Skill(tome:research)`) |
+| `research` | tome | Multi-source research orchestrator (delegates to `Skill(tome:research-playbook)`) |
 | `review-analyst` | imbue | Structured reviews |
 | `rust-auditor` | pensive | Rust security audit |
 | `sentinel` | egregore | Watchdog agent for crash recovery |

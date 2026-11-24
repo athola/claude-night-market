@@ -224,7 +224,7 @@ can name the dimension that should be allowed to veto.
 ## Worked Example: Scoring a Skill
 
 A reviewer applies the skill-quality rubric to a fictional
-`tome:research` skill.
+`tome:research-playbook` skill.
 
 ```text
 activation_clarity:  4   (3+ trigger phrases; no subagent test)

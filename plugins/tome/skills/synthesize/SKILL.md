@@ -19,7 +19,7 @@ estimated_tokens: 150
 
 ## When NOT To Use
 
-- No research session is active (run `/tome:research` first)
+- No research session is active (run `/tome:research-session` first)
 - Refining a single channel (use `/tome:dig` instead)
 
 Merge findings from all channels into a ranked report.
@@ -54,4 +54,4 @@ Merge findings from all channels into a ranked report.
 - [ ] If the merged finding count is 0, this is stated explicitly
       rather than generating an empty or fabricated report
 - [ ] If no active session exists, error emitted directing the user
-      to run `/tome:research` first
+      to run `/tome:research-session` first

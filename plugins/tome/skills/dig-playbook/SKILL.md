@@ -1,5 +1,5 @@
 ---
-name: dig
+name: dig-playbook
 description: Refines an active research session by drilling deeper into a subtopic. Use after tome:research to narrow results to a specific channel or angle.
 alwaysApply: false
 category: research
@@ -18,7 +18,7 @@ estimated_tokens: 200
 
 ## When NOT To Use
 
-- Starting a new research topic (use `/tome:research` first)
+- Starting a new research topic (use `/tome:research-session` first)
 - Synthesizing results (use `Skill(tome:synthesize)`)
 
 Refine an active research session interactively.
@@ -35,7 +35,7 @@ Refine an active research session interactively.
 ## Error Cases
 
 - No active session: "Start a session first with
-  `/tome:research \"topic\"`"
+  `/tome:research-session \"topic\"`"
 - Specified channel not in original session: warn and
   suggest available channels
 
@@ -43,7 +43,7 @@ Refine an active research session interactively.
 
 - [ ] Active session loaded from SessionManager before any search
       executes; if absent, error "Start a session first with
-      `/tome:research \"<topic>\"`" is emitted and skill halts
+      `/tome:research-session \"<topic>\"`" is emitted and skill halts
 - [ ] New findings merged into the existing session without
       overwriting prior findings from other channels
 - [ ] Session report re-ranked and saved after the merge so
