@@ -68,7 +68,7 @@ Do not add these, and remove them when editing a file that has them:
   disagreement as bad faith, including the ones where the instruction
   is simply wrong about the situation.
 - **"If you think this doesn't apply, reconsider - it probably does."**
-  Instructs a session to distrust its own read in favour of an author
+  Instructs a session to distrust its own read in favor of an author
   who never saw it.
 - **Intensity ladders** that escalate phrasing by skill category. If a
   skill is passed over where it applies, the description is wrong.

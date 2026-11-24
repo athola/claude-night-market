@@ -65,7 +65,7 @@ top one. The workflow tier told the reader: "If you think this doesn't
 apply, reconsider - it probably does."
 
 That instruction is the problem in one line. It tells a session to
-distrust its own read of the situation in favour of an author who
+distrust its own read of the situation in favor of an author who
 never saw the situation. When the author was right, it adds nothing
 that accurate triggers would not have. When the author was wrong, it
 is the only thing standing between the session and the correct call.

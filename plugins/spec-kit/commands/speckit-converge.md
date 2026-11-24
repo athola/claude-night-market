@@ -175,12 +175,9 @@ If this convergence surfaced a recurring gap pattern, a failed approach, or a
 blocker, record it to `docs/lessons-learned.md` so the insight survives past
 the session (draft and confirm):
 
-- If leyline is installed, invoke `Skill(leyline:decision-journal)` and
-  append a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`,
-  `action`; set `phase` to `execute`). Show the draft and append on
-  confirmation.
-- Fallback (leyline absent): append to `docs/lessons-learned.md` using the
-  in-file ENTRY TEMPLATE, and assign the next `LL-NNN` id.
+Invoke `Skill(leyline:decision-journal)` and append a lesson entry
+(`what_happened`, `what_didnt_work`, `root_cause`, `action`; set `phase` to
+`execute`). Show the draft and append on confirmation.
 
 Note: This command assumes `/speckit-implement` has already run on a complete
 `tasks.md`. It assesses present state, not changes. It does not replace
