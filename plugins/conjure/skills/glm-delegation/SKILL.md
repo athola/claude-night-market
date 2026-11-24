@@ -1,6 +1,6 @@
 ---
 name: glm-delegation
-description: Delegates tasks to Z.ai GLM-5.x via the stock claude binary and an endpoint swap. Use when delegation-core selects GLM or a 1M-token context is needed.
+description: Delegates to Z.ai GLM-5.x via the claude binary and an endpoint swap. Use when delegation-core selects GLM or 1M-token context is needed.
 alwaysApply: false
 category: delegation-implementation
 tags:
