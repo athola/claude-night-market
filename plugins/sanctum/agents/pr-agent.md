@@ -88,9 +88,10 @@ descriptions share a shape, use theirs and the rules in that module's
 
 - Imperative, self-contained title (doubles as the summary)
 - Facts table: Who, Where (internal and external), When
-- Why section (1-3 sentences, grounded in an issue or a number)
+- Why section (1-3 sentences, grounded in an issue or a number, linking
+  where the need and approach were agreed when they were)
 - What and how section (change, plus rejected alternative when a real
-  decision point existed)
+  decision point existed), ending with a Where to look line
 - Test plan (numbered steps, expected result on each)
 - Checklist completion
 - Issue/screenshot linking

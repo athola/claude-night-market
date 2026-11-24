@@ -153,11 +153,13 @@ drift.
 | **When** | `on merge`, or the flag / migration window / integration date |
 
 ## Why
-[Motivating problem, why merging now matters, linked issue]
+[Motivating problem, why merging now matters, linked issue; link where
+the need and approach were agreed, if they were]
 
 ## What and how
 [What changed in the reader's terms; approach and rejected
 alternative when a real decision point existed]
+Where to look: [the one or two places this could be wrong]
 
 ## Test plan
 1. `make test`: 142/142 passing

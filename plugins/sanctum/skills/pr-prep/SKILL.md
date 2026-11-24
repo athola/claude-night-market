@@ -149,6 +149,14 @@ decision, so `passes_checks` and `includes_breaking_changes` always
 read `unknown`. Treat `unknown` as "you must check this yourself",
 never as a pass. Step 2 is where `passes_checks` gets its answer.
 
+Before drafting, check whether the change is design-bearing: it adds a
+component, a public contract, a data model, a dependency, or a
+cross-team behavior. A design-bearing change with no decision record (an
+issue with an agreed approach, an ADR, a design doc or a plan) should
+say so to the user now. Agreeing the approach before review is cheaper
+than redesigning in it. Routine changes need no record. Detail:
+`Skill(sanctum:pr-review)` module `review-questions.md`.
+
 Then use the notes from the workspace review and the analyzer's
 categories to identify the key points in the diffs, and group them
 into 2-4 paragraphs on the technical changes and their rationale. Note breaking

@@ -29,7 +29,14 @@ equivalents.
    4. PR description and commit history
    ```
 
-2. **Check Existing Backlog for Context**
+2. **Locate the decision record**
+
+   Record whether the need (Q1) and the approach (Q2) were settled
+   before this PR, and where: `settled (<link>)` or `unsettled`. Lookup
+   order, the design-bearing test and the REVISIT routing are in
+   `skills/pr-review/modules/review-questions.md`.
+
+3. **Check Existing Backlog for Context**
    ```bash
    # Check for existing backlog files to avoid duplicate issue creation
    ls docs/backlog/*.md 2>/dev/null
@@ -43,7 +50,7 @@ equivalents.
    - Avoid creating duplicate GitHub issues for items already tracked
    - Link new issues to related existing items when appropriate
 
-3. **Establish Requirements Baseline**
+4. **Establish Requirements Baseline**
    ```markdown
    This PR aims to: [extracted from artifacts]
 
@@ -562,6 +569,9 @@ Mode: local (not posted to PR)
 ## Scope Compliance
 ...
 
+## Review Questions
+...
+
 ## Blocking Issues (N)
 ...
 
@@ -572,6 +582,9 @@ Mode: local (not posted to PR)
 ...
 
 ## Backlog Items (N)
+...
+
+## Revisit (N)
 ...
 
 ---

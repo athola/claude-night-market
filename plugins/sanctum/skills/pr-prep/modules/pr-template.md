@@ -155,6 +155,11 @@ reconstruct from the diff.
 Ground it. "Three bug reports traced to this" beats "improves
 consistency".
 
+When the change was discussed before the PR, link where the need and
+the approach were agreed: the issue, ADR, RFC, design doc, or pairing
+note. A reviewer then checks the diff against that decision instead of
+reopening it. With no such record, the Why carries the argument itself.
+
 The Why is thinking text. Writing it is how the engineer finds out
 whether the change is worth merging. The engineer writes it or confirms
 it sentence by sentence, and the same holds for the how when it names
@@ -169,7 +174,12 @@ a non-obvious approach, a tradeoff, or an alternative someone will
 predictably ask about. Naming the rejected alternative pre-empts the
 review comment that would otherwise cost a round trip.
 
-Mechanical changes skip the how entirely.
+Mechanical changes skip the how entirely. When the approach was
+agreed elsewhere, the how covers only where the code departs from it.
+
+End with a **Where to look** line: the one or two places this change
+could be wrong, such as a boundary, a migration, or a concurrency path.
+The author knows them best, and a reviewer reads them first.
 
 ## Manual test plans
 
