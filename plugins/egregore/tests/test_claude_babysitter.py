@@ -223,6 +223,16 @@ class TestTheJudgeCallCarriesItsGuardAndReportsItsFailure:
 
         assert limited.value.kind == "rate_limit"
 
+    def test_a_bare_429_in_a_failed_call_is_not_a_quota_refusal(self) -> None:
+        """``classify`` reads a bare "429" anywhere, as the walk's guard says.
+
+        Without the same refusal-marker check, a judge failure whose text
+        quotes a status code would park the item and write a cooldown.
+        """
+        verdict, _, _ = self._judge(FakeCli(1, "claude: test asserted 429 == 200"))
+
+        assert verdict == "BLOCKED"
+
     def test_a_capacity_refusal_is_named_but_not_raised(self) -> None:
         """Overload is not a quota limit, and the walk does not park on it."""
         verdict, reason, _ = self._judge(FakeCli(1, "529 overloaded_error"))
