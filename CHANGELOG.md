@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.4] - 2026-11-23
+
 ### Added
 
 - **conserve:** `scripts/session_cost.py` reads a session transcript and
@@ -21,6 +23,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   hooks that must give up before the harness kills them. On Windows the
   lock is now `msvcrt.locking` on byte 0 where it used to be skipped, the
   scheme the abstract skill logger already used.
+
+- **gauntlet:** each full graph build records `gauntlet_version`. At session
+  start, a graph built by an older version is rebuilt once in the
+  background through `uv run --project` (log: `.gauntlet/rebuild.log`).
+  Opt out with `rebuild_on_upgrade: false` in `.gauntlet/config.json`.
+- `make graph` runs a full gauntlet graph build. The release runbook
+  calls it after the version bump.
+
+Review lessons from Caldara and Fernandez-Villaverde, "Can Peer Review
+Survive AI-Generated Text?" (2026):
+
+- **pensive:** a `unified-review` reviewer that cannot assess its
+  dimension returns `declined` with a reason. The return lists it under
+  `dimensions.declined` and leaves it out of `reviewed`. Before, an
+  empty list was the only exit and read as a clean dimension.
+- **pensive:** the architecture reviewer counts a departure from a
+  standard only when it names the cost. The workflow and skill state
+  that lens votes share one model and their errors correlate.
+- **sanctum:** `pr-review` treats a slop score as a trigger to verify
+  the document's claims. The finding is the false claim. The PR
+  template marks the Why as the engineer's thinking text.
+- **conjure:** Keep Local names unpublished code under review.
+
+Six deterministic guards and one evidence rule, ported from NVIDIA
+auto-ontology (`3825917a`). Each holds an agent's claim to what its
+tools returned.
+
+- **memory-palace:** an embedding index records the model that built
+  it. A search with a different model raises
+  `EmbeddingModelMismatchError`. An index saved before this stays
+  unattributed rather than being stamped with a guess.
+- **tome:** `find_ungrounded_urls` returns report URLs that no
+  finding carries. `identify_gaps(..., entities=)` reports question
+  entities that no finding mentions, with an `entity_coverage` ratio.
+- **gauntlet:** call edges record `resolution` (`exact`,
+  `name_guess`, or empty). An existing graph database gains the
+  column when opened. A bare call that matches several vendored copies
+  resolves to the caller's own plugin copy, as a `name_guess`. Blast radius
+  reports those guessed callers under `name_guess_callers`.
+- **imbue:** `vow_bounded_reads` warns when a Read, Grep or Glob call
+  repeats an identical earlier one. The repeat still counts against
+  the budget.
+- **phantom:** `--no-bash` and `--no-editor` withhold the shell and file
+  editor tools, which stay on by default.
+- **pensive:** `pensive-harden --sarif` emits SARIF 2.1.0 for code-scanning
+  upload.
+- **conjure:** `--total-timeout` (and `total_timeout=`) bounds the
+  provider calls of the `auto` chain. Availability checks are not counted,
+  and no provider is probed after the total has run out.
+- **phantom:** the `cursor_position` action reports the pointer.
+- **abstract:** failed Skill calls are logged through `PostToolUseFailure`.
+- **tome:** a session stores the entities its question names, and the
+  report lists the ones no finding mentions.
 
 ### Changed
 
@@ -53,6 +108,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   session. `discussions_context` gates the recent-discussions fetch,
   whose text anyone can write on a public repository. Users who relied
   on the fetch turn it on in `/config`.
+
+- **imbue:** proof-of-work's evidence-logging module now says that
+  capped or empty output proves no absence, completeness or total. It
+  also separates observed, inferred, recommended and executed claims.
+
+Intent artifacts now ask for intent and leave the "what" to the diff,
+after "IDRs as records of intent" (Will Lachance, 2026-10-10).
+
+- **sanctum:** the pr-prep description scaffold is the pr-prep
+  template's Who/Where/When table, Why, What and how, and Test plan,
+  rendered in a fence. It used to list the changed paths. The
+  `describes_changes` gate is removed: paths cannot judge a description.
+- **sanctum:** commit-messages, `commit-msg`, `acp` and the commit agent
+  ask the body for why.
+- **attune:** both brief templates carry Out of Scope (things that could
+  reasonably be goals, chosen not to be). Blueprint tasks carry Decision
+  Notes in place of implementation detail.
+- **abstract:** a skill execution's outcome comes from the hook event,
+  not from searching its text for "error".
+  `AmbiguityType.SHARED_SERVICE` names the shared-service check, and
+  `CIRCULAR_DEPENDENCY` remains as an alias.
+- **conjure:** War Room checks expert availability with the registry's
+  verification, not a billed completion. Expert command lines come from
+  the delegation registry, and failed experts are kept out of votes and
+  synthesis. `--verify` reports a missing binary before a missing key.
+  The usage log is created 0600.
+- **egregore:** a ready item reverts stray uncommitted edits before its
+  final suite runs.
+- **imbue:** the scope ramp skips prose and data suffixes (`.md`,
+  `.yaml`, `.json`, `.toml`, `.lock` and a few more) unless the path is
+  high-stakes. Block-mode bounded reads allow a targeted read up to twice
+  the budget.
+- **oracle:** provisioning installs pyyaml only, since nothing imports
+  onnxruntime yet. The daemon is shared by session refcount.
+- **parseltongue:** `"%s" % name` is no longer rewritten to an f-string.
+- **sanctum:** the security hook decides documentation by file suffix.
+- **scribe:** `myriad`, `empower`, `actionable` and `seamless` score as
+  tier 1. Session replay redacts credentials and the home directory.
+
+### Removed
+
+- **memory-palace:** `KnowledgeGraph.get_entity_ids`, which lost its only
+  caller when the tier subsystem was deleted.
+- Frontmatter keys nothing reads: `token_budget` (conserve),
+  `optional_dependencies` (sanctum doc-updates), `aliases` (sanctum
+  prepare-pr) and one `trigger`. The `evaluation_criteria` weights in
+  abstract's rules-eval and skills-eval move into each skill body.
+- **conserve:** `scripts/safe_replacer.py`, a one-time migration tool with
+  no caller.
+- **hookify:** the `matchers` package (`PatternMatcher`) and
+  `ConfigLoader.get_rule_status`, neither with a production caller.
+- **conjure:** the unregistered gemini bridge hooks, which read a payload
+  key the harness never sends.
+- **sanctum:** `BreakingChanges.affected_apis`, which no producer filled.
 
 ### Fixed
 
@@ -397,121 +506,6 @@ corrected text for a docs finding.
 - **tome:** citation grounding no longer flags a retrieved source cited
   with another scheme, a `www.` prefix or reordered query parameters,
   and one malformed finding URL no longer aborts the check
-
-## [1.10.4] - 2026-11-18
-
-### Added
-
-- **gauntlet:** each full graph build records `gauntlet_version`. At session
-  start, a graph built by an older version is rebuilt once in the
-  background through `uv run --project` (log: `.gauntlet/rebuild.log`).
-  Opt out with `rebuild_on_upgrade: false` in `.gauntlet/config.json`.
-- `make graph` runs a full gauntlet graph build. The release runbook
-  calls it after the version bump.
-
-Review lessons from Caldara and Fernandez-Villaverde, "Can Peer Review
-Survive AI-Generated Text?" (2026):
-
-- **pensive:** a `unified-review` reviewer that cannot assess its
-  dimension returns `declined` with a reason. The return lists it under
-  `dimensions.declined` and leaves it out of `reviewed`. Before, an
-  empty list was the only exit and read as a clean dimension.
-- **pensive:** the architecture reviewer counts a departure from a
-  standard only when it names the cost. The workflow and skill state
-  that lens votes share one model and their errors correlate.
-- **sanctum:** `pr-review` treats a slop score as a trigger to verify
-  the document's claims. The finding is the false claim. The PR
-  template marks the Why as the engineer's thinking text.
-- **conjure:** Keep Local names unpublished code under review.
-
-Six deterministic guards and one evidence rule, ported from NVIDIA
-auto-ontology (`3825917a`). Each holds an agent's claim to what its
-tools returned.
-
-- **memory-palace:** an embedding index records the model that built
-  it. A search with a different model raises
-  `EmbeddingModelMismatchError`. An index saved before this stays
-  unattributed rather than being stamped with a guess.
-- **tome:** `find_ungrounded_urls` returns report URLs that no
-  finding carries. `identify_gaps(..., entities=)` reports question
-  entities that no finding mentions, with an `entity_coverage` ratio.
-- **gauntlet:** call edges record `resolution` (`exact`,
-  `name_guess`, or empty). An existing graph database gains the
-  column when opened. A bare call that matches several vendored copies
-  resolves to the caller's own plugin copy, as a `name_guess`. Blast radius
-  reports those guessed callers under `name_guess_callers`.
-- **imbue:** `vow_bounded_reads` warns when a Read, Grep or Glob call
-  repeats an identical earlier one. The repeat still counts against
-  the budget.
-- **phantom:** `--no-bash` and `--no-editor` withhold the shell and file
-  editor tools, which stay on by default.
-- **pensive:** `pensive-harden --sarif` emits SARIF 2.1.0 for code-scanning
-  upload.
-- **conjure:** `--total-timeout` (and `total_timeout=`) bounds the
-  provider calls of the `auto` chain. Availability checks are not counted,
-  and no provider is probed after the total has run out.
-- **phantom:** the `cursor_position` action reports the pointer.
-- **abstract:** failed Skill calls are logged through `PostToolUseFailure`.
-- **tome:** a session stores the entities its question names, and the
-  report lists the ones no finding mentions.
-
-### Changed
-
-- **imbue:** proof-of-work's evidence-logging module now says that
-  capped or empty output proves no absence, completeness or total. It
-  also separates observed, inferred, recommended and executed claims.
-
-Intent artifacts now ask for intent and leave the "what" to the diff,
-after "IDRs as records of intent" (Will Lachance, 2026-10-10).
-
-- **sanctum:** the pr-prep description scaffold is the pr-prep
-  template's Who/Where/When table, Why, What and how, and Test plan,
-  rendered in a fence. It used to list the changed paths. The
-  `describes_changes` gate is removed: paths cannot judge a description.
-- **sanctum:** commit-messages, `commit-msg`, `acp` and the commit agent
-  ask the body for why.
-- **attune:** both brief templates carry Out of Scope (things that could
-  reasonably be goals, chosen not to be). Blueprint tasks carry Decision
-  Notes in place of implementation detail.
-- **abstract:** a skill execution's outcome comes from the hook event,
-  not from searching its text for "error".
-  `AmbiguityType.SHARED_SERVICE` names the shared-service check, and
-  `CIRCULAR_DEPENDENCY` remains as an alias.
-- **conjure:** War Room checks expert availability with the registry's
-  verification, not a billed completion. Expert command lines come from
-  the delegation registry, and failed experts are kept out of votes and
-  synthesis. `--verify` reports a missing binary before a missing key.
-  The usage log is created 0600.
-- **egregore:** a ready item reverts stray uncommitted edits before its
-  final suite runs.
-- **imbue:** the scope ramp skips prose and data suffixes (`.md`,
-  `.yaml`, `.json`, `.toml`, `.lock` and a few more) unless the path is
-  high-stakes. Block-mode bounded reads allow a targeted read up to twice
-  the budget.
-- **oracle:** provisioning installs pyyaml only, since nothing imports
-  onnxruntime yet. The daemon is shared by session refcount.
-- **parseltongue:** `"%s" % name` is no longer rewritten to an f-string.
-- **sanctum:** the security hook decides documentation by file suffix.
-- **scribe:** `myriad`, `empower`, `actionable` and `seamless` score as
-  tier 1. Session replay redacts credentials and the home directory.
-
-### Removed
-
-- **memory-palace:** `KnowledgeGraph.get_entity_ids`, which lost its only
-  caller when the tier subsystem was deleted.
-- Frontmatter keys nothing reads: `token_budget` (conserve),
-  `optional_dependencies` (sanctum doc-updates), `aliases` (sanctum
-  prepare-pr) and one `trigger`. The `evaluation_criteria` weights in
-  abstract's rules-eval and skills-eval move into each skill body.
-- **conserve:** `scripts/safe_replacer.py`, a one-time migration tool with
-  no caller.
-- **hookify:** the `matchers` package (`PatternMatcher`) and
-  `ConfigLoader.get_rule_status`, neither with a production caller.
-- **conjure:** the unregistered gemini bridge hooks, which read a payload
-  key the harness never sends.
-- **sanctum:** `BreakingChanges.affected_apis`, which no producer filled.
-
-### Fixed
 
 Tier 3 review, high-severity findings (2026-11-17).
 
