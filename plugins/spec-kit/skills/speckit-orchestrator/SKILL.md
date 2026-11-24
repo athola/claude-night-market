@@ -1,7 +1,7 @@
 ---
 name: speckit-orchestrator
 role: entrypoint
-description: Coordinates the spec, plan, and task skills of Spec Driven Development. Use when running the full speckit workflow.
+description: Orchestrates Spec Driven Development by coordinating spec, plan, and task skills. Use when running the full speckit workflow from spec to implementation.
 alwaysApply: false
 category: workflow-orchestration
 tags:
