@@ -125,11 +125,11 @@ def sample_plugin_json():
                 "file": "skills/diff-analysis/SKILL.md",
             },
             {
-                "name": "catchup",
+                "name": "catchup-playbook",
                 "description": (
                     "Methodology for summarizing changes and extracting insights"
                 ),
-                "file": "skills/catchup/SKILL.md",
+                "file": "skills/catchup-playbook/SKILL.md",
             },
             {
                 "name": "structured-output",

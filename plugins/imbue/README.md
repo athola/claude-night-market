@@ -218,13 +218,13 @@ imbue/
 
 Use `Skill(imbue:review-core)` for review scaffolding
 and `Skill(imbue:diff-analysis)`
-or `Skill(imbue:catchup)` for analysis methodologies.
+or `Skill(imbue:catchup-playbook)` for analysis methodologies.
 `Skill(imbue:scope-guard)`
 and `Skill(imbue:rigorous-reasoning)` provide workflow guardrails.
 Feature planning uses `Skill(imbue:feature-review)`,
 while `Skill(imbue:proof-of-work)` handles verification.
 `Skill(imbue:workflow-monitor)` tracks execution,
-`Skill(imbue:justify)` audits changes for additive bias,
+`Skill(imbue:justify-playbook)` audits changes for additive bias,
 and output patterns are managed via `Skill(imbue:proof-of-work)`
 and `Skill(imbue:structured-output)`.
 

@@ -43,7 +43,7 @@ orchestrates:
 - pensive:bug-review
 - pensive:test-review
 - pensive:math-review
-- imbue:justify
+- imbue:justify-playbook
 ---
 
 # Unified Review Orchestration

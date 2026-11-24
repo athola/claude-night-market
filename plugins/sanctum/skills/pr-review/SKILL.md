@@ -42,7 +42,7 @@ dependencies:
 - sanctum:version-updates
 - pensive:unified-review
 - imbue:proof-of-work
-- imbue:justify
+- imbue:justify-playbook
 - imbue:review-core
 - imbue:structured-output
 - memory-palace:review-chamber
@@ -223,7 +223,7 @@ Scope check: Is input validation mentioned in requirements?
 
 ### Phase 4.5: Additive Bias Audit
 
-Run `Skill(imbue:justify)` on the PR changes to detect
+Run `Skill(imbue:justify-playbook)` on the PR changes to detect
 AI additive bias, test-logic tampering, and unnecessary
 complexity.
 

@@ -1,7 +1,7 @@
 ---
 name: log-analysis-patterns
 description: System log and event stream analysis patterns for catchup
-parent_skill: imbue:catchup
+parent_skill: imbue:catchup-playbook
 category: analysis-patterns
 tags: [logs, events, monitoring, time-series]
 estimated_tokens: 300

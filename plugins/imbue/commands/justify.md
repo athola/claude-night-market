@@ -29,7 +29,7 @@ tampering, and unnecessary complexity.
 ## What It Does
 
 1. Loads the justify methodology:
-   `Skill(imbue:justify)`
+   `Skill(imbue:justify-playbook)`
 2. Gathers the change delta (git diff from base branch)
 3. Computes an additive bias score
 4. Checks Iron Law compliance (test logic tampering)

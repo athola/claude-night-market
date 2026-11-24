@@ -1,7 +1,7 @@
 ---
 name: git-catchup-patterns
 description: Git-specific commands and patterns for catchup analysis
-parent_skill: imbue:catchup
+parent_skill: imbue:catchup-playbook
 category: technical-patterns
 tags: [git, version-control, delta-capture]
 estimated_tokens: 400

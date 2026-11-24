@@ -187,7 +187,7 @@ because only a functional test shows the behavior the claim is about.
 ### `imbue:justify`
 Post-implementation audit for AI additive bias.
 
-**Invocation**: `Skill(imbue:justify)`
+**Invocation**: `Skill(imbue:justify-playbook)`
 
 Scores changes on five signals: line ratio,
 new files, test-logic tampering, new abstractions,
@@ -208,7 +208,7 @@ subtraction-first approaches.
 ### `imbue:catchup`
 Context recovery after session restart.
 
-**Invocation**: `Skill(imbue:catchup)`
+**Invocation**: `Skill(imbue:catchup-playbook)`
 
 The skill walks through checking git status, reviewing open issues/PRs,
 reading any session artifacts, and identifying work that was interrupted.

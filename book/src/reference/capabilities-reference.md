@@ -78,7 +78,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `call-chain` | [cartograph](../plugins/cartograph.md) | Trace execution paths through code knowledge graph |
-| `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
+| `catchup-playbook` | [imbue](../plugins/imbue.md) | Context recovery |
 | `challenge` | [gauntlet](../plugins/gauntlet.md) | Adaptive difficulty challenge session for codebase knowledge testing |
 | `class-diagram` | [cartograph](../plugins/cartograph.md) | Class and interface diagrams |
 | `clear-context` | [conserve](../plugins/conserve.md) | Auto-clear workflow with session state persistence |
@@ -135,7 +135,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
 | `ideate` | [tome](../plugins/tome.md) | Diverse ideation methods with category-spanning selection and rotation |
 | `install-watchdog-playbook` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
-| `justify` | [imbue](../plugins/imbue.md) | Anti-additive-bias change audit |
+| `justify-playbook` | [imbue](../plugins/imbue.md) | Anti-additive-bias change audit |
 | `karpathy-principles` | [imbue](../plugins/imbue.md) | Compact four-principle synthesis for LLM coding pitfalls |
 | `knowledge-intake` | [memory-palace](../plugins/memory-palace.md) | Intake and curation |
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |

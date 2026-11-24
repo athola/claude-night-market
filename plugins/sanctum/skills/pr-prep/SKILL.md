@@ -19,7 +19,7 @@ modules:
 dependencies:
 - sanctum:git-workspace-review
 - imbue:proof-of-work
-- imbue:justify
+- imbue:justify-playbook
 - imbue:structured-output
 - scribe:slop-detector
 - scribe:doc-generator
@@ -102,7 +102,7 @@ finding before posting.
 
 **Additive bias audit:**
 
-Run `Skill(imbue:justify)` to compute the additive bias
+Run `Skill(imbue:justify-playbook)` to compute the additive bias
 score and check Iron Law compliance. If the score is
 YELLOW or above, justify each flagged signal before
 proceeding. If RED or STOP, rethink the approach.

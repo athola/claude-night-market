@@ -1,5 +1,5 @@
 ---
-name: catchup
+name: catchup-playbook
 description: Summarizes recent git changes for context recovery after session breaks. Use when resuming work after a gap or handing off to another session.
 alwaysApply: false
 category: analysis-methods

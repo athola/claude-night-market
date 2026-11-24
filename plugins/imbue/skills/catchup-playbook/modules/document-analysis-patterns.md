@@ -1,7 +1,7 @@
 ---
 name: document-analysis-patterns
 description: Document and meeting notes analysis patterns for catchup
-parent_skill: imbue:catchup
+parent_skill: imbue:catchup-playbook
 category: analysis-patterns
 tags: [documents, meetings, notes, tracking]
 estimated_tokens: 300
