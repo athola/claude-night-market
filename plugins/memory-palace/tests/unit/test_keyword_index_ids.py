@@ -38,3 +38,29 @@ def test_a_nested_file_and_a_dash_named_file_get_distinct_ids(
     entry_ids = sorted(indexer.index["entries"].keys())
     assert len(entry_ids) == 2, f"one entry overwrote the other; ids were {entry_ids}"
     assert len(set(entry_ids)) == 2
+
+
+def test_a_nested_file_and_a_double_dash_named_file_get_distinct_ids(
+    tmp_path: Path,
+) -> None:
+    """Mapping "/" to "--" moved the collision to "foo--bar.md" (#1076)."""
+    corpus = tmp_path / "corpus"
+    _write(corpus / "foo" / "bar.md", "Nested")
+    _write(corpus / "foo--bar.md", "Flat")
+
+    indexer = KeywordIndexer(str(corpus), str(tmp_path / "index"))
+    indexer.build_index(save=False)
+
+    titles = {e["title"] for e in indexer.index["entries"].values()}
+    assert titles == {"Nested", "Flat"}, "one entry overwrote the other"
+
+
+def test_a_flat_file_keeps_its_stem_as_id(tmp_path: Path) -> None:
+    """Ids of the flat corpus files in use today do not change."""
+    corpus = tmp_path / "corpus"
+    _write(corpus / "foo-bar.md", "Flat")
+
+    indexer = KeywordIndexer(str(corpus), str(tmp_path / "index"))
+    indexer.build_index(save=False)
+
+    assert list(indexer.index["entries"]) == ["foo-bar"]

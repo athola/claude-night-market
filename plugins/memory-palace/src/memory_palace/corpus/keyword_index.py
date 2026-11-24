@@ -200,12 +200,12 @@ class KeywordIndexer:
             # Create entry ID from filename
             relative = md_file.relative_to(self.corpus_dir)
             relative_str = relative.as_posix()
-            # "/" becomes "--" rather than "-", because this corpus names
-            # files with dashes: mapping the separator onto a character the
-            # names already use collides "foo/bar.md" with "foo-bar.md" onto
-            # one id. Latent while the corpus is flat, and the rglob above
-            # walks recursively, so the first nested file makes it reachable.
-            entry_id = relative_str.removesuffix(".md").replace("/", "--")
+            # The relative path itself is the id. Mapping "/" onto any
+            # character a file name may contain collides a nested file with
+            # a flat one: "-" collided "foo/bar.md" with "foo-bar.md", and
+            # "--" with "foo--bar.md". Two files cannot share a path, so the
+            # path cannot collide, and a flat file's id is still its stem.
+            entry_id = relative_str.removesuffix(".md")
 
             # Read file once and pass content to both keyword extraction and
             # frontmatter parsing to avoid a second disk read.
