@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Publish night-market skills to ClawHub via the clawhub CLI.
+# Publish night-market skills, and each plugin as a bundle package, to
+# ClawHub via the clawhub CLI.
 #
 # Uses `clawhub sync` for bulk publishing: scans the export
 # directory, detects new/updated skills, and uploads them.
@@ -239,21 +240,44 @@ sys.exit(1 if failed else 0)
 '
 }
 
+# ClawHub takes a bundle-plugin package only when its root holds exactly
+# one `.claude-plugin/plugin.json`. The repo root holds a marketplace of
+# many plugins, so each plugin directory is published as its own package
+# from the tagged GitHub source. A version that already exists is a skip,
+# so a re-run converges the way the skill loop does.
 publish_package() {
-  case "${DRY_RUN}" in
-    true)
-      log "[dry-run] Would publish package: athola/claude-night-market@${VERSION}"
-      return 0
-      ;;
-  esac
-  log "Publishing package..."
-  # shellcheck disable=SC2086 # CLAWHUB is a command line; split on purpose.
-  if ${CLAWHUB} package publish "athola/claude-night-market@${VERSION}"; then
-    log "Package published: athola/claude-night-market@${VERSION}"
-  else
-    log 4 "Package publish failed (may require manual setup); see the error above"
-    return 1
-  fi
+  local manifest plugin_dir plugin name output failed=0
+  for manifest in "${REPO_ROOT}"/plugins/*/.claude-plugin/plugin.json; do
+    case "${manifest}" in
+      *'*'*) break ;;
+    esac
+    plugin_dir="${manifest%/.claude-plugin/plugin.json}"
+    plugin="${plugin_dir##*/}"
+    name="night-market-${plugin}"
+    case "${DRY_RUN}" in
+      true)
+        log "[dry-run] Would publish package: ${name} from plugins/${plugin}@${VERSION}"
+        continue
+        ;;
+    esac
+    # shellcheck disable=SC2086 # CLAWHUB is a command line; split on purpose.
+    if output=$(${CLAWHUB} package publish "athola/claude-night-market@${VERSION}" \
+      --family bundle-plugin --source-path "plugins/${plugin}" \
+      --name "${name}" --version "${VERSION#v}" 2>&1); then
+      log "Package published: ${name}@${VERSION#v}"
+    else
+      case "${output}" in
+        *"already exists"*)
+          log "Package skipped: ${name}@${VERSION#v} (version already exists)"
+          ;;
+        *)
+          log 4 "Package publish failed: ${name}: ${output}"
+          failed=1
+          ;;
+      esac
+    fi
+  done
+  return "${failed}"
 }
 
 main() {

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `scripts/clawhub-submit.sh` publishes each plugin as its own
+  `night-market-<plugin>` bundle package from the tagged source. ClawHub
+  takes a bundle only with exactly one `.claude-plugin/plugin.json` at
+  its root, and the repo root holds the marketplace, so the single
+  repo-wide publish failed on every release. A version already published
+  is skipped.
+
 ## [1.10.4] - 2026-11-23
 
 ### Added

@@ -266,3 +266,76 @@ def test_cron_never_writes_an_empty_table_when_crontab_l_fails(tmp_path: Path) -
     )
     assert result.returncode == 0, result.stderr
     assert calls.read_text().split() == ["-l"]
+
+
+def _add_plugin(repo: Path, name: str) -> None:
+    manifest = repo / "plugins" / name / ".claude-plugin" / "plugin.json"
+    manifest.parent.mkdir(parents=True)
+    manifest.write_text(json.dumps({"name": name, "version": "1.10.0"}))
+
+
+def _recording_clawhub(tmp_path: Path, package_reply: str) -> Path:
+    log = tmp_path / "calls.log"
+    return _shims(
+        tmp_path,
+        clawhub=(
+            f'printf "%s\\n" "$*" >> "{log}"\n'
+            'case "$1 $2" in\n'
+            '  "whoami "*) echo "✔ alice" ;;\n'
+            f'  "package publish") {package_reply} ;;\n'
+            "  *) exit 0 ;;\n"
+            "esac"
+        ),
+    )
+
+
+def test_submit_publishes_each_plugin_as_its_own_bundle_package(
+    tmp_path: Path,
+) -> None:
+    # ClawHub accepts a bundle only with exactly one .claude-plugin/plugin.json
+    # at its root, and the repo root holds a marketplace of many plugins.
+    repo = _sandbox(tmp_path)
+    _add_plugin(repo, "sanctum")
+    _skills(repo, 1)
+    shims = _recording_clawhub(tmp_path, "exit 0")
+    result = _run(repo, "clawhub-submit.sh", shims)
+    assert result.returncode == 0, result.stdout + result.stderr
+    calls = [
+        line
+        for line in (tmp_path / "calls.log").read_text().splitlines()
+        if line.startswith("package publish")
+    ]
+    assert len(calls) == 2, calls
+    for plugin in ("abstract", "sanctum"):
+        assert any(
+            f"--source-path plugins/{plugin} " in f"{c} "
+            and f"--name night-market-{plugin} " in f"{c} "
+            and "--family bundle-plugin" in c
+            and "--version 1.10.0" in c
+            and "athola/claude-night-market@v1.10.0" in c
+            for c in calls
+        ), calls
+
+
+def test_a_package_version_already_published_is_a_skip_not_a_failure(
+    tmp_path: Path,
+) -> None:
+    repo = _sandbox(tmp_path)
+    _skills(repo, 1)
+    shims = _recording_clawhub(
+        tmp_path, 'echo "Error: version 1.10.0 already exists" >&2; exit 1'
+    )
+    result = _run(repo, "clawhub-submit.sh", shims)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "Status:  complete" in result.stdout
+
+
+def test_dry_run_names_every_plugin_package(tmp_path: Path) -> None:
+    repo = _sandbox(tmp_path)
+    _add_plugin(repo, "sanctum")
+    _skills(repo, 1)
+    result = _run(repo, "clawhub-submit.sh", _shims(tmp_path), "--dry-run")
+    assert result.returncode == 0, result.stdout + result.stderr
+    out = result.stdout + result.stderr
+    assert "night-market-abstract" in out
+    assert "night-market-sanctum" in out
