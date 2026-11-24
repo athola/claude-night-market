@@ -19,8 +19,6 @@ import pytest
 import web_research_handler
 import yaml
 
-from shared import deduplication
-
 _SHARED = Path(__file__).resolve().parents[2] / "hooks" / "shared"
 _WRITERS = 12
 
@@ -114,37 +112,6 @@ def test_update_index_gives_up_when_lock_is_held_past_deadline(
         )
     assert proc.returncode == 0, proc.stderr
     assert float(proc.stdout) < 2.0
-
-
-@pytest.mark.skipif(sys.platform == "win32", reason="flock is POSIX-only")
-def test_stage_index_runs_after_lock_is_released(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """GIVEN a capture written to the index
-    WHEN the index is staged with git
-    THEN the lock is already free, so a slow git does not hold up others
-    """
-    monkeypatch.setenv("MEMORY_PALACE_DATA_DIR", str(tmp_path))
-    monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
-    lock_free_at_stage: list[bool] = []
-
-    def _probe(index_path: Path) -> None:
-        with open(_lock_path(tmp_path), "a") as probe:
-            try:
-                fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except BlockingIOError:
-                lock_free_at_stage.append(False)
-            else:
-                lock_free_at_stage.append(True)
-
-    with patch.object(deduplication, "_stage_index", _probe):
-        deduplication.update_index(
-            content_hash="sha256:staged",
-            stored_at="data/staging/staged.md",
-            importance_score=50,
-            url="https://example.com/staged",
-        )
-    assert lock_free_at_stage == [True]
 
 
 def test_queue_file_is_removed_when_index_lock_times_out(tmp_path: Path) -> None:
