@@ -34,7 +34,7 @@ equivalents.
    Record whether the need (Q1) and the approach (Q2) were settled
    before this PR, and where: `settled (<link>)` or `unsettled`. Lookup
    order, the design-bearing test and the REVISIT routing are in
-   `skills/pr-review/modules/review-questions.md`.
+   `skills/pr-review-playbook/modules/review-questions.md`.
 
 3. **Check Existing Backlog for Context**
    ```bash
@@ -130,7 +130,7 @@ Before proceeding to code analysis, validate version consistency across all vers
 
    ```bash
    # Load module
-   # See: plugins/sanctum/skills/pr-review/modules/version-validation.md
+   # See: plugins/sanctum/skills/pr-review-playbook/modules/version-validation.md
 
    # Project type detection
    PROJECT_TYPE=""
@@ -620,7 +620,7 @@ change would otherwise puzzle the author. Findings that fit no
 suggestion go in the summary review, one line each. Skip Phase 5 and
 Phase 6. The fence syntax, the GitLab `position` fields, and the cases
 where a plain comment is the honest shape are in
-`Skill(sanctum:pr-review)` module `modules/suggestion-comments.md`.
+`Skill(sanctum:pr-review-playbook)` module `modules/suggestion-comments.md`.
 
 #### Default: Post to PR
 

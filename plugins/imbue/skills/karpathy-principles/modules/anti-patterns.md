@@ -295,7 +295,7 @@ Cross-references for the rails:
 
 - AP-3, AP-4 connect to `Skill(imbue:scope-guard)` and
   `Skill(leyline:additive-bias-defense)`
-- AP-5, AP-6 connect to `Skill(imbue:justify)` and
+- AP-5, AP-6 connect to `Skill(imbue:justify-playbook)` and
   the `bounded-discovery.md` rule
 - AP-7, AP-8 connect to `Skill(imbue:proof-of-work)`
   and `Skill(superpowers:test-driven-development)`

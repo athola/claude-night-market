@@ -126,7 +126,7 @@ class TestCatchupWorkflowIntegration:
         And the exit criteria require all four
         And the command delegates to the skill.
         """
-        _meta, body = _skill("catchup")
+        _meta, body = _skill("catchup-playbook")
         assert _progress_items(body, "catchup") == [
             "catchup:context-confirmed",
             "catchup:delta-captured",
@@ -143,7 +143,10 @@ class TestCatchupWorkflowIntegration:
         assert "- [ ] All four `catchup:` progress items are marked complete" in (
             _section(body, "Exit Criteria")
         )
-        assert "Invoke `Skill(imbue:catchup)`" in (COMMANDS / "catchup.md").read_text()
+        assert (
+            "Invoke `Skill(imbue:catchup-playbook)`"
+            in (COMMANDS / "catchup.md").read_text()
+        )
 
     @pytest.mark.bdd
     def test_catchup_defines_scope_baseline_and_current_target(self) -> None:
@@ -154,7 +157,7 @@ class TestCatchupWorkflowIntegration:
         Then scope, baseline and current target are defined
         And the command's example reports branch, baseline and HEAD.
         """
-        _meta, body = _skill("catchup")
+        _meta, body = _skill("catchup-playbook")
         step = _section(body, "Step 1: Confirm Context")
         assert (
             "Define scope (git branch, sprint, meetings), baseline (last state)" in step
@@ -173,7 +176,7 @@ class TestCatchupWorkflowIntegration:
         Then it has Summary, Key Changes, Follow-ups and Blockers/Questions
         And the command example shows the Key Changes section.
         """
-        _meta, body = _skill("catchup")
+        _meta, body = _skill("catchup-playbook")
         fence = body[body.index("## Output Format") :]
         fence = fence[: fence.index("## Integration")]
         assert re.findall(r"^## ([\w/ -]+)$", fence, re.MULTILINE)[1:] == [

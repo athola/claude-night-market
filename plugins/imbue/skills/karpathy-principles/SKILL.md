@@ -158,7 +158,7 @@ mess.**
 The trace-back test: every changed line should trace
 directly to the user's request.
 
-Deep dives: `Skill(imbue:justify)` for additive-bias
+Deep dives: `Skill(imbue:justify-playbook)` for additive-bias
 audits on diffs, `Skill(leyline:additive-bias-defense)`
 for the burden-of-proof contract, the
 `bounded-discovery.md` rule for read-budget caps.
@@ -228,7 +228,7 @@ iterate.
 - `Skill(imbue:proof-of-work)` - Iron Law TDD gate
 - `Skill(imbue:rigorous-reasoning)` - sycophancy and
   hidden-assumption guard
-- `Skill(imbue:justify)` - additive-bias diff audit
+- `Skill(imbue:justify-playbook)` - additive-bias diff audit
 - `Skill(leyline:additive-bias-defense)` - burden of
   proof on every addition
 - `Skill(conserve:code-quality-principles)` - KISS,

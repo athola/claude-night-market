@@ -317,7 +317,8 @@ for step in ["analyze", "triage", "plan", "fix", "validate", "complete"]:
 - Resume interrupted PR fix workflows across sessions
 - Tasks visible in VS Code sidebar
 - Dependency tracking (can't validate before fix)
-- Cross-session state with `CLAUDE_CODE_TASK_LIST_ID="sanctum-fix-pr-{pr_number}"`
+- Cross-session state with
+  `CLAUDE_CODE_TASK_LIST_ID="sanctum-fix-pr-{pr_number}"`
 
 ## Getting Help
 
@@ -430,7 +431,7 @@ confirm):
 - `/pr-review` - Review pull request (also supports `--stack`)
 - `/sanctum:validate-pr` - Standalone diff-derived validation (called automatically at Step 5.7)
 - `/update-tests` - Update test suite
-- `Skill(sanctum:validate-pr)` - Diff-derived test plan and revert-test quality checks
+- `Skill(sanctum:validate-pr-playbook)` - Diff-derived test plan and revert-test quality checks
 - `Skill(sanctum:stack-mode)` - Shared multi-PR stack iteration contract
 - `Skill(sanctum:stack-create)` / `stack-push` / `stack-rebase` - Stack lifecycle primitives
 - **Attune Workflow**: `plugins/attune/commands/mission.md`

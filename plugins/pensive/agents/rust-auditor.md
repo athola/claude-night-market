@@ -2,7 +2,7 @@
 name: rust-auditor
 description: Rust security audits for ownership, unsafe code, concurrency, and dependency scanning.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
-skills: pensive:rust-review, imbue:review-core
+skills: pensive:rust-review-playbook, imbue:review-core
 
 # Claude Code 2.1.0+ lifecycle hooks
 examples:

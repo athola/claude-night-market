@@ -111,7 +111,7 @@ def block_reason(manifest_path: Path) -> str:
         "Egregore has active work items. "
         "Read .egregore/manifest.json and continue "
         "the pipeline from the current step. "
-        "Invoke Skill(egregore:summon) to resume."
+        "Invoke Skill(egregore:summon-playbook) to resume."
     )
 
 

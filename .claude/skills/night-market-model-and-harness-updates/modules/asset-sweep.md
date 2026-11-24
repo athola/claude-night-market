@@ -20,7 +20,7 @@ produces a diff nobody can review and buries the change that mattered.
 | Hooks | `plugins/*/hooks/**` | Plugin test suites |
 | Docs of record | `docs/agent-model-matrix.md` | `check_agent_model_matrix.py` |
 | Rules | `.claude/rules/*.md` | Review |
-| Model routing | `plugins/egregore/skills/summon/modules/model-routing.md` | Review |
+| Model routing | `plugins/egregore/skills/summon-playbook/modules/model-routing.md` | Review |
 
 ## Routing findings to classes
 

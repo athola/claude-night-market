@@ -101,7 +101,7 @@ class TestJustifyCommand:
 
         Given the justify command
         When checking skill integration
-        Then it should reference Skill(imbue:justify)
+        Then it should reference Skill(imbue:justify-playbook)
         """
         assert "imbue:justify" in command_content
 
@@ -175,7 +175,7 @@ class TestJustifyCommandIntegration:
     @pytest.fixture
     def skill_path(self) -> Path:
         """Path to the justify skill."""
-        return Path(__file__).parents[3] / "skills" / "justify" / "SKILL.md"
+        return Path(__file__).parents[3] / "skills" / "justify-playbook" / "SKILL.md"
 
     @pytest.fixture
     def command_path(self) -> Path:
@@ -200,7 +200,7 @@ class TestJustifyCommandIntegration:
         """
         skills = plugin_json.get("skills", [])
         commands = plugin_json.get("commands", [])
-        assert "./skills/justify" in skills
+        assert "./skills/justify-playbook" in skills
         assert "./commands/justify.md" in commands
 
     @pytest.mark.bdd
@@ -227,6 +227,6 @@ class TestJustifyCommandIntegration:
         Then proof-of-work should be mentioned as a companion
         """
         skill_content = (
-            Path(__file__).parents[3] / "skills" / "justify" / "SKILL.md"
+            Path(__file__).parents[3] / "skills" / "justify-playbook" / "SKILL.md"
         ).read_text()
         assert "proof-of-work" in skill_content

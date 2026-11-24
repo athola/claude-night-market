@@ -33,9 +33,11 @@ hand-curated.
 
 ## When NOT To Use
 
-- For per-skill quality scoring, use `Skill(abstract:skills-eval)` instead
-- For frontmatter/structure validation, use `Skill(abstract:plugin-review)`
-- For hook-specific audits, use `Skill(abstract:hooks-eval)`
+- For per-skill quality scoring, use `Skill(abstract:skills-eval-playbook)`
+  instead
+- For frontmatter/structure validation, use
+  `Skill(abstract:plugin-review-playbook)`
+- For hook-specific audits, use `Skill(abstract:hooks-eval-playbook)`
 
 ## Quick Start
 
@@ -119,10 +121,10 @@ Two ways to validate the audit output is trustworthy:
 
 ## Related Skills
 
-- `Skill(abstract:skills-eval)`: per-skill quality scoring
-- `Skill(abstract:plugin-review)`: plugin manifest and structure
-- `Skill(abstract:hooks-eval)`: hook-specific validation
-- `Skill(abstract:rules-eval)`: rules directory validation
+- `Skill(abstract:skills-eval-playbook)`: per-skill quality scoring
+- `Skill(abstract:plugin-review-playbook)`: plugin manifest and structure
+- `Skill(abstract:hooks-eval-playbook)`: hook-specific validation
+- `Skill(abstract:rules-eval-playbook)`: rules directory validation
 
 ## References
 

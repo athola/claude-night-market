@@ -113,7 +113,7 @@ def has_duplicate_fast(items: list[int]) -> bool:
 
 The complexity module surfaces these patterns through static
 inspection rather than measurement. It pairs with the
-`pensive:performance-review` skill for a real AST walk.
+`pensive:performance-review-playbook` skill for a real AST walk.
 
 ## Pitfalls
 

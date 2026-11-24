@@ -17,7 +17,7 @@ estimated_tokens: 200
 - Finding vendor documentation, standards, or official guides
 - Comparisons and benchmarks across products or approaches
 - News, release notes, and recent status for a technology
-- Standalone searches, or as one channel of a `/tome:research`
+- Standalone searches, or as one channel of a `/tome:research-session`
   session: the planner dispatches `tome:web-searcher` from medium
   depth, and the channel runs a positive control (RFC 2119) before
   its topic queries so its silence can count in the coverage verdict

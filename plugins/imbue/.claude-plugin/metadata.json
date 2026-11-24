@@ -6,7 +6,7 @@
     "skills/review-core",
     "skills/structured-output",
     "skills/diff-analysis",
-    "skills/catchup"
+    "skills/catchup-playbook"
   ],
   "dependencies": {
     "abstract": ">=2.0.0"

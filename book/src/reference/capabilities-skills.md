@@ -187,7 +187,7 @@ because only a functional test shows the behavior the claim is about.
 ### `imbue:justify`
 Post-implementation audit for AI additive bias.
 
-**Invocation**: `Skill(imbue:justify)`
+**Invocation**: `Skill(imbue:justify-playbook)`
 
 Scores changes on five signals: line ratio,
 new files, test-logic tampering, new abstractions,
@@ -208,7 +208,7 @@ subtraction-first approaches.
 ### `imbue:catchup`
 Context recovery after session restart.
 
-**Invocation**: `Skill(imbue:catchup)`
+**Invocation**: `Skill(imbue:catchup-playbook)`
 
 The skill walks through checking git status, reviewing open issues/PRs,
 reading any session artifacts, and identifying work that was interrupted.
@@ -352,7 +352,7 @@ Conventional commit formatting.
 ### `sanctum:do-issue`
 GitHub issue resolution workflow.
 
-**Invocation**: `Skill(sanctum:do-issue)`
+**Invocation**: `Skill(sanctum:do-issue-playbook)`
 
 Steps: fetch issue details, create branch, implement fix,
 create PR linking issue.
@@ -364,7 +364,7 @@ create PR linking issue.
 ### `pensive:bug-review`
 Systematic bug hunting.
 
-**Invocation**: `Skill(pensive:bug-review)`
+**Invocation**: `Skill(pensive:bug-review-playbook)`
 
 Targets logic errors, null/undefined handling, resource leaks,
 and race conditions.
@@ -372,14 +372,14 @@ and race conditions.
 ### `pensive:api-review`
 API surface evaluation.
 
-**Invocation**: `Skill(pensive:api-review)`
+**Invocation**: `Skill(pensive:api-review-playbook)`
 
 Reviews naming consistency, error handling, versioning, and documentation.
 
 ### `pensive:test-review`
 Test quality assessment.
 
-**Invocation**: `Skill(pensive:test-review)`
+**Invocation**: `Skill(pensive:test-review-playbook)`
 
 Evaluates coverage, AAA pattern compliance, flaky test detection,
 and edge case coverage.
@@ -387,7 +387,7 @@ and edge case coverage.
 ### `pensive:architecture-review`
 Architecture assessment.
 
-**Invocation**: `Skill(pensive:architecture-review)`
+**Invocation**: `Skill(pensive:architecture-review-playbook)`
 
 Analyzes coupling/cohesion, dependency direction, layer violations,
 and scalability concerns.
@@ -395,7 +395,7 @@ and scalability concerns.
 ### `pensive:rust-review`
 Rust-specific patterns.
 
-**Invocation**: `Skill(pensive:rust-review)`
+**Invocation**: `Skill(pensive:rust-review-playbook)`
 
 Focuses on unsafe code, lifetime management, memory safety,
 and idiomatic patterns.

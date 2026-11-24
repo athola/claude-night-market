@@ -39,7 +39,12 @@ class MetaEvaluator:
     # Evaluation skills from the inventory
     EVALUATION_SKILLS = {
         # Abstract plugin
-        "abstract": ["skills-eval", "hooks-eval", "modular-skills", "subagent-testing"],
+        "abstract": [
+            "skills-eval-playbook",
+            "hooks-eval-playbook",
+            "modular-skills",
+            "subagent-testing",
+        ],
         # Imbue plugin
         "imbue": [
             "proof-of-work",
@@ -53,13 +58,13 @@ class MetaEvaluator:
         ],
         # Pensive plugin (review skills)
         "pensive": [
-            "test-review",
-            "api-review",
-            "architecture-review",
-            "bug-review",
+            "test-review-playbook",
+            "api-review-playbook",
+            "architecture-review-playbook",
+            "bug-review-playbook",
         ],
         # Sanctum plugin (validation skills)
-        "sanctum": ["pr-review", "test-updates", "git-workspace-review"],
+        "sanctum": ["pr-review-playbook", "test-updates", "git-workspace-review"],
         # Parseltongue plugin (testing skills)
         "parseltongue": ["python-testing", "python-performance"],
         # Conserve plugin (quality skills)
@@ -259,7 +264,11 @@ class MetaEvaluator:
 
         # For critical evaluation skills, missing tests is a high severity issue
         critical_skills = {
-            "abstract": ["skills-eval", "hooks-eval", "modular-skills"],
+            "abstract": [
+                "skills-eval-playbook",
+                "hooks-eval-playbook",
+                "modular-skills",
+            ],
             "imbue": ["proof-of-work"],
             "leyline": ["evaluation-framework", "testing-quality-standards"],
         }

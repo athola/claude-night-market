@@ -6,7 +6,7 @@ overflow). You must resume work.
    state
 2. Read `.egregore/config.json` for configuration
 3. Read `.egregore/budget.json` for token budget status
-4. Invoke `Skill(egregore:summon)` to continue the
+4. Invoke `Skill(egregore:summon-playbook)` to continue the
    pipeline
 
 Do NOT ask for human input. Make autonomous decisions.

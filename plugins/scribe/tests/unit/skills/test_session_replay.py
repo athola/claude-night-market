@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-SKILL_ROOT = Path(__file__).parents[3] / "skills" / "session-replay"
+SKILL_ROOT = Path(__file__).parents[3] / "skills" / "session-replay-playbook"
 COMMANDS_ROOT = Path(__file__).parents[3] / "commands"
 PLUGIN_JSON = Path(__file__).parents[3] / ".claude-plugin" / "plugin.json"
 
@@ -35,7 +35,7 @@ class TestSessionReplaySkillExists:
 
         Given the scribe plugin
         When checking for the session-replay skill
-        Then SKILL.md should exist under skills/session-replay/
+        Then SKILL.md should exist under skills/session-replay-playbook/
         """
         assert skill_path.exists(), f"SKILL.md not found at {skill_path}"
 
@@ -217,10 +217,10 @@ class TestSessionReplayCommand:
 
         Given the session-replay command
         When reading its content
-        Then it should reference Skill(scribe:session-replay)
+        Then it should reference Skill(scribe:session-replay-playbook)
         """
         content = command_path.read_text()
-        assert "scribe:session-replay" in content
+        assert "Skill(scribe:session-replay-playbook)" in content
 
 
 class TestSessionReplayRegistration:
@@ -239,7 +239,7 @@ class TestSessionReplayRegistration:
     @pytest.mark.unit
     def test_skill_registered(self, plugin_json_content: str) -> None:
         """Scenario: Skill listed in plugin.json skills."""
-        assert "skills/session-replay" in plugin_json_content
+        assert "skills/session-replay-playbook" in plugin_json_content
 
     @pytest.mark.bdd
     @pytest.mark.unit

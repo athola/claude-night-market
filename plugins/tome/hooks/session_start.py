@@ -25,7 +25,7 @@ def main() -> None:
     msg = (
         f'Active tome research session: "{topic}" '
         f"({finding_count} findings). "
-        f"Use /tome:dig to refine or /tome:research --resume to continue."
+        f"Use /tome:dig to refine or /tome:research-session --resume to continue."
     )
     print(
         json.dumps(

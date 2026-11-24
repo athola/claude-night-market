@@ -11,7 +11,7 @@ This framework extends standard prioritization models with MCDA best practices:
 - **Uncertainty**: Confidence factor adjusts for estimation risk
 - **Sensitivity**: Weight variations tested for robustness
 
-**Documentation**: See [Multi-Metric Evaluation Methodology](https://claude-night-market/plugins/abstract/skills/skills-eval/modules/multi-metric-evaluation-methodology.md) for theoretical foundations.
+**Documentation**: See [Multi-Metric Evaluation Methodology](https://claude-night-market/plugins/abstract/skills/skills-eval-playbook/modules/multi-metric-evaluation-methodology.md) for theoretical foundations.
 
 ## The Formula
 

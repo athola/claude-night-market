@@ -384,7 +384,7 @@ steps on-the-fly:
 
 ## 5.7 Diff-Derived Validation (validate-pr)
 
-After 5.1-5.6, run `Skill(sanctum:validate-pr)` to generate and
+After 5.1-5.6, run `Skill(sanctum:validate-pr-playbook)` to generate and
 execute a validation plan matched to what actually changed in this
 MR. This step replaces the generic "suite passes" claim with
 targeted, area-level evidence and a revert-test quality check.
@@ -392,7 +392,7 @@ targeted, area-level evidence and a revert-test quality check.
 **Invocation (automatic from `/fix-pr`):**
 
 ```markdown
-Skill(sanctum:validate-pr) with:
+Skill(sanctum:validate-pr-playbook) with:
   mr: <current MR number>
   post: false          # results feed into Step 6 Gate 3, not posted here
   revert_tests: 1      # one representative revert-test quality check

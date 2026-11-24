@@ -20,20 +20,20 @@ license: MIT
 repository: https://github.com/athola/claude-night-market
 skills:
 - skills/code-search
-- skills/dig
+- skills/dig-playbook
 - skills/discourse
 - skills/papers
-- skills/research
+- skills/research-playbook
 - skills/synthesize
 - skills/triz
 - skills/web-search
-- skills/export
+- skills/export-playbook
 - skills/ideate
 commands:
 - commands/cite.md
 - commands/dig.md
 - commands/export.md
-- commands/research.md
+- commands/research-session.md
 agents:
 - agents/code-searcher.md
 - agents/discourse-scanner.md

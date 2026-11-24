@@ -1,0 +1,293 @@
+---
+name: research-playbook
+description: Runs multi-source research across GitHub, HN, Reddit, arXiv, and Semantic Scholar. Use when surveying a technical topic across multiple channels.
+alwaysApply: false
+category: orchestration
+tags:
+  - research
+  - synthesis
+  - multi-source
+tools: []
+estimated_tokens: 600
+progressive_loading: true
+orchestrates:
+  - tome:code-search
+  - tome:discourse
+  - tome:papers
+  - tome:triz
+  - tome:synthesize
+modules:
+  - modules/stop-verifier.md
+---
+# Research Session Orchestrator
+
+Run a full multi-source research session: classify the
+domain, dispatch parallel agents, synthesize findings,
+and output a formatted report.
+
+## When NOT To Use
+
+- Drilling into one subtopic of an active session (use `tome:dig`)
+- Merging findings already gathered (use `tome:synthesize`)
+
+## Workflow
+
+### Step 1: Classify Domain
+
+Run the domain classifier on the topic:
+
+```python
+from tome.scripts.domain_classifier import classify
+
+result = classify(topic)
+# result.domain, result.triz_depth, result.channel_weights
+```
+
+If confidence < 0.6 the classifier abstains and **refines**
+rather than rejecting: `result.candidates` lists the domains
+that had keyword support, `triz_depth` becomes the deepest
+of those candidates, and `channel_weights` is a
+support-weighted blend. Coverage widens on ambiguity instead
+of narrowing, because a topic spanning several vocabularies
+is exactly what the cross-domain channel is for.
+
+Report the abstention to the user with the candidate list and
+let them override the domain. Do not treat a refined plan as
+a failure. It is the classifier declining to guess.
+
+When `candidates` is empty the topic produced no keyword hits
+at all. That stays on the cheap two-channel plan, since there
+is nothing to refine toward and escalating noise wastes
+budget. If the topic is genuinely researchable, the
+vocabulary in `_DOMAIN_KEYWORDS` is missing it: say so rather
+than forcing a domain.
+
+### Step 2: Plan Research
+
+```python
+from tome.scripts.research_planner import plan
+
+research_plan = plan(result)
+# research_plan.channels, research_plan.weights, research_plan.triz_depth
+```
+
+### Step 3: Create Session
+
+```python
+from tome.session import SessionManager
+
+mgr = SessionManager(Path.cwd())
+session = mgr.create(topic, result.domain, result.triz_depth, research_plan.channels)
+```
+
+### Step 4: Dispatch Agents
+
+Launch research agents in parallel using the Agent tool.
+Use this mapping:
+
+| Channel | Agent Type | Prompt Includes |
+|---------|-----------|-----------------|
+| code | `tome:code-searcher` | topic |
+| discourse | `tome:discourse-scanner` | topic, domain, subreddits |
+| academic | `tome:literature-reviewer` | topic, domain |
+| web | `tome:web-searcher` | topic, domain |
+| triz | `tome:triz-analyst` | topic, domain, triz_depth |
+
+**Rules:**
+- Dispatch every channel in `research_plan.channels`, which the
+  planner derives from each card's `min_depth`: code and discourse
+  at every depth, academic and web from medium, triz from deep
+- Dispatch all eligible agents in a SINGLE message
+  (parallel, not sequential)
+
+Each agent prompt must include:
+1. The topic string
+2. The domain classification
+3. Any channel-specific context (subreddits for discourse,
+   triz_depth for triz). For triz, also run
+   `PYTHONPATH="${CLAUDE_PLUGIN_ROOT}/src" python3 -m tome.channels.triz analyze --topic "<topic>" --domain <domain>`
+   and include its JSON: the agent has no shell. When the
+   workflow runs the channels, pass that JSON as the
+   `trizAnalysis` arg
+4. The channel's card, from
+   `render_card(get_card(channel))` in `tome.channels.cards`.
+   It carries the channel's limitations and points the agent at
+   the envelope its own file documents. Do not dictate a return
+   shape in the prompt: an agent obeys the prompt over its file,
+   and a prompt-invented shape once cost a session its canary
+   record.
+
+The rows above restate the cards. The cards are what the
+planner gates on, and a drift test holds the two together.
+
+**Named entities.** List every product, project, standard or
+method the question names or that a comparison will rank, and
+pass the list as the workflow's `entities` arg. Store it on the
+session too (`session.entities = entities`, then `mgr.save(session)`)
+so the report lists the ones no finding mentions. The workflow
+searches each one no channel covered, and returns the rest as
+`coverage.unsearched`. When dispatching agents directly instead,
+run the same check yourself before synthesis: call
+`identify_gaps(findings, channels, entities=entities)` from
+`tome.synthesis.quality` and dispatch `tome:web-searcher` for each
+name in its `uncovered_entities`. Never
+rule an option in or out without a search behind it. A
+2026-10-05 report ruled Beartooth out on a description alone,
+because no channel happened to cover it. An entity still
+unsearched goes under the report's coverage gaps by name.
+
+### Step 5: Collect and Synthesize
+
+After all agents return:
+
+1. Parse each agent's findings into Finding objects
+2. Record what each agent actually searched, before
+   merging anything:
+
+   ```python
+   from tome.synthesis.quality import parse_envelope
+
+   for envelope in agent_envelopes:  # one per dispatched agent
+       session.query_log.extend(parse_envelope(envelope))
+   ```
+
+   This is the step that makes an empty channel readable.
+   Findings record what was found; the query log records
+   what was looked for, and without it a channel that
+   errored and a channel that searched a thin topic are
+   the same thing: no findings. Skip this and every
+   channel in the report reads `unknown`.
+
+3. Merge using `tome.synthesis.merger.merge_findings()`
+4. Rank using `tome.synthesis.ranker.rank_findings()`
+
+### Step 5b: Verify, Then Loop or Stop
+
+```python
+from tome.synthesis.verifier import verify_context
+
+check = verify_context(session, passes_run=n)  # max_passes default 2
+```
+
+`CONTINUE` names the work and why:
+
+- `rerun`: the channel failed, degraded, left no record, or
+  cannot show it was able to search. Dispatch it again as is.
+- `reformulate`: a venue mismatch. Dispatch it again with the
+  vocabulary the productive channel's findings use.
+- `add`: a thin-field candidate that a retrieval channel never
+  looked at. Dispatch that channel.
+
+Dispatch only those agents, append their envelopes to the same
+session, merge and rank again, then verify with `passes_run`
+raised by one. `STOP` goes to Step 6. A `STOP` on the pass
+budget (`max_passes`, default 2) still lists the undone work:
+report it as a gap, never as a finished search. Each check's
+`detail` says what it read. See `modules/stop-verifier.md` for
+why the decision comes from records and not from a judgment.
+
+### Step 6: Generate Output
+
+```python
+from tome.output.report import format_report, format_brief, format_transcript
+
+# Default to report format
+output = format_report(session)
+
+# Save to docs/research/
+output_path = f"docs/research/{session.id}-{slug}.md"
+```
+
+Save the session state:
+```python
+mgr.save(session)
+```
+
+### Step 7: Present Results
+
+Before showing the summary, run
+`tome.output.citations.find_ungrounded_urls(summary, session.findings)`
+on its text. Drop or source each URL it returns: no channel retrieved
+it.
+
+Display a brief summary to the user:
+- The frontier verdict and its reason, from
+  `tome.synthesis.frontier.frontier_verdict(session)`. It is
+  the report's own answer to "did we find little because
+  there is little, or because the search went badly"
+- Number of findings per channel, with its outcome status
+  from `tome.synthesis.quality.channel_outcomes(session)`:
+  `ok`, `empty`, `error`, `rate_limited`, `degraded`, or
+  `unknown`
+- Top 3 findings by relevance
+- Path to saved report
+- Any research stories from
+  `tome.synthesis.frontier.frontier_stories(session)`. Each
+  is a gap with its evidence, and each arrives `undecided`.
+  Ask the user to mark it `act`, `defer`, or `decline`.
+  Do not decide for them, and do not file an issue for a
+  story they have not marked: nothing in a search record
+  says what is worth this project's time. On `defer`, file
+  it with `minister:create-issue` so it survives the
+  session. On `act` the work starts now and needs no issue.
+  On `decline` record nothing.
+
+The three retrieval channels run a positive control before
+their topic queries, so `INCONCLUSIVE` now means something
+specific rather than "controls do not exist yet". Read it as
+one of two things: a channel failed its canary and is blind,
+or a channel searched without running one. Both are named in
+the verdict's evidence, and both produce a story under
+`Research Stories`.
+
+`triz` runs no control and is excluded from the verdict. It
+generates analogies rather than retrieving prior work, so
+its output is not evidence about what has been published and
+its findings are not counted toward coverage.
+
+State plainly which channels did not return cleanly. A
+summary that reports "3 findings" without saying two
+channels were rate-limited invites the reader to treat a
+half-run search as a finding about the topic.
+
+Then offer interactive refinement:
+"Use `/tome:dig \"subtopic\"` to explore specific areas."
+
+## Error Handling
+
+- If an agent fails, continue with remaining agents
+- If all agents fail, report the error and suggest
+  manual research approaches
+- If synthesis produces 0 findings, state this clearly
+  rather than generating an empty report
+- Save session state even on partial failure
+
+## Output Format Selection
+
+| Flag | Format | Function |
+|------|--------|----------|
+| (default) | report | `format_report()` |
+| `--format brief` | brief | `format_brief()` |
+| `--format transcript` | transcript | `format_transcript()` |
+
+## Exit Criteria
+
+- [ ] Domain classified before agents are dispatched. If confidence
+      < 0.6, user confirmation is requested before proceeding
+- [ ] Every channel in `research_plan.channels` was dispatched, none
+      outside it, all in a single parallel message
+- [ ] Every dispatch prompt embeds `render_card` output for its
+      channel and dictates no return shape of its own
+- [ ] `verify_context` ran after every pass; the report was written
+      only after it returned `STOP`, and no more than `max_passes`
+      passes ran
+- [ ] A budget `STOP` with `rerun`, `reformulate`, or `add` left
+      non-empty names those channels as gaps in the summary
+- [ ] Session saved to `docs/research/{session.id}-{slug}.md` after
+      synthesis regardless of whether all agents succeeded
+- [ ] Top 3 findings by relevance score displayed to the user with
+      the path to the saved report
+- [ ] `find_ungrounded_urls` returned an empty list for the summary
+      shown, or each URL it returned was dropped or sourced
+- [ ] If all agents fail, error reported and manual alternatives
+      suggested; an empty report is never generated

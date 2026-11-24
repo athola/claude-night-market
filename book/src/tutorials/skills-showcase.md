@@ -67,7 +67,7 @@ Let's use `/catchup` to understand the current state of the repository:
 /catchup
 ```
 
-This invokes the `imbue:catchup` skill, which:
+This invokes the `imbue:catchup-playbook` skill, which:
 
 1. Reads recent git history
 2. Analyzes what changed and why

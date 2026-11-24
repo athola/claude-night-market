@@ -28,7 +28,8 @@ role: library
 - Requirements and specification already exist (use `Skill(attune:project-planning)` instead)
 - Refining existing specs (use `Skill(attune:project-specification)` instead)
 - Project scope is well-defined (jump to `/attune:project-init`)
-- Mid-project pivots (use `Skill(attune:war-room)` for strategic decisions)
+- Mid-project pivots (use `Skill(attune:war-room-playbook)` for strategic
+  decisions)
 
 ## Integration
 
@@ -44,7 +45,7 @@ role: library
 - Structured output templates
 
 **War Room Integration (REQUIRED)**:
-- After Phase 3 (Approach Generation), automatically invokes `Skill(attune:war-room)`
+- After Phase 3 (Approach Generation), automatically invokes `Skill(attune:war-room-playbook)`
 - All brainstorming context passed to War Room for expert deliberation
 - War Room provides multi-LLM pressure testing and synthesis
 - Only bypassed for Type 2 decisions (RS ≤ 0.40) with explicit user confirmation
@@ -201,7 +202,7 @@ testability").
 
 ### Phase 3.5: War Room Deliberation (REQUIRED)
 
-**Automatic Trigger**: After generating approaches, MUST invoke `Skill(attune:war-room)` for expert deliberation
+**Automatic Trigger**: After generating approaches, MUST invoke `Skill(attune:war-room-playbook)` for expert deliberation
 
 **When War Room is invoked**:
 - All brainstorming context (problem, constraints, approaches) automatically passed to War Room
@@ -484,7 +485,7 @@ review loop.
 ## Related Skills
 
 - `Skill(superpowers:brainstorming)` - Socratic method (if available)
-- `Skill(attune:war-room)` - **REQUIRED AUTOMATIC INTEGRATION** - Invoked after Phase 3 for multi-LLM deliberation
+- `Skill(attune:war-room-playbook)` - **REQUIRED AUTOMATIC INTEGRATION** - Invoked after Phase 3 for multi-LLM deliberation
 - `Skill(imbue:scope-guard)` - Scope creep prevention
 - `Skill(attune:project-specification)` - **AUTO-INVOKED** next phase after brainstorming
 - `Skill(attune:mission-orchestrator)` - Full lifecycle orchestration

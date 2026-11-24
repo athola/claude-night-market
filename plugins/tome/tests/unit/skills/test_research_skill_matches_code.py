@@ -28,7 +28,7 @@ from tome.channels.cards import CHANNEL_CARDS
 from tome.models import RETRIEVAL_CHANNELS
 from tome.synthesis.verifier import DEFAULT_MAX_PASSES
 
-SKILL = Path(__file__).parents[3] / "skills" / "research" / "SKILL.md"
+SKILL = Path(__file__).parents[3] / "skills" / "research-playbook" / "SKILL.md"
 
 
 @pytest.fixture(scope="module")

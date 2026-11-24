@@ -62,7 +62,7 @@ Avoid this command if:
 
 ```bash
 # 1. Invoke skill to guide initialization
-Skill(attune:project-init)
+Skill(attune:project-init-playbook)
 
 # 2. Gather project metadata
 #    - Project name (default: directory name)
@@ -206,7 +206,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ## Related Skills
 
-- `Skill(attune:project-init)` - Interactive initialization flow
+- `Skill(attune:project-init-playbook)` - Interactive initialization flow
 - `Skill(attune:makefile-generation)` - Generate Makefile only
 - `Skill(attune:workflow-setup)` - Set up GitHub Actions only
 - `Skill(attune:precommit-setup)` - Configure pre-commit hooks only

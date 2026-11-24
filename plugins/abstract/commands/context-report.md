@@ -84,7 +84,7 @@ Skills are categorized by byte size for optimization priority:
 # Adds detailed per-file breakdown:
 # Path                              Size     Category    Tokens
 # ----------------------------------------------------------------
-# skills-eval/SKILL.md             4,521    medium      1,180
+# skills-eval-playbook/SKILL.md             4,521    medium      1,180
 # modular-skills/SKILL.md          3,892    medium        985
 # ...
 ```

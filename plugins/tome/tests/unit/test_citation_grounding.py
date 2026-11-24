@@ -99,7 +99,7 @@ class TestFindUngroundedUrls:
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize("skill", ["research", "synthesize"])
+@pytest.mark.parametrize("skill", ["research-playbook", "synthesize"])
 def test_skill_runs_grounding_where_prose_is_written(skill: str) -> None:
     # The function only helps if the stage that writes report prose calls it
     text = (Path(__file__).parents[2] / "skills" / skill / "SKILL.md").read_text()

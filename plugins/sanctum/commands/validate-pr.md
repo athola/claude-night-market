@@ -51,7 +51,7 @@ fix does what it claims."
 
 ## Workflow
 
-See `Skill(sanctum:validate-pr)` for the full algorithm:
+See `Skill(sanctum:validate-pr-playbook)` for the full algorithm:
 
 1. Fetch the PR diff and group changed files by area (Rust, Python, Shell,
    grammar, build/config)
@@ -116,7 +116,7 @@ with non-zero status. When called from `/fix-pr`, it halts before Step 6
 
 ## See Also
 
-- `Skill(sanctum:validate-pr)`: full algorithm and step details
+- `Skill(sanctum:validate-pr-playbook)`: full algorithm and step details
 - `/fix-pr`: calls this skill automatically after Step 4 (Fix)
 - `Skill(imbue:proof-of-work)`: `[E1]`/`[E2]` evidence capture conventions
 - `Skill(leyline:git-platform)`: GitHub/GitLab CLI command mapping

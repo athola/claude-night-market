@@ -30,7 +30,7 @@ Convert the current session's work into a shareable blog post, case study, or so
 
 ## Workflow
 
-1. Invoke `Skill(scribe:session-to-post)` to run the full pipeline
+1. Invoke `Skill(scribe:session-to-post-playbook)` to run the full pipeline
 2. If `--record terminal`: invoke `Skill(scry:vhs-recording)` for test/build GIFs
 3. If `--record browser`: invoke `Skill(scry:browser-recording)` for app demo GIFs
 4. If `--record both`: invoke both, then `Skill(scry:media-composition)` to combine
@@ -70,7 +70,7 @@ Assets written to docs/posts/assets/
 
 ## See Also
 
-- `Skill(scribe:session-to-post)`: full skill reference
+- `Skill(scribe:session-to-post-playbook)`: full skill reference
 - `Skill(scry:vhs-recording)`: terminal recordings
 - `Skill(scry:browser-recording)`: browser recordings
 - `Skill(imbue:proof-of-work)`: claim verification

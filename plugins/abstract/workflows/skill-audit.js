@@ -7,7 +7,7 @@
 // surfaces the expensive findings: a description that will not fire, a
 // skill with no way to tell when it is done.
 //
-// This does not replace Skill(abstract:skills-eval), which scores one
+// This does not replace Skill(abstract:skills-eval-playbook), which scores one
 // skill and owns the rubric. This owns the dispatch when the set is
 // large enough that reading them in sequence loses the thread.
 

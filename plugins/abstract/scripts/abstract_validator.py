@@ -153,7 +153,7 @@ class AbstractValidator:
                 indicator in content.lower() for indicator in meta_indicators
             )
 
-            if not has_meta_indicator and skill_name not in ["skills-eval"]:
+            if not has_meta_indicator and skill_name not in ["skills-eval-playbook"]:
                 issues.append(f"{skill_name}: Should have meta-skill indicators")
 
             # Check progressive disclosure
@@ -482,7 +482,7 @@ category: infrastructure
         has_meta_indicator = any(
             indicator in content.lower() for indicator in meta_indicators
         )
-        return not has_meta_indicator and skill_name not in ["skills-eval"]
+        return not has_meta_indicator and skill_name not in ["skills-eval-playbook"]
 
 
 def main() -> None:

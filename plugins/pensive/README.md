@@ -24,13 +24,13 @@ Or reference from the marketplace:
 
 | Skill | Description |
 |-------|-------------|
-| **unified-review** | Orchestrates reviews and selects appropriate domain-specific skills. |
-| **api-review** | Evaluates public API surfaces and consistency. |
-| **architecture-review** | Assesses architectural design and ADR compliance. |
-| **bug-review** | Identifies logic errors and security vulnerabilities. |
-| **rust-review** | Audits Rust code for ownership, safety, concurrency, and idiomatic type use (conversion, coercion, elision). |
-| **test-review** | Evaluates test suite coverage and quality. |
-| **math-review** | Reviews mathematical algorithms and numerical stability. |
+| **unified-review-playbook** | Orchestrates reviews and selects appropriate domain-specific skills. |
+| **api-review-playbook** | Evaluates public API surfaces and consistency. |
+| **architecture-review-playbook** | Assesses architectural design and ADR compliance. |
+| **bug-review-playbook** | Identifies logic errors and security vulnerabilities. |
+| **rust-review-playbook** | Audits Rust code for ownership, safety, concurrency, and idiomatic type use (conversion, coercion, elision). |
+| **test-review-playbook** | Evaluates test suite coverage and quality. |
+| **math-review-playbook** | Reviews mathematical algorithms and numerical stability. |
 | **fpf-review** | Functional/Practical/Foundation architecture review. |
 | **code-refinement** | Analyzes living code for duplication, algorithmic inefficiency, clean code violations, and architectural misfit. |
 | **blast-radius** | Analyzes code change blast radius with risk scoring, affected nodes, and untested functions. |

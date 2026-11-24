@@ -58,5 +58,5 @@ you explicitly request otherwise.
 ## Skill Invocation
 
 ```
-Skill(scribe:voice-generate)
+Skill(scribe:voice-generate-playbook)
 ```

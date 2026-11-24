@@ -65,7 +65,7 @@ The analyzer evaluates several complexity dimensions:
 # MODULARIZE: File exceeds threshold (180 > 150)
 # GOOD: Token usage in optimal range
 
-/analyze-skill skills/skills-eval --verbose
+/analyze-skill skills/skills-eval-playbook --verbose
 # Includes detailed section breakdown
 ```
 

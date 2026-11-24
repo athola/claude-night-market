@@ -42,10 +42,10 @@ RULES_PATH = re.compile(r"\.claude/rules/")
 # not a pointer the reader is expected to follow.
 OPERAND_ALLOWLIST = {
     "plugins/abstract/commands/rules-eval.md",
-    "plugins/abstract/skills/rules-eval/SKILL.md",
-    "plugins/abstract/skills/rules-eval/modules/organization-patterns.md",
-    "plugins/abstract/skills/hooks-eval/SKILL.md",
-    "plugins/abstract/skills/plugin-review/modules/tier-pr.md",
+    "plugins/abstract/skills/rules-eval-playbook/SKILL.md",
+    "plugins/abstract/skills/rules-eval-playbook/modules/organization-patterns.md",
+    "plugins/abstract/skills/hooks-eval-playbook/SKILL.md",
+    "plugins/abstract/skills/plugin-review-playbook/modules/tier-pr.md",
 }
 
 # hookify ships the rule bodies themselves as a catalog, so its copies

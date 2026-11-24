@@ -29,19 +29,19 @@ dependencies:
     skills:
     - decision-journal
 skills:
-- skills/api-review
-- skills/architecture-review
+- skills/api-review-playbook
+- skills/architecture-review-playbook
 - skills/blast-radius
-- skills/bug-review
+- skills/bug-review-playbook
 - skills/code-refinement
-- skills/math-review
-- skills/rust-review
+- skills/math-review-playbook
+- skills/rust-review-playbook
 - skills/safety-critical-patterns
-- skills/test-review
-- skills/unified-review
+- skills/test-review-playbook
+- skills/unified-review-playbook
 - skills/tiered-audit
-- skills/harden
-- skills/performance-review
+- skills/harden-playbook
+- skills/performance-review-playbook
 commands:
 - commands/api-review.md
 - commands/architecture-review.md

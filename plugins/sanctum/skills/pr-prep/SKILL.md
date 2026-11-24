@@ -19,7 +19,7 @@ modules:
 dependencies:
 - sanctum:git-workspace-review
 - imbue:proof-of-work
-- imbue:justify
+- imbue:justify-playbook
 - imbue:structured-output
 - scribe:slop-detector
 - scribe:doc-generator
@@ -96,13 +96,13 @@ git log --oneline "$(git merge-base HEAD "$base")"..HEAD | \
 
 Run a machine review of the diff before the PR opens. The human
 reviewer then spends their time on what a machine cannot judge. Use
-`Skill(pensive:unified-review)` for a change that spans several
+`Skill(pensive:unified-review-playbook)` for a change that spans several
 dimensions, or `/code-review` for a smaller one. Fix or answer each
 finding before posting.
 
 **Additive bias audit:**
 
-Run `Skill(imbue:justify)` to compute the additive bias
+Run `Skill(imbue:justify-playbook)` to compute the additive bias
 score and check Iron Law compliance. If the score is
 YELLOW or above, justify each flagged signal before
 proceeding. If RED or STOP, rethink the approach.
@@ -155,7 +155,7 @@ cross-team behavior. A design-bearing change with no decision record (an
 issue with an agreed approach, an ADR, a design doc or a plan) should
 say so to the user now. Agreeing the approach before review is cheaper
 than redesigning in it. Routine changes need no record. Detail:
-`Skill(sanctum:pr-review)` module `review-questions.md`.
+`Skill(sanctum:pr-review-playbook)` module `review-questions.md`.
 
 Then use the notes from the workspace review and the analyzer's
 categories to identify the key points in the diffs, and group them

@@ -232,7 +232,7 @@ class TestStructuralRules:
 SAFETY_MODULE = (
     Path(__file__).resolve().parents[2]
     / "skills"
-    / "unified-review"
+    / "unified-review-playbook"
     / "modules"
     / "shell-safety-patterns.md"
 )
@@ -341,7 +341,10 @@ class TestPatternDetection:
 
 
 UNIFIED_REVIEW_MODULES = (
-    Path(__file__).resolve().parents[2] / "skills" / "unified-review" / "modules"
+    Path(__file__).resolve().parents[2]
+    / "skills"
+    / "unified-review-playbook"
+    / "modules"
 )
 
 
@@ -353,4 +356,4 @@ def test_moved_shell_modules_name_unified_review_as_their_parent(
 ) -> None:
     """The deprecated shell-review stub no longer loads these modules."""
     parents = re.findall(r"^parent_skill:\s*(\S+)", module.read_text(), re.MULTILINE)
-    assert parents in ([], ["pensive:unified-review"])
+    assert parents in ([], ["pensive:unified-review-playbook"])

@@ -113,7 +113,7 @@ This skill orchestrates multiple modules to provide detailed analysis:
 3. **Validation Phase** - Uses [skills-eval] for quality checks
 
 Key modules involved:
-- skills-eval/modules/evaluation-workflows.md
+- skills-eval-playbook/modules/evaluation-workflows.md
 - skill-authoring/modules/tdd-methodology.md
 - skill-authoring/modules/validation.md
 ```
@@ -294,7 +294,7 @@ Error: Circular dependency detected
 
 ### Related Documentation
 - [Skill Authoring Guide](../skills/skill-authoring/SKILL.md)
-- [Skills Evaluation Framework](../skills/skills-eval/SKILL.md)
+- [Skills Evaluation Framework](../skills/skills-eval-playbook/SKILL.md)
 
 ### Tools and Commands
 ```bash

@@ -1,7 +1,7 @@
 """Finding / Severity / Citation types for the harden detector pipeline.
 
 These types pin the contract documented in
-``plugins/pensive/skills/harden/modules/proposal-shape.md``: every
+``plugins/pensive/skills/harden-playbook/modules/proposal-shape.md``: every
 finding above ADVISORY must carry a primary CWE plus a NIST SSDF
 practice. The constructor enforces this so the report cannot ship
 uncited high-severity findings.

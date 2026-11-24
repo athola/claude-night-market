@@ -32,7 +32,7 @@ tests.
 
 3. **Survive assigned adversarial refutation.** Assign a reviewer or
    agent whose explicit job is to break the claim. Use
-   `Skill(attune:war-room)` for hard-to-reverse decisions and
+   `Skill(attune:war-room-playbook)` for hard-to-reverse decisions and
    `Skill(imbue:rigorous-reasoning)` to counter agreement bias. A
    claim nobody tried to break is unproven.
 
@@ -105,7 +105,7 @@ mechanism. Permit voluntary use." A documented no is a valid result.
 
 ## The research-to-rules pipeline
 
-1. Run multi-channel research (`Skill(tome:research)` or manual) into
+1. Run multi-channel research (`Skill(tome:research-playbook)` or manual) into
    a dated synthesis at `docs/research/YYYY-MM-DD-<topic>.md`. Match
    the shape of the existing docs: Thesis, What the evidence says,
    solution pattern, Mapping to the night-market ecosystem, Evidence

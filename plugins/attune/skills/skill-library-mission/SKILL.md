@@ -66,7 +66,7 @@ verbatim in `references/mission-prompt.md`.
 |-----------|-------------|
 | Authoring or improving one skill | `Skill(abstract:skill-authoring)` |
 | Skills shipped inside a plugin | `Skill(plugin-dev:skill-development)` |
-| Auditing existing skills only | `Skill(abstract:skills-eval)` |
+| Auditing existing skills only | `Skill(abstract:skills-eval-playbook)` |
 | Full project lifecycle (code, not knowledge) | `Skill(attune:mission-orchestrator)` |
 
 ## Mission Shape
@@ -90,7 +90,7 @@ interruption and records user directives:
 
 The field names match the state file `Skill(attune:mission-orchestrator)`
 writes. Its routing table has no `discover` or `author` phase. Resume
-with `/attune:skill-library --resume`, which re-invokes this skill.
+with `/attune:skill-library-session --resume`, which re-invokes this skill.
 
 Save this to `.attune/mission-state.json`, advance `current_phase` at
 each gate, and record every user decision and override in

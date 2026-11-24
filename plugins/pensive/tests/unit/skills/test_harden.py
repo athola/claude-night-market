@@ -1,6 +1,6 @@
-"""BDD contract tests for the pensive:harden skill.
+"""BDD contract tests for the pensive:harden-playbook skill.
 
-Feature: pensive:harden skill is loadable, complete, and wired
+Feature: pensive:harden-playbook skill is loadable, complete, and wired
 to real composed skills.
 
 As a Claude Code user invoking /harden
@@ -30,7 +30,7 @@ import pytest
 from tests.unit.skills._skill_text import read_frontmatter
 
 REPO_ROOT = Path(__file__).resolve().parents[5]
-SKILL_DIR = REPO_ROOT / "plugins" / "pensive" / "skills" / "harden"
+SKILL_DIR = REPO_ROOT / "plugins" / "pensive" / "skills" / "harden-playbook"
 SKILL_FILE = SKILL_DIR / "SKILL.md"
 MODULES_DIR = SKILL_DIR / "modules"
 
@@ -94,8 +94,8 @@ class TestHardenSkillReferences:
         "dep",
         [
             "pensive:safety-critical-patterns",
-            "pensive:rust-review",
-            "pensive:bug-review",
+            "pensive:rust-review-playbook",
+            "pensive:bug-review-playbook",
             "pensive:tiered-audit",
             "pensive:blast-radius",
             "leyline:supply-chain-advisory",
@@ -238,13 +238,13 @@ class TestHardenCommandRegistered:
     def test_command_references_skill(self) -> None:
         """Given the command file
         When the command activates
-        Then it must reference Skill(pensive:harden) so the skill
+        Then it must reference Skill(pensive:harden-playbook) so the skill
         loads under the command.
         """
         cmd = REPO_ROOT / "plugins" / "pensive" / "commands" / "harden.md"
         text = cmd.read_text(encoding="utf-8")
-        assert "pensive:harden" in text, (
-            "harden.md command must reference Skill(pensive:harden)"
+        assert "Skill(pensive:harden-playbook)" in text, (
+            "harden.md command must reference Skill(pensive:harden-playbook)"
         )
 
     def test_plugin_json_registers_skill_and_command(self) -> None:
@@ -255,8 +255,8 @@ class TestHardenCommandRegistered:
         """
         pj = REPO_ROOT / "plugins" / "pensive" / ".claude-plugin" / "plugin.json"
         text = pj.read_text(encoding="utf-8")
-        assert "./skills/harden" in text, (
-            "plugin.json must register ./skills/harden in the skills array"
+        assert "./skills/harden-playbook" in text, (
+            "plugin.json must register ./skills/harden-playbook in the skills array"
         )
         assert "./commands/harden.md" in text, (
             "plugin.json must register ./commands/harden.md in the commands array"

@@ -15,7 +15,7 @@ import pytest
 EXPECTED_MIN_FRONTMATTER_DELIMITERS = 2
 EXPECTED_MIN_MODULES = 4
 
-SKILL_DIR = Path(__file__).parent.parent.parent.parent / "skills" / "pr-review"
+SKILL_DIR = Path(__file__).parent.parent.parent.parent / "skills" / "pr-review-playbook"
 SKILL_FILE = SKILL_DIR / "SKILL.md"
 MODULES_DIR = SKILL_DIR / "modules"
 
@@ -434,7 +434,7 @@ class TestOutputFormatTemplates:
             Path(__file__).parent.parent.parent.parent.parent
             / "pensive"
             / "skills"
-            / "unified-review"
+            / "unified-review-playbook"
             / "modules"
             / "output-format-templates.md"
         )

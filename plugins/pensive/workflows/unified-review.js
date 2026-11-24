@@ -30,7 +30,7 @@ export const meta = {
 }
 
 // Agent types come from plugins/pensive/agents/. The mapping mirrors the table
-// at plugins/pensive/skills/unified-review/SKILL.md:138-165, including its rule
+// at plugins/pensive/skills/unified-review-playbook/SKILL.md:138-165, including its rule
 // that a skill name is never an agent type: dimensions without a dedicated
 // agent use general-purpose and invoke the skill themselves.
 const DIMENSIONS = [
@@ -52,7 +52,7 @@ const DIMENSIONS = [
   {
     key: 'security',
     agentType: 'general-purpose',
-    prompt: 'Invoke Skill(pensive:harden) and apply it to the changed code. Report findings with their CWE where one applies.',
+    prompt: 'Invoke Skill(pensive:harden-playbook) and apply it to the changed code. Report findings with their CWE where one applies.',
   },
 ]
 

@@ -2,7 +2,7 @@
 name: architecture-reviewer
 description: Architecture review for system design, ADR compliance, and coupling analysis. Use for major refactors.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
-skills: pensive:architecture-review, imbue:proof-of-work, imbue:review-core
+skills: pensive:architecture-review-playbook, imbue:proof-of-work, imbue:review-core
 
 # Claude Code 2.1.0+ lifecycle hooks
 examples:

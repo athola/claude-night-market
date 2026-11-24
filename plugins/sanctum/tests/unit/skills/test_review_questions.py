@@ -28,7 +28,7 @@ import pytest
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 REPO_ROOT = PLUGIN_ROOT.parents[1]
 
-PR_REVIEW = PLUGIN_ROOT / "skills" / "pr-review"
+PR_REVIEW = PLUGIN_ROOT / "skills" / "pr-review-playbook"
 MODULE = PR_REVIEW / "modules" / "review-questions.md"
 SKILL = PR_REVIEW / "SKILL.md"
 SCOPE = PR_REVIEW / "modules" / "scope-classification.md"

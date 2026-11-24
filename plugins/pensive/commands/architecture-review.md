@@ -15,8 +15,8 @@ Principal-level architecture assessment against ADRs and design patterns.
 
 ## What It Does
 
-Invoke `Skill(pensive:architecture-review)`, which carries the assessment
-workflow, the ADR checks and the output format.
+Invoke `Skill(pensive:architecture-review-playbook)`, which carries the
+assessment workflow, the ADR checks and the output format.
 
 ## War Room Checkpoint (Automatic)
 

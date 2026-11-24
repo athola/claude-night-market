@@ -8,8 +8,8 @@ usage: /catchup [baseline]
 
 Rapidly acquires context on recent changes using imbue's catchup methodology: confirm context, capture delta, extract insights, and record follow-ups.
 
-Invoke `Skill(imbue:catchup)`, which carries the four-step methodology, the
-output format and its sections, and the token-conservation rules.
+Invoke `Skill(imbue:catchup-playbook)`, which carries the four-step methodology,
+the output format and its sections, and the token-conservation rules.
 
 ## Usage
 

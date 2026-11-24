@@ -3,7 +3,7 @@
 This module shows how a progressive-loading hub can drive an API
 review without front-loading every checklist, exemplar, and
 language convention at once. It is the loading playbook that
-sits behind the `pensive:api-review` skill: when reviewing a
+sits behind the `pensive:api-review-playbook` skill: when reviewing a
 public API, decide which detail modules to load and in what
 order, instead of pulling in every possible rule.
 

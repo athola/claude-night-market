@@ -23,7 +23,9 @@ from pathlib import Path
 
 import pytest
 
-SKILL_DIR = Path(__file__).parent.parent.parent.parent / "skills" / "validate-pr"
+SKILL_DIR = (
+    Path(__file__).parent.parent.parent.parent / "skills" / "validate-pr-playbook"
+)
 SKILL_FILE = SKILL_DIR / "SKILL.md"
 
 
@@ -37,7 +39,7 @@ class TestSkillStructure:
 
     As a plugin maintainer
     I want the validate-pr skill properly structured
-    So that it loads correctly via Skill(sanctum:validate-pr)
+    So that it loads correctly via Skill(sanctum:validate-pr-playbook)
     """
 
     @pytest.mark.unit

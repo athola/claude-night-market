@@ -56,7 +56,7 @@ class TestIsImplementationFile:
                 "SKILL_FILE",
             ),
             (
-                "/plugins/attune/skills/war-room/SKILL.md",
+                "/plugins/attune/skills/war-room-playbook/SKILL.md",
                 True,
                 "SKILL_FILE",
             ),

@@ -61,7 +61,7 @@ class TestIntegrationWorkflows:
         loaded = re.findall(r"Run `Skill\(([a-z-]+):([a-z-]+)\)`", text)
         assert loaded[:2] == [
             ("sanctum", "git-workspace-review"),
-            ("imbue", "catchup"),
+            ("imbue", "catchup-playbook"),
         ]
         for plugin, skill in loaded:
             assert (PLUGINS_DIR / plugin / "skills" / skill / "SKILL.md").is_file()

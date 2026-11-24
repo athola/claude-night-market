@@ -185,7 +185,7 @@ relaunch() {
   if [ -f "${relaunch_prompt}" ]; then
     prompt_content="$(cat "${relaunch_prompt}")"
   else
-    prompt_content="Egregore resuming. Read .egregore/manifest.json and invoke Skill(egregore:summon) to continue the pipeline."
+    prompt_content="Egregore resuming. Read .egregore/manifest.json and invoke Skill(egregore:summon-playbook) to continue the pipeline."
   fi
 
   # --output-format json because the default text format is swallowed

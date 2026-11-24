@@ -77,7 +77,7 @@ The commands you reach for most:
 | Prepare a pull request | `/prepare-pr` |
 | Write a spec | `/speckit-specify` |
 | Catch up on changes | `/catchup` |
-| Package project knowledge as skills | `/attune:skill-library` |
+| Package project knowledge as skills | `/attune:skill-library-session` |
 | Clean up the codebase | `/unbloat` |
 | Pressure-test a decision | `/attune:war-room` |
 

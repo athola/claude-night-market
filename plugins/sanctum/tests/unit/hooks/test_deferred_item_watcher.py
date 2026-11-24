@@ -540,6 +540,26 @@ class TestParseSkillName:
         """
         assert mod._parse_skill_name({"skill": "sanctum:war-room"}) == "war-room"
 
+    def test_renamed_playbook_skill_keeps_its_watch_source(self) -> None:
+        """
+        GIVEN the war-room skill invoked by its #1055 id 'attune:war-room-playbook'
+        WHEN _parse_skill_name is called with that payload
+        THEN it returns 'war-room', so the skill stays watched
+        AND its deferrals keep the source label they had before the rename
+        """
+        assert (
+            mod._parse_skill_name({"skill": "attune:war-room-playbook"}) == "war-room"
+        )
+
+    def test_renamed_unified_review_skill_stays_watched(self) -> None:
+        """
+        GIVEN the unified-review skill invoked by its #1055 id
+        WHEN _parse_skill_name is called with 'pensive:unified-review-playbook'
+        THEN it returns 'unified-review', which is on the watch list
+        """
+        payload = {"skill": "pensive:unified-review-playbook"}
+        assert mod._parse_skill_name(payload) == "unified-review"
+
     def test_empty_skill_field(self) -> None:
         """
         GIVEN a skill payload with an empty string as the skill value

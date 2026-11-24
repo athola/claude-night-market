@@ -3,7 +3,7 @@
 The dispatch prompt below was distilled from the first successful
 run of this mission (claude-night-market, 2026-07-02) and captured
 on 2026-07-03. Paste it into a fresh session in the target
-repository, or dispatch it through `/attune:skill-library`. It is
+repository, or dispatch it through `/attune:skill-library-session`. It is
 kept in one fenced block so it can be copied whole.
 
 ```text

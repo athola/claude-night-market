@@ -115,7 +115,7 @@ demo-classify: ## Demo domain classifier on sample topics (LIVE)
 	topics = ['react component design patterns', 'rust memory safety', 'kubernetes deployment']; \
 	[print(f'  {t}: domain={classify(t).domain}, triz={classify(t).triz_depth}, confidence={classify(t).confidence:.2f}') for t in topics]"
 	@echo ""
-	@echo "Use /tome:research for full research workflow."
+	@echo "Use /tome:research-session for full research workflow."
 
 demo-plan: ## Demo research planner on classified topic (LIVE)
 	@echo "=== Tome Research Planner Demo (LIVE) ==="

@@ -1,0 +1,108 @@
+---
+name: rules-eval-playbook
+description: 'Evaluate Claude Code rules in .claude/rules/. Use for frontmatter, globs, and quality audits.'
+alwaysApply: false
+category: rule-management
+tags:
+- evaluation
+- rules
+- validation
+- quality-assurance
+- glob-patterns
+- frontmatter
+dependencies:
+- skills-eval-playbook
+provides:
+  infrastructure:
+  - rules-evaluation
+  - frontmatter-validation
+  - glob-pattern-analysis
+  patterns:
+  - rule-auditing
+  - content-quality
+  - organization-analysis
+estimated_tokens: 400
+role: entrypoint
+---
+# Rules Evaluation Framework
+
+Scoring weights (out of 100): frontmatter_validity 25, glob_pattern_quality
+20, content_quality 25, organization 15, token_efficiency 15.
+
+## When NOT To Use
+
+- Evaluating skills (use `abstract:skills-eval`)
+- Evaluating hooks (use `abstract:hooks-eval`)
+- Writing a new rule (use `hookify:writing-rules`)
+
+## Overview
+
+This skill evaluates Claude Code rules in `.claude/rules/` directories against quality standards. It validates YAML frontmatter, glob pattern syntax, content quality, and directory organization. Rules files support path-scoped conditional loading via `paths` frontmatter and unconditional rules (no `paths` field).
+
+Key validations: YAML syntax errors, unquoted glob patterns, Cursor-specific fields (`alwaysApply`, `globs`), overly broad patterns, content verbosity, and naming conventions.
+
+## Quick Start
+
+```bash
+# Evaluate rules in current project
+/rules-eval
+
+# Evaluate specific directory
+/rules-eval .claude/rules/
+
+# Detailed analysis with recommendations
+/rules-eval --detailed
+```
+
+## Evaluation Workflow
+
+1. Scan `.claude/rules/` for all `.md` files (including subdirectories)
+2. Validate YAML frontmatter syntax and fields
+3. Analyze glob patterns for correctness and specificity
+4. Assess content quality (actionable, concise, non-conflicting)
+5. Check organization (naming, structure, symlinks)
+6. Measure token efficiency and redundancy
+
+## Scoring
+
+| Category | Points | Focus |
+|----------|--------|-------|
+| Frontmatter Validity | 25 | YAML syntax, required fields, correct field names |
+| Glob Pattern Quality | 20 | Syntax, specificity, quoting |
+| Content Quality | 25 | Actionable, concise, non-conflicting |
+| Organization | 15 | Naming, structure, symlink usage |
+| Token Efficiency | 15 | Rule size, redundancy detection |
+
+| Score | Level |
+|-------|-------|
+| 91-100 | Excellent - Production-ready |
+| 76-90 | Good - Minor improvements possible |
+| 51-75 | Basic - Needs optimization |
+| 26-50 | Below Standards - Significant issues |
+| 0-25 | Critical - Invalid or broken rules |
+
+## Resources
+
+### Skill-Specific Modules
+- **Frontmatter Validation**: See `modules/frontmatter-validation.md`
+- **Glob Pattern Analysis**: See `modules/glob-pattern-analysis.md`
+- **Content Quality Metrics**: See `modules/content-quality-metrics.md`
+- **Organization Patterns**: See `modules/organization-patterns.md`
+
+### Tools
+- **Rules Validator**: `scripts/rules_validator.py`
+
+### Related Skills
+- `abstract:skills-eval` - Skill evaluation framework
+- `abstract:hooks-eval` - Hook evaluation framework
+
+## Exit Criteria
+
+- [ ] Every `.md` file under `.claude/rules/` (including subdirectories) receives a quality score
+  (0-100) with per-category breakdown across the five dimensions.
+- [ ] YAML frontmatter syntax errors and unquoted glob patterns are listed as blocking findings
+  before any score is reported.
+- [ ] Rules using Cursor-specific fields (`alwaysApply`, `globs`) are flagged as
+  non-compliant with the expected Claude Code schema.
+- [ ] Any rule scoring below 26 (Critical tier) is reported with at least one concrete
+  corrective action alongside the score.

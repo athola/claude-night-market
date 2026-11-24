@@ -29,7 +29,7 @@ dependencies:
     skills:
     - git-platform
 skills:
-- skills/catchup
+- skills/catchup-playbook
 - skills/diff-analysis
 - skills/feature-review
 - skills/proof-of-work
@@ -39,7 +39,7 @@ skills:
 - skills/structured-output
 - skills/workflow-monitor
 - skills/latent-space-engineering
-- skills/justify
+- skills/justify-playbook
 - skills/assisted-mastery
 - skills/dependency-verification
 - skills/graduated-implementation

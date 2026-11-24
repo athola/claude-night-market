@@ -56,7 +56,7 @@ def main() -> None:
         f"Current: {current.get('id', '?')} at "
         f"{current.get('pipeline_stage', '?')}/"
         f"{current.get('pipeline_step', '?')}. "
-        f"Invoke Skill(egregore:summon) to continue."
+        f"Invoke Skill(egregore:summon-playbook) to continue."
     )
 
     output = {

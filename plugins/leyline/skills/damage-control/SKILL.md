@@ -68,7 +68,7 @@ and does not silently discard work.
 - Proactive risk assessment before work starts (use
   `Skill(leyline:risk-classification)` instead)
 - Strategic architectural decisions after a failure (use
-  `Skill(attune:war-room)` instead)
+  `Skill(attune:war-room-playbook)` instead)
 - Routine error handling within a single tool call (use
   `Skill(leyline:error-patterns)` instead)
 

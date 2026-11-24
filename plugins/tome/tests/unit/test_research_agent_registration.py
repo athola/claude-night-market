@@ -72,14 +72,14 @@ def test_research_agent_registered_in_plugin_json() -> None:
 
 
 def test_research_agent_delegates_to_skill() -> None:
-    """Scenario: the agent body explicitly delegates to Skill(tome:research).
+    """Scenario: the agent body explicitly delegates to Skill(tome:research-playbook).
 
     Given agents/research.md
     When I read the body
-    Then it instructs the agent to invoke Skill(tome:research).
+    Then it instructs the agent to invoke Skill(tome:research-playbook).
     """
     text = AGENT_FILE.read_text(encoding="utf-8")
-    assert "Skill(tome:research)" in text, (
+    assert "Skill(tome:research-playbook)" in text, (
         "agent must delegate to the existing skill rather than "
         "re-implement orchestration"
     )

@@ -6,7 +6,7 @@ alwaysApply: false
 category: strategic-planning
 tags: [checkpoint, embedded, escalation, reversibility, inline]
 dependencies:
-  - attune:war-room
+  - attune:war-room-playbook
 complexity: lightweight
 estimated_tokens: 400
 progressive_loading: false
@@ -42,7 +42,7 @@ This skill is **not invoked directly by users**. It is called by other commands 
 
 | Situation | Use instead |
 |-----------|-------------|
-| A user asks for deliberation directly | `Skill(attune:war-room)` |
+| A user asks for deliberation directly | `Skill(attune:war-room-playbook)` |
 | The decision is cheap to reverse (high RS) | Proceed without a checkpoint |
 | A panel already ruled on this decision | The prior verdict |
 
@@ -326,8 +326,9 @@ requires_user_confirmation: true
 
 ## Related Skills
 
-- `Skill(attune:war-room)` - Full War Room deliberation
-- `Skill(attune:war-room)/modules/reversibility-assessment.md` - RS framework
+- `Skill(attune:war-room-playbook)` - Full War Room deliberation
+- `Skill(attune:war-room-playbook)/modules/reversibility-assessment.md` - RS
+  framework
 
 ## Related Commands
 
@@ -343,7 +344,8 @@ requires_user_confirmation: true
   (0.0-1.0), `selected_mode` (express / lightweight / full_council / delphi), `should_escalate`
   (boolean), and `recommendation` or `orders`.
 - [ ] Any response with `reversibility_score` > profile threshold has `should_escalate: true`
-  and triggers the full War Room via `Skill(attune:war-room)` before returning.
+  and triggers the full War Room via `Skill(attune:war-room-playbook)` before
+  returning.
 - [ ] Any response with `confidence` <= 0.8 sets `requires_user_confirmation: true` and presents
   a confirmation prompt to the user rather than auto-continuing.
 - [ ] The checkpoint is logged to

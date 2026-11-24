@@ -64,7 +64,7 @@ class TestSkillValidationConfig:
     def test_default_meta_exceptions(self):
         """Default META_SKILL_EXCEPTIONS includes known exceptions."""
         config = SkillValidationConfig()
-        assert "skills-eval" in config.META_SKILL_EXCEPTIONS
+        assert "skills-eval-playbook" in config.META_SKILL_EXCEPTIONS
 
     @pytest.mark.unit
     def test_custom_values_accepted(self):

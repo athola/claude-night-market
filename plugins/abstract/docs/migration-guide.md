@@ -13,7 +13,7 @@ The tools have been moved from individual skill directories to a centralized `sc
 - `skill-analyzer` → `scripts/skill_analyzer.py`
 - `token-estimator` → `scripts/token_estimator.py`
 
-### From `skills/skills-eval/tools/`
+### From `skills/skills-eval-playbook/tools/`
 - `compliance-checker` → `scripts/abstract_validator.py`
 - `improvement-suggester` → Integrated into `abstract.skills_eval` module
 - `skills-auditor` → Integrated into `abstract.skills_eval` module

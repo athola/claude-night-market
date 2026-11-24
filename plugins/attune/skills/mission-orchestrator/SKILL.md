@@ -15,7 +15,7 @@ dependencies:
 - attune:project-planning
 - attune:project-execution
 - attune:war-room-checkpoint
-- attune:war-room
+- attune:war-room-playbook
 - leyline:risk-classification
 - leyline:damage-control
 - leyline:additive-bias-defense
@@ -124,7 +124,7 @@ Before the execute phase, challenge the plan:
 2. Send revisions back to `Skill(attune:project-planning)`. After three
    rounds, the user must approve as-is, abort, or restart from the
    specification.
-3. Run `Skill(attune:war-room)` on the approved plan. Approval is
+3. Run `Skill(attune:war-room-playbook)` on the approved plan. Approval is
    required. Concerns or a rejection start another revision round.
 4. Classify every task with `Skill(leyline:risk-classification)` and
    record the tier counts. RED and CRITICAL tasks go through

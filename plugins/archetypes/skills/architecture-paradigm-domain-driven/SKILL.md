@@ -193,7 +193,7 @@ need for more appears.
 - **Ceremony without need**:
   - **Mitigation**: Name the current need in the pull request that adds
     any DTO, mapper, command object, or layer boundary, and apply the
-    `ceremony-audit` lens in `Skill(pensive:architecture-review)`. A mapper
+    `ceremony-audit` lens in `Skill(pensive:architecture-review-playbook)`. A mapper
     whose fields are all 1:1 copies is a mapper with no job.
 - **Anemic model**:
   - **Mitigation**: If the domain objects carry no behavior and every rule

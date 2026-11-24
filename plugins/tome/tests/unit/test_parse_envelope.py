@@ -7,7 +7,7 @@ I want each channel agent's report of its own work recorded
 So that an empty channel can be interpreted instead of guessed at
 
 The four channel agents already return `errors` and per-channel
-metadata. `skills/research/SKILL.md` told the orchestrator to parse the
+metadata. `skills/research-playbook/SKILL.md` told the orchestrator to parse the
 findings and nothing else, so both were dropped at that boundary and no
 Python type ever modeled the envelope.
 

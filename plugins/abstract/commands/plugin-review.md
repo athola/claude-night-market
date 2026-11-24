@@ -16,8 +16,8 @@ pr (quality scoring), release (full ecosystem audit).
 Detects affected plugins from git diff and reviews
 related plugins for side effects.
 
-Invoke `Skill(abstract:plugin-review)`, which carries the tier definitions,
-the scope detection, the verdict and the output format.
+Invoke `Skill(abstract:plugin-review-playbook)`, which carries the tier
+definitions, the scope detection, the verdict and the output format.
 
 ## When To Use
 
@@ -103,7 +103,7 @@ This command orchestrates multiple evaluation tools:
    `validate_budget.py` for the description budget.
    The analyzer and optimizer import pyyaml, so run them with
    `uv run python` from `plugins/abstract`.
-4. **Hooks evaluation**: `Skill(abstract:hooks-eval)` (if hooks exist)
+4. **Hooks evaluation**: `Skill(abstract:hooks-eval-playbook)` (if hooks exist)
 5. **Bloat detection**: Uses conserve:bloat-detector patterns
 6. **Aggregate results**: Combine scores and generate report
 

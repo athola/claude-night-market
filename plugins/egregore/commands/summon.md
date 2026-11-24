@@ -17,8 +17,8 @@ creation. By default the egregore runs indefinitely,
 scanning for new work after completing its current
 manifest. Use `/egregore:dismiss` to stop it.
 
-Invoke `Skill(egregore:summon)`, which carries the orchestration loop, the
-manifest mode, the pipeline mapping, the context-overflow and token-budget
+Invoke `Skill(egregore:summon-playbook)`, which carries the orchestration loop,
+the manifest mode, the pipeline mapping, the context-overflow and token-budget
 protocols, the progress monitoring and the failure handling.
 
 ## When To Use

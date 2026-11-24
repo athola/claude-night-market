@@ -140,7 +140,7 @@ skills-eval/
    python scripts/skills_auditor.py --discover --path skills/
 
    # Generate improvements
-   python skills/skills-eval/scripts/improvement_suggester.py --skill new-skill/SKILL.md
+   python skills/skills-eval-playbook/scripts/improvement_suggester.py --skill new-skill/SKILL.md
 
    # Check compliance
    python plugins/abstract/scripts/compliance_checker.py new-skill
@@ -226,5 +226,5 @@ Some scripts appear in multiple skills but serve different purposes:
 ## References
 
 - Modular Skills Guide: `skills/modular-skills/guide.md`
-- Skills Eval Guide: `skills/skills-eval/README.md`
+- Skills Eval Guide: `skills/skills-eval-playbook/README.md`
 - Writing Standards: `writing-clearly-and-concisely/SKILL.md`
