@@ -335,6 +335,10 @@ def test_workflow_scripts_are_swept() -> None:
     """
     swept = {a.relative_to(REPO_ROOT).as_posix() for a in ASSETS}
     assert "plugins/attune/workflows/skill-library.js" in swept
+    script = REPO_ROOT / "plugins/attune/workflows/skill-library.js"
+    assert ".claude/rules/plan-before-large-dispatch.md" in _citations(
+        script.read_text(encoding="utf-8")
+    )
 
 
 def test_capability_references_are_found() -> None:
