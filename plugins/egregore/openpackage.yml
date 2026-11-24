@@ -26,7 +26,7 @@ skills:
 - skills/install-watchdog
 - skills/quality-gate
 - skills/summon
-- skills/uninstall-watchdog
+- skills/uninstall-watchdog-playbook
 commands:
 - commands/dismiss.md
 - commands/install-watchdog.md

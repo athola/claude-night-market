@@ -95,7 +95,7 @@ the log file location:
 To remove the watchdog, run:
 
 ```
-Skill(egregore:uninstall-watchdog)
+Skill(egregore:uninstall-watchdog-playbook)
 ```
 
 Or invoke the uninstall skill directly via the command

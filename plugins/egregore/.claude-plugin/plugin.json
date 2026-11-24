@@ -5,7 +5,7 @@
   "skills": [
     "./skills/summon",
     "./skills/install-watchdog",
-    "./skills/uninstall-watchdog",
+    "./skills/uninstall-watchdog-playbook",
     "./skills/quality-gate"
   ],
   "commands": [

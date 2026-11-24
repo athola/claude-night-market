@@ -25,7 +25,7 @@ merging.
 | `summon` | Spawn autonomous session with budget | Delegating full tasks |
 | `quality-gate` | Pre-merge quality validation | Before merging autonomous work |
 | `install-watchdog` | Install crash-recovery watchdog | Setting up monitoring |
-| `uninstall-watchdog` | Remove watchdog | Cleaning up monitoring |
+| `uninstall-watchdog-playbook` | Remove watchdog | Cleaning up monitoring |
 
 ## Commands
 

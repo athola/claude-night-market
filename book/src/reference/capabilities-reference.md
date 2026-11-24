@@ -229,7 +229,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `triz` | [tome](../plugins/tome.md) | TRIZ cross-domain analogical reasoning |
 | `tutorial-updates` | [sanctum](../plugins/sanctum.md) | Tutorial maintenance and updates |
 | `unified-review` | [pensive](../plugins/pensive.md) | Review orchestration |
-| `uninstall-watchdog` | [egregore](../plugins/egregore.md) | Remove crash-recovery watchdog |
+| `uninstall-watchdog-playbook` | [egregore](../plugins/egregore.md) | Remove crash-recovery watchdog |
 | `update-readme` | [sanctum](../plugins/sanctum.md) | README maintenance and updates |
 | `validate-pr` | [sanctum](../plugins/sanctum.md) | Diff-derived PR test plan with revert-test quality checks |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
