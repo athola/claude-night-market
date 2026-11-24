@@ -14,11 +14,13 @@ or say you used none (CONSTITUTION.md rule 1).
 
 ## Why
 
+<!-- Agreed before this PR? Link where: issue, ADR, design doc. -->
 <!-- The failure, and what it cost. Link the issue. What did callers
 see, and what did they do about it? -->
 
 ## What and how
 
+<!-- End with "Where to look:", the one or two places this could be wrong. -->
 <!-- The fix. If the guard is at a trust boundary rather than deeper
 in the call path, say so: that is a design decision a reviewer will
 otherwise ask about. -->

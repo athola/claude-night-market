@@ -28,6 +28,22 @@ import pytest
 HOOK_PATH = Path(__file__).parent.parent / "hooks" / "auto-star-repo.sh"
 
 
+def _bash_on_test_path_has_xtracefd() -> bool:
+    """BASH_XTRACEFD arrived in bash 4.1, and the hook runs under the bash
+    on /usr/bin:/bin, which is 3.2 on stock macOS. There the trace cannot
+    go to another fd at all, so that leak path does not exist to test.
+    """
+    versinfo = subprocess.run(
+        ["bash", "-c", 'printf "%s %s" "${BASH_VERSINFO[0]}" "${BASH_VERSINFO[1]}"'],
+        env={"PATH": "/usr/bin:/bin"},
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.split()
+    major, minor = (int(part) for part in versinfo)
+    return (major, minor) >= (4, 1)
+
+
 @pytest.fixture
 def hook_source() -> str:
     """Load the auto-star hook source code."""
@@ -335,7 +351,9 @@ class TestXtraceKeepsTheTokenOut:
     """`-x` traces the script, and the curl calls carry a bearer token.
 
     Both curl paths run with the caller's stderr sent to /dev/null, which
-    is where the trace of their commands goes too.
+    hides a trace on stderr but not one BASH_XTRACEFD sends elsewhere, and
+    not curl's argv from ps. So the token never lands in a traced word or
+    in argv: it reaches curl on stdin (#1305).
     """
 
     @pytest.mark.unit
@@ -371,6 +389,86 @@ class TestXtraceKeepsTheTokenOut:
         assert "+ " in run.stderr, "xtrace did not run"
         assert "sekrit-token-123" not in run.stderr
         assert "sekrit-token-123" not in run.stdout
+
+    @staticmethod
+    def _run_recording_curl(
+        tmp_path: Path,
+        args: list[str],
+        extra_env: dict[str, str],
+        pass_fds: tuple[int, ...] = (),
+    ) -> subprocess.CompletedProcess[str]:
+        """Run the hook with a curl that records its argv and stdin."""
+        bin_dir = tmp_path / "bin"
+        bin_dir.mkdir()
+        (bin_dir / "gh").write_text("#!/bin/sh\nexit 1\n")
+        (bin_dir / "curl").write_text(
+            "#!/bin/sh\n"
+            f"printf '%s\\n' \"$@\" >>'{tmp_path}/curl.argv'\n"
+            f"cat >>'{tmp_path}/curl.stdin'\n"
+            "printf 404\n"
+        )
+        for shim in bin_dir.iterdir():
+            shim.chmod(0o755)
+        env = {
+            "HOME": str(tmp_path),
+            "PATH": f"{bin_dir}:/usr/bin:/bin",
+            "GH_TOKEN": "sekrit-token-123",
+            "CLAUDE_PLUGIN_OPTION_STAR_REPO": "true",
+            "XDG_STATE_HOME": str(tmp_path / "state"),
+            **extra_env,
+        }
+        return subprocess.run(
+            ["bash", str(HOOK_PATH), *args],
+            env=env,
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+            pass_fds=pass_fds,
+        )
+
+    @pytest.mark.unit
+    @pytest.mark.skipif(
+        not _bash_on_test_path_has_xtracefd(),
+        reason="BASH_XTRACEFD needs bash 4.1+; /usr/bin:/bin has an older bash",
+    )
+    @pytest.mark.parametrize("args", [["-x"], ["-x", "--star"]])
+    def test_trace_sent_to_its_own_fd_never_prints_the_token(
+        self, tmp_path: Path, args: list[str]
+    ) -> None:
+        """
+        GIVEN BASH_XTRACEFD pointing the trace at a file, as one does to
+              keep it apart from the script's output
+        WHEN the hook runs with -x and a token in GH_TOKEN
+        THEN the trace never holds the token: the call sites' 2>/dev/null
+             does not reach a trace on another fd (#1305).
+        """
+        trace = tmp_path / "trace.log"
+        with trace.open("w") as trace_file:
+            fd = trace_file.fileno()
+            self._run_recording_curl(
+                tmp_path, args, {"BASH_XTRACEFD": str(fd)}, pass_fds=(fd,)
+            )
+
+        text = trace.read_text()
+        assert "curl" in text, "the trace never reached a curl call"
+        assert "sekrit-token-123" not in text
+
+    @pytest.mark.unit
+    def test_token_reaches_curl_on_stdin_not_in_its_argv(self, tmp_path: Path) -> None:
+        """
+        GIVEN a token in GH_TOKEN and gh logged out
+        WHEN the hook checks and stars through curl
+        THEN the Authorization header reaches curl on stdin, and the token
+             is never in curl's argv, where ps shows it to every local user.
+        """
+        self._run_recording_curl(tmp_path, [], {})
+
+        argv = (tmp_path / "curl.argv").read_text()
+        stdin = (tmp_path / "curl.stdin").read_text()
+        assert "sekrit-token-123" not in argv
+        assert stdin.count("Authorization: Bearer sekrit-token-123") == 2
 
 
 def _run_with_shims(

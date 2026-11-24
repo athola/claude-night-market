@@ -20,6 +20,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **sanctum:** `pr-review` records whether the need and the approach were
+  settled before the PR, and where. A settled decision is checked rather
+  than re-argued, and disagreement with it is a new REVISIT finding,
+  posted on the decision record instead of blocking the merge. A
+  design-bearing change with no record gets its design reviewed first.
+  The report lists the files read lightly, and every file is still read
+  for fit with the rest of the system. On the author side, the
+  description links where the approach was agreed and names where to
+  look, and `pr-prep` warns before a design-bearing PR opens without a
+  record. Changes that draw design feedback in review are abandoned more
+  often (Zanaty et al. 2018). ADR-0031 records the decision and the
+  evidence, including the part of the proposal no source supports.
+
 - **conserve:** `scripts/session_cost.py` reads a session transcript and
   splits its spend into uncached input, cache writes, cache reads and
   output, weighted by each model's price multiples, and ranks tool
@@ -419,6 +432,12 @@ corrected text for a docs finding.
   any prior instructions", and "ignore everything above".
 - **leyline:** The usage logger starts a new session instead of resuming
   one whose session_id is null or not a string.
+- **leyline:** `auto-star-repo.sh` passes the GitHub token to curl on
+  stdin (#1305). With `-x` and `BASH_XTRACEFD` the trace printed the
+  token, and curl's argv showed it to every local user through `ps`.
+  The curl fallback now needs curl 7.55.0 or later for `-H @-`. The test
+  for the traced fd skips where the bash on `/usr/bin:/bin` predates 4.1,
+  as on stock macOS, which has no `BASH_XTRACEFD`.
 - **memory-palace:** `intake_queue.jsonl.lock` is gitignored.
 - **memory-palace:** a capture index whose `entries` or `hashes` is a
   list or empty is set aside like a corrupt one, instead of crashing

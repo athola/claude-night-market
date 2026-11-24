@@ -17,11 +17,13 @@ or say you used none (CONSTITUTION.md rule 1).
 
 ## Why
 
+<!-- Agreed before this PR? Link where: issue, ADR, design doc. -->
 <!-- Why the break is worth its cost to consumers. A break needs a
 reason a downstream owner would accept. -->
 
 ## What and how
 
+<!-- End with "Where to look:", the one or two places this could be wrong. -->
 <!-- The change, and the compatibility strategy: shim, dual-write,
 versioned endpoint, or hard cut. Say which and why. -->
 

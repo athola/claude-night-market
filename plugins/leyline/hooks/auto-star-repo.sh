@@ -82,18 +82,21 @@ do_star_gh() {
 do_star_curl() {
   command -v curl >/dev/null 2>&1 || return 1
 
-  local token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
-  case "${token}" in
+  # ${VAR:+set} expands to a fixed word, so -x never traces the token.
+  case "${GITHUB_TOKEN:+set}${GH_TOKEN:+set}" in
     "") return 1 ;;
   esac
 
   # -f: a 401 or 403 must fail the call, or --star reports a star that
-  # never happened.
+  # never happened. -H @- reads the token header from the here-string
+  # (curl 7.55.0+): xtrace does not print redirections and ps does not
+  # show stdin, so -x and other local users never see the token (#1305).
   curl -fsS -o /dev/null -X PUT \
-    -H "Authorization: Bearer ${token}" \
+    -H @- \
     -H "Accept: application/vnd.github+json" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
-    "${API_URL}" 2>/dev/null
+    "${API_URL}" 2>/dev/null \
+    <<<"Authorization: Bearer ${GITHUB_TOKEN:-${GH_TOKEN:-}}"
 }
 
 # --- Helper: emit empty SessionStart JSON and exit ---
@@ -140,17 +143,20 @@ check_gh() {
 check_curl() {
   command -v curl >/dev/null 2>&1 || return 1
 
-  local token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
-  case "${token}" in
+  # ${VAR:+set} expands to a fixed word, so -x never traces the token.
+  case "${GITHUB_TOKEN:+set}${GH_TOKEN:+set}" in
     "") return 1 ;;
   esac
 
   local http_code
+  # The token header goes in on stdin, as in do_star_curl.
   http_code=$(curl -s -o /dev/null -w "%{http_code}" \
-    -H "Authorization: Bearer ${token}" \
+    -H @- \
     -H "Accept: application/vnd.github+json" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
-    "${API_URL}" 2>/dev/null || printf '000')
+    "${API_URL}" 2>/dev/null \
+    <<<"Authorization: Bearer ${GITHUB_TOKEN:-${GH_TOKEN:-}}" ||
+    printf '000')
 
   case "${http_code}" in
     "204") printf 'starred\n' ;;

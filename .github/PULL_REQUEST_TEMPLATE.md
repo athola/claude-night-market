@@ -18,11 +18,13 @@ or say you used none (CONSTITUTION.md rule 1).
 
 ## Why
 
+<!-- Agreed before this PR? Link where: issue, ADR, design doc. -->
 <!-- The motivating problem and why merging now matters. Link the
 issue. Ground it in a number, an incident, or a report. -->
 
 ## What and how
 
+<!-- End with "Where to look:", the one or two places this could be wrong. -->
 <!-- What changed, in the reader's terms. Then how, only if there was a
 real decision point: name the approach and the alternative you
 rejected. Mechanical changes skip the how. -->

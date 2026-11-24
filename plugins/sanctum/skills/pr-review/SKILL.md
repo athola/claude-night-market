@@ -35,6 +35,7 @@ modules:
 - modules/version-validation.md
 - modules/scope-classification.md
 - modules/slop-detection.md
+- modules/review-questions.md
 dependencies:
 - leyline:git-platform
 - sanctum:git-workspace-review
@@ -144,6 +145,12 @@ Before looking at ANY code, understand what this PR is supposed to accomplish.
 
 If no scope artifacts exist, flag this as a process issue but continue with PR description as the baseline.
 
+**Locate the decision record.** Record whether the need (Q1) and the
+approach (Q2) were settled before this PR, and where. A settled
+decision is checked, not re-argued. A design-bearing change with no
+record gets its design reviewed first. Lookup order and routing:
+`modules/review-questions.md`.
+
 ### Phase 2: Gather Changes
 
 ```bash
@@ -195,6 +202,12 @@ per its severity tables.
 ### Phase 4: Code Review with Scope Context
 
 Use `pensive:unified-review` on the changed files. For comment quality assessment, see `modules/comment-guidelines.md`.
+
+Order the reading by risk (Q3) and read every file for fit with the
+rest of the system (Q4). Pass the risky files to `pensive:unified-review`
+as its first targets, and build the report's "read in full" and "Read
+lightly" lists from what it reports having read, not from the plan.
+`modules/review-questions.md` lists what counts as risky.
 
 **Critical:** Evaluate each finding against the scope baseline:
 
@@ -285,6 +298,13 @@ only kept off the MR. Posting patterns: `modules/suggestion-comments.md`.
 ```markdown
 ## PR #X: Title
 
+### Review Questions
+- Q1 need: settled (#120)
+- Q2 approach: settled (docs/plans/auth.md)
+- Q3 read in full: `db/queries.py`, `api.py`
+- Read lightly: `docs/auth.md`
+- Q4: no expectation changes
+
 ### Scope Compliance
 **Requirements:** (from plan/spec)
 1. [x] Requirement A - Implemented
@@ -324,6 +344,10 @@ only kept off the MR. Posting patterns: `modules/suggestion-comments.md`.
      72-77 violates DRY. Extracting it reduces future
      bug surface.
    - Author's discretion
+
+### Revisit (1)
+1. [R1] Polling chosen in docs/adr/0042; webhooks now exist upstream.
+   Proposed comment on #120, not yet posted.
 
 ### Backlog → GitHub Issues (3)
 1. #142 - Refactor authentication module
@@ -406,6 +430,8 @@ How PR prose and changed docs are checked for AI-generated patterns:
 ## Exit Criteria
 
 - [ ] Scope baseline established and recorded in the report
+- [ ] Q1 and Q2 are each recorded as settled (with a link) or unsettled,
+      and the report's Review Questions block names the files read lightly
 - [ ] Every changed file classified in-scope, out-of-scope, or blocking
 - [ ] Each out-of-scope finding has a tracked issue number
 - [ ] Report states one recommendation: approve, comment, or request changes
@@ -427,6 +453,8 @@ How PR prose and changed docs are checked for AI-generated patterns:
 ## Supporting Modules
 
 - [Scope classification](modules/scope-classification.md) - finding categories
+- [Review questions](modules/review-questions.md) - where need and approach
+  were decided, risk-ordered reading, and integration fit
 - [Invariant conflicts](modules/invariant-conflicts.md) - Phase 4.6 checks
   for changes that weaken an invariant
 - [Slop detection](modules/slop-detection.md) - AI-pattern checks on PR prose
