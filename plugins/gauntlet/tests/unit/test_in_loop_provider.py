@@ -111,6 +111,41 @@ class TestInLoopProvider:
         assert result is None
 
 
+def _vary(prompt: str) -> str | None:
+    problem = BankProblem(
+        id="sd",
+        title="System design",
+        category="design",
+        difficulty=Difficulty.MEDIUM,
+        prompt=prompt,
+        hints=[],
+        tags=[],
+    )
+    return in_loop_variation_provider("template", problem)
+
+
+class TestNumberFormatsSurviveVariation:
+    """Feature: a number is shifted whole, in the format it was written (#1172)."""
+
+    def test_thousands_separated_number_shifts_as_one_number(self) -> None:
+        assert _vary("Handle 12,345 requests per second") == (
+            "Handle 12,348 requests per second"
+        )
+
+    def test_zero_groups_keep_their_digits(self) -> None:
+        assert _vary("Serve 1,000,000 users from 3 regions") == (
+            "Serve 1,000,003 users from 6 regions"
+        )
+
+    def test_decimal_is_left_whole(self) -> None:
+        assert _vary("p99 under 1.5 seconds for 10 clients") == (
+            "p99 under 1.5 seconds for 12 clients"
+        )
+
+    def test_comma_list_of_small_numbers_shifts_each(self) -> None:
+        assert _vary("sizes 3, 5, 7") == "sizes 6, 8, 10"
+
+
 class TestRunningInClaudeCode:
     """Feature: detect whether the runtime is inside Claude Code."""
 
