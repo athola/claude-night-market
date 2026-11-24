@@ -9,7 +9,7 @@ After all branch tier checks pass, run these:
 
 ### 1. Skills Evaluation
 
-Invoke `Skill(abstract:skills-eval)` for each affected
+Invoke `Skill(abstract:skills-eval-playbook)` for each affected
 plugin. Capture:
 - Per-skill quality scores
 - Token efficiency ratings
@@ -21,7 +21,7 @@ Report any skill scoring below 70 (MINIMUM_QUALITY_THRESHOLD).
 
 If the plugin has hooks that changed in the diff:
 
-Invoke `Skill(abstract:hooks-eval)` targeting only changed
+Invoke `Skill(abstract:hooks-eval-playbook)` targeting only changed
 hook files. Capture:
 - Security findings
 - Performance concerns
@@ -47,7 +47,7 @@ each affected plugin. Capture:
 
 If `.claude/rules/` files changed in the diff:
 
-Invoke `Skill(abstract:rules-eval)`. Capture:
+Invoke `Skill(abstract:rules-eval-playbook)`. Capture:
 - YAML validity
 - Pattern specificity
 - Content quality

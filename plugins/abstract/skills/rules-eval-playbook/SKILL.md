@@ -1,5 +1,5 @@
 ---
-name: rules-eval
+name: rules-eval-playbook
 description: 'Evaluate Claude Code rules in .claude/rules/. Use for frontmatter, globs, and quality audits.'
 alwaysApply: false
 category: rule-management
@@ -11,7 +11,7 @@ tags:
 - glob-patterns
 - frontmatter
 dependencies:
-- skills-eval
+- skills-eval-playbook
 provides:
   infrastructure:
   - rules-evaluation

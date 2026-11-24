@@ -48,7 +48,7 @@ class SkillValidationConfig:
         """Initialize default values for None fields."""
         if self.META_SKILL_EXCEPTIONS is None:
             self.META_SKILL_EXCEPTIONS = [
-                "skills-eval",
+                "skills-eval-playbook",
                 "modular-skills",
                 "writing-clearly-and-concisely",
             ]

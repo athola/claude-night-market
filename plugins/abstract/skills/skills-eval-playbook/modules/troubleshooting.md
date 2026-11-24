@@ -106,8 +106,8 @@ python3 scripts/skills_auditor.py ~/.claude/skills
 **Issue**: Slow evaluation performance
 ```bash
 # Solution: analyze one skill file instead of a whole tree
-python3 scripts/token_estimator.py --file skills/skills-eval/SKILL.md
-python3 scripts/skill_analyzer.py --file skills/skills-eval/SKILL.md
+python3 scripts/token_estimator.py --file skills/skills-eval-playbook/SKILL.md
+python3 scripts/skill_analyzer.py --file skills/skills-eval-playbook/SKILL.md
 ```
 
 **Issue**: High memory usage during analysis
@@ -122,7 +122,7 @@ python3 scripts/skill_analyzer.py --file skills/skills-eval/SKILL.md
 ```bash
 # Solution: list the findings, then plan fixes for one skill
 python3 scripts/compliance_checker.py skills/
-python3 scripts/improvement_suggester.py skills/skills-eval
+python3 scripts/improvement_suggester.py skills/skills-eval-playbook
 ```
 
 **Issue**: Quality scores not improving
@@ -138,7 +138,7 @@ python3 scripts/improvement_suggester.py skills/skills-eval
 `skill_analyzer.py` and `token_estimator.py` accept `--verbose` (or
 `-v`, repeatable). The other scripts have no debug flag.
 ```bash
-python3 scripts/skill_analyzer.py --file skills/skills-eval/SKILL.md -v
+python3 scripts/skill_analyzer.py --file skills/skills-eval-playbook/SKILL.md -v
 ```
 
 ### Performance Analysis
@@ -146,7 +146,7 @@ python3 scripts/skill_analyzer.py --file skills/skills-eval/SKILL.md -v
 `tool_performance_analyzer.py` runs each executable it finds with
 `--help`. Point it only at code you trust.
 ```bash
-python3 scripts/tool_performance_analyzer.py skills/skills-eval
+python3 scripts/tool_performance_analyzer.py skills/skills-eval-playbook
 ```
 
 ## Error Recovery Strategies

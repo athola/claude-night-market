@@ -197,4 +197,4 @@ Expected output:
 
 - [Trigger Patterns](../../../shared-modules/trigger-patterns.md) - Description field templates
 - [Instruction Strength](../../skill-authoring/modules/persuasion-principles.md) - How much to push, and when
-- [Trigger Isolation Analysis](../../skills-eval/modules/trigger-isolation-analysis.md) - Evaluation criteria
+- [Trigger Isolation Analysis](../../skills-eval-playbook/modules/trigger-isolation-analysis.md) - Evaluation criteria

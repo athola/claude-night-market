@@ -1,5 +1,5 @@
 ---
-name: plugin-review
+name: plugin-review-playbook
 description: 'Review plugin quality with tiered checks and dependency scoping. Use for PR and pre-release audits.'
 alwaysApply: false
 category: plugin-management
@@ -10,9 +10,9 @@ tags:
 - testing
 - architecture
 dependencies:
-- skills-eval
-- hooks-eval
-- rules-eval
+- skills-eval-playbook
+- hooks-eval-playbook
+- rules-eval-playbook
 tools:
 - validate_plugin.py
 - skill_analyzer.py

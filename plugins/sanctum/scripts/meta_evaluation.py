@@ -39,7 +39,12 @@ class MetaEvaluator:
     # Evaluation skills from the inventory
     EVALUATION_SKILLS = {
         # Abstract plugin
-        "abstract": ["skills-eval", "hooks-eval", "modular-skills", "subagent-testing"],
+        "abstract": [
+            "skills-eval-playbook",
+            "hooks-eval-playbook",
+            "modular-skills",
+            "subagent-testing",
+        ],
         # Imbue plugin
         "imbue": [
             "proof-of-work",
@@ -259,7 +264,11 @@ class MetaEvaluator:
 
         # For critical evaluation skills, missing tests is a high severity issue
         critical_skills = {
-            "abstract": ["skills-eval", "hooks-eval", "modular-skills"],
+            "abstract": [
+                "skills-eval-playbook",
+                "hooks-eval-playbook",
+                "modular-skills",
+            ],
             "imbue": ["proof-of-work"],
             "leyline": ["evaluation-framework", "testing-quality-standards"],
         }

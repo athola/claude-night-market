@@ -53,7 +53,7 @@ issues with line numbers.
 | `estimated_tokens` | yes | integer, realistic |
 
 The full schema is documented in
-the `evaluation-criteria` module of the `skills-eval` skill (under `plugins/abstract/skills/skills-eval/`).
+the `evaluation-criteria` module of the `skills-eval` skill (under `plugins/abstract/skills/skills-eval-playbook/`).
 
 ### Module reference resolution
 
@@ -164,7 +164,7 @@ python plugins/abstract/scripts/compliance_checker.py \
 
 The compliance checker validates against the project standards
 documented in
-the `evaluation-criteria` module of the `skills-eval` skill (under `plugins/abstract/skills/skills-eval/`).
+the `evaluation-criteria` module of the `skills-eval` skill (under `plugins/abstract/skills/skills-eval-playbook/`).
 A score under 70 is a blocker. A score 70-89 is shippable
 with a note. A score 90+ is production-ready.
 
@@ -249,7 +249,7 @@ done
 The output is a per-skill score. Skills that dropped below
 70 are due for a refresh.
 
-Cross-reference: see `Skill(abstract:skills-eval)` for the full
+Cross-reference: see `Skill(abstract:skills-eval-playbook)` for the full
 evaluation framework, the deployment checklist listed in `SKILL.md` for
 the final merge gates, and `Skill(abstract:skill-graph-audit)` for
 cross-skill reference validation across the corpus.

@@ -132,7 +132,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `harden` | [pensive](../plugins/pensive.md) | Active codebase hardening with NIST/CWE-cited findings and concrete remediation proposals |
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
 | `hook-scope-guide` | [abstract](../plugins/abstract.md) | Decide where to place hooks (plugin/project/global) |
-| `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
+| `hooks-eval-playbook` | [abstract](../plugins/abstract.md) | Hook security scanning |
 | `ideate` | [tome](../plugins/tome.md) | Diverse ideation methods with category-spanning selection and rotation |
 | `install-watchdog-playbook` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
 | `justify-playbook` | [imbue](../plugins/imbue.md) | Anti-additive-bias change audit |
@@ -160,7 +160,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `palace-index-curator` | [memory-palace](../plugins/memory-palace.md) | Web-capture index curation |
 | `papers` | [tome](../plugins/tome.md) | Academic literature search |
 | `performance-review` | [pensive](../plugins/pensive.md) | Time and space complexity hotspot detection |
-| `plugin-review` | [abstract](../plugins/abstract.md) | Tiered plugin quality review with dependency-aware scoping |
+| `plugin-review-playbook` | [abstract](../plugins/abstract.md) | Tiered plugin quality review with dependency-aware scoping |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
 | `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
@@ -187,7 +187,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `rigorous-reasoning` | [imbue](../plugins/imbue.md) | Anti-sycophancy guardrails |
 | `risk-classification` | [leyline](../plugins/leyline.md) | Inline 4-tier risk classification for agent tasks |
 | `rule-catalog` | [hookify](../plugins/hookify.md) | Pre-built behavioral rule templates |
-| `rules-eval` | [abstract](../plugins/abstract.md) | Evaluate and validate Claude Code rules in `.claude/rules/` directories |
+| `rules-eval-playbook` | [abstract](../plugins/abstract.md) | Evaluate and validate Claude Code rules in `.claude/rules/` directories |
 | `rust-review` | [pensive](../plugins/pensive.md) | Rust-specific checking |
 | `safety-critical-patterns` | [pensive](../plugins/pensive.md) | NASA Power of 10 rules for verifiable code |
 | `scope-guard` | [imbue](../plugins/imbue.md) | Anti-overengineering |
@@ -203,7 +203,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
 | `skill-graph-audit` | [abstract](../plugins/abstract.md) | Map Skill() refs across plugins; detect hubs, isolates, dangling targets |
 | `skill-library-mission` | [attune](../plugins/attune.md) | Build a project skill library via discovery, parallel authoring, and review |
-| `skills-eval` | [abstract](../plugins/abstract.md) | Skill quality assessment |
+| `skills-eval-playbook` | [abstract](../plugins/abstract.md) | Skill quality assessment |
 | `slop-detector` | [scribe](../plugins/scribe.md) | Detect AI-generated content markers |
 | `spec-writing` | [spec-kit](../plugins/spec-kit.md) | Specification authoring |
 | `speckit-orchestrator` | [spec-kit](../plugins/spec-kit.md) | Workflow coordination |

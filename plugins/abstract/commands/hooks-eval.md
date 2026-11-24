@@ -8,8 +8,8 @@ usage: /hooks-eval [plugin-path] [options]
 
 Detailed evaluation framework for analyzing all hooks within a plugin (or across project/global scopes) with advanced security scanning, performance benchmarking, and compliance validation. Built on the same principles as skills-eval but specifically tailored for Claude Code hook architecture.
 
-Invoke `Skill(abstract:hooks-eval)`, which carries the evaluation criteria,
-the SDK hook types and the integration points.
+Invoke `Skill(abstract:hooks-eval-playbook)`, which carries the evaluation
+criteria, the SDK hook types and the integration points.
 
 ## When To Use
 
@@ -112,7 +112,7 @@ them, are in the skill's `modules/evaluation-criteria.md`.
 
 For detailed guidance on hook types, SDK integration, and evaluation criteria:
 
-- **hooks-eval skill** (`skills/hooks-eval/SKILL.md`) - detailed hook evaluation framework
+- **hooks-eval skill** (`skills/hooks-eval-playbook/SKILL.md`) - detailed hook evaluation framework
   - `modules/sdk-hook-types.md` - Python SDK hook types, callbacks, matchers
   - `modules/evaluation-criteria.md` - Detailed scoring rubric and quality gates
 - **hook-scope-guide** - Decision framework for hook placement (plugin/project/global)

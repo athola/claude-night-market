@@ -241,7 +241,7 @@ Number of activation phrases in the skill description.
 | estimated_tokens | yes |
 
 Missing fields fail validation in
-`Skill(abstract:skills-eval)`.
+`Skill(abstract:skills-eval-playbook)`.
 
 ## Worked Example: Scoring a Skill File
 

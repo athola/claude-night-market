@@ -12,7 +12,7 @@ with `uv run` if `python3` lacks it.
 python3 scripts/skills_auditor.py skills/
 
 # Improvement plan for one skill (its directory or SKILL.md)
-python3 scripts/improvement_suggester.py skills/skills-eval
+python3 scripts/improvement_suggester.py skills/skills-eval-playbook
 
 # Compliance gate: exits 1 on a non-compliant report
 uv run abstract-skills check skills/

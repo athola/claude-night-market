@@ -22,7 +22,7 @@ class TestHooksEvalQualityFramework:
     @pytest.fixture
     def hooks_eval_path(self) -> Path:
         """Path to the hooks-eval skill."""
-        return Path(__file__).parents[3] / "skills" / "hooks-eval" / "SKILL.md"
+        return Path(__file__).parents[3] / "skills" / "hooks-eval-playbook" / "SKILL.md"
 
     @pytest.fixture
     def hooks_eval_content(self, hooks_eval_path: Path) -> str:
@@ -217,7 +217,7 @@ class TestHookSecurityPatterns:
     @pytest.fixture
     def hooks_eval_path(self) -> Path:
         """Path to the hooks-eval skill."""
-        return Path(__file__).parents[3] / "skills" / "hooks-eval" / "SKILL.md"
+        return Path(__file__).parents[3] / "skills" / "hooks-eval-playbook" / "SKILL.md"
 
     @pytest.fixture
     def hooks_eval_content(self, hooks_eval_path: Path) -> str:
@@ -272,7 +272,7 @@ class TestHookPerformancePatterns:
     @pytest.fixture
     def hooks_eval_path(self) -> Path:
         """Path to the hooks-eval skill."""
-        return Path(__file__).parents[3] / "skills" / "hooks-eval" / "SKILL.md"
+        return Path(__file__).parents[3] / "skills" / "hooks-eval-playbook" / "SKILL.md"
 
     @pytest.fixture
     def hooks_eval_content(self, hooks_eval_path: Path) -> str:
@@ -326,7 +326,7 @@ class TestHookDocumentationQuality:
     @pytest.fixture
     def hooks_eval_path(self) -> Path:
         """Path to the hooks-eval skill."""
-        return Path(__file__).parents[3] / "skills" / "hooks-eval" / "SKILL.md"
+        return Path(__file__).parents[3] / "skills" / "hooks-eval-playbook" / "SKILL.md"
 
     @pytest.fixture
     def hooks_eval_content(self, hooks_eval_path: Path) -> str:

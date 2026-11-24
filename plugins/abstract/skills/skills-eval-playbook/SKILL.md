@@ -1,5 +1,5 @@
 ---
-name: skills-eval
+name: skills-eval-playbook
 description: 'Evaluate Claude skill quality through auditing. Use when reviewing or auditing skills.'
 alwaysApply: false
 category: skill-management

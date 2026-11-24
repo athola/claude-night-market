@@ -11,9 +11,9 @@
 
 ```bash
 # Combined workflow, run from plugins/abstract
-python3 scripts/skill_analyzer.py --file skills/skills-eval/SKILL.md
+python3 scripts/skill_analyzer.py --file skills/skills-eval-playbook/SKILL.md
 python3 scripts/compliance_checker.py skills/
-python3 scripts/improvement_suggester.py skills/skills-eval
+python3 scripts/improvement_suggester.py skills/skills-eval-playbook
 ```
 
 ### testing-skills
@@ -43,7 +43,7 @@ uv run abstract-skills check skills/
 
 # Post-development analysis
 python3 scripts/skills_auditor.py skills/
-python3 scripts/improvement_suggester.py skills/skills-eval
+python3 scripts/improvement_suggester.py skills/skills-eval-playbook
 ```
 
 `scripts/compliance_checker.py` reports the same findings but exits 0

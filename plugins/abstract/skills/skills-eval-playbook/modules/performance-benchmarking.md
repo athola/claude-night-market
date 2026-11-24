@@ -419,7 +419,7 @@ measure part of it. Run them from `plugins/abstract`:
 python3 scripts/token_usage_tracker.py skills/ --optimal-limit 1500
 
 # Run time of each executable under a directory (runs them with --help)
-python3 scripts/tool_performance_analyzer.py skills/skills-eval
+python3 scripts/tool_performance_analyzer.py skills/skills-eval-playbook
 ```
 
 ### Integration with Monitoring

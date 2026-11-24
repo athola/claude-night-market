@@ -1,5 +1,5 @@
 ---
-name: hooks-eval
+name: hooks-eval-playbook
 description: 'Evaluate hook security, performance, and SDK compliance. Use for audits.'
 alwaysApply: false
 category: hook-management

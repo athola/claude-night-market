@@ -42,8 +42,8 @@ Analysis of original content revealed:
 | Original Content | Target Module | Status |
 |------------------|---------------|---------|
 | TDD methodology | `skill-authoring/modules/tdd-methodology.md` | Exists |
-| Baseline testing | `skills-eval/modules/pressure-testing.md` | Exists |
-| Comparison logic | `skills-eval/modules/evaluation-workflows.md` | Exists |
+| Baseline testing | `skills-eval-playbook/modules/pressure-testing.md` | Exists |
+| Comparison logic | `skills-eval-playbook/modules/evaluation-workflows.md` | Exists |
 | Error patterns | `skill-authoring/modules/error-handling.md` | Exists |
 | Command orchestration | Keep in wrapper | New |
 
@@ -94,8 +94,8 @@ This skill provides a structured Test-Driven Development workflow for validating
 This skill delegates to specialized modules for proven testing patterns:
 
 - **TDD Framework**: `skill-authoring/modules/tdd-methodology.md`
-- **Pressure Testing**: `skills-eval/modules/pressure-testing.md`
-- **Result Analysis**: `skills-eval/modules/evaluation-workflows.md`
+- **Pressure Testing**: `skills-eval-playbook/modules/pressure-testing.md`
+- **Result Analysis**: `skills-eval-playbook/modules/evaluation-workflows.md`
 - **Error Handling**: `skill-authoring/modules/error-handling.md`
 
 ## Usage Workflow

@@ -178,7 +178,7 @@ def test_check_tests_exist_returns_true_when_test_file_in_unit_skills(
 
 def test_check_tests_exist_records_issue_for_critical_missing(plugins_root):
     e = MetaEvaluator(plugins_root)
-    assert e.check_tests_exist("abstract", "skills-eval") is False
+    assert e.check_tests_exist("abstract", "skills-eval-playbook") is False
     assert any(i["type"] == "missing_tests" for i in e.issues)
 
 

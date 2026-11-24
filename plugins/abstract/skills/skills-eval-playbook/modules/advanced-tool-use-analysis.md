@@ -13,7 +13,7 @@ directory by running it with `--help`. It executes what it finds:
 point it only at code you trust.
 
 ```bash
-python3 scripts/tool_performance_analyzer.py skills/skills-eval
+python3 scripts/tool_performance_analyzer.py skills/skills-eval-playbook
 ```
 
 ### Discovery Optimization Targets

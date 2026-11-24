@@ -38,8 +38,8 @@ Builds an improvement plan for one skill. Pass the skill directory or its
 `SKILL.md`.
 
 ```bash
-python3 scripts/improvement_suggester.py skills/skills-eval
-python3 scripts/improvement_suggester.py skills/skills-eval/SKILL.md --format json
+python3 scripts/improvement_suggester.py skills/skills-eval-playbook
+python3 scripts/improvement_suggester.py skills/skills-eval-playbook/SKILL.md --format json
 ```
 
 ### token_usage_tracker.py
@@ -57,7 +57,7 @@ Times each executable file under the directory by running it with
 `--help`. Point it only at code you trust: it executes what it finds.
 
 ```bash
-python3 scripts/tool_performance_analyzer.py skills/skills-eval
+python3 scripts/tool_performance_analyzer.py skills/skills-eval-playbook
 ```
 
 ## Shared helpers

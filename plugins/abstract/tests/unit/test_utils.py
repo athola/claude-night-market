@@ -341,9 +341,9 @@ class TestCheckMetaSkillIndicators:
     def test_exception_skill_bypasses_check(self):
         """Skills in META_SKILL_EXCEPTIONS return None even without indicators."""
         config = SkillValidationConfig()
-        # 'skills-eval' is in the default exceptions
+        # 'skills-eval-playbook' is in the default exceptions
         content = "No meta keywords here at all."
-        result = check_meta_skill_indicators(content, config, "skills-eval")
+        result = check_meta_skill_indicators(content, config, "skills-eval-playbook")
         assert result is None
 
     @pytest.mark.unit

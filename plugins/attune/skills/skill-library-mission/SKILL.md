@@ -66,7 +66,7 @@ verbatim in `references/mission-prompt.md`.
 |-----------|-------------|
 | Authoring or improving one skill | `Skill(abstract:skill-authoring)` |
 | Skills shipped inside a plugin | `Skill(plugin-dev:skill-development)` |
-| Auditing existing skills only | `Skill(abstract:skills-eval)` |
+| Auditing existing skills only | `Skill(abstract:skills-eval-playbook)` |
 | Full project lifecycle (code, not knowledge) | `Skill(attune:mission-orchestrator)` |
 
 ## Mission Shape

@@ -23,7 +23,9 @@ class TestPluginReviewSkillStructure:
     @pytest.fixture
     def skill_path(self) -> Path:
         """Path to the plugin-review skill."""
-        return Path(__file__).parents[3] / "skills" / "plugin-review" / "SKILL.md"
+        return (
+            Path(__file__).parents[3] / "skills" / "plugin-review-playbook" / "SKILL.md"
+        )
 
     @pytest.fixture
     def skill_content(self, skill_path: Path) -> str:
@@ -33,7 +35,9 @@ class TestPluginReviewSkillStructure:
     @pytest.fixture
     def modules_dir(self) -> Path:
         """Path to the plugin-review modules directory."""
-        return Path(__file__).parents[3] / "skills" / "plugin-review" / "modules"
+        return (
+            Path(__file__).parents[3] / "skills" / "plugin-review-playbook" / "modules"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -205,7 +209,9 @@ class TestPluginReviewModules:
     @pytest.fixture
     def modules_dir(self) -> Path:
         """Path to the plugin-review modules directory."""
-        return Path(__file__).parents[3] / "skills" / "plugin-review" / "modules"
+        return (
+            Path(__file__).parents[3] / "skills" / "plugin-review-playbook" / "modules"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
