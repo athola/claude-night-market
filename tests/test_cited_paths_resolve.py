@@ -54,11 +54,12 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# Directories whose markdown an agent consumes as instructions.
+# Files an agent consumes as instructions: markdown, and workflow prompts.
 ASSET_GLOBS = (
     "plugins/*/skills/**/*.md",
     "plugins/*/commands/**/*.md",
     "plugins/*/agents/**/*.md",
+    "plugins/*/workflows/**/*.js",
     ".claude/rules/*.md",
 )
 
@@ -323,6 +324,17 @@ ASSETS = _iter_assets()
 def test_assets_are_discovered() -> None:
     """Guard the glob itself: an empty sweep would pass everything."""
     assert len(ASSETS) > 100, f"only {len(ASSETS)} workflow assets found"
+
+
+def test_workflow_scripts_are_swept() -> None:
+    """A path cited from a workflow prompt is an instruction too (#758).
+
+    `plugins/attune/workflows/skill-library.js` cites a rule file in the
+    prompt it hands a subagent. Without a workflows lane in ASSET_GLOBS
+    that citation was never checked.
+    """
+    swept = {a.relative_to(REPO_ROOT).as_posix() for a in ASSETS}
+    assert "plugins/attune/workflows/skill-library.js" in swept
 
 
 def test_capability_references_are_found() -> None:

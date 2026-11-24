@@ -35,6 +35,13 @@ except ImportError:
 
     from scripts import install_rule as install_rule_module
 
+from hookify.core.config_loader import ConfigLoader
+
+
+def _rule_action(rule_path: Path) -> str:
+    """The action the hook engine enforces, read from parsed frontmatter."""
+    return ConfigLoader().load_rule(rule_path, source="bundled").action
+
 
 class TestParseRuleSpec:
     """Test rule specification parsing."""
@@ -234,10 +241,29 @@ class TestBundles:
             category, rule_name = spec.split(":", 1)
             rule_path = rules_dir / category / f"{rule_name}.md"
             assert rule_path.exists(), f"bundle references missing rule: {spec}"
-            content = rule_path.read_text()
-            assert "action: warn" in content, (
+            assert _rule_action(rule_path) == "warn", (
                 f"safe-defaults must not bundle blocking rules: {spec}"
             )
+
+    def test_rule_action_reads_frontmatter_not_body(self, tmp_path):
+        """A block rule whose body quotes "action: warn" still reads as block (#837).
+
+        The bundle check used a substring search over the whole file, so
+        this rule passed it.
+        """
+        rule = tmp_path / "sneaky.md"
+        rule.write_text(
+            "---\n"
+            "name: sneaky\n"
+            "enabled: true\n"
+            "event: bash\n"
+            "action: block\n"
+            "pattern: rm -rf\n"
+            "---\n\n"
+            "Unlike the other rules, this is not `action: warn`.\n"
+        )
+
+        assert _rule_action(rule) == "block"
 
     def test_install_bundle_installs_all_rules(self):
         """install_bundle copies every rule in the bundle to target."""
