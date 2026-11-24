@@ -18,7 +18,7 @@ import yaml
 # Add scripts to path for testing
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-from fix_descriptions import consolidate_description, process_skill_file
+from fix_descriptions import consolidate_description, main, process_skill_file
 
 
 class TestConsolidateDescription:
@@ -407,3 +407,44 @@ class TestProcessSkillFile:
 
         # Stripping "Triggers:..." leaves empty description → returns None
         assert result is None
+
+
+class TestCheckMode:
+    """The --check gate the pre-commit hook runs."""
+
+    @pytest.mark.unit
+    def test_check_fails_when_frontmatter_does_not_parse(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """
+        Scenario: A SKILL.md has frontmatter YAML cannot parse (#833)
+        Given a skill whose frontmatter is invalid YAML
+        When --check runs
+        Then it exits 1, because an unread description is not a compliant one
+        """
+        skill = tmp_path / "test" / "skills" / "broken"
+        skill.mkdir(parents=True)
+        (skill / "SKILL.md").write_text(
+            "---\nname: broken\ndescription: [unclosed\n---\n\n# Body\n"
+        )
+        monkeypatch.setattr(
+            sys, "argv", ["fix_descriptions.py", "--check", "--path", str(tmp_path)]
+        )
+
+        assert main() == 1
+
+    @pytest.mark.unit
+    def test_check_passes_on_clean_frontmatter(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """Given only compliant skills, When --check runs, Then it exits 0."""
+        skill = tmp_path / "test" / "skills" / "clean"
+        skill.mkdir(parents=True)
+        (skill / "SKILL.md").write_text(
+            "---\nname: clean\ndescription: Does a thing. Use when needed.\n---\n"
+        )
+        monkeypatch.setattr(
+            sys, "argv", ["fix_descriptions.py", "--check", "--path", str(tmp_path)]
+        )
+
+        assert main() == 0
