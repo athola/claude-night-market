@@ -7,17 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- `scripts/clawhub-submit.sh` publishes each plugin as its own
-  `night-market-<plugin>` bundle package from the tagged source. ClawHub
-  takes a bundle only with exactly one `.claude-plugin/plugin.json` at
-  its root, and the repo root holds the marketplace, so the single
-  repo-wide publish failed on every release. A version already published
-  is skipped.
-
-## [1.10.4] - 2026-11-23
-
 ### Added
 
 - **sanctum:** `pr-review` records whether the need and the approach were
@@ -32,6 +21,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   record. Changes that draw design feedback in review are abandoned more
   often (Zanaty et al. 2018). ADR-0031 records the decision and the
   evidence, including the part of the proposal no source supports.
+
+- **gauntlet:** `scripts/git_index_recheck.py`, called from git's own
+  pre-commit hook, refuses an agent commit whose index the PreToolUse gate
+  never saw: `git add -A && git commit`, `commit -a`, `--include` and
+  `commit <paths>` (#1172). The README shows the one-line install.
+
+### Changed
+
+- **BREAKING:** 33 skills that shared a routing id with a command or
+  workflow take a `-playbook` suffix (for example `pensive:bug-review`
+  becomes `pensive:bug-review-playbook`), and two commands take
+  `-session`: `/attune:skill-library-session` and
+  `/tome:research-session` (#1055). The listing showed one description
+  per id, so the hidden one never reached routing. `Skill()` calls to the
+  old skill ids now resolve to the command or workflow.
+- **abstract:** the homeostatic monitor prints nothing on a healthy run
+  and adds one `additionalContext` line when the skill just run is
+  unstable (#1053). `HOMEOSTATIC_MONITOR_DEBUG=1` prints the full report.
+- **memory-palace:** `hooks/memory-palace-index.yaml` is no longer
+  tracked (#1067). Hooks rewrite it on every capture, so each branch held
+  a stale copy and two capturing branches conflicted. The hook creates it
+  on first use. Switching to a branch that still tracks it overwrites the
+  local copy.
+
+### Removed
+
+- **tome:** `build_reddit_search_url`, which only tests called (#1075).
+
+### Fixed
+
+- **leyline:** `auto-star-repo.sh` passes the GitHub token to curl on
+  stdin (#1305). With `-x` and `BASH_XTRACEFD` the trace printed the
+  token, and curl's argv showed it to every local user through `ps`.
+  The curl fallback now needs curl 7.55.0 or later for `-H @-`. The test
+  for the traced fd skips where the bash on `/usr/bin:/bin` predates 4.1,
+  as on stock macOS, which has no `BASH_XTRACEFD`.
+- **scripts:** five check scripts failed open on the input they exist
+  for: `check_noqa.py` (an apostrophe in a comment hid a suppression),
+  `check_hook_modernization.py --json` (always `success: true`),
+  `check-markdown-links.py` (every missing `./modules/` link skipped) and
+  `fix_descriptions.py --check` (unparsable frontmatter counted as
+  compliant) (#1069).
+- **hookify:** the safe-defaults test reads the rule's `action` field
+  instead of searching the file text, and the cited-paths test checks
+  paths cited from `plugins/*/workflows/*.js` (#1070).
+- **abstract:** the delta lens skips a window with no runs instead of
+  reading it as a 0% success rate (#1071). `promote_discussion_to_issue.py`
+  looks up the Learnings category by name in the target repo, so a fork
+  finds its discussions (#1132).
+- **abstract:** `tool_performance_analyzer.py` uses the `skills_eval`
+  analyzer instead of a drifted copy, and records a tool whose output is
+  not UTF-8 as an error row (#1075).
+- **imbue:** the npm package guard no longer starts on `npm run` (#1072).
+- **egregore:** a babysitter judge call that hits a usage limit writes a
+  cooldown, so the next item does not retry into the limit (#1073).
+- **memory-palace:** keyword index ids are the relative path, so
+  `foo/bar.md` and `foo--bar.md` no longer overwrite each other (#1076).
+- **gauntlet:** the in-loop variation provider shifts `12,345` as one
+  number and leaves decimals alone, instead of splitting them (#1172).
+- **parseltongue:** twelve `testing_guide` coverage tests pass code that
+  reaches the branch they name instead of an empty string (#1068).
+- **leyline:** the stewardship description names all five virtues (#1132).
+
+- `scripts/clawhub-submit.sh` publishes each plugin as its own
+  `night-market-<plugin>` bundle package from the tagged source. ClawHub
+  takes a bundle only with exactly one `.claude-plugin/plugin.json` at
+  its root, and the repo root holds the marketplace, so the single
+  repo-wide publish failed on every release. A version already published
+  is skipped.
+
+## [1.10.4] - 2026-11-23
+
+### Added
 
 - **conserve:** `scripts/session_cost.py` reads a session transcript and
   splits its spend into uncached input, cache writes, cache reads and
@@ -432,12 +494,6 @@ corrected text for a docs finding.
   any prior instructions", and "ignore everything above".
 - **leyline:** The usage logger starts a new session instead of resuming
   one whose session_id is null or not a string.
-- **leyline:** `auto-star-repo.sh` passes the GitHub token to curl on
-  stdin (#1305). With `-x` and `BASH_XTRACEFD` the trace printed the
-  token, and curl's argv showed it to every local user through `ps`.
-  The curl fallback now needs curl 7.55.0 or later for `-H @-`. The test
-  for the traced fd skips where the bash on `/usr/bin:/bin` predates 4.1,
-  as on stock macOS, which has no `BASH_XTRACEFD`.
 - **memory-palace:** `intake_queue.jsonl.lock` is gitignored.
 - **memory-palace:** a capture index whose `entries` or `hashes` is a
   list or empty is set aside like a corrupt one, instead of crashing
