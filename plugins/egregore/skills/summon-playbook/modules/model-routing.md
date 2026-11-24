@@ -3,7 +3,7 @@ name: model-routing
 description: >-
   Route pipeline steps to appropriate model tiers
   based on task complexity and cost efficiency.
-parent_skill: egregore:summon
+parent_skill: egregore:summon-playbook
 category: orchestration
 estimated_tokens: 180
 ---

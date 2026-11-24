@@ -1,6 +1,6 @@
 """The StopFailure hook records a rate limit without the model's help.
 
-summon/SKILL.md step 7 asks the model to record a rate limit in
+summon-playbook/SKILL.md step 7 asks the model to record a rate limit in
 budget.json, but the turn that hits the limit is the one that cannot act:
 it ends on the API error. StopFailure fires instead of Stop when a turn
 ends that way, with `error: "rate_limit"` (code.claude.com/docs/en/hooks

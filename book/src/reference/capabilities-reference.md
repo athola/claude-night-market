@@ -134,7 +134,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `hook-scope-guide` | [abstract](../plugins/abstract.md) | Decide where to place hooks (plugin/project/global) |
 | `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
 | `ideate` | [tome](../plugins/tome.md) | Diverse ideation methods with category-spanning selection and rotation |
-| `install-watchdog` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
+| `install-watchdog-playbook` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
 | `justify` | [imbue](../plugins/imbue.md) | Anti-additive-bias change audit |
 | `karpathy-principles` | [imbue](../plugins/imbue.md) | Compact four-principle synthesis for LLM coding pitfalls |
 | `knowledge-intake` | [memory-palace](../plugins/memory-palace.md) | Intake and curation |
@@ -215,7 +215,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `structured-output` | [imbue](../plugins/imbue.md) | Formatting patterns |
 | `style-learner` | [scribe](../plugins/scribe.md) | Extract writing style from exemplar text |
 | `subagent-testing` | [abstract](../plugins/abstract.md) | Testing patterns for subagent interactions |
-| `summon` | [egregore](../plugins/egregore.md) | Spawn autonomous agent session with budget |
+| `summon-playbook` | [egregore](../plugins/egregore.md) | Spawn autonomous agent session with budget |
 | `supply-chain-advisory` | [leyline](../plugins/leyline.md) | Known-bad version detection, lockfile auditing, incident response |
 | `synthesize` | [tome](../plugins/tome.md) | Research findings synthesis |
 | `task-planning` | [spec-kit](../plugins/spec-kit.md) | Task generation |

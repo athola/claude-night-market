@@ -17,7 +17,7 @@ import yaml
 MODULE_DIR = (
     Path(__file__).resolve().parent.parent.parent.parent
     / "skills"
-    / "summon"
+    / "summon-playbook"
     / "modules"
 )
 MODULE_FILE = MODULE_DIR / "model-routing.md"

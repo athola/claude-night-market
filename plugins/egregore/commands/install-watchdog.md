@@ -14,8 +14,8 @@ Install a system-level daemon that monitors the egregore
 and relaunches it after crashes, rate limits, or context
 overflows.
 
-Invoke `Skill(egregore:install-watchdog)`, which carries the launchd and
-systemd installation steps and the troubleshooting.
+Invoke `Skill(egregore:install-watchdog-playbook)`, which carries the launchd
+and systemd installation steps and the troubleshooting.
 
 ## Prerequisites
 

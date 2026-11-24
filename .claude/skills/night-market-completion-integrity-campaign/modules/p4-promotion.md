@@ -35,7 +35,7 @@ Implementation order (Iron Law: failing test first):
    `plugins/egregore/tests/test_config.py` (comment),
    `plugins/egregore/agents/orchestrator.md`,
    `plugins/egregore/skills/quality-gate/SKILL.md`,
-   `plugins/egregore/skills/summon/modules/pipeline.md`,
+   `plugins/egregore/skills/summon-playbook/modules/pipeline.md`,
    `plugins/egregore/README.md`.
 5. Add a CHANGELOG entry under `[Unreleased]` in Keep a Changelog
    format. Never rewrite historical entries.

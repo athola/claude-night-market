@@ -1,5 +1,5 @@
 ---
-name: summon
+name: summon-playbook
 description: Autonomous orchestrator for manifest work items through the development lifecycle. Use when running egregore to process a backlog automatically.
 alwaysApply: false
 category: orchestration
@@ -292,7 +292,7 @@ that both reports status and recovers stalled pipelines:
 ```
 CronCreate(
   cron: "*/5 * * * *",
-  prompt: "Check .egregore/manifest.json. If there are pending or active items that are not being processed, resume the orchestration loop by invoking Skill(egregore:summon). Otherwise, report status via /egregore:status.",
+  prompt: "Check .egregore/manifest.json. If there are pending or active items that are not being processed, resume the orchestration loop by invoking Skill(egregore:summon-playbook). Otherwise, report status via /egregore:status.",
   recurring: true
 )
 ```

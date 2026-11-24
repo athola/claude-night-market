@@ -23,9 +23,9 @@ dependencies:
     path: plugins/herald
     optional: true
 skills:
-- skills/install-watchdog
+- skills/install-watchdog-playbook
 - skills/quality-gate
-- skills/summon
+- skills/summon-playbook
 - skills/uninstall-watchdog-playbook
 commands:
 - commands/dismiss.md

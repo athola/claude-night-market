@@ -22,9 +22,9 @@ merging.
 
 | Skill | Description | When to Use |
 |-------|-------------|-------------|
-| `summon` | Spawn autonomous session with budget | Delegating full tasks |
+| `summon-playbook` | Spawn autonomous session with budget | Delegating full tasks |
 | `quality-gate` | Pre-merge quality validation | Before merging autonomous work |
-| `install-watchdog` | Install crash-recovery watchdog | Setting up monitoring |
+| `install-watchdog-playbook` | Install crash-recovery watchdog | Setting up monitoring |
 | `uninstall-watchdog-playbook` | Remove watchdog | Cleaning up monitoring |
 
 ## Commands

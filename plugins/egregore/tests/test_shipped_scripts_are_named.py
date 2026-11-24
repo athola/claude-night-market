@@ -72,7 +72,9 @@ def test_the_night_run_section_names_only_launchers_that_start_it() -> None:
     run, which sent an operator looking for a process that never ran.
     """
     watchdog = (PLUGIN_ROOT / "scripts" / "watchdog.sh").read_text(encoding="utf-8")
-    skill = (PLUGIN_ROOT / "skills" / "summon" / "SKILL.md").read_text(encoding="utf-8")
+    skill = (PLUGIN_ROOT / "skills" / "summon-playbook" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
     section = skill.split("### The unattended night run", 1)[1].split("\n## ", 1)[0]
     sentences = re.split(r"(?<=[.!?])\s+", " ".join(section.split()))
     claims = [s for s in sentences if "install-watchdog" in s]

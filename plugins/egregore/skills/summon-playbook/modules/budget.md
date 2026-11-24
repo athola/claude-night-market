@@ -92,7 +92,7 @@ CronCreate(
   cron: "<min> <hour> * * *",
   prompt: "Cooldown expired. Read .egregore/manifest.json
     and resume the pipeline. Invoke
-    Skill(egregore:summon) to continue.",
+    Skill(egregore:summon-playbook) to continue.",
   recurring: false
 )
 ```
