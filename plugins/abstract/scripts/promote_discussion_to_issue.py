@@ -80,8 +80,9 @@ def _owner_and_name(repo: str) -> dict[str, str]:
     return {"owner": owner, "name": name}
 
 
-# Discussion category IDs to scan
-LEARNINGS_CATEGORY_ID = "DIC_kwDOQbN88M4C2zJo"
+# The discussion category scanned, looked up by name in the target repo:
+# a category's node id differs in every fork.
+LEARNINGS_CATEGORY_NAME = "Learnings"
 
 # Max chars of discussion body to include in promoted Issue
 BODY_PREVIEW_LIMIT = 2000
@@ -204,6 +205,25 @@ def get_repo_node_id(repo: str = TARGET_REPO) -> str:
     return str(response["data"]["repository"]["id"])
 
 
+def get_learnings_category_id(repo: str = TARGET_REPO) -> str:
+    """Return the node id of ``repo``'s Learnings discussion category.
+
+    Raises:
+        RuntimeError: If ``repo`` has no category of that name.
+
+    """
+    query = (
+        "query($owner: String!, $name: String!) { "
+        "repository(owner: $owner, name: $name) { "
+        "discussionCategories(first: 25) { nodes { id name } } } }"
+    )
+    response = run_gh_graphql(query, variables=_owner_and_name(repo))
+    for node in response["data"]["repository"]["discussionCategories"]["nodes"]:
+        if node["name"] == LEARNINGS_CATEGORY_NAME:
+            return str(node["id"])
+    raise RuntimeError(f'{repo} has no "{LEARNINGS_CATEGORY_NAME}" discussion category')
+
+
 def fetch_learnings_discussions(
     repo: str = TARGET_REPO, reaction: str = "THUMBS_UP"
 ) -> list[DiscussionItem]:
@@ -217,16 +237,18 @@ def fetch_learnings_discussions(
 
     """
     query = (
-        "query($owner: String!, $name: String!) { "
+        "query($owner: String!, $name: String!, $category: ID!) { "
         "repository(owner: $owner, name: $name) { "
-        f'discussions(categoryId: "{LEARNINGS_CATEGORY_ID}", first: 20, '
+        "discussions(categoryId: $category, first: 20, "
         "orderBy: {field: CREATED_AT, direction: DESC}) { "
         "nodes { id title url body "
         f"reactions(content: {reaction}) {{ totalCount }} }} }} }} }}"
     )
 
     try:
-        response = run_gh_graphql(query, variables=_owner_and_name(repo))
+        variables = _owner_and_name(repo)
+        variables["category"] = get_learnings_category_id(repo)
+        response = run_gh_graphql(query, variables=variables)
         nodes = (
             response.get("data", {})
             .get("repository", {})

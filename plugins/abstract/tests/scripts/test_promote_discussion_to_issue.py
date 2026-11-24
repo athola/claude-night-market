@@ -133,23 +133,26 @@ class TestFetchDiscussions:
         When I fetch learnings discussions
         Then DiscussionItems are returned with correct reaction counts
         """
-        mock_graphql.return_value = {
-            "data": {
-                "repository": {
-                    "discussions": {
-                        "nodes": [
-                            {
-                                "id": "D_abc123",
-                                "title": "[Learning] 2026-02-21",
-                                "url": "https://github.com/discussions/42",
-                                "body": "## Summary\nTest learning",
-                                "reactions": {"totalCount": 5},
-                            }
-                        ]
+        mock_graphql.side_effect = _route_graphql(
+            _LEARNINGS_CATEGORIES,
+            {
+                "data": {
+                    "repository": {
+                        "discussions": {
+                            "nodes": [
+                                {
+                                    "id": "D_abc123",
+                                    "title": "[Learning] 2026-02-21",
+                                    "url": "https://github.com/discussions/42",
+                                    "body": "## Summary\nTest learning",
+                                    "reactions": {"totalCount": 5},
+                                }
+                            ]
+                        }
                     }
                 }
-            }
-        }
+            },
+        )
 
         items = fetch_learnings_discussions()
         assert len(items) == 1
@@ -452,6 +455,8 @@ class TestGhBoundary:
                 if variables and variables["title"].endswith("T1"):
                     raise _gh_error("rate limited")
                 return created
+            if "discussionCategories" in query:
+                return _LEARNINGS_CATEGORIES
             if "discussions" in query:
                 return discussions
             return {"data": {"repository": {"id": "R_1"}}}
@@ -521,9 +526,9 @@ class TestTheConfiguredRepositoryIsTheOneScanned:
         self, mock_graphql: MagicMock
     ) -> None:
         """A fork's config named its own repo, and the upstream one was scanned."""
-        mock_graphql.return_value = {
-            "data": {"repository": {"discussions": {"nodes": []}}}
-        }
+        mock_graphql.side_effect = _route_graphql(
+            _LEARNINGS_CATEGORIES, _NO_DISCUSSIONS
+        )
 
         fetch_learnings_discussions(repo="me/fork", reaction="THUMBS_UP")
 
@@ -531,7 +536,11 @@ class TestTheConfiguredRepositoryIsTheOneScanned:
             mock_graphql.call_args[0][0],
             mock_graphql.call_args[1]["variables"],
         )
-        assert variables == {"owner": "me", "name": "fork"}
+        assert variables == {
+            "owner": "me",
+            "name": "fork",
+            "category": "DIC_fork_learnings",
+        }
         assert "reactions(content: THUMBS_UP)" in query
         assert "athola" not in query
 
@@ -608,9 +617,9 @@ class TestReactionNamesAreGitHubEnumValues:
     def test_default_fetch_queries_a_reaction_content_value(
         self, mock_graphql: MagicMock
     ) -> None:
-        mock_graphql.return_value = {
-            "data": {"repository": {"discussions": {"nodes": []}}}
-        }
+        mock_graphql.side_effect = _route_graphql(
+            _LEARNINGS_CATEGORIES, _NO_DISCUSSIONS
+        )
 
         fetch_learnings_discussions()
 
@@ -632,3 +641,70 @@ class TestReactionNamesAreGitHubEnumValues:
 
         assert exc.value.code == 0
         assert "is not a GitHub reaction" in capsys.readouterr().err
+
+
+_LEARNINGS_CATEGORIES = {
+    "data": {
+        "repository": {
+            "discussionCategories": {
+                "nodes": [
+                    {"id": "DIC_general", "name": "General"},
+                    {"id": "DIC_fork_learnings", "name": "Learnings"},
+                ]
+            }
+        }
+    }
+}
+_NO_DISCUSSIONS = {"data": {"repository": {"discussions": {"nodes": []}}}}
+
+
+def _route_graphql(categories: dict, discussions: dict):
+    """Answer the category lookup and the discussions query in turn."""
+
+    def answer(query: str, variables: dict | None = None) -> dict:
+        return categories if "discussionCategories" in query else discussions
+
+    return answer
+
+
+class TestLearningsCategoryIsLookedUpPerRepo:
+    """The category id was athola/claude-night-market's, so forks found nothing."""
+
+    @pytest.mark.unit
+    @patch("promote_discussion_to_issue.run_gh_graphql")
+    def test_fetch_uses_the_target_repos_learnings_category(
+        self, mock_graphql: MagicMock
+    ) -> None:
+        """Given a fork whose Learnings category has its own id (#1132)
+        When its discussions are fetched
+        Then the categories of that fork are read and its id is queried
+        """
+        mock_graphql.side_effect = _route_graphql(
+            _LEARNINGS_CATEGORIES, _NO_DISCUSSIONS
+        )
+
+        fetch_learnings_discussions(repo="me/fork")
+
+        lookup, fetch = mock_graphql.call_args_list
+        assert "discussionCategories" in lookup.args[0]
+        assert lookup.kwargs["variables"] == {"owner": "me", "name": "fork"}
+        assert fetch.kwargs["variables"]["category"] == "DIC_fork_learnings"
+        assert "DIC_kwDOQbN88M4C2zJo" not in fetch.args[0]
+
+    @pytest.mark.unit
+    @patch("promote_discussion_to_issue.run_gh_graphql")
+    def test_missing_learnings_category_is_named_in_the_warning(
+        self, mock_graphql: MagicMock, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Given a repo with no Learnings category
+        When its discussions are fetched
+        Then no discussions query runs and the warning says why
+        """
+        mock_graphql.side_effect = _route_graphql(
+            {"data": {"repository": {"discussionCategories": {"nodes": []}}}},
+            _NO_DISCUSSIONS,
+        )
+
+        assert fetch_learnings_discussions(repo="me/fork") == []
+        assert mock_graphql.call_count == 1
+        assert 'no "Learnings" discussion category' in capsys.readouterr().err
