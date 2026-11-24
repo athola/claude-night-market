@@ -226,9 +226,34 @@ def _get_staged_hash(deadline: float | None = None) -> str:
     """
     try:
         result = _run_git(["git", "ls-files", "--stage"], deadline)
-        return hashlib.sha256(result.stdout.strip().encode()).hexdigest()[:12]
+        return _hash_stage_listing(result.stdout)
     except _GIT_FAILURES:
         return ""
+
+
+def _hash_stage_listing(listing: str) -> str:
+    """Hash ``git ls-files --stage`` output; git_index_recheck hashes the same way."""
+    return hashlib.sha256(listing.strip().encode()).hexdigest()[:12]
+
+
+_GATED_INDEX_FILENAME = "gated_index.json"
+
+
+def record_gated_index(gauntlet_dir: Path, staged_hash: str) -> None:
+    """Record the index this gate let a commit through with.
+
+    The gate reads the index before the Bash command runs, so
+    ``git add -A && git commit`` commits an index it never saw.
+    git_index_recheck, run as git's pre-commit hook, compares the index
+    being committed with this record (#1172).
+    """
+    state_dir = gauntlet_dir / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    record = {
+        "staged_hash": staged_hash,
+        "recorded_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    }
+    (state_dir / _GATED_INDEX_FILENAME).write_text(json.dumps(record))
 
 
 def _get_developer_id(deadline: float | None = None) -> str:
@@ -482,6 +507,15 @@ def _context_only(text: str) -> dict[str, Any]:
     }
 
 
+def _let_through(
+    gauntlet_dir: Path, staged_hash: str, mode: str, risk_context: str | None
+) -> dict[str, Any] | None:
+    """Step aside for the commit, recording the index when gating."""
+    if mode == "gate":
+        record_gated_index(gauntlet_dir, staged_hash)
+    return _context_only(risk_context) if risk_context else None
+
+
 def main(
     hook_input: dict[str, Any], deadline: float | None = None
 ) -> dict[str, Any] | None:
@@ -519,7 +553,7 @@ def main(
     if check_pass_token(gauntlet_dir, staged_hash):
         # A passed challenge lifts this gate; it does not approve the
         # commit, which stays subject to the user's permission settings.
-        return None
+        return _let_through(gauntlet_dir, staged_hash, mode, None)
 
     # Graph-aware checks (non-blocking, adds context)
     risk_context = _graph_risk_context(gauntlet_dir, deadline)
@@ -550,9 +584,7 @@ def main(
 
     if challenge is None:
         # No knowledge entries: still surface risk context if present.
-        if risk_context:
-            return _context_only(risk_context)
-        return None
+        return _let_through(gauntlet_dir, staged_hash, mode, risk_context)
 
     # Persist pending challenge so the skill can present it.
     state_dir = gauntlet_dir / "state"
