@@ -44,5 +44,5 @@ comparative analysis.
 ## Skill Invocation
 
 ```
-Skill(scribe:voice-extract)
+Skill(scribe:voice-extract-playbook)
 ```

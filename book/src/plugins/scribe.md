@@ -23,8 +23,8 @@ It integrates with sanctum's documentation workflows.
 | `style-learner` | Extract writing style from exemplar text | Creating style profiles |
 | `doc-generator` | Generate/remediate documentation | Writing or fixing docs |
 | `tech-tutorial` | Plan, draft, and refine technical tutorials | Writing step-by-step developer guides |
-| `session-to-post` | Convert sessions into blog posts or case studies | Sharing session outcomes |
-| `session-replay` | Convert session JSONL into GIF/MP4/WebM replays | Creating animated session recordings |
+| `session-to-post-playbook` | Convert sessions into blog posts or case studies | Sharing session outcomes |
+| `session-replay-playbook` | Convert session JSONL into GIF/MP4/WebM replays | Creating animated session recordings |
 
 ## Commands
 

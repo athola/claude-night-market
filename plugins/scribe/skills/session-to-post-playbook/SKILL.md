@@ -1,5 +1,5 @@
 ---
-name: session-to-post
+name: session-to-post-playbook
 description: Converts a Claude Code session into a blog post, case study, or Reddit post. Use when publishing dev blog content or community posts from real sessions.
 globs: "**/*.md"
 alwaysApply: false

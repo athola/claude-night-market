@@ -196,8 +196,8 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `session-handoff` | [memory-palace](../plugins/memory-palace.md) | Typed session handoff units and on-demand recall |
 | `session-management` | [sanctum](../plugins/sanctum.md) | Session naming, checkpointing, and resume strategies |
 | `session-palace-builder` | [memory-palace](../plugins/memory-palace.md) | Session-specific palaces |
-| `session-replay` | [scribe](../plugins/scribe.md) | Convert session JSONL into GIF/MP4/WebM replays via VHS |
-| `session-to-post` | [scribe](../plugins/scribe.md) | Convert sessions into shareable blog posts or case studies |
+| `session-replay-playbook` | [scribe](../plugins/scribe.md) | Convert session JSONL into GIF/MP4/WebM replays via VHS |
+| `session-to-post-playbook` | [scribe](../plugins/scribe.md) | Convert sessions into shareable blog posts or case studies |
 | `setup` | [oracle](../plugins/oracle.md) | Install and configure the oracle ONNX inference daemon |
 | `simplified-technical-english` | [scribe](../plugins/scribe.md) | Apply an ASD-STE100-derived register to operator and procedural text |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
@@ -234,10 +234,10 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `validate-pr-playbook` | [sanctum](../plugins/sanctum.md) | Diff-derived PR test plan with revert-test quality checks |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
-| `voice-extract` | [scribe](../plugins/scribe.md) | SICO comparative extraction from writing samples |
-| `voice-generate` | [scribe](../plugins/scribe.md) | Generate text in learned writing voice |
-| `voice-learn` | [scribe](../plugins/scribe.md) | Learning loop from manual edits |
-| `voice-review` | [scribe](../plugins/scribe.md) | Dual-gate review against voice profile |
+| `voice-extract-playbook` | [scribe](../plugins/scribe.md) | SICO comparative extraction from writing samples |
+| `voice-generate-playbook` | [scribe](../plugins/scribe.md) | Generate text in learned writing voice |
+| `voice-learn-playbook` | [scribe](../plugins/scribe.md) | Learning loop from manual edits |
+| `voice-review-playbook` | [scribe](../plugins/scribe.md) | Dual-gate review against voice profile |
 | `vow-enforcement` | [imbue](../plugins/imbue.md) | Three-layer constraint enforcement with soft vows, hard vows, and external validators |
 | `war-room-playbook` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
 | `war-room-checkpoint` | [attune](../plugins/attune.md) | Inline reversibility assessment for embedded escalation |

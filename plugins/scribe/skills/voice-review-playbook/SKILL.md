@@ -1,5 +1,5 @@
 ---
-name: voice-review
+name: voice-review-playbook
 description: Runs parallel prose and craft review agents against a voice profile. Use when checking generated content for AI patterns and voice drift before publishing.
 globs: "**/*.{md,txt}"
 alwaysApply: false
@@ -15,8 +15,8 @@ complexity: medium
 estimated_tokens: 1600
 progressive_loading: false
 dependencies:
-- scribe:voice-extract
-- scribe:voice-generate
+- scribe:voice-extract-playbook
+- scribe:voice-generate-playbook
 - scribe:slop-detector
 - imbue:review-core
 - imbue:structured-output

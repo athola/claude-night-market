@@ -1,5 +1,5 @@
 ---
-name: voice-extract
+name: voice-extract-playbook
 description: Extracts a user's writing voice from text samples via SICO comparative analysis. Use when building a voice profile for consistent generation.
 globs: "**/*.{md,txt}"
 alwaysApply: false

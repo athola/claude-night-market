@@ -1,5 +1,5 @@
 ---
-name: voice-learn
+name: voice-learn-playbook
 description: Improves a voice profile by learning from manual edits. Use after editing generated text to refine registers and close voice drift over time.
 globs: "**/*.{md,txt}"
 alwaysApply: false
@@ -18,9 +18,9 @@ modules:
 - modules/snapshot-management.md
 - modules/pattern-analysis.md
 dependencies:
-- scribe:voice-extract
-- scribe:voice-generate
-- scribe:voice-review
+- scribe:voice-extract-playbook
+- scribe:voice-generate-playbook
+- scribe:voice-review-playbook
 ---
 
 # Voice Learning Skill

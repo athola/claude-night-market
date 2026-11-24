@@ -1,5 +1,5 @@
 ---
-name: voice-generate
+name: voice-generate-playbook
 description: Generates text in a learned writing voice. Use when drafting content that must match a specific author's style profile extracted by voice-extract.
 globs: "**/*.{md,txt}"
 alwaysApply: false
@@ -19,7 +19,7 @@ modules:
 - modules/register-selection.md
 - modules/generation-pipeline.md
 dependencies:
-- scribe:voice-extract
+- scribe:voice-extract-playbook
 - scribe:slop-detector
 ---
 

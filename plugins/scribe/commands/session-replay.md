@@ -39,7 +39,7 @@ and WebM output formats. Auto-detects the session format
 
 ## Workflow
 
-1. Invoke `Skill(scribe:session-replay)` to run the full
+1. Invoke `Skill(scribe:session-replay-playbook)` to run the full
    pipeline: parse session, generate tape, render GIF
 2. If no session path given, list recent sessions from
    `~/.claude/projects/` for the user to pick
@@ -110,6 +110,6 @@ result before sharing it; redaction covers these shapes only.
 
 ## See Also
 
-- `Skill(scribe:session-replay)`: full skill reference
+- `Skill(scribe:session-replay-playbook)`: full skill reference
 - `Skill(scry:vhs-recording)`: terminal recording
 - `/session-to-post`: convert sessions to blog posts

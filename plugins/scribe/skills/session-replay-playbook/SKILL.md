@@ -1,5 +1,5 @@
 ---
-name: session-replay
+name: session-replay-playbook
 description: Converts a Claude Code session JSONL file into an animated GIF terminal replay. Use when creating demos or visual evidence from past sessions.
 globs: "**/*.jsonl"
 alwaysApply: false
