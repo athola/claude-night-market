@@ -527,14 +527,33 @@ class TestMainCLI:
     @pytest.mark.unit
     def test_json_flag_returns_0(self, tmp_path) -> None:
         """
-        Given --json flag,
-        When main() runs (even with errors),
-        Then it should return 0 (JSON mode never fails).
+        Given --json flag and a clean tree,
+        When main() runs,
+        Then it should return 0.
         """
         # Empty tree = no findings
         (tmp_path / "plugins").mkdir()
         code = main(["--json", "--root", str(tmp_path)])
         assert code == 0
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_json_mode_fails_on_errors(self, tmp_path, capsys) -> None:
+        """
+        Given a plugin with an error finding,
+        When main() runs with --json,
+        Then it returns 1 and reports success false (#830).
+        """
+        plugin = tmp_path / "plugins" / "bad" / "hooks"
+        plugin.mkdir(parents=True)
+        (plugin / "hooks.json").write_text("{not json")
+        (plugin / "h.py").write_text("print('x')\n")
+
+        code = main(["--json", "--root", str(tmp_path)])
+        parsed = json.loads(capsys.readouterr().out)
+        assert parsed["errors"] >= 1
+        assert parsed["success"] is False
+        assert code == 1
 
     @pytest.mark.bdd
     @pytest.mark.unit

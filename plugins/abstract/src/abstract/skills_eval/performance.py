@@ -18,6 +18,8 @@ class ToolPerformanceAnalyzer:
     VERY_SLOW_THRESHOLD = 0.5  # seconds
     MAX_SCORE = 100
     CHANGE_THRESHOLD = 0.01  # 10ms threshold for detecting changes
+    # Arguments each tool is run with. The CLI probes with --help.
+    PROBE_ARGS: tuple[str, ...] = ()
 
     def __init__(self, skills_dir: Path) -> None:
         """Initialize analyzer with skills directory.
@@ -86,7 +88,7 @@ class ToolPerformanceAnalyzer:
             start_time = time.time()
             # tool_path validated
             result = subprocess.run(  # nosec B603
-                [str(tool_path)],
+                [str(tool_path), *self.PROBE_ARGS],
                 check=False,
                 capture_output=True,
                 text=True,
@@ -137,7 +139,9 @@ class ToolPerformanceAnalyzer:
                     tool_info["name"], Path(tool_info["path"])
                 )
                 tool_results.append(metrics)
-            except (FileNotFoundError, OSError):
+            except (OSError, UnicodeDecodeError):
+                # Cannot start, or printed bytes that are not UTF-8: either
+                # way the tool gets a row rather than ending the benchmark.
                 tool_results.append(
                     {
                         "name": tool_info["name"],

@@ -176,6 +176,8 @@ def extract_links(content: str) -> list[tuple[str, int]]:
             continue
         if in_code_block:
             continue
+        # Inline code quotes link syntax as an example, not a link
+        line = re.sub(r"(`+).*?\1", "", line)
         # Match [text](url) pattern, excluding images ![...]
         for match in re.finditer(r"(?<!!)\[([^\]]*)\]\(([^)]+)\)", line):
             url = match.group(2)
@@ -215,11 +217,7 @@ def check_file(file_path: Path, root_dir: Path) -> list[str]:
             continue
 
         # Skip placeholder links (common in templates)
-        if (
-            "XXXX" in path_part
-            or path_part.startswith("./modules/")
-            and not (file_path.parent / path_part).exists()
-        ):
+        if "XXXX" in path_part:
             continue
 
         # Resolve relative path

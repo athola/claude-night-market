@@ -1,20 +1,15 @@
 #!/usr/bin/env python3
 """CLI for tool-performance analysis.
 
-Reimplements its analysis rather than importing from
-``src/abstract/skills_eval``, despite an earlier docstring here claiming
-otherwise. The two have already drifted: this copy probes a tool with
-``subprocess.run([tool, "--help"])`` while ``performance.py:83`` runs
-``subprocess.run([tool])``, so they measure different things. Treat them
-as separate implementations until one is deleted.
+Discovery, probing, timeouts and error rows come from
+``abstract.skills_eval.performance``. This file keeps only what the CLI
+does differently: it probes with ``--help``, keys rows by tool name, and
+renders its own table.
 """
 
 from __future__ import annotations
 
-import os
-import subprocess  # nosec B404
 import sys
-import time
 from pathlib import Path
 from typing import Any
 
@@ -22,65 +17,31 @@ from cli_scaffold import create_parser, setup_src_path, write_output
 
 setup_src_path()
 
+from abstract.skills_eval.performance import (  # noqa: E402 - import after setup_src_path() call
+    ToolPerformanceAnalyzer as _LibraryAnalyzer,
+)
 
-class ToolPerformanceAnalyzer:
+
+class ToolPerformanceAnalyzer(_LibraryAnalyzer):
     """CLI wrapper for tool performance analysis functionality."""
 
-    def __init__(self, skills_dir: Path) -> None:
-        """Initialize the tool performance analyzer."""
-        self.skills_dir = skills_dir
+    PROBE_ARGS = ("--help",)
 
     def analyze_tools(self) -> dict[str, Any]:
-        """Analyze performance of all tools in skills directory."""
-        tools = {}
-        for file_path in self.skills_dir.rglob("*"):
-            if (
-                file_path.is_file()
-                and os.access(file_path, os.X_OK)
-                and not file_path.name.startswith(".")
-                and "test" not in file_path.name.lower()
-            ):
-                tools[file_path.name] = file_path
-
-        results: dict[str, Any] = {"total_tools": len(tools), "tools": {}}
-
-        for tool_name, tool_path in tools.items():
-            try:
-                start_time = time.time()
-                # tool_path validated
-                result = subprocess.run(  # nosec B603
-                    [str(tool_path), "--help"],
-                    check=False,
-                    capture_output=True,
-                    text=True,
-                    timeout=5,
-                )
-                execution_time = time.time() - start_time
-
-                results["tools"][tool_name] = {
-                    "execution_time": execution_time,
-                    "exit_code": result.returncode,
-                    "output_length": len(result.stdout) + len(result.stderr),
-                    "success": result.returncode == 0,
-                }
-            except subprocess.TimeoutExpired:
-                results["tools"][tool_name] = {
-                    "execution_time": 5.0,
-                    "exit_code": -1,
-                    "output_length": 0,
-                    "success": False,
-                    "timeout": True,
-                }
-            except Exception:
-                results["tools"][tool_name] = {
-                    "execution_time": 0.0,
-                    "exit_code": -1,
-                    "output_length": 0,
-                    "success": False,
-                    "error": True,
-                }
-
-        return results
+        """Probe every tool, keyed by name as the report expects."""
+        tools: dict[str, Any] = {}
+        for row in self.benchmark_all_tools()["tools"]:
+            perf = {
+                "execution_time": row["execution_time"],
+                "exit_code": row.get("exit_code", -1),
+                "output_length": row.get("output_length", 0),
+                "success": row["success"],
+            }
+            for flag in ("timeout", "error"):
+                if row.get(flag):
+                    perf[flag] = True
+            tools[row["name"]] = perf
+        return {"total_tools": len(tools), "tools": tools}
 
     def get_performance_report(self) -> str:
         """Generate formatted performance report."""

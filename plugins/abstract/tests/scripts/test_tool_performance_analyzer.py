@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib
 import stat
+import subprocess
 from pathlib import Path
 from types import ModuleType
 
@@ -83,9 +84,9 @@ def test_a_hanging_tool_is_recorded_as_a_timeout(
     _tool(tmp_path, "slow.sh", "#!/bin/sh\nexit 0\n")
 
     def hang(cmd, **kwargs):
-        raise analyzer_module.subprocess.TimeoutExpired(cmd, kwargs["timeout"])
+        raise subprocess.TimeoutExpired(cmd, kwargs["timeout"])
 
-    monkeypatch.setattr(analyzer_module.subprocess, "run", hang)
+    monkeypatch.setattr(subprocess, "run", hang)
     row = analyzer_module.ToolPerformanceAnalyzer(tmp_path).analyze_tools()["tools"][
         "slow.sh"
     ]
@@ -107,6 +108,24 @@ def test_a_tool_that_cannot_start_is_recorded_as_an_error(
 
     row = analyzer_module.ToolPerformanceAnalyzer(tmp_path).analyze_tools()["tools"][
         "garbage.bin"
+    ]
+
+    assert row["error"] is True
+    assert row["success"] is False
+
+
+@pytest.mark.unit
+def test_a_tool_printing_invalid_utf8_is_recorded_as_an_error(
+    tmp_path: Path, analyzer_module: ModuleType
+) -> None:
+    """GIVEN a tool whose --help output is not valid UTF-8
+    WHEN it is probed
+    THEN it gets an error row instead of stopping the analysis
+    """
+    _tool(tmp_path, "binary.sh", "#!/bin/sh\nprintf '\\377'\n")
+
+    row = analyzer_module.ToolPerformanceAnalyzer(tmp_path).analyze_tools()["tools"][
+        "binary.sh"
     ]
 
     assert row["error"] is True
@@ -143,3 +162,31 @@ def test_report_without_tools_has_no_results_table(
 
     assert "- **Total Tools:** 0" in report
     assert "## Detailed Results" not in report
+
+
+@pytest.mark.unit
+def test_probe_passes_help_flag(tmp_path: Path, analyzer_module: ModuleType) -> None:
+    """GIVEN a tool that succeeds only when asked for --help
+    WHEN it is probed
+    THEN the probe reports success, because the CLI probes with --help
+    """
+    _tool(tmp_path, "help.sh", '#!/bin/sh\n[ "$1" = "--help" ] || exit 9\n')
+
+    row = analyzer_module.ToolPerformanceAnalyzer(tmp_path).analyze_tools()["tools"][
+        "help.sh"
+    ]
+
+    assert row["success"] is True
+    assert row["exit_code"] == 0
+
+
+@pytest.mark.unit
+def test_cli_delegates_measurement_to_skills_eval(analyzer_module: ModuleType) -> None:
+    """GIVEN the CLI and the skills_eval analyzer
+    THEN the CLI is built on the library, so the two cannot drift (#815)
+    """
+    from abstract.skills_eval.performance import (  # noqa: PLC0415 - imported after the fixture puts src on sys.path
+        ToolPerformanceAnalyzer as LibraryAnalyzer,
+    )
+
+    assert issubclass(analyzer_module.ToolPerformanceAnalyzer, LibraryAnalyzer)

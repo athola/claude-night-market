@@ -116,3 +116,23 @@ class TestMain:
     def test_returns_0_on_empty(self) -> None:
         """Given no files, When main runs, Then exits 0."""
         assert main([]) == 0
+
+    @pytest.mark.unit
+    def test_returns_1_when_apostrophe_in_earlier_comment(self, tmp_path: Path) -> None:
+        """Given an apostrophe in a comment before a bare noqa, Then exits 1 (#829).
+
+        The apostrophe sits after the comment marker, so it opens no string,
+        and the suppression behind it is a real comment.
+        """
+        f = tmp_path / "bad.py"
+        f.write_text("x = 1  # don't wrap  # noqa\n")
+        assert main([str(f)]) == 1
+
+    @pytest.mark.unit
+    def test_returns_1_when_apostrophe_starts_comment_line(
+        self, tmp_path: Path
+    ) -> None:
+        """Given a comment-only line with an apostrophe, Then the noqa is flagged."""
+        f = tmp_path / "bad.py"
+        f.write_text("import os  # it's needed # noqa: F401\n")
+        assert main([str(f)]) == 1

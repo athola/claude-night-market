@@ -72,3 +72,24 @@ def test_non_markdown_arguments_are_ignored(repo: Path) -> None:
 
     assert result.returncode == 0
     assert result.stdout == ""
+
+
+@pytest.mark.unit
+def test_missing_modules_link_exits_one(repo: Path) -> None:
+    """A ./modules/ link to a file that does not exist fails (#831)."""
+    (repo / "doc.md").write_text("# Doc\n\n[m](./modules/gone.md)\n")
+
+    result = _check(repo, "doc.md")
+
+    assert result.returncode == 1
+    assert "doc.md:3: broken link to ./modules/gone.md" in result.stdout
+
+
+@pytest.mark.unit
+def test_link_inside_inline_code_is_not_checked(repo: Path) -> None:
+    """Link syntax quoted in inline code is an example, not a link."""
+    (repo / "doc.md").write_text("# Doc\n\nWrite `[link](./modules/foo.md)`.\n")
+
+    result = _check(repo, "doc.md")
+
+    assert result.returncode == 0, result.stdout

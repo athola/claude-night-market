@@ -77,8 +77,14 @@ def process_skill_file(filepath: Path, dry_run: bool = True) -> dict | None:
     try:
         frontmatter = yaml.safe_load(frontmatter_text)
     except yaml.YAMLError as e:
-        print(f"⚠️  YAML error in {filepath}: {e}")
-        return None
+        # Unparseable frontmatter cannot be checked, so it is not compliant
+        # (#833). Flag it the way a truncated description is flagged.
+        return {
+            "file": str(filepath),
+            "old_description": "(unparseable)",
+            "new_description": f"(MANUAL FIX NEEDED: YAML error: {e})",
+            "unparseable": True,
+        }
 
     if not frontmatter:
         return None
@@ -151,16 +157,21 @@ def main():
         # Pre-commit check mode - fail if any files need fixing
         issues = []
         truncated = []
+        unparseable = []
         for f in skill_files + agent_files:
             result = process_skill_file(f, dry_run=True)
             if result:
                 if result.get("truncated"):
                     truncated.append(f)
+                elif result.get("unparseable"):
+                    unparseable.append(f)
                 else:
                     issues.append(f)
-        if issues or truncated:
-            total = len(issues) + len(truncated)
+        if issues or truncated or unparseable:
+            total = len(issues) + len(truncated) + len(unparseable)
             print(f"❌ {total} files need description fixes:")
+            for f in unparseable:
+                print(f"   {f} (frontmatter is not valid YAML)")
             for f in truncated:
                 print(f"   {f} (truncated 'DO NOT.' - needs completion)")
             for f in issues[:10]:

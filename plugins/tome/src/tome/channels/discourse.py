@@ -202,27 +202,6 @@ _REDDIT_SUBREDDITS: dict[str, list[str]] = {
 _REDDIT_GENERAL = _REDDIT_SUBREDDITS["general"]
 
 
-def build_reddit_search_url(
-    topic: str,
-    subreddit: str = "programming",
-) -> str:
-    """Build a Reddit JSON search URL.
-
-    Args:
-        topic: Free-text research topic.
-        subreddit: Subreddit name without the ``r/`` prefix (default
-            ``"programming"``).
-
-    Returns:
-        URL string for old.reddit.com JSON search endpoint.
-    """
-    encoded = quote_plus(topic)
-    return (
-        f"https://old.reddit.com/r/{subreddit}/search.json"
-        f"?q={encoded}&restrict_sr=on&sort=relevance&t=all"
-    )
-
-
 def suggest_subreddits(topic: str, domain: str) -> list[str]:
     """Suggest relevant subreddits based on topic domain.
 

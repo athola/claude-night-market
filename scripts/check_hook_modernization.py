@@ -376,7 +376,7 @@ def format_json(result: AuditResult) -> str:
     """Format findings as JSON."""
     return json.dumps(
         {
-            "success": True,
+            "success": result.error_count == 0,
             "errors": result.error_count,
             "warnings": result.warning_count,
             "findings": [
@@ -408,11 +408,7 @@ def main(argv: list[str] | None = None) -> int:
 
     result = run_audit(repo_root)
 
-    if output_json:
-        print(format_json(result))
-        return 0
-
-    print(format_text(result))
+    print(format_json(result) if output_json else format_text(result))
     return 1 if result.error_count > 0 else 0
 
 
