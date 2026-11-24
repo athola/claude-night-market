@@ -15,7 +15,7 @@ estimated_tokens: 200
 ## When To Use
 
 - Finding existing implementations or libraries on GitHub
-- Part of a `/tome:research-session` session or standalone search
+- Part of a `/tome:research-session` run or standalone search
 
 ## When NOT To Use
 

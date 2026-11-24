@@ -38,7 +38,7 @@ Iron Law enforced through proof-of-work validation.
 | Skill | Description | When to Use |
 |-------|-------------|-------------|
 | `diff-analysis` | Semantic changeset analysis | Understanding impact of changes |
-| `catchup` | Context recovery | Getting up to speed after time away |
+| `catchup-playbook` | Context recovery | Getting up to speed after time away |
 
 ### Workflow Guards
 

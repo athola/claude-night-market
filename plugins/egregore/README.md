@@ -34,7 +34,7 @@ Egregore has three layers:
   Manifest (.egregore/manifest.json)
   Persistent memory: work queue, pipeline state, decisions
                     |
-  Orchestrator Skill (egregore:summon)
+  Orchestrator Skill (egregore:summon-playbook)
   The will: picks work, invokes skills, advances pipeline
                     |
   Watchdog Daemon (watchdog.sh)
