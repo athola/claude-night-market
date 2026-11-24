@@ -60,6 +60,13 @@ def analyze(context: AnalysisContext) -> list[Finding]:
                 )
             continue
 
+        # A window with no runs scores 0.0 for both rate and duration, which
+        # measures nothing. Comparing against it reads a quiet window as a
+        # collapse and the next active one as a recovery (#1071). A snapshot
+        # written before the count was stored is compared as before.
+        if summary.total_executions == 0 or prev_data.get("total_executions") == 0:
+            continue
+
         # Check success rate shift
         prev_rate = prev_data.get("success_rate", 100.0)
         curr_rate = summary.success_rate
