@@ -96,7 +96,7 @@ git log --oneline "$(git merge-base HEAD "$base")"..HEAD | \
 
 Run a machine review of the diff before the PR opens. The human
 reviewer then spends their time on what a machine cannot judge. Use
-`Skill(pensive:unified-review)` for a change that spans several
+`Skill(pensive:unified-review-playbook)` for a change that spans several
 dimensions, or `/code-review` for a smaller one. Fix or answer each
 finding before posting.
 

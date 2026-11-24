@@ -364,7 +364,7 @@ create PR linking issue.
 ### `pensive:bug-review`
 Systematic bug hunting.
 
-**Invocation**: `Skill(pensive:bug-review)`
+**Invocation**: `Skill(pensive:bug-review-playbook)`
 
 Targets logic errors, null/undefined handling, resource leaks,
 and race conditions.
@@ -372,14 +372,14 @@ and race conditions.
 ### `pensive:api-review`
 API surface evaluation.
 
-**Invocation**: `Skill(pensive:api-review)`
+**Invocation**: `Skill(pensive:api-review-playbook)`
 
 Reviews naming consistency, error handling, versioning, and documentation.
 
 ### `pensive:test-review`
 Test quality assessment.
 
-**Invocation**: `Skill(pensive:test-review)`
+**Invocation**: `Skill(pensive:test-review-playbook)`
 
 Evaluates coverage, AAA pattern compliance, flaky test detection,
 and edge case coverage.
@@ -387,7 +387,7 @@ and edge case coverage.
 ### `pensive:architecture-review`
 Architecture assessment.
 
-**Invocation**: `Skill(pensive:architecture-review)`
+**Invocation**: `Skill(pensive:architecture-review-playbook)`
 
 Analyzes coupling/cohesion, dependency direction, layer violations,
 and scalability concerns.
@@ -395,7 +395,7 @@ and scalability concerns.
 ### `pensive:rust-review`
 Rust-specific patterns.
 
-**Invocation**: `Skill(pensive:rust-review)`
+**Invocation**: `Skill(pensive:rust-review-playbook)`
 
 Focuses on unsafe code, lifetime management, memory safety,
 and idiomatic patterns.

@@ -17,7 +17,7 @@ import pytest
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = PLUGIN_ROOT / "workflows" / "unified-review.js"
-SKILL = PLUGIN_ROOT / "skills" / "unified-review" / "SKILL.md"
+SKILL = PLUGIN_ROOT / "skills" / "unified-review-playbook" / "SKILL.md"
 
 
 def test_workflow_ships_at_the_discovered_location() -> None:

@@ -220,7 +220,7 @@ progressive disclosure (summary first, detail on failure).
 - `Skill(attune:workflow-setup)`: GitHub Actions setup
 - `Skill(attune:makefile-generation)`: Generate component
   Makefiles
-- `Skill(pensive:unified-review)` shell focus
+- `Skill(pensive:unified-review-playbook)` shell focus
   (`/shell-review`): Audit shell scripts for exit-code and safety
   issues
 

@@ -21,7 +21,7 @@ sources:
 related_artifacts:
   - github://athola/claude-night-market/issues/519
   - plugins/parseltongue/skills/python-testing/SKILL.md
-  - plugins/pensive/skills/test-review/SKILL.md
+  - plugins/pensive/skills/test-review-playbook/SKILL.md
 discussion_url: https://github.com/athola/claude-night-market/discussions/520
 discussion_number: 520
 promoted_at: 2026-05-09T23:15:00Z

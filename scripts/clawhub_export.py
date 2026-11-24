@@ -44,10 +44,10 @@ CLAWHUB_SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 # Skills most likely to attract OpenClaw users (hand-curated top 20)
 TOP_SKILLS = [
     "pensive:code-refinement",
-    "pensive:bug-review",
-    "pensive:architecture-review",
-    "pensive:test-review",
-    "pensive:unified-review",
+    "pensive:bug-review-playbook",
+    "pensive:architecture-review-playbook",
+    "pensive:test-review-playbook",
+    "pensive:unified-review-playbook",
     "conserve:bloat-detector",
     "conserve:token-conservation",
     "conserve:clear-context",
@@ -59,7 +59,7 @@ TOP_SKILLS = [
     "sanctum:pr-prep",
     "sanctum:pr-review",
     "abstract:skill-authoring",
-    "abstract:skills-eval",
+    "abstract:skills-eval-playbook",
     "imbue:proof-of-work",
     "imbue:scope-guard",
     "attune:project-brainstorming",

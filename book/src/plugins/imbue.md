@@ -214,7 +214,7 @@ Skill(sanctum:git-workspace-review)
 
 # Pensive uses imbue for evidence gathering
 Skill(imbue:proof-of-work)
-Skill(pensive:architecture-review)
+Skill(pensive:architecture-review-playbook)
 ```
 
 ## Superpowers Integration

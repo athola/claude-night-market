@@ -36,6 +36,7 @@ WATCH_LIST = {
 # the deferral source, so the watch and the GitHub labels stay unchanged.
 RENAMED_SKILLS = {
     "war-room-playbook": "war-room",
+    "unified-review-playbook": "unified-review",
 }
 
 DEFERRAL_PATTERNS = re.compile(

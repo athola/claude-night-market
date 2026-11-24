@@ -17,7 +17,7 @@ import re
 from pathlib import Path
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[2]
-SKILL_FILE = PLUGIN_ROOT / "skills" / "performance-review" / "SKILL.md"
+SKILL_FILE = PLUGIN_ROOT / "skills" / "performance-review-playbook" / "SKILL.md"
 
 
 def test_skill_has_verification_content() -> None:

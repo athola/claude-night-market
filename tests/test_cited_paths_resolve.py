@@ -360,7 +360,7 @@ def test_cited_capabilities_resolve(asset: Path) -> None:
 # --- The third gate: the `Skill(plugin:name)` call form ---------------
 #
 # `test_cited_capabilities_resolve` above needs the backtick flush
-# against the token, so `` `Skill(pensive:bug-review)` `` matches
+# against the token, so `` `Skill(pensive:bug-review-playbook)` `` matches
 # neither it nor `scripts/check_skill_graph_drift.py`, which reads the
 # call syntax but globs only `plugins/*/skills/*/SKILL.md`. A command
 # citing a skill by the call form was adjudicated by nothing.
@@ -405,7 +405,7 @@ _SKILL_GRAPH = _load_skill_graph()
 
 # A `Skill(plugin:name)` call, with or without trailing arguments:
 # `Skill(abstract:skill-auditor, quiet=true)` names the same target as
-# `Skill(pensive:bug-review)`. The bare form `Skill(test-updates)`,
+# `Skill(pensive:bug-review-playbook)`. The bare form `Skill(test-updates)`,
 # which omits the plugin, is a separate defect and is not adjudicated
 # here -- an unqualified name has no single resolution to check.
 INVOCATION = re.compile(

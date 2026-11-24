@@ -51,7 +51,7 @@ Static-analysis hot-spot review for time and space complexity.
 ## Manual Review Lenses
 
 Three patterns are reviewed by eye, not by the AST scan (see
-`Skill(pensive:performance-review)` module
+`Skill(pensive:performance-review-playbook)` module
 `memory-allocation-lenses.md`):
 
 - Unbounded collection fed from an external or dynamic source
@@ -104,7 +104,7 @@ not a checkout), skip this step and say so.
 
 ## Related Skills
 
-- `Skill(pensive:performance-review)`: methodology this command
+- `Skill(pensive:performance-review-playbook)`: methodology this command
   invokes.
 - `Skill(pensive:code-refinement)`: broader refactoring guidance
   including the existing `algorithm-efficiency` module.

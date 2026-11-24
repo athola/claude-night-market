@@ -19,19 +19,19 @@
     "./commands/test-review.md"
   ],
   "skills": [
-    "./skills/api-review",
-    "./skills/architecture-review",
+    "./skills/api-review-playbook",
+    "./skills/architecture-review-playbook",
     "./skills/blast-radius",
-    "./skills/bug-review",
+    "./skills/bug-review-playbook",
     "./skills/code-refinement",
-    "./skills/harden",
-    "./skills/math-review",
-    "./skills/performance-review",
-    "./skills/rust-review",
+    "./skills/harden-playbook",
+    "./skills/math-review-playbook",
+    "./skills/performance-review-playbook",
+    "./skills/rust-review-playbook",
     "./skills/safety-critical-patterns",
-    "./skills/test-review",
+    "./skills/test-review-playbook",
     "./skills/tiered-audit",
-    "./skills/unified-review"
+    "./skills/unified-review-playbook"
   ],
   "agents": [
     "./agents/architecture-reviewer.md",

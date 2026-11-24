@@ -551,6 +551,15 @@ class TestParseSkillName:
             mod._parse_skill_name({"skill": "attune:war-room-playbook"}) == "war-room"
         )
 
+    def test_renamed_unified_review_skill_stays_watched(self) -> None:
+        """
+        GIVEN the unified-review skill invoked by its #1055 id
+        WHEN _parse_skill_name is called with 'pensive:unified-review-playbook'
+        THEN it returns 'unified-review', which is on the watch list
+        """
+        payload = {"skill": "pensive:unified-review-playbook"}
+        assert mod._parse_skill_name(payload) == "unified-review"
+
     def test_empty_skill_field(self) -> None:
         """
         GIVEN a skill payload with an empty string as the skill value

@@ -22,7 +22,7 @@ import pytest
 import yaml
 
 PENSIVE_ROOT = Path(__file__).resolve().parent.parent.parent
-SKILL_DIR = PENSIVE_ROOT / "skills" / "performance-review"
+SKILL_DIR = PENSIVE_ROOT / "skills" / "performance-review-playbook"
 SKILL_FILE = SKILL_DIR / "SKILL.md"
 MODULES_DIR = SKILL_DIR / "modules"
 LENSES_MODULE = MODULES_DIR / "memory-allocation-lenses.md"
@@ -91,7 +91,7 @@ class TestMemoryLensesModuleExists:
         """
         fm = _parse_frontmatter(LENSES_MODULE.read_text())
         assert fm.get("module") == MODULE_NAME
-        assert fm.get("parent_skill") == "performance-review"
+        assert fm.get("parent_skill") == "performance-review-playbook"
 
 
 class TestSkillMdWiresInMemoryLenses:

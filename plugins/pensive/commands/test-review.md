@@ -15,5 +15,5 @@ Evaluate and upgrade test suites with TDD/BDD rigor.
 
 ## What It Does
 
-Invoke `Skill(pensive:test-review)`, which carries the review workflow, the
-TDD and BDD checks and the output format.
+Invoke `Skill(pensive:test-review-playbook)`, which carries the review workflow,
+the TDD and BDD checks and the output format.

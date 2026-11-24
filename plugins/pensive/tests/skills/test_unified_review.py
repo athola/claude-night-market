@@ -15,7 +15,7 @@ import pytest
 from pensive.skills.base import AnalysisResult
 from pensive.skills.unified_review import UnifiedReviewSkill
 
-SKILL_MD = Path(__file__).parents[2] / "skills" / "unified-review" / "SKILL.md"
+SKILL_MD = Path(__file__).parents[2] / "skills" / "unified-review-playbook" / "SKILL.md"
 
 
 class TestUnifiedReviewSkillContent:

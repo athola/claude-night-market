@@ -29,7 +29,7 @@ hook files. Capture:
 
 ### 3. Test Review
 
-Invoke `Skill(pensive:test-review)` for each affected plugin.
+Invoke `Skill(pensive:test-review-playbook)` for each affected plugin.
 Capture:
 - Coverage percentage
 - Anti-pattern findings

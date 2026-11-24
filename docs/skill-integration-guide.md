@@ -13,16 +13,17 @@ marketplace. Verify any name against `plugins/<plugin>/skills/<name>/`.
 Chaining skills in sequence creates a pipeline where the output of one stage
 feeds the next. For example,
 an API development workflow typically moves from `Skill(abstract:skill-authoring)`
-to scaffold the project structure, to `Skill(pensive:api-review)` for endpoint
-review, and finally to `Skill(parseltongue:python-testing)` for coverage
-analysis. The process finishes with `Skill(sanctum:doc-updates)` and
+to scaffold the project structure, to `Skill(pensive:api-review-playbook)` for
+endpoint review, and finally to `Skill(parseltongue:python-testing)` for
+coverage analysis. The process finishes with `Skill(sanctum:doc-updates)` and
 `Skill(sanctum:commit-messages)`.
 
 Security reviews follow a similar sequence:
-`Skill(pensive:harden)` identifies potential vulnerabilities,
-`Skill(pensive:bug-review)` and `Skill(pensive:architecture-review)` analyze
-those findings for exploitability, and `Skill(pensive:test-review)` verifies
-remediation before `Skill(sanctum:pr-prep)` stages the fixes.
+`Skill(pensive:harden-playbook)` identifies potential vulnerabilities,
+`Skill(pensive:bug-review-playbook)` and
+`Skill(pensive:architecture-review-playbook)` analyze those findings for
+exploitability, and `Skill(pensive:test-review-playbook)` verifies remediation
+before `Skill(sanctum:pr-prep)` stages the fixes.
 
 ## State and Knowledge Management
 
@@ -44,8 +45,8 @@ and `Skill(imbue:structured-output)` to format data.
 Large-scale operations require active context management and concurrency.
 `Skill(conserve:context-optimization)` filters files to keep the working set
 within the context window, while `Skill(conjure:agent-teams)` delegates work to
-parallel agents. `Skill(pensive:bug-review)` then isolates root causes before
-`Skill(imbue:proof-of-work)` confirms the fix with evidence.
+parallel agents. `Skill(pensive:bug-review-playbook)` then isolates root causes
+before `Skill(imbue:proof-of-work)` confirms the fix with evidence.
 
 For Python-specific performance, `Skill(parseltongue:python-async)` manages
 blocking I/O and replaces static sleeps with event-driven waiting, and
@@ -58,8 +59,8 @@ blocking I/O and replaces static sleeps with event-driven waiting, and
 To coordinate a user-management service, invoke each skill in turn and pass
 its output to the next:
 
-1. `Skill(pensive:api-review)` reviews the endpoint surface for the `users`
-   resource and its create, read, update, delete, and list operations.
+1. `Skill(pensive:api-review-playbook)` reviews the endpoint surface for the
+   `users` resource and its create, read, update, delete, and list operations.
 2. `Skill(parseltongue:python-testing)` adds unit and integration tests
    against the reviewed endpoints.
 3. `Skill(sanctum:doc-updates)` refreshes the API documentation from the
@@ -71,11 +72,11 @@ synchronized throughout the cycle.
 
 ### Security Review Automation
 
-Security audits use `Skill(pensive:harden)` for vulnerability analysis.
-`Skill(pensive:bug-review)` evaluates findings for exploitability,
-and `Skill(pensive:architecture-review)` validates the design against threats
-like injection. `Skill(pensive:test-review)` then identifies coverage gaps,
-while `Skill(sanctum:pr-prep)` assembles the remediation plan.
+Security audits use `Skill(pensive:harden-playbook)` for vulnerability analysis.
+`Skill(pensive:bug-review-playbook)` evaluates findings for exploitability,
+and `Skill(pensive:architecture-review-playbook)` validates the design against
+threats like injection. `Skill(pensive:test-review-playbook)` then identifies
+coverage gaps, while `Skill(sanctum:pr-prep)` assembles the remediation plan.
 This produces an auditable trail,
 packaging fixes and tests into a single unit for review.
 

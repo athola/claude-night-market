@@ -40,7 +40,7 @@ dependencies:
 - leyline:git-platform
 - sanctum:git-workspace-review
 - sanctum:version-updates
-- pensive:unified-review
+- pensive:unified-review-playbook
 - imbue:proof-of-work
 - imbue:justify-playbook
 - imbue:review-core

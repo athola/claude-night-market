@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-_SKILL_DIR = Path(__file__).parents[3] / "skills" / "performance-review"
+_SKILL_DIR = Path(__file__).parents[3] / "skills" / "performance-review-playbook"
 _MODULE = _SKILL_DIR / "modules" / "kuva-visualization.md"
 _SKILL = _SKILL_DIR / "SKILL.md"
 

@@ -19,16 +19,16 @@ selecting the right skills for each codebase.
 
 | Skill | Description | When to Use |
 |-------|-------------|-------------|
-| `unified-review` | Review orchestration | Starting reviews (Claude picks tools) |
-| `api-review` | API surface evaluation | Reviewing OpenAPI specs, library exports |
-| `architecture-review` | Architecture assessment | Checking ADR alignment, design principles |
-| `bug-review` | Bug hunting | Systematic search for logic errors |
-| `rust-review` | Rust-specific checking | Auditing unsafe code, borrow patterns |
-| `test-review` | Test quality review | Ensuring tests verify behavior |
-| `math-review` | Mathematical correctness | Reviewing mathematical logic |
+| `unified-review-playbook` | Review orchestration | Starting reviews (Claude picks tools) |
+| `api-review-playbook` | API surface evaluation | Reviewing OpenAPI specs, library exports |
+| `architecture-review-playbook` | Architecture assessment | Checking ADR alignment, design principles |
+| `bug-review-playbook` | Bug hunting | Systematic search for logic errors |
+| `rust-review-playbook` | Rust-specific checking | Auditing unsafe code, borrow patterns |
+| `test-review-playbook` | Test quality review | Ensuring tests verify behavior |
+| `math-review-playbook` | Mathematical correctness | Reviewing mathematical logic |
 | `safety-critical-patterns` | NASA Power of 10 rules | Verifiable code with context-appropriate rigor |
 | `code-refinement` | Code quality analysis | Duplication, efficiency, clean code violations |
-| `performance-review` | Time and space complexity review | Detecting hotspots via Python AST (Tier 1) with optional gauntlet enrichment |
+| `performance-review-playbook` | Time and space complexity review | Detecting hotspots via Python AST (Tier 1) with optional gauntlet enrichment |
 | `blast-radius` | Change blast-radius analysis | Risk-scoring affected nodes via the code knowledge graph |
 | `tiered-audit` | Three-tier escalation audit | Codebase audits starting from git history |
 
@@ -95,7 +95,7 @@ selecting the right skills for each codebase.
 ### Manual Skill Invocation
 
 ```bash
-Skill(pensive:architecture-review)
+Skill(pensive:architecture-review-playbook)
 
 # Checks:
 # - ADR compliance

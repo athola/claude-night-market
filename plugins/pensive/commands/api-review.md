@@ -15,5 +15,5 @@ Evaluate public API surfaces against guidelines and exemplars.
 
 ## What It Does
 
-Invoke `Skill(pensive:api-review)`, which carries the review workflow, the
-API quality checklist and the output format.
+Invoke `Skill(pensive:api-review-playbook)`, which carries the review workflow,
+the API quality checklist and the output format.

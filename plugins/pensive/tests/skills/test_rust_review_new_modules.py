@@ -14,7 +14,9 @@ from pathlib import Path
 import pytest
 import yaml
 
-SKILL_DIR = Path(__file__).resolve().parent.parent.parent / "skills" / "rust-review"
+SKILL_DIR = (
+    Path(__file__).resolve().parent.parent.parent / "skills" / "rust-review-playbook"
+)
 SKILL_FILE = SKILL_DIR / "SKILL.md"
 MODULES_DIR = SKILL_DIR / "modules"
 

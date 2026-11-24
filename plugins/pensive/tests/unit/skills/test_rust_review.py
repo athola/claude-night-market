@@ -14,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-_MODULES = Path(__file__).parents[3] / "skills" / "rust-review" / "modules"
-_SKILL = Path(__file__).parents[3] / "skills" / "rust-review" / "SKILL.md"
+_MODULES = Path(__file__).parents[3] / "skills" / "rust-review-playbook" / "modules"
+_SKILL = Path(__file__).parents[3] / "skills" / "rust-review-playbook" / "SKILL.md"
 
 
 class TestMlockGuidance:

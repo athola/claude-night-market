@@ -12,7 +12,7 @@ pre-release validation gate.
 
 ### 1. Architecture Review
 
-Invoke `Skill(pensive:architecture-review)` to assess:
+Invoke `Skill(pensive:architecture-review-playbook)` to assess:
 - ADR compliance across all plugins
 - Cross-plugin coupling analysis
 - Module boundary violations
@@ -20,7 +20,7 @@ Invoke `Skill(pensive:architecture-review)` to assess:
 
 ### 2. Unified Review
 
-Invoke `Skill(pensive:unified-review)` for multi-domain
+Invoke `Skill(pensive:unified-review-playbook)` for multi-domain
 orchestration covering API, architecture, test, and code
 quality dimensions.
 

@@ -155,9 +155,9 @@ For more control, invoke skills:
 Skill(sanctum:git-workspace-review)
 
 # Then: run specific review
-Skill(pensive:architecture-review)
-Skill(pensive:api-review)
-Skill(pensive:bug-review)
+Skill(pensive:architecture-review-playbook)
+Skill(pensive:api-review-playbook)
+Skill(pensive:bug-review-playbook)
 ```
 
 ### External PR Review

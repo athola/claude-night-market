@@ -22,7 +22,11 @@ import pytest
 
 PENSIVE_ROOT = Path(__file__).resolve().parent.parent.parent
 CONCURRENCY_MODULE = (
-    PENSIVE_ROOT / "skills" / "rust-review" / "modules" / "concurrency-patterns.md"
+    PENSIVE_ROOT
+    / "skills"
+    / "rust-review-playbook"
+    / "modules"
+    / "concurrency-patterns.md"
 )
 RUST_AUDITOR_AGENT = PENSIVE_ROOT / "agents" / "rust-auditor.md"
 RUST_REVIEW_COMMAND = PENSIVE_ROOT / "commands" / "rust-review.md"

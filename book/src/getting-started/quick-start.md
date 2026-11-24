@@ -90,7 +90,7 @@ Some skills depend on others:
 # Pensive depends on imbue and sanctum
 Skill(sanctum:git-workspace-review)
 Skill(imbue:review-core)
-Skill(pensive:architecture-review)
+Skill(pensive:architecture-review-playbook)
 ```
 
 ### Skill with Dependencies

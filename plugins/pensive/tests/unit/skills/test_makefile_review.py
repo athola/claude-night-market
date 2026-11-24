@@ -28,7 +28,7 @@ from tests.unit.skills._skill_text import read_frontmatter, read_or_fail
 
 REPO_ROOT = Path(__file__).resolve().parents[5]
 PENSIVE = REPO_ROOT / "plugins" / "pensive"
-UNIFIED_DIR = PENSIVE / "skills" / "unified-review"
+UNIFIED_DIR = PENSIVE / "skills" / "unified-review-playbook"
 UNIFIED_FILE = UNIFIED_DIR / "SKILL.md"
 MODULES_DIR = UNIFIED_DIR / "modules"
 MODULE_FILE = MODULES_DIR / "makefile-review.md"
@@ -91,7 +91,7 @@ class TestOldNamesRedirect:
     def test_command_routes_to_unified_review(self) -> None:
         """/makefile-review invokes unified-review's makefile focus."""
         text = read_or_fail(COMMAND_FILE)
-        assert "Skill(pensive:unified-review)" in text
+        assert "Skill(pensive:unified-review-playbook)" in text
         assert "Skill(pensive:makefile-review)" not in text
         assert "modules/makefile-review.md" in text
 

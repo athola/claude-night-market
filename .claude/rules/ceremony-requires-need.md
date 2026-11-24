@@ -40,7 +40,7 @@ passthrough today. Do not delete it.
 
 ## Detection
 
-`Skill(pensive:architecture-review)` module `modules/ceremony-audit.md`
+`Skill(pensive:architecture-review-playbook)` module `modules/ceremony-audit.md`
 carries four manual lenses:
 
 | Signal | Verdict |
@@ -77,7 +77,7 @@ Do not. Neither answer is more or less DDD than the other.
 
 - `Skill(archetypes:architecture-paradigm-domain-driven)`: the paradigm,
   the divergence protocol, and the IO boundary rule.
-- `plugins/pensive/skills/architecture-review/modules/ceremony-audit.md`:
+- `Skill(pensive:architecture-review-playbook)` module `ceremony-audit.md`:
   the review lens.
 - `plugins/archetypes/tests/test_ddd_paradigm.py` and
   `plugins/pensive/tests/skills/test_ceremony_audit.py`: the contract.

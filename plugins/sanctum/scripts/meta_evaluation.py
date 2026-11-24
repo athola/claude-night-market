@@ -58,10 +58,10 @@ class MetaEvaluator:
         ],
         # Pensive plugin (review skills)
         "pensive": [
-            "test-review",
-            "api-review",
-            "architecture-review",
-            "bug-review",
+            "test-review-playbook",
+            "api-review-playbook",
+            "architecture-review-playbook",
+            "bug-review-playbook",
         ],
         # Sanctum plugin (validation skills)
         "sanctum": ["pr-review", "test-updates", "git-workspace-review"],

@@ -26,7 +26,9 @@ import yaml
 
 from pensive.skills.rust_review import RustReviewSkill
 
-SKILL_DIR = Path(__file__).resolve().parent.parent.parent / "skills" / "rust-review"
+SKILL_DIR = (
+    Path(__file__).resolve().parent.parent.parent / "skills" / "rust-review-playbook"
+)
 SKILL_FILE = SKILL_DIR / "SKILL.md"
 MODULES_DIR = SKILL_DIR / "modules"
 MODULE_NAME = "conversion-traits"

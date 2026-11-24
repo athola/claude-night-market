@@ -52,7 +52,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `additive-bias-defense` | [leyline](../plugins/leyline.md) | Scrutiny questions to challenge unnecessary additions |
 | `agent-expenditure` | [conserve](../plugins/conserve.md) | Per-agent token usage tracking |
 | `agent-teams` | [conjure](../plugins/conjure.md) | Coordinate Claude Code Agent Teams through filesystem-based protocol |
-| `api-review` | [pensive](../plugins/pensive.md) | API surface evaluation |
+| `api-review-playbook` | [pensive](../plugins/pensive.md) | API surface evaluation |
 | `architecture-aware-init` | [attune](../plugins/attune.md) | Architecture-aware project initialization with research |
 | `architecture-diagram` | [cartograph](../plugins/cartograph.md) | Component relationship diagrams |
 | `architecture-paradigm-client-server` | [archetypes](../plugins/archetypes.md) | Client-server communication |
@@ -70,13 +70,13 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `architecture-paradigm-service-based` | [archetypes](../plugins/archetypes.md) | Coarse-grained SOA |
 | `architecture-paradigm-space-based` | [archetypes](../plugins/archetypes.md) | Data-grid architecture |
 | `architecture-paradigms` | [archetypes](../plugins/archetypes.md) | Orchestrator for paradigm selection |
-| `architecture-review` | [pensive](../plugins/pensive.md) | Architecture assessment |
+| `architecture-review-playbook` | [pensive](../plugins/pensive.md) | Architecture assessment |
 | `assisted-mastery` | [imbue](../plugins/imbue.md) | Assistance-dilemma resolution: visible reasoning, tradeoff surfacing, and fading help to build judgment |
 | `authentication-patterns` | [leyline](../plugins/leyline.md) | Auth flow patterns |
 | `blast-radius` | [pensive](../plugins/pensive.md) | Code change blast radius analysis with risk scoring |
 | `bloat-detector` | [conserve](../plugins/conserve.md) | Detection algorithms for dead code, God classes, documentation duplication |
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
-| `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
+| `bug-review-playbook` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `call-chain` | [cartograph](../plugins/cartograph.md) | Trace execution paths through code knowledge graph |
 | `catchup-playbook` | [imbue](../plugins/imbue.md) | Context recovery |
 | `challenge` | [gauntlet](../plugins/gauntlet.md) | Adaptive difficulty challenge session for codebase knowledge testing |
@@ -129,7 +129,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `graduated-implementation` | [imbue](../plugins/imbue.md) | Bounded start then ramp the next increment's ambition only on demonstrated competence of the prior one |
 | `graph-build` | [gauntlet](../plugins/gauntlet.md) | Build or update the code knowledge graph |
 | `graph-search` | [gauntlet](../plugins/gauntlet.md) | FTS5 search of the code knowledge graph |
-| `harden` | [pensive](../plugins/pensive.md) | Active codebase hardening with NIST/CWE-cited findings and concrete remediation proposals |
+| `harden-playbook` | [pensive](../plugins/pensive.md) | Active codebase hardening with NIST/CWE-cited findings and concrete remediation proposals |
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
 | `hook-scope-guide` | [abstract](../plugins/abstract.md) | Decide where to place hooks (plugin/project/global) |
 | `hooks-eval-playbook` | [abstract](../plugins/abstract.md) | Hook security scanning |
@@ -143,7 +143,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `loop-optimization` | [leyline](../plugins/leyline.md) | Hand-vs-compiler decision rule for loop transforms |
 | `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
 | `markdown-formatting` | [leyline](../plugins/leyline.md) | Line wrapping and style conventions |
-| `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
+| `math-review-playbook` | [pensive](../plugins/pensive.md) | Mathematical correctness |
 | `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |
 | `media-composition` | [scry](../plugins/scry.md) | Multi-source media stitching |
 | `memory-clarity-probe` | [memory-palace](../plugins/memory-palace.md) | Memory clarity assessment via anchor questions |
@@ -159,7 +159,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `palace-diagram` | [memory-palace](../plugins/memory-palace.md) | Visual palace structure diagrams |
 | `palace-index-curator` | [memory-palace](../plugins/memory-palace.md) | Web-capture index curation |
 | `papers` | [tome](../plugins/tome.md) | Academic literature search |
-| `performance-review` | [pensive](../plugins/pensive.md) | Time and space complexity hotspot detection |
+| `performance-review-playbook` | [pensive](../plugins/pensive.md) | Time and space complexity hotspot detection |
 | `plugin-review-playbook` | [abstract](../plugins/abstract.md) | Tiered plugin quality review with dependency-aware scoping |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
@@ -188,7 +188,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `risk-classification` | [leyline](../plugins/leyline.md) | Inline 4-tier risk classification for agent tasks |
 | `rule-catalog` | [hookify](../plugins/hookify.md) | Pre-built behavioral rule templates |
 | `rules-eval-playbook` | [abstract](../plugins/abstract.md) | Evaluate and validate Claude Code rules in `.claude/rules/` directories |
-| `rust-review` | [pensive](../plugins/pensive.md) | Rust-specific checking |
+| `rust-review-playbook` | [pensive](../plugins/pensive.md) | Rust-specific checking |
 | `safety-critical-patterns` | [pensive](../plugins/pensive.md) | NASA Power of 10 rules for verifiable code |
 | `scope-guard` | [imbue](../plugins/imbue.md) | Anti-overengineering |
 | `sem-integration` | [leyline](../plugins/leyline.md) | Semantic diff CLI detection and fallback |
@@ -220,7 +220,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `synthesize` | [tome](../plugins/tome.md) | Research findings synthesis |
 | `task-planning` | [spec-kit](../plugins/spec-kit.md) | Task generation |
 | `tech-tutorial` | [scribe](../plugins/scribe.md) | Plan, draft, and refine technical tutorials |
-| `test-review` | [pensive](../plugins/pensive.md) | Test quality review |
+| `test-review-playbook` | [pensive](../plugins/pensive.md) | Test quality review |
 | `test-updates` | [sanctum](../plugins/sanctum.md) | Test maintenance |
 | `testing-quality-standards` | [leyline](../plugins/leyline.md) | Test quality guidelines and pytest configuration |
 | `ticket-writing` | [leyline](../plugins/leyline.md) | Glanceable tickets with the why inline or one link away |
@@ -228,7 +228,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `token-conservation` | [conserve](../plugins/conserve.md) | Token usage strategies |
 | `triz` | [tome](../plugins/tome.md) | TRIZ cross-domain analogical reasoning |
 | `tutorial-updates` | [sanctum](../plugins/sanctum.md) | Tutorial maintenance and updates |
-| `unified-review` | [pensive](../plugins/pensive.md) | Review orchestration |
+| `unified-review-playbook` | [pensive](../plugins/pensive.md) | Review orchestration |
 | `uninstall-watchdog-playbook` | [egregore](../plugins/egregore.md) | Remove crash-recovery watchdog |
 | `update-readme` | [sanctum](../plugins/sanctum.md) | README maintenance and updates |
 | `validate-pr` | [sanctum](../plugins/sanctum.md) | Diff-derived PR test plan with revert-test quality checks |
