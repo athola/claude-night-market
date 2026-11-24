@@ -385,11 +385,11 @@ class TestNeedsMetaIndicator:
 
     @pytest.mark.unit
     def test_skills_eval_skill_name_exempted(self, tmp_path: Path) -> None:
-        """skill_name='skills-eval' returns False regardless."""
+        """skill_name='skills-eval-playbook' returns False regardless."""
         validator = AbstractValidator(tmp_path)
         result = validator._needs_meta_indicator(
             content="Basic content with no keywords.",
-            skill_name="skills-eval",
+            skill_name="skills-eval-playbook",
         )
         assert result is False
 
