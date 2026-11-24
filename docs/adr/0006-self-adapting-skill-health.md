@@ -116,6 +116,24 @@ it.
 short-term but are beneficial long-term (e.g.,
 handling more edge cases widens the stability gap temporarily).
 
+### What the Session Sees (2026-11-24, #1053)
+
+The monitor printed its full report after every Skill call. The report
+had custom keys and no `additionalContext`, and the harness passes only
+`additionalContext` to the model. So nothing reached the session on any
+path, and a skill flagged as degrading was never named to the session
+that had just run it.
+
+The monitor now prints nothing for a healthy skill, and it skips the
+trend and stewardship reads that only fed that report. A skill whose
+gap is over the threshold, degrading or critical, gets one
+`additionalContext` line naming the skill, its status and its gap. The
+line is printed whether or not the queue could be updated. A skill held
+in evaluation or review still prints nothing, as before.
+`HOMEOSTATIC_MONITOR_DEBUG=1` prints the full report. The tests that
+read the trend and velocity fields set it. `evaluate_window` still
+returns the report to the logger unchanged.
+
 ## Consequences
 
 ### Positive
