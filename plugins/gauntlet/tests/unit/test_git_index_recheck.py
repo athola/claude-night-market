@@ -97,18 +97,17 @@ class TestRecheck:
 
         assert git_index_recheck.recheck(repo, _AGENT_ENV) is None
 
-    def test_stale_record_is_dropped_and_passes(self, repo: Path) -> None:
+    def test_an_old_record_still_refuses_a_changed_index(self, repo: Path) -> None:
+        """A slow command before the add (a long test run) must not open the gate."""
         _record_now(repo)
-        old = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(
-            seconds=git_index_recheck.RECORD_TTL_SECONDS + 5
-        )
+        old = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=1)
         record = json.loads(_record_path(repo).read_text())
         record["recorded_at"] = old.isoformat()
         _record_path(repo).write_text(json.dumps(record))
         (repo / "b.py").write_text("y = 2\n")
         _git(repo, "add", "b.py")
 
-        assert git_index_recheck.recheck(repo, _AGENT_ENV) is None
+        assert git_index_recheck.recheck(repo, _AGENT_ENV) is not None
         assert not _record_path(repo).exists()
 
     def test_unreadable_record_refuses(self, repo: Path) -> None:
@@ -219,3 +218,47 @@ def test_git_refuses_add_and_commit_in_one_command(repo: Path) -> None:
     assert commit.returncode != 0
     assert "gauntlet" in commit.stderr
     assert _git(repo, "log", "--oneline").count("\n") == 1
+
+
+@pytest.mark.unit
+class TestInstall:
+    """install() wires the re-check into git without clobbering a hook."""
+
+    def test_writes_an_executable_pre_commit_hook(self, repo: Path) -> None:
+        assert git_index_recheck.install(repo) == 0
+
+        hook = repo / ".git" / "hooks" / "pre-commit"
+        assert os.access(hook, os.X_OK)
+        assert str(_HOOK) in hook.read_text()
+
+    def test_installed_hook_refuses_add_and_commit_in_one_command(
+        self, repo: Path
+    ) -> None:
+        git_index_recheck.install(repo)
+        _record_now(repo)
+        (repo / "b.py").write_text("y = 2\n")
+
+        commit = subprocess.run(
+            ["sh", "-c", "git add -A && git commit -q -m sneak"],
+            cwd=repo,
+            env={**os.environ, **_AGENT_ENV},
+            capture_output=True,
+            text=True,
+        )
+
+        assert commit.returncode != 0
+        assert "gauntlet" in commit.stderr
+
+    def test_leaves_an_existing_hook_alone(self, repo: Path) -> None:
+        hook = repo / ".git" / "hooks" / "pre-commit"
+        hook.write_text("#!/bin/sh\nmake lint\n")
+
+        assert git_index_recheck.install(repo) == 1
+        assert hook.read_text() == "#!/bin/sh\nmake lint\n"
+
+    def test_second_install_is_a_no_op(self, repo: Path) -> None:
+        git_index_recheck.install(repo)
+        first = (repo / ".git" / "hooks" / "pre-commit").read_text()
+
+        assert git_index_recheck.install(repo) == 0
+        assert (repo / ".git" / "hooks" / "pre-commit").read_text() == first

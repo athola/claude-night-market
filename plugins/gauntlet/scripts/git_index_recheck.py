@@ -9,17 +9,17 @@ GIT_INDEX_FILE for the pathspec forms), and the hook compares it with the
 one the gate recorded.
 
 It only checks commits made from Claude Code (``CLAUDECODE=1``), in gate
-mode, after the gate recorded an index in the last few seconds. A human
-commit from a terminal, or one made by a script the gate never saw, passes.
+mode, after the gate recorded an index. A human commit from a terminal, or
+one made by a script the gate never saw, passes. A record has no expiry:
+the gate writes it before the whole command runs, so a long test run ahead
+of the ``git add`` would otherwise outlast any window and open the gate.
 
-Install by calling it from ``.git/hooks/pre-commit``::
-
-    python3 /path/to/plugins/gauntlet/scripts/git_index_recheck.py || exit 1
+``--install`` writes ``.git/hooks/pre-commit`` to call this script. An
+existing hook is left alone, and the line to add to it is printed.
 """
 
 from __future__ import annotations
 
-import datetime
 import json
 import os
 import subprocess
@@ -32,15 +32,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "hooks"))
 from _gauntlet_config import load_config
 from precommit_gate import (
     _GATED_INDEX_FILENAME,
-    _aware_time,
     _hash_stage_listing,
     _precommit_mode,
 )
-
-# The gate writes its record a moment before git runs this hook. A record
-# older than this belongs to a commit that never reached git (nothing to
-# commit, a failed earlier command), and must not judge a later one.
-RECORD_TTL_SECONDS = 120
 
 _REFUSAL = (
     "gauntlet: the index changed after the pre-commit gate checked it "
@@ -71,13 +65,6 @@ def recheck(repo_root: Path, env: Mapping[str, str]) -> str | None:
     if not isinstance(record, dict):
         return _REFUSAL
 
-    recorded_at = _aware_time(record.get("recorded_at"))
-    if recorded_at is None:
-        return _REFUSAL
-    age = datetime.datetime.now(datetime.timezone.utc) - recorded_at
-    if age.total_seconds() > RECORD_TTL_SECONDS:
-        return None
-
     listing = subprocess.run(
         ["git", "ls-files", "--stage"],
         cwd=repo_root,
@@ -90,8 +77,37 @@ def recheck(repo_root: Path, env: Mapping[str, str]) -> str | None:
     return None
 
 
+_HOOK_LINE = f'python3 "{Path(__file__).resolve()}" || exit 1'
+
+
+def install(repo_root: Path) -> int:
+    """Write the pre-commit hook; 1 when another hook is already there."""
+    hooks_dir = subprocess.run(
+        ["git", "rev-parse", "--git-path", "hooks"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    hook = repo_root / hooks_dir / "pre-commit"
+    if hook.exists():
+        if _HOOK_LINE in hook.read_text():
+            return 0
+        print(
+            f"gauntlet: {hook} already exists. Add this line to it:\n{_HOOK_LINE}",
+            file=sys.stderr,
+        )
+        return 1
+    hook.parent.mkdir(parents=True, exist_ok=True)
+    hook.write_text(f"#!/bin/sh\n{_HOOK_LINE}\n")
+    hook.chmod(0o755)
+    return 0
+
+
 def main() -> int:
     """Exit nonzero, which makes git abort the commit, on a refusal."""
+    if sys.argv[1:] == ["--install"]:
+        return install(Path.cwd())
     refusal = recheck(Path.cwd(), os.environ)
     if refusal is None:
         return 0
