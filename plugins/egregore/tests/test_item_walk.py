@@ -14,8 +14,10 @@ from collections.abc import Sequence
 from dataclasses import replace
 from pathlib import Path
 
+import claude_babysitter
 import night_run
 import pytest
+import window
 from budget import Budget, load_budget
 from handoff_gate import Handoff
 
@@ -500,6 +502,49 @@ class TestRateLimitParksTheRun:
         )
         assert result.status == "parked_rate_limit"
         assert budget.cooldown_until is not None
+
+    def test_a_rate_limited_judge_call_writes_the_cooldown(
+        self, tmp_path: Path
+    ) -> None:
+        """The judge spends quota too, and its refusal came back BLOCKED.
+
+        No cooldown was written, so the next item ran straight into the
+        same limit (#1073).
+        """
+        runner = FakeRunner(
+            {
+                "pytest": (0, "1 passed"),
+                "--json-schema": (
+                    1,
+                    "API Error: Request rejected (429)\n"
+                    "anthropic-ratelimit-tokens-reset: 2099-01-01T00:00:00Z",
+                ),
+            }
+        )
+        budget_path = tmp_path / "state" / "budget.json"
+        budget_path.parent.mkdir()
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [])],
+            tmp_path,
+            runner,
+            babysitter=claude_babysitter.ClaudeBabysitter(runner=runner),
+            budget=Budget(),
+            budget_path=budget_path,
+        )
+        assert result.status == "parked_rate_limit"
+        saved = load_budget(budget_path)
+        assert saved.cooldown_until is not None
+        assert saved.cooldown_until.startswith("2099-01-01")
+
+    def test_the_walk_and_the_judge_share_one_usage_limited_class(self) -> None:
+        """night_run runs as __main__, where its own classes are copies.
+
+        claude_babysitter imports night_run by name, so a class defined in
+        night_run and raised by the judge would not be the one the walk
+        catches. Both reach it through window instead.
+        """
+        assert night_run.UsageLimited is window.UsageLimited
 
     def test_a_spend_cap_is_named_separately(self, tmp_path: Path) -> None:
         """Waiting out a spend cap can mean waiting until next month."""

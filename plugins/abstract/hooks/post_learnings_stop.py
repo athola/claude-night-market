@@ -199,6 +199,7 @@ def _run_insight_lenses() -> None:
         skill: {
             "success_rate": m.success_rate,
             "avg_duration_ms": m.avg_duration_ms,
+            "total_executions": m.total_executions,
         }
         for skill, m in result.metrics_by_skill.items()
     }

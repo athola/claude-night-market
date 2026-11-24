@@ -42,8 +42,15 @@ def _run_main(
     capsys: pytest.CaptureFixture,
     home: Path,
     payload: dict,
+    *,
+    debug: bool = True,
 ) -> tuple[int, str, str]:
+    """Run main(). ``debug`` prints the full report these tests read."""
     monkeypatch.setenv("CLAUDE_HOME", str(home))
+    if debug:
+        monkeypatch.setenv("HOMEOSTATIC_MONITOR_DEBUG", "1")
+    else:
+        monkeypatch.delenv("HOMEOSTATIC_MONITOR_DEBUG", raising=False)
     monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
     with pytest.raises(SystemExit) as exc:
         hm.main()
@@ -269,3 +276,69 @@ class TestQueueFlagging:
         # The logger counts the run toward the window (#1018); the monitor
         # neither flags nor reports an evaluating skill.
         assert out == ""
+
+
+class TestWhatTheSessionSees:
+    """Only a degrading verdict reaches the model, as one line (#1053).
+
+    The report carried custom keys and no ``additionalContext``, so the
+    harness passed nothing from it on any path. A healthy run now prints
+    nothing, and a degrading one tells the session the skill it just ran
+    is unstable. The full report is printed only under the debug flag.
+    """
+
+    @pytest.mark.unit
+    def test_healthy_skill_prints_nothing(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys
+    ) -> None:
+        _seed(tmp_path, HEALTHY)
+
+        code, out, _ = _run_main(
+            monkeypatch, capsys, tmp_path, _skill_payload(), debug=False
+        )
+
+        assert code == 0
+        assert out == ""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "case",
+        [
+            (DEGRADING, "degrading", "0.40", True),
+            (CRITICAL, "critical", "0.60", True),
+            (DEGRADING, "degrading", "0.40", False),
+        ],
+        ids=["degrading", "critical", "degrading-without-queue"],
+    )
+    def test_unstable_skill_emits_one_context_line(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys, case: tuple
+    ) -> None:
+        accuracies, status, gap, has_queue = case
+        monkeypatch.setattr(hm, "_HAS_QUEUE", has_queue)
+        _seed(tmp_path, accuracies)
+
+        code, out, _ = _run_main(
+            monkeypatch, capsys, tmp_path, _skill_payload(), debug=False
+        )
+
+        assert code == 0
+        assert json.loads(out) == {
+            "hookSpecificOutput": {
+                "hookEventName": "PostToolUse",
+                "additionalContext": (
+                    f"Skill {SKILL} is {status} across recent runs "
+                    f"(stability gap {gap}). Check its output before "
+                    "relying on it."
+                ),
+            }
+        }
+
+    @pytest.mark.unit
+    def test_debug_flag_prints_the_full_report(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys
+    ) -> None:
+        _seed(tmp_path, HEALTHY)
+
+        _, out, _ = _run_main(monkeypatch, capsys, tmp_path, _skill_payload())
+
+        assert json.loads(out)["hookSpecificOutput"]["status"] == "healthy"

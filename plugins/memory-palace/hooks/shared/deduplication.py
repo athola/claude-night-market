@@ -9,7 +9,6 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import os
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -52,17 +51,6 @@ _index_mtime: float = 0
 _index_load_failed = False
 _warned_no_yaml = False
 
-# Ceiling on the staging call. `git add` on one file is milliseconds;
-# anything near this bound is a lock being held, and a capture waits for
-# no one.
-#: Budget for the ``git add`` this module runs.
-#:
-#: This was 5, equal to the 5s cap the registering hooks declare in
-#: hooks.json, leaving zero margin for the fetch, the safety checks and the
-#: yaml write that already ran in the same invocation. A hook killed at the
-#: cap has done its work and recorded none of it.
-_STAGE_TIMEOUT_SECONDS = 1.5
-
 
 def _get_index_path() -> Path:
     """Get path to the capture index.
@@ -78,7 +66,7 @@ def _get_index_path() -> Path:
     the index as ``<root>/hooks/memory-palace-index.yaml``: the
     maintenance CLI, the pre-commit drain gate, the promoter. Because
     ``persistent_root`` is the identity in a source checkout, all of
-    them keep reading the tracked file they read today.
+    them read the same local, gitignored file there (#1067).
     """
     hooks_dir = Path(__file__).resolve().parent.parent
     return _persistent_root(hooks_dir.parent) / "hooks" / "memory-palace-index.yaml"
@@ -476,10 +464,6 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
         _index_cache = index
         _index_mtime = index_path.stat().st_mtime
 
-    # git runs outside the lock: a slow `git add` would otherwise hold
-    # every queued capture past its hook timeout.
-    _stage_index(index_path)
-
 
 # The WebFetch hook is killed at 5s. A waiter killed after its queue
 # file was written leaves that file with no index entry, so it gives up
@@ -504,33 +488,6 @@ def _index_lock() -> Iterator[None]:
     """
     with file_lock(_get_index_path(), timeout=_LOCK_TIMEOUT_SECONDS):
         yield
-
-
-def _stage_index(index_path: Path) -> None:
-    """Stage the index so the pre-commit drain can see this capture.
-
-    ``pre-commit`` reverts unstaged changes to tracked files before
-    running any pre-commit-stage hook. An index written but never staged
-    is therefore absent from the tree the drain inspects: it reads the
-    HEAD version, converges on it, and the fresh capture survives the
-    commit still ``pending``. That is how the 47-entry backlog drained
-    in 2ed3737b accumulated while the drain reported nothing to do.
-
-    Best-effort by design. Captures happen during ordinary work, not
-    during a commit, so the common failures here are unremarkable: the
-    index lives outside a repository, git is absent, or an operation
-    holds the index lock. None of them are worth taking a WebFetch down
-    over, and none of them lose data, because the write already
-    completed.
-    """
-    with contextlib.suppress(OSError, subprocess.SubprocessError):
-        subprocess.run(
-            ["git", "add", "--", str(index_path)],
-            cwd=str(index_path.parent),
-            capture_output=True,
-            check=False,
-            timeout=_STAGE_TIMEOUT_SECONDS,
-        )
 
 
 def get_index_stats() -> dict[str, int]:

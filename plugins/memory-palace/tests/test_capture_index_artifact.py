@@ -1,9 +1,10 @@
-"""Invariant checks against the committed capture index.
+"""Invariant checks against the local capture index.
 
 ``hooks/memory-palace-index.yaml`` is a live artifact: a session hook
-appends to it on every web capture, and the result is committed. The
-rest of the suite pins the index-handling *logic* against synthesized
-fixtures in ``tmp_path``. Nothing read the file that actually ships.
+appends to it on every web capture. It is gitignored local state
+(#1067), so this module checks it where it exists and skips a fresh
+clone. The rest of the suite pins the index-handling *logic* against
+synthesized fixtures in ``tmp_path``. Nothing else reads the real file.
 
 That gap is the one this module closes. The invariants below are the
 same ones ``test_deduplication`` and ``test_index_promoter`` enforce on
@@ -27,9 +28,9 @@ INDEX_PATH = Path(__file__).resolve().parents[1] / "hooks" / "memory-palace-inde
 
 @pytest.fixture(scope="module")
 def committed_index() -> dict:
-    """Load the capture index exactly as it is committed to the repo."""
+    """Load the local capture index as the hooks left it."""
     if not INDEX_PATH.exists():
-        pytest.skip(f"No committed capture index at {INDEX_PATH}")
+        pytest.skip(f"No local capture index at {INDEX_PATH}")
     return load_capture_index(INDEX_PATH)
 
 

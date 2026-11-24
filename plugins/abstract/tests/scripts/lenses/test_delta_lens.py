@@ -81,3 +81,33 @@ def _skill(success_rate, total, avg_duration_ms=500):
             self.skill = "x:y"
 
     return MockSummary()
+
+
+def test_zero_run_previous_window_is_not_a_recovery():
+    """A window with no runs scores 0.0, which is no rate at all (#1071)."""
+    snap = {"x:y": {"success_rate": 0.0, "avg_duration_ms": 0, "total_executions": 0}}
+    ctx = _ctx(
+        metrics={"x:y": _skill(100.0, 3, avg_duration_ms=0)},
+        previous_snapshot=snap,
+    )
+    assert analyze(ctx) == []
+
+
+def test_zero_run_current_window_is_not_a_collapse():
+    snap = {"x:y": {"success_rate": 100.0, "avg_duration_ms": 0, "total_executions": 4}}
+    ctx = _ctx(
+        metrics={"x:y": _skill(0.0, 0, avg_duration_ms=0)},
+        previous_snapshot=snap,
+    )
+    assert analyze(ctx) == []
+
+
+def test_shift_between_windows_with_runs_is_still_reported():
+    snap = {
+        "x:y": {"success_rate": 90.0, "avg_duration_ms": 500, "total_executions": 5}
+    }
+    ctx = _ctx(
+        metrics={"x:y": _skill(50.0, 4, avg_duration_ms=500)},
+        previous_snapshot=snap,
+    )
+    assert [f.summary for f in analyze(ctx)] == ["success rate dropped from 90% to 50%"]

@@ -21,6 +21,8 @@ _LEGACY_ENV = ("CLAUDE_TOOL_NAME", "CLAUDE_TOOL_INPUT", "CLAUDE_SESSION_ID")
 def _run(payload: dict, claude_home: Path):
     env = dict(os.environ)
     env["CLAUDE_HOME"] = str(claude_home)
+    # The debug flag prints the full report these tests read (#1053).
+    env["HOMEOSTATIC_MONITOR_DEBUG"] = "1"
     for key in _LEGACY_ENV:
         env.pop(key, None)
     return subprocess.run(

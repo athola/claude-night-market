@@ -19,19 +19,16 @@
 # sub-second when there is nothing to do.
 #
 # The drain then has to have worked, so the hook ends on a gate: zero
-# pending entries in the index the commit carries, or the commit is
-# blocked. Fresh captures reach that drain because the capture write
-# stages the index (`shared/deduplication._stage_index`); without that,
-# pre-commit reverts the unstaged write before this hook runs and the
-# drain converges on a tree the capture is missing from.
+# pending entries in the local index, or the commit is blocked. The
+# index is gitignored state (#1067), so pre-commit leaves it in place
+# and the drain sees every capture. It is not re-staged.
 
 set -euo pipefail
 
 PLUGIN_DIR="plugins/memory-palace"
-INDEX="${PLUGIN_DIR}/hooks/memory-palace-index.yaml"
 VITALITY="${PLUGIN_DIR}/data/indexes/vitality-scores.yaml"
 QUEUE="${PLUGIN_DIR}/data/indexes/vitality-tending-queue.json"
-readonly PLUGIN_DIR INDEX VITALITY QUEUE
+readonly PLUGIN_DIR VITALITY QUEUE
 
 REQUIRED_DEPENDENCIES="git uv"
 readonly REQUIRED_DEPENDENCIES
@@ -127,14 +124,12 @@ main() {
 
   depcheck || exit 1
 
-  index_before=$(hash_of "${INDEX}")
   vitality_before=$(hash_of "${VITALITY}")
   queue_before=$(hash_of "${QUEUE}")
 
   run_maintenance
 
   restaged=0
-  restage_if_changed "${INDEX}" "${index_before}"
   restage_if_changed "${VITALITY}" "${vitality_before}"
   restage_if_changed "${QUEUE}" "${queue_before}"
 
@@ -142,10 +137,8 @@ main() {
     1) log "[memory-palace] maintenance applied; curated artifacts re-staged." ;;
   esac
 
-  # The index is tracked so the drain has something to converge on, which
-  # only means anything if what lands is drained. The drain above resolves
-  # everything it can; this asserts the result and blocks the commit on
-  # whatever it held back. Exits nonzero under `set -e`, which is the
+  # The drain above resolves everything it can. This asserts the result
+  # and blocks the commit on whatever it held back. Exits nonzero under `set -e`, which is the
   # block.
   (
     cd "${PLUGIN_DIR}"

@@ -248,6 +248,7 @@ class TestPipelineIsolation:
 class _Summary:
     success_rate = 80.0
     avg_duration_ms = 120.0
+    total_executions = 5
 
 
 class _AggResult:
@@ -313,8 +314,16 @@ class TestInsightLenses:
 
         assert lens_env["posted"] == [["f1"]]
         assert lens_env["ingested"] == [["f1"]]
+        # The run count is stored so the next delta can tell a zero-run
+        # window from a 0% one (#1071).
         assert lens_env["registry"].saved == [
-            {"abstract:skill-auditor": {"success_rate": 80.0, "avg_duration_ms": 120.0}}
+            {
+                "abstract:skill-auditor": {
+                    "success_rate": 80.0,
+                    "avg_duration_ms": 120.0,
+                    "total_executions": 5,
+                }
+            }
         ]
         assert "posted 1 insight(s)" in capsys.readouterr().err
 

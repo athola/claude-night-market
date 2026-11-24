@@ -100,6 +100,40 @@ def _build_output(
     return {"hookSpecificOutput": payload}
 
 
+def _debug() -> bool:
+    return os.environ.get("HOMEOSTATIC_MONITOR_DEBUG") == "1"
+
+
+def _emit(output: dict) -> None:
+    """Print what the session should see of a verdict (ADR-0006, #1053).
+
+    The harness reads ``additionalContext`` and drops the report's other
+    keys, so a healthy verdict prints nothing and an unstable one prints
+    one line. HOMEOSTATIC_MONITOR_DEBUG=1 prints the whole report.
+    """
+    if _debug():
+        print(json.dumps(output))
+        return
+    report = output["hookSpecificOutput"]
+    if report["status"] == "healthy":
+        return
+    context = (
+        f"Skill {report['skill']} is {report['status']} across recent runs "
+        f"(stability gap {report['stability_gap']:.2f}). Check its output "
+        "before relying on it."
+    )
+    print(
+        json.dumps(
+            {
+                "hookSpecificOutput": {
+                    "hookEventName": "PostToolUse",
+                    "additionalContext": context,
+                }
+            }
+        )
+    )
+
+
 def _needs_metacognition(claude_home: Path) -> bool:  # noqa: PLR0911 - multi-criteria check with early returns for clarity
     """Check if metacognitive analysis is warranted.
 
@@ -420,6 +454,9 @@ def main() -> None:
             sys.exit(0)
 
         gap = calculate_stability_gap(skill_history)
+        if gap <= STABILITY_GAP_THRESHOLD and not _debug():
+            # Nothing is printed for a healthy skill, so nothing more is read.
+            sys.exit(0)
 
         try:
             trend = _get_improvement_trend(claude_home, skill_ref)
@@ -430,7 +467,7 @@ def main() -> None:
         velocity = _stewardship_velocity(_project_dir())
 
         if gap <= STABILITY_GAP_THRESHOLD:
-            print(json.dumps(_build_output(skill_ref, gap, "healthy", velocity, trend)))
+            _emit(_build_output(skill_ref, gap, "healthy", velocity, trend))
             sys.exit(0)
 
         if not _HAS_QUEUE:
@@ -438,9 +475,7 @@ def main() -> None:
                 f"homeostatic_monitor: ImprovementQueue unavailable, "
                 f"skipping queue ops for {skill_ref} (gap={gap:.2f})\n"
             )
-            print(
-                json.dumps(_build_output(skill_ref, gap, _status(gap), velocity, trend))
-            )
+            _emit(_build_output(skill_ref, gap, _status(gap), velocity, trend))
             sys.exit(0)
 
         # Skill is degrading: flag it in the queue via ImprovementQueue
@@ -458,7 +493,7 @@ def main() -> None:
             output = _build_output(skill_ref, gap, _status(gap), velocity, trend)
         if output is None:
             sys.exit(0)
-        print(json.dumps(output))
+        _emit(output)
         sys.exit(0)
 
     except (json.JSONDecodeError, OSError, KeyError, TypeError, ValueError) as e:

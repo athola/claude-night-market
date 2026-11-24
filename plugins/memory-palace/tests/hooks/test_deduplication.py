@@ -262,7 +262,6 @@ class TestYamlUnavailable:
         index_path.write_text(corrupt)
         monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
         monkeypatch.setattr(dedup_module, "yaml", real_yaml)
-        monkeypatch.setattr(dedup_module, "_stage_index", lambda _path: None)
 
         update_index(
             content_hash="sha256:new",
@@ -312,7 +311,6 @@ class TestYamlUnavailable:
         monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
         monkeypatch.setattr(dedup_module, "yaml", real_yaml)
         monkeypatch.setattr(dedup_module, "_index_cache", None)
-        monkeypatch.setattr(dedup_module, "_stage_index", lambda _path: None)
 
         assert dedup_module._load_index() == {"entries": {}, "hashes": {}}
         update_index(
@@ -404,7 +402,6 @@ class TestUpdateIndexIntegration:
         THEN the module-level _index_mtime equals the file's mtime
         """
         index_path = self._isolate_index(monkeypatch, tmp_path)
-        monkeypatch.setattr(dedup_module, "_stage_index", lambda _path: None)
 
         update_index(content_hash="sha256:m", stored_at="m.md", importance_score=1)
 
@@ -880,20 +877,13 @@ class TestNullCapturePersisted:
         assert "null_capture" not in on_disk["entries"][url]
 
 
-class TestUpdateIndexStaging:
-    """The write must stage the index, or the pre-commit drain never sees it.
+class TestUpdateIndexIsLocalState:
+    """The capture index is local state, created on first use (#1067).
 
-    ``pre-commit`` reverts unstaged changes to tracked files before
-    running any pre-commit-stage hook, restoring them afterward. An
-    index written but never staged is therefore absent from the tree
-    ``precommit_palace_maintenance.sh`` inspects: the drain reads the
-    HEAD version, converges on it, and the fresh capture survives the
-    commit still ``pending``. That is the mechanism behind the 47-entry
-    backlog drained in 2ed3737b.
-
-    Staging at write time puts the capture in the tree the drain reads,
-    which is what makes the zero-pending gate reachable rather than a
-    permanent block.
+    It was tracked and staged on every write so the pre-commit drain saw
+    it. Two branches that both captured then conflicted on merge, and
+    every branch carried a stale copy. Untracked, the drain reads the
+    working-tree file, which already holds every capture.
     """
 
     def setup_method(self) -> None:
@@ -906,153 +896,53 @@ class TestUpdateIndexStaging:
         dedup_module._index_cache = None
         dedup_module._index_mtime = 0
 
-    @staticmethod
-    def _git_repo(tmp_path: Path) -> Path:
-        """Initialize a throwaway repo to observe staging in."""
-        subprocess.run([_GIT, "init", "--quiet"], cwd=tmp_path, check=True)
-        return tmp_path
+    def test_first_capture_creates_a_missing_index(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN a fresh clone, where no index exists yet
+        WHEN the first capture is indexed
+        THEN the index is created with that entry.
+        """
+        index_path = tmp_path / "hooks" / "memory-palace-index.yaml"
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+        assert not index_path.exists()
 
-    @staticmethod
-    def _staged_paths(repo: Path) -> set[str]:
-        """Return the paths currently in the git index."""
-        result = subprocess.run(
-            [_GIT, "diff", "--cached", "--name-only"],
-            cwd=repo,
-            capture_output=True,
-            text=True,
-            check=True,
+        update_index(
+            content_hash="sha256:first",
+            stored_at="data/staging/capture.md",
+            importance_score=50,
+            url="https://example.com/first",
         )
-        return {line for line in result.stdout.splitlines() if line}
 
-    def test_write_stages_the_index(
+        on_disk = real_yaml.safe_load(index_path.read_text())
+        assert "https://example.com/first" in on_disk["entries"]
+
+    def test_write_does_not_stage_the_index(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         """GIVEN an index inside a git repository
         WHEN update_index persists an entry
-        THEN the index is staged.
+        THEN nothing is staged, because the index is not tracked.
         """
-        repo = self._git_repo(tmp_path)
-        index_path = repo / "memory-palace-index.yaml"
-        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
-
-        update_index(
-            content_hash="sha256:staged",
-            stored_at="data/staging/capture.md",
-            importance_score=50,
-            url="https://example.com/staged",
-        )
-
-        assert "memory-palace-index.yaml" in self._staged_paths(repo)
-
-    def test_write_outside_a_repository_still_persists(
-        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-    ) -> None:
-        """GIVEN a tree that is not a git repository
-        WHEN update_index persists an entry
-        THEN the write succeeds and the failed staging stays silent.
-
-        Captures happen during ordinary work, not during a commit. A
-        WebFetch outside a repo, mid-rebase, or with git absent must
-        never take down the fetch hook.
-        """
+        subprocess.run([_GIT, "init", "--quiet"], cwd=tmp_path, check=True)
         index_path = tmp_path / "memory-palace-index.yaml"
         monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
 
         update_index(
-            content_hash="sha256:norepo",
+            content_hash="sha256:unstaged",
             stored_at="data/staging/capture.md",
             importance_score=50,
-            url="https://example.com/norepo",
+            url="https://example.com/unstaged",
         )
 
-        on_disk = real_yaml.safe_load(index_path.read_text())
-        assert "https://example.com/norepo" in on_disk["entries"]
-
-    def test_missing_git_binary_is_survivable(
-        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-    ) -> None:
-        """GIVEN git is not installed
-        WHEN update_index persists an entry
-        THEN the write still succeeds.
-        """
-        repo = self._git_repo(tmp_path)
-        index_path = repo / "memory-palace-index.yaml"
-        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
-
-        def _no_git(*args: object, **kwargs: object) -> None:
-            raise FileNotFoundError("git")
-
-        monkeypatch.setattr(dedup_module.subprocess, "run", _no_git)
-
-        update_index(
-            content_hash="sha256:nogit",
-            stored_at="data/staging/capture.md",
-            importance_score=50,
-            url="https://example.com/nogit",
+        staged = subprocess.run(
+            [_GIT, "diff", "--cached", "--name-only"],
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+            check=True,
         )
-
-        on_disk = real_yaml.safe_load(index_path.read_text())
-        assert "https://example.com/nogit" in on_disk["entries"]
-
-
-class TestStagingBudget:
-    """The git add must leave margin under the hooks.json cap.
-
-    Every hook that reaches _stage_index declares a 5s cap, and by the time
-    staging runs the invocation has already spent time on the fetch, the
-    safety checks and the yaml write. A timeout equal to the cap leaves zero
-    margin for all of that, so the process is killed having done the work
-    and recorded none of it.
-    """
-
-    def test_stage_index_timeout_is_below_the_registered_cap(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """The timeout kwarg passed to git add must be under every cap."""
-        import json
-
-        recorded: dict[str, object] = {}
-
-        def fake_run(*args: object, **kwargs: object):
-            recorded.update(kwargs)
-
-            class _Completed:
-                returncode = 0
-
-            return _Completed()
-
-        monkeypatch.setattr(dedup_module.subprocess, "run", fake_run)
-        index_path = tmp_path / "index.yaml"
-        index_path.write_text("{}")
-        dedup_module._stage_index(index_path)
-
-        assert "timeout" in recorded
-
-        hooks_root = Path(dedup_module.__file__).resolve().parent.parent
-        manifest = json.loads((hooks_root / "hooks.json").read_text(encoding="utf-8"))
-        # Scoped to the hooks that actually reach _stage_index. The
-        # manifest's smallest cap belongs to a hook that never stages.
-        consumers = {
-            "user_prompt.py",
-            "local_doc_processor.py",
-            "index_surfacer.py",
-            "web_research_handler.py",
-        }
-        caps = [
-            entry["timeout"]
-            for groups in manifest["hooks"].values()
-            for group in groups
-            for entry in group.get("hooks", [])
-            if isinstance(entry.get("timeout"), (int, float))
-            and entry.get("command", "").rsplit("/", 1)[-1].split()[0].strip('"')
-            in consumers
-        ]
-        assert caps
-        assert float(recorded["timeout"]) < min(caps), (
-            f"git add budgets {recorded['timeout']}s against a {min(caps)}s "
-            f"hook cap, leaving no margin for the fetch, checks and write "
-            f"that already ran in the same invocation"
-        )
+        assert staged.stdout == ""
 
 
 class TestLegacyUrlKeys:
