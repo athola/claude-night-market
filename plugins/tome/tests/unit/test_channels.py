@@ -29,7 +29,6 @@ from tome.channels.discourse import (
     build_hn_search_url,
     build_lobsters_search_url,
     build_lobsters_websearch_query,
-    build_reddit_search_url,
     parse_blog_result,
     parse_hn_response,
     parse_lobsters_result,
@@ -231,12 +230,6 @@ class TestDiscourseQueryBuilders:
     @pytest.mark.unit
     def test_lobsters_websearch_query_uses_site_operator(self) -> None:
         assert build_lobsters_websearch_query("topic") == "site:lobste.rs topic"
-
-    @pytest.mark.unit
-    def test_reddit_search_url_uses_subreddit_path(self) -> None:
-        url = build_reddit_search_url("topic", subreddit="rust")
-        assert "/r/rust/search.json" in url
-        assert "restrict_sr=on" in url
 
     @pytest.mark.unit
     def test_blog_search_queries_capped(self) -> None:
