@@ -239,8 +239,8 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `voice-learn-playbook` | [scribe](../plugins/scribe.md) | Learning loop from manual edits |
 | `voice-review-playbook` | [scribe](../plugins/scribe.md) | Dual-gate review against voice profile |
 | `vow-enforcement` | [imbue](../plugins/imbue.md) | Three-layer constraint enforcement with soft vows, hard vows, and external validators |
-| `war-room-playbook` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
 | `war-room-checkpoint` | [attune](../plugins/attune.md) | Inline reversibility assessment for embedded escalation |
+| `war-room-playbook` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
 | `web-search` | [tome](../plugins/tome.md) | Open-web search via You.com MCP or WebSearch |
 | `workflow-diagram` | [cartograph](../plugins/cartograph.md) | Process and state transition diagrams |
 | `workflow-improvement` | [sanctum](../plugins/sanctum.md) | Workflow retrospectives |
