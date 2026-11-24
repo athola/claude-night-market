@@ -74,7 +74,8 @@ With them:
 
 Each example states fit and stops. Accurate triggers decide selection, and no
 example escalates its phrasing by category. See
-`.claude/rules/bounded-autonomy.md` for why intensity ladders are retired.
+`skills/modular-skills/modules/enforcement-patterns.md` for why intensity
+ladders are retired.
 
 ### Discipline-Enforcing Skill
 
