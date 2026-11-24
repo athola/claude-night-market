@@ -12,6 +12,8 @@ import json
 import shlex
 
 import night_run
+import pytest
+import window
 from claude_babysitter import ClaudeBabysitter
 
 
@@ -210,9 +212,20 @@ class TestTheJudgeCallCarriesItsGuardAndReportsItsFailure:
         assert verdict == "BLOCKED"
         assert "no such model" in reason
 
-    def test_a_quota_refusal_is_named_as_one(self) -> None:
-        _, reason, _ = self._judge(FakeCli(1, "429 rate_limit_error: slow down"))
+    def test_a_quota_refusal_raises_usage_limited(self) -> None:
+        """A BLOCKED verdict parked one task and wrote no cooldown (#1073).
 
-        assert "rate_limit" in reason, (
-            "the one call that spends quota did not classify its own refusal"
-        )
+        The refusal is raised as the evidence command's is, so the walk
+        records the reset instant and stops the night.
+        """
+        with pytest.raises(window.UsageLimited) as limited:
+            self._judge(FakeCli(1, "429 rate_limit_error: slow down"))
+
+        assert limited.value.kind == "rate_limit"
+
+    def test_a_capacity_refusal_is_named_but_not_raised(self) -> None:
+        """Overload is not a quota limit, and the walk does not park on it."""
+        verdict, reason, _ = self._judge(FakeCli(1, "529 overloaded_error"))
+
+        assert verdict == "BLOCKED"
+        assert "capacity" in reason

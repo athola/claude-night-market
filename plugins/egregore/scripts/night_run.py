@@ -723,18 +723,7 @@ class BudgetExhausted(Exception):
     """Raised when a babysitter call would cross the item's token ceiling."""
 
 
-class UsageLimited(Exception):
-    """Raised when a run was refused for quota rather than for correctness.
-
-    Carries the kind of refusal and the text it was read from, so the
-    caller can record a real reset instant rather than a guessed one.
-    """
-
-    def __init__(self, kind: str, text: str) -> None:
-        """Record which limit was hit and the response that said so."""
-        super().__init__(f"{kind}: {text[:200]}")
-        self.kind = kind
-        self.text = text
+UsageLimited = window_mod.UsageLimited
 
 
 def _raise_if_usage_limited(observed: Completed) -> None:

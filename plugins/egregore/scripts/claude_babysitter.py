@@ -146,6 +146,12 @@ class ClaudeBabysitter:
         ]
         result = self.runner.run(command, timeout=self.timeout, env=self.guard_env())
         if result.returncode != 0:
+            # A quota refusal stops the night as the evidence command's
+            # does, so the walk writes the cooldown. Returned as BLOCKED,
+            # it parked one task and the next item ran into the same limit.
+            refusal = window.classify(result.output)
+            if refusal in ("rate_limit", "spend_limit"):
+                raise window.UsageLimited(refusal, result.output)
             return ("BLOCKED", self._why_it_failed(result), "")
         return self._read(result.output)
 
