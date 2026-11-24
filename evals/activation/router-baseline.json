@@ -41,7 +41,7 @@
    "top1": "pensive:skill-history"
   },
   "abstract.context-report.p3": {
-   "rank": 28,
+   "rank": 27,
    "target": "abstract:context-report",
    "top1": "oracle:quality-bench"
   },
@@ -86,7 +86,7 @@
    "top1": "parseltongue:python-async"
   },
   "abstract.create-skill.p3": {
-   "rank": 91,
+   "rank": 90,
    "target": "abstract:create-skill",
    "top1": "parseltongue:python-async"
   },
@@ -96,7 +96,7 @@
    "top1": "oracle:setup"
   },
   "abstract.escalation-governance.p2": {
-   "rank": 132,
+   "rank": 134,
    "target": "abstract:escalation-governance",
    "top1": "archetypes:paradigm-panel"
   },
@@ -111,7 +111,7 @@
    "top1": "conserve:filter-log"
   },
   "abstract.evaluate-skill.p2": {
-   "rank": 62,
+   "rank": 63,
    "target": "abstract:evaluate-skill",
    "top1": "attune:skill-library"
   },
@@ -121,7 +121,7 @@
    "top1": "hookify:rule-sweep"
   },
   "abstract.friction-detector.p1": {
-   "rank": 53,
+   "rank": 52,
    "target": "abstract:friction-detector",
    "top1": "conjure:provider-sweep"
   },
@@ -181,7 +181,7 @@
    "top1": "egregore:gate-audit"
   },
   "abstract.improve-skills.p1": {
-   "rank": 83,
+   "rank": 82,
    "target": "abstract:improve-skills",
    "top1": "scry:capture-set"
   },
@@ -221,7 +221,7 @@
    "top1": "parseltongue:analyze-tests"
   },
   "abstract.metacognitive-self-mod.p3": {
-   "rank": 23,
+   "rank": 22,
    "target": "abstract:metacognitive-self-mod",
    "top1": "sanctum:git-catchup"
   },
@@ -371,7 +371,7 @@
    "top1": "oracle:setup"
   },
   "abstract.subagent-testing.p3": {
-   "rank": 115,
+   "rank": 113,
    "target": "abstract:subagent-testing",
    "top1": "conjure:provider-sweep"
   },
@@ -391,7 +391,7 @@
    "top1": "parseltongue:python-async"
   },
   "abstract.validate-hook.p1": {
-   "rank": 36,
+   "rank": 35,
    "target": "abstract:validate-hook",
    "top1": "egregore:gate-audit"
   },
@@ -411,7 +411,7 @@
    "top1": "sanctum:sync-capabilities"
   },
   "abstract.validate-plugin.p2": {
-   "rank": 238,
+   "rank": 237,
    "target": "abstract:validate-plugin",
    "top1": "sanctum:update-plugins"
   },
@@ -456,7 +456,7 @@
    "top1": "hookify:rule-sweep"
   },
   "archetypes.architecture-paradigm-domain-driven.p2": {
-   "rank": 107,
+   "rank": 108,
    "target": "archetypes:architecture-paradigm-domain-driven",
    "top1": "imbue:evidence-sweep"
   },
@@ -506,7 +506,7 @@
    "top1": "pensive:unified-review"
   },
   "archetypes.architecture-paradigm-hexagonal.p3": {
-   "rank": 16,
+   "rank": 15,
    "target": "archetypes:architecture-paradigm-hexagonal",
    "top1": "archetypes:architecture-paradigm-functional-core"
   },
@@ -521,7 +521,7 @@
    "top1": "archetypes:architecture-paradigm-functional-core"
   },
   "archetypes.architecture-paradigm-layered.p3": {
-   "rank": 12,
+   "rank": 11,
    "target": "archetypes:architecture-paradigm-layered",
    "top1": "archetypes:architecture-paradigm-domain-driven"
   },
@@ -548,7 +548,7 @@
   "archetypes.architecture-paradigm-microservices.p2": {
    "rank": 7,
    "target": "archetypes:architecture-paradigm-microservices",
-   "top1": "archetypes:architecture-paradigm-client-server"
+   "top1": "cartograph:data-flow"
   },
   "archetypes.architecture-paradigm-microservices.p3": {
    "rank": 1,
@@ -566,9 +566,9 @@
    "top1": "egregore:dismiss"
   },
   "archetypes.architecture-paradigm-modular-monolith.p3": {
-   "rank": 206,
+   "rank": 207,
    "target": "archetypes:architecture-paradigm-modular-monolith",
-   "top1": "archetypes:architecture-paradigm-space-based"
+   "top1": "pensive:unified-review-playbook"
   },
   "archetypes.architecture-paradigm-pipeline.p1": {
    "rank": 6,
@@ -581,7 +581,7 @@
    "top1": "archetypes:architecture-paradigm-pipeline"
   },
   "archetypes.architecture-paradigm-pipeline.p3": {
-   "rank": 323,
+   "rank": 324,
    "target": "archetypes:architecture-paradigm-pipeline",
    "top1": "scry:browser-recording"
   },
@@ -606,7 +606,7 @@
    "top1": "archetypes:architecture-paradigm-service-based"
   },
   "archetypes.architecture-paradigm-service-based.p2": {
-   "rank": 251,
+   "rank": 250,
    "target": "archetypes:architecture-paradigm-service-based",
    "top1": "gauntlet:knowledge-extract"
   },
@@ -626,12 +626,12 @@
    "top1": "archetypes:architecture-paradigm-space-based"
   },
   "archetypes.architecture-paradigm-space-based.p3": {
-   "rank": 2,
+   "rank": 4,
    "target": "archetypes:architecture-paradigm-space-based",
    "top1": "pensive:unified-review"
   },
   "archetypes.architecture-paradigms.p1": {
-   "rank": 22,
+   "rank": 23,
    "target": "archetypes:architecture-paradigms",
    "top1": "archetypes:architecture-paradigm-modular-monolith"
   },
@@ -661,7 +661,7 @@
    "top1": "archetypes:paradigm-panel"
   },
   "attune.arch-init.p1": {
-   "rank": 65,
+   "rank": 64,
    "target": "attune:arch-init",
    "top1": "attune:upgrade-project"
   },
@@ -721,7 +721,7 @@
    "top1": "attune:project-brainstorming"
   },
   "attune.dorodango.p1": {
-   "rank": 14,
+   "rank": 15,
    "target": "attune:dorodango",
    "top1": "egregore:gate-audit"
   },
@@ -736,7 +736,7 @@
    "top1": "attune:dorodango"
   },
   "attune.execute.p1": {
-   "rank": 26,
+   "rank": 25,
    "target": "attune:execute",
    "top1": "spec-kit:speckit-implement"
   },
@@ -766,7 +766,7 @@
    "top1": "parseltongue:python-sweep"
   },
   "attune.mission-orchestrator.p1": {
-   "rank": 48,
+   "rank": 47,
    "target": "attune:mission-orchestrator",
    "top1": "attune:project-planning"
   },
@@ -781,12 +781,12 @@
    "top1": "attune:skill-library"
   },
   "attune.mission.p1": {
-   "rank": 205,
+   "rank": 206,
    "target": "attune:mission",
    "top1": "spec-kit:speckit-plan"
   },
   "attune.mission.p2": {
-   "rank": 143,
+   "rank": 139,
    "target": "attune:mission",
    "top1": "pensive:harden"
   },
@@ -813,7 +813,7 @@
   "attune.project-brainstorming.p1": {
    "rank": 17,
    "target": "attune:project-brainstorming",
-   "top1": "spec-kit:spec-writing"
+   "top1": "gauntlet:problem-bank"
   },
   "attune.project-brainstorming.p2": {
    "rank": 43,
@@ -821,7 +821,7 @@
    "top1": "cartograph:atlas"
   },
   "attune.project-brainstorming.p3": {
-   "rank": 21,
+   "rank": 20,
    "target": "attune:project-brainstorming",
    "top1": "egregore:gate-audit"
   },
@@ -861,7 +861,7 @@
    "top1": "attune:blueprint"
   },
   "attune.project-planning.p2": {
-   "rank": 92,
+   "rank": 91,
    "target": "attune:project-planning",
    "top1": "attune:specify"
   },
@@ -941,7 +941,7 @@
    "top1": "attune:upgrade-project"
   },
   "attune.upgrade-project.p3": {
-   "rank": 11,
+   "rank": 12,
    "target": "attune:upgrade-project",
    "top1": "attune:project-init-playbook"
   },
@@ -1041,12 +1041,12 @@
    "top1": "hookify:rule-sweep"
   },
   "cartograph.call-chain.p2": {
-   "rank": 3,
+   "rank": 5,
    "target": "cartograph:call-chain",
    "top1": "gauntlet:graph-search"
   },
   "cartograph.call-chain.p3": {
-   "rank": 39,
+   "rank": 37,
    "target": "cartograph:call-chain",
    "top1": "scribe:doc-sweep"
   },
@@ -1141,7 +1141,7 @@
    "top1": "attune:mission-orchestrator"
   },
   "conjure.agent-teams.p1": {
-   "rank": 51,
+   "rank": 50,
    "target": "conjure:agent-teams",
    "top1": "gauntlet:knowledge-extract"
   },
@@ -1171,7 +1171,7 @@
    "top1": "conjure:codex-delegation"
   },
   "conjure.delegation-core.p1": {
-   "rank": 14,
+   "rank": 13,
    "target": "conjure:delegation-core",
    "top1": "parseltongue:python-async"
   },
@@ -1246,7 +1246,7 @@
    "top1": "conserve:filter-log"
   },
   "conjure.muse-delegation.p1": {
-   "rank": 5,
+   "rank": 6,
    "target": "conjure:muse-delegation",
    "top1": "parseltongue:python-async"
   },
@@ -1376,7 +1376,7 @@
    "top1": "conserve:bloat-sweep"
   },
   "conserve.bloat-scan.p3": {
-   "rank": 174,
+   "rank": 173,
    "target": "conserve:bloat-scan",
    "top1": "parseltongue:python-sweep"
   },
@@ -1401,7 +1401,7 @@
    "top1": "conserve:clear-context"
   },
   "conserve.clear-context.p2": {
-   "rank": 4,
+   "rank": 5,
    "target": "conserve:clear-context",
    "top1": "spec-kit:task-planning"
   },
@@ -1461,7 +1461,7 @@
    "top1": "imbue:graduated-implementation"
   },
   "conserve.decisive-action.p2": {
-   "rank": 153,
+   "rank": 154,
    "target": "conserve:decisive-action",
    "top1": "imbue:graduated-implementation"
   },
@@ -1571,7 +1571,7 @@
    "top1": "conserve:clear-context"
   },
   "conserve.token-conservation.p3": {
-   "rank": 43,
+   "rank": 42,
    "target": "conserve:token-conservation",
    "top1": "parseltongue:python-async"
   },
@@ -1621,7 +1621,7 @@
    "top1": "egregore:gate-audit"
   },
   "egregore.install-watchdog.p1": {
-   "rank": 29,
+   "rank": 28,
    "target": "egregore:install-watchdog",
    "top1": "egregore:install-watchdog-playbook"
   },
@@ -1656,12 +1656,12 @@
    "top1": "spec-kit:spec-review"
   },
   "egregore.status.p2": {
-   "rank": 225,
+   "rank": 226,
    "target": "egregore:status",
    "top1": "egregore:install-watchdog"
   },
   "egregore.status.p3": {
-   "rank": 50,
+   "rank": 49,
    "target": "egregore:status",
    "top1": "conjure:provider-setup"
   },
@@ -1676,7 +1676,7 @@
    "top1": "parseltongue:python-async"
   },
   "egregore.summon.p3": {
-   "rank": 124,
+   "rank": 125,
    "target": "egregore:summon",
    "top1": "sanctum:do-issue"
   },
@@ -1711,7 +1711,7 @@
    "top1": "archetypes:architecture-paradigm-functional-core"
   },
   "gauntlet.curate.p1": {
-   "rank": 30,
+   "rank": 31,
    "target": "gauntlet:curate",
    "top1": "hookify:rule-sweep"
   },
@@ -1886,7 +1886,7 @@
    "top1": "parseltongue:python-async"
   },
   "gauntlet.onboard.p3": {
-   "rank": 36,
+   "rank": 35,
    "target": "gauntlet:onboard",
    "top1": "scribe:tech-tutorial"
   },
@@ -1961,7 +1961,7 @@
    "top1": "cartograph:atlas"
   },
   "hookify.help.p3": {
-   "rank": 202,
+   "rank": 201,
    "target": "hookify:help",
    "top1": "hookify:rule-sweep"
   },
@@ -1976,7 +1976,7 @@
    "top1": "abstract:rules-eval"
   },
   "hookify.hookify.p3": {
-   "rank": 89,
+   "rank": 91,
    "target": "hookify:hookify",
    "top1": "hookify:rule-sweep"
   },
@@ -1986,7 +1986,7 @@
    "top1": "hookify:install"
   },
   "hookify.install.p2": {
-   "rank": 105,
+   "rank": 104,
    "target": "hookify:install",
    "top1": "abstract:rules-eval"
   },
@@ -1996,7 +1996,7 @@
    "top1": "hookify:install"
   },
   "hookify.list.p1": {
-   "rank": 49,
+   "rank": 50,
    "target": "hookify:list",
    "top1": "imbue:evidence-sweep"
   },
@@ -2046,7 +2046,7 @@
    "top1": "attune:skill-library-session"
   },
   "hookify.writing-rules.p2": {
-   "rank": 26,
+   "rank": 27,
    "target": "hookify:writing-rules",
    "top1": "conserve:filter-log"
   },
@@ -2081,7 +2081,7 @@
    "top1": "minister:initiative-pulse"
   },
   "imbue.catchup.p3": {
-   "rank": 285,
+   "rank": 283,
    "target": "imbue:catchup",
    "top1": "sanctum:git-catchup"
   },
@@ -2166,12 +2166,12 @@
    "top1": "imbue:graduated-implementation"
   },
   "imbue.justify.p2": {
-   "rank": 274,
+   "rank": 275,
    "target": "imbue:justify",
    "top1": "parseltongue:python-async"
   },
   "imbue.justify.p3": {
-   "rank": 78,
+   "rank": 75,
    "target": "imbue:justify",
    "top1": "abstract:skill-audit"
   },
@@ -2181,7 +2181,7 @@
    "top1": "imbue:karpathy-check"
   },
   "imbue.karpathy-check.p2": {
-   "rank": 151,
+   "rank": 150,
    "target": "imbue:karpathy-check",
    "top1": "attune:dorodango"
   },
@@ -2196,9 +2196,9 @@
    "top1": "memory-palace:palace-sweep"
   },
   "imbue.karpathy-principles.p2": {
-   "rank": 4,
+   "rank": 3,
    "target": "imbue:karpathy-principles",
-   "top1": "spec-kit:spec-writing"
+   "top1": "pensive:unified-review"
   },
   "imbue.karpathy-principles.p3": {
    "rank": 40,
@@ -2231,7 +2231,7 @@
    "top1": "sanctum:fixit"
   },
   "imbue.proof-of-work.p3": {
-   "rank": 31,
+   "rank": 30,
    "target": "imbue:proof-of-work",
    "top1": "spec-kit:spec-review"
   },
@@ -2286,7 +2286,7 @@
    "top1": "parseltongue:python-async"
   },
   "imbue.stewardship-health.p2": {
-   "rank": 14,
+   "rank": 13,
    "target": "imbue:stewardship-health",
    "top1": "leyline:plugin-health"
   },
@@ -2301,12 +2301,12 @@
    "top1": "pensive:harden"
   },
   "imbue.structured-output.p2": {
-   "rank": 167,
+   "rank": 166,
    "target": "imbue:structured-output",
    "top1": "tome:cite"
   },
   "imbue.structured-output.p3": {
-   "rank": 289,
+   "rank": 290,
    "target": "imbue:structured-output",
    "top1": "oracle:quality-bench"
   },
@@ -2326,7 +2326,7 @@
    "top1": "imbue:scope-guard"
   },
   "imbue.vow-enforcement.p1": {
-   "rank": 291,
+   "rank": 292,
    "target": "imbue:vow-enforcement",
    "top1": "hookify:rule-sweep"
   },
@@ -2336,7 +2336,7 @@
    "top1": "scry:capture-set"
   },
   "imbue.vow-enforcement.p3": {
-   "rank": 256,
+   "rank": 257,
    "target": "imbue:vow-enforcement",
    "top1": "hookify:rule-sweep"
   },
@@ -2376,12 +2376,12 @@
    "top1": "leyline:authentication-patterns"
   },
   "leyline.authentication-patterns.p2": {
-   "rank": 105,
+   "rank": 103,
    "target": "leyline:authentication-patterns",
    "top1": "phantom:surface-check"
   },
   "leyline.authentication-patterns.p3": {
-   "rank": 7,
+   "rank": 8,
    "target": "leyline:authentication-patterns",
    "top1": "conjure:gemini-delegation"
   },
@@ -2426,7 +2426,7 @@
    "top1": "leyline:decision-journal"
   },
   "leyline.decision-journal.p3": {
-   "rank": 260,
+   "rank": 264,
    "target": "leyline:decision-journal",
    "top1": "pensive:unified-review"
   },
@@ -2471,7 +2471,7 @@
    "top1": "leyline:error-patterns"
   },
   "leyline.error-patterns.p3": {
-   "rank": 25,
+   "rank": 26,
    "target": "leyline:error-patterns",
    "top1": "egregore:dismiss"
   },
@@ -2606,7 +2606,7 @@
    "top1": "egregore:dismiss"
   },
   "leyline.risk-classification.p3": {
-   "rank": 4,
+   "rank": 3,
    "target": "leyline:risk-classification",
    "top1": "parseltongue:python-sweep"
   },
@@ -2641,17 +2641,17 @@
    "top1": "leyline:service-registry"
   },
   "leyline.stewardship.p1": {
-   "rank": 72,
+   "rank": 76,
    "target": "leyline:stewardship",
    "top1": "parseltongue:python-async"
   },
   "leyline.stewardship.p2": {
-   "rank": 127,
+   "rank": 137,
    "target": "leyline:stewardship",
    "top1": "leyline:plugin-health"
   },
   "leyline.stewardship.p3": {
-   "rank": 100,
+   "rank": 110,
    "target": "leyline:stewardship",
    "top1": "parseltongue:python-async"
   },
@@ -2661,12 +2661,12 @@
    "top1": "pensive:parity-sweep"
   },
   "leyline.storage-templates.p2": {
-   "rank": 180,
+   "rank": 179,
    "target": "leyline:decision-journal",
    "top1": "tome:web-search"
   },
   "leyline.storage-templates.p3": {
-   "rank": 159,
+   "rank": 158,
    "target": "leyline:decision-journal",
    "top1": "parseltongue:python-packaging"
   },
@@ -2861,7 +2861,7 @@
    "top1": "memory-palace:palace-sweep"
   },
   "memory-palace.navigate.p3": {
-   "rank": 58,
+   "rank": 59,
    "target": "memory-palace:navigate",
    "top1": "memory-palace:palace-sweep"
   },
@@ -2971,7 +2971,7 @@
    "top1": "scribe:session-to-post"
   },
   "memory-palace.session-palace-builder.p1": {
-   "rank": 15,
+   "rank": 14,
    "target": "memory-palace:session-palace-builder",
    "top1": "parseltongue:python-async"
   },
@@ -3011,7 +3011,7 @@
    "top1": "minister:github-initiative-pulse"
   },
   "minister.create-issue.p2": {
-   "rank": 193,
+   "rank": 194,
    "target": "minister:create-issue",
    "top1": "minister:initiative-pulse"
   },
@@ -3036,7 +3036,7 @@
    "top1": "minister:dora-metrics"
   },
   "minister.dora-metrics.p3": {
-   "rank": 287,
+   "rank": 288,
    "target": "minister:dora-metrics",
    "top1": "cartograph:architecture-diagram"
   },
@@ -3046,7 +3046,7 @@
    "top1": "leyline:ticket-writing"
   },
   "minister.github-initiative-pulse.p2": {
-   "rank": 148,
+   "rank": 149,
    "target": "minister:github-initiative-pulse",
    "top1": "conjure:provider-setup"
   },
@@ -3156,7 +3156,7 @@
    "top1": "parseltongue:python-async"
   },
   "parseltongue.check-async.p3": {
-   "rank": 27,
+   "rank": 28,
    "target": "parseltongue:check-async",
    "top1": "parseltongue:python-async"
   },
@@ -3241,7 +3241,7 @@
    "top1": "scribe:voice-learn-playbook"
   },
   "parseltongue.run-profiler.p2": {
-   "rank": 6,
+   "rank": 7,
    "target": "parseltongue:run-profiler",
    "top1": "minister:release-health-gates"
   },
@@ -3341,7 +3341,7 @@
    "top1": "spec-kit:spec-review"
   },
   "pensive.harden.p1": {
-   "rank": 7,
+   "rank": 8,
    "target": "pensive:harden",
    "top1": "pensive:harden-playbook"
   },
@@ -3401,7 +3401,7 @@
    "top1": "parseltongue:python-sweep"
   },
   "pensive.refine-code.p1": {
-   "rank": 286,
+   "rank": 285,
    "target": "pensive:refine-code",
    "top1": "archetypes:architecture-paradigm-functional-core"
   },
@@ -3421,7 +3421,7 @@
    "top1": "pensive:rust-review-playbook"
   },
   "pensive.rust-review.p2": {
-   "rank": 129,
+   "rank": 130,
    "target": "pensive:rust-review",
    "top1": "conjure:provider-sweep"
   },
@@ -3486,7 +3486,7 @@
    "top1": "pensive:skill-review"
   },
   "pensive.skill-review.p3": {
-   "rank": 66,
+   "rank": 67,
    "target": "pensive:skill-review",
    "top1": "conjure:provider-setup"
   },
@@ -3571,7 +3571,7 @@
    "top1": "egregore:gate-audit"
   },
   "phantom.surface-check.p2": {
-   "rank": 33,
+   "rank": 34,
    "target": "phantom:surface-check",
    "top1": "imbue:graduated-implementation"
   },
@@ -3646,7 +3646,7 @@
    "top1": "sanctum:do-issue-playbook"
   },
   "sanctum.do-issue.p2": {
-   "rank": 126,
+   "rank": 127,
    "target": "sanctum:do-issue",
    "top1": "abstract:promote-discussions"
   },
@@ -3786,7 +3786,7 @@
    "top1": "sanctum:doc-consolidation"
   },
   "sanctum.merge-docs.p3": {
-   "rank": 44,
+   "rank": 45,
    "target": "sanctum:merge-docs",
    "top1": "spec-kit:speckit-implement"
   },
@@ -3796,7 +3796,7 @@
    "top1": "sanctum:validate-pr-playbook"
   },
   "sanctum.pr-prep.p2": {
-   "rank": 7,
+   "rank": 6,
    "target": "sanctum:pr-prep",
    "top1": "egregore:quality-gate"
   },
@@ -3856,7 +3856,7 @@
    "top1": "parseltongue:python-async"
   },
   "sanctum.session-management.p2": {
-   "rank": 95,
+   "rank": 94,
    "target": "sanctum:session-management",
    "top1": "sanctum:validate-pr-playbook"
   },
@@ -3916,7 +3916,7 @@
    "top1": "sanctum:stack-push"
   },
   "sanctum.stack-rebase.p2": {
-   "rank": 16,
+   "rank": 15,
    "target": "sanctum:stack-rebase",
    "top1": "memory-palace:palace-sweep"
   },
@@ -3956,7 +3956,7 @@
    "top1": "sanctum:update-tests"
   },
   "sanctum.tutorial-updates.p1": {
-   "rank": 174,
+   "rank": 173,
    "target": "sanctum:tutorial-updates",
    "top1": "scry:record-terminal"
   },
@@ -3986,7 +3986,7 @@
    "top1": "sanctum:update-ci"
   },
   "sanctum.update-dependencies.p1": {
-   "rank": 296,
+   "rank": 295,
    "target": "sanctum:update-dependencies",
    "top1": "parseltongue:python-packaging"
   },
@@ -4066,7 +4066,7 @@
    "top1": "scry:vhs-recording"
   },
   "sanctum.update-tutorial.p2": {
-   "rank": 96,
+   "rank": 92,
    "target": "sanctum:update-tutorial",
    "top1": "egregore:dismiss"
   },
@@ -4226,7 +4226,7 @@
    "top1": "scribe:session-to-post"
   },
   "scribe.simplified-technical-english.p1": {
-   "rank": 21,
+   "rank": 22,
    "target": "scribe:simplified-technical-english",
    "top1": "egregore:gate-audit"
   },
@@ -4251,7 +4251,7 @@
    "top1": "oracle:quality-bench"
   },
   "scribe.slop-detector.p3": {
-   "rank": 159,
+   "rank": 158,
    "target": "scribe:slop-detector",
    "top1": "hookify:rule-sweep"
   },
@@ -4316,7 +4316,7 @@
    "top1": "scribe:voice-generate"
   },
   "scribe.voice-generate.p1": {
-   "rank": 120,
+   "rank": 119,
    "target": "scribe:voice-generate",
    "top1": "scribe:session-to-post"
   },
@@ -4356,12 +4356,12 @@
    "top1": "sanctum:update-readme"
   },
   "scribe.voice-review.p3": {
-   "rank": 3,
+   "rank": 2,
    "target": "scribe:voice-review",
    "top1": "attune:skill-library"
   },
   "scry.browser-recording.p1": {
-   "rank": 3,
+   "rank": 4,
    "target": "scry:browser-recording",
    "top1": "scry:gif-generation"
   },
@@ -4381,7 +4381,7 @@
    "top1": "scry:capture-set"
   },
   "scry.capture-set.p2": {
-   "rank": 7,
+   "rank": 6,
    "target": "scry:capture-set",
    "top1": "leyline:plugin-health"
   },
@@ -4423,7 +4423,7 @@
   "scry.record-browser.p1": {
    "rank": 25,
    "target": "scry:record-browser",
-   "top1": "scry:browser-recording"
+   "top1": "spec-kit:spec-writing"
   },
   "scry.record-browser.p2": {
    "rank": 2,
@@ -4431,7 +4431,7 @@
    "top1": "sanctum:tutorial-updates"
   },
   "scry.record-browser.p3": {
-   "rank": 42,
+   "rank": 41,
    "target": "scry:record-browser",
    "top1": "spec-kit:spec-review"
   },
@@ -4446,7 +4446,7 @@
    "top1": "scry:record-terminal"
   },
   "scry.record-terminal.p3": {
-   "rank": 2,
+   "rank": 3,
    "target": "scry:record-terminal",
    "top1": "sanctum:tutorial-updates"
   },
@@ -4943,11 +4943,11 @@
   "archetypes:architecture-paradigm-layered -> archetypes:architecture-paradigm-functional-core": 1,
   "archetypes:architecture-paradigm-microkernel -> leyline:plugin-health": 1,
   "archetypes:architecture-paradigm-microkernel -> parseltongue:python-async": 1,
-  "archetypes:architecture-paradigm-microservices -> archetypes:architecture-paradigm-client-server": 1,
   "archetypes:architecture-paradigm-microservices -> archetypes:architecture-paradigm-domain-driven": 1,
-  "archetypes:architecture-paradigm-modular-monolith -> archetypes:architecture-paradigm-space-based": 1,
+  "archetypes:architecture-paradigm-microservices -> cartograph:data-flow": 1,
   "archetypes:architecture-paradigm-modular-monolith -> egregore:dismiss": 1,
   "archetypes:architecture-paradigm-modular-monolith -> leyline:progressive-loading": 1,
+  "archetypes:architecture-paradigm-modular-monolith -> pensive:unified-review-playbook": 1,
   "archetypes:architecture-paradigm-pipeline -> parseltongue:python-async": 1,
   "archetypes:architecture-paradigm-pipeline -> scry:browser-recording": 1,
   "archetypes:architecture-paradigm-service-based -> gauntlet:knowledge-extract": 1,
@@ -4975,7 +4975,7 @@
   "attune:precommit-setup -> sanctum:update-ci": 1,
   "attune:project-brainstorming -> cartograph:atlas": 1,
   "attune:project-brainstorming -> egregore:gate-audit": 1,
-  "attune:project-brainstorming -> spec-kit:spec-writing": 1,
+  "attune:project-brainstorming -> gauntlet:problem-bank": 1,
   "attune:project-execution -> attune:execute": 1,
   "attune:project-execution -> spec-kit:task-planning": 2,
   "attune:project-init -> attune:precommit-setup": 1,
@@ -5128,8 +5128,7 @@
   "imbue:karpathy-check -> attune:dorodango": 1,
   "imbue:karpathy-check -> parseltongue:python-async": 1,
   "imbue:karpathy-principles -> memory-palace:palace-sweep": 1,
-  "imbue:karpathy-principles -> pensive:unified-review": 1,
-  "imbue:karpathy-principles -> spec-kit:spec-writing": 1,
+  "imbue:karpathy-principles -> pensive:unified-review": 2,
   "imbue:latent-space-engineering -> conserve:filter-log": 1,
   "imbue:proof-of-work -> sanctum:fixit": 1,
   "imbue:proof-of-work -> spec-kit:spec-review": 2,
@@ -5385,8 +5384,8 @@
   "scry:media-composition -> pensive:full-review": 1,
   "scry:media-composition -> scry:browser-recording": 2,
   "scry:record-browser -> sanctum:tutorial-updates": 1,
-  "scry:record-browser -> scry:browser-recording": 1,
   "scry:record-browser -> spec-kit:spec-review": 1,
+  "scry:record-browser -> spec-kit:spec-writing": 1,
   "scry:record-terminal -> sanctum:tutorial-updates": 1,
   "scry:record-terminal -> scry:vhs-recording": 1,
   "scry:vhs-recording -> scry:record-terminal": 1,
@@ -5455,7 +5454,7 @@
   "abstract:test-skill": "1924eb9ccbe89c397d6ecd98a20765446cd813b45e472d7c9aad5579701407e4",
   "abstract:validate-hook": "e1bfe8bcaa67f9e4f9fec66735260556de3ccdd4e6eab10f141673bc8149a9a0",
   "abstract:validate-plugin": "1257e91393471c6437efd814efd7427550fa7a6c3537e5232abcfc781ef65d1b",
-  "archetypes:architecture-paradigm-client-server": "5e6aaee1a1238f888b3eae1dbd2efebdce8a89fd82c273bf0cd53684ac20be42",
+  "archetypes:architecture-paradigm-client-server": "ea6d276af025477de7660e693f2ec24e5ab54d0d6c620f98f46e00845ab2c0c4",
   "archetypes:architecture-paradigm-cqrs-es": "8d5640823f98570e0962d624a4a216b5268fe4c461cce34cb07e1c961ae51b12",
   "archetypes:architecture-paradigm-domain-driven": "51ab96ba751e2e3d5d62aa446b8d27a5649015c1712744e2bd3702e50e4446d0",
   "archetypes:architecture-paradigm-event-driven": "c827c2ce511c65c62e1dd8938a69eed3fec6b02c93cba165909f0ddfa94cb6a9",
@@ -5468,7 +5467,7 @@
   "archetypes:architecture-paradigm-pipeline": "8a4dcec3da372544e3ba3c216a74eddaa84f148fefcbd0aa54870fefc4078406",
   "archetypes:architecture-paradigm-serverless": "7e885a14e03027d249cb8e8d39d790381aaa814ea2b55bd83bfd2861a9529838",
   "archetypes:architecture-paradigm-service-based": "e3e2b00fa5f6798a24ce0536bea52104a0bda51ae0696b2d00a2c5c95be4a5ae",
-  "archetypes:architecture-paradigm-space-based": "473f801628d27cfaa8c2cc23433263cd8ea08241dfa55bf5ab8e5615852aeaad",
+  "archetypes:architecture-paradigm-space-based": "7854585272516f3870d72a9d1eac7969e4764de8f76ccf9c2be30aae20488d19",
   "archetypes:architecture-paradigms": "cacaeb767326c8d8b944953ee0e56f479fece42edefda0144723718f7d166a62",
   "archetypes:paradigm-panel": "f1f3ce814f6b2ae058ac56ed2cfc509fd91534441ef481a2bb48bd589ae8c7c9",
   "attune:arch-init": "62e13c5e0ab21ca66aff9921982cccd0d846598fbdacc6ac5591bf9ff4592449",
@@ -5511,7 +5510,7 @@
   "conjure:delegation-core": "8b13ba603265edd8fb97251fa1dcd31047856df1e3d95b5034610d3f01c3d149",
   "conjure:gemini-delegation": "f6f1de7535d6354bb7f3f2008c9c284c6ecab621a113ea4cc06c18a26997c812",
   "conjure:glimmer-delegation": "39523f4dcbd4e691f49a0be2832c1c421d34508e6a76b01166a14419d166117e",
-  "conjure:glm-delegation": "7a7d2c016630d9a5404befded5aa4102b0c0969a200873b6ccdd9229678a7c8a",
+  "conjure:glm-delegation": "2575479dc84b26766113ce7a519fe3feb21b6f68d79f99822afea4a931198b57",
   "conjure:minimax-delegation": "0f22ebf098dc64d7e88c9840e41d3ef5de438d48dc863303dfad4a366a2b1bcb",
   "conjure:muse-delegation": "2d2a92ae11d7e7a97a005e734aa6aa72bd503f98b45c8636909671d29d16febb",
   "conjure:opencode-delegation": "0204ee32723a1dabb4b6e5b0e2f085b187166202760853d3069155c4622917f9",
@@ -5608,7 +5607,7 @@
   "leyline:risk-classification": "505644da835869512e125650c0fc9abbfe762e63cdbb6eaebf7c8e728ea7b860",
   "leyline:sem-integration": "8687d73c1878e501d367f0bd78939b44a637513f9319ab5f39638cea536089c2",
   "leyline:service-registry": "afc1bfeadfa8dcdeeaba3171c43fb1800732a50d7aa10047153e2836439aefd3",
-  "leyline:stewardship": "84a55880aec993fa716c253ce8529562d34411a344cf3d5fa94d1c9f5f83bfc7",
+  "leyline:stewardship": "6e907f09ffd1678753a32428656f0514347f8a9995ace010ce79227eec7ab855",
   "leyline:supply-chain-advisory": "33421ee9438143c043c225a0c1c54d0c1f7196580b4a1848bd7cbf1c73a40df2",
   "leyline:testing-quality-standards": "10a076c6d52cdd0351953d64b6f61ad1eb2adeca62dd1a633df21d198c13ee9f",
   "leyline:ticket-writing": "d4cbcb4a76d1f8fa1d640ad7f4768f7782c1b5b83a3b64d73e7651b1cbb9c44b",
@@ -5744,9 +5743,9 @@
   "scry:media-composition": "0b4ebc53ae7345aaf180d3be270ebec715e8a84781973a89c7267cf4aa006214",
   "scry:record-browser": "86893593a5c706b2c880efc3959ca4d4b40227aaf8f1374dcc3023a4e01283ef",
   "scry:record-terminal": "6e0c89f0624172cc090f0f635182150b86c834b9db4dc251782b15a77f963469",
-  "scry:vhs-recording": "bbacf49da5f876a9f9b383112bd92ac2f9545d2865effbabbf4f40fb9c00dfde",
+  "scry:vhs-recording": "9b6fa7c8ac6e5330b35da1ad87aed9f89af3259c3c5631d0b74ed3f1509e7422",
   "spec-kit:spec-review": "63c27764a6d1243bcf656c7172028c235c6d7f0cd0f2b142f71b886eebb130d3",
-  "spec-kit:spec-writing": "291650c173c686fb900736308012bc34587f7796dce4bdb4a0aa59dd16fddc93",
+  "spec-kit:spec-writing": "006d3e332f33e5b739a0aa22b74773226835fc79d75d6d9f17e970dd61ad0698",
   "spec-kit:speckit-analyze": "5937ca663583e02ceb0863ad5ba4a9cb7ffe14ec5df1a44efd521f800f379be7",
   "spec-kit:speckit-checklist": "eefe2111061fa5cccbcdc03a3bcfd17457eaed2a7776eb227b01b7921a1c5725",
   "spec-kit:speckit-clarify": "6c7331e89ec75cc7ac6a8dd1626f8ffb5c1e8dbdf657749c6cb7cfccccda155b",
@@ -5776,7 +5775,7 @@
   "tome:triz": "aae83d3a9488c573e82df9f7b1eb80b33ae924c3833d30ceeddab9060cf80976",
   "tome:web-search": "86db435e94efee4af760b059e077321abd1c6d183d277ea777d40fe88654a763"
  },
- "mrr": 0.455598,
+ "mrr": 0.455215,
  "neighbors": {
   "abstract:aggregate-logs": [
    "abstract:improve-skills",
@@ -5984,9 +5983,9 @@
    "abstract:create-command"
   ],
   "archetypes:architecture-paradigm-space-based": [
-   "pensive:unified-review",
+   "egregore:dismiss",
    "gauntlet:knowledge-extract",
-   "parseltongue:python-async"
+   "pensive:unified-review"
   ],
   "archetypes:architecture-paradigms": [
    "archetypes:architecture-paradigm-domain-driven",
@@ -6124,9 +6123,9 @@
    "pensive:parity-sweep"
   ],
   "cartograph:call-chain": [
+   "attune:mission-orchestrator",
    "conjure:provider-sweep",
-   "egregore:gate-audit",
-   "hookify:rule-sweep"
+   "egregore:gate-audit"
   ],
   "cartograph:class-diagram": [
    "memory-palace:palace-sweep",
@@ -6195,8 +6194,8 @@
   ],
   "conjure:muse-delegation": [
    "oracle:quality-bench",
-   "parseltongue:python-async",
-   "scry:capture-set"
+   "conserve:agent-expenditure",
+   "parseltongue:python-async"
   ],
   "conjure:opencode-delegation": [
    "conjure:provider-sweep",
@@ -6570,8 +6569,8 @@
   ],
   "leyline:authentication-patterns": [
    "conjure:gemini-delegation",
-   "hookify:rule-sweep",
-   "imbue:evidence-sweep"
+   "conserve:decisive-action",
+   "hookify:rule-sweep"
   ],
   "leyline:content-sanitization": [
    "abstract:promote-discussions",
@@ -6630,8 +6629,8 @@
   ],
   "leyline:risk-classification": [
    "abstract:skill-audit",
-   "archetypes:architecture-paradigm-functional-core",
-   "conserve:bloat-sweep"
+   "conserve:bloat-sweep",
+   "egregore:gate-audit"
   ],
   "leyline:sem-integration": [
    "abstract:skill-audit",
@@ -6796,7 +6795,7 @@
   "parseltongue:check-async": [
    "parseltongue:python-async",
    "abstract:escalation-governance",
-   "archetypes:architecture-paradigm-functional-core"
+   "archetypes:architecture-paradigm-client-server"
   ],
   "parseltongue:python-async": [
    "archetypes:architecture-paradigm-functional-core",
@@ -6826,7 +6825,7 @@
   "parseltongue:run-profiler": [
    "conjure:provider-sweep",
    "scribe:voice-learn-playbook",
-   "conserve:clear-context"
+   "archetypes:architecture-paradigm-space-based"
   ],
   "pensive:api-review": [
    "cartograph:class-diagram",
@@ -7205,8 +7204,8 @@
   ],
   "scry:capture-set": [
    "attune:skill-library",
-   "conjure:provider-sweep",
-   "egregore:gate-audit"
+   "egregore:gate-audit",
+   "leyline:plugin-health"
   ],
   "scry:gif-generation": [
    "scribe:session-replay-playbook",
