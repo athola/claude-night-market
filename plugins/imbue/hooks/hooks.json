@@ -95,7 +95,29 @@
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
-            "if": "Bash(*npm*i*)"
+            "if": "Bash(*npm*install*)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
+            "timeout": 8,
+            "if": "Bash(*npm*i *)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
+            "timeout": 8,
+            "if": "Bash(*npm*i\t*)"
           }
         ]
       },
