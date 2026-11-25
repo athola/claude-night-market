@@ -14,7 +14,6 @@ from __future__ import annotations
 import hashlib
 import html
 import json
-import math
 import os
 import platform
 import re
@@ -66,9 +65,10 @@ class NotificationState:
                         float(last)
                         if isinstance(last, (int, float))
                         and type(last) is not bool
-                        # json reads Infinity and NaN, and an infinite time
-                        # debounced every later Stop.
-                        and math.isfinite(last)
+                        # A time after now debounces every later Stop, and
+                        # this bound also rejects Infinity, NaN and an int
+                        # too large for float() before it is converted.
+                        and 0 <= last <= time.time()
                         else 0.0
                     ),
                     last_content_hash=digest if isinstance(digest, str) else "",
