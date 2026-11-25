@@ -121,6 +121,31 @@ class TestParseGitDiffRanges:
         assert result == {"a.py": [(2, 2)]}
 
     @pytest.mark.unit
+    def test_an_added_line_starting_with_two_pluses_is_not_a_file_header(
+        self,
+    ) -> None:
+        """An added `++ b` prints as `+++ b`; read as a header it dropped every
+        later hunk in the file.
+        """
+        diff_output = (
+            "diff --git a/a.py b/a.py\n"
+            "--- a/a.py\n"
+            "+++ b/a.py\n"
+            "@@ -2 +2 @@\n"
+            "-x\n"
+            "+++ b\n"
+            "@@ -15 +15 @@\n"
+            "-y\n"
+            "+z\n"
+        )
+        with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
+            mock_run.return_value = type(
+                "R", (), {"returncode": 0, "stdout": diff_output}
+            )()
+            result = parse_git_diff_ranges("HEAD")
+        assert result == {"a.py": [(2, 2), (15, 15)]}
+
+    @pytest.mark.unit
     def test_spaced_and_non_ascii_names_keep_their_own_hunks(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:

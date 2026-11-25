@@ -112,9 +112,15 @@ def parse_git_diff_ranges(
 
     ranges: dict[str, list[tuple[int, int]]] = {}
     current_file: str | None = None
+    # A file's +++ header sits between its `diff --git` line and its first
+    # hunk; past that, `+++ ` is an added line that starts with `++`.
+    in_header = False
 
     for line in result.stdout.splitlines():
-        if line.startswith("+++ "):
+        if line.startswith("diff --git "):
+            in_header = True
+            continue
+        if in_header and line.startswith("+++ "):
             # `+++ /dev/null` (a deleted file) names no file: a stale name
             # here gave the previous file this one's hunks.
             file_match = _FILE_PATTERN.match(line)
@@ -124,6 +130,8 @@ def parse_git_diff_ranges(
             continue
 
         hunk_match = _HUNK_PATTERN.match(line)
+        if hunk_match:
+            in_header = False
         if hunk_match and current_file:
             start = int(hunk_match.group(1))
             count = int(hunk_match.group(2) or "1")
