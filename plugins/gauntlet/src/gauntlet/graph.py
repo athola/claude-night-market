@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS edges (
 CREATE INDEX IF NOT EXISTS idx_edges_src ON edges(source_qn);
 CREATE INDEX IF NOT EXISTS idx_edges_tgt ON edges(target_qn);
 CREATE INDEX IF NOT EXISTS idx_edges_kind ON edges(kind);
+CREATE INDEX IF NOT EXISTS idx_edges_kind_src_tgt ON edges(kind, source_qn, target_qn);
 
 CREATE TABLE IF NOT EXISTS flows (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -196,6 +197,11 @@ def _pick_call_target(
         # a same-named method also in the graph, the pick is a guess.
         return module_level[0], Resolution.NAME_GUESS if methods else Resolution.EXACT
     return (methods[0], Resolution.NAME_GUESS) if len(methods) == 1 else None
+
+
+# Run once per resolved call during a build: it needs an index that seeks
+# on both endpoints, or it scans every CALLS edge each time.
+_DUPLICATE_CALL_SQL = "SELECT id, resolution FROM edges WHERE kind = ? AND source_qn = ? AND target_qn = ?"
 
 
 class GraphStore(SqliteGraphBase):
@@ -393,9 +399,7 @@ class GraphStore(SqliteGraphBase):
                     continue
                 chosen, resolution = pick
                 duplicate = self._conn.execute(
-                    "SELECT id, resolution FROM edges"
-                    " WHERE kind = ? AND source_qn = ? AND target_qn = ?",
-                    (str(EdgeKind.CALLS), source_qn, chosen),
+                    _DUPLICATE_CALL_SQL, (str(EdgeKind.CALLS), source_qn, chosen)
                 ).fetchone()
                 if duplicate:
                     # Collapsing keeps the stronger label, whichever call
