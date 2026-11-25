@@ -323,3 +323,39 @@ class TestFlowSorting:
         # Flows should be sorted by criticality descending
         for i in range(len(flows) - 1):
             assert flows[i]["criticality"] >= flows[i + 1]["criticality"]
+
+
+@pytest.mark.unit
+def test_trace_flows_reads_each_node_once_across_flows(
+    store: GraphStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Flows that share callees read their edges and nodes once, not per flow.
+
+    Every flow used to re-read its nodes' out-edges three times (the
+    walk, the unresolved-call factor, the test-gap factor). On this
+    repository that was 282k edge reads for 31k nodes.
+    """
+    shared = ["s.py::shared", "t.py::deeper", "u.py::deepest"]
+    _add_chain(store, ["a.py::first", *shared])
+    _add_chain(store, ["b.py::second", *shared])
+    reads: dict[str, int] = {}
+    node_reads: dict[str, int] = {}
+    edges_by_source = store.get_edges_by_source
+    get_node = store.get_node
+
+    def counting_edges(qn: str) -> list[GraphEdge]:
+        reads[qn] = reads.get(qn, 0) + 1
+        return edges_by_source(qn)
+
+    def counting_node(qn: str) -> GraphNode | None:
+        node_reads[qn] = node_reads.get(qn, 0) + 1
+        return get_node(qn)
+
+    monkeypatch.setattr(store, "get_edges_by_source", counting_edges)
+    monkeypatch.setattr(store, "get_node", counting_node)
+    flows = trace_flows(store)
+
+    assert {f["entry_point"] for f in flows} == {"a.py::first", "b.py::second"}
+    assert all(f["node_count"] == 4 for f in flows)
+    assert max(reads.values()) == 1, reads
+    assert max(node_reads.values()) == 1, node_reads

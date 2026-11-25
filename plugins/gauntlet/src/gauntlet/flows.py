@@ -6,7 +6,7 @@ from collections import deque
 
 from gauntlet.constants import SECURITY_KEYWORDS
 from gauntlet.graph import GraphStore
-from gauntlet.models import EdgeKind, GraphNode, NodeKind
+from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
 
 _CONVENTIONAL_ENTRY_NAMES = {
     "main",
@@ -73,6 +73,33 @@ def detect_entry_points(graph: GraphStore) -> list[GraphNode]:
     return entries
 
 
+class _ReadOnce:
+    """Edge and node reads of a graph that stays fixed while flows are traced.
+
+    Flows overlap heavily: each one re-read the same callees' out-edges
+    for its walk and for two criticality factors. On this repository that
+    was 282k edge reads for 31k nodes, most of a graph build's flow time.
+    The cache lives for one ``trace_flows`` call and is freed with it.
+    """
+
+    def __init__(self, graph: GraphStore) -> None:
+        self._graph = graph
+        self._edges: dict[str, list[GraphEdge]] = {}
+        self._nodes: dict[str, GraphNode | None] = {}
+
+    def get_edges_by_source(self, qualified_name: str) -> list[GraphEdge]:
+        if qualified_name not in self._edges:
+            self._edges[qualified_name] = self._graph.get_edges_by_source(
+                qualified_name
+            )
+        return self._edges[qualified_name]
+
+    def get_node(self, qualified_name: str) -> GraphNode | None:
+        if qualified_name not in self._nodes:
+            self._nodes[qualified_name] = self._graph.get_node(qualified_name)
+        return self._nodes[qualified_name]
+
+
 def trace_flows(
     graph: GraphStore,
     max_depth: int = 15,
@@ -80,6 +107,7 @@ def trace_flows(
     """Trace execution flows from entry points via BFS on CALLS edges."""
     entry_points = detect_entry_points(graph)
     flows: list[dict] = []
+    reads = _ReadOnce(graph)
 
     for entry in entry_points:
         visited: set[str] = set()
@@ -101,14 +129,14 @@ def trace_flows(
                 continue
 
             # Follow CALLS edges
-            for edge in graph.get_edges_by_source(current_qn):
+            for edge in reads.get_edges_by_source(current_qn):
                 if edge.kind != EdgeKind.CALLS:
                     continue
                 target = edge.target_qn
                 if target in visited:
                     continue
                 visited.add(target)
-                target_node = graph.get_node(target)
+                target_node = reads.get_node(target)
                 if target_node:
                     flow_nodes.append(target_node)
                     flow_files.add(target_node.file_path)
@@ -116,7 +144,7 @@ def trace_flows(
 
         # Only store non-trivial flows
         if len(flow_nodes) >= _MIN_NONTRIVIAL_FLOW_NODES:
-            criticality = compute_criticality(flow_nodes, graph)
+            criticality = compute_criticality(flow_nodes, reads)
             flows.append(
                 {
                     "entry_point": entry.qualified_name,
@@ -135,7 +163,7 @@ def trace_flows(
 
 def compute_criticality(
     flow_nodes: list[GraphNode],
-    graph: GraphStore,
+    graph: GraphStore | _ReadOnce,
 ) -> float:
     """Compute criticality score (0.0-1.0) for a flow."""
     if not flow_nodes:
