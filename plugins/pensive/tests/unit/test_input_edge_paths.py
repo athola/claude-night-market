@@ -339,3 +339,13 @@ def test_harden_sarif_flag_emits_a_sarif_report(tmp_path, capsys) -> None:
         for r in report["runs"][0]["results"]
     ]
     assert any(uri.endswith("a.py") for uri in uris)
+
+
+def test_sarif_uri_is_relative_to_the_scanned_repo(tmp_path) -> None:
+    """Code scanning matches results to repo files only by relative URI."""
+    finding = {"id": "PY02", "file": str(tmp_path / "pkg" / "a.py"), "line": 3}
+    sarif = json.loads(SarifFormatter().format([finding], tmp_path))
+    location = sarif["runs"][0]["results"][0]["locations"][0]["physicalLocation"]
+
+    assert location["artifactLocation"]["uri"] == "pkg/a.py"
+    assert sarif["runs"][0]["tool"]["driver"]["rules"][0]["name"] == "PY02"
