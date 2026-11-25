@@ -227,10 +227,12 @@ def _untracked_diff(runner: Runner, workdir: Path, *options: str) -> str:
     ``git diff HEAD`` leaves untracked files out, so a file the implementer
     created escaped the line cap and reached the babysitter as nothing.
     ``--no-index`` exits 1 when the two sides differ, which they always do.
-    It also exits 1 when it cannot read a side. Git lists an untracked
-    nested repository as one entry with a trailing slash, which is
-    skipped rather than diffed. A symlink to a directory has no slash
-    and is still diffed as the link it is.
+    It also exits 1 when it cannot ``lstat`` a side, such as a file removed
+    since ``git status`` or a name that is not UTF-8, and its error text
+    then read as the diff. So exit 1 is a diff only when the path exists.
+    Git lists an untracked nested repository as one entry with a trailing
+    slash, which is skipped rather than diffed. A symlink to a directory
+    has no slash and is still diffed as the link it is.
     """
     chunks = []
     for path in _untracked(runner, workdir):
@@ -238,7 +240,8 @@ def _untracked_diff(runner: Runner, workdir: Path, *options: str) -> str:
             continue
         argv = ("diff", "--no-index", *options, "--", "/dev/null", path)
         observed = _git(runner, workdir, *argv)
-        if observed.returncode not in (0, 1):
+        differs = observed.returncode == 1 and os.path.lexists(workdir / path)
+        if observed.returncode != 0 and not differs:
             raise GitFailed(["git", *argv], observed)
         chunks.append(observed.output)
     return "".join(chunks)
