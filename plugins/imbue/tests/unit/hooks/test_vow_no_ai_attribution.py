@@ -505,6 +505,8 @@ class TestEveryMessageFlagIsAnAnchor:
             'git commit --message="Co-authored-by: Claude"',
             'git commit -m x --trailer "Co-authored-by: Claude"',
             'git commit -m x --trailer="Co-authored-by: Claude"',
+            "git commit -m $'x\\n\\nCo-authored-by: Claude'",
+            "git commit -m x -m Co-authored-by:\\ Claude",
         ],
         ids=[
             "combined-am",
@@ -513,6 +515,8 @@ class TestEveryMessageFlagIsAnAnchor:
             "long-message-equals",
             "trailer",
             "trailer-equals",
+            "ansi-c-quoted-newline",
+            "unquoted-message",
         ],
     )
     def test_attribution_after_any_message_flag_is_blocked(

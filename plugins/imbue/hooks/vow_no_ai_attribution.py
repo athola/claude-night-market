@@ -67,11 +67,14 @@ _STRONG_ATTRIBUTION_PREFIX = (
 # seconds against a hook killed at 2, which the harness treats as allow.
 _TOOL_NAME_RE = re.compile(rf"\b(?:{_TOOL_NAME_GROUP})\b", re.IGNORECASE)
 _TOOL_DOMAIN_RE = re.compile(rf"\b(?:{_TOOL_DOMAIN_GROUP})\b", re.IGNORECASE)
-# Strong verb at a line start or the opening quote of a message flag (-m,
-# -am, --message, --trailer, spaced, attached or with `=`), where a trailer
-# or credit line sits: "Verified by Claude Code" mid-subject is prose.
+# Strong verb where a trailer or credit line starts: a line start, a `\n`
+# escape inside a $'...' string, or a message flag (-m, -am, --message,
+# --trailer, spaced, attached or with `=`) and its optional quote. Mid-line
+# is prose and passes, "Co-authored-by" included: only the commit's own
+# message text is anchored, so an echo chained after it is not read.
 _STRONG_VERB_RE = re.compile(
-    rf"(?:^|(?:-[a-zA-Z]*m|--message|--trailer)(?:\s+|=)?['\"])"
+    r"(?:^|\$'[^'\n]*\\n"
+    rf"|(?:-[a-zA-Z]*m|--message|--trailer)(?:\s+|=)?\$?['\"]?)"
     rf"\s*(?:{_STRONG_ATTRIBUTION_PREFIX})",
     re.IGNORECASE,
 )
