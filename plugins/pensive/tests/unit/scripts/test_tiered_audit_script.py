@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from scripts.tiered_audit import _parse_numstat, collect, main
+from scripts.tiered_audit import _parse_numstat, _rename_paths, collect, main
 
 from pensive.skills.tiered_audit import Tier1Results
 
@@ -334,3 +334,17 @@ class TestEscalationModuleMatchesTheScript:
         }
         for heading in headings:
             assert heading in computed or "(manual check)" in heading, heading
+
+
+@pytest.mark.parametrize(
+    ("field", "paths"),
+    [
+        ("a/{b => c}/x.py", {"a/b/x.py", "a/c/x.py"}),
+        ("a/{ => c}/x.py", {"a/x.py", "a/c/x.py"}),
+        ("{a => b}.py", {"a.py", "b.py"}),
+        ("old name.py => new name.py", {"old name.py", "new name.py"}),
+        ("plain.py", {"plain.py"}),
+    ],
+)
+def test_a_numstat_rename_field_names_both_paths(field: str, paths: set) -> None:
+    assert _rename_paths(field) == paths
