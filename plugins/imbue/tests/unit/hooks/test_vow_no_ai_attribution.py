@@ -153,6 +153,8 @@ class TestHasAiAttribution:
             "git commit -m 'chore: bump cursor-sdk to 0.4.0'",
             # Copilot as a common word (aviation, pair-programming prose).
             "git commit -m 'docs: revise pair-programming copilot metaphor'",
+            'git commit -m "fix: sub-system Reviewed by Claude Code integration"',
+            'git commit -m "feat: add custom-form Created by Claude Code skill"',
         ],
         ids=[
             "bugfix",
@@ -168,6 +170,8 @@ class TestHasAiAttribution:
             "cursor-sh-without-attribution-verb",
             "cursor-package-reference",
             "copilot-word-in-docs",
+            "hyphenated-word-ending-in-m",
+            "hyphenated-form-before-a-verb",
         ],
     )
     def test_clean_message_not_flagged(self, hook_module, command):
@@ -466,6 +470,7 @@ class TestAttributionIsReadFromTheCommitOnly:
         [
             "git commit -m 'clean' && echo \"Co-authored-by: Claude\"",
             "git commit -F msg.txt; printf 'x\\nCo-authored-by: Claude'",
+            "git commit -m x && echo $'done\\nCo-authored-by: Claude'",
         ],
     )
     def test_echo_chained_after_the_commit_is_ignored(

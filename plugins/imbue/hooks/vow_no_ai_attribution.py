@@ -72,9 +72,11 @@ _TOOL_DOMAIN_RE = re.compile(rf"\b(?:{_TOOL_DOMAIN_GROUP})\b", re.IGNORECASE)
 # --trailer, spaced, attached or with `=`) and its optional quote. Mid-line
 # is prose and passes, "Co-authored-by" included: only the commit's own
 # message text is anchored, so an echo chained after it is not read.
+# A flag starts after whitespace, so `-system` and `custom-form` in prose
+# are not `-m`; the $'...' newline counts only as the flag's own argument.
+_FLAG = r"(?<![\w-])(?:-[a-zA-Z]*m|--message|--trailer)(?:\s+|=)?"
 _STRONG_VERB_RE = re.compile(
-    r"(?:^|\$'[^'\n]*\\n"
-    rf"|(?:-[a-zA-Z]*m|--message|--trailer)(?:\s+|=)?\$?['\"]?)"
+    rf"(?:^|{_FLAG}\$'[^'\n]*\\n|{_FLAG}\$?['\"]?)"
     rf"\s*(?:{_STRONG_ATTRIBUTION_PREFIX})",
     re.IGNORECASE,
 )
