@@ -25,6 +25,27 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from typing import Any
 
+
+# update_index reloads and rewrites the whole index under a 3 s lock. The
+# pure-Python loader and dumper took about 1.2 s a cycle on a 1443-entry
+# index, so parallel captures timed out and were dropped. libyaml's take
+# about 0.1 s. Callers reach these only once yaml imported.
+def _parse_index(stream: Any) -> Any:
+    assert yaml is not None
+    if yaml.__with_libyaml__:
+        return yaml.load(stream, Loader=yaml.CSafeLoader)
+    return yaml.safe_load(stream)
+
+
+def _dump_index(index: dict[str, Any]) -> str:
+    assert yaml is not None
+    dumper = yaml.CSafeDumper if yaml.__with_libyaml__ else yaml.SafeDumper
+    text: str = yaml.dump(
+        index, Dumper=dumper, default_flow_style=False, sort_keys=False
+    )
+    return text
+
+
 # hooks/shared/ -> the plugin root's src/. Hooks already put this on the
 # path, but this module is imported directly by tests and by scripts
 # that never ran a hook, so it cannot rely on that.
@@ -186,7 +207,10 @@ def _load_index() -> dict[str, Any]:
         _index_load_failed = False
         try:
             with open(index_path) as f:
-                _index_cache = yaml.safe_load(f) or {"entries": {}, "hashes": {}}
+                _index_cache = _parse_index(f) or {
+                    "entries": {},
+                    "hashes": {},
+                }
             if not isinstance(_index_cache, dict):
                 # A list parses fine and then raised on `.setdefault`,
                 # outside this set-aside path.
@@ -341,9 +365,7 @@ def forget_stored(stored_paths: set[str]) -> None:
             if where not in stored_paths
         }
         index_path = _get_index_path()
-        write_atomic(
-            index_path, yaml.safe_dump(index, default_flow_style=False, sort_keys=False)
-        )
+        write_atomic(index_path, _dump_index(index))
         _index_cache = index
         _index_mtime = index_path.stat().st_mtime
 
@@ -456,9 +478,7 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
             _set_aside_corrupt_index(index_path)
             _index_load_failed = False
 
-        write_atomic(
-            index_path, yaml.safe_dump(index, default_flow_style=False, sort_keys=False)
-        )
+        write_atomic(index_path, _dump_index(index))
 
         # Update cache
         _index_cache = index

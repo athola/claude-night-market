@@ -21,6 +21,10 @@ import yaml
 
 _SHARED = Path(__file__).resolve().parents[2] / "hooks" / "shared"
 _WRITERS = 12
+# Hooks run under the system interpreter, which is slower than the venv's.
+_HOOK_PYTHON = (
+    "/usr/bin/python3" if Path("/usr/bin/python3").exists() else sys.executable
+)
 
 _WRITER = """
 import sys
@@ -134,3 +138,47 @@ def test_queue_file_is_removed_when_index_lock_times_out(tmp_path: Path) -> None
         )
     assert stored is None
     assert list(queue.iterdir()) == []
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="flock is POSIX-only")
+@pytest.mark.skipif(not yaml.__with_libyaml__, reason="needs the libyaml C loader")
+def test_parallel_writers_on_a_large_index_all_finish_inside_the_lock_deadline(
+    tmp_path: Path,
+) -> None:
+    """GIVEN an index of 1500 entries, the size a real capture history reaches
+    WHEN six hook processes call update_index at once
+    THEN none times out: each one reloads and rewrites the whole index under
+        a 3 s lock, and the pure-Python loader took about 1.2 s a cycle
+    """
+    index_path = tmp_path / "hooks" / "memory-palace-index.yaml"
+    index_path.parent.mkdir(parents=True)
+    entries = {
+        f"https://example.com/search?query=seed%20topic%20{n}&tags=story": {
+            "content_hash": f"sha256:{n:016x}",
+            "stored_at": f"data/staging/webfetch-seed-topic-{n}-2026-07-02_11-04-24.md",
+            "importance_score": 85,
+            "last_updated": "2026-07-02T11:04:24.508854+00:00",
+            "title": f"Stories About Seed Topic Number {n} and Its Documentation",
+            "maturity": "growing",
+            "routing_type": "meta",
+            "url": f"https://example.com/search?query=seed%20topic%20{n}&tags=story",
+        }
+        for n in range(1500)
+    }
+    hashes = {e["content_hash"]: e["stored_at"] for e in entries.values()}
+    index_path.write_text(yaml.safe_dump({"entries": entries, "hashes": hashes}))
+    env = {**os.environ, "MEMORY_PALACE_DATA_DIR": str(tmp_path)}
+    env.pop("CLAUDE_PLUGIN_DATA", None)
+    script = _WRITER.format(shared=str(_SHARED))
+    procs = [
+        subprocess.Popen(
+            [_HOOK_PYTHON, "-c", script, f"big{n}"],
+            env=env,
+            cwd=tmp_path,
+            stderr=subprocess.PIPE,
+        )
+        for n in range(_WRITERS)
+    ]
+    for proc in procs:
+        _, err = proc.communicate(timeout=60)
+        assert proc.returncode == 0, err.decode()
