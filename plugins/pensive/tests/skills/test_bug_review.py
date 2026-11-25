@@ -437,12 +437,14 @@ class TestBugReviewSkill:
             "threading.Thread(target=f).start()\n",
             "t = Thread(target=f)\nt.start()\nfoot.join(1)\n",
             "a = Thread(target=f, daemon=True)\nb = Thread(target=g)\nb.start()\n",
+            "t = Thread(target=f\nt.start()\nu = Thread(target=g, daemon=True)\n",
         ],
         ids=[
             "other-join",
             "unbound-thread",
             "other-name-ending-in-t",
             "daemon-elsewhere-in-file",
+            "unbalanced-call-before-a-daemon",
         ],
     )
     def test_an_unjoined_thread_is_a_leak_whatever_else_joins(

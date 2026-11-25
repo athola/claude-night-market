@@ -25,7 +25,9 @@ def _blank_daemon_threads(code: str) -> str:
         while end < len(code) and depth:
             depth += {"(": 1, ")": -1}.get(code[end], 0)
             end += 1
-        if "daemon=True" in code[match.start() : end]:
+        # An unclosed call runs to the end of the file; blanking it would
+        # hide every thread after it behind one later daemon=True.
+        if depth == 0 and "daemon=True" in code[match.start() : end]:
             out.append(code[pos : match.start()] + "None")
             pos = end
     return "".join(out) + code[pos:]
