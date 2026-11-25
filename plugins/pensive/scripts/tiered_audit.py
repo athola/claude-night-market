@@ -113,7 +113,8 @@ def collect(base: str, cwd: Path | None = None) -> tuple[Tier1Results, dict[str,
     commands = {
         "churn": ["log", "--format=", "--name-only", span],
         "fix-on-fix": ["log", "--format=%H%x00%s", span],
-        "large-diff": ["log", "--format=%H%x00%s", "--numstat", span],
+        # --no-renames: a rename prints `old => new` as one path field.
+        "large-diff": ["log", "--format=%H%x00%s", "--numstat", "--no-renames", span],
         "new-file-cluster": ["diff", "--name-status", diff_span],
     }
     evidence = {name: "git " + " ".join(args) for name, args in commands.items()}

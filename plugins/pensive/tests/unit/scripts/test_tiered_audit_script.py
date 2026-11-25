@@ -142,6 +142,17 @@ class TestFixOnFixUsesFileSets:
         flags = [f for f in results.all_flags() if f.reason == "fix-on-fix"]
         assert [f.detail for f in flags] == [f"{later[:7]}: fix: x"]
 
+    def test_a_fix_to_a_file_an_earlier_fix_renamed_flags(self, tmp_path: Path) -> None:
+        """Rename detection writes ``x => z`` as the path, which matches nothing."""
+        repo, base = self._two_fixes(tmp_path, "y")
+        _git(repo, "mv", "x", "z")
+        _commit(repo, "fix: move x to z")
+        (repo / "z").write_text("3\n")
+        _commit(repo, "fix: z")
+        results, _ = collect(base, repo)
+        details = [f.detail for f in results.all_flags() if f.reason == "fix-on-fix"]
+        assert any(d.endswith("fix: z") for d in details)
+
 
 class TestNumstatParsing:
     """Feature: per-commit insertion and deletion totals."""
