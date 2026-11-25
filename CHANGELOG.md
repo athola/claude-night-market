@@ -48,6 +48,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - **tome:** `build_reddit_search_url`, which only tests called (#1075).
+- **sanctum:** `SkillValidator.validate_references`, which only tests
+  called.
+- **sanctum, abstract:** the `extends:` command frontmatter key, which
+  nothing reads, and abstract's unused `build` dev dependency.
 
 ### Fixed
 
