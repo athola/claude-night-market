@@ -16,6 +16,8 @@ _THREAD_BINDING = re.compile(r"\b(\w+) *(?:: *[\w.]+ *=|:=|=(?!=))\s*[\w.]*Threa
 _STARTED_UNBOUND = re.compile(r"(?<!=\s)(?<!=)(?:\w+\.)*Thread\(.*?\)\.start\(")
 # A join on a name or subscript: how a thread held in a collection is joined.
 _RECEIVER_JOIN = re.compile(r"(\w+|[\])])\.join\(")
+# A whole Thread(...) call, one level of nested parentheses, across lines.
+_THREAD_CALL = re.compile(r"[\w.]*Thread\((?:[^()]|\([^()]*\))*\)")
 
 
 def _leaks_a_thread(content: str) -> bool:
@@ -25,14 +27,20 @@ def _leaks_a_thread(content: str) -> bool:
     to a collection, whose Threads any join not on a string or `path` covers.
     """
     code = "\n".join(line.split("#", 1)[0] for line in content.splitlines())
-    if "Thread(" not in code or "daemon=True" in code:
+    daemon_attr = set(re.findall(r"\b(\w+)\.daemon *= *True", code))
+    # Blank each daemon Thread(...) call; the daemon exemption is per thread.
+    code = _THREAD_CALL.sub(
+        lambda m: "None" if "daemon=True" in m.group(0) else m.group(0), code
+    )
+    if "Thread(" not in code:
         return False
-    names = _THREAD_BINDING.findall(code)
+    bound = _THREAD_BINDING.findall(code)
+    names = [n for n in bound if n not in daemon_attr]
     joins = set(_RECEIVER_JOIN.findall(code)) - {"path"}
     appended = set(re.findall(r"\.append\(\s*(\w+)\s*\)", code)) if joins else set()
     if set(names) - joins - appended or _STARTED_UNBOUND.search(code):
         return True
-    return code.count("Thread(") > len(names) and not joins
+    return code.count("Thread(") > len(bound) and not joins
 
 
 class AnalysisMixin:
