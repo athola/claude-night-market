@@ -29,6 +29,17 @@ from daemon_lifecycle import (
 )
 
 
+def _provisioned_venv(tmp_path: Path) -> Path:
+    """Build the venv is_provisioned accepts: python and pyyaml. Return python."""
+    python = tmp_path / "venv" / "bin" / "python"
+    python.parent.mkdir(parents=True)
+    python.touch()
+    (tmp_path / "venv" / "lib" / "python3.11" / "site-packages" / "yaml").mkdir(
+        parents=True
+    )
+    return python
+
+
 @contextmanager
 def _fake_daemon(tmp_path: Path) -> Iterator[subprocess.Popen]:
     """Spawn a live process running a daemon.py the hook treats as its own."""
@@ -660,9 +671,7 @@ class TestLifecycleErrorPaths:
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         (tmp_path / ".oracle-enabled").touch()
-        python = tmp_path / "venv" / "bin" / "python"
-        python.parent.mkdir(parents=True)
-        python.touch()
+        python = _provisioned_venv(tmp_path)
         launched = MagicMock()
         launched.pid = 4242
         payload = json.dumps({"hook_event_name": "SessionStart"})
@@ -691,9 +700,7 @@ class TestLifecycleErrorPaths:
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         (tmp_path / ".oracle-enabled").touch()
-        python = tmp_path / "venv" / "bin" / "python"
-        python.parent.mkdir(parents=True)
-        python.touch()
+        python = _provisioned_venv(tmp_path)
         payload = json.dumps({"hook_event_name": "SessionStart"})
 
         with (
@@ -713,9 +720,7 @@ class TestLifecycleErrorPaths:
         """Every SessionStart appended the same line without bound (ORC-4)."""
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         (tmp_path / ".oracle-enabled").touch()
-        python = tmp_path / "venv" / "bin" / "python"
-        python.parent.mkdir(parents=True)
-        python.touch()
+        python = _provisioned_venv(tmp_path)
         payload = json.dumps({"hook_event_name": "SessionStart"})
 
         for _ in range(3):
@@ -738,9 +743,7 @@ class TestLifecycleErrorPaths:
         """The tail seek counted characters, the comparison bytes (U11)."""
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         (tmp_path / ".oracle-enabled").touch()
-        python = tmp_path / "venv" / "bin" / "python"
-        python.parent.mkdir(parents=True)
-        python.touch()
+        python = _provisioned_venv(tmp_path)
         payload = json.dumps({"hook_event_name": "SessionStart"})
 
         for _ in range(3):
@@ -789,9 +792,7 @@ class TestLifecycleErrorPaths:
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         (tmp_path / ".oracle-enabled").touch()
-        python = tmp_path / "venv" / "bin" / "python"
-        python.parent.mkdir(parents=True)
-        python.touch()
+        python = _provisioned_venv(tmp_path)
         (tmp_path / "daemon.pid").write_text("1")
         (tmp_path / "daemon.port").write_text("9000")
         payload = json.dumps({"hook_event_name": "PreToolUse"})
@@ -882,9 +883,7 @@ def test_one_session_ending_keeps_the_daemon_another_session_uses(
     """Any SessionEnd stopped the shared daemon under a live session (ORC-3)."""
     monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
     (tmp_path / ".oracle-enabled").touch()
-    python = tmp_path / "venv" / "bin" / "python"
-    python.parent.mkdir(parents=True)
-    python.touch()
+    python = _provisioned_venv(tmp_path)
 
     def fire(event: str, session: str) -> None:
         payload = json.dumps({"hook_event_name": event, "session_id": session})
@@ -911,9 +910,7 @@ def test_daemon_start_runs_under_an_exclusive_lock(
     """
     monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
     (tmp_path / ".oracle-enabled").touch()
-    python = tmp_path / "venv" / "bin" / "python"
-    python.parent.mkdir(parents=True)
-    python.touch()
+    python = _provisioned_venv(tmp_path)
     held: list[bool] = []
 
     def probe() -> None:
@@ -1156,3 +1153,36 @@ class TestDaemonLivenessOnWindows:
 
         assert _is_daemon_running(pid_file) is running
         assert signals == []
+
+
+@pytest.mark.unit
+def test_session_end_of_a_disabled_plugin_writes_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Never opted in and no daemon: the lock file and its directory stay unmade."""
+    data = tmp_path / "data"
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(data))
+    with patch("sys.stdin", StringIO(json.dumps({"hook_event_name": "SessionEnd"}))):
+        main()
+    assert not data.exists()
+
+
+@pytest.mark.unit
+def test_session_end_removes_the_marker_of_a_dead_session(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A crashed session fires no SessionEnd, so its marker was never removed."""
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    (tmp_path / ".oracle-enabled").touch()
+    gone = subprocess.Popen([sys.executable, "-c", "pass"])
+    gone.wait()
+    sessions = tmp_path / "sessions"
+    sessions.mkdir()
+    (sessions / "crashed").write_text(str(gone.pid))
+    payload = json.dumps({"hook_event_name": "SessionEnd", "session_id": "me"})
+    with (
+        patch("sys.stdin", StringIO(payload)),
+        patch("daemon_lifecycle._stop_daemon"),
+    ):
+        main()
+    assert not (sessions / "crashed").exists()

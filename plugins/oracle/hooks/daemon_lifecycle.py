@@ -315,6 +315,8 @@ def _other_sessions_live(session_id: str) -> bool:
                 return True
         except FileNotFoundError:
             continue  # another session ended between iterdir and stat
+        # A crashed session fires no SessionEnd, so nothing else removes it.
+        marker.unlink(missing_ok=True)
     return False
 
 
@@ -342,6 +344,8 @@ def main() -> None:
             _start_daemon()
 
     elif event == "SessionEnd":
+        if not get_oracle_data_dir().is_dir():
+            return  # never used: taking the lock would create the directory
         # The same lock: a stop between another session's running check and
         # its return would kill the daemon that session just confirmed.
         with _start_lock():

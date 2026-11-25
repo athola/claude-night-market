@@ -31,11 +31,19 @@ def get_venv_path() -> Path:
 
 
 def is_provisioned(venv_path: Path) -> bool:
-    """Return True if the venv has a working Python binary."""
-    python = venv_path / "bin" / "python"
-    if sys.platform == "win32":
-        python = venv_path / "Scripts" / "python.exe"
-    return python.exists()
+    """Return True if the venv has Python and the pyyaml daemon.py imports.
+
+    A venv set up before 1.10.4 has onnxruntime and no yaml, and the daemon
+    it launched died on import with nothing to re-provision it.
+    """
+    if not get_python_path(venv_path).exists():
+        return False
+    site_packages = (
+        [venv_path / "Lib" / "site-packages"]
+        if sys.platform == "win32"
+        else list((venv_path / "lib").glob("python*/site-packages"))
+    )
+    return any((site / "yaml").is_dir() for site in site_packages)
 
 
 def get_python_path(venv_path: Path) -> Path:

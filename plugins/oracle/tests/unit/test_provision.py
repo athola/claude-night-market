@@ -101,7 +101,17 @@ class TestIsProvisioned:
         venv = tmp_path / "venv"
         (venv / "bin").mkdir(parents=True)
         (venv / "bin" / "python").touch()
+        (venv / "lib" / "python3.11" / "site-packages" / "yaml").mkdir(parents=True)
         assert is_provisioned(venv) is True
+
+    @pytest.mark.unit
+    def test_a_venv_without_pyyaml_is_not_provisioned(self, tmp_path: Path):
+        """A 1.10.3 venv holds onnxruntime and no yaml, which daemon.py imports."""
+        venv = tmp_path / "venv"
+        (venv / "bin").mkdir(parents=True)
+        (venv / "bin" / "python").touch()
+        (venv / "lib" / "python3.11" / "site-packages").mkdir(parents=True)
+        assert is_provisioned(venv) is False
 
 
 class TestProvisionVenv:
