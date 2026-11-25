@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 from importlib import metadata
 from typing import TYPE_CHECKING
@@ -339,6 +340,23 @@ def test_harden_sarif_flag_emits_a_sarif_report(tmp_path, capsys) -> None:
         for r in report["runs"][0]["results"]
     ]
     assert any(uri.endswith("a.py") for uri in uris)
+
+
+def test_harden_sarif_of_a_subdirectory_is_relative_to_the_repo_root(
+    tmp_path, capsys
+) -> None:
+    """Scanning repo/src must give src/a.py, the path code scanning knows."""
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "a.py").write_text("import yaml\nyaml.load(open('f'))\n")
+    run_cli(["--path", str(src), "--sarif"])
+    report = json.loads(capsys.readouterr().out)
+    uris = {
+        r["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+        for r in report["runs"][0]["results"]
+    }
+    assert uris == {"src/a.py"}
 
 
 def test_sarif_uri_is_relative_to_the_scanned_repo(tmp_path) -> None:
