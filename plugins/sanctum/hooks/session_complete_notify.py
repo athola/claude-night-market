@@ -75,7 +75,9 @@ class NotificationState:
                     notified_since_input=flag if type(flag) is bool else False,
                     session_id=session_id,
                 )
-        except (OSError, json.JSONDecodeError) as e:
+        except (OSError, ValueError) as e:
+            # ValueError covers JSONDecodeError and an integer past
+            # Python's 4300-digit parse limit in a planted state file.
             # Log to stderr for debugging (doesn't break hook output)
             print(f"[DEBUG] Hook input parse failed: {e}", file=sys.stderr)
         return cls(session_id=session_id)
