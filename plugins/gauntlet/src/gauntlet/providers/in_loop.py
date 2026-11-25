@@ -44,9 +44,10 @@ if TYPE_CHECKING:
 # One match per number as written. Matching bare digit runs split
 # "12,345" into two integers and "1.5" into two, and shifted "000" to "3"
 # (#1172). A grouped or plain integer, then any fractional or dotted parts
-# (1,234.56, 1.10.4), read whole. A number touching a letter (3.5e2, 1.0x)
+# (1,234.56, 1.10.4), read whole. A number touching a letter (3.5e2, 1.0x,
+# 1,234ms)
 # or a fraction (.5) is left alone rather than read in part.
-_INT_RE = re.compile(r"\b(?<![.\d])(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)*(?!\w|\.\d)")
+_INT_RE = re.compile(r"\b(?<![.\d])(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)*(?!\w|[.,]\d)")
 
 
 def _shift_int(match: re.Match[str]) -> str:

@@ -153,7 +153,9 @@ class TestNumberFormatsSurviveVariation:
         )
 
     @pytest.mark.parametrize(
-        "number", ["$1,234.56", "3.5e2", "1.0x"], ids=["grouped", "sci", "suffix"]
+        "number",
+        ["$1,234.56", "3.5e2", "1.0x", "1,234ms"],
+        ids=["grouped", "sci", "suffix", "grouped-unit"],
     )
     def test_a_number_with_a_fraction_or_suffix_is_left_whole(self, number) -> None:
         assert _vary(f"costs {number} over 4 nodes") == f"costs {number} over 7 nodes"
