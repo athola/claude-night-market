@@ -7,6 +7,7 @@ and duration management.
 from __future__ import annotations
 
 import re
+import time
 from pathlib import Path
 
 import pytest
@@ -766,6 +767,9 @@ def test_home_redaction_leaves_a_longer_sibling_directory_alone(
         "OPENAI_API_KEY=abc123",
         "AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMIK7MDENG",
         "client_secret: s3cr3tvalue",
+        "SECRET_KEY=django-insecure-abc",
+        "passphrase=correct-horse",
+        "token: abc123",
     ],
 )
 def test_a_prefixed_credential_name_is_redacted(assignment: str) -> None:
@@ -776,3 +780,13 @@ def test_a_prefixed_credential_name_is_redacted(assignment: str) -> None:
 
 def test_a_name_that_only_contains_a_keyword_keeps_its_value() -> None:
     assert redact("max_tokens=4096") == "max_tokens=4096"
+
+
+def test_redaction_is_linear_on_underscore_runs() -> None:
+    """Every _ was a new match start that rescanned the run: 8000 chars took
+    0.57 s and 40000 ran past 100 s.
+    """
+    text = "_a" * 20000
+    start = time.monotonic()
+    redact(text)
+    assert time.monotonic() - start < 1.0
