@@ -240,19 +240,10 @@ _GATED_INDEX_FILENAME = "gated_index.json"
 
 
 def record_gated_index(gauntlet_dir: Path, staged_hash: str) -> None:
-    """Record the index this gate let a commit through with.
-
-    The gate reads the index before the Bash command runs, so
-    ``git add -A && git commit`` commits an index it never saw.
-    git_index_recheck, run as git's pre-commit hook, compares the index
-    being committed with this record (#1172).
-    """
+    """Record the index this gate let a commit through; git_index_recheck reads it."""
     state_dir = gauntlet_dir / "state"
     state_dir.mkdir(parents=True, exist_ok=True)
-    record = {
-        "staged_hash": staged_hash,
-        "recorded_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-    }
+    record = {"staged_hash": staged_hash}
     (state_dir / _GATED_INDEX_FILENAME).write_text(json.dumps(record))
 
 

@@ -29,10 +29,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "hooks"))
 
-from _gauntlet_config import load_config
 from precommit_gate import (
     _GATED_INDEX_FILENAME,
     _hash_stage_listing,
+    _load_config,
     _precommit_mode,
 )
 
@@ -51,7 +51,7 @@ def recheck(repo_root: Path, env: Mapping[str, str]) -> str | None:
     gauntlet_dir = repo_root / ".gauntlet"
     if not gauntlet_dir.is_dir():
         return None
-    if _precommit_mode(load_config(gauntlet_dir) or {}) != "gate":
+    if _precommit_mode(_load_config(gauntlet_dir)) != "gate":
         return None
 
     record_path = gauntlet_dir / "state" / _GATED_INDEX_FILENAME
