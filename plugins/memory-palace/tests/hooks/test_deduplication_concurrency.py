@@ -21,6 +21,9 @@ import yaml
 
 _SHARED = Path(__file__).resolve().parents[2] / "hooks" / "shared"
 _WRITERS = 12
+# Eight pure-Python cycles take about 10 s against the 3 s lock; eight
+# libyaml ones about 1 s, which leaves margin on a loaded machine.
+_LARGE_INDEX_WRITERS = 8
 # Hooks run under the system interpreter, which is slower than the venv's.
 _HOOK_PYTHON = (
     "/usr/bin/python3" if Path("/usr/bin/python3").exists() else sys.executable
@@ -146,7 +149,7 @@ def test_parallel_writers_on_a_large_index_all_finish_inside_the_lock_deadline(
     tmp_path: Path,
 ) -> None:
     """GIVEN an index of 1500 entries, the size a real capture history reaches
-    WHEN six hook processes call update_index at once
+    WHEN eight hook processes call update_index at once
     THEN none times out: each one reloads and rewrites the whole index under
         a 3 s lock, and the pure-Python loader took about 1.2 s a cycle
     """
@@ -177,8 +180,13 @@ def test_parallel_writers_on_a_large_index_all_finish_inside_the_lock_deadline(
             cwd=tmp_path,
             stderr=subprocess.PIPE,
         )
-        for n in range(_WRITERS)
+        for n in range(_LARGE_INDEX_WRITERS)
     ]
     for proc in procs:
         _, err = proc.communicate(timeout=60)
         assert proc.returncode == 0, err.decode()
+    # A hook interpreter without PyYAML writes nothing and still exits 0.
+    written = yaml.safe_load(index_path.read_text())["entries"]
+    assert sum(1 for key in written if key.startswith("https://example.com/big")) == (
+        _LARGE_INDEX_WRITERS
+    )
