@@ -189,6 +189,20 @@ class TestMakefileAnalyzerFromParser:
         assert analyzer.has_target("demo-foo") is False
 
     @pytest.mark.unit
+    def test_a_generated_failing_test_stub_is_still_missing(
+        self, tmp_path: Path
+    ) -> None:
+        """The stub the generator writes exits 1; it does not cover the command."""
+        mf = tmp_path / "Makefile"
+        mf.write_text(
+            "test-foo: ## No automated test for /foo (exits 1)\n"
+            "\t@exit 1\n"
+            "test-bar: ## Run bar\n"
+            "\tpytest\n"
+        )
+        analyzer = MakefileAnalyzer(mf)
+        assert analyzer.get_missing_targets({"test-foo", "test-bar"}) == {"test-foo"}
+
     def test_get_missing_targets_identifies_gaps(self, tmp_path: Path) -> None:
         """Scenario: get_missing_targets returns targets not in the Makefile
         Given a Makefile with 'help' and a required set {'help', 'demo-foo'}

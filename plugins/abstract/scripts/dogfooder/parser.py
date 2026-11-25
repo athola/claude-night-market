@@ -191,5 +191,14 @@ class MakefileAnalyzer:
         return target_name in self.targets
 
     def get_missing_targets(self, required_targets: set[str]) -> set[str]:
-        """Return set of required targets not in Makefile."""
-        return required_targets - self.targets.keys()
+        """Return required targets absent, or present only as the exit-1 stub.
+
+        The generator writes ``test-<cmd>`` as a recipe that fails by
+        design; counting it as coverage reported a command as tested.
+        """
+        covered = {
+            name
+            for name, target in self.targets.items()
+            if not target["description"].startswith("No automated test for")
+        }
+        return required_targets - covered
