@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from dataclasses import asdict
@@ -84,6 +85,25 @@ def _parse_numstat(raw: str) -> list[tuple[str, str, int, int]]:
     return stats
 
 
+_BRACE_RENAME = re.compile(r"^(.*)\{(.*) => (.*)\}(.*)$")
+
+
+def _rename_paths(field: str) -> set[str]:
+    """Both paths of a numstat rename field, or the one path it names.
+
+    Rename detection stays on, so a moved file is not a delete and an add
+    in the line totals. Its path field reads ``old => new`` or
+    ``dir/{a => b}/x.py``, which matched no later fix to the same file.
+    """
+    brace = _BRACE_RENAME.match(field)
+    if brace:
+        head, old, new, tail = brace.groups()
+        return {(head + part + tail).replace("//", "/") for part in (old, new)}
+    if " => " in field:
+        return set(field.split(" => ", 1))
+    return {field}
+
+
 def _files_by_commit(raw: str) -> dict[str, set[str]]:
     """Map each commit in ``git log --format=%H%x00%s --numstat`` to its files."""
     files: dict[str, set[str]] = {}
@@ -95,7 +115,7 @@ def _files_by_commit(raw: str) -> dict[str, set[str]]:
             continue
         parts = line.split("\t")
         if sha and len(parts) == _NUMSTAT_FIELDS:
-            files[sha].add(parts[2])
+            files[sha] |= _rename_paths(parts[2])
     return files
 
 
@@ -113,8 +133,7 @@ def collect(base: str, cwd: Path | None = None) -> tuple[Tier1Results, dict[str,
     commands = {
         "churn": ["log", "--format=", "--name-only", span],
         "fix-on-fix": ["log", "--format=%H%x00%s", span],
-        # --no-renames: a rename prints `old => new` as one path field.
-        "large-diff": ["log", "--format=%H%x00%s", "--numstat", "--no-renames", span],
+        "large-diff": ["log", "--format=%H%x00%s", "--numstat", span],
         "new-file-cluster": ["diff", "--name-status", diff_span],
     }
     evidence = {name: "git " + " ".join(args) for name, args in commands.items()}

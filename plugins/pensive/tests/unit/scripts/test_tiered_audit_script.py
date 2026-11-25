@@ -153,6 +153,17 @@ class TestFixOnFixUsesFileSets:
         details = [f.detail for f in results.all_flags() if f.reason == "fix-on-fix"]
         assert any(d.endswith("fix: z") for d in details)
 
+    def test_a_pure_rename_is_not_a_large_diff(self, tmp_path: Path) -> None:
+        """Without rename detection a moved file counts as a delete and an add."""
+        repo, base = self._two_fixes(tmp_path, "y")
+        (repo / "big").write_text("".join(f"line {n}\n" for n in range(500)))
+        _commit(repo, "chore: add big")
+        base = _git(repo, "rev-parse", "HEAD")
+        _git(repo, "mv", "big", "moved")
+        _commit(repo, "chore: move big")
+        results, _ = collect(base, repo)
+        assert [f for f in results.all_flags() if f.reason == "large-diff"] == []
+
 
 class TestNumstatParsing:
     """Feature: per-commit insertion and deletion totals."""
