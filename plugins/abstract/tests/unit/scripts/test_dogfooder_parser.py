@@ -203,6 +203,7 @@ class TestMakefileAnalyzerFromParser:
         analyzer = MakefileAnalyzer(mf)
         assert analyzer.get_missing_targets({"test-foo", "test-bar"}) == {"test-foo"}
 
+    @pytest.mark.unit
     def test_get_missing_targets_identifies_gaps(self, tmp_path: Path) -> None:
         """Scenario: get_missing_targets returns targets not in the Makefile
         Given a Makefile with 'help' and a required set {'help', 'demo-foo'}
