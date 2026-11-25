@@ -384,3 +384,17 @@ class TestCrossSessionSupersession:
         monkeypatch.setattr(recall, "_sessions_dir", lambda: sessions)
         loaded = recall._load_units()
         assert [u["state"] for u in loaded] == ["content digest"]
+
+
+def test_recall_resolves_dependencies_at_the_project_root(
+    tmp_path, monkeypatch
+) -> None:
+    """A prompt sent from a subdirectory flagged every dependency changed."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("recall_root", HOOK)
+    recall = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recall)
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path))
+
+    assert recall._project_root({"cwd": str(tmp_path / "sub")}) == tmp_path

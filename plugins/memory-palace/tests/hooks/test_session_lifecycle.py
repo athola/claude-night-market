@@ -541,3 +541,26 @@ def test_claim_with_non_numeric_fields_is_not_ours(tmp_path: Path) -> None:
     claim = tmp_path / "units.json.abc.def.claim"
 
     assert lc._claim_is_ours(claim, now_ns=0) is False
+
+
+def test_dependency_digests_resolve_at_the_project_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The cwd follows the session's last cd. A session ending in a
+    subdirectory recorded no digest for a root-relative src/foo.py.
+    """
+    from memory_palace.session_history import SessionUnit
+
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "foo.py").write_text("x = 1\n")
+    sub = tmp_path / "plugins" / "x"
+    sub.mkdir(parents=True)
+    monkeypatch.chdir(sub)
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path))
+    unit = SessionUnit(
+        thread="t", type="decision", date="2026-11-25", state="s", files=["src/foo.py"]
+    )
+
+    lc._fingerprint_dependencies([unit])
+
+    assert "src/foo.py" in unit.file_digests
