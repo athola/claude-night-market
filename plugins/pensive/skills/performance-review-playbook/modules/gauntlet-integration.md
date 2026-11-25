@@ -124,10 +124,13 @@ full list with upgraded findings in place, and `analyze()` assigns
 it back to `result.issues`, so nothing is duplicated. An unreadable
 graph file appends a warning and leaves the findings unchanged.
 
-Build the graph once per tree:
+Build the graph once per tree, in gauntlet's own environment. A system
+`python3` may lack tree-sitter, and the build then exits with "no nodes
+created":
 
 ```bash
-python3 plugins/gauntlet/scripts/graph_build.py <root>
+uv run --project plugins/gauntlet python \
+  plugins/gauntlet/scripts/graph_build.py <root>
 ```
 
 If `plugins/gauntlet/scripts/graph_build.py` is absent (a marketplace install,

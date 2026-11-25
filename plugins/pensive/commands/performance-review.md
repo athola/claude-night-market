@@ -96,8 +96,13 @@ provides through the dev group. Without them:
 Reviews of non-Python source without the extra produce zero
 findings by design. A non-Python
 file that tree-sitter cannot parse adds a warning to the result.
-Build the graph with
-`python3 plugins/gauntlet/scripts/graph_build.py <root>`.
+Build the graph in gauntlet's own environment, since a system
+`python3` may lack tree-sitter and then builds nothing:
+
+```bash
+uv run --project plugins/gauntlet python \
+  plugins/gauntlet/scripts/graph_build.py <root>
+```
 
 If `plugins/gauntlet/scripts/graph_build.py` is absent (a marketplace install,
 not a checkout), skip this step and say so.
