@@ -64,7 +64,9 @@ def load_weights(gauntlet_dir: str | Path | None = None) -> dict[str, float]:
 logger = logging.getLogger(__name__)
 
 _HUNK_PATTERN = re.compile(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
-_FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+)$")
+# git ends a name holding a space with a tab; quotepath is off so a
+# non-ASCII name arrives unquoted.
+_FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+?)\t?$")
 
 
 #: Default budget for the module's git calls (diff, then rev-parse), shared
@@ -95,7 +97,7 @@ def parse_git_diff_ranges(
     ref = _validate_ref(base_ref)
     try:
         result = subprocess.run(
-            ["git", "diff", "--unified=0", ref],
+            ["git", "-c", "core.quotepath=off", "diff", "--unified=0", ref],
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -112,11 +114,13 @@ def parse_git_diff_ranges(
     current_file: str | None = None
 
     for line in result.stdout.splitlines():
-        file_match = _FILE_PATTERN.match(line)
-        if file_match:
-            current_file = file_match.group(1)
-            if current_file not in ranges:
-                ranges[current_file] = []
+        if line.startswith("+++ "):
+            # `+++ /dev/null` (a deleted file) names no file: a stale name
+            # here gave the previous file this one's hunks.
+            file_match = _FILE_PATTERN.match(line)
+            current_file = file_match.group(1) if file_match else None
+            if current_file is not None:
+                ranges.setdefault(current_file, [])
             continue
 
         hunk_match = _HUNK_PATTERN.match(line)
