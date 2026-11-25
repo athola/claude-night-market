@@ -359,6 +359,24 @@ def test_harden_sarif_of_a_subdirectory_is_relative_to_the_repo_root(
     assert uris == {"src/a.py"}
 
 
+def test_harden_sarif_of_a_relative_path_is_relative_to_the_repo_root(
+    tmp_path, capsys, monkeypatch
+) -> None:
+    """--path . from inside src wrote a.py: only absolute paths were mapped."""
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "a.py").write_text("import yaml\nyaml.load(open('f'))\n")
+    monkeypatch.chdir(src)
+    run_cli(["--path", ".", "--sarif"])
+    report = json.loads(capsys.readouterr().out)
+    uris = {
+        r["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+        for r in report["runs"][0]["results"]
+    }
+    assert uris == {"src/a.py"}
+
+
 def test_sarif_uri_is_relative_to_the_scanned_repo(tmp_path) -> None:
     """Code scanning matches results to repo files only by relative URI."""
     finding = {"id": "PY02", "file": str(tmp_path / "pkg" / "a.py"), "line": 3}

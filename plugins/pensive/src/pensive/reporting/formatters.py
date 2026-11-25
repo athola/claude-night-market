@@ -181,7 +181,8 @@ class SarifFormatter:
             else:
                 file_path = location
                 line_num = 1
-            if root is not None and Path(file_path).is_absolute():
+            if root is not None:
+                # A relative path is relative to the cwd the scan ran in.
                 resolved = Path(file_path).resolve()
                 if resolved.is_relative_to(root):
                     file_path = resolved.relative_to(root).as_posix()
