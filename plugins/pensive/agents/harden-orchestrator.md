@@ -102,7 +102,7 @@ skills rather than re-implementing them.
    re-run gates, revert on gate failure.
 9. **Report**: write `reviews/harden-<date>.md`, and optionally
    post to Discussions via
-   `abstract:post_review_insights`.
+   `plugins/abstract/scripts/post_review_insights.py`.
 
 Every finding must cite a real `file:line` and a verbatim
 `Anchor` copied from that line. Before reporting, write

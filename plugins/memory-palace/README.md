@@ -129,7 +129,7 @@ memory-palace/
 │   ├── project_palace/  # rooms.py, entry.py, manager.py, capture.py
 │   ├── corpus/          # Indexing, caching, deduplication, lineage
 │   └── lifecycle/       # Autonomy state, decay model
-├── scripts/             # CLI tools, metrics, embedding builder
+├── scripts/             # CLI tools and metrics
 └── tests/
 ```
 

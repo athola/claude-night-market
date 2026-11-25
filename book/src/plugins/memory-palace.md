@@ -172,14 +172,10 @@ L2-normalized vectors to detect near-duplicates before storage.
 
 ## Embedding Support
 
-Optional semantic search via embeddings:
+Optional semantic search reads `data/indexes/embeddings.yaml`. Pick the
+provider at runtime:
 
 ```bash
-# Build embeddings
-cd plugins/memory-palace
-uv run python scripts/build_embeddings.py --provider local
-
-# Toggle at runtime
 export MEMORY_PALACE_EMBEDDINGS_PROVIDER=local
 ```
 

@@ -204,7 +204,7 @@ Write `reviews/harden-<date>.md` with:
 - Re-run instructions
 
 If running inside a PR context, post the executive summary as a
-comment via `abstract:post_review_insights`.
+comment via `plugins/abstract/scripts/post_review_insights.py`.
 
 ## Severity Classification
 

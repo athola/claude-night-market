@@ -2,7 +2,6 @@
 name: fix-pr
 description: Address PR/MR review feedback by reading comments, implementing fixes, and resolving threads. GitHub and GitLab support.
 usage: /fix-pr [<pr-number> | <pr-url> | <mr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual] [--no-insights] [--skip-validate] [--stack] [--no-stack] [--base <branch>]
-extends: "superpowers:receiving-code-review"
 ---
 
 # Enhanced PR/MR Fix
@@ -274,7 +273,7 @@ This command integrates with:
 - **Claude Code Tasks** (2.1.16+): Progress tracking with native Tasks system
 - **Agent Teams** (2.1.32+): Optional parallel fix execution for major scope PRs
 - **sanctum:stack-mode**: Multi-PR stack iteration contract (used by `--stack`)
-- **abstract:post_review_insights**: Posts fix findings to Discussions after validate
+- **`plugins/abstract/scripts/post_review_insights.py`**: Posts fix findings to Discussions after validate
 
 ### Discussion Insights (after validate)
 

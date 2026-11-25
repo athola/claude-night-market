@@ -70,7 +70,7 @@ practices for Python and Rust.
    type-check) to confirm no behavior change.
 7. **Report.** Markdown report saved to
    `reviews/harden-<date>.md`. A summary is posted to GitHub
-   Discussions via `abstract:post_review_insights` when run on a
+   Discussions via `plugins/abstract/scripts/post_review_insights.py` when run on a
    PR.
 
 ## Scope
