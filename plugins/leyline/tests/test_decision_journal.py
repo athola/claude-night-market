@@ -658,6 +658,28 @@ def test_paragraph_breaks_inside_a_field_survive_wrapping() -> None:
     assert "First paragraph.\n\nSecond one." in content
 
 
+@pytest.mark.parametrize(
+    "block",
+    [
+        "Steps:\n- one\n- two",
+        "1. first\n2. second",
+        "```\nrun  x\n  indented\n\nafter a blank line\n```",
+        "    indented  code\n    second line",
+    ],
+    ids=["bullets", "numbered", "fence-with-blank-line", "indented-code"],
+)
+def test_lists_and_code_in_a_field_keep_their_lines(block: str) -> None:
+    """Wrapping joined every line of a paragraph, so a repro list or a stack
+    trace recorded in a lesson came out as one run-on line.
+    """
+    content = append_entry(
+        new_file_content("lessons"),
+        "lessons",
+        {"title": "Blocks", "what_happened": f"Intro.\n\n{block}\n\nOutro."},
+    )
+    assert f"Intro.\n\n{block}\n\nOutro." in content
+
+
 def test_an_unbreakable_url_is_left_whole() -> None:
     url = "https://example.com/" + "a" * 90
     content = append_entry(

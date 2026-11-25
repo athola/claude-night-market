@@ -262,10 +262,25 @@ def _inert(text: str) -> str:
     return _HEADING_LINE.sub(r"\1\\\2", text).replace("<!--", "&lt;!--")
 
 
+# A line that only means something on its own line: a list item, a fence,
+# or indented code. A paragraph holding one keeps its lines as written.
+_LINE_STRUCTURE = re.compile(r"^(?:\s*(?:[-*+]|\d+\.)\s|\s*```|    )", re.M)
+
+
 def _wrap_prose(text: str) -> str:
-    """Wrap each blank-line-separated paragraph, keeping the breaks between."""
-    paragraphs = re.split(r"\n\s*\n", text.strip())
-    return _inert("\n\n".join(_wrap(paragraph) for paragraph in paragraphs))
+    """Wrap each plain paragraph, keeping breaks, lists and code as given."""
+    paragraphs = re.split(r"(\n\s*\n)", text.strip())
+    out = []
+    in_fence = False
+    for index, part in enumerate(paragraphs):
+        if index % 2:  # a captured blank-line separator
+            out.append(part if in_fence else "\n\n")
+            continue
+        fences = sum(1 for line in part.splitlines() if line.lstrip().startswith("```"))
+        keep = in_fence or bool(_LINE_STRUCTURE.search(part))
+        out.append(part if keep else _wrap(part))
+        in_fence ^= fences % 2 == 1
+    return _inert("".join(out))
 
 
 def _bullet(text: str) -> str:
