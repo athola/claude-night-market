@@ -29,6 +29,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **gauntlet:** a full graph build of this repository takes 27 s, down
+  from 459 s. The duplicate-call check during call resolution scanned
+  every CALLS edge per lookup until an index on `(kind, source_qn,
+  target_qn)` made it a seek, and graphs built earlier gain the index
+  on their next open. Flow tracing now reads each node's edges once per
+  build rather than once per flow, and name sanitizing uses
+  `str.translate`. Stored flows are unchanged.
+
 - **BREAKING:** 32 skills that shared a routing id with a command or
   workflow take a `-playbook` suffix (for example `pensive:bug-review`
   becomes `pensive:bug-review-playbook`), and two commands take
@@ -55,6 +63,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **pensive:** the performance review reported 180 hotspots in this
+  repository's source, and every one checked was a set or dict lookup,
+  a pattern built from the loop variable, a copy of the current item, or
+  a walk of a nested structure. It now classifies a receiver by its
+  annotation, set algebra, a typed fallback, tuple unpacking, a
+  same-module return type, and a constant from a sibling module. It
+  reports `re.compile` and copies only when they could be hoisted, and
+  nested appends only across independent collections. A method that
+  calls a module function of the same name is no longer recursion. The
+  rescan reports 43, each a bounded or intended pattern.
 - **leyline:** `auto-star-repo.sh` passes the GitHub token to curl on
   stdin (#1305). With `-x` and `BASH_XTRACEFD` the trace printed the
   token, and curl's argv showed it to every local user through `ps`.
