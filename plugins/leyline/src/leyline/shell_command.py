@@ -104,16 +104,18 @@ def _segment_commits(segment: str, depth: int = 0) -> bool:
     command of its own, but only when the shell is the segment's command:
     ``echo "bash -c 'git commit'"`` prints, it does not commit.
     """
-    words = _WORD_RE.findall(segment)
+    # A backslash-newline joins two lines into one command.
+    words = _WORD_RE.findall(segment.replace("\\\n", " "))
     index = 0
     while index < len(words):
         word = _strip_opener(words[index])
         if not word or word in _KEYWORDS or _ASSIGNMENT_RE.match(word):
             index += 1
             continue
-        if word not in _WRAPPERS:
+        wrapper = word.rsplit("/", 1)[-1]  # /usr/bin/env is env
+        if wrapper not in _WRAPPERS:
             break
-        value_options, operands = _WRAPPERS[word]
+        value_options, operands = _WRAPPERS[wrapper]
         index += 1
         while index < len(words) and words[index].startswith("-"):
             index += 2 if words[index] in value_options else 1
