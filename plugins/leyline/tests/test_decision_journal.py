@@ -666,6 +666,7 @@ def test_paragraph_breaks_inside_a_field_survive_wrapping() -> None:
         "```\nrun  x\n  indented\n\nafter a blank line\n```",
         "    indented  code\n    second line",
         "~~~\nx  y\n\nz\n~~~",
+        "```\n~~~ not a close\n\nkeep  this\n\nend\n```",
     ],
     ids=[
         "bullets",
@@ -673,6 +674,7 @@ def test_paragraph_breaks_inside_a_field_survive_wrapping() -> None:
         "fence-with-blank-line",
         "indented-code",
         "tilde-fence",
+        "tilde-line-inside-backticks",
     ],
 )
 def test_lists_and_code_in_a_field_keep_their_lines(block: str) -> None:
