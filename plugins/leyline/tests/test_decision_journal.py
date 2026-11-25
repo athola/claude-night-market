@@ -665,8 +665,15 @@ def test_paragraph_breaks_inside_a_field_survive_wrapping() -> None:
         "1. first\n2. second",
         "```\nrun  x\n  indented\n\nafter a blank line\n```",
         "    indented  code\n    second line",
+        "~~~\nx  y\n\nz\n~~~",
     ],
-    ids=["bullets", "numbered", "fence-with-blank-line", "indented-code"],
+    ids=[
+        "bullets",
+        "numbered",
+        "fence-with-blank-line",
+        "indented-code",
+        "tilde-fence",
+    ],
 )
 def test_lists_and_code_in_a_field_keep_their_lines(block: str) -> None:
     """Wrapping joined every line of a paragraph, so a repro list or a stack
@@ -678,6 +685,19 @@ def test_lists_and_code_in_a_field_keep_their_lines(block: str) -> None:
         {"title": "Blocks", "what_happened": f"Intro.\n\n{block}\n\nOutro."},
     )
     assert f"Intro.\n\n{block}\n\nOutro." in content
+
+
+def test_a_heading_line_inside_a_fence_is_still_escaped() -> None:
+    """The journal is read by heading and its parser does not track fences,
+    so a `#` line in pasted code is escaped there too: `## LL-999:` inside a
+    fence would otherwise allocate an id.
+    """
+    content = append_entry(
+        new_file_content("lessons"),
+        "lessons",
+        {"title": "Fence", "what_happened": "```sh\n## LL-999: x\n```"},
+    )
+    assert "```sh\n\\## LL-999: x\n```" in content
 
 
 def test_an_unbreakable_url_is_left_whole() -> None:

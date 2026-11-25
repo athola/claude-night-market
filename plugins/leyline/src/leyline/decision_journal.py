@@ -264,11 +264,15 @@ def _inert(text: str) -> str:
 
 # A line that only means something on its own line: a list item, a fence,
 # or indented code. A paragraph holding one keeps its lines as written.
-_LINE_STRUCTURE = re.compile(r"^(?:\s*(?:[-*+]|\d+\.)\s|\s*```|    )", re.M)
+_LINE_STRUCTURE = re.compile(r"^(?:\s*(?:[-*+]|\d+\.)\s|\s*(?:```|~~~)|    )", re.M)
 
 
 def _wrap_prose(text: str) -> str:
-    """Wrap each plain paragraph, keeping breaks, lists and code as given."""
+    """Wrap each plain paragraph, keeping breaks, lists and code as given.
+
+    Code keeps its lines but still passes through ``_inert``: the journal is
+    found by heading and its parser does not track fences.
+    """
     paragraphs = re.split(r"(\n\s*\n)", text.strip())
     out = []
     in_fence = False
@@ -276,7 +280,9 @@ def _wrap_prose(text: str) -> str:
         if index % 2:  # a captured blank-line separator
             out.append(part if in_fence else "\n\n")
             continue
-        fences = sum(1 for line in part.splitlines() if line.lstrip().startswith("```"))
+        fences = sum(
+            1 for line in part.splitlines() if line.lstrip().startswith(("```", "~~~"))
+        )
         keep = in_fence or bool(_LINE_STRUCTURE.search(part))
         out.append(part if keep else _wrap(part))
         in_fence ^= fences % 2 == 1
