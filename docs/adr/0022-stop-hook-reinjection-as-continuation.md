@@ -34,7 +34,8 @@ JSON, and bounds it with an iteration counter read from its state
 file: `max_iterations`, where 0 means run forever. herald's
 `hooks/double_shot_latte.py` is a third: it blocks a stop when the last
 message states an intent to keep working, bounded by
-`MAX_CONTINUATIONS` blocks in a 300-second window. So the mechanism is
+`MAX_CONTINUATIONS` consecutive blocks in one chain, reset when the
+user starts a turn. So the mechanism is
 load-bearing for at least three plugins here, and two of them had
 already concluded it needs a bound. egregore's stall counter does not
 see herald's blocks, and the two bounds are separate.

@@ -160,7 +160,7 @@ Apply the language-specific anti-pattern modules. For
 Rust, see `pensive:rust-review` (this scribe skill
 delegates code idiom checks to that plugin). For Python,
 see `parseltongue:python-pro`. For shell, see the
-shell module of `pensive:unified-review`.
+shell module of `pensive:unified-review-playbook`.
 
 Calibrate by model: per the 2025-26 cross-evaluation
 research, GPT-family-generated code has more concurrency

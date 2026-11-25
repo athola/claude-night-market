@@ -51,7 +51,7 @@ rg "pensive:shell-review|pensive:makefile-review" \
 ```
 
 Any remaining external references convert to
-``pensive:unified-review/modules/<name>``.
+``pensive:unified-review-playbook/modules/<name>``.
 
 ## Consequences
 

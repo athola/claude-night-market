@@ -231,4 +231,4 @@ under it. Windows has no `fcntl`, and there the lock is skipped.
 - ADR-0001: Plugin Dependency Isolation
 - `plugins/oracle/` - Reference implementation
 - `plugins/gauntlet/src/gauntlet/ml/scorer.py` -
-  Reference consumer (`OnnxSidecarScorer`)
+  Reference consumer (`SidecarScorer`)

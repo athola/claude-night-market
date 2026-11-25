@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** 33 skills that shared a routing id with a command or
+- **BREAKING:** 32 skills that shared a routing id with a command or
   workflow take a `-playbook` suffix (for example `pensive:bug-review`
   becomes `pensive:bug-review-playbook`), and two commands take
   `-session`: `/attune:skill-library-session` and

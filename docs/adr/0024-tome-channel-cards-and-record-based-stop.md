@@ -61,7 +61,7 @@ where the next orchestrator reads it.
 4. **The stop decision reads records, not judgment**
    (`tome.synthesis.verifier.verify_context`). Each OctoTools criterion
    maps to something no agent graded. The mapping is in
-   `skills/research/modules/stop-verifier.md`. A failed criterion names
+   `skills/research-playbook/modules/stop-verifier.md`. A failed criterion names
    channels to `rerun`, `reformulate` or `add`. The pass budget defaults
    to 2: OctoTools averaged 2.56 of 10 steps with GPT-4o, and one tome
    pass sends up to four agents.

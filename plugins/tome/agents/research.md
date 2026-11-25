@@ -39,13 +39,13 @@ and return its output verbatim.
 
 ## Why This Wrapper Exists
 
-The skill `tome:research` orchestrates four channel agents
+The skill `tome:research-playbook` orchestrates four channel agents
 (`tome:code-searcher`, `tome:discourse-scanner`,
 `tome:literature-reviewer`, `tome:triz-analyst`) and synthesizes
 their findings. Some callers reach for the Agent tool with
-`subagent_type="tome:research"` because the slash command and
-the skill share that name. Without this agent file the dispatch
-errors out before the skill can run.
+`subagent_type="tome:research"`, the id this agent shares with the
+research workflow. Without this agent file the dispatch errors out
+before the skill can run.
 
 This wrapper preserves the call shape both ways:
 
