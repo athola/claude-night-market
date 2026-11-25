@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import importlib
 
+import pytest
+
 from gauntlet import challenges
 from gauntlet.models import BankProblem, Difficulty
 from gauntlet.providers.in_loop import (
@@ -149,6 +151,12 @@ class TestNumberFormatsSurviveVariation:
         assert _vary("upgrade from 1.10.4 to 10.0.0.1 in 3 steps") == (
             "upgrade from 1.10.4 to 10.0.0.1 in 6 steps"
         )
+
+    @pytest.mark.parametrize(
+        "number", ["$1,234.56", "3.5e2", "1.0x"], ids=["grouped", "sci", "suffix"]
+    )
+    def test_a_number_with_a_fraction_or_suffix_is_left_whole(self, number) -> None:
+        assert _vary(f"costs {number} over 4 nodes") == f"costs {number} over 7 nodes"
 
     def test_decimal_without_a_leading_digit_is_left_whole(self) -> None:
         assert _vary("a .5 margin over 4 nodes") == "a .5 margin over 7 nodes"
