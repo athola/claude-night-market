@@ -5,7 +5,6 @@ description: Fix broken functionality from pasted error output, stack traces, or
 usage: /fixit <pasted-error-or-description> [--file <path>] [--scope auto|minor|medium|major]
   [--from <step>] [--to <step>] [--research|--no-research] [--strict|--quick]
   [--commit] [--dry-run]
-extends: "imbue:proof-of-work"
 ---
 
 # Fix It
