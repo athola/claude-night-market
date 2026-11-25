@@ -5,7 +5,9 @@
 landed 2026-10-27 (#615). PR-B (makefile-review) landed 2026-11-05
 (#616). Both skill stubs removed in 1.10.3. The slash commands stay
 as aliases. The premise has moved: pensive now has 8 review-named
-skills, not 9.
+skills, not 9. Since #1055 the skill this ADR calls
+``pensive:unified-review`` is ``pensive:unified-review-playbook``;
+``pensive:unified-review`` now names the workflow.
 **Deciders**: Claude Night Market maintainers
 **Source**: Issue #453, Discussion #449 Wave-3 backlog item 1
 
@@ -51,7 +53,7 @@ rg "pensive:shell-review|pensive:makefile-review" \
 ```
 
 Any remaining external references convert to
-``pensive:unified-review-playbook/modules/<name>``.
+``pensive:unified-review/modules/<name>``.
 
 ## Consequences
 
