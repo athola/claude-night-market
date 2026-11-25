@@ -87,6 +87,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **parseltongue:** twelve `testing_guide` coverage tests pass code that
   reaches the branch they name instead of an empty string (#1068).
 - **leyline:** the stewardship description names all five virtues (#1132).
+- **gauntlet, imbue:** the shared commit detector recognizes
+  `/usr/bin/env git commit` and a backslash-newline between `git` and
+  `commit`; both passed every commit gate. The attribution vow catches a
+  trailer after an unquoted `-m` or in a `$'...'` message, and no longer
+  reads hyphenated prose such as `sub-system` as a `-m` flag.
+- **scribe:** replay redaction covers prefixed names (`DB_PASSWORD=`,
+  `GITHUB_TOKEN=`, `SECRET_KEY=`) and runs in linear time.
+- **memory-palace:** the capture index loads and dumps through libyaml,
+  so parallel captures no longer time out and get deleted. Research
+  queue entries and dependency digests resolve at `CLAUDE_PROJECT_DIR`
+  instead of the session's last `cd`. A repeated search stores one file.
+- **gauntlet:** open-ended scoring caps the length feature, so padding no
+  longer turns a partial answer into a pass. Blast radius counts
+  deletion-only hunks and assigns each hunk to its own file. An
+  incremental graph build on an unstamped graph builds in full.
+- **oracle:** a venv without pyyaml reads as unprovisioned, `daemon.log`
+  says to rerun `/oracle-setup`, and setup repairs the existing venv.
+  SessionEnd no longer creates `~/.oracle-inference` for users who never
+  enabled the plugin, and dead-session markers are removed.
+- **pensive:** `harden --sarif` writes repo-relative URIs, PY02 reads a
+  positional `Loader`, the thread-leak check exempts each daemon thread
+  rather than the whole file, and the tiered audit follows renames.
+- **sanctum:** a planted notify state file can no longer crash the Stop
+  hook or silence notifications. pensive and attune `demo-skills` name the
+  renamed skill directories.
 
 - `scripts/clawhub-submit.sh` publishes each plugin as its own
   `night-market-<plugin>` bundle package from the tagged source. ClawHub
