@@ -219,7 +219,7 @@ def _shared_service(
         existing_tasks: List of existing task dicts with a "description" key.
 
     Returns:
-        Conflict description string if circular dependency found, None otherwise.
+        Message naming the service(s) shared with an existing task, or None.
 
     """
     if not task_services or "uses" not in task_lower:
