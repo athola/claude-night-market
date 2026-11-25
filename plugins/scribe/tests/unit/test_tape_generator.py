@@ -756,3 +756,23 @@ def test_home_redaction_leaves_a_longer_sibling_directory_alone(
         "/Users/alex/x, /Users/al-2, ~/y, ~. ~"
     )
     assert redact("/Users/al.bak/x") == "/Users/al.bak/x"
+
+
+@pytest.mark.parametrize(
+    "assignment",
+    [
+        "export DB_PASSWORD=hunter2",
+        "GITHUB_TOKEN=x1y2z3",
+        "OPENAI_API_KEY=abc123",
+        "AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMIK7MDENG",
+        "client_secret: s3cr3tvalue",
+    ],
+)
+def test_a_prefixed_credential_name_is_redacted(assignment: str) -> None:
+    """Env-var names put the keyword after a prefix, where \\b did not match."""
+    value = assignment.rsplit("=", 1)[-1].split(": ", 1)[-1]
+    assert value not in redact(assignment)
+
+
+def test_a_name_that_only_contains_a_keyword_keeps_its_value() -> None:
+    assert redact("max_tokens=4096") == "max_tokens=4096"

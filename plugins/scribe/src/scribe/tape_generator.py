@@ -96,7 +96,11 @@ _SECRET_RES = (
     (re.compile(r"\bAKIA[0-9A-Z]{16}\b"), "[redacted]"),
     (re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._~+/=-]{16,}"), "[redacted]"),
     (
-        re.compile(r"(?i)\b(pass(?:word|wd)?|secret|token|api[_-]?key)(\s*[:=]\s*)\S+"),
+        # The keyword ends the name, after any prefix: DB_PASSWORD, GITHUB_TOKEN.
+        re.compile(
+            r"(?i)(?<![A-Za-z0-9])(\w*?(?:pass(?:word|wd)?|secret|token"
+            r"|(?:api|access|private)[_-]?key))(\s*[:=]\s*)\S+"
+        ),
         r"\1\2[redacted]",
     ),
 )
