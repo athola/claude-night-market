@@ -116,9 +116,12 @@ def _build(
         # The stamp claims the graph is current through HEAD. Only a full
         # build or a diff from the stamped commit makes that true: a diff
         # from any other ref skips the commits between it and the stamp.
+        stamped = graph.get_metadata("last_build_commit") if incremental else None
+        # An unstamped graph (built before the stamp existed) has no commit
+        # to diff from: HEAD on a clean tree found nothing, every run.
+        incremental = incremental and (stamped is not None or bool(base_ref_arg))
         covers_head = not incremental
         if incremental:
-            stamped = graph.get_metadata("last_build_commit")
             # HEAD alone covers uncommitted edits only: on a clean tree a
             # graph many commits stale reported "no changes detected".
             base_ref = base_ref_arg or stamped or "HEAD"
