@@ -296,6 +296,18 @@ class TestMLEnhancedScoring:
         assert evaluate_answer(ch, padded) != "pass"
 
     @pytest.mark.unit
+    def test_explain_why_does_not_pass_an_answer_padded_with_filler(self):
+        """Length is not content: the same partial answer, padded, stays partial."""
+        ref = (
+            "The cache is invalidated on write because readers must never "
+            "observe stale config values after reload"
+        )
+        ch = _challenge("explain_why", ref)
+        short = "The cache is written by readers"
+        padded = short + " " + " ".join(f"word{n}" for n in range(120))
+        assert evaluate_answer(ch, padded) == evaluate_answer(ch, short)
+
+    @pytest.mark.unit
     def test_dependency_map_unchanged(self):
         """
         Scenario: Dependency map scoring is not affected by ML
