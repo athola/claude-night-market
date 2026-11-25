@@ -143,6 +143,22 @@ class TestProvisionVenv:
             assert "onnxruntime" not in calls[1][0][0]
 
     @pytest.mark.unit
+    def test_provision_reuses_an_existing_venv(self, tmp_path: Path):
+        """Uv venv refuses a directory that holds a venv, so rebuilding a
+        1.10.3 venv, the one daemon.log says to rerun setup for, failed.
+        """
+        venv = tmp_path / "venv"
+        (venv / "bin").mkdir(parents=True)
+        (venv / "bin" / "python").touch()
+        with patch("oracle.provision.subprocess.run") as mock_run:
+            mock_run.return_value.returncode = 0
+            result = provision_venv(venv)
+        assert result.success
+        argvs = [call.args[0] for call in mock_run.call_args_list]
+        assert not any(argv[:2] == ["uv", "venv"] for argv in argvs)
+        assert any("pyyaml" in argv for argv in argvs)
+
+    @pytest.mark.unit
     def test_provision_fails_when_uv_missing(self, tmp_path: Path):
         """
         Scenario: uv is not installed

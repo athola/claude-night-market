@@ -60,18 +60,21 @@ def provision_venv(venv_path: Path) -> ProvisionResult:
     onnxruntime is not installed until an ONNX model ships to load.
     """
     try:
-        result = subprocess.run(
-            ["uv", "venv", "--python", "3.11", str(venv_path)],
-            capture_output=True,
-            text=True,
-            timeout=120,
-            check=False,
-        )
-        if result.returncode != 0:
-            return ProvisionResult(
-                success=False,
-                message=f"Failed to create venv: {result.stderr.strip()}",
+        # uv venv refuses a directory that already holds a venv, which is
+        # the 1.10.3 venv this is rerun to fix: reuse its interpreter.
+        if not get_python_path(venv_path).exists():
+            result = subprocess.run(
+                ["uv", "venv", "--python", "3.11", str(venv_path)],
+                capture_output=True,
+                text=True,
+                timeout=120,
+                check=False,
             )
+            if result.returncode != 0:
+                return ProvisionResult(
+                    success=False,
+                    message=f"Failed to create venv: {result.stderr.strip()}",
+                )
 
         python = str(get_python_path(venv_path))
         result = subprocess.run(
