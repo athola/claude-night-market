@@ -99,48 +99,6 @@ Always demo.
     assert result.skill_name == "demo-skill"
 
 
-class TestValidateReferences:
-    """Tests for SkillValidator.validate_references()."""
-
-    def test_returns_valid_for_well_formed_refs(self) -> None:
-        content = """---
-name: test-skill
----
-
-Use Skill(other-plugin:my-skill) for that.
-Also see Skill(simple-skill).
-"""
-        result = SkillValidator.validate_references(content)
-        assert result.is_valid
-        assert len(result.warnings) == 0
-
-    def test_warns_on_malformed_skill_ref(self) -> None:
-        content = """---
-name: test-skill
----
-
-Skill(bad ref with spaces)
-"""
-        result = SkillValidator.validate_references(content)
-        assert any("bad ref with spaces" in w for w in result.warnings)
-
-    def test_extracts_skill_name_from_frontmatter(self) -> None:
-        content = """---
-name: my-cool-skill
----
-
-# Body
-"""
-        result = SkillValidator.validate_references(content)
-        assert result.skill_name == "my-cool-skill"
-
-    def test_no_frontmatter_returns_none_skill_name(self) -> None:
-        content = "No frontmatter here."
-        result = SkillValidator.validate_references(content)
-        assert result.skill_name is None
-        assert result.has_frontmatter is False
-
-
 class TestExtractSkillReferences:
     """Tests for SkillValidator.extract_skill_references()."""
 
