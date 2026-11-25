@@ -73,10 +73,12 @@ _TOOL_DOMAIN_RE = re.compile(rf"\b(?:{_TOOL_DOMAIN_GROUP})\b", re.IGNORECASE)
 # is prose and passes, "Co-authored-by" included: only the commit's own
 # message text is anchored, so an echo chained after it is not read.
 # A flag starts after whitespace, so `-system` and `custom-form` in prose
-# are not `-m`; the $'...' newline counts only as the flag's own argument.
+# are not `-m`; a $'...' newline counts only as the message's own text.
 _FLAG = r"(?<![\w-])(?:-[a-zA-Z]*m|--message|--trailer)(?:\s+|=)?"
+# A here-string (`git commit -F - <<< $'...'`) is the message too.
+_ANSI_C_OWNER = rf"(?:{_FLAG}|<<<\s*)"
 _STRONG_VERB_RE = re.compile(
-    rf"(?:^|{_FLAG}\$'[^'\n]*\\n|{_FLAG}\$?['\"]?)"
+    rf"(?:^|{_ANSI_C_OWNER}\$'[^'\n]*\\n|{_FLAG}\$?['\"]?)"
     rf"\s*(?:{_STRONG_ATTRIBUTION_PREFIX})",
     re.IGNORECASE,
 )
