@@ -143,11 +143,27 @@ class UsageTracker:
         the aggregates too. Otherwise a save and load flipped the score.
         """
         if self._events.maxlen is not None and len(self._events) == self._events.maxlen:
-            self._count(self._events[0], -1)
+            self._evict(self._events.popleft())
         self._events.append(event)
         self._count(event, 1)
         if event.signal == UsageSignal.ACCESS:
             self._aggregates[event.entry_id]["last_access"] = event.timestamp
+
+    def _evict(self, evicted: UsageEvent) -> None:
+        """Take a dropped event out of its entry's aggregate.
+
+        An entry left with no retained events goes, and a dropped access
+        that was the latest moves ``last_access`` back, as a reload would.
+        """
+        self._count(evicted, -1)
+        retained = [e for e in self._events if e.entry_id == evicted.entry_id]
+        if not retained:
+            del self._aggregates[evicted.entry_id]
+            return
+        agg = self._aggregates[evicted.entry_id]
+        if agg["last_access"] == evicted.timestamp:
+            accesses = [e.timestamp for e in retained if e.signal == UsageSignal.ACCESS]
+            agg["last_access"] = max(accesses, default=None)
 
     def _count(self, event: UsageEvent, sign: int) -> None:
         agg = self._aggregates.setdefault(event.entry_id, dict(_EMPTY_AGGREGATE))

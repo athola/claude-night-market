@@ -307,3 +307,31 @@ class TestAggregatesFollowRetainedEvents:
             restored.get_score("e").raw_score
         )
         assert tracker.get_score("e").access_count == 2
+
+    def test_an_entry_whose_events_are_all_evicted_leaves_the_scores(self) -> None:
+        """It stayed listed at the 0.5 midpoint until a reload dropped it."""
+        tracker = UsageTracker(max_events=2)
+        tracker.record_event("old", UsageSignal.ACCESS)
+        tracker.record_event("new", UsageSignal.ACCESS)
+        tracker.record_event("new", UsageSignal.ACCESS)
+
+        restored = UsageTracker(max_events=2)
+        restored.import_events(tracker.export_events())
+
+        assert {s.entry_id for s in tracker.get_all_scores()} == {
+            s.entry_id for s in restored.get_all_scores()
+        }
+
+    def test_last_access_moves_back_when_its_event_is_evicted(self) -> None:
+        """A dropped access kept naming the latest access until a reload."""
+        tracker = UsageTracker(max_events=2)
+        tracker.record_event("e", UsageSignal.ACCESS)
+        tracker.record_event("e", UsageSignal.STALE_FLAG)
+        tracker.record_event("e", UsageSignal.STALE_FLAG)
+
+        restored = UsageTracker(max_events=2)
+        restored.import_events(tracker.export_events())
+
+        assert tracker.get_score("e").last_accessed == (
+            restored.get_score("e").last_accessed
+        )
