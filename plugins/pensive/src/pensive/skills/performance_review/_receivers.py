@@ -9,165 +9,9 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from ._helpers import _decorator_name
+from ._classify import _annotation_is_hashed, _classify_rhs
 
 _STRING_ITER_METHODS: frozenset[str] = frozenset({"split", "splitlines", "rsplit"})
-
-
-# Common string-returning methods. Conservative list: only methods whose
-# return type is unambiguously str across the stdlib (str, pathlib,
-# io.IOBase). Not included: split (list), splitlines (list), partition
-# (tuple), readlines (list).
-_STRING_RETURNING_METHODS: frozenset[str] = frozenset(
-    {
-        "lower",
-        "upper",
-        "strip",
-        "lstrip",
-        "rstrip",
-        "title",
-        "casefold",
-        "swapcase",
-        "capitalize",
-        "replace",
-        "format",
-        "join",
-        "encode",
-        "decode",
-        "read",
-        "readline",
-        "read_text",
-    }
-)
-
-
-def _classify_rhs_literal(value: ast.expr) -> str | None:
-    """Classify literal RHS forms: dict/set/string literals and comprehensions."""
-    if isinstance(value, (ast.Dict, ast.DictComp)):
-        return "dict"
-    if isinstance(value, (ast.Set, ast.SetComp)):
-        return "set"
-    if isinstance(value, ast.Constant) and isinstance(value.value, str):
-        return "string"
-    if isinstance(value, ast.JoinedStr):
-        return "string"
-    return None
-
-
-_CONSTRUCTOR_CLASSIFICATIONS: dict[str, str] = {
-    "dict": "dict",
-    "set": "set",
-    "frozenset": "set",
-    "str": "string",
-}
-
-
-def _classify_rhs_call(value: ast.expr) -> str | None:
-    """Classify RHS forms that call a known constructor or string method."""
-    if not isinstance(value, ast.Call):
-        return None
-    if isinstance(value.func, ast.Name):
-        return _CONSTRUCTOR_CLASSIFICATIONS.get(value.func.id)
-    if (
-        isinstance(value.func, ast.Attribute)
-        and value.func.attr in _STRING_RETURNING_METHODS
-    ):
-        return "string"
-    return None
-
-
-# Operators a list does not support: on a list operand they raise, so a
-# result that is later searched with `in` is a set (or a dict, for `|`).
-_SET_ALGEBRA_OPS = (ast.BitOr, ast.BitAnd, ast.Sub, ast.BitXor)
-
-
-def _classify_rhs_fallback(value: ast.expr) -> str | None:
-    """Classify set algebra and an expression whose fallback names its type.
-
-    ``loaded or {}`` and ``mapping.get(key, set())`` say what the value is
-    meant to be through the empty value they fall back to.
-    """
-    if isinstance(value, ast.BinOp) and isinstance(value.op, _SET_ALGEBRA_OPS):
-        return "set"
-    if isinstance(value, ast.BoolOp) and isinstance(value.op, ast.Or):
-        return _classify_rhs(value.values[-1])
-    if (
-        isinstance(value, ast.Call)
-        and isinstance(value.func, ast.Attribute)
-        and value.func.attr == "get"
-        and len(value.args) == 2  # noqa: PLR2004 - key and default
-    ):
-        return _classify_rhs(value.args[1])
-    return None
-
-
-def _classify_rhs(value: ast.expr) -> str | None:
-    """Classify an Assign RHS as 'dict', 'set', 'string', or None.
-
-    Used to suppress T2 false positives where the membership test
-    target is provably not a list. Conservative: returns None for
-    anything indeterminate (Name reference, attribute access, etc.).
-    """
-    return (
-        _classify_rhs_literal(value)
-        or _classify_rhs_call(value)
-        or _classify_rhs_fallback(value)
-    )
-
-
-# Annotation heads whose values answer `in` without a linear scan, or
-# (str, bytes) by substring search. Compared after dropping a module prefix.
-_HASHED_ANNOTATIONS: frozenset[str] = frozenset(
-    {
-        "set",
-        "frozenset",
-        "dict",
-        "Set",
-        "FrozenSet",
-        "Dict",
-        "AbstractSet",
-        "MutableSet",
-        "Mapping",
-        "MutableMapping",
-        "Counter",
-        "defaultdict",
-        "OrderedDict",
-        "str",
-        "bytes",
-    }
-)
-
-
-def _constant_annotation_is_hashed(annotation: ast.Constant) -> bool:
-    """``None`` is an allowed arm, and a string is a forward reference."""
-    if annotation.value is None:
-        return True
-    if not isinstance(annotation.value, str):
-        return False
-    try:
-        parsed = ast.parse(annotation.value, mode="eval").body
-    except SyntaxError:
-        return False
-    return _annotation_is_hashed(parsed)
-
-
-def _annotation_is_hashed(annotation: ast.expr | None) -> bool:
-    """True when every non-None arm of the annotation is a hashed container."""
-    if annotation is None:
-        return False
-    if isinstance(annotation, ast.Constant):
-        return _constant_annotation_is_hashed(annotation)
-    if isinstance(annotation, ast.BinOp) and isinstance(annotation.op, ast.BitOr):
-        arms = (annotation.left, annotation.right)
-        return all(_annotation_is_hashed(arm) for arm in arms) and not all(
-            isinstance(arm, ast.Constant) for arm in arms
-        )
-    target = annotation
-    if isinstance(annotation, ast.Subscript):
-        if _decorator_name(annotation.value).rsplit(".", 1)[-1] == "Optional":
-            return _annotation_is_hashed(annotation.slice)
-        target = annotation.value
-    return _decorator_name(target).rsplit(".", 1)[-1] in _HASHED_ANNOTATIONS
 
 
 def _classify_string_iter(value: ast.expr) -> bool:
@@ -213,34 +57,83 @@ def _add_name(name: str, target_set: set[str]) -> bool:
     return True
 
 
+def _is_non_list_value(
+    value: ast.expr, names: set[str], hashed_calls: frozenset[str]
+) -> bool:
+    """True when ``value`` is provably a set, dict or string.
+
+    Beyond the literal and constructor forms: a name already classified,
+    a call to a function of this module annotated to return one, and a
+    conditional whose arms are each one of these or ``None``.
+    """
+    if _classify_rhs(value) is not None:
+        return True
+    if isinstance(value, ast.Name):
+        return value.id in names
+    if isinstance(value, ast.Call) and isinstance(value.func, ast.Name):
+        return value.func.id in hashed_calls
+    if isinstance(value, ast.IfExp):
+        arms = (value.body, value.orelse)
+        is_none = [isinstance(a, ast.Constant) and a.value is None for a in arms]
+        return not all(is_none) and all(
+            none or _is_non_list_value(arm, names, hashed_calls)
+            for arm, none in zip(arms, is_none)
+        )
+    return False
+
+
+def _hashed_return_functions(tree: ast.AST) -> frozenset[str]:
+    """Functions in this module whose return annotation is a hashed container."""
+    return frozenset(
+        node.name
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and _annotation_is_hashed(node.returns)
+    )
+
+
+def _add_names(new_names: list[str], target_set: set[str]) -> bool:
+    """Add every name, and return True if any was new."""
+    added = False
+    for name in new_names:
+        added = _add_name(name, target_set) or added
+    return added
+
+
 def _classify_assign_targets(
     value: ast.expr,
     targets: list[ast.expr],
     names: set[str],
     string_iter_names: set[str],
+    hashed_calls: frozenset[str] = frozenset(),
 ) -> bool:
     """Classify assignment targets from their shared RHS.
 
     Handles both `ast.Assign` (multiple targets) and `ast.AnnAssign`
-    (single target, passed as a one-element list) uniformly. Returns
-    True if any target was newly classified.
+    (single target, passed as a one-element list) uniformly, and pairs
+    `a, b = x, y` element by element. Returns True if any target was
+    newly classified.
     """
-    cat = _classify_rhs(value)
-    yields_strings = _classify_string_iter(value)
-    propagate_non_list = isinstance(value, ast.Name) and value.id in names
-    propagate_string_iter = (
+    changed = False
+    for tgt in targets:
+        if (
+            isinstance(tgt, ast.Tuple)
+            and isinstance(value, ast.Tuple)
+            and len(tgt.elts) == len(value.elts)
+        ):
+            for sub_target, sub_value in zip(tgt.elts, value.elts):
+                if _classify_assign_targets(
+                    sub_value, [sub_target], names, string_iter_names, hashed_calls
+                ):
+                    changed = True
+    name_targets = [t.id for t in targets if isinstance(t, ast.Name)]
+    if _is_non_list_value(value, names, hashed_calls):
+        changed = _add_names(name_targets, names) or changed
+    yields_strings = _classify_string_iter(value) or (
         isinstance(value, ast.Name) and value.id in string_iter_names
     )
-
-    changed = False
-    if cat is not None or propagate_non_list:
-        for tgt in targets:
-            if isinstance(tgt, ast.Name) and _add_name(tgt.id, names):
-                changed = True
-    if yields_strings or propagate_string_iter:
-        for tgt in targets:
-            if isinstance(tgt, ast.Name) and _add_name(tgt.id, string_iter_names):
-                changed = True
+    if yields_strings:
+        changed = _add_names(name_targets, string_iter_names) or changed
     return changed
 
 
@@ -339,6 +232,7 @@ def _collect_non_list_names(tree: ast.AST, file_path: str | None = None) -> set[
     dominates the rare cross-scope reassignment case.
     """
     names: set[str] = _imported_non_list_names(tree, file_path) if file_path else set()
+    hashed_calls = _hashed_return_functions(tree)
     # Names whose VALUE is iterable of strings (e.g. `.split()` result).
     # Tracked separately because they ARE lists (so don't suppress T2
     # when the RHS in a Compare IS this name) but iterating over them
@@ -353,7 +247,7 @@ def _collect_non_list_names(tree: ast.AST, file_path: str | None = None) -> set[
         for node in ast.walk(tree):
             if isinstance(node, ast.Assign):
                 if _classify_assign_targets(
-                    node.value, node.targets, names, string_iter_names
+                    node.value, node.targets, names, string_iter_names, hashed_calls
                 ):
                     changed = True
             elif isinstance(node, ast.AnnAssign):
@@ -364,7 +258,7 @@ def _collect_non_list_names(tree: ast.AST, file_path: str | None = None) -> set[
                 ):
                     changed = True
                 if node.value is not None and _classify_assign_targets(
-                    node.value, [node.target], names, string_iter_names
+                    node.value, [node.target], names, string_iter_names, hashed_calls
                 ):
                     changed = True
             elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):

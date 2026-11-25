@@ -155,3 +155,51 @@ def test_a_function_nested_in_a_method_that_calls_itself_is_still_recursion() ->
         "        visit(node)\n"
     )
     assert len(_recursion_findings(code)) == 1
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "binding",
+    [
+        "allowed = given if given is not None else DEFAULTS",
+        "allowed = data.get('weights', {}) if isinstance(data, dict) else None",
+        "rows, allowed, total = [], set(), 0",
+        "allowed = load_table(text)",
+    ],
+)
+def test_membership_against_a_conditional_unpacked_or_typed_return_is_not_reported(
+    binding: str,
+) -> None:
+    code = (
+        "DEFAULTS: frozenset[str] = frozenset({'a'})\n"
+        "def load_table(text: str) -> dict[str, int]:\n"
+        "    return {}\n"
+        "def pick(names, given: set[str] | None, data, text):\n"
+        f"    {binding}\n"
+        "    for name in names:\n"
+        "        if name in allowed:\n"
+        "            yield name\n"
+    )
+    assert _membership_findings(code) == []
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "binding",
+    [
+        "allowed = given if given is not None else []",
+        "rows, allowed = set(), []",
+        "allowed = load_rows(text)",
+    ],
+)
+def test_membership_against_a_possible_list_is_still_reported(binding: str) -> None:
+    code = (
+        "def load_rows(text: str) -> list[str]:\n"
+        "    return []\n"
+        "def pick(names, given: set[str] | None, text):\n"
+        f"    {binding}\n"
+        "    for name in names:\n"
+        "        if name in allowed:\n"
+        "            yield name\n"
+    )
+    assert len(_membership_findings(code)) == 1

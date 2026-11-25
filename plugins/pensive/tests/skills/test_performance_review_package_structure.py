@@ -103,7 +103,7 @@ class TestPerformanceReviewPackageStructure:
         Then every file should be <= 400 lines
         """
         pkg_dir = Path(perf_pkg.__path__[0])
-        submodules = ["_helpers.py", "_receivers.py", "_visitor.py"]
+        submodules = ["_classify.py", "_helpers.py", "_receivers.py", "_visitor.py"]
         oversized = {}
         for name in submodules:
             path = pkg_dir / name
