@@ -2017,3 +2017,32 @@ def test_the_backlog_notice_counts_search_captures_too(tmp_path) -> None:
     (tmp_path / "curated.md").write_text("keep")
 
     assert web_research_handler.queue_backlog(tmp_path) == 6
+
+
+def test_a_search_capture_reports_a_backlog_of_search_files(
+    tmp_path, monkeypatch
+) -> None:
+    """The notice counted only webfetch- files, so a queue of searches was
+    reported as no backlog.
+    """
+    for i in range(3):
+        (tmp_path / f"websearch-{i}.md").write_text("x")
+    results = [{"title": "A", "url": "https://example.test/a", "snippet": "s"}]
+    monkeypatch.setattr(web_research_handler, "QUEUE_DIR", tmp_path)
+    monkeypatch.setattr(web_research_handler, "QUEUE_NOTICE_THRESHOLD", 3)
+    monkeypatch.setattr(web_research_handler, "prune_queue", lambda _d: 0)
+    monkeypatch.setattr(
+        web_research_handler, "extract_results_from_websearch", lambda _r: results
+    )
+    monkeypatch.setattr(
+        web_research_handler, "_partition_by_known", lambda r: (list(r), [])
+    )
+    monkeypatch.setattr(
+        web_research_handler,
+        "store_websearch_results",
+        lambda _q, _r: str(tmp_path / "websearch-0.md"),
+    )
+
+    context, _, _ = web_research_handler._handle_websearch("q", {}, True)
+
+    assert any("3 captures are waiting review" in part for part in context)
