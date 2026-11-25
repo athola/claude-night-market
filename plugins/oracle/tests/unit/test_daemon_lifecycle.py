@@ -1186,3 +1186,25 @@ def test_session_end_removes_the_marker_of_a_dead_session(
     ):
         main()
     assert not (sessions / "crashed").exists()
+
+
+@pytest.mark.unit
+def test_a_venv_without_pyyaml_says_to_rerun_setup(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A 1.10.3 venv is not provisioned now; skipping it silently left the
+    user no way to learn the daemon would never start.
+    """
+    monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    (tmp_path / ".oracle-enabled").touch()
+    python = tmp_path / "venv" / "bin" / "python"
+    python.parent.mkdir(parents=True)
+    python.touch()
+    payload = json.dumps({"hook_event_name": "SessionStart", "session_id": "s"})
+    with (
+        patch("sys.stdin", StringIO(payload)),
+        patch("daemon_lifecycle.subprocess.Popen") as popen,
+    ):
+        main()
+    popen.assert_not_called()
+    assert "oracle-setup" in (tmp_path / "daemon.log").read_text()
