@@ -72,12 +72,14 @@ class TestParseGitDiffRanges:
         assert result["app.py"][0] == (10, 14)
 
     @pytest.mark.unit
-    def test_skips_deletion_only_hunks(self) -> None:
+    def test_a_deletion_only_hunk_marks_the_lines_around_it(self) -> None:
         """
-        Scenario: Deletion-only hunks (count=0) are skipped
-        Given a diff with a pure deletion hunk
+        Scenario: lines removed from a function still change that function
+        Given a diff whose hunk only deletes lines after new line 5
         When I parse it
-        Then the deletion hunk is excluded from ranges
+        Then the range covers new lines 5 and 6, either side of the removal,
+            so the enclosing function is matched (deleting a check from it
+            reported no affected node)
         """
         diff_output = (
             "diff --git a/app.py b/app.py\n"
@@ -93,7 +95,7 @@ class TestParseGitDiffRanges:
                 "R", (), {"returncode": 0, "stdout": diff_output}
             )()
             result = parse_git_diff_ranges("HEAD")
-        assert result.get("app.py", []) == []
+        assert result["app.py"] == [(5, 6)]
 
     @pytest.mark.unit
     def test_raises_when_git_is_missing(self) -> None:
@@ -244,6 +246,35 @@ class TestComputeRiskScore:
         )
         score = compute_risk_score(node, store)
         assert score < 0.30  # Below untested weight
+
+    @pytest.mark.unit
+    def test_a_zero_test_gap_weight_never_favors_untested_code(
+        self, store: GraphStore
+    ) -> None:
+        """A fixed 0.05 for tested code outscored untested code at weight 0."""
+        for name in ("tested_fn", "untested_fn"):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=f"app.py::{name}",
+                    file_path="app.py",
+                    line_start=1,
+                    line_end=10,
+                )
+            )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.TESTED_BY,
+                source_qn="app.py::tested_fn",
+                target_qn="test_app.py::test_tested_fn",
+            )
+        )
+        weights = {**_DEFAULT_WEIGHTS, "test_gap": 0.0}
+        tested = store.get_node("app.py::tested_fn")
+        untested = store.get_node("app.py::untested_fn")
+        assert compute_risk_score(tested, store, weights) <= compute_risk_score(
+            untested, store, weights
+        )
 
     @pytest.mark.unit
     def test_score_capped_at_one(self, store: GraphStore) -> None:

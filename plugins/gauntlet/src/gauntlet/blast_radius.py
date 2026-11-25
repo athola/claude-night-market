@@ -124,6 +124,9 @@ def parse_git_diff_ranges(
             start = int(hunk_match.group(1))
             count = int(hunk_match.group(2) or "1")
             if count == 0:
+                # Lines removed after new line `start`: the enclosing node
+                # changed, so mark the lines either side of the removal.
+                ranges[current_file].append((max(start, 1), start + 1))
                 continue
             end = start + count - 1
             ranges[current_file].append((start, end))
@@ -191,10 +194,9 @@ def compute_risk_score(
         for e in graph.get_edges_by_source(node.qualified_name)
         if e.kind == EdgeKind.TESTED_BY
     ]
-    if not tested_by:
-        score += w["test_gap"]
-    else:
-        score += 0.05
+    # Tested code keeps a sixth of the weight (0.05 at the default 0.30):
+    # a fixed 0.05 outscored untested code once the weight went below it.
+    score += w["test_gap"] if not tested_by else w["test_gap"] / 6
 
     # Factor 2: Security sensitivity
     qn_lower = node.qualified_name.lower()
