@@ -61,6 +61,7 @@ def _find_unused_skills(metrics: dict[str, Any]) -> list[Finding]:
                 "or investigate why they are not being triggered."
             ),
             source="health-lens",
+            dedup_key="unused-skills",
         )
     ]
 

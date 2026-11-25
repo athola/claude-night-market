@@ -30,11 +30,13 @@ class Finding:
     type: str
     severity: str  # "high", "medium", "low", "info"
     skill: str  # affected skill or "" for cross-cutting
-    summary: str  # one-line, used in title and hash
+    summary: str  # one-line, used in title and hash (unless dedup_key)
     evidence: str  # markdown body with data/metrics
     recommendation: str  # what to do about it
     source: str  # which lens/trigger produced this
     related_files: list[str] = field(default_factory=list)
+    # stable stand-in for summary in the hash, for summaries with live counts
+    dedup_key: str = ""
 
     def title(self) -> str:
         """Generate a discussion title from this finding."""
@@ -67,7 +69,9 @@ def finding_hash(finding: Finding) -> str:
     Hash is based on type, skill, and summary only.
     Evidence and recommendation are excluded so that
     updated data for the same observation gets the
-    same hash.
+    same hash. A non-empty dedup_key replaces the
+    summary, so a summary carrying a count that moves
+    every run still maps to one hash.
     """
-    key = f"{finding.type}:{finding.skill}:{finding.summary}"
+    key = f"{finding.type}:{finding.skill}:{finding.dedup_key or finding.summary}"
     return hashlib.sha256(key.encode()).hexdigest()[:12]

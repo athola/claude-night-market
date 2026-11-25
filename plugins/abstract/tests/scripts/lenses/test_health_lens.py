@@ -5,6 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
+from insight_registry import InsightRegistry
 from insight_types import AnalysisContext
 from lenses.health_lens import LENS_META, analyze
 
@@ -71,3 +72,18 @@ def test_high_failure_ratio_detected():
     ctx = _ctx(metrics=metrics)
     findings = analyze(ctx)
     assert len(findings) >= 1
+
+
+def test_unused_skills_finding_posts_once_as_the_count_moves(tmp_path):
+    """A new unused-skill count must not open a new Discussion (#1306)."""
+    registry = InsightRegistry(state_path=tmp_path / "insights_posted.json")
+
+    def unused(n):
+        metrics = {f"p:s{i}": MockSummary(f"p:s{i}", total=0) for i in range(n)}
+        return analyze(_ctx(metrics=metrics))[0]
+
+    first, later = unused(27), unused(40)
+    registry.record_posted(first, "https://example.com/1")
+
+    assert first.summary != later.summary
+    assert registry.check_local(later) == "skip"

@@ -73,6 +73,22 @@ def test_finding_hash_ignores_evidence():
     assert finding_hash(f1) == finding_hash(f2)
 
 
+def test_finding_hash_uses_dedup_key_instead_of_summary():
+    """A summary that carries a moving count still dedups via dedup_key."""
+    base = {
+        "type": "Health Check",
+        "severity": "medium",
+        "skill": "",
+        "evidence": "",
+        "recommendation": "",
+        "source": "test",
+        "dedup_key": "unused-skills",
+    }
+    f1 = Finding(summary="27 skills have 0 executions in 30 days", **base)
+    f2 = Finding(summary="40 skills have 0 executions in 30 days", **base)
+    assert finding_hash(f1) == finding_hash(f2)
+
+
 def test_analysis_context_creation():
     ctx = AnalysisContext(
         metrics={},
