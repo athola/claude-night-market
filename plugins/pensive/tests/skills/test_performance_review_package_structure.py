@@ -62,8 +62,11 @@ class TestPerformanceReviewPackageStructure:
         Then key helper functions should be available
         """
         mod = importlib.import_module("pensive.skills.performance_review._helpers")
-        assert hasattr(mod, "_collect_non_list_names")
         assert hasattr(mod, "_MEMOIZATION_DECORATORS")
+        receivers = importlib.import_module(
+            "pensive.skills.performance_review._receivers"
+        )
+        assert hasattr(receivers, "_collect_non_list_names")
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -100,7 +103,7 @@ class TestPerformanceReviewPackageStructure:
         Then every file should be <= 400 lines
         """
         pkg_dir = Path(perf_pkg.__path__[0])
-        submodules = ["_helpers.py", "_visitor.py"]
+        submodules = ["_helpers.py", "_receivers.py", "_visitor.py"]
         oversized = {}
         for name in submodules:
             path = pkg_dir / name

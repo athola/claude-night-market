@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
 
 from ..base import AnalysisResult, BaseReviewSkill, ReviewFinding
-from ._helpers import _collect_non_list_names
+from ._receivers import _collect_non_list_names
 from ._treesitter import EXTENSION_TO_LANGUAGE, SPECS, scan_tree
 from ._visitor import _PerfVisitor
 
@@ -87,7 +87,9 @@ def _find_graph_db(file_path: str) -> Path | None:
 def _python_findings(file_path: str, code: str) -> list[ReviewFinding]:
     """Tier 1 over one source string. Raises SyntaxError on bad source."""
     tree = ast.parse(code)
-    visitor = _PerfVisitor(file_path, non_list_names=_collect_non_list_names(tree))
+    visitor = _PerfVisitor(
+        file_path, non_list_names=_collect_non_list_names(tree, file_path)
+    )
     visitor.visit(tree)
     return visitor.findings
 

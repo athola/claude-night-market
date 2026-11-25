@@ -8,6 +8,7 @@ from ..base import ReviewFinding
 from ._helpers import (
     _REDUCER_FUNCTIONS,
     _has_self_call,
+    _is_empty_list_value,
     _is_memoized,
     _iter_name,
 )
@@ -42,8 +43,20 @@ class _PerfVisitor(ast.NodeVisitor):
         # out.append(...); return out`. Real S1 hotspots are appends
         # to NON-local targets (params, class attrs, module-level lists).
         self._local_accumulators_stack: list[set[str]] = []
+        # Functions defined directly in a class body. A bare `name(...)`
+        # inside one resolves to a module-level function, never to the
+        # method itself, since a class body is not an enclosing scope.
+        self._method_ids: set[int] = set()
 
     # ---- function tracking (T5, T4 scoping) -------------------------
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        self._method_ids.update(
+            id(child)
+            for child in node.body
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+        )
+        self.generic_visit(node)
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         self._enter_func(node)
@@ -57,7 +70,11 @@ class _PerfVisitor(ast.NodeVisitor):
 
     def _enter_func(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
         # T5: recursive without memoization (LOW).
-        if _has_self_call(node) and not _is_memoized(node):
+        if (
+            id(node) not in self._method_ids
+            and _has_self_call(node)
+            and not _is_memoized(node)
+        ):
             self.findings.append(
                 ReviewFinding(
                     file=self._file,
@@ -102,19 +119,6 @@ class _PerfVisitor(ast.NodeVisitor):
         # - `out = list()`        (Assign + Call to bare list)
         # - `out: list[X] = list()` (AnnAssign + Call to bare list)
         accumulators: set[str] = set()
-
-        def _is_empty_list_value(value: ast.expr | None) -> bool:
-            if value is None:
-                return False
-            if isinstance(value, ast.List) and not value.elts:
-                return True
-            return bool(
-                isinstance(value, ast.Call)
-                and isinstance(value.func, ast.Name)
-                and value.func.id == "list"
-                and not value.args
-                and not value.keywords
-            )
 
         for body_node in ast.walk(node):
             if isinstance(body_node, ast.Assign) and _is_empty_list_value(
