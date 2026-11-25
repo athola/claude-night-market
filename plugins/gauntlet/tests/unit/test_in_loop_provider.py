@@ -145,6 +145,14 @@ class TestNumberFormatsSurviveVariation:
     def test_comma_list_of_small_numbers_shifts_each(self) -> None:
         assert _vary("sizes 3, 5, 7") == "sizes 6, 8, 10"
 
+    def test_dotted_version_is_left_whole(self) -> None:
+        assert _vary("upgrade from 1.10.4 to 10.0.0.1 in 3 steps") == (
+            "upgrade from 1.10.4 to 10.0.0.1 in 6 steps"
+        )
+
+    def test_decimal_without_a_leading_digit_is_left_whole(self) -> None:
+        assert _vary("a .5 margin over 4 nodes") == "a .5 margin over 7 nodes"
+
 
 class TestRunningInClaudeCode:
     """Feature: detect whether the runtime is inside Claude Code."""

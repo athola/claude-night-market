@@ -43,9 +43,9 @@ if TYPE_CHECKING:
 
 # One match per number as written. Matching bare digit runs split
 # "12,345" into two integers and "1.5" into two, and shifted "000" to "3"
-# (#1172). A thousands-grouped integer is tried first, then a plain or
-# decimal number.
-_INT_RE = re.compile(r"\b(?:\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\b")
+# (#1172). A thousands-grouped integer is tried first, then a plain,
+# decimal or dotted (1.10.4) number. A digit after a `.` is a fraction.
+_INT_RE = re.compile(r"\b(?<![.\d])(?:\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)*)\b")
 
 
 def _shift_int(match: re.Match[str]) -> str:
