@@ -228,7 +228,8 @@ def main() -> None:
         sys.exit(0)
 
     session_id = str(payload.get("session_id", ""))
-    queue_dir = Path.cwd() / QUEUE_DIR
+    # The process cwd follows any cd the session ran; the project root does not.
+    queue_dir = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path.cwd()) / QUEUE_DIR
     # Only a repo that keeps a knowledge corpus gets a queue: otherwise a
     # session ending in $HOME or an unrelated repo got a new docs/ tree
     # holding the user's prompt, where it could be committed.

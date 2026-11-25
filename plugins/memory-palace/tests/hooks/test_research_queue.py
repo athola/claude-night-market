@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -90,11 +91,23 @@ def _payload(transcript: Path | str, session_id: str = "abc12345") -> dict:
 
 
 def _run(
-    payload: dict, cwd: Path, *, corpus: bool = True
+    payload: dict,
+    cwd: Path,
+    *,
+    corpus: bool = True,
+    project_dir: Path | None = None,
 ) -> subprocess.CompletedProcess:
-    """Run the hook in ``cwd``; ``corpus`` gives it a knowledge corpus to write to."""
+    """Run the hook in ``cwd``; ``corpus`` gives it a knowledge corpus to write to.
+
+    ``project_dir`` is the harness's CLAUDE_PROJECT_DIR. Unset, it is removed
+    from the environment, so a test never writes into the real project.
+    """
+    root = project_dir or cwd
     if corpus:
-        (cwd / "docs" / "knowledge-corpus").mkdir(parents=True, exist_ok=True)
+        (root / "docs" / "knowledge-corpus").mkdir(parents=True, exist_ok=True)
+    env = {k: v for k, v in os.environ.items() if k != "CLAUDE_PROJECT_DIR"}
+    if project_dir is not None:
+        env["CLAUDE_PROJECT_DIR"] = str(project_dir)
     return subprocess.run(
         [sys.executable, str(HOOK)],
         input=json.dumps(payload),
@@ -102,6 +115,7 @@ def _run(
         text=True,
         timeout=10,
         cwd=str(cwd),
+        env=env,
         check=False,
     )
 
@@ -223,6 +237,25 @@ def test_bash_input_is_not_the_topic(tmp_path: Path) -> None:
     _run(_payload(transcript), tmp_path)
 
     assert "bash-input" not in _entry_text(tmp_path)
+
+
+def test_a_session_ending_in_a_subdirectory_queues_at_the_project_root(
+    tmp_path: Path,
+) -> None:
+    """The cwd follows the session's last cd; one session that ended in
+    plugins/sanctum left its entry in a stray plugins/sanctum/docs tree.
+    """
+    transcript = _transcript(
+        tmp_path, "deep dive research into agent memory decay", searches=5
+    )
+    sub = tmp_path / "plugins" / "sanctum"
+    (sub / "docs" / "knowledge-corpus").mkdir(parents=True)
+
+    result = _run(_payload(transcript), sub, project_dir=tmp_path)
+
+    assert result.returncode == 0
+    assert _entry_path(tmp_path).exists()
+    assert not list((sub / "docs" / "knowledge-corpus").rglob("*.yaml"))
 
 
 def test_research_cue_in_a_later_prompt_qualifies(tmp_path: Path) -> None:
