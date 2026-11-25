@@ -279,13 +279,7 @@ class TestQueueFlagging:
 
 
 class TestWhatTheSessionSees:
-    """Only a degrading verdict reaches the model, as one line (#1053).
-
-    The report carried custom keys and no ``additionalContext``, so the
-    harness passed nothing from it on any path. A healthy run now prints
-    nothing, and a degrading one tells the session the skill it just ran
-    is unstable. The full report is printed only under the debug flag.
-    """
+    """Only a degrading verdict reaches the model, as one line (ADR-0006)."""
 
     @pytest.mark.unit
     def test_healthy_skill_prints_nothing(

@@ -115,8 +115,6 @@ def _emit(output: dict) -> None:
         print(json.dumps(output))
         return
     report = output["hookSpecificOutput"]
-    if report["status"] == "healthy":
-        return
     context = (
         f"Skill {report['skill']} is {report['status']} across recent runs "
         f"(stability gap {report['stability_gap']:.2f}). Check its output "
