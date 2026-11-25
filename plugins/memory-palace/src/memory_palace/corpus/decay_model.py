@@ -328,6 +328,7 @@ class DecayModel:
                 maturity,
                 last_validated,
                 importance_score=importance_score,
+                unit_type=entry.get("unit_type"),
             )
 
             if state.decay_factor < threshold:
