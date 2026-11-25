@@ -402,6 +402,7 @@ class TestBugReviewSkill:
             "t = Thread(\n    target=f,\n    daemon=True,\n)\nt.start()\n",
             "t = Thread(target=f)\nt.daemon = True\nt.start()\n",
             "Thread(target=f, daemon=True).start()\n",
+            "t = Thread(target=lambda: f(g(x)), daemon=True)\nt.start()\n",
         ],
         ids=[
             "not-a-thread",
@@ -418,6 +419,7 @@ class TestBugReviewSkill:
             "daemon-across-lines",
             "daemon-attribute",
             "unbound-daemon",
+            "daemon-with-nested-calls",
         ],
     )
     def test_start_is_a_thread_leak_only_for_an_unjoined_thread(
