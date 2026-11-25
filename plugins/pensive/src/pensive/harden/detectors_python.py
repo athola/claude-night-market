@@ -155,6 +155,8 @@ def _detect_PY01(call: ast.Call, ctx: _Context) -> None:
 # Loaders that construct arbitrary Python objects. SafeLoader, CSafeLoader,
 # BaseLoader and a loader held in a variable stay silent: the detector
 # fires on known unsafe shapes, not on what it cannot resolve.
+# yaml.load(stream, Loader): the loader's positional index.
+_YAML_LOADER_ARG = 1
 _UNSAFE_YAML_LOADERS = frozenset(
     {"Loader", "UnsafeLoader", "FullLoader", "CLoader", "CUnsafeLoader", "CFullLoader"}
 )
@@ -166,6 +168,8 @@ def _detect_PY02(call: ast.Call, ctx: _Context) -> None:
     if chain != "yaml.load":
         return
     loader = _kw_value(call, "Loader")
+    if loader is None and len(call.args) > _YAML_LOADER_ARG:
+        loader = call.args[_YAML_LOADER_ARG]
     loader_name = _attr_chain(loader).rsplit(".", 1)[-1] if loader is not None else ""
     if loader is None or loader_name in _UNSAFE_YAML_LOADERS:
         ctx.add(
