@@ -82,3 +82,32 @@ def _is_empty_list_value(value: ast.expr | None) -> bool:
         and not value.args
         and not value.keywords
     )
+
+
+def _string_literal_locals(func: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
+    """Names a function assigns a string literal: the T4 accumulators."""
+    names: set[str] = set()
+    for node in ast.walk(func):
+        if isinstance(node, ast.Assign):
+            value, targets = node.value, node.targets
+        elif isinstance(node, ast.AnnAssign) and node.value is not None:
+            value, targets = node.value, [node.target]
+        else:
+            continue
+        if isinstance(value, ast.Constant) and isinstance(value.value, str):
+            names.update(t.id for t in targets if isinstance(t, ast.Name))
+    return names
+
+
+def _names_bound_in_loop(loop: ast.For | ast.AsyncFor) -> set[str]:
+    """Names that can take a new value on each pass of ``loop``.
+
+    The loop target plus every name assigned in the body, so a pattern
+    built from any of them differs per iteration and cannot be hoisted.
+    """
+    bound: set[str] = set()
+    for node in (loop.target, *loop.body):
+        for sub in ast.walk(node):
+            if isinstance(sub, ast.Name) and isinstance(sub.ctx, ast.Store):
+                bound.add(sub.id)
+    return bound

@@ -203,3 +203,44 @@ def test_membership_against_a_possible_list_is_still_reported(binding: str) -> N
         "            yield name\n"
     )
     assert len(_membership_findings(code)) == 1
+
+
+def _recompile_findings(code: str) -> list[str]:
+    context = Mock()
+    context.get_file_content.return_value = code
+    result = PerformanceReviewSkill().analyze(context, "module.py")
+    return [f.message for f in result.issues if f.message.startswith("re.compile")]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "body",
+    [
+        "rules.append(re.compile(re.escape(word)))",
+        "escaped = re.escape(word)\n        rules.append(re.compile(escaped))",
+        "rules.append(re.compile(rf'\\b{word}\\b', re.I))",
+    ],
+)
+def test_a_pattern_built_from_the_loop_variable_is_not_reported(body: str) -> None:
+    code = (
+        "import re\n"
+        "def build(words):\n"
+        "    rules = []\n"
+        "    for word in words:\n"
+        f"        {body}\n"
+        "    return rules\n"
+    )
+    assert _recompile_findings(code) == []
+
+
+@pytest.mark.unit
+def test_a_fixed_pattern_compiled_inside_a_loop_is_still_reported() -> None:
+    code = (
+        "import re\n"
+        "def count(lines, flags):\n"
+        "    total = 0\n"
+        "    for line in lines:\n"
+        "        total += bool(re.compile(r'\\bTODO\\b', flags).search(line))\n"
+        "    return total\n"
+    )
+    assert len(_recompile_findings(code)) == 1
