@@ -445,6 +445,13 @@ def _stored_at(capture: Path) -> str:
         return str(capture)
 
 
+def queue_backlog(directory: Path) -> int:
+    """Count the auto-captures waiting review, the files prune_queue manages."""
+    return len(list(directory.glob("webfetch-*.md"))) + len(
+        list(directory.glob("websearch-*.md"))
+    )
+
+
 def capture_notice(url: str, filename: str, length: int, backlog: int) -> str:
     """Report a capture, and mention the backlog only when it is one.
 
@@ -648,6 +655,11 @@ def store_websearch_results(
     results_content = "\n".join(results_md)
     content_for_hash = f"{query}|{results_content}"
     content_hash = get_content_hash(content_for_hash)
+    canonical = get_stored_at(content_hash)
+    if canonical is not None:
+        # The same query with the same results: the index keeps the first
+        # path, so a second file would sit in the queue unindexed.
+        return str(DATA_ROOT / canonical)
 
     frontmatter = render_frontmatter(
         {
@@ -835,7 +847,7 @@ def _handle_webfetch(
         )
         if stored_path:
             prune_queue(QUEUE_DIR)
-            backlog = len(list(QUEUE_DIR.glob("webfetch-*.md")))
+            backlog = queue_backlog(QUEUE_DIR)
             context_parts.append(
                 capture_notice(url, Path(stored_path).name, len(content), backlog),
             )
@@ -904,7 +916,7 @@ def _handle_websearch(
         stored_path = store_websearch_results(query, results)
         if stored_path:
             prune_queue(QUEUE_DIR)
-            backlog = len(list(QUEUE_DIR.glob("webfetch-*.md")))
+            backlog = queue_backlog(QUEUE_DIR)
             notice = capture_notice(
                 f"search: {query}", Path(stored_path).name, 0, backlog
             )

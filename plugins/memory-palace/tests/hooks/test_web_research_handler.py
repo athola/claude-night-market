@@ -1981,3 +1981,39 @@ def test_prune_queue_forgets_the_index_entries_of_pruned_files(
 
     assert not dedup.is_known(url="https://example.com/0")
     assert dedup.is_known(url="https://example.com/2")
+
+
+def test_the_same_search_twice_stores_one_file(tmp_path, monkeypatch) -> None:
+    """Search captures index the query, not the result URLs, so a repeat
+    search stored again; update_index then kept the first path and the
+    second file sat in the queue with no entry pointing at it.
+    """
+    import yaml as real_yaml
+
+    import shared.deduplication as dedup
+
+    monkeypatch.setattr(dedup, "_get_index_path", lambda: tmp_path / "i.yaml")
+    monkeypatch.setattr(dedup, "yaml", real_yaml)
+    monkeypatch.setattr(dedup, "_index_cache", None)
+    monkeypatch.setattr(dedup, "_index_mtime", 0)
+    queue = tmp_path / "queue"
+    monkeypatch.setattr(web_research_handler, "QUEUE_DIR", queue)
+    monkeypatch.setattr(web_research_handler, "DATA_ROOT", tmp_path)
+    results = [{"title": "A", "url": "https://example.test/a", "snippet": "s"}]
+
+    first = web_research_handler.store_websearch_results("same query", results)
+    second = web_research_handler.store_websearch_results("same query", results)
+
+    assert first is not None
+    assert second == first
+    assert len(list(queue.glob("websearch-*.md"))) == 1
+
+
+def test_the_backlog_notice_counts_search_captures_too(tmp_path) -> None:
+    """prune_queue treats websearch- files as captures; the backlog did not."""
+    for i in range(3):
+        (tmp_path / f"webfetch-{i}.md").write_text("x")
+        (tmp_path / f"websearch-{i}.md").write_text("x")
+    (tmp_path / "curated.md").write_text("keep")
+
+    assert web_research_handler.queue_backlog(tmp_path) == 6
