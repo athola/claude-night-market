@@ -27,17 +27,17 @@ INDEX_PATH = Path(__file__).resolve().parents[1] / "hooks" / "memory-palace-inde
 
 
 @pytest.fixture(scope="module")
-def committed_index() -> dict:
+def local_index() -> dict:
     """Load the local capture index as the hooks left it."""
     if not INDEX_PATH.exists():
         pytest.skip(f"No local capture index at {INDEX_PATH}")
     return load_capture_index(INDEX_PATH)
 
 
-class TestCommittedCaptureIndex:
-    """The shipped artifact must satisfy the dedup invariants."""
+class TestLocalCaptureIndex:
+    """The local index must satisfy the dedup invariants."""
 
-    def test_every_entry_hash_is_present_in_hashes(self, committed_index: dict) -> None:
+    def test_every_entry_hash_is_present_in_hashes(self, local_index: dict) -> None:
         """No entry references a content_hash absent from ``hashes``.
 
         A dangling reference means ``is_known(content_hash=...)`` reports
@@ -45,19 +45,17 @@ class TestCommittedCaptureIndex:
         disk. This is the state a non-refcounted prune used to leave
         behind when two entries shared one hash.
         """
-        hashes = committed_index["hashes"]
+        hashes = local_index["hashes"]
         dangling = {
             key: entry.get("content_hash")
-            for key, entry in committed_index["entries"].items()
+            for key, entry in local_index["entries"].items()
             if entry.get("content_hash") not in hashes
         }
         assert not dangling, (
             f"entries with a content_hash missing from hashes: {dangling}"
         )
 
-    def test_hashes_agree_with_entries_on_stored_at(
-        self, committed_index: dict
-    ) -> None:
+    def test_hashes_agree_with_entries_on_stored_at(self, local_index: dict) -> None:
         """``hashes[H]`` names the same file the entry claims.
 
         The two structures record where content lives; dedup consults
@@ -65,10 +63,10 @@ class TestCommittedCaptureIndex:
         the index points at the wrong file for content it believes it
         already has.
         """
-        hashes = committed_index["hashes"]
+        hashes = local_index["hashes"]
         disagreements = [
             (key, entry["stored_at"], hashes[entry["content_hash"]])
-            for key, entry in committed_index["entries"].items()
+            for key, entry in local_index["entries"].items()
             if entry.get("content_hash") in hashes
             and hashes[entry["content_hash"]] != entry.get("stored_at")
         ]
@@ -77,7 +75,7 @@ class TestCommittedCaptureIndex:
             f"(key, entry.stored_at, hashes[H]): {disagreements}"
         )
 
-    def test_no_orphan_hashes(self, committed_index: dict) -> None:
+    def test_no_orphan_hashes(self, local_index: dict) -> None:
         """Every hash mapping is referenced by at least one entry.
 
         An orphan hash suppresses a future capture of content no entry
@@ -85,44 +83,40 @@ class TestCommittedCaptureIndex:
         the file.
         """
         referenced = {
-            entry.get("content_hash") for entry in committed_index["entries"].values()
+            entry.get("content_hash") for entry in local_index["entries"].values()
         }
-        orphans = set(committed_index["hashes"]) - referenced
+        orphans = set(local_index["hashes"]) - referenced
         assert not orphans, f"hash mappings no entry references: {sorted(orphans)}"
 
-    def test_entries_carry_the_fields_consumers_read(
-        self, committed_index: dict
-    ) -> None:
+    def test_entries_carry_the_fields_consumers_read(self, local_index: dict) -> None:
         """Each entry carries the fields the analytics and prune layers read."""
         required = {"content_hash", "stored_at", "importance_score", "last_updated"}
         incomplete = {
             key: sorted(required - set(entry))
-            for key, entry in committed_index["entries"].items()
+            for key, entry in local_index["entries"].items()
             if not required.issubset(entry)
         }
         assert not incomplete, f"entries missing required fields: {incomplete}"
 
-    def test_importance_scores_stay_in_range(self, committed_index: dict) -> None:
+    def test_importance_scores_stay_in_range(self, local_index: dict) -> None:
         """``update_index`` rejects scores outside [0, 100]; the corpus agrees."""
         out_of_range = {
             key: entry["importance_score"]
-            for key, entry in committed_index["entries"].items()
+            for key, entry in local_index["entries"].items()
             if not 0 <= entry.get("importance_score", 0) <= 100
         }
         assert not out_of_range, f"importance_score outside [0, 100]: {out_of_range}"
 
-    def test_no_entry_is_left_pending(self, committed_index: dict) -> None:
-        """The committed index carries no undrained capture.
+    def test_no_entry_is_left_pending(self, local_index: dict) -> None:
+        """The local index carries no undrained capture.
 
-        The index is tracked so the drain has something to converge on,
-        which only means anything if the committed state is drained. The
-        pre-commit gate (``check_capture_index_drained.py``) enforces
-        this before a commit lands; this test enforces it on whatever is
-        in the tree, so a bypassed hook still fails CI.
+        The pre-commit gate (``check_capture_index_drained.py``) enforces
+        this before a commit lands; this test enforces it on whatever
+        index is on disk.
         """
         pending = sorted(
             key
-            for key, entry in committed_index["entries"].items()
+            for key, entry in local_index["entries"].items()
             if entry.get("routing_type", INERT_ROUTING_TYPE) == INERT_ROUTING_TYPE
         )
         assert not pending, (
