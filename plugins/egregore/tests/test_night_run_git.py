@@ -11,6 +11,7 @@ walk rather than a finished one.
 
 from __future__ import annotations
 
+import os
 from collections.abc import Sequence
 from dataclasses import replace
 from pathlib import Path
@@ -94,6 +95,26 @@ class TestAGitFailureStopsTheWalk:
 
         assert result.status == "git_failed"
         assert " ".join(failing) in result.reason
+        assert result.committed == []
+
+    def test_an_untracked_file_gone_before_its_diff(self, tmp_path: Path) -> None:
+        """Exit 1 from ``--no-index`` is a diff only if the file is there."""
+        no_index = ("git", "diff", "--no-index", "--numstat", "--", "/dev/null")
+        runner = FailOneGitCommand(
+            (),
+            {
+                EVIDENCE: (0, "1 passed"),
+                ("git", "status", "--porcelain", "-uall"): (0, "?? a/T1.py\n"),
+                (*no_index, "a/T1.py"): (1, "error: Could not access 'a/T1.py'"),
+            },
+        )
+
+        result = night_run.run_item(
+            HANDOFF, [mktask("T1", [])], tmp_path, runner, babysitter=_passing_sitter
+        )
+
+        assert result.status == "git_failed"
+        assert "--no-index" in result.reason
         assert result.committed == []
 
     @pytest.mark.parametrize("failing", DISCARD_COMMANDS, ids=" ".join)
@@ -235,6 +256,27 @@ class TestStagedChangesAreFenced:
         assert "error:" not in diff
         assert "+print('hi')" in diff
         assert night_run._diff_line_count(runner, repo) == 1
+
+    def test_an_untracked_file_git_cannot_access_stops_the_review(
+        self, tmp_path: Path
+    ) -> None:
+        """A name that is not UTF-8 decodes to a path that does not exist.
+
+        ``git diff --no-index`` then exits 1 with "Could not access", the
+        same code as a real difference, and the error text reached the
+        babysitter as if it were a diff.
+        """
+        repo = self._repo(tmp_path)
+        runner = night_run.SubprocessRunner()
+        try:
+            (repo / os.fsdecode(b"caf\xe9.txt")).touch()
+        except (OSError, UnicodeError):
+            pytest.skip("the filesystem refuses a name that is not UTF-8")
+
+        with pytest.raises(night_run.GitFailed, match="--no-index"):
+            night_run._review_diff(runner, repo)
+        with pytest.raises(night_run.GitFailed, match="--no-index"):
+            night_run._diff_line_count(runner, repo)
 
     def test_the_task_commit_leaves_a_staged_stray_out(self, tmp_path: Path) -> None:
         repo = self._repo(tmp_path)
