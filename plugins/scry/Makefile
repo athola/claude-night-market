@@ -124,7 +124,7 @@ test-integration: ## Run integration tests (requires ffmpeg/vhs)
 	elif command -v pytest >/dev/null 2>&1; then \
 		pytest tests/ -v -m "integration" --tb=short; \
 	else \
-		echo "  [SKIP] pytest not installed"; \
+		echo "  pytest not installed: nothing was tested" >&2; exit 1; \
 	fi
 	@if command -v ffmpeg >/dev/null 2>&1; then \
 		$(MAKE) demo-gif || status=$$?; \
