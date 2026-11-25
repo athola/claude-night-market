@@ -137,7 +137,10 @@ def _needs_metacognition(claude_home: Path) -> bool:  # noqa: PLR0911 - multi-cr
 
     Triggers when:
     1. Effectiveness rate < 50% (with >= 5 outcomes)
-    2. Every 10 improvement outcomes (periodic check)
+    2. Every 10 improvement outcomes (periodic check), once per tenth:
+       the total is a count, and checking it on every flag recommended
+       the pass on each flag until the next outcome, and forever once a
+       skill reached the 100-outcome cap
     3. Most recent outcome was a regression
 
     Returns False if ImprovementMemory is unavailable.
@@ -163,8 +166,12 @@ def _needs_metacognition(claude_home: Path) -> bool:  # noqa: PLR0911 - multi-cr
         # Trigger 1: low effectiveness
         if total >= min_outcomes and len(effective) / total < low_effectiveness:
             return True
-        # Trigger 2: periodic
-        if total % periodic_interval == 0:
+        # Trigger 2: periodic, recorded so one total fires once
+        mark = claude_home / "skills" / "metacognition_periodic_total"
+        if total % periodic_interval == 0 and (
+            not mark.exists() or mark.read_text().strip() != str(total)
+        ):
+            mark.write_text(str(total))
             return True
         # Trigger 3: recent regression
         if failed:
