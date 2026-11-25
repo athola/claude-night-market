@@ -111,3 +111,29 @@ def _names_bound_in_loop(loop: ast.For | ast.AsyncFor) -> set[str]:
             if isinstance(sub, ast.Name) and isinstance(sub.ctx, ast.Store):
                 bound.add(sub.id)
     return bound
+
+
+def _empty_list_locals(func: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
+    """Names a function starts as ``[]`` or ``list()``: its accumulators.
+
+    S1 leaves appends to these alone, since ``out = []; for ...:
+    out.append(...); return out`` is the ordinary way to build a result.
+    """
+    names: set[str] = set()
+    for node in ast.walk(func):
+        if isinstance(node, ast.Assign) and _is_empty_list_value(node.value):
+            names.update(t.id for t in node.targets if isinstance(t, ast.Name))
+        elif (
+            isinstance(node, ast.AnnAssign)
+            and _is_empty_list_value(node.value)
+            and isinstance(node.target, ast.Name)
+        ):
+            names.add(node.target.id)
+    return names
+
+
+def _names_in(*exprs: ast.expr) -> set[str]:
+    """Every name read anywhere inside ``exprs``."""
+    return {
+        sub.id for expr in exprs for sub in ast.walk(expr) if isinstance(sub, ast.Name)
+    }

@@ -244,3 +244,83 @@ def test_a_fixed_pattern_compiled_inside_a_loop_is_still_reported() -> None:
         "    return total\n"
     )
     assert len(_recompile_findings(code)) == 1
+
+
+def _space_findings(code: str) -> list[str]:
+    context = Mock()
+    context.get_file_content.return_value = code
+    result = PerformanceReviewSkill().analyze(context, "module.py")
+    return [f.message for f in result.issues if f.category == "space"]
+
+
+@pytest.mark.unit
+def test_appending_while_walking_a_nested_structure_is_not_reported() -> None:
+    code = (
+        "def render(self, sections):\n"
+        "    for section in sections:\n"
+        "        for finding in section.findings:\n"
+        "            self.lines.append(finding.title)\n"
+        "        children = section.children\n"
+        "        for child in children:\n"
+        "            self.lines.append(child)\n"
+    )
+    assert _space_findings(code) == []
+
+
+@pytest.mark.unit
+def test_appending_across_two_independent_collections_is_still_reported() -> None:
+    code = (
+        "def pairs(self, left, right):\n"
+        "    for a in left:\n"
+        "        for b in right:\n"
+        "            self.out.append((a, b))\n"
+    )
+    assert len(_space_findings(code)) == 1
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "loop",
+    [
+        "for directory in [cwd] + list(cwd.parents):",
+        "for key in list(headers):",
+        "for path, digest in list(digests.items())[:100]:",
+    ],
+)
+def test_a_copy_in_the_loop_iterable_is_made_once_and_not_reported(loop: str) -> None:
+    code = f"def walk(cwd, headers, digests):\n    {loop}\n        print(cwd)\n"
+    assert _space_findings(code) == []
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "body",
+    [
+        "out.append(issue.copy())",
+        "out.append(dict(issue))",
+        "row = table[issue]\n        out.append(row.copy())",
+    ],
+)
+def test_copying_the_item_of_the_current_pass_is_not_reported(body: str) -> None:
+    code = (
+        "def snapshot(issues, table):\n"
+        "    out = []\n"
+        "    for issue in issues:\n"
+        f"        {body}\n"
+        "    return out\n"
+    )
+    assert _space_findings(code) == []
+
+
+@pytest.mark.unit
+def test_copying_a_loop_invariant_value_each_pass_is_still_reported() -> None:
+    code = (
+        "def snapshot(issues, base):\n"
+        "    out = []\n"
+        "    for issue in issues:\n"
+        "        merged = base.copy()\n"
+        "        merged['id'] = issue\n"
+        "        out.append(merged)\n"
+        "    return out\n"
+    )
+    assert len(_space_findings(code)) == 1
