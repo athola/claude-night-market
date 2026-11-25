@@ -143,7 +143,10 @@ def _needs_metacognition(claude_home: Path) -> bool:  # noqa: PLR0911 - multi-cr
        skill reached the 100-outcome cap
     3. Most recent outcome was a regression
 
-    Returns False if ImprovementMemory is unavailable.
+    Triggers 1 and 3 are level-triggered on purpose: low effectiveness and a
+    latest regression stay true until an outcome changes them, and each
+    flag while they hold is a reason to look. Only the periodic check is an
+    event. Returns False if ImprovementMemory is unavailable.
     """
     min_outcomes = 5
     low_effectiveness = 0.5
