@@ -71,6 +71,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **sanctum:** the SessionStart policy hook injects its policy when
+  stdin holds a JSON array or scalar. It raised `AttributeError`
+  before, and the session started with no governance text.
+- **Test review (2026-11-27):** 48 tests were strengthened or added
+  where a broken version of the code they name still passed. Examples:
+  the citation verifier's window, the read-counter path guard, harden
+  `--strict` at HIGH, conserve's 0.95 estimate cap, conjure's exit 1 on
+  a failed delegation, memory-palace AND search and `min_score`, and
+  tome's summary counts. 47 tests that asserted only on literals in
+  their own body, or on a helper defined in the test, were removed. 14
+  content tests replace the ones that paraphrased real skill text.
 - **API review (2026-11-27):** documented invocations that the parser
   rejected now name real flags, subcommands and paths. The affected
   docs were abstract's validator flags and `abstract-skills validate`,
