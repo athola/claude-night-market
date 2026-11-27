@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -315,10 +316,10 @@ def main() -> int:
     args = parser.parse_args()
 
     if not args.findings.exists():
-        print(f"ERROR: findings file not found: {args.findings}")
+        print(f"ERROR: findings file not found: {args.findings}", file=sys.stderr)
         return 2
     if not args.contract.exists():
-        print(f"ERROR: contract file not found: {args.contract}")
+        print(f"ERROR: contract file not found: {args.contract}", file=sys.stderr)
         return 2
 
     contract = _load_contract(args.contract)

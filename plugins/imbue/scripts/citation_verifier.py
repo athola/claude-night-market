@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
@@ -329,12 +330,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if not args.findings.exists():
-        print(f"ERROR: findings file not found: {args.findings}")
+        print(f"ERROR: findings file not found: {args.findings}", file=sys.stderr)
         return 2
     try:
         findings = load_findings(args.findings)
     except (json.JSONDecodeError, ValueError) as exc:
-        print(f"ERROR: could not parse findings file: {exc}")
+        print(f"ERROR: could not parse findings file: {exc}", file=sys.stderr)
         return 2
 
     report = verify_findings(findings, args.repo_root, strictness=args.strictness)

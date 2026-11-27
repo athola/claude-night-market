@@ -293,6 +293,20 @@ class TestCli:
         )
         assert code == 2
 
+    @pytest.mark.parametrize("contents", [None, "{not json"])
+    def test_cli_errors_keep_json_stdout_clean(
+        self, source_repo: Path, capsys, contents: str | None
+    ) -> None:
+        """A caller piping --format json into a parser gets only JSON on stdout."""
+        path = source_repo / "findings.json"
+        if contents is not None:
+            path.write_text(contents)
+        code = main(["--findings", str(path), "--format", "json"])
+        captured = capsys.readouterr()
+        assert code == 2
+        assert captured.out == ""
+        assert captured.err.startswith("ERROR:")
+
     def test_cli_json_format(self, source_repo: Path, capsys) -> None:
         """--format json emits a machine-readable verdict with failures."""
         path = source_repo / "findings.json"
