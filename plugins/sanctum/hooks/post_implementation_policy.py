@@ -236,7 +236,8 @@ def main() -> None:
         input_data = sys.stdin.read().strip()
         if input_data:
             hook_input = json.loads(input_data)
-            agent_type = hook_input.get("agent_type") or ""
+            if isinstance(hook_input, dict):
+                agent_type = hook_input.get("agent_type") or ""
     except (OSError, json.JSONDecodeError) as e:
         # Gracefully handle missing or malformed input
         # Log to stderr for debugging (doesn't break hook output)
