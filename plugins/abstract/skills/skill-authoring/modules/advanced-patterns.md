@@ -231,7 +231,7 @@ wc -l plugins/<plugin>/skills/<skill>/SKILL.md
 
 # Confirm the auditor sees no shared/ regressions
 python plugins/abstract/scripts/skills_auditor.py \
-  --skill plugins/<plugin>/skills/<skill>/SKILL.md
+  plugins/<plugin>/skills/<skill>
 ```
 
 Cross-reference: see `Skill(abstract:modular-skills)` for the

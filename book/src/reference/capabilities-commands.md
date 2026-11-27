@@ -202,7 +202,7 @@ Initialize project with complete development infrastructure.
 --name NAME             Project name (default: directory name)
 --author AUTHOR         Author name
 --email EMAIL           Author email
---python-version VER    Python version (default: 3.10)
+--python-version VER    Python version (default: 3.9)
 --description TEXT      Project description
 --path PATH             Project path (default: .)
 --force                 Overwrite existing files without prompting

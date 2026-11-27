@@ -15,10 +15,8 @@ scripts under `plugins/attune/scripts/` for automation and reuse.
 ```bash
 uv run python plugins/attune/scripts/architecture_researcher.py \
   --project-type web-api \
-  --domain-complexity complex \
-  --team-size 5-15 \
-  --language python \
-  --output-json
+  --complexity complex \
+  --team-size 5-15
 ```
 
 Returns a recommendation with:
@@ -33,26 +31,23 @@ Returns a recommendation with:
 ```bash
 uv run python plugins/attune/scripts/template_customizer.py \
   --paradigm cqrs-es \
-  --language python \
-  --project-name my-project \
-  --output-dir ./my-project
+  --module my_project \
+  --language python
 ```
 
-Creates the paradigm-appropriate directory structure (e.g.,
-`commands/`, `queries/`, `events/` for CQRS).
+Prints the paradigm-appropriate directory structure (e.g.,
+`commands/`, `queries/`, `events/` for CQRS). It writes nothing.
 
 ## Full Interactive Flow
 
 ```bash
 # Interactive
 uv run python plugins/attune/scripts/attune_arch_init.py \
-  --name my-project \
-  --lang python
+  --name my-project
 
 # Non-interactive with explicit architecture
 uv run python plugins/attune/scripts/attune_arch_init.py \
   --name my-project \
-  --lang python \
   --arch hexagonal \
   --accept-recommendation
 ```

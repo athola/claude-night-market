@@ -8,10 +8,10 @@ AI-assisted pipelines.
 
 ### Change Failure Rate, AI vs human
 
-Run the metric twice with different `--failure-label` values:
+Run the metric twice with different `--failure-label` values, with
+`PYTHONPATH` set to the plugin's `src/` as in the skill's step 1:
 
 ```bash
-export PYTHONPATH="${CLAUDE_PLUGIN_ROOT}/src"
 python3 -m minister.dora_metrics --window 30 --failure-label bug --json > all.json
 python3 -m minister.dora_metrics --window 30 --failure-label ai-bug --json > ai.json
 ```

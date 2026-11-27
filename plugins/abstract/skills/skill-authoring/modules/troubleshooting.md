@@ -290,7 +290,7 @@ Most of the symptoms above can be caught before merge:
 ```bash
 # Run the full skill audit
 python plugins/abstract/scripts/skills_auditor.py \
-  --skill plugins/<plugin>/skills/<skill>/SKILL.md
+  plugins/<plugin>/skills/<skill>
 
 # Check compliance
 python plugins/abstract/scripts/compliance_checker.py \

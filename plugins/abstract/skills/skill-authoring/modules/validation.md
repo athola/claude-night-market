@@ -148,7 +148,7 @@ without-skill response is absent in the with-skill response.
 
 ```bash
 python plugins/abstract/scripts/skills_auditor.py \
-  --skill plugins/<plugin>/skills/<skill>/SKILL.md
+  plugins/<plugin>/skills/<skill>
 ```
 
 The auditor flags structural issues, voice inconsistencies,
@@ -240,10 +240,7 @@ overlap with a newer skill. Re-validate periodically:
 
 ```bash
 # Audit all skills in a plugin
-for skill in plugins/<plugin>/skills/*/SKILL.md; do
-  python plugins/abstract/scripts/skills_auditor.py \
-    --skill "$skill"
-done
+python plugins/abstract/scripts/skills_auditor.py plugins/<plugin>/skills
 ```
 
 The output is a per-skill score. Skills that dropped below

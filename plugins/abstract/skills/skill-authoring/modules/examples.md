@@ -197,7 +197,7 @@ head -10 plugins/<plugin>/skills/<skill>/SKILL.md
 
 # Run the skills-eval auditor against the example
 python plugins/abstract/scripts/skills_auditor.py \
-  --skill plugins/<plugin>/skills/<skill>/SKILL.md
+  plugins/<plugin>/skills/<skill>
 ```
 
 If a skill cited above has changed shape, update this module

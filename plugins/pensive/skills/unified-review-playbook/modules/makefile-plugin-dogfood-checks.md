@@ -10,7 +10,7 @@ This module provides detailed Makefile analysis and enhancement for the claude-n
 
 ### 1. Discovery Phase
 ```bash
-makefile_dogfooder.py --scope all --mode analyze
+makefile_dogfooder.py --mode analyze
 ```
 
 The discovery phase:
@@ -44,7 +44,7 @@ The testing phase performs:
 
 ### 4. Generation Phase
 ```bash
-makefile_dogfooder.py --mode full --apply
+makefile_dogfooder.py --mode apply
 ```
 
 The generation phase creates:
