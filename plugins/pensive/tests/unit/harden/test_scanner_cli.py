@@ -147,8 +147,25 @@ class TestCliEntryPoint:
     ) -> None:
         (tmp_path / "x.py").write_text("import yaml\nyaml.load('foo')\n")
         rc = run_cli(["--path", str(tmp_path), "--strict", "--json"])
-        # Strict + non-empty findings -> non-zero exit.
-        assert rc != 0
+        # yaml.load is HIGH, and strict exits 2 on HIGH-or-above.
+        assert rc == 2
+
+    def test_cli_strict_passes_a_tree_with_only_low_findings(
+        self,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """Strict gates on HIGH; LOW and MEDIUM findings are reported, not fatal."""
+        (tmp_path / "x.py").write_text(
+            "import subprocess\nsubprocess.run('ls -l', shell=True)\n"
+        )
+        rc = run_cli(["--path", str(tmp_path), "--strict", "--json"])
+        severities = [
+            f["severity"]
+            for f in json.loads(capsys.readouterr().out)["data"]["findings"]
+        ]
+        assert sorted(severities) == ["LOW", "MEDIUM"]
+        assert rc == 0
 
     def test_cli_clean_path_returns_zero(
         self,
