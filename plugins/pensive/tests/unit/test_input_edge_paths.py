@@ -21,6 +21,7 @@ from pensive.reporting.formatters import SarifFormatter
 from pensive.skills.api_review import ApiReviewSkill
 from pensive.skills.architecture_review import ArchitectureReviewSkill
 from pensive.skills.base import AnalysisResult
+from pensive.skills.unified_review import UnifiedReviewSkill
 from pensive.workflows.code_review import CodeReviewWorkflow
 
 if TYPE_CHECKING:
@@ -385,3 +386,21 @@ def test_sarif_uri_is_relative_to_the_scanned_repo(tmp_path) -> None:
 
     assert location["artifactLocation"]["uri"] == "pkg/a.py"
     assert sarif["runs"][0]["tool"]["driver"]["rules"][0]["name"] == "PY02"
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("skill", [ApiReviewSkill(), ArchitectureReviewSkill()])
+def test_analyze_accepts_file_path_by_keyword_on_every_skill(skill: object) -> None:
+    """Bug, Rust and Performance name it ``file_path``; the base must too.
+
+    A caller writing ``analyze(ctx, file_path=...)`` hit TypeError on the
+    skills that inherit the base signature.
+    """
+    result = skill.analyze(_Context({}), file_path="app.py")
+    assert isinstance(result, AnalysisResult)
+
+
+@pytest.mark.unit
+def test_unified_analyze_accepts_file_path_by_keyword() -> None:
+    result = UnifiedReviewSkill().analyze(_Context({}), file_path="app.py")
+    assert isinstance(result, AnalysisResult)
