@@ -27,11 +27,15 @@ class TestPhase2SkillPerformanceAnalysis:
         assert "recent_failures" in result
         assert "low_success_rate" in result
 
-    def test_analyze_skill_performance_empty_when_no_logs(self, minimal_plugin_dir):
+    def test_analyze_skill_performance_empty_when_no_logs(
+        self, minimal_plugin_dir, tmp_path, monkeypatch
+    ):
         """Phase 2 returns empty lists when no log directory exists."""
+        # The default log dir is under Path.home(); point it at an empty home
+        # so the developer's own skill logs cannot reach the result.
+        monkeypatch.setenv("HOME", str(tmp_path / "empty-home"))
         auditor = PluginAuditor(minimal_plugin_dir.parent, dry_run=True)
         result = auditor.analyze_skill_performance("test-plugin")
-        # Default log_dir (~/.claude/skills/logs) likely doesn't exist in test env
         assert result["unstable_skills"] == []
         assert result["recent_failures"] == []
         assert result["low_success_rate"] == []

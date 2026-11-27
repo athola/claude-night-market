@@ -64,6 +64,22 @@ def test_reminder_shows_when_the_turn_edited_files(
 
 
 @pytest.mark.unit
+def test_a_meta_user_row_after_an_edit_does_not_end_the_turn(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    """A harness-injected user row (isMeta) is not the user starting a turn.
+
+    Treating it as a prompt would stop the walk before the Edit and drop the
+    reminder for a turn that did edit files.
+    """
+    meta = {**_user_prompt("<system-reminder>...</system-reminder>"), "isMeta": True}
+    rows = [_user_prompt("implement it"), _tool_use("Edit"), _tool_result(), meta]
+    out = _run(monkeypatch, capsys, {"transcript_path": _transcript(tmp_path, rows)})
+
+    assert json.loads(out)["systemMessage"] == REMINDER
+
+
+@pytest.mark.unit
 def test_no_reminder_when_the_turn_only_read(tmp_path, monkeypatch, capsys) -> None:
     rows = [_user_prompt("what does x do?"), _tool_use("Read"), _tool_result()]
     out = _run(monkeypatch, capsys, {"transcript_path": _transcript(tmp_path, rows)})
