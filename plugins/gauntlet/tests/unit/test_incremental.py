@@ -15,7 +15,6 @@ from gauntlet.graph import GraphStore  # noqa: E402 - must follow importorskip
 from gauntlet.incremental import (  # noqa: E402 - must follow importorskip
     ChangedFilesUnavailableError,
     _changed_or_report,
-    _get_staged_files,
     _validate_ref,
     collect_files,
     find_dependents,
@@ -136,21 +135,6 @@ class TestGetChangedFiles:
         with patch("gauntlet.incremental.subprocess.run", return_value=mock_result):
             result = get_changed_files("HEAD")
         assert result == ["src/app.py", "src/lib.py"]
-
-    @pytest.mark.unit
-    def test_returns_empty_on_git_failure(self) -> None:
-        """
-        Scenario: git is not available
-        Given subprocess raises FileNotFoundError
-        When I call get_changed_files
-        Then an empty list is returned
-        """
-        with patch(
-            "gauntlet.incremental.subprocess.run",
-            side_effect=FileNotFoundError,
-        ):
-            result = get_changed_files()
-        assert result == []
 
 
 class TestFindDependents:
@@ -479,124 +463,22 @@ class TestIncrementalUpdate:
         assert store.get_metadata("last_build_type") == "incremental"
 
 
-class TestGetChangedFilesEdgeCases:
+class TestGetChangedFilesGitFailures:
     """
-    Feature: Edge cases in git diff invocation
+    Feature: git failures in the changed-file lookup
 
-    As a resilient tool
-    I want to handle git failures gracefully
-    So that graph updates degrade instead of crashing
+    A failed lookup raises, so "could not tell" never reads as
+    "nothing changed" or as a different file set.
     """
 
     @pytest.mark.unit
-    def test_nonzero_returncode_falls_back_to_staged(self) -> None:
-        """
-        Scenario: git diff exits with non-zero code
-        Given git diff returns rc=128
-        When I call get_changed_files
-        Then it falls back to _get_staged_files
-        """
-        diff_result = type("R", (), {"returncode": 128, "stdout": ""})()
-        staged_result = type("R", (), {"returncode": 0, "stdout": "staged.py\n"})()
-
-        def side_effect(cmd, **kwargs):
-            if "--cached" in cmd:
-                return staged_result
-            return diff_result
-
-        with patch(
-            "gauntlet.incremental.subprocess.run",
-            side_effect=side_effect,
-        ):
-            result = get_changed_files("HEAD")
-        assert result == ["staged.py"]
-
-    @pytest.mark.unit
-    def test_timeout_returns_empty(self) -> None:
-        """
-        Scenario: git diff times out
-        Given subprocess raises TimeoutExpired
-        When I call get_changed_files
-        Then an empty list is returned
-        """
+    def test_timeout_raises(self) -> None:
         with patch(
             "gauntlet.incremental.subprocess.run",
             side_effect=subprocess.TimeoutExpired(cmd="git", timeout=10),
         ):
-            result = get_changed_files("HEAD")
-        assert result == []
-
-
-class TestGetStagedFiles:
-    """
-    Feature: Staged files fallback
-
-    As an incremental updater
-    I want to read staged files when git diff fails
-    So that I still have a useful changeset
-    """
-
-    @pytest.mark.unit
-    def test_returns_staged_filenames(self) -> None:
-        """
-        Scenario: git diff --cached returns staged files
-        Given staged files exist
-        When I call _get_staged_files
-        Then those file paths are returned
-        """
-        mock_result = type("R", (), {"returncode": 0, "stdout": "a.py\nb.py\n"})()
-        with patch(
-            "gauntlet.incremental.subprocess.run",
-            return_value=mock_result,
-        ):
-            result = _get_staged_files()
-        assert result == ["a.py", "b.py"]
-
-    @pytest.mark.unit
-    def test_timeout_returns_empty(self) -> None:
-        """
-        Scenario: git diff --cached times out
-        Given subprocess raises TimeoutExpired
-        When I call _get_staged_files
-        Then an empty list is returned
-        """
-        with patch(
-            "gauntlet.incremental.subprocess.run",
-            side_effect=subprocess.TimeoutExpired(cmd="git", timeout=10),
-        ):
-            result = _get_staged_files()
-        assert result == []
-
-    @pytest.mark.unit
-    def test_git_not_found_returns_empty(self) -> None:
-        """
-        Scenario: git is not installed
-        Given subprocess raises FileNotFoundError
-        When I call _get_staged_files
-        Then an empty list is returned
-        """
-        with patch(
-            "gauntlet.incremental.subprocess.run",
-            side_effect=FileNotFoundError,
-        ):
-            result = _get_staged_files()
-        assert result == []
-
-    @pytest.mark.unit
-    def test_nonzero_returncode_returns_empty(self) -> None:
-        """
-        Scenario: git diff --cached exits with non-zero code
-        Given subprocess returns returncode=128
-        When I call _get_staged_files
-        Then an empty list is returned.
-        """
-        mock_result = type("R", (), {"returncode": 128, "stdout": ""})()
-        with patch(
-            "gauntlet.incremental.subprocess.run",
-            return_value=mock_result,
-        ):
-            result = _get_staged_files()
-        assert result == []
+            with pytest.raises(ChangedFilesUnavailableError, match="timed out"):
+                get_changed_files("HEAD")
 
 
 class TestCollectFilesEdgeCases:
@@ -724,12 +606,12 @@ class TestCallTargetResolution:
 
 
 @pytest.mark.unit
-def test_strict_raises_when_git_diff_exits_nonzero() -> None:
+def test_raises_when_git_diff_exits_nonzero() -> None:
     """An unknown base ref (rc=128) is "could not tell", not "no changes"."""
     failed = type("R", (), {"returncode": 128, "stdout": "", "stderr": "bad ref"})()
     with patch("gauntlet.incremental.subprocess.run", return_value=failed):
         with pytest.raises(ChangedFilesUnavailableError, match="128"):
-            get_changed_files("deadbeefdeadbeef", strict=True)
+            get_changed_files("deadbeefdeadbeef")
 
 
 @pytest.mark.unit
@@ -743,11 +625,11 @@ def test_incremental_update_reports_an_error_for_an_unknown_base_ref() -> None:
 
 
 @pytest.mark.unit
-def test_strict_raises_when_git_is_missing_from_path() -> None:
+def test_raises_when_git_is_missing_from_path() -> None:
     """A missing git binary is "could not tell", not "no changes".
 
     GIVEN subprocess cannot find the git executable
-    WHEN get_changed_files runs in strict mode
+    WHEN get_changed_files runs
     THEN ChangedFilesUnavailableError names the missing binary and keeps
     the FileNotFoundError as its cause.
     """
@@ -757,7 +639,7 @@ def test_strict_raises_when_git_is_missing_from_path() -> None:
         with pytest.raises(
             ChangedFilesUnavailableError, match="git not found on PATH"
         ) as excinfo:
-            get_changed_files("HEAD", strict=True)
+            get_changed_files("HEAD")
     assert isinstance(excinfo.value.__cause__, FileNotFoundError)
 
 

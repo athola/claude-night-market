@@ -79,15 +79,12 @@ class ChangedFilesUnavailableError(RuntimeError):
     """git failed, timed out or is missing, so the changed set is unknown."""
 
 
-def get_changed_files(
-    base_ref: str = "HEAD", strict: bool = False, cwd: str | None = None
-) -> list[str]:
+def get_changed_files(base_ref: str = "HEAD", cwd: str | None = None) -> list[str]:
     """Get files changed since base_ref using git diff.
 
-    On git timeout or a missing binary, returns [] by default, and on a
-    nonzero exit it falls back to the staged files. With ``strict=True``
-    all three raise ChangedFilesUnavailableError instead, so the caller
-    can tell "nothing changed" from "could not tell".
+    A nonzero git exit, a timeout or a missing binary raises
+    ChangedFilesUnavailableError, so a caller can tell "nothing changed"
+    from "could not tell".
 
     With ``cwd`` the diff runs there with ``--relative``: paths come back
     relative to ``cwd`` and limited to its subtree, which is what a graph
@@ -104,58 +101,16 @@ def get_changed_files(
             check=False,
             cwd=cwd,
         )
-        if result.returncode != 0:
-            if strict:
-                msg = f"git diff {ref} exited with {result.returncode}"
-                raise ChangedFilesUnavailableError(msg)
-            _log.warning(
-                "git diff failed (rc=%d); falling back to staged files"
-                " -- incremental scope may differ from expected",
-                result.returncode,
-            )
-            return _get_staged_files(cwd)
-        return [f.strip() for f in result.stdout.splitlines() if f.strip()]
     except subprocess.TimeoutExpired as exc:
-        if strict:
-            msg = "git diff timed out"
-            raise ChangedFilesUnavailableError(msg) from exc
-        _log.warning(
-            "git diff timed out; returning empty changeset"
-            " -- full rebuild may be needed"
-        )
-        return []
+        msg = "git diff timed out"
+        raise ChangedFilesUnavailableError(msg) from exc
     except FileNotFoundError as exc:
-        if strict:
-            msg = "git not found on PATH"
-            raise ChangedFilesUnavailableError(msg) from exc
-        _log.warning(
-            "git not found on PATH; returning empty changeset"
-            " -- full rebuild may be needed"
-        )
-        return []
-
-
-def _get_staged_files(cwd: str | None = None) -> list[str]:
-    """Fallback: get staged files, relative to ``cwd`` like the diff."""
-    try:
-        result = subprocess.run(
-            ["git", "diff", "--cached", "--name-only", "--no-renames", "--relative"],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            check=False,
-            cwd=cwd,
-        )
-        if result.returncode != 0:
-            _log.warning(
-                "git diff --cached failed (rc=%d); staged fallback returning empty",
-                result.returncode,
-            )
-            return []
-        return [f.strip() for f in result.stdout.splitlines() if f.strip()]
-    except (subprocess.TimeoutExpired, FileNotFoundError) as exc:
-        _log.warning("staged file fallback failed: %s", exc)
-        return []
+        msg = "git not found on PATH"
+        raise ChangedFilesUnavailableError(msg) from exc
+    if result.returncode != 0:
+        msg = f"git diff {ref} exited with {result.returncode}"
+        raise ChangedFilesUnavailableError(msg)
+    return [f.strip() for f in result.stdout.splitlines() if f.strip()]
 
 
 def find_dependents(graph: GraphStore, file_path: str) -> list[str]:
@@ -298,7 +253,7 @@ def _changed_or_report(
 ) -> tuple[list[str], dict[str, Any] | None]:
     """Return the changed files, or a finished report when there is no work."""
     try:
-        changed = get_changed_files(base_ref, strict=True, cwd=root_dir)
+        changed = get_changed_files(base_ref, cwd=root_dir)
     except ChangedFilesUnavailableError as exc:
         return [], _no_work_report(error=f"{exc}; run a full build")
     if not changed:
