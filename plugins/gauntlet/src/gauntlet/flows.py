@@ -73,7 +73,7 @@ def detect_entry_points(graph: GraphStore) -> list[GraphNode]:
     return entries
 
 
-class _ReadOnce:
+class CachedGraphReads:
     """Edge and node reads of a graph that stays fixed while flows are traced.
 
     Flows overlap heavily: each one re-read the same callees' out-edges
@@ -83,11 +83,13 @@ class _ReadOnce:
     """
 
     def __init__(self, graph: GraphStore) -> None:
+        """Wrap ``graph``; nothing is read until a lookup asks."""
         self._graph = graph
         self._edges: dict[str, list[GraphEdge]] = {}
         self._nodes: dict[str, GraphNode | None] = {}
 
     def get_edges_by_source(self, qualified_name: str) -> list[GraphEdge]:
+        """Return ``GraphStore.get_edges_by_source``, reading it once."""
         if qualified_name not in self._edges:
             self._edges[qualified_name] = self._graph.get_edges_by_source(
                 qualified_name
@@ -95,6 +97,7 @@ class _ReadOnce:
         return self._edges[qualified_name]
 
     def get_node(self, qualified_name: str) -> GraphNode | None:
+        """Return ``GraphStore.get_node``, reading it once."""
         if qualified_name not in self._nodes:
             self._nodes[qualified_name] = self._graph.get_node(qualified_name)
         return self._nodes[qualified_name]
@@ -107,7 +110,7 @@ def trace_flows(
     """Trace execution flows from entry points via BFS on CALLS edges."""
     entry_points = detect_entry_points(graph)
     flows: list[dict] = []
-    reads = _ReadOnce(graph)
+    reads = CachedGraphReads(graph)
 
     for entry in entry_points:
         visited: set[str] = set()
@@ -163,7 +166,7 @@ def trace_flows(
 
 def compute_criticality(
     flow_nodes: list[GraphNode],
-    graph: GraphStore | _ReadOnce,
+    graph: GraphStore | CachedGraphReads,
 ) -> float:
     """Compute criticality score (0.0-1.0) for a flow."""
     if not flow_nodes:
