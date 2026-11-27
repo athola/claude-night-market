@@ -29,6 +29,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **gauntlet, breaking for direct callers:** `get_changed_files` raises
+  `ChangedFilesUnavailableError` on every git failure. Its `strict`
+  parameter and the fallback to staged files are gone, because the
+  default mode made "could not tell" look like "nothing changed". The
+  only production caller already passed `strict=True`.
+- **deprecations:** each deprecated shim in abstract, phantom and tome
+  now names 1.11.0 as its removal release. `estimate_tokens` leaves
+  `abstract.__all__` and stays importable by name until then.
 - **gauntlet:** a full graph build of this repository takes 27 s, down
   from 459 s. The duplicate-call check during call resolution scanned
   every CALLS edge per lookup until an index on `(kind, source_qn,
@@ -63,6 +71,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **API review (2026-11-27):** documented invocations that the parser
+  rejected now name real flags, subcommands and paths. The affected
+  docs were abstract's validator flags and `abstract-skills validate`,
+  attune `arch-init --lang` and `--skip-research`, `validate
+  --suggestions`, conserve `growth_analyzer` with a path, conjure's
+  `tools/` directory, egregore `--indefinite` and minister `python3 -m
+  minister.dora_metrics`. `/oracle-setup` exits 1 when provisioning
+  fails. gauntlet `graph_query.py` exits 1 on an error result, and its
+  ignored `--files` flag is removed. attune scaffolds Python 3.9 from
+  every command. pensive exports `PerformanceReviewSkill`, accepts
+  `file_path` by keyword on every skill, and keeps `harden --sarif`
+  stdout empty on a tree with nothing to scan. imbue's verifiers write
+  usage errors to stderr. scribe `detect_format` raises on an
+  unreadable file.
 - **pensive:** the performance review reported 180 hotspots in this
   repository's source, and every one checked was a set or dict lookup,
   a pattern built from the loop variable, a copy of the current item, or
