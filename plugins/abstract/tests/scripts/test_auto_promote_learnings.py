@@ -1074,7 +1074,10 @@ class TestPromotionGate:
         """
         (tmp_path / ".git").mkdir()
         item = {"skill": "", "detail": "plugins/leyline/skills/gone/SKILL.md"}
-        assert promote_module.stale_skip_reason(item, repo_root=tmp_path) is not None
+        reason = promote_module.stale_skip_reason(item, repo_root=tmp_path)
+        assert reason is not None
+        assert "no longer exist" in reason
+        assert "plugins/leyline/skills/gone/SKILL.md" in reason
 
     # --- C3: gate call fails open if verification raises ---
 

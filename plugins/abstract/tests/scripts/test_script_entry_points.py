@@ -80,7 +80,7 @@ def test_suggester_cli_plans_for_a_skill_given_as_directory_or_skill_md(
 
     _run_suggester(monkeypatch, str(target), "--format", "json", "--output", str(out))
 
-    assert isinstance(json.loads(out.read_text()), dict)
+    assert json.loads(out.read_text())["skill_name"] == "demo"
 
 
 @pytest.mark.unit
