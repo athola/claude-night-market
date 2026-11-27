@@ -422,7 +422,7 @@ class TestGetToolVersions:
 
         # Then
         # Rust tools not fetched from registries (handled by Cargo)
-        assert isinstance(versions, dict)
+        assert versions == {}
 
     @patch("version_fetcher.fetch_pypi_latest_version")
     def test_get_tool_versions_uses_fallback_on_failure(self, mock_fetch):
