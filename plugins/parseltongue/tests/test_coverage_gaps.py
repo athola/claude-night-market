@@ -212,4 +212,10 @@ class TestTestingGuideCoverageGaps:
     async def test_analyze_coverage_gaps_empty(self, testing_guide_skill) -> None:
         """Given empty code, return coverage gaps analysis."""
         result = await testing_guide_skill.analyze_testing("", "")
-        assert isinstance(result, dict)
+        assert result == {
+            "recommendations": [],
+            "findings": {
+                "source_analysis": {"public_functions": [], "classes": []},
+                "test_analysis": {},
+            },
+        }
