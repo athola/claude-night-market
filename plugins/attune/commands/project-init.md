@@ -89,7 +89,7 @@ make help
 - `--name <name>` - Project name (default: directory name)
 - `--author <name>` - Author name
 - `--email <email>` - Author email
-- `--python-version <version>` - Python version (default: 3.10)
+- `--python-version <version>` - Python version (default: 3.9)
 - `--description <text>` - Project description
 - `--path <path>` - Project path (default: current directory)
 - `--force` - Overwrite existing files without prompting

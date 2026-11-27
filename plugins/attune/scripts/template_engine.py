@@ -93,13 +93,18 @@ def python_module_name(project_name: str) -> str:
     return f"_{module}" if module[:1].isdigit() else module
 
 
+# One default for every scaffold path: init, arch-init, upgrade. System
+# Python is 3.9.6 (C-001); a higher floor fails on the host interpreter.
+DEFAULT_PYTHON_VERSION = "3.9"
+
+
 def get_default_variables(  # noqa: PLR0913 - template variables need all defaults
     project_name: str,
     *,
     language: str = "python",
     author: str = "Your Name",
     email: str = "you@example.com",
-    python_version: str = "3.10",
+    python_version: str = DEFAULT_PYTHON_VERSION,
     rust_edition: str = "2021",
     package_manager: str = "npm",
     repository: str = "",

@@ -10,7 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from attune_init import copy_templates
 from project_detector import ProjectDetector
-from template_engine import get_default_variables
+from template_engine import DEFAULT_PYTHON_VERSION, get_default_variables
 
 
 def _unused_backup_path(path: Path) -> Path:
@@ -335,7 +335,9 @@ class ProjectUpgrader:
                 version_match = re.search(
                     r'requires-python\s*=\s*">=(\d+\.\d+)"', content
                 )
-                python_version = version_match.group(1) if version_match else "3.10"
+                python_version = (
+                    version_match.group(1) if version_match else DEFAULT_PYTHON_VERSION
+                )
 
                 # Extract author
                 # Inside `authors = [{ name = ... }]`: the first bare
