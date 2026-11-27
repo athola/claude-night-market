@@ -14,12 +14,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
 from delegation_executor import Delegator, ExecutionResult
 
-# Constants for magic values
-MIN_RECOVERY_STRATEGIES = 2
-MIN_SOLUTIONS = 2
-EXPECTED_ESTIMATE_COUNT = 4
-MIN_MODEL_CHOICES = 2
-
 
 class TestSkillStructure:
     """Test skill file structure and metadata."""
@@ -146,33 +140,6 @@ class TestGeminiDelegationSkill:
     """Test gemini-delegation skill execution scenarios."""
 
     @pytest.mark.bdd
-    def test_authentication_verification_flow(self) -> None:
-        """Given authentication step when executing gemini-delegation.
-
-        then should verify auth status.
-        """
-        # This tests the logic described in step 1 of the skill
-        auth_commands = ["gemini auth status", 'gemini "ping"']
-
-        assert len(auth_commands) == 2
-        assert "gemini auth status" in auth_commands
-
-    @pytest.mark.bdd
-    def test_quota_checking_flow(self) -> None:
-        """Given quota checking step when executing gemini-delegation.
-
-        then should check quota thresholds.
-        """
-        # This tests the logic described in step 2 of the skill
-        quota_commands = [
-            "~/conjure/hooks/gemini/status.sh",
-            "python3 ~/conjure/tools/quota_tracker.py",
-        ]
-
-        assert len(quota_commands) == 2
-        assert "quota_tracker.py" in quota_commands[1]
-
-    @pytest.mark.bdd
     def test_command_construction_patterns(self, tmp_path, monkeypatch) -> None:
         """Given command construction step when executing gemini-delegation.
 
@@ -206,23 +173,6 @@ class TestGeminiDelegationSkill:
         )
         assert "--model" in cmd
         assert "gemini-3.1-pro-preview" in cmd
-
-    @pytest.mark.bdd
-    def test_usage_logging_flow(self) -> None:
-        """Given usage logging step when executing gemini-delegation.
-
-        then should log correctly.
-        """
-        # This tests the logic described in step 4
-        log_pattern = (
-            'python3 ~/conjure/tools/usage_logger.py "<command>" '
-            "<estimated_tokens> <success:true/false> <duration_seconds>"
-        )
-
-        assert "usage_logger.py" in log_pattern
-        assert "estimated_tokens" in log_pattern
-        assert "success" in log_pattern
-        assert "duration_seconds" in log_pattern
 
     @pytest.mark.bdd
     def test_delegation_workflow_integration(self, tmp_path, monkeypatch) -> None:
@@ -328,113 +278,6 @@ class TestQwenDelegationSkill:
         assert "auth" in content.lower() or "login" in content.lower()
 
 
-class TestSkillErrorHandling:
-    """Test skill error handling scenarios."""
-
-    @pytest.mark.bdd
-    def test_authentication_failure_handling(self) -> None:
-        """Given authentication failure when executing skill.
-
-        then should provide recovery steps.
-        """
-        # Based on the skill's error handling section
-        recovery_steps = [
-            "gemini auth login",
-            "export GEMINI_API_KEY",
-            "Check permissions",
-            "Clear cache",
-        ]
-
-        assert len(recovery_steps) >= MIN_RECOVERY_STRATEGIES
-
-    @pytest.mark.bdd
-    def test_quota_exhaustion_handling(self) -> None:
-        """Given quota exhaustion when executing skill.
-
-        then should provide recovery strategies.
-        """
-        # Based on the skill's error handling section
-        recovery_strategies = [
-            "Wait 60 seconds for RPM reset",
-            "Break into smaller batches",
-            "Use flash model",
-            "Wait for daily reset",
-        ]
-
-        assert len(recovery_strategies) >= MIN_RECOVERY_STRATEGIES
-
-    @pytest.mark.bdd
-    def test_context_too_large_handling(self) -> None:
-        """Given context too large error when executing skill.
-
-        then should provide solutions.
-        """
-        # Based on the skill's error handling section
-        solutions = [
-            "Split into multiple requests",
-            "Use selective globbing",
-            "Pre-process files",
-        ]
-
-        assert len(solutions) >= MIN_SOLUTIONS
-
-
-class TestSkillPerformanceConsiderations:
-    """Test skill performance and optimization."""
-
-    @pytest.mark.bdd
-    def test_token_usage_estimates(self) -> None:
-        """Given skill when checking token estimates.
-
-        then should provide realistic estimates.
-        """
-        # Based on the token estimation section
-        estimates = {
-            "File analysis": (15, 50),  # min-max per file
-            "Code summarization": (1, 3),  # percentage of file size
-            "Pattern extraction": (5, 20),  # tokens per match
-            "Boilerplate generation": (50, 200),  # tokens per template
-        }
-
-        assert len(estimates) == EXPECTED_ESTIMATE_COUNT
-        for min_tokens, max_tokens in estimates.values():
-            assert isinstance(min_tokens, int)
-            assert isinstance(max_tokens, int)
-            assert max_tokens >= min_tokens
-
-    @pytest.mark.bdd
-    def test_model_selection_guidance(self) -> None:
-        """Given skill when checking model selection.
-
-        then should provide appropriate choices.
-        """
-        # Based on the model selection section
-        models = [
-            "gemini-3.8-flash",  # Fast
-            "gemini-3.1-pro-preview",  # Capable
-        ]
-
-        assert len(models) >= MIN_MODEL_CHOICES
-
-    @pytest.mark.bdd
-    def test_cost_estimates(self) -> None:
-        """Given skill when checking costs.
-
-        then should provide realistic cost estimates.
-        """
-        # Based on the sample delegation costs section
-        sample_costs = [
-            ("Analyze 100 Python files (50K tokens)", 0.025),
-            ("Summarize large codebase (200K tokens)", 0.10),
-            ("Generate 20 API endpoints (2K output)", 0.003),
-        ]
-
-        for description, cost in sample_costs:
-            assert isinstance(description, str)
-            assert isinstance(cost, (int, float))
-            assert cost >= 0
-
-
 class TestSkillConfigurationManagement:
     """Test skill configuration and customization."""
 
@@ -467,21 +310,6 @@ class TestSkillConfigurationManagement:
         # Should mention model configuration
         assert "model" in content.lower()
         assert "--model" in content
-
-    @pytest.mark.bdd
-    def test_timeout_configuration(self) -> None:
-        """Given skill when checking configuration.
-
-        then should support timeout settings or handle them implicitly.
-        """
-        gemini_skill = (
-            Path(__file__).parent.parent / "skills" / "gemini-delegation" / "SKILL.md"
-        )
-        content = gemini_skill.read_text()
-
-        # Timeout may be handled implicitly via CLI defaults or mentioned explicitly
-        # The skill is valid if it has a proper delegation flow
-        assert "Delegation Flow" in content or "gemini" in content.lower()
 
 
 class TestSkillRegistration:
