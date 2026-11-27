@@ -78,17 +78,17 @@ class TestGetAvailableRules:
         """Given a valid rules directory, returns category->rules mapping."""
         rules = get_available_rules()
 
-        # Should be a dict (may be empty if no rules in catalog)
-        assert isinstance(rules, dict)
+        # The bundled catalog ships git and security rules.
+        assert {"git", "security"} <= set(rules)
+        assert all(rules[category] for category in rules)
 
     def test_category_values_are_lists(self):
         """Each category should contain a list of rule names."""
         rules = get_available_rules()
 
-        for _category, rule_list in rules.items():
-            assert isinstance(rule_list, list)
+        for category, rule_list in rules.items():
             for rule_name in rule_list:
-                assert isinstance(rule_name, str)
+                assert get_rule_path(category, rule_name) is not None, rule_name
 
 
 class TestGetRulePath:
