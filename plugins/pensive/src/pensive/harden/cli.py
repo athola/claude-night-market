@@ -80,7 +80,8 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "Exit 2 when any HIGH-or-above finding is reported, and 3 when a "
-            "file could not be analyzed. Suitable for CI gates."
+            "file could not be analyzed. Suitable for CI gates. A tree with "
+            "no Python sources exits 3 with or without this flag."
         ),
     )
     p.add_argument(
@@ -159,6 +160,10 @@ def run_cli(argv: list[str] | None = None) -> int:
                     {"success": False, "error": message, "data": {"files_scanned": 0}}
                 )
             )
+        elif args.sarif:
+            # stdout is parsed as SARIF; an upload step must fail on the
+            # exit code, not on a parse error.
+            sys.stderr.write(message + "\n")
         else:
             sys.stdout.write(message + "\n")
         return 3

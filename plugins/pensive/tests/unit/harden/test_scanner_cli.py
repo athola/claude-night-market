@@ -190,6 +190,16 @@ class TestTheScannerProvesItScannedSomething:
         assert code != 0
         assert "nothing was scanned" in capsys.readouterr().out
 
+    def test_sarif_on_an_empty_tree_keeps_stdout_for_sarif(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A CI upload step parses stdout as SARIF; the notice goes to stderr."""
+        code = run_cli(["--path", str(tmp_path), "--sarif"])
+        captured = capsys.readouterr()
+        assert code == 3
+        assert captured.out == ""
+        assert "nothing was scanned" in captured.err
+
     def test_json_carries_files_scanned(
         self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
     ) -> None:
