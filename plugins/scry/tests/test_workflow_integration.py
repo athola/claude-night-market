@@ -409,8 +409,6 @@ class TestGifDemoScript:
         Then it should show usage information.
         """
         gif_demo = scripts_dir / "gif_demo.sh"
-        if not gif_demo.exists():
-            pytest.skip("gif_demo.sh not found")
 
         result = subprocess.run(
             [str(gif_demo), "--help"],
@@ -419,10 +417,6 @@ class TestGifDemoScript:
             timeout=10,
         )
 
-        # Should show help or usage info
-        output = result.stdout + result.stderr
-        assert (
-            "usage" in output.lower()
-            or "help" in output.lower()
-            or result.returncode == 0
-        )
+        # An error that merely mentions "help" must not pass for usage.
+        assert result.returncode == 0, result.stderr
+        assert "gif_demo.sh [-h] [-x|-t]" in result.stdout + result.stderr

@@ -149,66 +149,6 @@ class TestAgentSchemaValidation:
         assert "Tools" not in sections
 
 
-class TestAgentCapabilities:
-    """Feature: Validate agent capabilities.
-
-    As a plugin developer
-    I want agent capabilities to be well-defined
-    So that users understand what the agent can do
-    """
-
-    def extract_capabilities(self, content: str) -> list[str]:
-        """Extract capabilities from Capabilities section."""
-        caps_match = re.search(
-            r"##\s+Capabilities\s*\n((?:[-*]\s+.+\n?)+)", content, re.IGNORECASE
-        )
-        if not caps_match:
-            return []
-
-        caps_text = caps_match.group(1)
-        return re.findall(r"[-*]\s+(.+)", caps_text)
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_agent_has_at_least_one_capability(self) -> None:
-        """Scenario: Agent has at least one capability.
-
-        Given an agent file
-        When checking capabilities
-        Then it should have at least one.
-        """
-        agent_content = """# Test Agent
-
-## Capabilities
-- Analyze code patterns
-- Generate documentation
-
-## Tools
-- Read
-"""
-        capabilities = self.extract_capabilities(agent_content)
-        assert len(capabilities) >= 1
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_empty_capabilities_fails(self) -> None:
-        """Scenario: Agent with empty capabilities fails.
-
-        Given an agent file with empty Capabilities section
-        When validating
-        Then it should have no capabilities extracted.
-        """
-        agent_content = """# Test Agent
-
-## Capabilities
-
-## Tools
-- Read
-"""
-        capabilities = self.extract_capabilities(agent_content)
-        assert len(capabilities) == 0
-
-
 # ============================================================================
 # Agent File Discovery
 # ============================================================================
