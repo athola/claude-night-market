@@ -202,6 +202,24 @@ class TestGraphQueryInProcess:
             graph.close()
 
     @pytest.mark.unit
+    def test_main_exits_nonzero_when_the_query_reports_an_error(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """A shell caller checking $? must see a failed query as a failure."""
+        db = tmp_path / "graph.db"
+        GraphStore(db).close()
+        monkeypatch.setattr(
+            sys, "argv", ["graph_query.py", "--action", "search", "--db", str(db)]
+        )
+        with pytest.raises(SystemExit) as exited:
+            graph_query.main()
+        assert exited.value.code == 1
+        assert "--query required" in json.loads(capsys.readouterr().out)["error"]
+
+    @pytest.mark.unit
     def test_find_db_walks_up_to_an_ancestor_gauntlet_dir(self, tmp_path: Path) -> None:
         db = tmp_path / ".gauntlet" / "graph.db"
         db.parent.mkdir()
