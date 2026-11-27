@@ -1365,7 +1365,8 @@ class TestImportGraphDedup:
         """GIVEN two files with the same basename in different directories.
 
         WHEN build_import_graph runs
-        THEN the graph builds without error (setdefault prevents overwrite).
+        THEN an import of the basename resolves to the first one walked
+        (the walk is sorted, so a/ before b/), not the last.
         """
         sub_a = tmp_path / "a"
         sub_b = tmp_path / "b"
@@ -1373,9 +1374,10 @@ class TestImportGraphDedup:
         sub_b.mkdir()
         (sub_a / "utils.py").write_text("import json\n")
         (sub_b / "utils.py").write_text("import os\n")
+        (tmp_path / "main.py").write_text("import utils\n")
 
         graph = cs.build_import_graph(tmp_path)
-        assert isinstance(graph, cs.ImportGraph)
+        assert graph.edges == [("main.py", "a/utils.py")]
 
 
 class TestSchemaDetection:

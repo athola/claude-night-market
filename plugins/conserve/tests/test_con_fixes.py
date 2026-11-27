@@ -236,13 +236,16 @@ def test_scan_directory_skips_excluded_dirs_and_files_past_depth_limit(tmp_path)
 # ---------------------------------------------------------------------------
 
 
-def test_scan_directory_result_exclusions_not_none(tmp_path):
+def test_scan_directory_names_the_top_level_dirs_it_excluded(tmp_path):
     (tmp_path / "main.py").write_text("print('hello')")
+    (tmp_path / "node_modules").mkdir()
+    (tmp_path / "pkg.egg-info").mkdir()
+    (tmp_path / "src").mkdir()
     result = scan_directory(tmp_path)
-    assert result.exclusions is not None
+    assert sorted(result.exclusions) == ["node_modules", "pkg.egg-info"]
 
 
-def test_scan_directory_result_exclusions_is_list(tmp_path):
+def test_scan_directory_reports_no_exclusions_for_a_plain_tree(tmp_path):
     (tmp_path / "main.py").write_text("print('hello')")
     result = scan_directory(tmp_path)
-    assert isinstance(result.exclusions, list)
+    assert result.exclusions == []

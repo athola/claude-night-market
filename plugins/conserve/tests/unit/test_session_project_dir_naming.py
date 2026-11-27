@@ -80,6 +80,24 @@ def test_an_unmatched_session_id_falls_back_to_the_newest_transcript(
     assert resolve_session_file() == newer
 
 
+def test_unmatched_cwd_falls_back_to_the_newest_project_dir(
+    tmp_path: Path, dotted_cwd: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    projects = tmp_path / "claude" / "projects"
+    stale = projects / "-stale-project"
+    fresh = projects / "-fresh-project"
+    for project in (stale, fresh):
+        project.mkdir(parents=True)
+        (project / "s.jsonl").write_text("{}\n")
+    now = time.time()
+    os.utime(stale, (now - 60, now - 60))
+    os.utime(fresh, (now, now))
+    monkeypatch.setenv("CLAUDE_HOME", str(tmp_path / "claude"))
+    monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+
+    assert resolve_session_file() == fresh / "s.jsonl"
+
+
 @pytest.mark.parametrize(
     ("cwd", "expected"),
     [

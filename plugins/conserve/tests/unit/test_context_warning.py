@@ -358,8 +358,7 @@ class TestEstimateFromRecentTurns:
         """Verify Handles invalid json lines."""
         session = tmp_path / "session.jsonl"
         session.write_text("not json\n{invalid\n")
-        result = _estimate_from_recent_turns(session)
-        assert result is not None  # Returns 0-ish estimate, not None
+        assert _estimate_from_recent_turns(session) == 0.0
 
     def test_caps_at_0_95(self, tmp_path: Path) -> None:
         """Verify Caps at 0 95."""
@@ -379,16 +378,13 @@ class TestEstimateFromRecentTurns:
                 )
             )
         session.write_text("\n".join(lines))
-        result = _estimate_from_recent_turns(session)
-        assert result is not None
-        assert result <= 0.95
+        assert _estimate_from_recent_turns(session) == 0.95
 
     def test_handles_empty_lines(self, tmp_path: Path) -> None:
         """Verify Handles empty lines."""
         session = tmp_path / "session.jsonl"
         session.write_text("\n\n\n")
-        result = _estimate_from_recent_turns(session)
-        assert result is not None
+        assert _estimate_from_recent_turns(session) == 0.0
 
 
 class TestEstimateContextFromSession:
