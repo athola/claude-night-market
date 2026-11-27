@@ -175,17 +175,36 @@ class TestLocalDocProcessorGraphWiring:
 class TestSessionLifecycleGraphWiring:
     """Journey completion and link prediction in session_lifecycle."""
 
-    def test_graph_wiring_does_not_crash_when_db_missing(self) -> None:
-        """Graph section is no-op when DB is unavailable."""
-        # Should not raise
-        try:
+    def test_graph_wiring_does_not_create_a_missing_db(self, tmp_path: Path) -> None:
+        """Graph section is a no-op when the DB does not exist yet."""
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+
+        session_lifecycle._try_record_journey_completion(
+            palaces_dir=palaces_dir,
+            session_id="test_session",
+            tools_used=["WebFetch", "Read"],
+        )
+
+        assert not (palaces_dir / "knowledge_graph.db").exists()
+
+    def test_graph_wiring_swallows_a_graph_error(self, tmp_path: Path) -> None:
+        """A failure inside journey recording must not crash the Stop hook."""
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        KnowledgeGraph(str(palaces_dir / "knowledge_graph.db")).close()
+
+        with patch(
+            "memory_palace.journey_tracker.JourneyTracker.start_journey",
+            side_effect=RuntimeError("graph locked"),
+        ) as start:
             session_lifecycle._try_record_journey_completion(
-                palaces_dir=Path("/nonexistent/palaces"),
+                palaces_dir=palaces_dir,
                 session_id="test_session",
                 tools_used=["WebFetch", "Read"],
             )
-        except Exception as exc:
-            pytest.fail(f"_try_record_journey_completion raised: {exc}")
+
+        start.assert_called_once()
 
     def test_graph_wiring_records_journey_when_db_available(
         self, tmp_path: Path

@@ -417,12 +417,15 @@ class TestMainIntegration:
         When main() runs
         Then it exits with code 0 silently.
         """
+        built: list[object] = []
         monkeypatch.setattr(lc, "_HAS_SESSION_HISTORY", False)
+        monkeypatch.setattr(lc, "SessionHistoryManager", lambda **kw: built.append(kw))
         monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(_minimal_payload())))
 
         with pytest.raises(SystemExit) as exc_info:
             lc.main()
         assert exc_info.value.code == 0
+        assert built == []  # nothing was recorded, so nothing touched disk
 
     @pytest.mark.unit
     def test_main_exits_zero_when_record_raises(
