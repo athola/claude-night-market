@@ -406,16 +406,18 @@ class TestFormatAutoDetection:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_detect_format_missing_file_defaults_to_claude(
+    def test_detect_format_missing_file_raises_like_parse_session(
         self, tmp_path: Path
     ) -> None:
-        """Scenario: missing file defaults to claude format.
+        """Scenario: a missing file is an error, not a format.
 
         Given a path to a nonexistent file
         When detecting format
-        Then the default 'claude' format is returned
+        Then OSError propagates, as it does from parse_session, instead of
+        a "claude" answer for a file that cannot be read
         """
-        assert detect_format(tmp_path / "nonexistent.jsonl") == "claude"
+        with pytest.raises(OSError):
+            detect_format(tmp_path / "nonexistent.jsonl")
 
     @pytest.mark.bdd
     @pytest.mark.unit
