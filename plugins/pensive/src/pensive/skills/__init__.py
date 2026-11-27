@@ -5,6 +5,7 @@ from pensive.skills.architecture_review import ArchitectureReviewSkill
 from pensive.skills.bug_review import BugReviewSkill
 from pensive.skills.makefile_review import MakefileReviewSkill
 from pensive.skills.math_review import MathReviewSkill
+from pensive.skills.performance_review import PerformanceReviewSkill
 from pensive.skills.rust_review import RustReviewSkill
 from pensive.skills.test_review import TestReviewSkill
 from pensive.skills.tiered_audit import (
@@ -21,6 +22,7 @@ __all__ = [
     "EscalationFlag",
     "MakefileReviewSkill",
     "MathReviewSkill",
+    "PerformanceReviewSkill",
     "RustReviewSkill",
     "TestReviewSkill",
     "Tier1Results",

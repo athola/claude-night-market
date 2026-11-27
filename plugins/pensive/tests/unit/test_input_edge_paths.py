@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 import pensive
+import pensive.skills as pensive_skills
 from pensive.harden.cli import run_cli
 from pensive.plugin.loader import discover_plugins
 from pensive.reporting import formatters
@@ -21,6 +22,7 @@ from pensive.reporting.formatters import SarifFormatter
 from pensive.skills.api_review import ApiReviewSkill
 from pensive.skills.architecture_review import ArchitectureReviewSkill
 from pensive.skills.base import AnalysisResult
+from pensive.skills.performance_review import PerformanceReviewSkill
 from pensive.skills.unified_review import UnifiedReviewSkill
 from pensive.workflows.code_review import CodeReviewWorkflow
 
@@ -404,3 +406,11 @@ def test_analyze_accepts_file_path_by_keyword_on_every_skill(skill: object) -> N
 def test_unified_analyze_accepts_file_path_by_keyword() -> None:
     result = UnifiedReviewSkill().analyze(_Context({}), file_path="app.py")
     assert isinstance(result, AnalysisResult)
+
+
+@pytest.mark.unit
+def test_performance_review_skill_is_exported_like_its_siblings() -> None:
+    """``from pensive import RustReviewSkill`` worked; Performance raised."""
+    assert "PerformanceReviewSkill" in pensive.__all__
+    assert "PerformanceReviewSkill" in pensive_skills.__all__
+    assert pensive.PerformanceReviewSkill is PerformanceReviewSkill
