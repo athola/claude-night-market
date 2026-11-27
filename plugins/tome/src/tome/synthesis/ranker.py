@@ -199,7 +199,8 @@ def group_by_channel(findings: list[Finding]) -> dict[str, list[Finding]]:
 def group_by_theme(findings: list[Finding]) -> dict[str, list[Finding]]:
     """Deprecated alias for :func:`group_by_channel`."""
     warnings.warn(
-        "group_by_theme is deprecated; use group_by_channel",
+        "group_by_theme is deprecated and will be removed in 1.11.0; "
+        "use group_by_channel",
         DeprecationWarning,
         stacklevel=2,
     )

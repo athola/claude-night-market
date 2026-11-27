@@ -18,8 +18,7 @@ _DEFAULT_RECOVERY_ACTION = "screenshot"
 
 def _warn_deprecated(name: str) -> None:
     warnings.warn(
-        f"{name} has no reader in phantom and will be removed in the next "
-        "minor release",
+        f"{name} has no reader in phantom and will be removed in 1.11.0",
         DeprecationWarning,
         stacklevel=3,
     )
