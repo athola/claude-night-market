@@ -152,14 +152,14 @@ make usage-report
 
 ```bash
 # Quota tracker (Gemini)
-uv run python tools/quota_tracker.py --status
-uv run python tools/quota_tracker.py --estimate src/ docs/
-uv run python tools/quota_tracker.py --validate-config
+uv run python scripts/quota_tracker.py --status
+uv run python scripts/quota_tracker.py --estimate src/ docs/
+uv run python scripts/quota_tracker.py --validate-config
 
 # Usage logger (Gemini)
-uv run python tools/usage_logger.py --report
-uv run python tools/usage_logger.py --validate
-uv run python tools/usage_logger.py --status
+uv run python scripts/usage_logger.py --report
+uv run python scripts/usage_logger.py --validate
+uv run python scripts/usage_logger.py --status
 ```
 
 ### In Claude Code

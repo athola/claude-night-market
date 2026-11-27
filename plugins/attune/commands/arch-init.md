@@ -100,17 +100,21 @@ Skill(attune:architecture-aware-init)
 # 3. After architecture selected, initializes project
 python3 plugins/attune/scripts/attune_arch_init.py \
   --name my-project \
-  --lang python \
   --arch hexagonal
 ```
 
 ## Arguments
 
 - `--name <name>` - Project name
-- `--lang <language>` - Project language (python, rust, typescript)
-- `--arch <paradigm>` - Architecture paradigm (e.g., hexagonal, functional-core, cqrs-es)
+- `--arch <paradigm>` (alias `--architecture`) - Architecture paradigm
+  (e.g., hexagonal, functional-core, cqrs-es)
 - `--accept-recommendation` - Accept recommended architecture without prompting
-- `--skip-research` - Skip online research phase (use decision matrix only)
+- `--no-research` - Skip online research phase (use decision matrix only)
+- `--research-file <path>` - JSON `{"preferred": [...], "avoid": [...]}`
+  written after the research queries were run
+- `--path <path>` - Project path (default: current directory)
+
+The language is chosen from an interactive menu; there is no flag for it.
 
 ## Architecture Decision Matrix
 

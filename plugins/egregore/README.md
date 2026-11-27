@@ -19,8 +19,9 @@ without human intervention.
 # Process GitHub issues
 /egregore:summon --issues 42,43,47 --window 7d
 
-# Run indefinitely (pauses on rate limits, resumes after cooldown)
-/egregore:summon "Build X" --indefinite
+# Runs indefinitely by default (pauses on rate limits, resumes after
+# cooldown); --bounded stops when the window expires
+/egregore:summon "Build X"
 
 # Install the watchdog for crash recovery
 /egregore:install-watchdog --window 5h

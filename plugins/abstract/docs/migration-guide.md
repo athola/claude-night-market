@@ -33,10 +33,10 @@ cd skills/modular-skills
 ### After
 ```bash
 # Run from repo root
-python scripts/skill_analyzer.py --validate my-skill
+python scripts/skill_validator.py --path my-skill/SKILL.md
 
 # Or use the CLI command
-abstract-skills validate my-skill
+abstract-skills check my-skill
 ```
 
 ## Updated Configuration

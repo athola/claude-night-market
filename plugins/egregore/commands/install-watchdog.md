@@ -4,7 +4,7 @@ description: >-
   Install the egregore watchdog daemon for automatic
   session relaunching
 usage: >-
-  /egregore:install-watchdog [--window 5h|7d]
+  /egregore:install-watchdog [--window <duration>]
   [--interval SECONDS]
 ---
 

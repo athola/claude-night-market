@@ -5,7 +5,7 @@ description: >-
   through the full development lifecycle. Runs indefinitely
   by default until dismissed.
 usage: >-
-  /egregore:summon "<prompt>" [--window 5h|7d]
+  /egregore:summon "<prompt>" [--window <duration>]
   [--bounded] [--issues N,N] [--issues-label LABEL]
 ---
 

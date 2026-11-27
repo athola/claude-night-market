@@ -76,11 +76,8 @@ Breaking changes will be documented here with:
 ## Checking Compatibility
 
 ```bash
-# Validate all plugins against current abstract version
-python scripts/abstract_validator.py --check-compatibility
-
-# Check specific plugin
-python scripts/abstract_validator.py --check-compatibility --plugin path/to/plugin
+# Validate one plugin's structure against the current abstract version
+python scripts/validate_plugin.py path/to/plugin
 ```
 
 ## Reporting Compatibility Issues

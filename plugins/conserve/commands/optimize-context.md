@@ -97,6 +97,12 @@ Works with conservation plugin skills:
 
 ## Implementation
 
+Invoke `Skill(conserve:context-optimization)` on the path argument
+(default: the current directory). `growth_analyzer.py` does not take a
+path. It projects growth from a recorded context-usage JSON, so run it
+only when one exists:
+
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/growth_analyzer.py "${1:-.}"
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/growth_analyzer.py \
+  --context-file <usage.json> --turns 10
 ```

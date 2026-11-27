@@ -576,7 +576,7 @@ skill-name/
 wc -l SKILL.md modules/*.md
 
 # Validate structure
-python scripts/skill_validator.py --check-structure
+python scripts/skill_validator.py --path SKILL.md
 ```
 
 ## Summary

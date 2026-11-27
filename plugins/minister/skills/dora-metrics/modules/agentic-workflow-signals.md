@@ -11,6 +11,7 @@ AI-assisted pipelines.
 Run the metric twice with different `--failure-label` values:
 
 ```bash
+export PYTHONPATH="${CLAUDE_PLUGIN_ROOT}/src"
 python3 -m minister.dora_metrics --window 30 --failure-label bug --json > all.json
 python3 -m minister.dora_metrics --window 30 --failure-label ai-bug --json > ai.json
 ```

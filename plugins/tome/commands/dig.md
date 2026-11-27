@@ -5,7 +5,7 @@ description: >-
   deeper into a specific subtopic or channel. Requires
   an active research session from /tome:research-session.
 usage: >-
-  /tome:dig "<subtopic>" [--channel code|discourse|academic|triz]
+  /tome:dig "<subtopic>" [--channel code|discourse|academic|web|triz]
 ---
 
 # Dig Command
