@@ -97,7 +97,7 @@ def test_main_no_manifest(tmp_path, monkeypatch, capsys):
         main()
     assert exc_info.value.code == 0
     output = json.loads(capsys.readouterr().out)
-    assert output["decision"] == "approve"
+    assert output.get("decision") is None
 
 
 def test_main_no_active_items(tmp_path, monkeypatch, capsys):
@@ -112,7 +112,7 @@ def test_main_no_active_items(tmp_path, monkeypatch, capsys):
         main()
     assert exc_info.value.code == 0
     output = json.loads(capsys.readouterr().out)
-    assert output["decision"] == "approve"
+    assert output.get("decision") is None
 
 
 def test_main_with_active_items(tmp_path, monkeypatch, capsys):
@@ -289,8 +289,8 @@ def test_stalled_loop_is_released(tmp_path, monkeypatch, capsys):
     decisions = []
     for _ in range(DEFAULT_MAX_STALLS + 1):
         _run_stop_hook(monkeypatch, tmp_path)
-        decisions.append(json.loads(capsys.readouterr().out)["decision"])
-    assert decisions == ["block"] * DEFAULT_MAX_STALLS + ["approve"]
+        decisions.append(json.loads(capsys.readouterr().out).get("decision"))
+    assert decisions == ["block"] * DEFAULT_MAX_STALLS + [None]
 
 
 def test_release_persists_until_progress(tmp_path, monkeypatch, capsys):
@@ -300,7 +300,7 @@ def test_release_persists_until_progress(tmp_path, monkeypatch, capsys):
         _run_stop_hook(monkeypatch, tmp_path)
         capsys.readouterr()
     _run_stop_hook(monkeypatch, tmp_path)
-    assert json.loads(capsys.readouterr().out)["decision"] == "approve"
+    assert json.loads(capsys.readouterr().out).get("decision") is None
 
 
 def test_manifest_progress_resets_the_counter(tmp_path, monkeypatch, capsys):
@@ -331,7 +331,7 @@ def test_stall_limit_is_configurable(tmp_path, monkeypatch, capsys):
     _run_stop_hook(monkeypatch, tmp_path)
     assert json.loads(capsys.readouterr().out)["decision"] == "block"
     _run_stop_hook(monkeypatch, tmp_path)
-    assert json.loads(capsys.readouterr().out)["decision"] == "approve"
+    assert json.loads(capsys.readouterr().out).get("decision") is None
 
 
 def test_corrupt_state_file_starts_a_fresh_count(tmp_path, monkeypatch, capsys):
@@ -354,7 +354,7 @@ def test_unwritable_state_releases_the_stop(tmp_path, monkeypatch, capsys):
         _run_stop_hook(monkeypatch, tmp_path)
     finally:
         egregore_dir.chmod(0o700)
-    assert json.loads(capsys.readouterr().out)["decision"] == "approve"
+    assert json.loads(capsys.readouterr().out).get("decision") is None
 
 
 # --- Guards for the branches the stall bound falls back through ---
@@ -450,7 +450,7 @@ def _stop_with_background(tmp_path, monkeypatch, capsys, background_tasks):
     monkeypatch.setattr("sys.stdin", StringIO(json.dumps(payload)))
     with pytest.raises(SystemExit):
         main()
-    return json.loads(capsys.readouterr().out)["decision"]
+    return json.loads(capsys.readouterr().out).get("decision")
 
 
 @pytest.mark.parametrize("agent_type", ["egregore:orchestrator", "orchestrator"])
@@ -465,7 +465,7 @@ def test_main_lets_the_session_wait_on_a_running_orchestrator(
     progress. Stop input lists in-flight work in ``background_tasks``.
     """
     running = [{"id": "a1", "type": "subagent", "agent_type": agent_type}]
-    assert _stop_with_background(tmp_path, monkeypatch, capsys, running) == "approve"
+    assert _stop_with_background(tmp_path, monkeypatch, capsys, running) is None
 
 
 def test_main_still_blocks_when_only_unrelated_work_runs(tmp_path, monkeypatch, capsys):
@@ -523,7 +523,7 @@ def test_a_finished_run_clears_its_baton(tmp_path, monkeypatch, capsys):
 
     _stop(tmp_path, monkeypatch, "completed")
 
-    assert json.loads(capsys.readouterr().out.splitlines()[-1])["decision"] == "approve"
+    assert json.loads(capsys.readouterr().out.splitlines()[-1]).get("decision") is None
     assert not (egregore_dir / "baton.json").exists()
 
 
@@ -536,4 +536,4 @@ def test_a_failed_baton_clear_still_approves(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr("stop_hook.clear_baton", unremovable)
     _stop(tmp_path, monkeypatch, "completed")
 
-    assert json.loads(capsys.readouterr().out)["decision"] == "approve"
+    assert json.loads(capsys.readouterr().out).get("decision") is None

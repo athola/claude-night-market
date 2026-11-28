@@ -31,8 +31,9 @@ the network is unavailable, so behavior stays identical across platforms.
 Hook contract (Claude Code ``Stop`` event):
   - Reads the event JSON from stdin.
   - Prints ``{"decision": "block", "reason": ...}`` to keep working, or
-    ``{"decision": "approve", "reason": ...}`` to allow the stop.
-  - Always exits 0. Any internal error degrades to "approve" (let it stop).
+    ``{"reason": ...}`` to allow the stop. ``"block"`` is the only
+    documented Stop decision, and leaving it out allows the stop.
+  - Always exits 0. Any internal error degrades to allowing the stop.
 """
 
 from __future__ import annotations
@@ -91,7 +92,7 @@ TRANSCRIPT_READ_BYTES = 262_144
 LLM_TIMEOUT_SECONDS = 8
 
 #: Recursion guard: when the optional LLM judge spawns ``claude``, this env var
-#: is set so the nested instance's own Stop hook short-circuits to "approve".
+#: is set so the nested instance's own Stop hook short-circuits to allowing the stop.
 JUDGE_MODE_ENV = "CLAUDE_HOOK_JUDGE_MODE"
 
 #: Phrases that signal the assistant intends to keep working autonomously.
@@ -482,8 +483,8 @@ def _read_tail(path: Path) -> str:
 
 
 def _approve(reason: str) -> dict[str, str]:
-    """Build an 'allow the stop' decision."""
-    return {"decision": "approve", "reason": f"Double Shot Latte: {reason}"}
+    """Build an 'allow the stop' result: no decision, a reason for the log."""
+    return {"reason": f"Double Shot Latte: {reason}"}
 
 
 def _block(reason: str) -> dict[str, str]:
