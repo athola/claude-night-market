@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **activation eval:** a command and the playbook skill it invokes
+  score as one answer in the router metric and the live analysis, so a
+  prompt routed to either reaches its target. The router MRR baseline
+  moves from 0.4400 to 0.4629 with no description changed.
 - **gauntlet, breaking for direct callers:** `get_changed_files` raises
   `ChangedFilesUnavailableError` on every git failure. Its `strict`
   parameter and the fallback to staged files are gone, because the

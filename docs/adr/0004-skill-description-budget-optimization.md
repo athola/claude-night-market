@@ -405,6 +405,17 @@ command over skill. `inventory` prints how many files a shared id hides
 (36 on 2026-11-03). Editing a hidden description changes nothing the
 model sees.
 
+**Split ids score as one answer.** The #1055 renames ended most of that
+sharing by giving the skill a suffix: `hooks-eval` the command and
+`hooks-eval-playbook` the skill it invokes. Either one reaches the same
+workflow, so the router and the live analysis count a fired command as
+a hit for its playbook, and the reverse. The pair is the command and
+the same-plugin skill named `<command>-playbook` or `<command>-session`
+that the command file invokes as `Skill(...)`. 30 pairs on 2026-11-28.
+A near miss whose competitor is its own pair is rejected, because it
+measures nothing. Counting the pair as two answers had scored 30 of the
+router's top-1 misses against routing that was correct.
+
 ### Evidence from the first live run
 
 The 2026-11-03 smoke run (one prompt, $0.20) confirmed that

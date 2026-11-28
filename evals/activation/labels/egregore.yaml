@@ -292,12 +292,12 @@ cases:
     judge: egregore:status
     judge_runner_up: egregore:summon-playbook
 - id: egregore.summon-playbook.p1
-  type: near_miss
+  type: positive
   prompt: I've got three work items queued up in the manifest. Can you run them all
     the way through build, quality checks and shipping, and keep going until they're
     finished or we run out of budget?
   target: egregore:summon-playbook
-  competitor: egregore:summon
+  competitor: null
   cluster: egregore:summon-playbook
   proposers:
   - writer
@@ -305,17 +305,18 @@ cases:
   notes: 'router: egregore:summon; judge: egregore:summon/egregore:summon-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: egregore:summon
     judge: egregore:summon
     judge_runner_up: egregore:summon-playbook
 - id: egregore.summon-playbook.p2
-  type: near_miss
+  type: positive
   prompt: My autonomous session died halfway through last night and .egregore/manifest.json
     still shows active items. Pick up where it left off and keep processing them.
   target: egregore:summon-playbook
-  competitor: egregore:summon
+  competitor: null
   cluster: egregore:summon-playbook
   proposers:
   - router
@@ -323,23 +324,26 @@ cases:
   notes: 'router: egregore:summon-playbook; judge: egregore:summon/egregore:summon-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: egregore:summon-playbook
     judge: egregore:summon
     judge_runner_up: egregore:summon-playbook
 - id: egregore.summon-playbook.p3
-  type: near_miss
+  type: positive
   prompt: the egregore died halfway through the third item in .egregore/manifest.json.
     pick it up from the step it was on, keep moving each item through the pipeline,
     and stop when the token budget runs out
   target: egregore:summon-playbook
-  competitor: egregore:summon
+  competitor: null
   cluster: egregore:summon-playbook
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at egregore:summon; router: egregore:summon; judge: egregore:summon-playbook/egregore:summon'
+  notes: 'aimed at egregore:summon; router: egregore:summon; judge: egregore:summon-playbook/egregore:summon;
+    2026-11-28: the command and this playbook now score as one answer, so the near
+    miss against the command is a plain positive'
   proposals:
     aimed_at: egregore:summon
     router: egregore:summon
@@ -394,12 +398,12 @@ cases:
     judge: egregore:summon
     judge_runner_up: sanctum:do-issue
 - id: egregore.uninstall-watchdog-playbook.p1
-  type: near_miss
+  type: positive
   prompt: I'm done with sessions relaunching on their own. Please get rid of that
     launchd agent that keeps restarting claude on my Mac, and clean up its pid and
     log files.
   target: egregore:uninstall-watchdog-playbook
-  competitor: egregore:uninstall-watchdog
+  competitor: null
   cluster: egregore:uninstall-watchdog-playbook
   proposers:
   - writer
@@ -407,17 +411,18 @@ cases:
   notes: 'router: egregore:install-watchdog-playbook; judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: egregore:install-watchdog-playbook
     judge: egregore:uninstall-watchdog
     judge_runner_up: egregore:uninstall-watchdog-playbook
 - id: egregore.uninstall-watchdog-playbook.p2
-  type: near_miss
+  type: positive
   prompt: I'm removing the egregore plugin from this repo, so first tear down the
     systemd user timer and service it installed and confirm nothing is still scheduled.
   target: egregore:uninstall-watchdog-playbook
-  competitor: egregore:uninstall-watchdog
+  competitor: null
   cluster: egregore:uninstall-watchdog-playbook
   proposers:
   - writer
@@ -425,18 +430,19 @@ cases:
   notes: 'router: conjure:provider-sweep; judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: conjure:provider-sweep
     judge: egregore:uninstall-watchdog
     judge_runner_up: egregore:uninstall-watchdog-playbook
 - id: egregore.uninstall-watchdog-playbook.p3
-  type: near_miss
+  type: positive
   prompt: there's a launchd job that keeps restarting the egregore session every 5
     minutes. I want to start sessions by hand from now on, so get rid of it and clean
     up the pidfile and log it left behind
   target: egregore:uninstall-watchdog-playbook
-  competitor: egregore:uninstall-watchdog
+  competitor: null
   cluster: egregore:uninstall-watchdog-playbook
   proposers:
   - writer
@@ -444,7 +450,8 @@ cases:
   notes: 'aimed at egregore:install-watchdog-playbook; router: egregore:uninstall-watchdog;
     judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook; adjudicated
     2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
-    confirmed: the prompt fits the target'
+    confirmed: the prompt fits the target; 2026-11-28: the command and this playbook
+    now score as one answer, so the near miss against the command is a plain positive'
   proposals:
     aimed_at: egregore:install-watchdog-playbook
     router: egregore:uninstall-watchdog

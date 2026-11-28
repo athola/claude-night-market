@@ -198,11 +198,11 @@ cases:
     judge: scribe:doc-sweep
     judge_runner_up: pensive:full-review
 - id: scribe.session-replay-playbook.p1
-  type: near_miss
+  type: positive
   prompt: Turn yesterday's Claude Code conversation where we fixed the rate limiter
     into an animated GIF of the terminal so I can drop it in the PR description
   target: scribe:session-replay-playbook
-  competitor: scribe:session-replay
+  competitor: null
   cluster: scribe:session-replay-playbook
   proposers:
   - writer
@@ -210,7 +210,8 @@ cases:
   notes: 'router: scribe:session-replay; judge: scribe:session-replay/scribe:session-replay-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: scribe:session-replay
     judge: scribe:session-replay
@@ -232,17 +233,19 @@ cases:
     judge: scribe:session-replay-playbook
     judge_runner_up: null
 - id: scribe.session-replay-playbook.p3
-  type: near_miss
+  type: positive
   prompt: Take yesterday's Claude Code session log and turn it into an animated terminal
     GIF of the conversation that I can drop into the PR description
   target: scribe:session-replay-playbook
-  competitor: scribe:session-replay
+  competitor: null
   cluster: scribe:session-replay-playbook
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at abstract:evaluate-skill; router: scribe:session-replay; judge:
-    scribe:session-replay-playbook/scribe:session-replay'
+    scribe:session-replay-playbook/scribe:session-replay; 2026-11-28: the command
+    and this playbook now score as one answer, so the near miss against the command
+    is a plain positive'
   proposals:
     aimed_at: abstract:evaluate-skill
     router: scribe:session-replay
@@ -297,12 +300,12 @@ cases:
     judge: scribe:session-replay
     judge_runner_up: sanctum:session-management
 - id: scribe.session-to-post-playbook.p1
-  type: near_miss
+  type: positive
   prompt: We just spent the afternoon migrating our auth layer off the old token library.
     Can you write that up as a blog post that shows how we got there, dead ends included,
     using the git history and what changed?
   target: scribe:session-to-post-playbook
-  competitor: scribe:session-to-post
+  competitor: null
   cluster: scribe:session-to-post-playbook
   proposers:
   - writer
@@ -310,17 +313,18 @@ cases:
   notes: 'router: sanctum:git-catchup; judge: scribe:session-to-post/scribe:session-to-post-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: sanctum:git-catchup
     judge: scribe:session-to-post
     judge_runner_up: scribe:session-to-post-playbook
 - id: scribe.session-to-post-playbook.p2
-  type: near_miss
+  type: positive
   prompt: Turn the work from this session into a case study I can post on r/rust.
     Make it about the process, not just the final diff.
   target: scribe:session-to-post-playbook
-  competitor: scribe:session-to-post
+  competitor: null
   cluster: scribe:session-to-post-playbook
   proposers:
   - writer
@@ -328,24 +332,27 @@ cases:
   notes: 'router: scribe:session-to-post; judge: scribe:session-to-post/scribe:session-to-post-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: scribe:session-to-post
     judge: scribe:session-to-post
     judge_runner_up: scribe:session-to-post-playbook
 - id: scribe.session-to-post-playbook.p3
-  type: near_miss
+  type: positive
   prompt: We spent the afternoon chasing that flaky migration bug and finally nailed
     it. I want to write it up as a case study for the eng blog, with the dead ends
     and how we got to the fix, pulled from the commits and what happened in this session
   target: scribe:session-to-post-playbook
-  competitor: scribe:session-to-post
+  competitor: null
   cluster: scribe:session-to-post-playbook
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at scribe:session-to-post; router: scribe:session-to-post; judge:
-    scribe:session-to-post-playbook/scribe:session-to-post'
+    scribe:session-to-post-playbook/scribe:session-to-post; 2026-11-28: the command
+    and this playbook now score as one answer, so the near miss against the command
+    is a plain positive'
   proposals:
     aimed_at: scribe:session-to-post
     router: scribe:session-to-post
@@ -665,11 +672,11 @@ cases:
     judge: scribe:voice-extract-playbook
     judge_runner_up: null
 - id: scribe.voice-extract-playbook.p2
-  type: near_miss
+  type: positive
   prompt: Figure out what makes my writing style distinctive compared to how you'd
     write by default. I'll paste some samples.
   target: scribe:voice-extract-playbook
-  competitor: scribe:voice-extract
+  competitor: null
   cluster: scribe:voice-extract-playbook
   proposers:
   - writer
@@ -677,25 +684,28 @@ cases:
   notes: 'router: scribe:style-learn; judge: scribe:voice-extract/scribe:voice-extract-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: scribe:style-learn
     judge: scribe:voice-extract
     judge_runner_up: scribe:voice-extract-playbook
 - id: scribe.voice-extract-playbook.p3
-  type: near_miss
+  type: positive
   prompt: Here are about a dozen of my slack messages, reddit comments and quick emails
     on random topics. Figure out what makes my writing sound like me compared to how
     you'd normally write, so you can ghostwrite for me later
   target: scribe:voice-extract-playbook
-  competitor: scribe:voice-extract
+  competitor: null
   cluster: scribe:voice-extract-playbook
   proposers:
   - judge
   adjudicated: true
   notes: 'aimed at scribe:style-learn; router: sanctum:git-catchup; judge: scribe:voice-extract-playbook/None;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
-    competitor was sanctum:git-catchup, unrelated; the command is the real neighbor'
+    competitor was sanctum:git-catchup, unrelated; the command is the real neighbor;
+    2026-11-28: the command and this playbook now score as one answer, so the near
+    miss against the command is a plain positive'
   proposals:
     aimed_at: scribe:style-learn
     router: sanctum:git-catchup
@@ -750,12 +760,12 @@ cases:
     judge: scribe:voice-extract
     judge_runner_up: scribe:voice-learn
 - id: scribe.voice-generate-playbook.p1
-  type: near_miss
+  type: positive
   prompt: Here are my messy notes on why we dropped microservices. Write a blog post
     from them in my writing style, using the profile you built from my samples last
     week.
   target: scribe:voice-generate-playbook
-  competitor: scribe:voice-generate
+  competitor: null
   cluster: scribe:voice-generate-playbook
   proposers:
   - judge
@@ -763,7 +773,8 @@ cases:
   notes: 'router: scribe:style-learn; judge: scribe:voice-generate-playbook/scribe:session-to-post-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: scribe:style-learn
     judge: scribe:voice-generate-playbook
@@ -784,17 +795,19 @@ cases:
     judge: scribe:voice-generate-playbook
     judge_runner_up: scribe:style-learner
 - id: scribe.voice-generate-playbook.p3
-  type: near_miss
+  type: positive
   prompt: Using the voice profile you built from my writing, turn these rough notes
     about our caching rewrite into a newsletter intro that sounds like I wrote it,
     casual register
   target: scribe:voice-generate-playbook
-  competitor: scribe:voice-generate
+  competitor: null
   cluster: scribe:voice-generate-playbook
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at scribe:style-learn; router: scribe:voice-extract; judge: scribe:voice-generate-playbook/scribe:voice-generate'
+  notes: 'aimed at scribe:style-learn; router: scribe:voice-extract; judge: scribe:voice-generate-playbook/scribe:voice-generate;
+    2026-11-28: the command and this playbook now score as one answer, so the near
+    miss against the command is a plain positive'
   proposals:
     aimed_at: scribe:style-learn
     router: scribe:voice-extract
@@ -851,12 +864,12 @@ cases:
     judge: scribe:voice-generate
     judge_runner_up: scribe:session-to-post
 - id: scribe.voice-learn-playbook.p1
-  type: near_miss
+  type: positive
   prompt: 'I rewrote a lot of the post you generated in my voice: cut the hedges and
     added more asides. Can you compare your version with my final edit and update
     my style profile so next time it''s closer?'
   target: scribe:voice-learn-playbook
-  competitor: scribe:voice-learn
+  competitor: null
   cluster: scribe:voice-learn-playbook
   proposers:
   - judge
@@ -864,17 +877,18 @@ cases:
   notes: 'router: scribe:voice-generate-playbook; judge: scribe:voice-learn-playbook/scribe:style-learner;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: scribe:voice-generate-playbook
     judge: scribe:voice-learn-playbook
     judge_runner_up: scribe:style-learner
 - id: scribe.voice-learn-playbook.p2
-  type: near_miss
+  type: positive
   prompt: Look at what I keep changing in the drafts you write for me and propose
     tweaks to my writing profile based on those edits
   target: scribe:voice-learn-playbook
-  competitor: scribe:voice-learn
+  competitor: null
   cluster: scribe:voice-learn-playbook
   proposers:
   - writer
@@ -882,7 +896,8 @@ cases:
   notes: 'router: spec-kit:speckit-checklist; judge: scribe:voice-learn/scribe:voice-learn-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: spec-kit:speckit-checklist
     judge: scribe:voice-learn

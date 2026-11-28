@@ -1,12 +1,12 @@
 schema_version: 1
 cases:
 - id: pensive.api-review-playbook.p1
-  type: near_miss
+  type: positive
   prompt: We're about to cut a 2.0 release of our Python SDK. Review the public surface
     for naming, parameter order and error consistency, and check the changelog and
     deprecation notes.
   target: pensive:api-review-playbook
-  competitor: pensive:api-review
+  competitor: null
   cluster: pensive:api-review-playbook
   proposers:
   - router
@@ -14,7 +14,8 @@ cases:
   notes: 'router: pensive:api-review-playbook; judge: pensive:api-review/pensive:api-review-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: pensive:api-review-playbook
     judge: pensive:api-review
@@ -35,12 +36,12 @@ cases:
     judge: pensive:api-review-playbook
     judge_runner_up: null
 - id: pensive.api-review-playbook.p3
-  type: near_miss
+  type: positive
   prompt: we ship 2.0 of our logging SDK next week. go through every public function
     it exports and check naming, parameter order, return types and error semantics
     against how requests and tokio do it
   target: pensive:api-review-playbook
-  competitor: pensive:api-review
+  competitor: null
   cluster: pensive:api-review-playbook
   proposers:
   - writer
@@ -48,7 +49,8 @@ cases:
   notes: 'aimed at abstract:aggregate-logs; router: cartograph:call-chain; judge:
     pensive:api-review/pensive:api-review-playbook; adjudicated 2026-11-28 by claude-opus-5-5
     at the operator''s request, not human-reviewed: the command is the closer neighbor
-    than cartograph:call-chain'
+    than cartograph:call-chain; 2026-11-28: the command and this playbook now score
+    as one answer, so the near miss against the command is a plain positive'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: cartograph:call-chain
@@ -105,11 +107,11 @@ cases:
     judge: pensive:api-review
     judge_runner_up: cartograph:class-diagram
 - id: pensive.architecture-review-playbook.p1
-  type: near_miss
+  type: positive
   prompt: This PR splits the billing module into a separate service and rewires the
     dependencies. Check it against our ADRs and flag any coupling or boundary violations.
   target: pensive:architecture-review-playbook
-  competitor: pensive:architecture-review
+  competitor: null
   cluster: pensive:architecture-review-playbook
   proposers:
   - writer
@@ -117,18 +119,19 @@ cases:
   notes: 'router: hookify:rule-sweep; judge: pensive:architecture-review/pensive:architecture-review-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: hookify:rule-sweep
     judge: pensive:architecture-review
     judge_runner_up: pensive:architecture-review-playbook
 - id: pensive.architecture-review-playbook.p2
-  type: near_miss
+  type: positive
   prompt: I suspect our repository layer has passthrough mappers and DTOs that never
     diverge from the domain types. Can you assess the design of this refactor before
     I approve it?
   target: pensive:architecture-review-playbook
-  competitor: pensive:architecture-review
+  competitor: null
   cluster: pensive:architecture-review-playbook
   proposers:
   - judge
@@ -136,18 +139,19 @@ cases:
   notes: 'router: hookify:rule-sweep; judge: pensive:architecture-review-playbook/archetypes:architecture-paradigm-domain-driven;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: hookify:rule-sweep
     judge: pensive:architecture-review-playbook
     judge_runner_up: archetypes:architecture-paradigm-domain-driven
 - id: pensive.architecture-review-playbook.p3
-  type: near_miss
+  type: positive
   prompt: a PR replaces our per-provider delegation code with a single fan-out dispatcher
     module. review the new boundaries and coupling against our ADRs before I approve
     the rewrite
   target: pensive:architecture-review-playbook
-  competitor: pensive:architecture-review
+  competitor: null
   cluster: pensive:architecture-review-playbook
   proposers:
   - writer
@@ -155,7 +159,9 @@ cases:
   notes: 'aimed at conjure:provider-sweep; router: cartograph:code-communities; judge:
     pensive:architecture-review/pensive:architecture-review-playbook; adjudicated
     2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
-    the command is the closer neighbor than cartograph:code-communities'
+    the command is the closer neighbor than cartograph:code-communities; 2026-11-28:
+    the command and this playbook now score as one answer, so the near miss against
+    the command is a plain positive'
   proposals:
     aimed_at: conjure:provider-sweep
     router: cartograph:code-communities
@@ -901,11 +907,11 @@ cases:
     judge: pensive:refine-code
     judge_runner_up: pensive:code-refinement
 - id: pensive.rust-review-playbook.p1
-  type: near_miss
+  type: positive
   prompt: Can you audit the unsafe blocks in our crate's ffi module? I'm worried about
     transmutes and repr(packed) structs producing unaligned refs.
   target: pensive:rust-review-playbook
-  competitor: pensive:rust-review
+  competitor: null
   cluster: pensive:rust-review-playbook
   proposers:
   - judge
@@ -913,7 +919,8 @@ cases:
   notes: 'router: abstract:skill-graph-audit; judge: pensive:rust-review-playbook/None;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: abstract:skill-graph-audit
     judge: pensive:rust-review-playbook
@@ -986,18 +993,20 @@ cases:
     judge: pensive:rust-review
     judge_runner_up: null
 - id: pensive.rust-review.p3
-  type: near_miss
+  type: positive
   prompt: Audit my Rust crate before release. I want unsafe blocks and FFI boundaries
     checked, plus lifetime and ownership problems. I also want a look at how my tokio
     tasks get shut down, since I abort a few handles one after another.
   target: pensive:rust-review
-  competitor: pensive:rust-review-playbook
+  competitor: null
   cluster: pensive:rust-review
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at abstract:improve-skills; router: pensive:rust-review-playbook;
-    judge: pensive:rust-review/pensive:rust-review-playbook'
+    judge: pensive:rust-review/pensive:rust-review-playbook; 2026-11-28: the command
+    and this playbook now score as one answer, so the near miss against the command
+    is a plain positive'
   proposals:
     aimed_at: abstract:improve-skills
     router: pensive:rust-review-playbook
@@ -1215,11 +1224,11 @@ cases:
     judge: pensive:test-review-playbook
     judge_runner_up: parseltongue:analyze-tests
 - id: pensive.test-review-playbook.p2
-  type: near_miss
+  type: positive
   prompt: our pytest suite mocks half the internals and the assertions are vague.
     evaluate test quality and give me a prioritized improvement plan
   target: pensive:test-review-playbook
-  competitor: pensive:test-review
+  competitor: null
   cluster: pensive:test-review-playbook
   proposers:
   - writer
@@ -1227,7 +1236,8 @@ cases:
   notes: 'router: leyline:testing-quality-standards; judge: pensive:test-review/parseltongue:analyze-tests;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: leyline:testing-quality-standards
     judge: pensive:test-review

@@ -96,18 +96,20 @@ cases:
     judge: tome:code-search
     judge_runner_up: tome:web-search
 - id: tome.dig-playbook.p1
-  type: near_miss
+  type: positive
   prompt: From that research we did on CRDT sync strategies, go deeper on just the
     garbage collection part and only pull academic papers this time
   target: tome:dig-playbook
-  competitor: tome:dig
+  competitor: null
   cluster: tome:dig-playbook
   proposers:
   - writer
   adjudicated: true
   notes: 'router: tome:papers; judge: tome:dig/tome:dig-playbook; adjudicated 2026-11-28
     by claude-opus-5-5 at the operator''s request, not human-reviewed: fits both the
-    playbook skill and the command; exact-match scoring makes the command a near miss'
+    playbook skill and the command; exact-match scoring makes the command a near miss;
+    2026-11-28: the command and this playbook now score as one answer, so the near
+    miss against the command is a plain positive'
   proposals:
     router: tome:papers
     judge: tome:dig
@@ -242,12 +244,12 @@ cases:
     judge: tome:discourse
     judge_runner_up: tome:web-search
 - id: tome.export-playbook.p1
-  type: near_miss
+  type: positive
   prompt: I finished researching cache eviction strategies and want the findings saved
     into my memory palace knowledge base. Can you dump the latest session to a markdown
     file intake can ingest?
   target: tome:export-playbook
-  competitor: tome:export
+  competitor: null
   cluster: tome:export-playbook
   proposers:
   - router
@@ -255,17 +257,18 @@ cases:
   notes: 'router: tome:export-playbook; judge: tome:export/tome:export-playbook; adjudicated
     2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: tome:export-playbook
     judge: tome:export
     judge_runner_up: tome:export-playbook
 - id: tome.export-playbook.p2
-  type: near_miss
+  type: positive
   prompt: write out research session 4f2a as a file with frontmatter so I can feed
     it to knowledge intake later
   target: tome:export-playbook
-  competitor: tome:export
+  competitor: null
   cluster: tome:export-playbook
   proposers:
   - router
@@ -273,25 +276,28 @@ cases:
   notes: 'router: tome:export-playbook; judge: tome:export/tome:export-playbook; adjudicated
     2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: tome:export-playbook
     judge: tome:export
     judge_runner_up: tome:export-playbook
 - id: tome.export-playbook.p3
-  type: near_miss
+  type: positive
   prompt: I'm writing a small script that writes yesterday's research session, not
     the latest one, to a markdown file in docs/research so knowledge-intake can ingest
     it. Which loader call should I use? Also, why does it say no session was found
     when I run it from the scripts/ folder?
   target: tome:export-playbook
-  competitor: tome:export
+  competitor: null
   cluster: tome:export-playbook
   proposers:
   - router
   - judge
   adjudicated: false
-  notes: 'aimed at tome:export; router: tome:export-playbook; judge: tome:export-playbook/tome:export'
+  notes: 'aimed at tome:export; router: tome:export-playbook; judge: tome:export-playbook/tome:export;
+    2026-11-28: the command and this playbook now score as one answer, so the near
+    miss against the command is a plain positive'
   proposals:
     aimed_at: tome:export
     router: tome:export-playbook

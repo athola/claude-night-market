@@ -95,6 +95,7 @@ def _disabled_ids(root: Path) -> set[str]:
 
 def validate(cases: list[Case], items: list[Item], root: Path) -> None:
     known = {i.id for i in items}
+    aliases = {i.id: i.alias for i in items if i.alias}
     disabled = _disabled_ids(root)
     seen: set[str] = set()
     for case in cases:
@@ -125,6 +126,11 @@ def validate(cases: list[Case], items: list[Item], root: Path) -> None:
                 )
             if case.competitor not in known:
                 raise LabelError(f"{where}: unknown competitor {case.competitor!r}")
+            if aliases.get(case.target) == case.competitor:
+                raise LabelError(
+                    f"{where}: competitor {case.competitor} is an alias of the "
+                    "target and scores as the same answer"
+                )
 
 
 def coverage_gaps(

@@ -526,11 +526,11 @@ cases:
     judge: abstract:hook-scope-guide
     judge_runner_up: abstract:hook-authoring
 - id: abstract.hooks-eval-playbook.p1
-  type: near_miss
+  type: positive
   prompt: can you go through the PreToolUse hooks in our plugin and check them for
     shell injection risks and slow commands? I want a score for each one
   target: abstract:hooks-eval-playbook
-  competitor: abstract:hooks-eval
+  competitor: null
   cluster: abstract:hooks-eval-playbook
   proposers:
   - writer
@@ -538,17 +538,18 @@ cases:
   notes: 'router: abstract:hooks-eval; judge: abstract:hooks-eval/abstract:hooks-eval-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: abstract:hooks-eval
     judge: abstract:hooks-eval
     judge_runner_up: abstract:hooks-eval-playbook
 - id: abstract.hooks-eval-playbook.p2
-  type: near_miss
+  type: positive
   prompt: our hooks.json references a few shell scripts and I'm not sure they all
     exist or are executable. audit the hook setup and tell me what's broken
   target: abstract:hooks-eval-playbook
-  competitor: abstract:hooks-eval
+  competitor: null
   cluster: abstract:hooks-eval-playbook
   proposers:
   - writer
@@ -556,7 +557,8 @@ cases:
   notes: 'router: pensive:shell-review; judge: abstract:hooks-eval/abstract:validate-hook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: pensive:shell-review
     judge: abstract:hooks-eval
@@ -871,11 +873,11 @@ cases:
     judge: abstract:modular-skills
     judge_runner_up: abstract:analyze-skill
 - id: abstract.plugin-review-playbook.p1
-  type: near_miss
+  type: positive
   prompt: I touched a couple of plugins on this branch, run a quality check on them
     and anything that depends on them before I open the PR
   target: abstract:plugin-review-playbook
-  competitor: abstract:plugin-review
+  competitor: null
   cluster: abstract:plugin-review-playbook
   proposers:
   - writer
@@ -883,7 +885,8 @@ cases:
   notes: 'router: hookify:rule-sweep; judge: abstract:plugin-review/abstract:plugin-review-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: hookify:rule-sweep
     judge: abstract:plugin-review
@@ -1019,11 +1022,11 @@ cases:
     judge: abstract:promote-discussions
     judge_runner_up: minister:create-issue
 - id: abstract.rules-eval-playbook.p1
-  type: near_miss
+  type: positive
   prompt: check the files under .claude/rules/ for bad frontmatter and glob patterns,
     some of them were copied from Cursor and might still have alwaysApply
   target: abstract:rules-eval-playbook
-  competitor: abstract:rules-eval
+  competitor: null
   cluster: abstract:rules-eval-playbook
   proposers:
   - router
@@ -1031,17 +1034,18 @@ cases:
   notes: 'router: abstract:rules-eval-playbook; judge: abstract:rules-eval/abstract:rules-eval-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: abstract:rules-eval-playbook
     judge: abstract:rules-eval
     judge_runner_up: abstract:rules-eval-playbook
 - id: abstract.rules-eval-playbook.p2
-  type: near_miss
+  type: positive
   prompt: our path-scoped rules in .claude/rules feel bloated and some probably conflict.
     score them and tell me which ones to trim
   target: abstract:rules-eval-playbook
-  competitor: abstract:rules-eval
+  competitor: null
   cluster: abstract:rules-eval-playbook
   proposers:
   - writer
@@ -1049,22 +1053,25 @@ cases:
   notes: 'router: abstract:rules-eval; judge: abstract:rules-eval/abstract:rules-eval-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: abstract:rules-eval
     judge: abstract:rules-eval
     judge_runner_up: abstract:rules-eval-playbook
 - id: abstract.rules-eval-playbook.p3
-  type: near_miss
+  type: positive
   prompt: How much does glob quality count toward the score for my .claude/rules files,
     and why would unquoted paths entries cost me points?
   target: abstract:rules-eval-playbook
-  competitor: abstract:rules-eval
+  competitor: null
   cluster: abstract:rules-eval-playbook
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:rules-eval; router: abstract:rules-eval; judge: abstract:rules-eval-playbook/abstract:rules-eval'
+  notes: 'aimed at abstract:rules-eval; router: abstract:rules-eval; judge: abstract:rules-eval-playbook/abstract:rules-eval;
+    2026-11-28: the command and this playbook now score as one answer, so the near
+    miss against the command is a plain positive'
   proposals:
     aimed_at: abstract:rules-eval
     router: abstract:rules-eval
@@ -1267,11 +1274,11 @@ cases:
     judge: abstract:skill-graph-audit
     judge_runner_up: leyline:plugin-health
 - id: abstract.skills-eval-playbook.p1
-  type: near_miss
+  type: positive
   prompt: audit the SKILL.md files in this repo, I think a few of them are way over
     their token budget and have broken structure
   target: abstract:skills-eval-playbook
-  competitor: abstract:skills-eval
+  competitor: null
   cluster: abstract:skills-eval-playbook
   proposers:
   - writer
@@ -1279,7 +1286,8 @@ cases:
   notes: 'router: abstract:aggregate-logs; judge: abstract:skills-eval/abstract:skill-audit;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: abstract:aggregate-logs
     judge: abstract:skills-eval

@@ -215,11 +215,11 @@ cases:
     judge: sanctum:do-issue-playbook
     judge_runner_up: sanctum:prepare-pr
 - id: sanctum.do-issue-playbook.p2
-  type: near_miss
+  type: positive
   prompt: pick up gitlab issue 88 and implement what it asks for, it's a few pieces
     across the api and frontend. update the issue when you're done
   target: sanctum:do-issue-playbook
-  competitor: sanctum:do-issue
+  competitor: null
   cluster: sanctum:do-issue-playbook
   proposers:
   - writer
@@ -227,7 +227,8 @@ cases:
   notes: 'router: sanctum:do-issue; judge: sanctum:do-issue/sanctum:do-issue-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: sanctum:do-issue
     judge: sanctum:do-issue
@@ -871,16 +872,18 @@ cases:
     router: sanctum:pr-review
     judge: sanctum:pr-review
 - id: sanctum.pr-review.p3
-  type: near_miss
+  type: positive
   prompt: 'A teammate opened PR #214. Review it against the ticket requirements, flag
     anything that''s scope creep, and give me feedback I can leave on it.'
   target: sanctum:pr-review
-  competitor: sanctum:pr-review-playbook
+  competitor: null
   cluster: sanctum:pr-review
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at sanctum:fix-pr; router: hookify:rule-sweep; judge: sanctum:pr-review/sanctum:pr-review-playbook'
+  notes: 'aimed at sanctum:fix-pr; router: hookify:rule-sweep; judge: sanctum:pr-review/sanctum:pr-review-playbook;
+    2026-11-28: the command and this playbook now score as one answer, so the near
+    miss against the command is a plain positive'
   proposals:
     aimed_at: sanctum:fix-pr
     router: hookify:rule-sweep
@@ -1761,13 +1764,13 @@ cases:
     judge: sanctum:update-version
     judge_runner_up: sanctum:version-updates
 - id: sanctum.validate-pr-playbook.p1
-  type: near_miss
+  type: positive
   prompt: I just pushed fixes for the review comments on PR 412. The changes touch
     two Rust crates, a Python module, and a git hook. Can you work out which checks
     actually matter for those files, run them, and give me a table of the results
     I can paste into the PR?
   target: sanctum:validate-pr-playbook
-  competitor: sanctum:validate-pr
+  competitor: null
   cluster: sanctum:validate-pr-playbook
   proposers:
   - writer
@@ -1775,18 +1778,19 @@ cases:
   notes: 'router: sanctum:validate-pr; judge: sanctum:validate-pr/sanctum:validate-pr-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: sanctum:validate-pr
     judge: sanctum:validate-pr
     judge_runner_up: sanctum:validate-pr-playbook
 - id: sanctum.validate-pr-playbook.p2
-  type: near_miss
+  type: positive
   prompt: Before I mark this PR ready, I want proof that the new regression tests
     would catch the bug. Back out the fix, confirm the tests fail, then restore it
     and confirm they pass.
   target: sanctum:validate-pr-playbook
-  competitor: sanctum:validate-pr
+  competitor: null
   cluster: sanctum:validate-pr-playbook
   proposers:
   - writer
@@ -1794,7 +1798,8 @@ cases:
   notes: 'router: pensive:parity-sweep; judge: sanctum:validate-pr/sanctum:validate-pr-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: pensive:parity-sweep
     judge: sanctum:validate-pr

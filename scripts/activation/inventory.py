@@ -38,6 +38,8 @@ class Item:
     description: str
     path: str
     shadowed: tuple[str, ...] = ()
+    # The command or playbook skill this item is the same answer as.
+    alias: str | None = None
 
 
 def normalize(text: str) -> str:
@@ -107,7 +109,42 @@ def build_inventory(root: Path) -> list[Item]:
         group.sort(key=lambda i: (PRECEDENCE[i.kind], i.path))
         winner = group[0]
         merged.append(replace(winner, shadowed=tuple(i.path for i in group[1:])))
-    return sorted(merged, key=lambda i: i.id)
+    return sorted(_pair_aliases(merged, root), key=lambda i: i.id)
+
+
+#: Suffixes the #1055 renames gave a skill that had shared a command's id.
+_SPLIT_SUFFIXES = ("-playbook", "-session")
+
+
+def _pair_aliases(items: list[Item], root: Path) -> list[Item]:
+    """Pair each command with the skill it was split from.
+
+    The #1055 renames gave a skill that shared its id with a command a
+    suffix, and the command now invokes that skill. Routing to either
+    reaches the same workflow, so scoring counts them as one answer. A
+    same-named skill the command does not invoke stays separate.
+    """
+    by_id = {i.id: i for i in items}
+    alias: dict[str, str] = {}
+    for item in items:
+        if item.kind != "command":
+            continue
+        body = (root / item.path).read_text(encoding="utf-8")
+        for suffix in _SPLIT_SUFFIXES:
+            skill = by_id.get(item.id + suffix)
+            if skill and skill.kind == "skill" and f"Skill({skill.id})" in body:
+                alias[item.id], alias[skill.id] = skill.id, item.id
+    return [replace(i, alias=alias.get(i.id)) for i in items]
+
+
+def alias_map(items: list[Item]) -> dict[str, str]:
+    """Map each paired id to its partner."""
+    return {i.id: i.alias for i in items if i.alias}
+
+
+def is_answer(fired: str, target: str | None, aliases: dict[str, str]) -> bool:
+    """Whether firing ``fired`` reaches the workflow ``target`` names."""
+    return fired == target or (target is not None and aliases.get(target) == fired)
 
 
 def _sha(text: str) -> str:

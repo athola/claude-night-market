@@ -6,6 +6,7 @@ harder to tell apart for a lexical ranker.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 
 from scripts.activation.inventory import Item
 from scripts.activation.labels import Case
@@ -159,3 +160,22 @@ def test_a_tied_target_ranks_the_same_whatever_its_id():
     last = evaluate(Router(ITEMS), [_pos("t.2", "nothing matches", "p:shell-check")])
     assert first["mrr"] == last["mrr"] == 0.5
     assert first["top1"] == last["top1"] == 0.0
+
+
+def test_a_target_outranked_only_by_its_alias_ranks_first():
+    """The command that loads the target playbook is the same answer, so it
+    does not push the target down or count as a collision.
+    """
+    command = replace(
+        _item("rev", "Review the branch for bugs."),
+        kind="command",
+        alias="p:rev-playbook",
+    )
+    playbook = replace(_item("rev-playbook", "Method notes."), alias="p:rev")
+    other = _item("ship", "Commit and push.")
+    case = _pos("rev.p1", "review the branch for bugs", "p:rev-playbook")
+
+    metrics = evaluate(Router([command, playbook, other]), [case])
+
+    assert metrics["cases"]["rev.p1"]["rank"] == 1
+    assert metrics["collisions"] == {}

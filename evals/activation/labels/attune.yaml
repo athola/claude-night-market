@@ -597,11 +597,11 @@ cases:
     judge: attune:project-execution
     judge_runner_up: null
 - id: attune.project-init-playbook.p1
-  type: near_miss
+  type: positive
   prompt: set up a new rust project in this empty folder with a Makefile, pre-commit
     hooks, github actions and git init
   target: attune:project-init-playbook
-  competitor: attune:project-init
+  competitor: null
   cluster: attune:project-init-playbook
   proposers:
   - router
@@ -609,7 +609,8 @@ cases:
   notes: 'router: attune:project-init-playbook; judge: attune:project-init/attune:project-init-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: attune:project-init-playbook
     judge: attune:project-init
@@ -630,17 +631,19 @@ cases:
     judge: attune:project-init-playbook
     judge_runner_up: attune:project-init
 - id: attune.project-init-playbook.p3
-  type: near_miss
+  type: positive
   prompt: This old Rust repo has no Makefile, no GitHub workflow and no pre-commit
     config. Bring it up to our standard tooling, but don't overwrite the custom .gitignore.
   target: attune:project-init-playbook
-  competitor: attune:project-init
+  competitor: null
   cluster: attune:project-init-playbook
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at attune:precommit-setup; router: minister:initiative-pulse; judge:
-    attune:project-init-playbook/attune:project-init'
+    attune:project-init-playbook/attune:project-init; 2026-11-28: the command and
+    this playbook now score as one answer, so the near miss against the command is
+    a plain positive'
   proposals:
     aimed_at: attune:precommit-setup
     router: minister:initiative-pulse

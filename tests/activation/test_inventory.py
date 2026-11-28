@@ -127,3 +127,33 @@ def test_cli_json_lists_every_item_with_its_path(plugin_tree, capsys):
     assert main(["--root", str(plugin_tree), "--json"]) == 0
     listed = json.loads(capsys.readouterr().out)
     assert [r["id"] for r in listed] == [i.id for i in build_inventory(plugin_tree)]
+
+
+def _pair_tree(root, *, invokes: bool):
+    write(
+        root / "plugins/p/commands/rev.md",
+        "---\ndescription: Review the branch.\n---\n\n"
+        + ("Invoke `Skill(p:rev-playbook)`.\n" if invokes else "Do it by hand.\n"),
+    )
+    write(
+        root / "plugins/p/skills/rev-playbook/SKILL.md",
+        "---\nname: rev-playbook\ndescription: Branch review method.\n---\n",
+    )
+    return {i.id: i for i in build_inventory(root)}
+
+
+def test_a_command_and_the_playbook_it_invokes_are_one_answer(tmp_path):
+    """The #1055 renames split one id into a command and the skill it loads.
+    Routing to either reaches the same workflow.
+    """
+    by_id = _pair_tree(tmp_path, invokes=True)
+
+    assert by_id["p:rev"].alias == "p:rev-playbook"
+    assert by_id["p:rev-playbook"].alias == "p:rev"
+
+
+def test_a_same_named_skill_the_command_does_not_invoke_stays_separate(tmp_path):
+    by_id = _pair_tree(tmp_path, invokes=False)
+
+    assert by_id["p:rev"].alias is None
+    assert by_id["p:rev-playbook"].alias is None

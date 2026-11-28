@@ -68,11 +68,11 @@ cases:
     judge: sanctum:git-catchup
     judge_runner_up: imbue:catchup-playbook
 - id: imbue.catchup-playbook.p2
-  type: near_miss
+  type: positive
   prompt: I'm taking over this branch from a teammate tomorrow. Summarize what changed
     recently, why, and which follow-ups or blockers I should know about.
   target: imbue:catchup-playbook
-  competitor: imbue:catchup
+  competitor: null
   cluster: imbue:catchup-playbook
   proposers:
   - writer
@@ -80,7 +80,8 @@ cases:
   notes: 'router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: sanctum:git-catchup
     judge: sanctum:git-catchup
@@ -406,12 +407,12 @@ cases:
     judge: imbue:graduated-implementation
     judge_runner_up: archetypes:architecture-paradigm-functional-core
 - id: imbue.justify-playbook.p1
-  type: near_miss
+  type: positive
   prompt: Before I open a PR, check my branch for bloat. I added a lot of lines and
     a couple of new helper files, and I want to know whether I'm patching symptoms
     instead of fixing the actual cause.
   target: imbue:justify-playbook
-  competitor: imbue:justify
+  competitor: null
   cluster: imbue:justify-playbook
   proposers:
   - judge
@@ -419,17 +420,18 @@ cases:
   notes: 'router: parseltongue:python-async; judge: imbue:justify-playbook/imbue:proof-of-work;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: parseltongue:python-async
     judge: imbue:justify-playbook
     judge_runner_up: imbue:proof-of-work
 - id: imbue.justify-playbook.p2
-  type: near_miss
+  type: positive
   prompt: I changed some test assertions to get CI green. Audit my diff against main
     and tell me which of the changes I can actually justify and which ones are workarounds.
   target: imbue:justify-playbook
-  competitor: imbue:justify
+  competitor: null
   cluster: imbue:justify-playbook
   proposers:
   - writer
@@ -437,7 +439,8 @@ cases:
   notes: 'router: conjure:provider-setup; judge: imbue:justify/imbue:justify-playbook;
     adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
     fits both the playbook skill and the command; exact-match scoring makes the command
-    a near miss'
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
   proposals:
     router: conjure:provider-setup
     judge: imbue:justify
