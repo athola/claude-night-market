@@ -157,3 +157,23 @@ def test_a_same_named_skill_the_command_does_not_invoke_stays_separate(tmp_path)
 
     assert by_id["p:rev"].alias is None
     assert by_id["p:rev-playbook"].alias is None
+
+
+def test_a_workflow_and_its_playbook_stay_separate(tmp_path):
+    """A workflow runs only when the user asks for one, so a model that picks
+    it for a vague prompt chose wrong, and pairing would score that a hit.
+    """
+    write(
+        tmp_path / "plugins/p/workflows/rev.js",
+        "export const meta = {\n  name: 'rev',\n  description: 'Fan out a review.',\n}\n"
+        "// Invoke Skill(p:rev-playbook)\n",
+    )
+    write(
+        tmp_path / "plugins/p/skills/rev-playbook/SKILL.md",
+        "---\nname: rev-playbook\ndescription: Branch review method.\n---\n",
+    )
+    by_id = {i.id: i for i in build_inventory(tmp_path)}
+
+    assert by_id["p:rev"].kind == "workflow"
+    assert by_id["p:rev"].alias is None
+    assert by_id["p:rev-playbook"].alias is None

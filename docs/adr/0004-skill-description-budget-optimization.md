@@ -413,7 +413,10 @@ a hit for its playbook, and the reverse. The pair is the command and
 the same-plugin skill named `<command>-playbook` or `<command>-session`
 that the command file invokes as `Skill(...)`. 30 pairs on 2026-11-28.
 A near miss whose competitor is its own pair is rejected, because it
-measures nothing. Counting the pair as two answers had scored 30 of the
+measures nothing. A workflow is never paired, though four still sit
+beside a suffixed skill (`pensive:unified-review`, `tome:research`,
+`attune:skill-library`): a workflow runs only when the user asks for
+one, so picking it for a vague prompt is the costly wrong choice. Counting the pair as two answers had scored 30 of the
 router's top-1 misses against routing that was correct.
 
 ### Evidence from the first live run
