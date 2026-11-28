@@ -40,7 +40,9 @@ _REFUSAL = (
     "gauntlet: the index changed after the pre-commit gate checked it "
     "(git add in the same command, commit -a, or commit <paths>). Run "
     "git add as a separate command, then git commit on its own, so the "
-    "gate sees what is being committed."
+    "gate sees what is being committed. If nothing changed the index in "
+    "this command, the gate's record was left by an earlier commit that "
+    "never ran. It is cleared now, so retry the commit."
 )
 
 
@@ -77,7 +79,22 @@ def recheck(repo_root: Path, env: Mapping[str, str]) -> str | None:
     return None
 
 
-_HOOK_LINE = f'python3 "{Path(__file__).resolve()}" || exit 1'
+def _hook_line(script: Path) -> str:
+    """Return the hook line that runs *script*, or warns once it is gone.
+
+    The script sits in the versioned plugin cache, and an update deletes
+    the old version. ``|| exit 1`` on a missing file then aborted every
+    commit in the repository, a person's included, until the hook was
+    edited by hand.
+    """
+    return (
+        f'if [ -f "{script}" ]; then python3 "{script}" || exit 1; '
+        f"else printf 'gauntlet: %s is gone. Rerun git_index_recheck.py "
+        f'--install\\n\' "{script}" >&2; fi'
+    )
+
+
+_HOOK_LINE = _hook_line(Path(__file__).resolve())
 
 
 def install(repo_root: Path) -> int:

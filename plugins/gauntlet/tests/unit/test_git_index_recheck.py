@@ -89,6 +89,23 @@ class TestRecheck:
 
         assert not _record_path(repo).exists()
 
+    def test_stale_record_refuses_once_and_says_a_retry_passes(
+        self, repo: Path
+    ) -> None:
+        # A commit with nothing staged never reaches pre-commit, so its
+        # record outlives it. The next commit the gate did not see is
+        # refused against that old index, and only the message can tell
+        # the agent this was not a git add in the same command.
+        _record_now(repo)
+        (repo / "b.py").write_text("y = 2\n")
+        _git(repo, "add", "b.py")
+
+        refusal = git_index_recheck.recheck(repo, _AGENT_ENV)
+
+        assert refusal is not None
+        assert "retry" in refusal
+        assert git_index_recheck.recheck(repo, _AGENT_ENV) is None
+
     def test_passes_when_no_gate_record_exists(self, repo: Path) -> None:
         (repo / "b.py").write_text("y = 2\n")
         _git(repo, "add", "b.py")
@@ -226,6 +243,36 @@ class TestInstall:
 
         assert git_index_recheck.install(repo) == 0
         assert (repo / ".git" / "hooks" / "pre-commit").read_text() == first
+
+
+@pytest.mark.unit
+class TestInstalledHookOutlivesItsScript:
+    """A plugin update removes the versioned script the hook names."""
+
+    def test_commit_proceeds_with_a_warning_when_the_script_is_gone(
+        self, repo: Path, tmp_path_factory: pytest.TempPathFactory
+    ) -> None:
+        gone = tmp_path_factory.mktemp("old-version") / "git_index_recheck.py"
+        with patch.object(
+            git_index_recheck,
+            "_HOOK_LINE",
+            git_index_recheck._hook_line(gone),
+        ):
+            git_index_recheck.install(repo)
+        (repo / "b.py").write_text("y = 2\n")
+        _git(repo, "add", "b.py")
+
+        commit = subprocess.run(
+            ["git", "commit", "-q", "-m", "after update"],
+            cwd=repo,
+            env={**os.environ, **_AGENT_ENV},
+            capture_output=True,
+            text=True,
+        )
+
+        assert commit.returncode == 0, commit.stderr
+        assert "--install" in commit.stderr
+        assert str(gone) in commit.stderr
 
 
 @pytest.mark.unit
