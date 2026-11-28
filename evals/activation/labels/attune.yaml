@@ -292,9 +292,11 @@ cases:
   cluster: attune:execute
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at attune:project-execution; router: phantom:control-desktop; judge:
-    attune:execute/spec-kit:speckit-orchestrator'
+    attune:execute/spec-kit:speckit-orchestrator; adjudicated 2026-11-28 by claude-opus-5-5
+    at the operator''s request, not human-reviewed: confirmed: the prompt fits the
+    target'
   proposals:
     aimed_at: attune:project-execution
     router: phantom:control-desktop
@@ -310,8 +312,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: attune:makefile-generation
     judge: attune:makefile-generation
@@ -357,8 +360,10 @@ cases:
   cluster: attune:mission-orchestrator
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: attune:project-planning; judge: attune:mission-orchestrator/attune:project-planning'
+  adjudicated: true
+  notes: 'router: attune:project-planning; judge: attune:mission-orchestrator/attune:project-planning;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: attune:project-planning
     judge: attune:mission-orchestrator
@@ -592,16 +597,19 @@ cases:
     judge: attune:project-execution
     judge_runner_up: null
 - id: attune.project-init-playbook.p1
-  type: positive
+  type: near_miss
   prompt: set up a new rust project in this empty folder with a Makefile, pre-commit
     hooks, github actions and git init
   target: attune:project-init-playbook
-  competitor: null
+  competitor: attune:project-init
   cluster: attune:project-init-playbook
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: attune:project-init-playbook; judge: attune:project-init/attune:project-init-playbook'
+  adjudicated: true
+  notes: 'router: attune:project-init-playbook; judge: attune:project-init/attune:project-init-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: attune:project-init-playbook
     judge: attune:project-init

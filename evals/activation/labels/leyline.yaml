@@ -187,9 +187,11 @@ cases:
   cluster: leyline:damage-control
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: hookify:rule-sweep;
-    judge: leyline:damage-control/sanctum:stack-rebase'
+    judge: leyline:damage-control/sanctum:stack-rebase; adjudicated 2026-11-28 by
+    claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed: the
+    prompt fits the target'
   proposals:
     aimed_at: archetypes:architecture-paradigm-functional-core
     router: hookify:rule-sweep
@@ -279,14 +281,17 @@ cases:
     and support a dry-run. Can you check my argparse setup and issue body against
     what the other plugins' wrappers do, so they all stay consistent?
   target: leyline:decision-journal
-  competitor: hookify:rule-sweep
+  competitor: minister:create-issue
   cluster: leyline:decision-journal
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at minister:create-issue; router: leyline:deferred-capture; judge:
-    leyline:deferred-capture/None'
+    leyline:deferred-capture/None; adjudicated 2026-11-28 by claude-opus-5-5 at the
+    operator''s request, not human-reviewed: competitor was hookify:rule-sweep, unrelated;
+    issue creation is the real neighbor. decision-journal now holds the deferred-capture
+    contract'
   proposals:
     aimed_at: minister:create-issue
     router: leyline:deferred-capture
@@ -425,14 +430,16 @@ cases:
     Help me build the weighted scoring and threshold logic so we can reuse it for
     other things later.
   target: leyline:evaluation-framework
-  competitor: pensive:harden
+  competitor: imbue:feature-review
   cluster: leyline:evaluation-framework
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:paradigm-panel; router: leyline:evaluation-framework;
-    judge: leyline:evaluation-framework/None'
+    judge: leyline:evaluation-framework/None; adjudicated 2026-11-28 by claude-opus-5-5
+    at the operator''s request, not human-reviewed: competitor was pensive:harden,
+    unrelated; feature-review is the other weighted-scoring skill'
   proposals:
     aimed_at: archetypes:paradigm-panel
     router: leyline:evaluation-framework
@@ -513,8 +520,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: leyline:loop-optimization
     judge: leyline:loop-optimization
@@ -701,8 +709,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: leyline:pytest-config
     judge: leyline:pytest-config
@@ -716,8 +725,10 @@ cases:
   cluster: leyline:testing-quality-standards
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: leyline:plugin-health; judge: parseltongue:python-testing/leyline:testing-quality-standards'
+  adjudicated: true
+  notes: 'router: leyline:plugin-health; judge: parseltongue:python-testing/leyline:testing-quality-standards;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: leyline:plugin-health
     judge: parseltongue:python-testing
@@ -750,8 +761,10 @@ cases:
   cluster: leyline:service-registry
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: conserve:clear-context; judge: leyline:quota-management'
+  adjudicated: true
+  notes: 'router: conserve:clear-context; judge: leyline:quota-management; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: conserve:clear-context
     judge: leyline:quota-management
@@ -764,8 +777,10 @@ cases:
   cluster: leyline:service-registry
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: leyline:usage-logging; judge: leyline:quota-management'
+  adjudicated: true
+  notes: 'router: leyline:usage-logging; judge: leyline:quota-management; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: leyline:usage-logging
     judge: leyline:quota-management
@@ -779,9 +794,11 @@ cases:
   cluster: leyline:service-registry
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at conserve:clear-context; router: conserve:clear-context; judge:
-    leyline:quota-management/conserve:token-conservation'
+    leyline:quota-management/conserve:token-conservation; adjudicated 2026-11-28 by
+    claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed: the
+    prompt fits the target'
   proposals:
     aimed_at: conserve:clear-context
     router: conserve:clear-context
@@ -1127,9 +1144,11 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:test-skill; router: leyline:testing-quality-standards;
-    judge: leyline:testing-quality-standards/parseltongue:analyze-tests'
+    judge: leyline:testing-quality-standards/parseltongue:analyze-tests; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: abstract:test-skill
     router: leyline:testing-quality-standards
@@ -1212,8 +1231,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: leyline:usage-logging
     judge: leyline:usage-logging
@@ -1227,9 +1247,11 @@ cases:
   cluster: leyline:service-registry
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:analyze-skill; router: parseltongue:python-async; judge:
-    leyline:service-registry/conserve:token-conservation'
+    leyline:service-registry/conserve:token-conservation; adjudicated 2026-11-28 by
+    claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed: the
+    prompt fits the target'
   proposals:
     aimed_at: abstract:analyze-skill
     router: parseltongue:python-async
@@ -1246,8 +1268,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: leyline:utility
     judge: leyline:utility
@@ -1262,8 +1285,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: leyline:utility
     judge: leyline:utility
@@ -1278,8 +1302,10 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at conjure:provider-sweep; router: leyline:utility; judge: leyline:utility/conserve:agent-expenditure'
+  adjudicated: true
+  notes: 'aimed at conjure:provider-sweep; router: leyline:utility; judge: leyline:utility/conserve:agent-expenditure;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: conjure:provider-sweep
     router: leyline:utility

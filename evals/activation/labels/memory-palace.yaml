@@ -128,8 +128,10 @@ cases:
   cluster: memory-palace:knowledge-intake
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: pensive:harden; judge: memory-palace:knowledge-intake'
+  adjudicated: true
+  notes: 'router: pensive:harden; judge: memory-palace:knowledge-intake; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: pensive:harden
     judge: memory-palace:knowledge-intake
@@ -193,9 +195,11 @@ cases:
   cluster: memory-palace:knowledge-locator
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: archetypes:architecture-paradigm-functional-core;
-    judge: memory-palace:knowledge-locator/memory-palace:palace-sweep'
+    judge: memory-palace:knowledge-locator/memory-palace:palace-sweep; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: archetypes:architecture-paradigm-functional-core
     router: archetypes:architecture-paradigm-functional-core
@@ -439,9 +443,11 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at tome:research; router: memory-palace:palace-index-curator; judge:
-    memory-palace:palace-index-curator/memory-palace:palace-sweep'
+    memory-palace:palace-index-curator/memory-palace:palace-sweep; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     aimed_at: tome:research
     router: memory-palace:palace-index-curator
@@ -508,8 +514,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: memory-palace:palace
     judge: memory-palace:palace
@@ -548,17 +555,19 @@ cases:
     judge: memory-palace:palace
     judge_runner_up: null
 - id: memory-palace.review-chamber.p1
-  type: positive
+  type: near_miss
   prompt: We just finished reviewing PR 42 and the JWT vs sessions discussion was
     valuable. How do I save the decision and reasoning from that review so people
     can find it later?
   target: memory-palace:review-chamber
-  competitor: null
+  competitor: memory-palace:review-room
   cluster: memory-palace:review-chamber
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: imbue:assisted-mastery; judge: memory-palace:review-chamber/memory-palace:palace'
+  adjudicated: true
+  notes: 'router: imbue:assisted-mastery; judge: memory-palace:review-chamber/memory-palace:palace;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    saving review knowledge fits the review-room command too'
   proposals:
     router: imbue:assisted-mastery
     judge: memory-palace:review-chamber
@@ -724,8 +733,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: memory-palace:session-palace-builder
     judge: memory-palace:session-palace-builder

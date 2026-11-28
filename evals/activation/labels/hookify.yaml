@@ -166,8 +166,10 @@ cases:
   cluster: hookify:hookify
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: abstract:rules-eval; judge: hookify:hookify/hookify:writing-rules'
+  adjudicated: true
+  notes: 'router: abstract:rules-eval; judge: hookify:hookify/hookify:writing-rules;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: abstract:rules-eval
     judge: hookify:hookify
@@ -243,8 +245,10 @@ cases:
   cluster: hookify:list
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: imbue:evidence-sweep; judge: hookify:list/None'
+  adjudicated: true
+  notes: 'router: imbue:evidence-sweep; judge: hookify:list/None; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     router: imbue:evidence-sweep
     judge: hookify:list

@@ -158,8 +158,10 @@ cases:
   cluster: archetypes:architecture-paradigm-event-driven
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: sanctum:stack-mode; judge: archetypes:architecture-paradigm-event-driven/archetypes:paradigm-panel'
+  adjudicated: true
+  notes: 'router: sanctum:stack-mode; judge: archetypes:architecture-paradigm-event-driven/archetypes:paradigm-panel;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: sanctum:stack-mode
     judge: archetypes:architecture-paradigm-event-driven
@@ -190,9 +192,11 @@ cases:
   cluster: archetypes:architecture-paradigm-event-driven
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-microservices; router: parseltongue:python-async;
-    judge: archetypes:architecture-paradigm-event-driven/archetypes:paradigm-panel'
+    judge: archetypes:architecture-paradigm-event-driven/archetypes:paradigm-panel;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: archetypes:architecture-paradigm-microservices
     router: parseltongue:python-async
@@ -226,8 +230,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: archetypes:architecture-paradigm-functional-core
     judge: archetypes:architecture-paradigm-functional-core
@@ -295,9 +300,11 @@ cases:
   cluster: archetypes:architecture-paradigm-hexagonal
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-domain-driven; router: archetypes:architecture-paradigm-functional-core;
-    judge: archetypes:architecture-paradigm-hexagonal/archetypes:architecture-paradigm-functional-core'
+    judge: archetypes:architecture-paradigm-hexagonal/archetypes:architecture-paradigm-functional-core;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: archetypes:architecture-paradigm-domain-driven
     router: archetypes:architecture-paradigm-functional-core
@@ -329,8 +336,10 @@ cases:
   cluster: archetypes:architecture-paradigm-layered
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: archetypes:architecture-paradigm-functional-core; judge: archetypes:architecture-paradigm-layered/archetypes:architecture-paradigm-domain-driven'
+  adjudicated: true
+  notes: 'router: archetypes:architecture-paradigm-functional-core; judge: archetypes:architecture-paradigm-layered/archetypes:architecture-paradigm-domain-driven;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: archetypes:architecture-paradigm-functional-core
     judge: archetypes:architecture-paradigm-layered

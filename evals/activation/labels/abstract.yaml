@@ -526,31 +526,37 @@ cases:
     judge: abstract:hook-scope-guide
     judge_runner_up: abstract:hook-authoring
 - id: abstract.hooks-eval-playbook.p1
-  type: positive
+  type: near_miss
   prompt: can you go through the PreToolUse hooks in our plugin and check them for
     shell injection risks and slow commands? I want a score for each one
   target: abstract:hooks-eval-playbook
-  competitor: null
+  competitor: abstract:hooks-eval
   cluster: abstract:hooks-eval-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: abstract:hooks-eval; judge: abstract:hooks-eval/abstract:hooks-eval-playbook'
+  adjudicated: true
+  notes: 'router: abstract:hooks-eval; judge: abstract:hooks-eval/abstract:hooks-eval-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: abstract:hooks-eval
     judge: abstract:hooks-eval
     judge_runner_up: abstract:hooks-eval-playbook
 - id: abstract.hooks-eval-playbook.p2
-  type: positive
+  type: near_miss
   prompt: our hooks.json references a few shell scripts and I'm not sure they all
     exist or are executable. audit the hook setup and tell me what's broken
   target: abstract:hooks-eval-playbook
-  competitor: null
+  competitor: abstract:hooks-eval
   cluster: abstract:hooks-eval-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: pensive:shell-review; judge: abstract:hooks-eval/abstract:validate-hook'
+  adjudicated: true
+  notes: 'router: pensive:shell-review; judge: abstract:hooks-eval/abstract:validate-hook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: pensive:shell-review
     judge: abstract:hooks-eval
@@ -740,8 +746,10 @@ cases:
   cluster: abstract:metacognitive-self-mod
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:analyze-tests; judge: abstract:metacognitive-self-mod'
+  adjudicated: true
+  notes: 'router: parseltongue:analyze-tests; judge: abstract:metacognitive-self-mod;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: parseltongue:analyze-tests
     judge: abstract:metacognitive-self-mod
@@ -863,16 +871,19 @@ cases:
     judge: abstract:modular-skills
     judge_runner_up: abstract:analyze-skill
 - id: abstract.plugin-review-playbook.p1
-  type: positive
+  type: near_miss
   prompt: I touched a couple of plugins on this branch, run a quality check on them
     and anything that depends on them before I open the PR
   target: abstract:plugin-review-playbook
-  competitor: null
+  competitor: abstract:plugin-review
   cluster: abstract:plugin-review-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: abstract:plugin-review/abstract:plugin-review-playbook'
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: abstract:plugin-review/abstract:plugin-review-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: hookify:rule-sweep
     judge: abstract:plugin-review
@@ -901,8 +912,10 @@ cases:
   cluster: abstract:plugin-review-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'aimed at leyline:plugin-health; router: leyline:plugin-health; judge: abstract:plugin-review/abstract:plugin-review-playbook'
+  adjudicated: true
+  notes: 'aimed at leyline:plugin-health; router: leyline:plugin-health; judge: abstract:plugin-review/abstract:plugin-review-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: leyline:plugin-health
     router: leyline:plugin-health
@@ -1006,31 +1019,37 @@ cases:
     judge: abstract:promote-discussions
     judge_runner_up: minister:create-issue
 - id: abstract.rules-eval-playbook.p1
-  type: positive
+  type: near_miss
   prompt: check the files under .claude/rules/ for bad frontmatter and glob patterns,
     some of them were copied from Cursor and might still have alwaysApply
   target: abstract:rules-eval-playbook
-  competitor: null
+  competitor: abstract:rules-eval
   cluster: abstract:rules-eval-playbook
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: abstract:rules-eval-playbook; judge: abstract:rules-eval/abstract:rules-eval-playbook'
+  adjudicated: true
+  notes: 'router: abstract:rules-eval-playbook; judge: abstract:rules-eval/abstract:rules-eval-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: abstract:rules-eval-playbook
     judge: abstract:rules-eval
     judge_runner_up: abstract:rules-eval-playbook
 - id: abstract.rules-eval-playbook.p2
-  type: positive
+  type: near_miss
   prompt: our path-scoped rules in .claude/rules feel bloated and some probably conflict.
     score them and tell me which ones to trim
   target: abstract:rules-eval-playbook
-  competitor: null
+  competitor: abstract:rules-eval
   cluster: abstract:rules-eval-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: abstract:rules-eval; judge: abstract:rules-eval/abstract:rules-eval-playbook'
+  adjudicated: true
+  notes: 'router: abstract:rules-eval; judge: abstract:rules-eval/abstract:rules-eval-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: abstract:rules-eval
     judge: abstract:rules-eval
@@ -1170,8 +1189,10 @@ cases:
   cluster: abstract:skill-authoring
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: oracle:quality-bench; judge: abstract:skill-authoring/abstract:skill-audit'
+  adjudicated: true
+  notes: 'router: oracle:quality-bench; judge: abstract:skill-authoring/abstract:skill-audit;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: oracle:quality-bench
     judge: abstract:skill-authoring
@@ -1187,8 +1208,10 @@ cases:
   cluster: abstract:skill-authoring
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at abstract:skill-audit; router: hookify:rule-sweep; judge: abstract:skill-authoring/abstract:create-skill'
+  adjudicated: true
+  notes: 'aimed at abstract:skill-audit; router: hookify:rule-sweep; judge: abstract:skill-authoring/abstract:create-skill;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: abstract:skill-audit
     router: hookify:rule-sweep
@@ -1244,16 +1267,19 @@ cases:
     judge: abstract:skill-graph-audit
     judge_runner_up: leyline:plugin-health
 - id: abstract.skills-eval-playbook.p1
-  type: positive
+  type: near_miss
   prompt: audit the SKILL.md files in this repo, I think a few of them are way over
     their token budget and have broken structure
   target: abstract:skills-eval-playbook
-  competitor: null
+  competitor: abstract:skills-eval
   cluster: abstract:skills-eval-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: abstract:aggregate-logs; judge: abstract:skills-eval/abstract:skill-audit'
+  adjudicated: true
+  notes: 'router: abstract:aggregate-logs; judge: abstract:skills-eval/abstract:skill-audit;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: abstract:aggregate-logs
     judge: abstract:skills-eval
@@ -1381,9 +1407,11 @@ cases:
   cluster: abstract:subagent-testing
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:analyze-skill; router: conjure:provider-sweep; judge:
-    abstract:subagent-testing/abstract:skill-audit'
+    abstract:subagent-testing/abstract:skill-audit; adjudicated 2026-11-28 by claude-opus-5-5
+    at the operator''s request, not human-reviewed: confirmed: the prompt fits the
+    target'
   proposals:
     aimed_at: abstract:analyze-skill
     router: conjure:provider-sweep
@@ -1508,8 +1536,10 @@ cases:
   cluster: abstract:validate-plugin
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: sanctum:update-plugins; judge: abstract:validate-plugin/sanctum:update-plugins'
+  adjudicated: true
+  notes: 'router: sanctum:update-plugins; judge: abstract:validate-plugin/sanctum:update-plugins;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: sanctum:update-plugins
     judge: abstract:validate-plugin

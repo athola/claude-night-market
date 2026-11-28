@@ -41,9 +41,11 @@ cases:
   cluster: parseltongue:analyze-tests
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at sanctum:update-tests; router: parseltongue:python-testing; judge:
-    parseltongue:analyze-tests/parseltongue:python-testing'
+    parseltongue:analyze-tests/parseltongue:python-testing; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     aimed_at: sanctum:update-tests
     router: parseltongue:python-testing
@@ -190,9 +192,11 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at sanctum:stack-push; router: parseltongue:python-packaging; judge:
-    parseltongue:python-packaging/None'
+    parseltongue:python-packaging/None; adjudicated 2026-11-28 by claude-opus-5-5
+    at the operator''s request, not human-reviewed: confirmed: the prompt fits the
+    target'
   proposals:
     aimed_at: sanctum:stack-push
     router: parseltongue:python-packaging
@@ -208,8 +212,10 @@ cases:
   cluster: parseltongue:python-performance
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: cartograph:call-chain; judge: parseltongue:python-performance/cartograph:call-chain'
+  adjudicated: true
+  notes: 'router: cartograph:call-chain; judge: parseltongue:python-performance/cartograph:call-chain;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: cartograph:call-chain
     judge: parseltongue:python-performance

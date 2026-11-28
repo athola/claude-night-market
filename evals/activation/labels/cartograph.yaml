@@ -93,8 +93,10 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at minister:initiative-pulse; router: cartograph:atlas; judge: cartograph:atlas/cartograph:code-communities'
+  adjudicated: true
+  notes: 'aimed at minister:initiative-pulse; router: cartograph:atlas; judge: cartograph:atlas/cartograph:code-communities;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: minister:initiative-pulse
     router: cartograph:atlas
@@ -321,8 +323,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: cartograph:dependency-graph
     judge: cartograph:dependency-graph

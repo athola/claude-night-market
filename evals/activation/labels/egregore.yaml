@@ -292,32 +292,38 @@ cases:
     judge: egregore:status
     judge_runner_up: egregore:summon-playbook
 - id: egregore.summon-playbook.p1
-  type: positive
+  type: near_miss
   prompt: I've got three work items queued up in the manifest. Can you run them all
     the way through build, quality checks and shipping, and keep going until they're
     finished or we run out of budget?
   target: egregore:summon-playbook
-  competitor: null
+  competitor: egregore:summon
   cluster: egregore:summon-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: egregore:summon; judge: egregore:summon/egregore:summon-playbook'
+  adjudicated: true
+  notes: 'router: egregore:summon; judge: egregore:summon/egregore:summon-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: egregore:summon
     judge: egregore:summon
     judge_runner_up: egregore:summon-playbook
 - id: egregore.summon-playbook.p2
-  type: positive
+  type: near_miss
   prompt: My autonomous session died halfway through last night and .egregore/manifest.json
     still shows active items. Pick up where it left off and keep processing them.
   target: egregore:summon-playbook
-  competitor: null
+  competitor: egregore:summon
   cluster: egregore:summon-playbook
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: egregore:summon-playbook; judge: egregore:summon/egregore:summon-playbook'
+  adjudicated: true
+  notes: 'router: egregore:summon-playbook; judge: egregore:summon/egregore:summon-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: egregore:summon-playbook
     judge: egregore:summon
@@ -363,8 +369,10 @@ cases:
   cluster: egregore:summon
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: egregore:summon/sanctum:do-issue'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: egregore:summon/sanctum:do-issue;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: parseltongue:python-async
     judge: egregore:summon
@@ -386,32 +394,38 @@ cases:
     judge: egregore:summon
     judge_runner_up: sanctum:do-issue
 - id: egregore.uninstall-watchdog-playbook.p1
-  type: positive
+  type: near_miss
   prompt: I'm done with sessions relaunching on their own. Please get rid of that
     launchd agent that keeps restarting claude on my Mac, and clean up its pid and
     log files.
   target: egregore:uninstall-watchdog-playbook
-  competitor: null
+  competitor: egregore:uninstall-watchdog
   cluster: egregore:uninstall-watchdog-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: egregore:install-watchdog-playbook; judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook'
+  adjudicated: true
+  notes: 'router: egregore:install-watchdog-playbook; judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: egregore:install-watchdog-playbook
     judge: egregore:uninstall-watchdog
     judge_runner_up: egregore:uninstall-watchdog-playbook
 - id: egregore.uninstall-watchdog-playbook.p2
-  type: positive
+  type: near_miss
   prompt: I'm removing the egregore plugin from this repo, so first tear down the
     systemd user timer and service it installed and confirm nothing is still scheduled.
   target: egregore:uninstall-watchdog-playbook
-  competitor: null
+  competitor: egregore:uninstall-watchdog
   cluster: egregore:uninstall-watchdog-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: conjure:provider-sweep; judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook'
+  adjudicated: true
+  notes: 'router: conjure:provider-sweep; judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: conjure:provider-sweep
     judge: egregore:uninstall-watchdog
@@ -426,9 +440,11 @@ cases:
   cluster: egregore:uninstall-watchdog-playbook
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at egregore:install-watchdog-playbook; router: egregore:uninstall-watchdog;
-    judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook'
+    judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: egregore:install-watchdog-playbook
     router: egregore:uninstall-watchdog

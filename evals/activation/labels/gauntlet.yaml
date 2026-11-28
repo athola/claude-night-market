@@ -48,16 +48,18 @@ cases:
     judge: gauntlet:challenge
     judge_runner_up: gauntlet:knowledge-extract
 - id: gauntlet.curate.p1
-  type: positive
+  type: near_miss
   prompt: I want to record why we chose the retry backoff in the payments module so
     future teammates get asked about it. Walk me through adding that note.
   target: gauntlet:curate
-  competitor: null
+  competitor: gauntlet:gauntlet-curate
   cluster: gauntlet:curate
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: gauntlet:curate/hookify:writing-rules'
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: gauntlet:curate/hookify:writing-rules;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    walk-through fits the gauntlet-curate command too'
   proposals:
     router: hookify:rule-sweep
     judge: gauntlet:curate
@@ -166,8 +168,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: gauntlet:gauntlet-curate
     judge: gauntlet:gauntlet-curate
@@ -315,9 +318,11 @@ cases:
   cluster: gauntlet:gauntlet-onboard
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: tome:cite;
-    judge: gauntlet:gauntlet-onboard/gauntlet:gauntlet-extract'
+    judge: gauntlet:gauntlet-onboard/gauntlet:gauntlet-extract; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     aimed_at: archetypes:architecture-paradigm-functional-core
     router: tome:cite
@@ -391,8 +396,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: gauntlet:gauntlet
     judge: gauntlet:gauntlet
@@ -429,16 +435,18 @@ cases:
     router: sanctum:git-catchup
     judge: gauntlet:graph-build
 - id: gauntlet.graph-build.p2
-  type: positive
+  type: near_miss
   prompt: I just refactored a bunch of modules, refresh the graph database before
     I run any impact analysis
   target: gauntlet:graph-build
-  competitor: null
+  competitor: gauntlet:gauntlet-graph
   cluster: gauntlet:graph-build
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: gauntlet:graph-build'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: gauntlet:graph-build; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    refreshing the graph fits the gauntlet-graph command too'
   proposals:
     router: parseltongue:python-async
     judge: gauntlet:graph-build

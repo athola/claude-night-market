@@ -132,8 +132,10 @@ cases:
   cluster: fixing a failing unit test
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: conjure:provider-sweep (8.44); judge: None'
+  adjudicated: true
+  notes: 'router top: conjure:provider-sweep (8.44); judge: None; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     router: conjure:provider-sweep
     router_score: 8.44
@@ -223,8 +225,10 @@ cases:
   cluster: explaining a compiler error
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: parseltongue:python-async (19.88); judge: None'
+  adjudicated: true
+  notes: 'router top: parseltongue:python-async (19.88); judge: None; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: parseltongue:python-async
     router_score: 19.88
@@ -284,8 +288,10 @@ cases:
   cluster: writing a SQL query
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: conserve:unbloat (9.86); judge: None'
+  adjudicated: true
+  notes: 'router top: conserve:unbloat (9.86); judge: None; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     router: conserve:unbloat
     router_score: 9.86
@@ -763,8 +769,10 @@ cases:
   cluster: shell one-liners
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router top: cartograph:atlas (11.23); judge: None'
+  adjudicated: true
+  notes: 'router top: cartograph:atlas (11.23); judge: None; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     router: cartograph:atlas
     router_score: 11.23

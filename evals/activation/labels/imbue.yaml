@@ -51,31 +51,36 @@ cases:
     judge: imbue:assisted-mastery
     judge_runner_up: parseltongue:python-async
 - id: imbue.catchup-playbook.p1
-  type: positive
+  type: near_miss
   prompt: I've been out for two weeks. Get me up to speed on what's landed on main
     since the 10th, what matters, and what's still open for me.
   target: imbue:catchup-playbook
-  competitor: null
+  competitor: sanctum:git-catchup
   cluster: imbue:catchup-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup-playbook'
+  adjudicated: true
+  notes: 'router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    a dated catch-up also fits git-catchup''s since-a-baseline summary'
   proposals:
     router: sanctum:git-catchup
     judge: sanctum:git-catchup
     judge_runner_up: imbue:catchup-playbook
 - id: imbue.catchup-playbook.p2
-  type: positive
+  type: near_miss
   prompt: I'm taking over this branch from a teammate tomorrow. Summarize what changed
     recently, why, and which follow-ups or blockers I should know about.
   target: imbue:catchup-playbook
-  competitor: null
+  competitor: imbue:catchup
   cluster: imbue:catchup-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup-playbook'
+  adjudicated: true
+  notes: 'router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: sanctum:git-catchup
     judge: sanctum:git-catchup
@@ -90,8 +95,10 @@ cases:
   cluster: imbue:catchup-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'aimed at abstract:hooks-eval; router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup-playbook'
+  adjudicated: true
+  notes: 'aimed at abstract:hooks-eval; router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: abstract:hooks-eval
     router: sanctum:git-catchup
@@ -399,32 +406,38 @@ cases:
     judge: imbue:graduated-implementation
     judge_runner_up: archetypes:architecture-paradigm-functional-core
 - id: imbue.justify-playbook.p1
-  type: positive
+  type: near_miss
   prompt: Before I open a PR, check my branch for bloat. I added a lot of lines and
     a couple of new helper files, and I want to know whether I'm patching symptoms
     instead of fixing the actual cause.
   target: imbue:justify-playbook
-  competitor: null
+  competitor: imbue:justify
   cluster: imbue:justify-playbook
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: imbue:justify-playbook/imbue:proof-of-work'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: imbue:justify-playbook/imbue:proof-of-work;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: parseltongue:python-async
     judge: imbue:justify-playbook
     judge_runner_up: imbue:proof-of-work
 - id: imbue.justify-playbook.p2
-  type: positive
+  type: near_miss
   prompt: I changed some test assertions to get CI green. Audit my diff against main
     and tell me which of the changes I can actually justify and which ones are workarounds.
   target: imbue:justify-playbook
-  competitor: null
+  competitor: imbue:justify
   cluster: imbue:justify-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: conjure:provider-setup; judge: imbue:justify/imbue:justify-playbook'
+  adjudicated: true
+  notes: 'router: conjure:provider-setup; judge: imbue:justify/imbue:justify-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: conjure:provider-setup
     judge: imbue:justify
@@ -653,8 +666,10 @@ cases:
   cluster: imbue:proof-of-work
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: spec-kit:spec-review; judge: imbue:proof-of-work/None'
+  adjudicated: true
+  notes: 'router: spec-kit:spec-review; judge: imbue:proof-of-work/None; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: spec-kit:spec-review
     judge: imbue:proof-of-work
@@ -750,8 +765,10 @@ cases:
   cluster: imbue:rigorous-reasoning
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: imbue:rigorous-reasoning/imbue:evidence-sweep'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: imbue:rigorous-reasoning/imbue:evidence-sweep;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: parseltongue:python-async
     judge: imbue:rigorous-reasoning
@@ -1023,8 +1040,10 @@ cases:
   cluster: imbue:vow-enforcement
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at abstract:aggregate-logs; router: hookify:rule-sweep; judge: imbue:vow-enforcement/hookify:rule-catalog'
+  adjudicated: true
+  notes: 'aimed at abstract:aggregate-logs; router: hookify:rule-sweep; judge: imbue:vow-enforcement/hookify:rule-catalog;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: hookify:rule-sweep

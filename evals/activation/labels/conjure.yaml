@@ -109,8 +109,10 @@ cases:
   cluster: conjure:delegation-core
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: conjure:delegation-core/conjure:provider-setup'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: conjure:delegation-core/conjure:provider-setup;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: parseltongue:python-async
     judge: conjure:delegation-core
@@ -174,8 +176,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: conjure:gemini-delegation
     judge: conjure:gemini-delegation
@@ -452,8 +455,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: conjure:provider-setup
     judge: conjure:provider-setup
@@ -564,8 +568,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: conjure:qwen-delegation
     judge: conjure:qwen-delegation

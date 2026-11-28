@@ -85,13 +85,16 @@ cases:
     in the browser. Run them all at the same time instead of one after another, and
     if one breaks, still give me the rest and tell me which failed.
   target: scry:capture-set
-  competitor: cartograph:atlas
+  competitor: scry:record-terminal
   cluster: scry:capture-set
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at attune:skill-library; router: scry:capture-set; judge: scry:capture-set/None'
+  adjudicated: true
+  notes: 'aimed at attune:skill-library; router: scry:capture-set; judge: scry:capture-set/None;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    competitor was cartograph:atlas, unrelated; single-flow recording is the real
+    neighbor'
   proposals:
     aimed_at: attune:skill-library
     router: scry:capture-set
@@ -123,8 +126,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: scry:gif-generation
     judge: scry:gif-generation
@@ -171,8 +175,10 @@ cases:
   cluster: scry:media-composition
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: pensive:full-review; judge: scry:media-composition/None'
+  adjudicated: true
+  notes: 'router: pensive:full-review; judge: scry:media-composition/None; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: pensive:full-review
     judge: scry:media-composition

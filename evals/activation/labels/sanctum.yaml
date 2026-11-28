@@ -125,8 +125,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: sanctum:commit-msg
     judge: sanctum:commit-msg
@@ -214,16 +215,19 @@ cases:
     judge: sanctum:do-issue-playbook
     judge_runner_up: sanctum:prepare-pr
 - id: sanctum.do-issue-playbook.p2
-  type: positive
+  type: near_miss
   prompt: pick up gitlab issue 88 and implement what it asks for, it's a few pieces
     across the api and frontend. update the issue when you're done
   target: sanctum:do-issue-playbook
-  competitor: null
+  competitor: sanctum:do-issue
   cluster: sanctum:do-issue-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:do-issue; judge: sanctum:do-issue/sanctum:do-issue-playbook'
+  adjudicated: true
+  notes: 'router: sanctum:do-issue; judge: sanctum:do-issue/sanctum:do-issue-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: sanctum:do-issue
     judge: sanctum:do-issue
@@ -287,9 +291,11 @@ cases:
   cluster: sanctum:do-issue
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:create-hook; router: sanctum:fix-workflow-analysis; judge:
-    sanctum:do-issue/leyline:ticket-writing'
+    sanctum:do-issue/leyline:ticket-writing; adjudicated 2026-11-28 by claude-opus-5-5
+    at the operator''s request, not human-reviewed: confirmed: the prompt fits the
+    target'
   proposals:
     aimed_at: abstract:create-hook
     router: sanctum:fix-workflow-analysis
@@ -533,9 +539,11 @@ cases:
   cluster: sanctum:fix-workflow
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at sanctum:fix-workflow-analysis; router: parseltongue:python-sweep;
-    judge: sanctum:fix-workflow/sanctum:fix-workflow-analysis'
+    judge: sanctum:fix-workflow/sanctum:fix-workflow-analysis; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     aimed_at: sanctum:fix-workflow-analysis
     router: parseltongue:python-sweep
@@ -965,8 +973,10 @@ cases:
   cluster: sanctum:resolve-threads
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at sanctum:fix-pr; router: sanctum:fix-pr; judge: sanctum:resolve-threads/sanctum:fix-pr'
+  adjudicated: true
+  notes: 'aimed at sanctum:fix-pr; router: sanctum:fix-pr; judge: sanctum:resolve-threads/sanctum:fix-pr;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: sanctum:fix-pr
     router: sanctum:fix-pr
@@ -1012,9 +1022,11 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:aggregate-logs; router: sanctum:session-management; judge:
-    sanctum:session-management/memory-palace:session-handoff'
+    sanctum:session-management/memory-palace:session-handoff; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: sanctum:session-management
@@ -1509,8 +1521,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: sanctum:update-plugins
     judge: sanctum:update-plugins
@@ -1524,8 +1537,10 @@ cases:
   cluster: sanctum:update-plugins
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: leyline:plugin-health; judge: sanctum:update-plugins/abstract:validate-plugin'
+  adjudicated: true
+  notes: 'router: leyline:plugin-health; judge: sanctum:update-plugins/abstract:validate-plugin;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: leyline:plugin-health
     judge: sanctum:update-plugins
@@ -1746,34 +1761,40 @@ cases:
     judge: sanctum:update-version
     judge_runner_up: sanctum:version-updates
 - id: sanctum.validate-pr-playbook.p1
-  type: positive
+  type: near_miss
   prompt: I just pushed fixes for the review comments on PR 412. The changes touch
     two Rust crates, a Python module, and a git hook. Can you work out which checks
     actually matter for those files, run them, and give me a table of the results
     I can paste into the PR?
   target: sanctum:validate-pr-playbook
-  competitor: null
+  competitor: sanctum:validate-pr
   cluster: sanctum:validate-pr-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:validate-pr; judge: sanctum:validate-pr/sanctum:validate-pr-playbook'
+  adjudicated: true
+  notes: 'router: sanctum:validate-pr; judge: sanctum:validate-pr/sanctum:validate-pr-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: sanctum:validate-pr
     judge: sanctum:validate-pr
     judge_runner_up: sanctum:validate-pr-playbook
 - id: sanctum.validate-pr-playbook.p2
-  type: positive
+  type: near_miss
   prompt: Before I mark this PR ready, I want proof that the new regression tests
     would catch the bug. Back out the fix, confirm the tests fail, then restore it
     and confirm they pass.
   target: sanctum:validate-pr-playbook
-  competitor: null
+  competitor: sanctum:validate-pr
   cluster: sanctum:validate-pr-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: pensive:parity-sweep; judge: sanctum:validate-pr/sanctum:validate-pr-playbook'
+  adjudicated: true
+  notes: 'router: pensive:parity-sweep; judge: sanctum:validate-pr/sanctum:validate-pr-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: pensive:parity-sweep
     judge: sanctum:validate-pr
@@ -1807,8 +1828,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: sanctum:validate-pr
     judge: sanctum:validate-pr
@@ -1922,8 +1944,10 @@ cases:
   cluster: sanctum:workflow-improvement
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: sanctum:fix-workflow-analysis; judge: sanctum:workflow-improvement'
+  adjudicated: true
+  notes: 'router: sanctum:fix-workflow-analysis; judge: sanctum:workflow-improvement;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: sanctum:fix-workflow-analysis
     judge: sanctum:workflow-improvement

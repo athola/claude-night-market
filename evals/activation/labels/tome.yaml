@@ -57,8 +57,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: tome:code-search
     judge: tome:code-search
@@ -95,16 +96,18 @@ cases:
     judge: tome:code-search
     judge_runner_up: tome:web-search
 - id: tome.dig-playbook.p1
-  type: positive
+  type: near_miss
   prompt: From that research we did on CRDT sync strategies, go deeper on just the
     garbage collection part and only pull academic papers this time
   target: tome:dig-playbook
-  competitor: null
+  competitor: tome:dig
   cluster: tome:dig-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: tome:papers; judge: tome:dig/tome:dig-playbook'
+  adjudicated: true
+  notes: 'router: tome:papers; judge: tome:dig/tome:dig-playbook; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: fits both the
+    playbook skill and the command; exact-match scoring makes the command a near miss'
   proposals:
     router: tome:papers
     judge: tome:dig
@@ -239,32 +242,38 @@ cases:
     judge: tome:discourse
     judge_runner_up: tome:web-search
 - id: tome.export-playbook.p1
-  type: positive
+  type: near_miss
   prompt: I finished researching cache eviction strategies and want the findings saved
     into my memory palace knowledge base. Can you dump the latest session to a markdown
     file intake can ingest?
   target: tome:export-playbook
-  competitor: null
+  competitor: tome:export
   cluster: tome:export-playbook
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: tome:export-playbook; judge: tome:export/tome:export-playbook'
+  adjudicated: true
+  notes: 'router: tome:export-playbook; judge: tome:export/tome:export-playbook; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: tome:export-playbook
     judge: tome:export
     judge_runner_up: tome:export-playbook
 - id: tome.export-playbook.p2
-  type: positive
+  type: near_miss
   prompt: write out research session 4f2a as a file with frontmatter so I can feed
     it to knowledge intake later
   target: tome:export-playbook
-  competitor: null
+  competitor: tome:export
   cluster: tome:export-playbook
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: tome:export-playbook; judge: tome:export/tome:export-playbook'
+  adjudicated: true
+  notes: 'router: tome:export-playbook; judge: tome:export/tome:export-playbook; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: tome:export-playbook
     judge: tome:export
@@ -494,8 +503,10 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'router: tome:research-session; judge: tome:research-session/tome:research-playbook'
+  adjudicated: true
+  notes: 'router: tome:research-session; judge: tome:research-session/tome:research-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: tome:research-session
     judge: tome:research-session

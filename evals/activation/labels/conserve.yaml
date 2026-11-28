@@ -100,17 +100,19 @@ cases:
     judge: conserve:ai-hygiene-audit
     judge_runner_up: parseltongue:python-sweep
 - id: conserve.bloat-detector.p1
-  type: positive
+  type: near_miss
   prompt: 'Our repo has gotten bloated: dead code, stale docs, unused dependencies,
     a couple of god classes. Walk me through a tiered cleanup analysis, starting cheap
     and going deeper only where it''s warranted, and rank what''s safe to delete.'
   target: conserve:bloat-detector
-  competitor: null
+  competitor: conserve:bloat-scan
   cluster: conserve:bloat-detector
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: conserve:bloat-scan; judge: conserve:bloat-detector/conserve:bloat-scan'
+  adjudicated: true
+  notes: 'router: conserve:bloat-scan; judge: conserve:bloat-detector/conserve:bloat-scan;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    tiered cleanup fits the bloat-scan command''s 3-tier analysis too'
   proposals:
     router: conserve:bloat-scan
     judge: conserve:bloat-detector
@@ -292,9 +294,11 @@ cases:
   cluster: conserve:clear-context
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at spec-kit:task-planning; router: parseltongue:python-async; judge:
-    conserve:clear-context/conserve:context-optimization'
+    conserve:clear-context/conserve:context-optimization; adjudicated 2026-11-28 by
+    claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed: the
+    prompt fits the target'
   proposals:
     aimed_at: spec-kit:task-planning
     router: parseltongue:python-async
@@ -311,8 +315,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: conserve:code-quality-principles
     judge: conserve:code-quality-principles
@@ -688,14 +693,16 @@ cases:
     my context. How should I restructure it so the heavy processing happens in code
     or a subagent instead of flowing through the conversation?
   target: conserve:mcp-code-execution
-  competitor: scribe:session-replay
+  competitor: conserve:context-optimization
   cluster: conserve:mcp-code-execution
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at parseltongue:python-async; router: conserve:mcp-code-execution;
-    judge: conserve:mcp-code-execution/None'
+    judge: conserve:mcp-code-execution/None; adjudicated 2026-11-28 by claude-opus-5-5
+    at the operator''s request, not human-reviewed: competitor was scribe:session-replay,
+    unrelated; context-optimization is the real neighbor'
   proposals:
     aimed_at: parseltongue:python-async
     router: conserve:mcp-code-execution

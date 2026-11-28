@@ -106,8 +106,10 @@ cases:
   cluster: phantom:surface-check
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: egregore:gate-audit; judge: phantom:surface-check'
+  adjudicated: true
+  notes: 'router: egregore:gate-audit; judge: phantom:surface-check; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     router: egregore:gate-audit
     judge: phantom:surface-check
@@ -138,9 +140,11 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:aggregate-logs; router: phantom:surface-check; judge:
-    phantom:surface-check/phantom:control-desktop'
+    phantom:surface-check/phantom:control-desktop; adjudicated 2026-11-28 by claude-opus-5-5
+    at the operator''s request, not human-reviewed: confirmed: the prompt fits the
+    target'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: phantom:surface-check

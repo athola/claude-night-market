@@ -1,17 +1,20 @@
 schema_version: 1
 cases:
 - id: pensive.api-review-playbook.p1
-  type: positive
+  type: near_miss
   prompt: We're about to cut a 2.0 release of our Python SDK. Review the public surface
     for naming, parameter order and error consistency, and check the changelog and
     deprecation notes.
   target: pensive:api-review-playbook
-  competitor: null
+  competitor: pensive:api-review
   cluster: pensive:api-review-playbook
   proposers:
   - router
-  adjudicated: false
-  notes: 'router: pensive:api-review-playbook; judge: pensive:api-review/pensive:api-review-playbook'
+  adjudicated: true
+  notes: 'router: pensive:api-review-playbook; judge: pensive:api-review/pensive:api-review-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: pensive:api-review-playbook
     judge: pensive:api-review
@@ -37,13 +40,15 @@ cases:
     it exports and check naming, parameter order, return types and error semantics
     against how requests and tokio do it
   target: pensive:api-review-playbook
-  competitor: cartograph:call-chain
+  competitor: pensive:api-review
   cluster: pensive:api-review-playbook
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:aggregate-logs; router: cartograph:call-chain; judge:
-    pensive:api-review/pensive:api-review-playbook'
+    pensive:api-review/pensive:api-review-playbook; adjudicated 2026-11-28 by claude-opus-5-5
+    at the operator''s request, not human-reviewed: the command is the closer neighbor
+    than cartograph:call-chain'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: cartograph:call-chain
@@ -100,32 +105,38 @@ cases:
     judge: pensive:api-review
     judge_runner_up: cartograph:class-diagram
 - id: pensive.architecture-review-playbook.p1
-  type: positive
+  type: near_miss
   prompt: This PR splits the billing module into a separate service and rewires the
     dependencies. Check it against our ADRs and flag any coupling or boundary violations.
   target: pensive:architecture-review-playbook
-  competitor: null
+  competitor: pensive:architecture-review
   cluster: pensive:architecture-review-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: pensive:architecture-review/pensive:architecture-review-playbook'
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: pensive:architecture-review/pensive:architecture-review-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: hookify:rule-sweep
     judge: pensive:architecture-review
     judge_runner_up: pensive:architecture-review-playbook
 - id: pensive.architecture-review-playbook.p2
-  type: positive
+  type: near_miss
   prompt: I suspect our repository layer has passthrough mappers and DTOs that never
     diverge from the domain types. Can you assess the design of this refactor before
     I approve it?
   target: pensive:architecture-review-playbook
-  competitor: null
+  competitor: pensive:architecture-review
   cluster: pensive:architecture-review-playbook
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: pensive:architecture-review-playbook/archetypes:architecture-paradigm-domain-driven'
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: pensive:architecture-review-playbook/archetypes:architecture-paradigm-domain-driven;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: hookify:rule-sweep
     judge: pensive:architecture-review-playbook
@@ -136,13 +147,15 @@ cases:
     module. review the new boundaries and coupling against our ADRs before I approve
     the rewrite
   target: pensive:architecture-review-playbook
-  competitor: cartograph:code-communities
+  competitor: pensive:architecture-review
   cluster: pensive:architecture-review-playbook
   proposers:
   - writer
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at conjure:provider-sweep; router: cartograph:code-communities; judge:
-    pensive:architecture-review/pensive:architecture-review-playbook'
+    pensive:architecture-review/pensive:architecture-review-playbook; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    the command is the closer neighbor than cartograph:code-communities'
   proposals:
     aimed_at: conjure:provider-sweep
     router: cartograph:code-communities
@@ -417,8 +430,10 @@ cases:
   cluster: pensive:full-review
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: pensive:rust-review-playbook; judge: pensive:full-review/pensive:unified-review-playbook'
+  adjudicated: true
+  notes: 'router: pensive:rust-review-playbook; judge: pensive:full-review/pensive:unified-review-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: pensive:rust-review-playbook
     judge: pensive:full-review
@@ -886,16 +901,19 @@ cases:
     judge: pensive:refine-code
     judge_runner_up: pensive:code-refinement
 - id: pensive.rust-review-playbook.p1
-  type: positive
+  type: near_miss
   prompt: Can you audit the unsafe blocks in our crate's ffi module? I'm worried about
     transmutes and repr(packed) structs producing unaligned refs.
   target: pensive:rust-review-playbook
-  competitor: null
+  competitor: pensive:rust-review
   cluster: pensive:rust-review-playbook
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: abstract:skill-graph-audit; judge: pensive:rust-review-playbook/None'
+  adjudicated: true
+  notes: 'router: abstract:skill-graph-audit; judge: pensive:rust-review-playbook/None;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: abstract:skill-graph-audit
     judge: pensive:rust-review-playbook
@@ -1157,8 +1175,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: pensive:skill-review
     judge: pensive:skill-review
@@ -1196,16 +1215,19 @@ cases:
     judge: pensive:test-review-playbook
     judge_runner_up: parseltongue:analyze-tests
 - id: pensive.test-review-playbook.p2
-  type: positive
+  type: near_miss
   prompt: our pytest suite mocks half the internals and the assertions are vague.
     evaluate test quality and give me a prioritized improvement plan
   target: pensive:test-review-playbook
-  competitor: null
+  competitor: pensive:test-review
   cluster: pensive:test-review-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: leyline:testing-quality-standards; judge: pensive:test-review/parseltongue:analyze-tests'
+  adjudicated: true
+  notes: 'router: leyline:testing-quality-standards; judge: pensive:test-review/parseltongue:analyze-tests;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss'
   proposals:
     router: leyline:testing-quality-standards
     judge: pensive:test-review
@@ -1326,32 +1348,36 @@ cases:
     judge: pensive:tiered-audit
     judge_runner_up: null
 - id: pensive.unified-review-playbook.p1
-  type: positive
+  type: near_miss
   prompt: This feature branch touches Rust code, a few shell scripts, the OpenAPI
     spec, and tests. Do a full review and pick whatever review passes make sense,
     then give me one combined report.
   target: pensive:unified-review-playbook
-  competitor: null
+  competitor: pensive:full-review
   cluster: pensive:unified-review-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: pensive:shell-review; judge: pensive:full-review/pensive:unified-review-playbook'
+  adjudicated: true
+  notes: 'router: pensive:shell-review; judge: pensive:full-review/pensive:unified-review-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    a pick-the-passes review fits the full-review command too'
   proposals:
     router: pensive:shell-review
     judge: pensive:full-review
     judge_runner_up: pensive:unified-review-playbook
 - id: pensive.unified-review-playbook.p2
-  type: positive
+  type: near_miss
   prompt: big branch about to merge to main, not sure what kind of review it needs.
     just review everything and tell me what's broken
   target: pensive:unified-review-playbook
-  competitor: null
+  competitor: pensive:full-review
   cluster: pensive:unified-review-playbook
   proposers:
   - writer
-  adjudicated: false
-  notes: 'router: sanctum:git-catchup; judge: pensive:full-review/pensive:unified-review-playbook'
+  adjudicated: true
+  notes: 'router: sanctum:git-catchup; judge: pensive:full-review/pensive:unified-review-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    a pick-the-passes review fits the full-review command too'
   proposals:
     router: sanctum:git-catchup
     judge: pensive:full-review
