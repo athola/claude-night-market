@@ -147,6 +147,16 @@ class TestNumberFormatsSurviveVariation:
     def test_comma_list_of_small_numbers_shifts_each(self) -> None:
         assert _vary("sizes 3, 5, 7") == "sizes 6, 8, 10"
 
+    def test_unspaced_comma_list_shifts_each(self) -> None:
+        # An array literal is where a memorized answer is most likely to
+        # be reused, so its elements must change too.
+        assert _vary("nums = [3,1,2], target 4") == "nums = [6,4,5], target 7"
+
+    def test_three_digit_groups_read_as_thousands(self) -> None:
+        # "[100,200,300]" is ambiguous. It is read as one grouped number,
+        # the same reading that keeps 1,000,000 whole.
+        assert _vary("ids [100,200,300]") == "ids [100,200,303]"
+
     def test_dotted_version_is_left_whole(self) -> None:
         assert _vary("upgrade from 1.10.4 to 10.0.0.1 in 3 steps") == (
             "upgrade from 1.10.4 to 10.0.0.1 in 6 steps"
