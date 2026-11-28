@@ -73,6 +73,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **herald, egregore:** the Stop hooks allow a stop by leaving out
+  `decision`, as the hooks reference documents, instead of sending
+  `"approve"`, a deprecated PreToolUse value.
 - **sanctum:** the SessionStart policy hook injects its policy when
   stdin holds a JSON array or scalar. It raised `AttributeError`
   before, and the session started with no governance text.
