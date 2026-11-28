@@ -73,11 +73,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conserve:bloat-sweep; judge: abstract:analyze-skill/abstract:create-skill'
+  notes: 'router: conserve:bloat-sweep; judge: abstract:analyze-skill/conserve:bloat-sweep'
   proposals:
     router: conserve:bloat-sweep
     judge: abstract:analyze-skill
-    judge_runner_up: abstract:create-skill
+    judge_runner_up: conserve:bloat-sweep
 - id: abstract.analyze-skill.p3
   type: near_miss
   prompt: skills/modular-skills/SKILL.md keeps growing. Check how long and complex
@@ -199,11 +199,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: archetypes:architecture-paradigm-functional-core; judge: abstract:create-hook/abstract:hook-authoring'
+  notes: 'router: archetypes:architecture-paradigm-functional-core; judge: abstract:create-hook/hookify:writing-rules'
   proposals:
     router: archetypes:architecture-paradigm-functional-core
     judge: abstract:create-hook
-    judge_runner_up: abstract:hook-authoring
+    judge_runner_up: hookify:writing-rules
 - id: abstract.create-hook.p2
   type: positive
   prompt: Set up a hook that auto-formats files after Claude edits them, in my sanctum
@@ -246,11 +246,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:analyze-tests; judge: abstract:create-skill/abstract:test-skill'
+  notes: 'router: parseltongue:analyze-tests; judge: abstract:create-skill/parseltongue:analyze-tests'
   proposals:
     router: parseltongue:analyze-tests
     judge: abstract:create-skill
-    judge_runner_up: abstract:test-skill
+    judge_runner_up: parseltongue:analyze-tests
 - id: abstract.create-skill.p2
   type: positive
   prompt: Scaffold a new skill for debugging async race conditions inside the parseltongue
@@ -311,11 +311,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: archetypes:paradigm-panel; judge: abstract:escalation-governance/leyline:utility'
+  notes: 'router: archetypes:paradigm-panel; judge: abstract:escalation-governance/None'
   proposals:
     router: archetypes:paradigm-panel
     judge: abstract:escalation-governance
-    judge_runner_up: leyline:utility
+    judge_runner_up: null
 - id: abstract.escalation-governance.p3
   type: near_miss
   prompt: My haiku subagent failed twice on this schema migration task. Should I bump
@@ -407,29 +407,29 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: imbue:workflow-monitor; judge: abstract:friction-detector/leyline:error-patterns'
+  notes: 'router: imbue:workflow-monitor; judge: abstract:friction-detector/imbue:workflow-monitor'
   proposals:
     router: imbue:workflow-monitor
     judge: abstract:friction-detector
-    judge_runner_up: leyline:error-patterns
+    judge_runner_up: imbue:workflow-monitor
 - id: abstract.friction-detector.p3
   type: near_miss
   prompt: I keep correcting the agent the same way every session, like undoing the
     same tool call and re-explaining the same convention. I want those repeated annoyances
     tracked across sessions and eventually promoted into permanent CLAUDE.md rules.
   target: abstract:friction-detector
-  competitor: parseltongue:python-sweep
+  competitor: sanctum:session-management
   cluster: abstract:friction-detector
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at conserve:bloat-sweep; router: parseltongue:python-sweep; judge:
-    abstract:friction-detector/None'
+    abstract:friction-detector/sanctum:session-management'
   proposals:
     aimed_at: conserve:bloat-sweep
     router: parseltongue:python-sweep
     judge: abstract:friction-detector
-    judge_runner_up: null
+    judge_runner_up: sanctum:session-management
 - id: abstract.hook-authoring.p1
   type: positive
   prompt: Write a PreToolUse hook in my .claude/settings.json that blocks any Bash
@@ -525,6 +525,53 @@ cases:
     router: sanctum:update-plugins
     judge: abstract:hook-scope-guide
     judge_runner_up: abstract:hook-authoring
+- id: abstract.hooks-eval-playbook.p1
+  type: positive
+  prompt: can you go through the PreToolUse hooks in our plugin and check them for
+    shell injection risks and slow commands? I want a score for each one
+  target: abstract:hooks-eval-playbook
+  competitor: null
+  cluster: abstract:hooks-eval-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: abstract:hooks-eval; judge: abstract:hooks-eval/abstract:hooks-eval-playbook'
+  proposals:
+    router: abstract:hooks-eval
+    judge: abstract:hooks-eval
+    judge_runner_up: abstract:hooks-eval-playbook
+- id: abstract.hooks-eval-playbook.p2
+  type: positive
+  prompt: our hooks.json references a few shell scripts and I'm not sure they all
+    exist or are executable. audit the hook setup and tell me what's broken
+  target: abstract:hooks-eval-playbook
+  competitor: null
+  cluster: abstract:hooks-eval-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: pensive:shell-review; judge: abstract:hooks-eval/abstract:validate-hook'
+  proposals:
+    router: pensive:shell-review
+    judge: abstract:hooks-eval
+    judge_runner_up: abstract:validate-hook
+- id: abstract.hooks-eval-playbook.p3
+  type: near_miss
+  prompt: What timing limit should a PostToolUse hook stay under, and which shell
+    injection patterns should I look for when I go through the hook in my global settings.json?
+  target: abstract:hooks-eval-playbook
+  competitor: abstract:hook-authoring
+  cluster: abstract:hooks-eval-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:hooks-eval; router: abstract:hook-scope-guide; judge:
+    abstract:hooks-eval-playbook/abstract:hook-authoring'
+  proposals:
+    aimed_at: abstract:hooks-eval
+    router: abstract:hook-scope-guide
+    judge: abstract:hooks-eval-playbook
+    judge_runner_up: abstract:hook-authoring
 - id: abstract.hooks-eval.p1
   type: positive
   prompt: Audit all the hooks in my plugin for security problems and slow execution,
@@ -560,17 +607,17 @@ cases:
   prompt: Go through every hook in this plugin and check each for security problems
     and how slow it is. Give me a report I can use as a CI gate.
   target: abstract:hooks-eval
-  competitor: abstract:validate-hook
+  competitor: leyline:plugin-health
   cluster: abstract:hooks-eval
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at oracle:quality-bench; router: egregore:gate-audit; judge: abstract:hooks-eval/abstract:validate-hook'
+  notes: 'aimed at oracle:quality-bench; router: egregore:gate-audit; judge: abstract:hooks-eval/leyline:plugin-health'
   proposals:
     aimed_at: oracle:quality-bench
     router: egregore:gate-audit
     judge: abstract:hooks-eval
-    judge_runner_up: abstract:validate-hook
+    judge_runner_up: leyline:plugin-health
 - id: abstract.improve-skills.p1
   type: positive
   prompt: Look at my LEARNINGS.md and pick the top 5 skills with the worst failure
@@ -607,17 +654,17 @@ cases:
     that look worst, propose edits for each, and preview only. Don't change any files
     yet.
   target: abstract:improve-skills
-  competitor: oracle:quality-bench
+  competitor: abstract:skill-audit
   cluster: abstract:improve-skills
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:aggregate-logs; router: oracle:quality-bench; judge: abstract:improve-skills/None'
+  notes: 'aimed at abstract:aggregate-logs; router: oracle:quality-bench; judge: abstract:improve-skills/abstract:skill-audit'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: oracle:quality-bench
     judge: abstract:improve-skills
-    judge_runner_up: null
+    judge_runner_up: abstract:skill-audit
 - id: abstract.make-dogfood.p1
   type: positive
   prompt: Check which plugins in this monorepo have incomplete Makefiles, missing
@@ -645,11 +692,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: leyline:plugin-health; judge: abstract:make-dogfood/None'
+  notes: 'router: leyline:plugin-health; judge: abstract:make-dogfood/leyline:plugin-health'
   proposals:
     router: leyline:plugin-health
     judge: abstract:make-dogfood
-    judge_runner_up: null
+    judge_runner_up: leyline:plugin-health
 - id: abstract.make-dogfood.p3
   type: near_miss
   prompt: Check which of our plugins are missing standard make targets like test and
@@ -726,11 +773,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: abstract:methodology-curator/leyline:evaluation-framework'
+  notes: 'router: parseltongue:python-async; judge: abstract:methodology-curator/attune:skill-library'
   proposals:
     router: parseltongue:python-async
     judge: abstract:methodology-curator
-    judge_runner_up: leyline:evaluation-framework
+    judge_runner_up: attune:skill-library
 - id: abstract.methodology-curator.p2
   type: positive
   prompt: I'm about to brainstorm a code review workflow for my team. Can you check
@@ -742,29 +789,29 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: abstract:methodology-curator/imbue:structured-review'
+  notes: 'router: parseltongue:python-async; judge: abstract:methodology-curator/None'
   proposals:
     router: parseltongue:python-async
     judge: abstract:methodology-curator
-    judge_runner_up: imbue:structured-review
+    judge_runner_up: null
 - id: abstract.methodology-curator.p3
   type: near_miss
   prompt: Before I start designing a new incident review process for the team, what
     established frameworks from recognized practitioners should I look at first so
     we don't reinvent something?
   target: abstract:methodology-curator
-  competitor: parseltongue:python-async
+  competitor: imbue:review-core
   cluster: abstract:methodology-curator
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at abstract:aggregate-logs; router: parseltongue:python-async; judge:
-    abstract:methodology-curator/None'
+    abstract:methodology-curator/imbue:review-core'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: parseltongue:python-async
     judge: abstract:methodology-curator
-    judge_runner_up: null
+    judge_runner_up: imbue:review-core
 - id: abstract.modular-skills.p1
   type: positive
   prompt: my SKILL.md has ballooned past 300 lines and eats too many tokens every
@@ -776,11 +823,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: abstract:aggregate-logs; judge: abstract:modular-skills/attune:skill-library-mission'
+  notes: 'router: abstract:aggregate-logs; judge: abstract:modular-skills/None'
   proposals:
     router: abstract:aggregate-logs
     judge: abstract:modular-skills
-    judge_runner_up: attune:skill-library-mission
+    judge_runner_up: null
 - id: abstract.modular-skills.p2
   type: positive
   prompt: we've got a skills/shared/modules/ folder and updating one file left dangling
@@ -808,13 +855,59 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:skill-graph-audit; router: abstract:analyze-skill; judge:
+  notes: 'aimed at abstract:skill-graph-audit; router: pensive:parity-sweep; judge:
     abstract:modular-skills/abstract:analyze-skill'
   proposals:
     aimed_at: abstract:skill-graph-audit
-    router: abstract:analyze-skill
+    router: pensive:parity-sweep
     judge: abstract:modular-skills
     judge_runner_up: abstract:analyze-skill
+- id: abstract.plugin-review-playbook.p1
+  type: positive
+  prompt: I touched a couple of plugins on this branch, run a quality check on them
+    and anything that depends on them before I open the PR
+  target: abstract:plugin-review-playbook
+  competitor: null
+  cluster: abstract:plugin-review-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: abstract:plugin-review/abstract:plugin-review-playbook'
+  proposals:
+    router: hookify:rule-sweep
+    judge: abstract:plugin-review
+    judge_runner_up: abstract:plugin-review-playbook
+- id: abstract.plugin-review-playbook.p2
+  type: positive
+  prompt: we're about to bump the version, do a full review across every plugin with
+    tests, lint and types and give me a pass/fail table
+  target: abstract:plugin-review-playbook
+  competitor: null
+  cluster: abstract:plugin-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:update-version; judge: abstract:plugin-review-playbook/leyline:plugin-health'
+  proposals:
+    router: sanctum:update-version
+    judge: abstract:plugin-review-playbook
+    judge_runner_up: leyline:plugin-health
+- id: abstract.plugin-review-playbook.p3
+  type: near_miss
+  prompt: We're about to bump versions. Run the full quality review on every plugin
+    in the repo and give me a per-plugin table plus an overall go/no-go.
+  target: abstract:plugin-review-playbook
+  competitor: leyline:plugin-health
+  cluster: abstract:plugin-review-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at leyline:plugin-health; router: leyline:plugin-health; judge: abstract:plugin-review/abstract:plugin-review-playbook'
+  proposals:
+    aimed_at: leyline:plugin-health
+    router: leyline:plugin-health
+    judge: abstract:plugin-review
+    judge_runner_up: abstract:plugin-review-playbook
 - id: abstract.plugin-review.p1
   type: positive
   prompt: I'm about to cut a release of the abstract plugin. can you run a full quality
@@ -888,11 +981,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: abstract:promote-discussions/egregore:gate-audit'
+  notes: 'router: parseltongue:python-async; judge: abstract:promote-discussions/None'
   proposals:
     router: parseltongue:python-async
     judge: abstract:promote-discussions
-    judge_runner_up: egregore:gate-audit
+    judge_runner_up: null
 - id: abstract.promote-discussions.p3
   type: near_miss
   prompt: Go through the Learnings category in our repo's GitHub Discussions, find
@@ -912,6 +1005,52 @@ cases:
     router: abstract:promote-discussions
     judge: abstract:promote-discussions
     judge_runner_up: minister:create-issue
+- id: abstract.rules-eval-playbook.p1
+  type: positive
+  prompt: check the files under .claude/rules/ for bad frontmatter and glob patterns,
+    some of them were copied from Cursor and might still have alwaysApply
+  target: abstract:rules-eval-playbook
+  competitor: null
+  cluster: abstract:rules-eval-playbook
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: abstract:rules-eval-playbook; judge: abstract:rules-eval/abstract:rules-eval-playbook'
+  proposals:
+    router: abstract:rules-eval-playbook
+    judge: abstract:rules-eval
+    judge_runner_up: abstract:rules-eval-playbook
+- id: abstract.rules-eval-playbook.p2
+  type: positive
+  prompt: our path-scoped rules in .claude/rules feel bloated and some probably conflict.
+    score them and tell me which ones to trim
+  target: abstract:rules-eval-playbook
+  competitor: null
+  cluster: abstract:rules-eval-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: abstract:rules-eval; judge: abstract:rules-eval/abstract:rules-eval-playbook'
+  proposals:
+    router: abstract:rules-eval
+    judge: abstract:rules-eval
+    judge_runner_up: abstract:rules-eval-playbook
+- id: abstract.rules-eval-playbook.p3
+  type: near_miss
+  prompt: How much does glob quality count toward the score for my .claude/rules files,
+    and why would unquoted paths entries cost me points?
+  target: abstract:rules-eval-playbook
+  competitor: abstract:rules-eval
+  cluster: abstract:rules-eval-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:rules-eval; router: abstract:rules-eval; judge: abstract:rules-eval-playbook/abstract:rules-eval'
+  proposals:
+    aimed_at: abstract:rules-eval
+    router: abstract:rules-eval
+    judge: abstract:rules-eval-playbook
+    judge_runner_up: abstract:rules-eval
 - id: abstract.rules-eval.p1
   type: positive
   prompt: validate the files in .claude/rules/ before I deploy them. I want to catch
@@ -1017,11 +1156,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conjure:provider-sweep; judge: abstract:skill-authoring/spec-kit:speckit-specify'
+  notes: 'router: conjure:provider-sweep; judge: abstract:skill-authoring/None'
   proposals:
     router: conjure:provider-sweep
     judge: abstract:skill-authoring
-    judge_runner_up: spec-kit:speckit-specify
+    judge_runner_up: null
 - id: abstract.skill-authoring.p2
   type: positive
   prompt: what's the process for writing a skill so it's grounded in real failures,
@@ -1032,9 +1171,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: spec-kit:spec-review; judge: abstract:skill-authoring/abstract:skill-audit'
+  notes: 'router: oracle:quality-bench; judge: abstract:skill-authoring/abstract:skill-audit'
   proposals:
-    router: spec-kit:spec-review
+    router: oracle:quality-bench
     judge: abstract:skill-authoring
     judge_runner_up: abstract:skill-audit
 - id: abstract.skill-authoring.p3
@@ -1065,11 +1204,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conserve:bloat-sweep; judge: abstract:skill-graph-audit/leyline:plugin-health'
+  notes: 'router: conserve:bloat-sweep; judge: abstract:skill-graph-audit/abstract:skill-audit'
   proposals:
     router: conserve:bloat-sweep
     judge: abstract:skill-graph-audit
-    judge_runner_up: leyline:plugin-health
+    judge_runner_up: abstract:skill-audit
 - id: abstract.skill-graph-audit.p2
   type: positive
   prompt: I want to see which skills are the most-referenced hubs and which ones are
@@ -1104,6 +1243,53 @@ cases:
     router: conserve:bloat-sweep
     judge: abstract:skill-graph-audit
     judge_runner_up: leyline:plugin-health
+- id: abstract.skills-eval-playbook.p1
+  type: positive
+  prompt: audit the SKILL.md files in this repo, I think a few of them are way over
+    their token budget and have broken structure
+  target: abstract:skills-eval-playbook
+  competitor: null
+  cluster: abstract:skills-eval-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: abstract:aggregate-logs; judge: abstract:skills-eval/abstract:skill-audit'
+  proposals:
+    router: abstract:aggregate-logs
+    judge: abstract:skills-eval
+    judge_runner_up: abstract:skill-audit
+- id: abstract.skills-eval-playbook.p2
+  type: positive
+  prompt: this skill barely ever gets triggered and it's huge. analyze it and give
+    me a prioritized list of fixes, then check it against our standards
+  target: abstract:skills-eval-playbook
+  competitor: null
+  cluster: abstract:skills-eval-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:skill-audit; judge: abstract:skills-eval-playbook/abstract:skill-audit'
+  proposals:
+    router: abstract:skill-audit
+    judge: abstract:skills-eval-playbook
+    judge_runner_up: abstract:skill-audit
+- id: abstract.skills-eval-playbook.p3
+  type: near_miss
+  prompt: A few of our skills feel bloated and eat too much context. Find which SKILL.md
+    files need trimming and give me a prioritized improvement plan for the worst one.
+  target: abstract:skills-eval-playbook
+  competitor: abstract:context-report
+  cluster: abstract:skills-eval-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: conserve:response-compression;
+    judge: abstract:skills-eval-playbook/abstract:context-report'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: conserve:response-compression
+    judge: abstract:skills-eval-playbook
+    judge_runner_up: abstract:context-report
 - id: abstract.skills-eval.p1
   type: positive
   prompt: evaluate the quality of all the skills in my ~/.claude ecosystem and give
@@ -1114,11 +1300,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: abstract:rules-eval; judge: abstract:skills-eval/abstract:skill-audit'
+  notes: 'router: abstract:rules-eval; judge: abstract:skills-eval/abstract:skills-eval-playbook'
   proposals:
     router: abstract:rules-eval
     judge: abstract:skills-eval
-    judge_runner_up: abstract:skill-audit
+    judge_runner_up: abstract:skills-eval-playbook
 - id: abstract.skills-eval.p2
   type: positive
   prompt: do a deep dive on one specific skill, check it against the standards and
@@ -1129,11 +1315,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: sanctum:fix-workflow-analysis; judge: abstract:skills-eval/attune:skill-library-mission'
+  notes: 'router: sanctum:fix-workflow-analysis; judge: abstract:skills-eval/None'
   proposals:
     router: sanctum:fix-workflow-analysis
     judge: abstract:skills-eval
-    judge_runner_up: attune:skill-library-mission
+    judge_runner_up: null
 - id: abstract.skills-eval.p3
   type: near_miss
   prompt: Score my modular-skills skill against our standards for quality and compliance,
@@ -1163,11 +1349,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: abstract:subagent-testing/None'
+  notes: 'router: hookify:rule-sweep; judge: abstract:subagent-testing/oracle:quality-bench'
   proposals:
     router: hookify:rule-sweep
     judge: abstract:subagent-testing
-    judge_runner_up: null
+    judge_runner_up: oracle:quality-bench
 - id: abstract.subagent-testing.p2
   type: positive
   prompt: Need to verify my skill's guardrails hold up when someone pushes back with
@@ -1179,9 +1365,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: tome:export; judge: abstract:subagent-testing/abstract:skill-audit'
+  notes: 'router: oracle:setup; judge: abstract:subagent-testing/abstract:skill-audit'
   proposals:
-    router: tome:export
+    router: oracle:setup
     judge: abstract:subagent-testing
     judge_runner_up: abstract:skill-audit
 - id: abstract.subagent-testing.p3
@@ -1191,18 +1377,18 @@ cases:
     and once with it loaded, compare the outputs, and check whether it holds up when
     the model tries to talk its way around it.
   target: abstract:subagent-testing
-  competitor: conjure:provider-sweep
+  competitor: abstract:skill-audit
   cluster: abstract:subagent-testing
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at abstract:analyze-skill; router: conjure:provider-sweep; judge:
-    abstract:subagent-testing/None'
+    abstract:subagent-testing/abstract:skill-audit'
   proposals:
     aimed_at: abstract:analyze-skill
     router: conjure:provider-sweep
     judge: abstract:subagent-testing
-    judge_runner_up: null
+    judge_runner_up: abstract:skill-audit
 - id: abstract.test-skill.p1
   type: positive
   prompt: Run the RED/GREEN/REFACTOR cycle on my new code-review skill before I ship
@@ -1239,18 +1425,18 @@ cases:
     through a failing-first pass, then make it pass, then clean it up, so I know it
     behaves.
   target: abstract:test-skill
-  competitor: parseltongue:python-async
+  competitor: abstract:skill-audit
   cluster: abstract:test-skill
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at parseltongue:python-async; router: parseltongue:python-async; judge:
-    abstract:test-skill/None'
+    abstract:test-skill/abstract:skill-audit'
   proposals:
     aimed_at: parseltongue:python-async
     router: parseltongue:python-async
     judge: abstract:test-skill
-    judge_runner_up: null
+    judge_runner_up: abstract:skill-audit
 - id: abstract.validate-hook.p1
   type: positive
   prompt: Check hooks/pre_tool_use.py for command injection, path traversal and hardcoded
@@ -1261,9 +1447,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: sanctum:update-ci; judge: abstract:validate-hook/attune:precommit-setup'
+  notes: 'router: egregore:gate-audit; judge: abstract:validate-hook/attune:precommit-setup'
   proposals:
-    router: sanctum:update-ci
+    router: egregore:gate-audit
     judge: abstract:validate-hook
     judge_runner_up: attune:precommit-setup
 - id: abstract.validate-hook.p2

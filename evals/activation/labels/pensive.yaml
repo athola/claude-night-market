@@ -1,5 +1,54 @@
 schema_version: 1
 cases:
+- id: pensive.api-review-playbook.p1
+  type: positive
+  prompt: We're about to cut a 2.0 release of our Python SDK. Review the public surface
+    for naming, parameter order and error consistency, and check the changelog and
+    deprecation notes.
+  target: pensive:api-review-playbook
+  competitor: null
+  cluster: pensive:api-review-playbook
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: pensive:api-review-playbook; judge: pensive:api-review/pensive:api-review-playbook'
+  proposals:
+    router: pensive:api-review-playbook
+    judge: pensive:api-review
+    judge_runner_up: pensive:api-review-playbook
+- id: pensive.api-review-playbook.p2
+  type: positive
+  prompt: Audit the pub items exported from our Rust crate against how libraries like
+    tokio structure theirs, then give me an approve or block call with action items.
+  target: pensive:api-review-playbook
+  competitor: null
+  cluster: pensive:api-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: cartograph:call-chain; judge: pensive:api-review-playbook/None'
+  proposals:
+    router: cartograph:call-chain
+    judge: pensive:api-review-playbook
+    judge_runner_up: null
+- id: pensive.api-review-playbook.p3
+  type: near_miss
+  prompt: we ship 2.0 of our logging SDK next week. go through every public function
+    it exports and check naming, parameter order, return types and error semantics
+    against how requests and tokio do it
+  target: pensive:api-review-playbook
+  competitor: cartograph:call-chain
+  cluster: pensive:api-review-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: cartograph:call-chain; judge:
+    pensive:api-review/pensive:api-review-playbook'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: cartograph:call-chain
+    judge: pensive:api-review
+    judge_runner_up: pensive:api-review-playbook
 - id: pensive.api-review.p1
   type: positive
   prompt: I'm about to publish v2 of our SDK. Can you look over the public function
@@ -50,6 +99,55 @@ cases:
     router: pensive:api-review
     judge: pensive:api-review
     judge_runner_up: cartograph:class-diagram
+- id: pensive.architecture-review-playbook.p1
+  type: positive
+  prompt: This PR splits the billing module into a separate service and rewires the
+    dependencies. Check it against our ADRs and flag any coupling or boundary violations.
+  target: pensive:architecture-review-playbook
+  competitor: null
+  cluster: pensive:architecture-review-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: pensive:architecture-review/pensive:architecture-review-playbook'
+  proposals:
+    router: hookify:rule-sweep
+    judge: pensive:architecture-review
+    judge_runner_up: pensive:architecture-review-playbook
+- id: pensive.architecture-review-playbook.p2
+  type: positive
+  prompt: I suspect our repository layer has passthrough mappers and DTOs that never
+    diverge from the domain types. Can you assess the design of this refactor before
+    I approve it?
+  target: pensive:architecture-review-playbook
+  competitor: null
+  cluster: pensive:architecture-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: hookify:rule-sweep; judge: pensive:architecture-review-playbook/archetypes:architecture-paradigm-domain-driven'
+  proposals:
+    router: hookify:rule-sweep
+    judge: pensive:architecture-review-playbook
+    judge_runner_up: archetypes:architecture-paradigm-domain-driven
+- id: pensive.architecture-review-playbook.p3
+  type: near_miss
+  prompt: a PR replaces our per-provider delegation code with a single fan-out dispatcher
+    module. review the new boundaries and coupling against our ADRs before I approve
+    the rewrite
+  target: pensive:architecture-review-playbook
+  competitor: cartograph:code-communities
+  cluster: pensive:architecture-review-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at conjure:provider-sweep; router: cartograph:code-communities; judge:
+    pensive:architecture-review/pensive:architecture-review-playbook'
+  proposals:
+    aimed_at: conjure:provider-sweep
+    router: cartograph:code-communities
+    judge: pensive:architecture-review
+    judge_runner_up: pensive:architecture-review-playbook
 - id: pensive.architecture-review.p1
   type: positive
   prompt: We have ADRs in docs/adr and this PR adds a direct dependency from the auth
@@ -60,11 +158,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: cartograph:code-communities; judge: pensive:architecture-review/cartograph:code-communities'
+  notes: 'router: cartograph:code-communities; judge: pensive:architecture-review/pensive:architecture-review-playbook'
   proposals:
     router: cartograph:code-communities
     judge: pensive:architecture-review
-    judge_runner_up: cartograph:code-communities
+    judge_runner_up: pensive:architecture-review-playbook
 - id: pensive.architecture-review.p2
   type: positive
   prompt: Give me a principal-engineer-level assessment of how this service is structured.
@@ -147,6 +245,55 @@ cases:
     router: sanctum:git-catchup
     judge: pensive:blast-radius
     judge_runner_up: null
+- id: pensive.bug-review-playbook.p1
+  type: positive
+  prompt: We got a report that the order processor sometimes double-charges customers.
+    Go through src/orders for logic errors and race conditions, rank them by severity,
+    and propose minimal fixes with tests.
+  target: pensive:bug-review-playbook
+  competitor: null
+  cluster: pensive:bug-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:refine-code; judge: pensive:bug-review-playbook/pensive:refine-code'
+  proposals:
+    router: pensive:refine-code
+    judge: pensive:bug-review-playbook
+    judge_runner_up: pensive:refine-code
+- id: pensive.bug-review-playbook.p2
+  type: positive
+  prompt: Release is next week. Sweep the Go service for resource leaks, unchecked
+    errors and API misuse, and give me file:line findings and a plan to reproduce
+    each one.
+  target: pensive:bug-review-playbook
+  competitor: null
+  cluster: pensive:bug-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scribe:doc-sweep; judge: pensive:bug-review-playbook/None'
+  proposals:
+    router: scribe:doc-sweep
+    judge: pensive:bug-review-playbook
+    judge_runner_up: null
+- id: pensive.bug-review-playbook.p3
+  type: near_miss
+  prompt: skills/loader.py does weird things once a SKILL.md gets past a few hundred
+    lines. go through the parsing code, find the actual defects, and give me a repro
+    and a minimal fix for each
+  target: pensive:bug-review-playbook
+  competitor: cartograph:call-chain
+  cluster: pensive:bug-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:analyze-skill; router: abstract:skill-audit; judge: pensive:bug-review-playbook/cartograph:call-chain'
+  proposals:
+    aimed_at: abstract:analyze-skill
+    router: abstract:skill-audit
+    judge: pensive:bug-review-playbook
+    judge_runner_up: cartograph:call-chain
 - id: pensive.bug-review.p1
   type: positive
   prompt: 'Go through the changes in this branch and hunt for bugs: off-by-one errors,
@@ -271,11 +418,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conserve:elegant-code-review; judge: pensive:full-review/None'
+  notes: 'router: pensive:rust-review-playbook; judge: pensive:full-review/pensive:unified-review-playbook'
   proposals:
-    router: conserve:elegant-code-review
+    router: pensive:rust-review-playbook
     judge: pensive:full-review
-    judge_runner_up: null
+    judge_runner_up: pensive:unified-review-playbook
 - id: pensive.full-review.p3
   type: near_miss
   prompt: This branch touches Rust files, a Makefile and the OpenAPI spec. Run a complete
@@ -292,6 +439,54 @@ cases:
     router: spec-kit:spec-review
     judge: pensive:full-review
     judge_runner_up: pensive:unified-review
+- id: pensive.harden-playbook.p1
+  type: positive
+  prompt: We just inherited this repo. Do a full security posture scan covering dependencies,
+    secrets, CI workflows, and the Python and Rust code, then propose fixes I can
+    approve one at a time.
+  target: pensive:harden-playbook
+  competitor: null
+  cluster: pensive:harden-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:workflow-setup; judge: pensive:harden-playbook/sanctum:update-dependencies'
+  proposals:
+    router: attune:workflow-setup
+    judge: pensive:harden-playbook
+    judge_runner_up: sanctum:update-dependencies
+- id: pensive.harden-playbook.p2
+  type: positive
+  prompt: A new advisory just dropped for a crate we depend on. Audit the whole codebase
+    for vulnerabilities, not just my diff, and map what you find to NIST SSDF practices.
+  target: pensive:harden-playbook
+  competitor: null
+  cluster: pensive:harden-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: imbue:graduated-implementation; judge: pensive:harden-playbook/pensive:full-review'
+  proposals:
+    router: imbue:graduated-implementation
+    judge: pensive:harden-playbook
+    judge_runner_up: pensive:full-review
+- id: pensive.harden-playbook.p3
+  type: near_miss
+  prompt: before we tag the release, run a security sweep over the whole repo, including
+    our GitHub Actions workflows, unpinned actions, leaked secrets and dependency
+    advisories, and propose fixes I can approve or defer
+  target: pensive:harden-playbook
+  competitor: attune:workflow-setup
+  cluster: pensive:harden-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:workflow-setup; router: sanctum:create-tag; judge: pensive:harden-playbook/attune:workflow-setup'
+  proposals:
+    aimed_at: attune:workflow-setup
+    router: sanctum:create-tag
+    judge: pensive:harden-playbook
+    judge_runner_up: attune:workflow-setup
 - id: pensive.harden.p1
   type: positive
   prompt: Audit the whole repo for security weaknesses, covering dependencies, secrets,
@@ -389,6 +584,55 @@ cases:
     router: pensive:makefile-review
     judge: pensive:makefile-review
     judge_runner_up: pensive:shell-review
+- id: pensive.math-review-playbook.p1
+  type: positive
+  prompt: I rewrote our Kalman filter update step to use a Joseph-form covariance
+    update. Can you check the derivation against the textbook and tell me if the matrix
+    ops are numerically stable in float32?
+  target: pensive:math-review-playbook
+  competitor: null
+  cluster: pensive:math-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: sanctum:update-readme; judge: pensive:math-review-playbook/None'
+  proposals:
+    router: sanctum:update-readme
+    judge: pensive:math-review-playbook
+    judge_runner_up: null
+- id: pensive.math-review-playbook.p2
+  type: positive
+  prompt: this branch changes how we compute the log-likelihood in the bayesian ranking
+    model. worried about catastrophic cancellation and underflow on tiny probabilities,
+    can you go through the math before I merge
+  target: pensive:math-review-playbook
+  competitor: null
+  cluster: pensive:math-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:filter-log; judge: pensive:math-review-playbook/pensive:unified-review'
+  proposals:
+    router: conserve:filter-log
+    judge: pensive:math-review-playbook
+    judge_runner_up: pensive:unified-review
+- id: pensive.math-review-playbook.p3
+  type: near_miss
+  prompt: Before we commit to the new Kalman filter over the old moving-average smoother,
+    can you check the covariance update derivation and see if it stays numerically
+    stable when the measurement noise gets really small?
+  target: pensive:math-review-playbook
+  competitor: hookify:rule-sweep
+  cluster: pensive:math-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:paradigm-panel; router: hookify:rule-sweep; judge: pensive:math-review-playbook/None'
+  proposals:
+    aimed_at: archetypes:paradigm-panel
+    router: hookify:rule-sweep
+    judge: pensive:math-review-playbook
+    judge_runner_up: null
 - id: pensive.math-review.p1
   type: positive
   prompt: Can you go through my Kalman filter implementation and check whether the
@@ -439,6 +683,107 @@ cases:
     router: pensive:math-review
     judge: pensive:math-review
     judge_runner_up: imbue:evidence-sweep
+- id: pensive.parity-sweep.p1
+  type: positive
+  prompt: Our iOS, Android, and web apps all ship on their own schedules and I'm pretty
+    sure they've drifted. Can you figure out which features exist on some clients
+    but not others? Roots are ios/, android/, web/.
+  target: pensive:parity-sweep
+  competitor: null
+  cluster: pensive:parity-sweep
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: tome:web-search; judge: pensive:parity-sweep/pensive:unified-review'
+  proposals:
+    router: tome:web-search
+    judge: pensive:parity-sweep
+    judge_runner_up: pensive:unified-review
+- id: pensive.parity-sweep.p2
+  type: positive
+  prompt: find where the desktop and mobile clients disagree on checkout behavior,
+    don't fix anything, just give me a list of confirmed differences with file refs
+  target: pensive:parity-sweep
+  competitor: null
+  cluster: pensive:parity-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:parity-sweep; judge: pensive:parity-sweep/cartograph:atlas'
+  proposals:
+    router: pensive:parity-sweep
+    judge: pensive:parity-sweep
+    judge_runner_up: cartograph:atlas
+- id: pensive.parity-sweep.p3
+  type: near_miss
+  prompt: Our iOS, Android and web clients all talk to the same backend, but each
+    team ships on its own schedule. Go through the three codebases and find the features
+    users can reach on one platform but not on the others.
+  target: pensive:parity-sweep
+  competitor: cartograph:atlas
+  cluster: pensive:parity-sweep
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-client-server; router: pensive:parity-sweep;
+    judge: pensive:parity-sweep/cartograph:atlas'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-client-server
+    router: pensive:parity-sweep
+    judge: pensive:parity-sweep
+    judge_runner_up: cartograph:atlas
+- id: pensive.performance-review-playbook.p1
+  type: positive
+  prompt: Before I merge this PR, can you scan the changed Python files for accidental
+    O(n^2) loops or anything that'll blow up memory on big inputs? No profiling, just
+    read the code.
+  target: pensive:performance-review-playbook
+  competitor: null
+  cluster: pensive:performance-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: pensive:performance-review-playbook/parseltongue:python-performance'
+  proposals:
+    router: parseltongue:python-async
+    judge: pensive:performance-review-playbook
+    judge_runner_up: parseltongue:python-performance
+- id: pensive.performance-review-playbook.p2
+  type: positive
+  prompt: copilot wrote most of src/ingest/dedupe.py and it feels slow on large batches.
+    look for nested loop hotspots or repeated list membership checks
+  target: pensive:performance-review-playbook
+  competitor: null
+  cluster: pensive:performance-review-playbook
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:performance-review-playbook; judge: pensive:performance-review-playbook/leyline:loop-optimization'
+  proposals:
+    router: pensive:performance-review-playbook
+    judge: pensive:performance-review-playbook
+    judge_runner_up: leyline:loop-optimization
+- id: pensive.performance-review-playbook.p3
+  type: near_miss
+  prompt: This sync handler loops over every order and calls fetch_line_items for
+    each one. Before I merge, scan the changed files for nested-loop or quadratic
+    hotspots. Don't profile anything, just read the code.
+  target: pensive:performance-review-playbook
+  competitor: leyline:loop-optimization
+  cluster: pensive:performance-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at parseltongue:python-async; router: conserve:bloat-sweep; judge:
+    pensive:performance-review-playbook/leyline:loop-optimization'
+  proposals:
+    aimed_at: parseltongue:python-async
+    router: conserve:bloat-sweep
+    judge: pensive:performance-review-playbook
+    judge_runner_up: leyline:loop-optimization
 - id: pensive.performance-review.p1
   type: positive
   prompt: Scan the files I changed on this branch for time and space complexity hotspots.
@@ -501,9 +846,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: pensive:refine-code/conserve:bloat-scan'
+  notes: 'router: archetypes:architecture-paradigm-functional-core; judge: pensive:refine-code/conserve:bloat-scan'
   proposals:
-    router: parseltongue:python-async
+    router: archetypes:architecture-paradigm-functional-core
     judge: pensive:refine-code
     judge_runner_up: conserve:bloat-scan
 - id: pensive.refine-code.p2
@@ -517,11 +862,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: egregore:quality-gate; judge: pensive:refine-code/pensive:code-refinement'
+  notes: 'router: egregore:quality-gate; judge: pensive:refine-code/attune:dorodango'
   proposals:
     router: egregore:quality-gate
     judge: pensive:refine-code
-    judge_runner_up: pensive:code-refinement
+    judge_runner_up: attune:dorodango
 - id: pensive.refine-code.p3
   type: near_miss
   prompt: A lot of src/ was written with AI help and it works, but I suspect copy-pasted
@@ -540,6 +885,56 @@ cases:
     router: hookify:rule-sweep
     judge: pensive:refine-code
     judge_runner_up: pensive:code-refinement
+- id: pensive.rust-review-playbook.p1
+  type: positive
+  prompt: Can you audit the unsafe blocks in our crate's ffi module? I'm worried about
+    transmutes and repr(packed) structs producing unaligned refs.
+  target: pensive:rust-review-playbook
+  competitor: null
+  cluster: pensive:rust-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:skill-graph-audit; judge: pensive:rust-review-playbook/None'
+  proposals:
+    router: abstract:skill-graph-audit
+    judge: pensive:rust-review-playbook
+    judge_runner_up: null
+- id: pensive.rust-review-playbook.p2
+  type: positive
+  prompt: review my rust changes on this branch, especially the Arc<Mutex> stuff in
+    the worker pool and all the `as u32` casts, and run cargo audit on the new deps
+  target: pensive:rust-review-playbook
+  competitor: null
+  cluster: pensive:rust-review-playbook
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: pensive:rust-review-playbook; judge: pensive:rust-review-playbook/pensive:unified-review'
+  proposals:
+    router: pensive:rust-review-playbook
+    judge: pensive:rust-review-playbook
+    judge_runner_up: pensive:unified-review
+- id: pensive.rust-review-playbook.p3
+  type: near_miss
+  prompt: 'Audit the FFI layer in our Rust crate: the unsafe blocks, any transmutes,
+    and places where a raw pointer could end up as a dangling reference after the
+    owning Vec is dropped.'
+  target: pensive:rust-review-playbook
+  competitor: scribe:doc-sweep
+  cluster: pensive:rust-review-playbook
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-graph-audit; router: pensive:rust-review-playbook;
+    judge: pensive:rust-review-playbook/None'
+  proposals:
+    aimed_at: abstract:skill-graph-audit
+    router: pensive:rust-review-playbook
+    judge: pensive:rust-review-playbook
+    judge_runner_up: null
 - id: pensive.rust-review.p1
   type: positive
   prompt: 'Audit my Rust crate for safety: check lifetimes and borrowing, unsafe blocks
@@ -578,18 +973,18 @@ cases:
     checked, plus lifetime and ownership problems. I also want a look at how my tokio
     tasks get shut down, since I abort a few handles one after another.
   target: pensive:rust-review
-  competitor: pensive:tiered-audit
+  competitor: pensive:rust-review-playbook
   cluster: pensive:rust-review
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:improve-skills; router: parseltongue:python-async; judge:
-    pensive:rust-review/pensive:tiered-audit'
+  notes: 'aimed at abstract:improve-skills; router: pensive:rust-review-playbook;
+    judge: pensive:rust-review/pensive:rust-review-playbook'
   proposals:
     aimed_at: abstract:improve-skills
-    router: parseltongue:python-async
+    router: pensive:rust-review-playbook
     judge: pensive:rust-review
-    judge_runner_up: pensive:tiered-audit
+    judge_runner_up: pensive:rust-review-playbook
 - id: pensive.safety-critical-patterns.p1
   type: positive
   prompt: 'I''m writing payment settlement code where a bug costs real money. Help
@@ -617,9 +1012,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: cartograph:call-chain; judge: pensive:safety-critical-patterns/None'
+  notes: 'router: cartograph:data-flow; judge: pensive:safety-critical-patterns/None'
   proposals:
-    router: cartograph:call-chain
+    router: cartograph:data-flow
     judge: pensive:safety-critical-patterns
     judge_runner_up: null
 - id: pensive.safety-critical-patterns.p3
@@ -747,11 +1142,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conjure:provider-setup; judge: pensive:skill-review/abstract:skill-audit'
+  notes: 'router: conjure:provider-setup; judge: pensive:skill-review/oracle:quality-bench'
   proposals:
     router: conjure:provider-setup
     judge: pensive:skill-review
-    judge_runner_up: abstract:skill-audit
+    judge_runner_up: oracle:quality-bench
 - id: pensive.skill-review.p2
   type: positive
   prompt: Give me the top 10 most-executed skills with success rate and average duration,
@@ -772,18 +1167,67 @@ cases:
   prompt: Which of my skills are flaky? Rank them by how bad their worst stretch of
     consecutive runs was, and tell me which ones to fix first.
   target: pensive:skill-review
-  competitor: abstract:skill-audit
+  competitor: oracle:quality-bench
   cluster: pensive:skill-review
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at abstract:aggregate-logs; router: conjure:provider-setup; judge:
-    pensive:skill-review/abstract:skill-audit'
+    pensive:skill-review/oracle:quality-bench'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: conjure:provider-setup
     judge: pensive:skill-review
-    judge_runner_up: abstract:skill-audit
+    judge_runner_up: oracle:quality-bench
+- id: pensive.test-review-playbook.p1
+  type: positive
+  prompt: We're cutting a release next week. Can you go through our test suite and
+    tell me where coverage is thin, which tests are flaky because of sleeps, and what
+    to fix first?
+  target: pensive:test-review-playbook
+  competitor: null
+  cluster: pensive:test-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: leyline:testing-quality-standards; judge: pensive:test-review-playbook/parseltongue:analyze-tests'
+  proposals:
+    router: leyline:testing-quality-standards
+    judge: pensive:test-review-playbook
+    judge_runner_up: parseltongue:analyze-tests
+- id: pensive.test-review-playbook.p2
+  type: positive
+  prompt: our pytest suite mocks half the internals and the assertions are vague.
+    evaluate test quality and give me a prioritized improvement plan
+  target: pensive:test-review-playbook
+  competitor: null
+  cluster: pensive:test-review-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: leyline:testing-quality-standards; judge: pensive:test-review/parseltongue:analyze-tests'
+  proposals:
+    router: leyline:testing-quality-standards
+    judge: pensive:test-review
+    judge_runner_up: parseltongue:analyze-tests
+- id: pensive.test-review-playbook.p3
+  type: near_miss
+  prompt: Our pytest suite feels thin with the 2.0 release coming. Go through it,
+    list the coverage gaps and weak scenarios, and give me a plan for what to fix
+    first.
+  target: pensive:test-review-playbook
+  competitor: parseltongue:python-testing
+  cluster: pensive:test-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at leyline:testing-quality-standards; router: leyline:testing-quality-standards;
+    judge: pensive:test-review-playbook/parseltongue:python-testing'
+  proposals:
+    aimed_at: leyline:testing-quality-standards
+    router: leyline:testing-quality-standards
+    judge: pensive:test-review-playbook
+    judge_runner_up: parseltongue:python-testing
 - id: pensive.test-review.p1
   type: positive
   prompt: can you go through my test suite and tell me if the tests actually follow
@@ -809,10 +1253,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: leyline:testing-quality-standards; judge: pensive:test-review'
+  notes: 'router: leyline:testing-quality-standards; judge: pensive:test-review/pensive:test-review-playbook'
   proposals:
     router: leyline:testing-quality-standards
     judge: pensive:test-review
+    judge_runner_up: pensive:test-review-playbook
 - id: pensive.test-review.p3
   type: near_miss
   prompt: Look over our whole test suite and tell me how well it follows TDD and BDD
@@ -880,6 +1325,54 @@ cases:
     router: imbue:scope-guard
     judge: pensive:tiered-audit
     judge_runner_up: null
+- id: pensive.unified-review-playbook.p1
+  type: positive
+  prompt: This feature branch touches Rust code, a few shell scripts, the OpenAPI
+    spec, and tests. Do a full review and pick whatever review passes make sense,
+    then give me one combined report.
+  target: pensive:unified-review-playbook
+  competitor: null
+  cluster: pensive:unified-review-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: pensive:shell-review; judge: pensive:full-review/pensive:unified-review-playbook'
+  proposals:
+    router: pensive:shell-review
+    judge: pensive:full-review
+    judge_runner_up: pensive:unified-review-playbook
+- id: pensive.unified-review-playbook.p2
+  type: positive
+  prompt: big branch about to merge to main, not sure what kind of review it needs.
+    just review everything and tell me what's broken
+  target: pensive:unified-review-playbook
+  competitor: null
+  cluster: pensive:unified-review-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: sanctum:git-catchup; judge: pensive:full-review/pensive:unified-review-playbook'
+  proposals:
+    router: sanctum:git-catchup
+    judge: pensive:full-review
+    judge_runner_up: pensive:unified-review-playbook
+- id: pensive.unified-review-playbook.p3
+  type: near_miss
+  prompt: This branch changes Rust code, the OpenAPI spec and a couple of git hook
+    scripts. Work out which kinds of review apply to each part, run them, and give
+    me one combined report before I merge.
+  target: pensive:unified-review-playbook
+  competitor: pensive:unified-review
+  cluster: pensive:unified-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at pensive:full-review; router: pensive:harden; judge: pensive:unified-review-playbook/pensive:unified-review'
+  proposals:
+    aimed_at: pensive:full-review
+    router: pensive:harden
+    judge: pensive:unified-review-playbook
+    judge_runner_up: pensive:unified-review
 - id: pensive.unified-review.p1
   type: positive
   prompt: 'Run a full multi-angle review of my branch: bugs, architecture against

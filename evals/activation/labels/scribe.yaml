@@ -25,11 +25,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: pensive:api-review; judge: scribe:doc-generate/pensive:api-review'
+  notes: 'router: pensive:api-review-playbook; judge: scribe:doc-generate/pensive:api-review-playbook'
   proposals:
-    router: pensive:api-review
+    router: pensive:api-review-playbook
     judge: scribe:doc-generate
-    judge_runner_up: pensive:api-review
+    judge_runner_up: pensive:api-review-playbook
 - id: scribe.doc-generate.p3
   type: near_miss
   prompt: write me a README for this repo from the codebase, short length, and save
@@ -74,28 +74,28 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: egregore:gate-audit; judge: scribe:doc-generator/attune:blueprint'
+  notes: 'router: egregore:gate-audit; judge: scribe:doc-generator/scribe:voice-generate-playbook'
   proposals:
     router: egregore:gate-audit
     judge: scribe:doc-generator
-    judge_runner_up: attune:blueprint
+    judge_runner_up: scribe:voice-generate-playbook
 - id: scribe.doc-generator.p3
   type: near_miss
   prompt: I need to write an architecture rationale doc explaining why we picked Postgres
     over DynamoDB. Make it thesis-first, no filler, and cut anything that doesn't
     carry the point.
   target: scribe:doc-generator
-  competitor: scribe:simplified-technical-english
+  competitor: egregore:gate-audit
   cluster: scribe:doc-generator
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:create-hook; router: egregore:gate-audit; judge: scribe:doc-generator/scribe:simplified-technical-english'
+  notes: 'aimed at abstract:create-hook; router: egregore:gate-audit; judge: scribe:doc-generator/None'
   proposals:
     aimed_at: abstract:create-hook
     router: egregore:gate-audit
     judge: scribe:doc-generator
-    judge_runner_up: scribe:simplified-technical-english
+    judge_runner_up: null
 - id: scribe.doc-polish.p1
   type: positive
   prompt: My README reads like ChatGPT wrote it. Clean it up section by section, show
@@ -121,11 +121,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: egregore:dismiss; judge: scribe:doc-polish/pensive:refine-code'
+  notes: 'router: egregore:dismiss; judge: scribe:doc-polish/parseltongue:python-sweep'
   proposals:
     router: egregore:dismiss
     judge: scribe:doc-polish
-    judge_runner_up: pensive:refine-code
+    judge_runner_up: parseltongue:python-sweep
 - id: scribe.doc-polish.p3
   type: near_miss
   prompt: my README has a lot of AI-sounding phrasing and em dashes in it. clean it
@@ -170,11 +170,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: scribe:doc-sweep/spec-kit:spec-review'
+  notes: 'router: hookify:rule-sweep; judge: scribe:doc-sweep/conserve:bloat-sweep'
   proposals:
     router: hookify:rule-sweep
     judge: scribe:doc-sweep
-    judge_runner_up: spec-kit:spec-review
+    judge_runner_up: conserve:bloat-sweep
 - id: scribe.doc-sweep.p3
   type: near_miss
   prompt: run a full multi-layer review on docs/architecture.md and docs/setup.md.
@@ -193,6 +193,54 @@ cases:
     router: scribe:doc-sweep
     judge: scribe:doc-sweep
     judge_runner_up: pensive:full-review
+- id: scribe.session-replay-playbook.p1
+  type: positive
+  prompt: Turn yesterday's Claude Code conversation where we fixed the rate limiter
+    into an animated GIF of the terminal so I can drop it in the PR description
+  target: scribe:session-replay-playbook
+  competitor: null
+  cluster: scribe:session-replay-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: scribe:session-replay; judge: scribe:session-replay/scribe:session-replay-playbook'
+  proposals:
+    router: scribe:session-replay
+    judge: scribe:session-replay
+    judge_runner_up: scribe:session-replay-playbook
+- id: scribe.session-replay-playbook.p2
+  type: positive
+  prompt: I want a short gif that plays back turns 3-8 of one of my recent assistant
+    chats as if it's being typed out, tool calls included but no thinking. Can you
+    show me my recent sessions so I can pick one?
+  target: scribe:session-replay-playbook
+  competitor: null
+  cluster: scribe:session-replay-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:gate-audit; judge: scribe:session-replay-playbook/None'
+  proposals:
+    router: egregore:gate-audit
+    judge: scribe:session-replay-playbook
+    judge_runner_up: null
+- id: scribe.session-replay-playbook.p3
+  type: near_miss
+  prompt: Take yesterday's Claude Code session log and turn it into an animated terminal
+    GIF of the conversation that I can drop into the PR description
+  target: scribe:session-replay-playbook
+  competitor: scribe:session-replay
+  cluster: scribe:session-replay-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:evaluate-skill; router: scribe:session-replay; judge:
+    scribe:session-replay-playbook/scribe:session-replay'
+  proposals:
+    aimed_at: abstract:evaluate-skill
+    router: scribe:session-replay
+    judge: scribe:session-replay-playbook
+    judge_runner_up: scribe:session-replay
 - id: scribe.session-replay.p1
   type: positive
   prompt: Turn my last Claude Code session into an animated GIF I can drop in the
@@ -241,6 +289,55 @@ cases:
     router: scribe:session-replay
     judge: scribe:session-replay
     judge_runner_up: sanctum:session-management
+- id: scribe.session-to-post-playbook.p1
+  type: positive
+  prompt: We just spent the afternoon migrating our auth layer off the old token library.
+    Can you write that up as a blog post that shows how we got there, dead ends included,
+    using the git history and what changed?
+  target: scribe:session-to-post-playbook
+  competitor: null
+  cluster: scribe:session-to-post-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: sanctum:git-catchup; judge: scribe:session-to-post/scribe:session-to-post-playbook'
+  proposals:
+    router: sanctum:git-catchup
+    judge: scribe:session-to-post
+    judge_runner_up: scribe:session-to-post-playbook
+- id: scribe.session-to-post-playbook.p2
+  type: positive
+  prompt: Turn the work from this session into a case study I can post on r/rust.
+    Make it about the process, not just the final diff.
+  target: scribe:session-to-post-playbook
+  competitor: null
+  cluster: scribe:session-to-post-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: scribe:session-to-post; judge: scribe:session-to-post/scribe:session-to-post-playbook'
+  proposals:
+    router: scribe:session-to-post
+    judge: scribe:session-to-post
+    judge_runner_up: scribe:session-to-post-playbook
+- id: scribe.session-to-post-playbook.p3
+  type: near_miss
+  prompt: We spent the afternoon chasing that flaky migration bug and finally nailed
+    it. I want to write it up as a case study for the eng blog, with the dead ends
+    and how we got to the fix, pulled from the commits and what happened in this session
+  target: scribe:session-to-post-playbook
+  competitor: scribe:session-to-post
+  cluster: scribe:session-to-post-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at scribe:session-to-post; router: scribe:session-to-post; judge:
+    scribe:session-to-post-playbook/scribe:session-to-post'
+  proposals:
+    aimed_at: scribe:session-to-post
+    router: scribe:session-to-post
+    judge: scribe:session-to-post-playbook
+    judge_runner_up: scribe:session-to-post
 - id: scribe.session-to-post.p1
   type: positive
   prompt: I just spent the afternoon porting our config parser from Python to Go.
@@ -366,11 +463,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: oracle:quality-bench; judge: scribe:slop-detector/None'
+  notes: 'router: oracle:quality-bench; judge: scribe:slop-detector/sanctum:commit-msg'
   proposals:
     router: oracle:quality-bench
     judge: scribe:slop-detector
-    judge_runner_up: null
+    judge_runner_up: sanctum:commit-msg
 - id: scribe.slop-detector.p3
   type: near_miss
   prompt: Scan the SKILL.md files under plugins/acme/skills/ and flag the lines that
@@ -532,6 +629,54 @@ cases:
     router: abstract:hook-scope-guide
     judge: scribe:tech-tutorial
     judge_runner_up: abstract:hook-authoring
+- id: scribe.voice-extract-playbook.p1
+  type: positive
+  prompt: I've got a folder of about a dozen old Slack messages, Reddit comments,
+    and emails I wrote. Can you analyze them and build a profile of how I write, so
+    later drafts can sound like me?
+  target: scribe:voice-extract-playbook
+  competitor: null
+  cluster: scribe:voice-extract-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: scribe:voice-extract-playbook/None'
+  proposals:
+    router: parseltongue:python-async
+    judge: scribe:voice-extract-playbook
+    judge_runner_up: null
+- id: scribe.voice-extract-playbook.p2
+  type: positive
+  prompt: Figure out what makes my writing style distinctive compared to how you'd
+    write by default. I'll paste some samples.
+  target: scribe:voice-extract-playbook
+  competitor: null
+  cluster: scribe:voice-extract-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: scribe:style-learn; judge: scribe:voice-extract/scribe:voice-extract-playbook'
+  proposals:
+    router: scribe:style-learn
+    judge: scribe:voice-extract
+    judge_runner_up: scribe:voice-extract-playbook
+- id: scribe.voice-extract-playbook.p3
+  type: near_miss
+  prompt: Here are about a dozen of my slack messages, reddit comments and quick emails
+    on random topics. Figure out what makes my writing sound like me compared to how
+    you'd normally write, so you can ghostwrite for me later
+  target: scribe:voice-extract-playbook
+  competitor: sanctum:git-catchup
+  cluster: scribe:voice-extract-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at scribe:style-learn; router: sanctum:git-catchup; judge: scribe:voice-extract-playbook/None'
+  proposals:
+    aimed_at: scribe:style-learn
+    router: sanctum:git-catchup
+    judge: scribe:voice-extract-playbook
+    judge_runner_up: null
 - id: scribe.voice-extract.p1
   type: positive
   prompt: I've got a folder of my old newsletter issues at ~/writing-samples/. Extract
@@ -580,6 +725,54 @@ cases:
     router: scribe:voice-extract
     judge: scribe:voice-extract
     judge_runner_up: scribe:voice-learn
+- id: scribe.voice-generate-playbook.p1
+  type: positive
+  prompt: Here are my messy notes on why we dropped microservices. Write a blog post
+    from them in my writing style, using the profile you built from my samples last
+    week.
+  target: scribe:voice-generate-playbook
+  competitor: null
+  cluster: scribe:voice-generate-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scribe:style-learn; judge: scribe:voice-generate-playbook/scribe:session-to-post-playbook'
+  proposals:
+    router: scribe:style-learn
+    judge: scribe:voice-generate-playbook
+    judge_runner_up: scribe:session-to-post-playbook
+- id: scribe.voice-generate-playbook.p2
+  type: positive
+  prompt: Draft a casual newsletter intro about our 2.0 release so it sounds like
+    I wrote it. My style profile is already saved.
+  target: scribe:voice-generate-playbook
+  competitor: null
+  cluster: scribe:voice-generate-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scribe:style-learn; judge: scribe:voice-generate-playbook/scribe:style-learner'
+  proposals:
+    router: scribe:style-learn
+    judge: scribe:voice-generate-playbook
+    judge_runner_up: scribe:style-learner
+- id: scribe.voice-generate-playbook.p3
+  type: near_miss
+  prompt: Using the voice profile you built from my writing, turn these rough notes
+    about our caching rewrite into a newsletter intro that sounds like I wrote it,
+    casual register
+  target: scribe:voice-generate-playbook
+  competitor: scribe:voice-generate
+  cluster: scribe:voice-generate-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at scribe:style-learn; router: scribe:voice-extract; judge: scribe:voice-generate-playbook/scribe:voice-generate'
+  proposals:
+    aimed_at: scribe:style-learn
+    router: scribe:voice-extract
+    judge: scribe:voice-generate-playbook
+    judge_runner_up: scribe:voice-generate
 - id: scribe.voice-generate.p1
   type: positive
   prompt: Using my myvoice profile in the casual register, write a post from these
@@ -630,6 +823,55 @@ cases:
     router: scribe:session-to-post
     judge: scribe:voice-generate
     judge_runner_up: scribe:session-to-post
+- id: scribe.voice-learn-playbook.p1
+  type: positive
+  prompt: 'I rewrote a lot of the post you generated in my voice: cut the hedges and
+    added more asides. Can you compare your version with my final edit and update
+    my style profile so next time it''s closer?'
+  target: scribe:voice-learn-playbook
+  competitor: null
+  cluster: scribe:voice-learn-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: scribe:voice-generate-playbook; judge: scribe:voice-learn-playbook/scribe:style-learner'
+  proposals:
+    router: scribe:voice-generate-playbook
+    judge: scribe:voice-learn-playbook
+    judge_runner_up: scribe:style-learner
+- id: scribe.voice-learn-playbook.p2
+  type: positive
+  prompt: Look at what I keep changing in the drafts you write for me and propose
+    tweaks to my writing profile based on those edits
+  target: scribe:voice-learn-playbook
+  competitor: null
+  cluster: scribe:voice-learn-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: spec-kit:speckit-checklist; judge: scribe:voice-learn/scribe:voice-learn-playbook'
+  proposals:
+    router: spec-kit:speckit-checklist
+    judge: scribe:voice-learn
+    judge_runner_up: scribe:voice-learn-playbook
+- id: scribe.voice-learn-playbook.p3
+  type: near_miss
+  prompt: I rewrote a bunch of the last three drafts you generated in my voice. Compare
+    what I changed against what you gave me and update my profile rules so you stop
+    making the same mistakes
+  target: scribe:voice-learn-playbook
+  competitor: scribe:voice-review-playbook
+  cluster: scribe:voice-learn-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at conserve:elegant-code-review; router: sanctum:git-catchup; judge:
+    scribe:voice-learn-playbook/scribe:voice-review-playbook'
+  proposals:
+    aimed_at: conserve:elegant-code-review
+    router: sanctum:git-catchup
+    judge: scribe:voice-learn-playbook
+    judge_runner_up: scribe:voice-review-playbook
 - id: scribe.voice-learn.p1
   type: positive
   prompt: I hand-edited the blog post it generated for me, final-draft.md. Compare
@@ -678,6 +920,56 @@ cases:
     router: sanctum:version-updates
     judge: scribe:voice-learn
     judge_runner_up: scribe:voice-review
+- id: scribe.voice-review-playbook.p1
+  type: positive
+  prompt: Check this draft against my writing profile. Flag anywhere it drifts from
+    how I write or sounds AI-generated, and let me accept or reject each fix.
+  target: scribe:voice-review-playbook
+  competitor: null
+  cluster: scribe:voice-review-playbook
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: scribe:voice-review-playbook; judge: scribe:voice-review-playbook/scribe:slop-detector'
+  proposals:
+    router: scribe:voice-review-playbook
+    judge: scribe:voice-review-playbook
+    judge_runner_up: scribe:slop-detector
+- id: scribe.voice-review-playbook.p2
+  type: positive
+  prompt: Before I publish drafts/launch-post.md, run it past my style rules. Auto-fix
+    any banned phrases and em dashes and give me a table of everything else to decide
+    on.
+  target: scribe:voice-review-playbook
+  competitor: null
+  cluster: scribe:voice-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:skill-audit; judge: scribe:voice-review-playbook/scribe:doc-sweep'
+  proposals:
+    router: abstract:skill-audit
+    judge: scribe:voice-review-playbook
+    judge_runner_up: scribe:doc-sweep
+- id: scribe.voice-review-playbook.p3
+  type: near_miss
+  prompt: Check this draft you wrote in my voice before I publish it. Flag anything
+    that drifts from how I write, any banned phrases, and weak craft spots, then show
+    me what you'd change
+  target: scribe:voice-review-playbook
+  competitor: scribe:voice-generate-playbook
+  cluster: scribe:voice-review-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:aggregate-logs; router: gauntlet:gauntlet-progress; judge:
+    scribe:voice-review-playbook/scribe:voice-generate-playbook'
+  proposals:
+    aimed_at: abstract:aggregate-logs
+    router: gauntlet:gauntlet-progress
+    judge: scribe:voice-review-playbook
+    judge_runner_up: scribe:voice-generate-playbook
 - id: scribe.voice-review.p1
   type: positive
   prompt: Check draft.md against my myvoice profile and tell me which passages sound

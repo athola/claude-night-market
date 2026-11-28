@@ -165,6 +165,21 @@
    "target": "abstract:hook-scope-guide",
    "top1": "sanctum:update-plugins"
   },
+  "abstract.hooks-eval-playbook.p1": {
+   "rank": 36,
+   "target": "abstract:hooks-eval-playbook",
+   "top1": "abstract:hooks-eval"
+  },
+  "abstract.hooks-eval-playbook.p2": {
+   "rank": 8,
+   "target": "abstract:hooks-eval-playbook",
+   "top1": "pensive:shell-review"
+  },
+  "abstract.hooks-eval-playbook.p3": {
+   "rank": 6,
+   "target": "abstract:hooks-eval-playbook",
+   "top1": "abstract:hook-scope-guide"
+  },
   "abstract.hooks-eval.p1": {
    "rank": 1,
    "target": "abstract:hooks-eval",
@@ -255,6 +270,21 @@
    "target": "abstract:modular-skills",
    "top1": "pensive:parity-sweep"
   },
+  "abstract.plugin-review-playbook.p1": {
+   "rank": 59,
+   "target": "abstract:plugin-review-playbook",
+   "top1": "hookify:rule-sweep"
+  },
+  "abstract.plugin-review-playbook.p2": {
+   "rank": 9,
+   "target": "abstract:plugin-review-playbook",
+   "top1": "sanctum:update-version"
+  },
+  "abstract.plugin-review-playbook.p3": {
+   "rank": 4,
+   "target": "abstract:plugin-review-playbook",
+   "top1": "leyline:plugin-health"
+  },
   "abstract.plugin-review.p1": {
    "rank": 7,
    "target": "abstract:plugin-review",
@@ -284,6 +314,21 @@
    "rank": 1,
    "target": "abstract:promote-discussions",
    "top1": "abstract:promote-discussions"
+  },
+  "abstract.rules-eval-playbook.p1": {
+   "rank": 1,
+   "target": "abstract:rules-eval-playbook",
+   "top1": "abstract:rules-eval-playbook"
+  },
+  "abstract.rules-eval-playbook.p2": {
+   "rank": 2,
+   "target": "abstract:rules-eval-playbook",
+   "top1": "abstract:rules-eval"
+  },
+  "abstract.rules-eval-playbook.p3": {
+   "rank": 2,
+   "target": "abstract:rules-eval-playbook",
+   "top1": "abstract:rules-eval"
   },
   "abstract.rules-eval.p1": {
    "rank": 3,
@@ -344,6 +389,21 @@
    "rank": 13,
    "target": "abstract:skill-graph-audit",
    "top1": "conserve:bloat-sweep"
+  },
+  "abstract.skills-eval-playbook.p1": {
+   "rank": 116,
+   "target": "abstract:skills-eval-playbook",
+   "top1": "abstract:aggregate-logs"
+  },
+  "abstract.skills-eval-playbook.p2": {
+   "rank": 93,
+   "target": "abstract:skills-eval-playbook",
+   "top1": "abstract:skill-audit"
+  },
+  "abstract.skills-eval-playbook.p3": {
+   "rank": 43,
+   "target": "abstract:skills-eval-playbook",
+   "top1": "conserve:response-compression"
   },
   "abstract.skills-eval.p1": {
    "rank": 28,
@@ -840,6 +900,21 @@
    "target": "attune:project-execution",
    "top1": "spec-kit:task-planning"
   },
+  "attune.project-init-playbook.p1": {
+   "rank": 1,
+   "target": "attune:project-init-playbook",
+   "top1": "attune:project-init-playbook"
+  },
+  "attune.project-init-playbook.p2": {
+   "rank": 6,
+   "target": "attune:project-init-playbook",
+   "top1": "attune:project-init"
+  },
+  "attune.project-init-playbook.p3": {
+   "rank": 2,
+   "target": "attune:project-init-playbook",
+   "top1": "minister:initiative-pulse"
+  },
   "attune.project-init.p1": {
    "rank": 3,
    "target": "attune:project-init",
@@ -899,6 +974,21 @@
    "rank": 4,
    "target": "attune:skill-library-mission",
    "top1": "attune:skill-library-session"
+  },
+  "attune.skill-library-session.p1": {
+   "rank": 1,
+   "target": "attune:skill-library-session",
+   "top1": "attune:skill-library-session"
+  },
+  "attune.skill-library-session.p2": {
+   "rank": 2,
+   "target": "attune:skill-library-session",
+   "top1": "attune:skill-library-mission"
+  },
+  "attune.skill-library-session.p3": {
+   "rank": 2,
+   "target": "attune:skill-library-session",
+   "top1": "abstract:skill-audit"
   },
   "attune.skill-library.p1": {
    "rank": 1,
@@ -974,6 +1064,21 @@
    "rank": 129,
    "target": "attune:war-room-checkpoint",
    "top1": "hookify:rule-sweep"
+  },
+  "attune.war-room-playbook.p1": {
+   "rank": 52,
+   "target": "attune:war-room-playbook",
+   "top1": "archetypes:architecture-paradigm-modular-monolith"
+  },
+  "attune.war-room-playbook.p2": {
+   "rank": 55,
+   "target": "attune:war-room-playbook",
+   "top1": "abstract:create-command"
+  },
+  "attune.war-room-playbook.p3": {
+   "rank": 78,
+   "target": "attune:war-room-playbook",
+   "top1": "conjure:provider-sweep"
   },
   "attune.war-room.p1": {
    "rank": 38,
@@ -1620,6 +1725,21 @@
    "target": "egregore:gate-audit",
    "top1": "egregore:gate-audit"
   },
+  "egregore.install-watchdog-playbook.p1": {
+   "rank": 1,
+   "target": "egregore:install-watchdog-playbook",
+   "top1": "egregore:install-watchdog-playbook"
+  },
+  "egregore.install-watchdog-playbook.p2": {
+   "rank": 1,
+   "target": "egregore:install-watchdog-playbook",
+   "top1": "egregore:install-watchdog-playbook"
+  },
+  "egregore.install-watchdog-playbook.p3": {
+   "rank": 10,
+   "target": "egregore:install-watchdog-playbook",
+   "top1": "egregore:summon-playbook"
+  },
   "egregore.install-watchdog.p1": {
    "rank": 28,
    "target": "egregore:install-watchdog",
@@ -1665,6 +1785,21 @@
    "target": "egregore:status",
    "top1": "conjure:provider-setup"
   },
+  "egregore.summon-playbook.p1": {
+   "rank": 2,
+   "target": "egregore:summon-playbook",
+   "top1": "egregore:summon"
+  },
+  "egregore.summon-playbook.p2": {
+   "rank": 1,
+   "target": "egregore:summon-playbook",
+   "top1": "egregore:summon-playbook"
+  },
+  "egregore.summon-playbook.p3": {
+   "rank": 2,
+   "target": "egregore:summon-playbook",
+   "top1": "egregore:summon"
+  },
   "egregore.summon.p1": {
    "rank": 82,
    "target": "egregore:summon",
@@ -1679,6 +1814,21 @@
    "rank": 125,
    "target": "egregore:summon",
    "top1": "sanctum:do-issue"
+  },
+  "egregore.uninstall-watchdog-playbook.p1": {
+   "rank": 2,
+   "target": "egregore:uninstall-watchdog-playbook",
+   "top1": "egregore:install-watchdog-playbook"
+  },
+  "egregore.uninstall-watchdog-playbook.p2": {
+   "rank": 17,
+   "target": "egregore:uninstall-watchdog-playbook",
+   "top1": "conjure:provider-sweep"
+  },
+  "egregore.uninstall-watchdog-playbook.p3": {
+   "rank": 10,
+   "target": "egregore:uninstall-watchdog-playbook",
+   "top1": "egregore:uninstall-watchdog"
   },
   "egregore.uninstall-watchdog.p1": {
    "rank": 1,
@@ -2070,6 +2220,21 @@
    "target": "imbue:assisted-mastery",
    "top1": "parseltongue:python-async"
   },
+  "imbue.catchup-playbook.p1": {
+   "rank": 100,
+   "target": "imbue:catchup-playbook",
+   "top1": "sanctum:git-catchup"
+  },
+  "imbue.catchup-playbook.p2": {
+   "rank": 135,
+   "target": "imbue:catchup-playbook",
+   "top1": "sanctum:git-catchup"
+  },
+  "imbue.catchup-playbook.p3": {
+   "rank": 173,
+   "target": "imbue:catchup-playbook",
+   "top1": "sanctum:git-catchup"
+  },
   "imbue.catchup.p1": {
    "rank": 352,
    "target": "imbue:catchup",
@@ -2158,6 +2323,21 @@
   "imbue.graduated-implementation.p3": {
    "rank": 5,
    "target": "imbue:graduated-implementation",
+   "top1": "parseltongue:python-async"
+  },
+  "imbue.justify-playbook.p1": {
+   "rank": 163,
+   "target": "imbue:justify-playbook",
+   "top1": "parseltongue:python-async"
+  },
+  "imbue.justify-playbook.p2": {
+   "rank": 18,
+   "target": "imbue:justify-playbook",
+   "top1": "conjure:provider-setup"
+  },
+  "imbue.justify-playbook.p3": {
+   "rank": 60,
+   "target": "imbue:justify-playbook",
    "top1": "parseltongue:python-async"
   },
   "imbue.justify.p1": {
@@ -3250,6 +3430,21 @@
    "target": "parseltongue:run-profiler",
    "top1": "parseltongue:run-profiler"
   },
+  "pensive.api-review-playbook.p1": {
+   "rank": 1,
+   "target": "pensive:api-review-playbook",
+   "top1": "pensive:api-review-playbook"
+  },
+  "pensive.api-review-playbook.p2": {
+   "rank": 252,
+   "target": "pensive:api-review-playbook",
+   "top1": "cartograph:call-chain"
+  },
+  "pensive.api-review-playbook.p3": {
+   "rank": 37,
+   "target": "pensive:api-review-playbook",
+   "top1": "cartograph:call-chain"
+  },
   "pensive.api-review.p1": {
    "rank": 20,
    "target": "pensive:api-review",
@@ -3264,6 +3459,21 @@
    "rank": 2,
    "target": "pensive:api-review",
    "top1": "pensive:api-review-playbook"
+  },
+  "pensive.architecture-review-playbook.p1": {
+   "rank": 33,
+   "target": "pensive:architecture-review-playbook",
+   "top1": "hookify:rule-sweep"
+  },
+  "pensive.architecture-review-playbook.p2": {
+   "rank": 41,
+   "target": "pensive:architecture-review-playbook",
+   "top1": "hookify:rule-sweep"
+  },
+  "pensive.architecture-review-playbook.p3": {
+   "rank": 27,
+   "target": "pensive:architecture-review-playbook",
+   "top1": "cartograph:code-communities"
   },
   "pensive.architecture-review.p1": {
    "rank": 35,
@@ -3294,6 +3504,21 @@
    "rank": 3,
    "target": "pensive:blast-radius",
    "top1": "sanctum:git-catchup"
+  },
+  "pensive.bug-review-playbook.p1": {
+   "rank": 222,
+   "target": "pensive:bug-review-playbook",
+   "top1": "pensive:refine-code"
+  },
+  "pensive.bug-review-playbook.p2": {
+   "rank": 352,
+   "target": "pensive:bug-review-playbook",
+   "top1": "scribe:doc-sweep"
+  },
+  "pensive.bug-review-playbook.p3": {
+   "rank": 61,
+   "target": "pensive:bug-review-playbook",
+   "top1": "abstract:skill-audit"
   },
   "pensive.bug-review.p1": {
    "rank": 1,
@@ -3340,6 +3565,21 @@
    "target": "pensive:full-review",
    "top1": "spec-kit:spec-review"
   },
+  "pensive.harden-playbook.p1": {
+   "rank": 2,
+   "target": "pensive:harden-playbook",
+   "top1": "attune:workflow-setup"
+  },
+  "pensive.harden-playbook.p2": {
+   "rank": 3,
+   "target": "pensive:harden-playbook",
+   "top1": "imbue:graduated-implementation"
+  },
+  "pensive.harden-playbook.p3": {
+   "rank": 45,
+   "target": "pensive:harden-playbook",
+   "top1": "sanctum:create-tag"
+  },
   "pensive.harden.p1": {
    "rank": 8,
    "target": "pensive:harden",
@@ -3370,6 +3610,21 @@
    "target": "pensive:makefile-review",
    "top1": "pensive:makefile-review"
   },
+  "pensive.math-review-playbook.p1": {
+   "rank": 280,
+   "target": "pensive:math-review-playbook",
+   "top1": "sanctum:update-readme"
+  },
+  "pensive.math-review-playbook.p2": {
+   "rank": 34,
+   "target": "pensive:math-review-playbook",
+   "top1": "conserve:filter-log"
+  },
+  "pensive.math-review-playbook.p3": {
+   "rank": 228,
+   "target": "pensive:math-review-playbook",
+   "top1": "hookify:rule-sweep"
+  },
   "pensive.math-review.p1": {
    "rank": 256,
    "target": "pensive:math-review",
@@ -3384,6 +3639,36 @@
    "rank": 1,
    "target": "pensive:math-review",
    "top1": "pensive:math-review"
+  },
+  "pensive.parity-sweep.p1": {
+   "rank": 9,
+   "target": "pensive:parity-sweep",
+   "top1": "tome:web-search"
+  },
+  "pensive.parity-sweep.p2": {
+   "rank": 1,
+   "target": "pensive:parity-sweep",
+   "top1": "pensive:parity-sweep"
+  },
+  "pensive.parity-sweep.p3": {
+   "rank": 1,
+   "target": "pensive:parity-sweep",
+   "top1": "pensive:parity-sweep"
+  },
+  "pensive.performance-review-playbook.p1": {
+   "rank": 3,
+   "target": "pensive:performance-review-playbook",
+   "top1": "parseltongue:python-async"
+  },
+  "pensive.performance-review-playbook.p2": {
+   "rank": 1,
+   "target": "pensive:performance-review-playbook",
+   "top1": "pensive:performance-review-playbook"
+  },
+  "pensive.performance-review-playbook.p3": {
+   "rank": 4,
+   "target": "pensive:performance-review-playbook",
+   "top1": "conserve:bloat-sweep"
   },
   "pensive.performance-review.p1": {
    "rank": 2,
@@ -3414,6 +3699,21 @@
    "rank": 27,
    "target": "pensive:refine-code",
    "top1": "hookify:rule-sweep"
+  },
+  "pensive.rust-review-playbook.p1": {
+   "rank": 2,
+   "target": "pensive:rust-review-playbook",
+   "top1": "abstract:skill-graph-audit"
+  },
+  "pensive.rust-review-playbook.p2": {
+   "rank": 1,
+   "target": "pensive:rust-review-playbook",
+   "top1": "pensive:rust-review-playbook"
+  },
+  "pensive.rust-review-playbook.p3": {
+   "rank": 1,
+   "target": "pensive:rust-review-playbook",
+   "top1": "pensive:rust-review-playbook"
   },
   "pensive.rust-review.p1": {
    "rank": 2,
@@ -3490,6 +3790,21 @@
    "target": "pensive:skill-review",
    "top1": "conjure:provider-setup"
   },
+  "pensive.test-review-playbook.p1": {
+   "rank": 6,
+   "target": "pensive:test-review-playbook",
+   "top1": "leyline:testing-quality-standards"
+  },
+  "pensive.test-review-playbook.p2": {
+   "rank": 9,
+   "target": "pensive:test-review-playbook",
+   "top1": "leyline:testing-quality-standards"
+  },
+  "pensive.test-review-playbook.p3": {
+   "rank": 6,
+   "target": "pensive:test-review-playbook",
+   "top1": "leyline:testing-quality-standards"
+  },
   "pensive.test-review.p1": {
    "rank": 4,
    "target": "pensive:test-review",
@@ -3519,6 +3834,21 @@
    "rank": 50,
    "target": "pensive:tiered-audit",
    "top1": "imbue:scope-guard"
+  },
+  "pensive.unified-review-playbook.p1": {
+   "rank": 11,
+   "target": "pensive:unified-review-playbook",
+   "top1": "pensive:shell-review"
+  },
+  "pensive.unified-review-playbook.p2": {
+   "rank": 49,
+   "target": "pensive:unified-review-playbook",
+   "top1": "sanctum:git-catchup"
+  },
+  "pensive.unified-review-playbook.p3": {
+   "rank": 111,
+   "target": "pensive:unified-review-playbook",
+   "top1": "pensive:harden"
   },
   "pensive.unified-review.p1": {
    "rank": 6,
@@ -3639,6 +3969,21 @@
    "rank": 1,
    "target": "sanctum:create-tag",
    "top1": "sanctum:create-tag"
+  },
+  "sanctum.do-issue-playbook.p1": {
+   "rank": 1,
+   "target": "sanctum:do-issue-playbook",
+   "top1": "sanctum:do-issue-playbook"
+  },
+  "sanctum.do-issue-playbook.p2": {
+   "rank": 11,
+   "target": "sanctum:do-issue-playbook",
+   "top1": "sanctum:do-issue"
+  },
+  "sanctum.do-issue-playbook.p3": {
+   "rank": 46,
+   "target": "sanctum:do-issue-playbook",
+   "top1": "hookify:rule-sweep"
   },
   "sanctum.do-issue.p1": {
    "rank": 2,
@@ -3804,6 +4149,21 @@
    "rank": 7,
    "target": "sanctum:pr-prep",
    "top1": "sanctum:validate-pr"
+  },
+  "sanctum.pr-review-playbook.p1": {
+   "rank": 26,
+   "target": "sanctum:pr-review-playbook",
+   "top1": "spec-kit:spec-review"
+  },
+  "sanctum.pr-review-playbook.p2": {
+   "rank": 21,
+   "target": "sanctum:pr-review-playbook",
+   "top1": "egregore:gate-audit"
+  },
+  "sanctum.pr-review-playbook.p3": {
+   "rank": 47,
+   "target": "sanctum:pr-review-playbook",
+   "top1": "hookify:rule-sweep"
   },
   "sanctum.pr-review.p1": {
    "rank": 1,
@@ -4090,6 +4450,21 @@
    "target": "sanctum:update-version",
    "top1": "spec-kit:speckit-constitution"
   },
+  "sanctum.validate-pr-playbook.p1": {
+   "rank": 5,
+   "target": "sanctum:validate-pr-playbook",
+   "top1": "sanctum:validate-pr"
+  },
+  "sanctum.validate-pr-playbook.p2": {
+   "rank": 67,
+   "target": "sanctum:validate-pr-playbook",
+   "top1": "pensive:parity-sweep"
+  },
+  "sanctum.validate-pr-playbook.p3": {
+   "rank": 43,
+   "target": "sanctum:validate-pr-playbook",
+   "top1": "hookify:rule-sweep"
+  },
   "sanctum.validate-pr.p1": {
    "rank": 1,
    "target": "sanctum:validate-pr",
@@ -4195,6 +4570,21 @@
    "target": "scribe:doc-sweep",
    "top1": "scribe:doc-sweep"
   },
+  "scribe.session-replay-playbook.p1": {
+   "rank": 2,
+   "target": "scribe:session-replay-playbook",
+   "top1": "scribe:session-replay"
+  },
+  "scribe.session-replay-playbook.p2": {
+   "rank": 33,
+   "target": "scribe:session-replay-playbook",
+   "top1": "egregore:gate-audit"
+  },
+  "scribe.session-replay-playbook.p3": {
+   "rank": 2,
+   "target": "scribe:session-replay-playbook",
+   "top1": "scribe:session-replay"
+  },
   "scribe.session-replay.p1": {
    "rank": 1,
    "target": "scribe:session-replay",
@@ -4209,6 +4599,21 @@
    "rank": 2,
    "target": "scribe:session-replay",
    "top1": "scribe:session-replay-playbook"
+  },
+  "scribe.session-to-post-playbook.p1": {
+   "rank": 6,
+   "target": "scribe:session-to-post-playbook",
+   "top1": "sanctum:git-catchup"
+  },
+  "scribe.session-to-post-playbook.p2": {
+   "rank": 2,
+   "target": "scribe:session-to-post-playbook",
+   "top1": "scribe:session-to-post"
+  },
+  "scribe.session-to-post-playbook.p3": {
+   "rank": 4,
+   "target": "scribe:session-to-post-playbook",
+   "top1": "scribe:session-to-post"
   },
   "scribe.session-to-post.p1": {
    "rank": 1,
@@ -4300,6 +4705,21 @@
    "target": "scribe:tech-tutorial",
    "top1": "abstract:hook-scope-guide"
   },
+  "scribe.voice-extract-playbook.p1": {
+   "rank": 40,
+   "target": "scribe:voice-extract-playbook",
+   "top1": "parseltongue:python-async"
+  },
+  "scribe.voice-extract-playbook.p2": {
+   "rank": 6,
+   "target": "scribe:voice-extract-playbook",
+   "top1": "scribe:style-learn"
+  },
+  "scribe.voice-extract-playbook.p3": {
+   "rank": 48,
+   "target": "scribe:voice-extract-playbook",
+   "top1": "sanctum:git-catchup"
+  },
   "scribe.voice-extract.p1": {
    "rank": 1,
    "target": "scribe:voice-extract",
@@ -4314,6 +4734,21 @@
    "rank": 2,
    "target": "scribe:voice-extract",
    "top1": "scribe:voice-generate"
+  },
+  "scribe.voice-generate-playbook.p1": {
+   "rank": 7,
+   "target": "scribe:voice-generate-playbook",
+   "top1": "scribe:style-learn"
+  },
+  "scribe.voice-generate-playbook.p2": {
+   "rank": 9,
+   "target": "scribe:voice-generate-playbook",
+   "top1": "scribe:style-learn"
+  },
+  "scribe.voice-generate-playbook.p3": {
+   "rank": 2,
+   "target": "scribe:voice-generate-playbook",
+   "top1": "scribe:voice-extract"
   },
   "scribe.voice-generate.p1": {
    "rank": 119,
@@ -4330,6 +4765,21 @@
    "target": "scribe:voice-generate",
    "top1": "scribe:session-to-post"
   },
+  "scribe.voice-learn-playbook.p1": {
+   "rank": 2,
+   "target": "scribe:voice-learn-playbook",
+   "top1": "scribe:voice-generate-playbook"
+  },
+  "scribe.voice-learn-playbook.p2": {
+   "rank": 12,
+   "target": "scribe:voice-learn-playbook",
+   "top1": "spec-kit:speckit-checklist"
+  },
+  "scribe.voice-learn-playbook.p3": {
+   "rank": 8,
+   "target": "scribe:voice-learn-playbook",
+   "top1": "sanctum:git-catchup"
+  },
   "scribe.voice-learn.p1": {
    "rank": 8,
    "target": "scribe:voice-learn",
@@ -4344,6 +4794,21 @@
    "rank": 2,
    "target": "scribe:voice-learn",
    "top1": "sanctum:version-updates"
+  },
+  "scribe.voice-review-playbook.p1": {
+   "rank": 1,
+   "target": "scribe:voice-review-playbook",
+   "top1": "scribe:voice-review-playbook"
+  },
+  "scribe.voice-review-playbook.p2": {
+   "rank": 102,
+   "target": "scribe:voice-review-playbook",
+   "top1": "abstract:skill-audit"
+  },
+  "scribe.voice-review-playbook.p3": {
+   "rank": 3,
+   "target": "scribe:voice-review-playbook",
+   "top1": "gauntlet:gauntlet-progress"
   },
   "scribe.voice-review.p1": {
    "rank": 1,
@@ -4730,6 +5195,21 @@
    "target": "tome:code-search",
    "top1": "abstract:promote-discussions"
   },
+  "tome.dig-playbook.p1": {
+   "rank": 6,
+   "target": "tome:dig-playbook",
+   "top1": "tome:papers"
+  },
+  "tome.dig-playbook.p2": {
+   "rank": 59,
+   "target": "tome:dig-playbook",
+   "top1": "tome:synthesize"
+  },
+  "tome.dig-playbook.p3": {
+   "rank": 21,
+   "target": "tome:dig-playbook",
+   "top1": "memory-palace:palace-index-curator"
+  },
   "tome.dig.p1": {
    "rank": 5,
    "target": "tome:dig",
@@ -4759,6 +5239,21 @@
    "rank": 1,
    "target": "tome:discourse",
    "top1": "tome:discourse"
+  },
+  "tome.export-playbook.p1": {
+   "rank": 1,
+   "target": "tome:export-playbook",
+   "top1": "tome:export-playbook"
+  },
+  "tome.export-playbook.p2": {
+   "rank": 1,
+   "target": "tome:export-playbook",
+   "top1": "tome:export-playbook"
+  },
+  "tome.export-playbook.p3": {
+   "rank": 1,
+   "target": "tome:export-playbook",
+   "top1": "tome:export-playbook"
   },
   "tome.export.p1": {
    "rank": 2,
@@ -4804,6 +5299,36 @@
    "rank": 1,
    "target": "tome:papers",
    "top1": "tome:papers"
+  },
+  "tome.research-playbook.p1": {
+   "rank": 54,
+   "target": "tome:research-playbook",
+   "top1": "conserve:bloat-sweep"
+  },
+  "tome.research-playbook.p2": {
+   "rank": 57,
+   "target": "tome:research-playbook",
+   "top1": "memory-palace:palace-sweep"
+  },
+  "tome.research-playbook.p3": {
+   "rank": 122,
+   "target": "tome:research-playbook",
+   "top1": "minister:initiative-pulse"
+  },
+  "tome.research-session.p1": {
+   "rank": 1,
+   "target": "tome:research-session",
+   "top1": "tome:research-session"
+  },
+  "tome.research-session.p2": {
+   "rank": 2,
+   "target": "tome:research-session",
+   "top1": "memory-palace:palace"
+  },
+  "tome.research-session.p3": {
+   "rank": 20,
+   "target": "tome:research-session",
+   "top1": "parseltongue:python-async"
   },
   "tome.research.p1": {
    "rank": 2,
@@ -4897,6 +5422,9 @@
   "abstract:hook-scope-guide -> conjure:provider-sweep": 1,
   "abstract:hook-scope-guide -> sanctum:update-plugins": 2,
   "abstract:hooks-eval -> egregore:gate-audit": 1,
+  "abstract:hooks-eval-playbook -> abstract:hook-scope-guide": 1,
+  "abstract:hooks-eval-playbook -> abstract:hooks-eval": 1,
+  "abstract:hooks-eval-playbook -> pensive:shell-review": 1,
   "abstract:improve-skills -> abstract:aggregate-logs": 1,
   "abstract:improve-skills -> oracle:quality-bench": 1,
   "abstract:improve-skills -> scry:capture-set": 1,
@@ -4911,9 +5439,13 @@
   "abstract:modular-skills -> oracle:quality-bench": 1,
   "abstract:modular-skills -> pensive:parity-sweep": 1,
   "abstract:plugin-review -> oracle:quality-bench": 1,
+  "abstract:plugin-review-playbook -> hookify:rule-sweep": 1,
+  "abstract:plugin-review-playbook -> leyline:plugin-health": 1,
+  "abstract:plugin-review-playbook -> sanctum:update-version": 1,
   "abstract:promote-discussions -> parseltongue:python-async": 1,
   "abstract:rules-eval -> abstract:rules-eval-playbook": 2,
   "abstract:rules-eval -> abstract:skill-audit": 1,
+  "abstract:rules-eval-playbook -> abstract:rules-eval": 2,
   "abstract:skill-audit -> abstract:escalation-governance": 1,
   "abstract:skill-audit -> oracle:quality-bench": 1,
   "abstract:skill-authoring -> conjure:provider-sweep": 1,
@@ -4923,6 +5455,9 @@
   "abstract:skill-graph-audit -> conserve:bloat-sweep": 2,
   "abstract:skills-eval -> abstract:rules-eval": 1,
   "abstract:skills-eval -> sanctum:fix-workflow-analysis": 1,
+  "abstract:skills-eval-playbook -> abstract:aggregate-logs": 1,
+  "abstract:skills-eval-playbook -> abstract:skill-audit": 1,
+  "abstract:skills-eval-playbook -> conserve:response-compression": 1,
   "abstract:subagent-testing -> conjure:provider-sweep": 1,
   "abstract:subagent-testing -> hookify:rule-sweep": 1,
   "abstract:subagent-testing -> oracle:setup": 1,
@@ -4980,12 +5515,16 @@
   "attune:project-execution -> spec-kit:task-planning": 2,
   "attune:project-init -> attune:precommit-setup": 1,
   "attune:project-init -> attune:project-init-playbook": 1,
+  "attune:project-init-playbook -> attune:project-init": 1,
+  "attune:project-init-playbook -> minister:initiative-pulse": 1,
   "attune:project-planning -> attune:blueprint": 1,
   "attune:project-planning -> attune:specify": 1,
   "attune:project-planning -> spec-kit:task-planning": 1,
   "attune:project-specification -> attune:project-brainstorming": 1,
   "attune:project-specification -> attune:specify": 2,
   "attune:skill-library-mission -> attune:skill-library-session": 2,
+  "attune:skill-library-session -> abstract:skill-audit": 1,
+  "attune:skill-library-session -> attune:skill-library-mission": 1,
   "attune:specify -> attune:project-specification": 2,
   "attune:specify -> spec-kit:speckit-checklist": 1,
   "attune:upgrade-project -> attune:project-init-playbook": 2,
@@ -4998,6 +5537,9 @@
   "attune:war-room-checkpoint -> archetypes:paradigm-panel": 1,
   "attune:war-room-checkpoint -> egregore:gate-audit": 1,
   "attune:war-room-checkpoint -> hookify:rule-sweep": 1,
+  "attune:war-room-playbook -> abstract:create-command": 1,
+  "attune:war-room-playbook -> archetypes:architecture-paradigm-modular-monolith": 1,
+  "attune:war-room-playbook -> conjure:provider-sweep": 1,
   "attune:workflow-setup -> sanctum:update-ci": 1,
   "cartograph:architecture-diagram -> memory-palace:palace-sweep": 1,
   "cartograph:call-chain -> gauntlet:graph-search": 1,
@@ -5063,6 +5605,7 @@
   "egregore:dismiss -> hookify:rule-sweep": 1,
   "egregore:gate-audit -> parseltongue:run-profiler": 1,
   "egregore:install-watchdog -> egregore:install-watchdog-playbook": 3,
+  "egregore:install-watchdog-playbook -> egregore:summon-playbook": 1,
   "egregore:quality-gate -> archetypes:paradigm-panel": 1,
   "egregore:quality-gate -> hookify:rule-sweep": 1,
   "egregore:quality-gate -> pensive:unified-review": 1,
@@ -5072,6 +5615,10 @@
   "egregore:summon -> conserve:agent-expenditure": 1,
   "egregore:summon -> parseltongue:python-async": 1,
   "egregore:summon -> sanctum:do-issue": 1,
+  "egregore:summon-playbook -> egregore:summon": 2,
+  "egregore:uninstall-watchdog-playbook -> conjure:provider-sweep": 1,
+  "egregore:uninstall-watchdog-playbook -> egregore:install-watchdog-playbook": 1,
+  "egregore:uninstall-watchdog-playbook -> egregore:uninstall-watchdog": 1,
   "gauntlet:challenge -> archetypes:architecture-paradigm-functional-core": 1,
   "gauntlet:challenge -> gauntlet:gauntlet-extract": 1,
   "gauntlet:challenge -> imbue:karpathy-principles": 1,
@@ -5116,6 +5663,7 @@
   "imbue:assisted-mastery -> parseltongue:python-async": 2,
   "imbue:catchup -> minister:initiative-pulse": 1,
   "imbue:catchup -> sanctum:git-catchup": 2,
+  "imbue:catchup-playbook -> sanctum:git-catchup": 3,
   "imbue:dependency-verification -> hookify:rule-sweep": 1,
   "imbue:diff-analysis -> pensive:blast-radius": 1,
   "imbue:diff-analysis -> pensive:full-review": 1,
@@ -5125,6 +5673,8 @@
   "imbue:justify -> abstract:skill-audit": 1,
   "imbue:justify -> imbue:graduated-implementation": 1,
   "imbue:justify -> parseltongue:python-async": 1,
+  "imbue:justify-playbook -> conjure:provider-setup": 1,
+  "imbue:justify-playbook -> parseltongue:python-async": 2,
   "imbue:karpathy-check -> attune:dorodango": 1,
   "imbue:karpathy-check -> parseltongue:python-async": 1,
   "imbue:karpathy-principles -> memory-palace:palace-sweep": 1,
@@ -5245,28 +5795,44 @@
   "pensive:api-review -> memory-palace:palace-sweep": 1,
   "pensive:api-review -> pensive:api-review-playbook": 1,
   "pensive:api-review -> phantom:surface-check": 1,
+  "pensive:api-review-playbook -> cartograph:call-chain": 2,
   "pensive:architecture-review -> cartograph:code-communities": 2,
+  "pensive:architecture-review-playbook -> cartograph:code-communities": 1,
+  "pensive:architecture-review-playbook -> hookify:rule-sweep": 2,
   "pensive:blast-radius -> parseltongue:python-async": 1,
   "pensive:blast-radius -> pensive:full-review": 1,
   "pensive:blast-radius -> sanctum:git-catchup": 1,
   "pensive:bug-review -> archetypes:architecture-paradigm-functional-core": 1,
   "pensive:bug-review -> scribe:slop-detector": 1,
+  "pensive:bug-review-playbook -> abstract:skill-audit": 1,
+  "pensive:bug-review-playbook -> pensive:refine-code": 1,
+  "pensive:bug-review-playbook -> scribe:doc-sweep": 1,
   "pensive:code-refinement -> conserve:unbloat": 1,
   "pensive:code-refinement -> egregore:uninstall-watchdog": 1,
   "pensive:full-review -> pensive:rust-review-playbook": 1,
   "pensive:full-review -> phantom:control-desktop": 1,
   "pensive:full-review -> spec-kit:spec-review": 1,
   "pensive:harden -> pensive:harden-playbook": 1,
+  "pensive:harden-playbook -> attune:workflow-setup": 1,
+  "pensive:harden-playbook -> imbue:graduated-implementation": 1,
+  "pensive:harden-playbook -> sanctum:create-tag": 1,
   "pensive:makefile-review -> attune:makefile-generation": 1,
   "pensive:math-review -> imbue:graduated-implementation": 1,
+  "pensive:math-review-playbook -> conserve:filter-log": 1,
+  "pensive:math-review-playbook -> hookify:rule-sweep": 1,
+  "pensive:math-review-playbook -> sanctum:update-readme": 1,
+  "pensive:parity-sweep -> tome:web-search": 1,
   "pensive:performance-review -> parseltongue:python-performance": 1,
   "pensive:performance-review -> parseltongue:python-sweep": 1,
   "pensive:performance-review -> pensive:performance-review-playbook": 1,
+  "pensive:performance-review-playbook -> conserve:bloat-sweep": 1,
+  "pensive:performance-review-playbook -> parseltongue:python-async": 1,
   "pensive:refine-code -> archetypes:architecture-paradigm-functional-core": 1,
   "pensive:refine-code -> egregore:quality-gate": 1,
   "pensive:refine-code -> hookify:rule-sweep": 1,
   "pensive:rust-review -> conjure:provider-sweep": 1,
   "pensive:rust-review -> pensive:rust-review-playbook": 2,
+  "pensive:rust-review-playbook -> abstract:skill-graph-audit": 1,
   "pensive:safety-critical-patterns -> cartograph:data-flow": 1,
   "pensive:safety-critical-patterns -> parseltongue:python-async": 1,
   "pensive:shell-review -> egregore:gate-audit": 1,
@@ -5276,11 +5842,15 @@
   "pensive:skill-review -> conjure:provider-setup": 2,
   "pensive:test-review -> leyline:testing-quality-standards": 1,
   "pensive:test-review -> sanctum:update-tests": 1,
+  "pensive:test-review-playbook -> leyline:testing-quality-standards": 3,
   "pensive:tiered-audit -> imbue:scope-guard": 1,
   "pensive:tiered-audit -> memory-palace:palace-sweep": 1,
   "pensive:tiered-audit -> sanctum:git-catchup": 1,
   "pensive:unified-review -> abstract:skill-audit": 2,
   "pensive:unified-review -> conserve:bloat-sweep": 1,
+  "pensive:unified-review-playbook -> pensive:harden": 1,
+  "pensive:unified-review-playbook -> pensive:shell-review": 1,
+  "pensive:unified-review-playbook -> sanctum:git-catchup": 1,
   "phantom:computer-control -> phantom:control-desktop": 1,
   "phantom:control-desktop -> pensive:api-review-playbook": 1,
   "phantom:surface-check -> egregore:gate-audit": 1,
@@ -5290,6 +5860,8 @@
   "sanctum:do-issue -> abstract:promote-discussions": 1,
   "sanctum:do-issue -> sanctum:do-issue-playbook": 1,
   "sanctum:do-issue -> sanctum:fix-workflow-analysis": 1,
+  "sanctum:do-issue-playbook -> hookify:rule-sweep": 1,
+  "sanctum:do-issue-playbook -> sanctum:do-issue": 1,
   "sanctum:doc-consolidation -> sanctum:merge-docs": 1,
   "sanctum:doc-consolidation -> spec-kit:speckit-analyze": 2,
   "sanctum:doc-updates -> sanctum:sync-capabilities": 1,
@@ -5313,6 +5885,9 @@
   "sanctum:pr-prep -> sanctum:validate-pr": 1,
   "sanctum:pr-prep -> sanctum:validate-pr-playbook": 1,
   "sanctum:pr-review -> hookify:rule-sweep": 1,
+  "sanctum:pr-review-playbook -> egregore:gate-audit": 1,
+  "sanctum:pr-review-playbook -> hookify:rule-sweep": 1,
+  "sanctum:pr-review-playbook -> spec-kit:spec-review": 1,
   "sanctum:prepare-pr -> egregore:quality-gate": 1,
   "sanctum:prepare-pr -> imbue:scope-guard": 1,
   "sanctum:prepare-pr -> spec-kit:speckit-specify": 1,
@@ -5348,6 +5923,9 @@
   "sanctum:update-tutorial -> scry:vhs-recording": 2,
   "sanctum:update-version -> parseltongue:python-packaging": 1,
   "sanctum:update-version -> spec-kit:speckit-constitution": 2,
+  "sanctum:validate-pr-playbook -> hookify:rule-sweep": 1,
+  "sanctum:validate-pr-playbook -> pensive:parity-sweep": 1,
+  "sanctum:validate-pr-playbook -> sanctum:validate-pr": 1,
   "sanctum:version-updates -> spec-kit:speckit-constitution": 2,
   "sanctum:workflow-improvement -> parseltongue:python-sweep": 1,
   "sanctum:workflow-improvement -> sanctum:fix-workflow-analysis": 1,
@@ -5359,7 +5937,11 @@
   "scribe:doc-polish -> hookify:rule-sweep": 1,
   "scribe:doc-sweep -> hookify:rule-sweep": 1,
   "scribe:session-replay -> scribe:session-replay-playbook": 1,
+  "scribe:session-replay-playbook -> egregore:gate-audit": 1,
+  "scribe:session-replay-playbook -> scribe:session-replay": 2,
   "scribe:session-to-post -> imbue:evidence-sweep": 1,
+  "scribe:session-to-post-playbook -> sanctum:git-catchup": 1,
+  "scribe:session-to-post-playbook -> scribe:session-to-post": 2,
   "scribe:simplified-technical-english -> egregore:gate-audit": 1,
   "scribe:simplified-technical-english -> imbue:evidence-sweep": 1,
   "scribe:slop-detector -> hookify:rule-sweep": 1,
@@ -5370,13 +5952,23 @@
   "scribe:style-learner -> scribe:session-to-post-playbook": 1,
   "scribe:tech-tutorial -> abstract:hook-scope-guide": 2,
   "scribe:voice-extract -> scribe:voice-generate": 1,
+  "scribe:voice-extract-playbook -> parseltongue:python-async": 1,
+  "scribe:voice-extract-playbook -> sanctum:git-catchup": 1,
+  "scribe:voice-extract-playbook -> scribe:style-learn": 1,
   "scribe:voice-generate -> parseltongue:python-async": 1,
   "scribe:voice-generate -> scribe:session-to-post": 2,
+  "scribe:voice-generate-playbook -> scribe:style-learn": 2,
+  "scribe:voice-generate-playbook -> scribe:voice-extract": 1,
   "scribe:voice-learn -> egregore:dismiss": 1,
   "scribe:voice-learn -> sanctum:version-updates": 1,
   "scribe:voice-learn -> scribe:session-to-post": 1,
+  "scribe:voice-learn-playbook -> sanctum:git-catchup": 1,
+  "scribe:voice-learn-playbook -> scribe:voice-generate-playbook": 1,
+  "scribe:voice-learn-playbook -> spec-kit:speckit-checklist": 1,
   "scribe:voice-review -> attune:skill-library": 1,
   "scribe:voice-review -> sanctum:update-readme": 1,
+  "scribe:voice-review-playbook -> abstract:skill-audit": 1,
+  "scribe:voice-review-playbook -> gauntlet:gauntlet-progress": 1,
   "scry:browser-recording -> scry:capture-set": 1,
   "scry:browser-recording -> scry:gif-generation": 1,
   "scry:browser-recording -> spec-kit:spec-review": 1,
@@ -5411,11 +6003,19 @@
   "tome:code-search -> gauntlet:graph-build": 1,
   "tome:dig -> tome:code-search": 1,
   "tome:dig -> tome:synthesize": 1,
+  "tome:dig-playbook -> memory-palace:palace-index-curator": 1,
+  "tome:dig-playbook -> tome:papers": 1,
+  "tome:dig-playbook -> tome:synthesize": 1,
   "tome:export -> tome:export-playbook": 3,
   "tome:ideate -> attune:brainstorm": 2,
   "tome:ideate -> oracle:quality-bench": 1,
   "tome:research -> memory-palace:palace-sweep": 1,
   "tome:research -> tome:research-session": 1,
+  "tome:research-playbook -> conserve:bloat-sweep": 1,
+  "tome:research-playbook -> memory-palace:palace-sweep": 1,
+  "tome:research-playbook -> minister:initiative-pulse": 1,
+  "tome:research-session -> memory-palace:palace": 1,
+  "tome:research-session -> parseltongue:python-async": 1,
   "tome:synthesize -> tome:research": 2,
   "tome:triz -> conjure:provider-sweep": 1,
   "tome:triz -> leyline:ticket-writing": 2,
@@ -5775,7 +6375,7 @@
   "tome:triz": "aae83d3a9488c573e82df9f7b1eb80b33ae924c3833d30ceeddab9060cf80976",
   "tome:web-search": "86db435e94efee4af760b059e077321abd1c6d183d277ea777d40fe88654a763"
  },
- "mrr": 0.455215,
+ "mrr": 0.439971,
  "neighbors": {
   "abstract:aggregate-logs": [
    "abstract:improve-skills",
@@ -5837,6 +6437,11 @@
    "abstract:hook-authoring",
    "abstract:hook-scope-guide"
   ],
+  "abstract:hooks-eval-playbook": [
+   "abstract:validate-hook",
+   "archetypes:architecture-paradigm-functional-core",
+   "abstract:hooks-eval"
+  ],
   "abstract:improve-skills": [
    "abstract:aggregate-logs",
    "abstract:skill-audit",
@@ -5867,6 +6472,11 @@
    "archetypes:paradigm-panel",
    "conjure:provider-sweep"
   ],
+  "abstract:plugin-review-playbook": [
+   "leyline:plugin-health",
+   "abstract:plugin-review",
+   "minister:initiative-pulse"
+  ],
   "abstract:promote-discussions": [
    "abstract:aggregate-logs",
    "abstract:skill-audit",
@@ -5876,6 +6486,11 @@
    "abstract:rules-eval-playbook",
    "abstract:skill-audit",
    "attune:blueprint"
+  ],
+  "abstract:rules-eval-playbook": [
+   "abstract:rules-eval",
+   "hookify:rule-sweep",
+   "oracle:quality-bench"
   ],
   "abstract:skill-audit": [
    "oracle:quality-bench",
@@ -5896,6 +6511,11 @@
    "abstract:analyze-skill",
    "abstract:skill-audit",
    "abstract:skill-authoring"
+  ],
+  "abstract:skills-eval-playbook": [
+   "abstract:aggregate-logs",
+   "abstract:context-report",
+   "abstract:improve-skills"
   ],
   "abstract:subagent-testing": [
    "abstract:analyze-skill",
@@ -6062,6 +6682,11 @@
    "attune:precommit-setup",
    "attune:workflow-setup"
   ],
+  "attune:project-init-playbook": [
+   "attune:precommit-setup",
+   "attune:project-init",
+   "attune:workflow-setup"
+  ],
   "attune:project-planning": [
    "attune:blueprint",
    "spec-kit:speckit-orchestrator",
@@ -6081,6 +6706,11 @@
    "attune:skill-library-session",
    "attune:skill-library",
    "conjure:provider-sweep"
+  ],
+  "attune:skill-library-session": [
+   "abstract:skill-audit",
+   "attune:skill-library-mission",
+   "oracle:quality-bench"
   ],
   "attune:specify": [
    "attune:project-specification",
@@ -6106,6 +6736,11 @@
    "abstract:skill-audit",
    "archetypes:paradigm-panel",
    "attune:war-room"
+  ],
+  "attune:war-room-playbook": [
+   "archetypes:architecture-paradigm-domain-driven",
+   "archetypes:architecture-paradigms",
+   "archetypes:paradigm-panel"
   ],
   "attune:workflow-setup": [
    "attune:project-init-playbook",
@@ -6322,6 +6957,11 @@
    "egregore:uninstall-watchdog",
    "egregore:uninstall-watchdog-playbook"
   ],
+  "egregore:install-watchdog-playbook": [
+   "archetypes:architecture-paradigm-domain-driven",
+   "attune:mission",
+   "attune:skill-library-session"
+  ],
   "egregore:quality-gate": [
    "parseltongue:python-sweep",
    "pensive:unified-review",
@@ -6337,10 +6977,20 @@
    "egregore:gate-audit",
    "gauntlet:knowledge-extract"
   ],
+  "egregore:summon-playbook": [
+   "egregore:summon",
+   "egregore:quality-gate",
+   "egregore:dismiss"
+  ],
   "egregore:uninstall-watchdog": [
    "egregore:uninstall-watchdog-playbook",
    "egregore:install-watchdog-playbook",
    "egregore:install-watchdog"
+  ],
+  "egregore:uninstall-watchdog-playbook": [
+   "egregore:install-watchdog-playbook",
+   "egregore:uninstall-watchdog",
+   "hookify:rule-sweep"
   ],
   "gauntlet:challenge": [
    "gauntlet:extract",
@@ -6472,6 +7122,11 @@
    "oracle:setup",
    "parseltongue:python-sweep"
   ],
+  "imbue:catchup-playbook": [
+   "abstract:hooks-eval",
+   "abstract:skill-audit",
+   "archetypes:architecture-paradigm-functional-core"
+  ],
   "imbue:dependency-verification": [
    "abstract:promote-discussions",
    "archetypes:architecture-paradigm-functional-core",
@@ -6501,6 +7156,11 @@
    "archetypes:architecture-paradigm-functional-core",
    "archetypes:paradigm-panel",
    "egregore:gate-audit"
+  ],
+  "imbue:justify-playbook": [
+   "archetypes:architecture-paradigm-functional-core",
+   "egregore:gate-audit",
+   "hookify:rule-sweep"
   ],
   "imbue:karpathy-check": [
    "abstract:skill-audit",
@@ -6832,10 +7492,20 @@
    "conjure:provider-sweep",
    "memory-palace:palace-sweep"
   ],
+  "pensive:api-review-playbook": [
+   "abstract:skill-audit",
+   "abstract:validate-plugin",
+   "archetypes:paradigm-panel"
+  ],
   "pensive:architecture-review": [
    "abstract:create-skill",
    "cartograph:code-communities",
    "conserve:filter-log"
+  ],
+  "pensive:architecture-review-playbook": [
+   "conjure:provider-sweep",
+   "gauntlet:knowledge-extract",
+   "hookify:rule-sweep"
   ],
   "pensive:blast-radius": [
    "gauntlet:challenge",
@@ -6846,6 +7516,11 @@
    "conserve:bloat-sweep",
    "egregore:summon",
    "scribe:slop-detector"
+  ],
+  "pensive:bug-review-playbook": [
+   "abstract:create-skill",
+   "abstract:skill-authoring",
+   "abstract:skills-eval-playbook"
   ],
   "pensive:code-refinement": [
    "egregore:uninstall-watchdog",
@@ -6862,6 +7537,11 @@
    "attune:workflow-setup",
    "egregore:gate-audit"
   ],
+  "pensive:harden-playbook": [
+   "attune:workflow-setup",
+   "pensive:full-review",
+   "abstract:plugin-review-playbook"
+  ],
   "pensive:makefile-review": [
    "attune:makefile-generation",
    "pensive:shell-review",
@@ -6872,10 +7552,25 @@
    "abstract:create-command",
    "abstract:create-hook"
   ],
+  "pensive:math-review-playbook": [
+   "archetypes:paradigm-panel",
+   "cartograph:atlas",
+   "cartograph:call-chain"
+  ],
+  "pensive:parity-sweep": [
+   "archetypes:architecture-paradigm-client-server",
+   "conjure:provider-setup",
+   "egregore:install-watchdog-playbook"
+  ],
   "pensive:performance-review": [
    "conserve:bloat-sweep",
    "hookify:list",
    "pensive:unified-review"
+  ],
+  "pensive:performance-review-playbook": [
+   "conserve:bloat-sweep",
+   "leyline:loop-optimization",
+   "parseltongue:python-async"
   ],
   "pensive:refine-code": [
    "abstract:skill-audit",
@@ -6886,6 +7581,11 @@
    "abstract:skill-audit",
    "archetypes:architecture-paradigm-functional-core",
    "conserve:bloat-sweep"
+  ],
+  "pensive:rust-review-playbook": [
+   "abstract:skill-graph-audit",
+   "conjure:provider-sweep",
+   "pensive:unified-review"
   ],
   "pensive:safety-critical-patterns": [
    "cartograph:call-chain",
@@ -6912,6 +7612,11 @@
    "sanctum:update-tests",
    "egregore:quality-gate"
   ],
+  "pensive:test-review-playbook": [
+   "leyline:testing-quality-standards",
+   "parseltongue:analyze-tests",
+   "parseltongue:python-testing"
+  ],
   "pensive:tiered-audit": [
    "abstract:plugin-review",
    "abstract:skill-audit",
@@ -6921,6 +7626,11 @@
    "abstract:skill-audit",
    "parseltongue:python-sweep",
    "conserve:bloat-sweep"
+  ],
+  "pensive:unified-review-playbook": [
+   "pensive:full-review",
+   "pensive:unified-review",
+   "spec-kit:spec-review"
   ],
   "phantom:computer-control": [
    "phantom:control-desktop",
@@ -6961,6 +7671,11 @@
    "sanctum:do-issue-playbook",
    "abstract:metacognitive-self-mod",
    "abstract:skill-audit"
+  ],
+  "sanctum:do-issue-playbook": [
+   "hookify:rule-sweep",
+   "minister:initiative-pulse",
+   "oracle:quality-bench"
   ],
   "sanctum:doc-consolidation": [
    "spec-kit:speckit-analyze",
@@ -7016,6 +7731,11 @@
    "conjure:provider-sweep",
    "egregore:gate-audit",
    "hookify:rule-sweep"
+  ],
+  "sanctum:pr-review-playbook": [
+   "abstract:skill-audit",
+   "conjure:provider-sweep",
+   "egregore:gate-audit"
   ],
   "sanctum:prepare-pr": [
    "sanctum:validate-pr-playbook",
@@ -7112,6 +7832,11 @@
    "pensive:full-review",
    "hookify:rule-sweep"
   ],
+  "sanctum:validate-pr-playbook": [
+   "egregore:quality-gate",
+   "sanctum:fix-pr",
+   "sanctum:validate-pr"
+  ],
   "sanctum:version-updates": [
    "spec-kit:speckit-constitution",
    "sanctum:create-tag",
@@ -7147,10 +7872,20 @@
    "sanctum:update-readme",
    "gauntlet:gauntlet"
   ],
+  "scribe:session-replay-playbook": [
+   "scribe:session-replay",
+   "abstract:evaluate-skill",
+   "abstract:skill-audit"
+  ],
   "scribe:session-to-post": [
    "imbue:evidence-sweep",
    "scribe:session-to-post-playbook",
    "parseltongue:python-async"
+  ],
+  "scribe:session-to-post-playbook": [
+   "scribe:session-to-post",
+   "hookify:rule-sweep",
+   "imbue:graduated-implementation"
   ],
   "scribe:simplified-technical-english": [
    "hookify:rule-sweep",
@@ -7182,20 +7917,40 @@
    "scribe:voice-extract-playbook",
    "scribe:voice-generate-playbook"
   ],
+  "scribe:voice-extract-playbook": [
+   "scribe:style-learn",
+   "abstract:skill-audit",
+   "cartograph:architecture-diagram"
+  ],
   "scribe:voice-generate": [
    "abstract:aggregate-logs",
    "abstract:hooks-eval",
    "abstract:metacognitive-self-mod"
+  ],
+  "scribe:voice-generate-playbook": [
+   "scribe:style-learn",
+   "scribe:style-learner",
+   "scribe:voice-extract"
   ],
   "scribe:voice-learn": [
    "egregore:gate-audit",
    "hookify:rule-sweep",
    "parseltongue:python-sweep"
   ],
+  "scribe:voice-learn-playbook": [
+   "imbue:evidence-sweep",
+   "conserve:elegant-code-review",
+   "hookify:rule-sweep"
+  ],
   "scribe:voice-review": [
    "attune:skill-library",
    "abstract:create-skill",
    "abstract:hooks-eval"
+  ],
+  "scribe:voice-review-playbook": [
+   "parseltongue:python-async",
+   "abstract:aggregate-logs",
+   "abstract:friction-detector"
   ],
   "scry:browser-recording": [
    "spec-kit:spec-review",
@@ -7322,6 +8077,11 @@
    "pensive:harden",
    "tome:code-search"
   ],
+  "tome:dig-playbook": [
+   "tome:papers",
+   "egregore:dismiss",
+   "hookify:rule-sweep"
+  ],
   "tome:discourse": [
    "tome:web-search",
    "imbue:evidence-sweep",
@@ -7331,6 +8091,11 @@
    "tome:export-playbook",
    "tome:cite",
    "tome:dig"
+  ],
+  "tome:export-playbook": [
+   "tome:export",
+   "memory-palace:knowledge-intake",
+   "tome:cite"
   ],
   "tome:ideate": [
    "attune:brainstorm",
@@ -7346,6 +8111,16 @@
    "memory-palace:palace-sweep",
    "tome:research-session",
    "tome:research-playbook"
+  ],
+  "tome:research-playbook": [
+   "abstract:skill-audit",
+   "attune:skill-library",
+   "conserve:bloat-sweep"
+  ],
+  "tome:research-session": [
+   "archetypes:architecture-paradigm-functional-core",
+   "attune:skill-library",
+   "cartograph:atlas"
   ],
   "tome:synthesize": [
    "tome:research",
@@ -7363,6 +8138,6 @@
    "memory-palace:palace-sweep"
   ]
  },
- "positives": 973,
- "top1": 0.344296
+ "positives": 1078,
+ "top1": 0.327458
 }

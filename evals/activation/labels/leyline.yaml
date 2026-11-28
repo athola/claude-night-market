@@ -74,11 +74,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: phantom:surface-check; judge: leyline:authentication-patterns/conjure:provider-sweep'
+  notes: 'router: phantom:surface-check; judge: leyline:authentication-patterns/conjure:gemini-delegation'
   proposals:
     router: phantom:surface-check
     judge: leyline:authentication-patterns
-    judge_runner_up: conjure:provider-sweep
+    judge_runner_up: conjure:gemini-delegation
 - id: leyline.authentication-patterns.p3
   type: near_miss
   prompt: I'm wiring my plugin up to the Gemini API and need to check the GEMINI_API_KEY
@@ -108,11 +108,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conjure:glimmer-delegation; judge: leyline:content-sanitization/tome:web-search'
+  notes: 'router: conjure:glimmer-delegation; judge: leyline:content-sanitization/None'
   proposals:
     router: conjure:glimmer-delegation
     judge: leyline:content-sanitization
-    judge_runner_up: tome:web-search
+    judge_runner_up: null
 - id: leyline.content-sanitization.p2
   type: positive
   prompt: I'm fetching content with curl and gh api and storing it in a variable before
@@ -157,11 +157,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: oracle:quality-bench; judge: leyline:damage-control/None'
+  notes: 'router: oracle:quality-bench; judge: leyline:damage-control/sanctum:git-catchup'
   proposals:
     router: oracle:quality-bench
     judge: leyline:damage-control
-    judge_runner_up: null
+    judge_runner_up: sanctum:git-catchup
 - id: leyline.damage-control.p2
   type: positive
   prompt: The task list says three files were generated but only one is on disk and
@@ -231,18 +231,18 @@ cases:
     that went nowhere. Get both written down in the repo's docs so the reasoning and
     the rejected options survive, and so nobody blames anyone for the Redis detour.
   target: leyline:decision-journal
-  competitor: scribe:doc-sweep
+  competitor: pensive:unified-review
   cluster: leyline:decision-journal
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at abstract:aggregate-logs; router: pensive:unified-review; judge:
-    leyline:decision-journal/scribe:doc-sweep'
+    leyline:decision-journal/None'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: pensive:unified-review
     judge: leyline:decision-journal
-    judge_runner_up: scribe:doc-sweep
+    judge_runner_up: null
 - id: leyline.deferred-capture.p1
   type: positive
   prompt: I'm writing a deferred-capture script for my plugin that files a GitHub
@@ -549,9 +549,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: gauntlet:graph-build; judge: leyline:markdown-formatting/sanctum:update-readme'
+  notes: 'router: egregore:uninstall-watchdog-playbook; judge: leyline:markdown-formatting/sanctum:update-readme'
   proposals:
-    router: gauntlet:graph-build
+    router: egregore:uninstall-watchdog-playbook
     judge: leyline:markdown-formatting
     judge_runner_up: sanctum:update-readme
 - id: leyline.markdown-formatting.p2
@@ -564,9 +564,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conjure:provider-sweep; judge: leyline:markdown-formatting/scribe:doc-sweep'
+  notes: 'router: pensive:parity-sweep; judge: leyline:markdown-formatting/scribe:doc-sweep'
   proposals:
-    router: conjure:provider-sweep
+    router: pensive:parity-sweep
     judge: leyline:markdown-formatting
     judge_runner_up: scribe:doc-sweep
 - id: leyline.markdown-formatting.p3
@@ -715,13 +715,13 @@ cases:
   competitor: null
   cluster: leyline:testing-quality-standards
   proposers:
-  - judge
+  - writer
   adjudicated: false
-  notes: 'router: leyline:plugin-health; judge: leyline:pytest-config/parseltongue:python-testing'
+  notes: 'router: leyline:plugin-health; judge: parseltongue:python-testing/leyline:testing-quality-standards'
   proposals:
     router: leyline:plugin-health
-    judge: leyline:pytest-config
-    judge_runner_up: parseltongue:python-testing
+    judge: parseltongue:python-testing
+    judge_runner_up: leyline:testing-quality-standards
 - id: leyline.pytest-config.p3
   type: near_miss
   prompt: Set up pyproject pytest options for our plugin so every plugin in the repo
@@ -798,11 +798,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: imbue:evidence-sweep; judge: leyline:risk-classification/egregore:gate-audit'
+  notes: 'router: imbue:evidence-sweep; judge: leyline:risk-classification/pensive:unified-review'
   proposals:
     router: imbue:evidence-sweep
     judge: leyline:risk-classification
-    judge_runner_up: egregore:gate-audit
+    judge_runner_up: pensive:unified-review
 - id: leyline.risk-classification.p2
   type: positive
   prompt: How should I label a task that deletes production data or deploys to prod?
@@ -863,11 +863,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: sanctum:git-catchup; judge: leyline:sem-integration/sanctum:git-catchup'
+  notes: 'router: sanctum:git-catchup; judge: leyline:sem-integration/None'
   proposals:
     router: sanctum:git-catchup
     judge: leyline:sem-integration
-    judge_runner_up: sanctum:git-catchup
+    judge_runner_up: null
 - id: leyline.sem-integration.p3
   type: near_miss
   prompt: I'm writing a skill that reads git diff output to list changed functions
@@ -949,11 +949,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: leyline:stewardship/sanctum:acp'
+  notes: 'router: parseltongue:python-async; judge: leyline:stewardship/sanctum:update-readme'
   proposals:
     router: parseltongue:python-async
     judge: leyline:stewardship
-    judge_runner_up: sanctum:acp
+    judge_runner_up: sanctum:update-readme
 - id: leyline.stewardship.p2
   type: positive
   prompt: I wrote a clever generic factory abstraction for our plugin's loaders. Before
@@ -1029,12 +1029,13 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at archetypes:paradigm-panel; router: scribe:doc-sweep; judge: leyline:storage-templates/None'
+  notes: 'aimed at archetypes:paradigm-panel; router: parseltongue:python-packaging;
+    judge: leyline:decision-journal/scribe:doc-sweep'
   proposals:
     aimed_at: archetypes:paradigm-panel
-    router: scribe:doc-sweep
-    judge: leyline:storage-templates
-    judge_runner_up: null
+    router: parseltongue:python-packaging
+    judge: leyline:decision-journal
+    judge_runner_up: scribe:doc-sweep
 - id: leyline.supply-chain-advisory.p1
   type: positive
   prompt: A security advisory just came out saying a version of one of our Python
@@ -1195,10 +1196,10 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: leyline:usage-logging/conserve:token-conservation'
+  notes: 'router: parseltongue:python-async; judge: leyline:service-registry/conserve:token-conservation'
   proposals:
     router: parseltongue:python-async
-    judge: leyline:usage-logging
+    judge: leyline:service-registry
     judge_runner_up: conserve:token-conservation
 - id: leyline.usage-logging.p2
   type: positive
@@ -1228,11 +1229,11 @@ cases:
   - judge
   adjudicated: false
   notes: 'aimed at abstract:analyze-skill; router: parseltongue:python-async; judge:
-    leyline:usage-logging/conserve:token-conservation'
+    leyline:service-registry/conserve:token-conservation'
   proposals:
     aimed_at: abstract:analyze-skill
     router: parseltongue:python-async
-    judge: leyline:usage-logging
+    judge: leyline:service-registry
     judge_runner_up: conserve:token-conservation
 - id: leyline.utility.p1
   type: positive

@@ -144,11 +144,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at gauntlet:gauntlet-extract; router: scribe:session-to-post; judge:
-    memory-palace:knowledge-intake/memory-palace:digital-garden-cultivator'
+  notes: 'aimed at gauntlet:gauntlet-extract; router: leyline:evaluation-framework;
+    judge: memory-palace:knowledge-intake/memory-palace:digital-garden-cultivator'
   proposals:
     aimed_at: gauntlet:gauntlet-extract
-    router: scribe:session-to-post
+    router: leyline:evaluation-framework
     judge: memory-palace:knowledge-intake
     judge_runner_up: memory-palace:digital-garden-cultivator
 - id: memory-palace.knowledge-locator.p1
@@ -277,10 +277,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: attune:workflow-setup; judge: memory-palace:memory-palace-architect'
+  notes: 'router: attune:workflow-setup; judge: memory-palace:memory-palace-architect/imbue:assisted-mastery'
   proposals:
     router: attune:workflow-setup
     judge: memory-palace:memory-palace-architect
+    judge_runner_up: imbue:assisted-mastery
 - id: memory-palace.memory-palace-architect.p3
   type: near_miss
   prompt: I'm learning about Claude Code hooks, covering lifecycle events, matchers,
@@ -540,12 +541,12 @@ cases:
   - judge
   adjudicated: false
   notes: 'aimed at abstract:analyze-skill; router: memory-palace:palace-sweep; judge:
-    memory-palace:palace/memory-palace:palace-sweep'
+    memory-palace:palace/None'
   proposals:
     aimed_at: abstract:analyze-skill
     router: memory-palace:palace-sweep
     judge: memory-palace:palace
-    judge_runner_up: memory-palace:palace-sweep
+    judge_runner_up: null
 - id: memory-palace.review-chamber.p1
   type: positive
   prompt: We just finished reviewing PR 42 and the JWT vs sessions discussion was
@@ -585,18 +586,18 @@ cases:
     the project's palace so people can find the decisions and recurring issues later,
     sorted into the right rooms.
   target: memory-palace:review-chamber
-  competitor: gauntlet:knowledge-extract
+  competitor: memory-palace:palace-sweep
   cluster: memory-palace:review-chamber
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at archetypes:paradigm-panel; router: memory-palace:palace-sweep;
-    judge: memory-palace:review-chamber/gauntlet:knowledge-extract'
+    judge: memory-palace:review-chamber/None'
   proposals:
     aimed_at: archetypes:paradigm-panel
     router: memory-palace:palace-sweep
     judge: memory-palace:review-chamber
-    judge_runner_up: gauntlet:knowledge-extract
+    judge_runner_up: null
 - id: memory-palace.review-room.p1
   type: positive
   prompt: /review-room capture 57 --room patterns --interactive, let me choose which
@@ -656,11 +657,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: scribe:session-to-post; judge: memory-palace:session-handoff/gauntlet:knowledge-extract'
+  notes: 'router: scribe:session-to-post; judge: memory-palace:session-handoff/scribe:session-to-post'
   proposals:
     router: scribe:session-to-post
     judge: memory-palace:session-handoff
-    judge_runner_up: gauntlet:knowledge-extract
+    judge_runner_up: scribe:session-to-post
 - id: memory-palace.session-handoff.p2
   type: positive
   prompt: I need to stage this conversation's takeaways so the next session can pick
@@ -672,11 +673,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: pensive:unified-review; judge: memory-palace:session-handoff/scribe:session-replay'
+  notes: 'router: pensive:unified-review; judge: memory-palace:session-handoff/scribe:session-to-post'
   proposals:
     router: pensive:unified-review
     judge: memory-palace:session-handoff
-    judge_runner_up: scribe:session-replay
+    judge_runner_up: scribe:session-to-post
 - id: memory-palace.session-handoff.p3
   type: near_miss
   prompt: I'm about to end this session. Break down what we figured out today into
@@ -755,11 +756,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: scry:capture-set; judge: memory-palace:skill-logs/abstract:test-skill'
+  notes: 'router: scry:capture-set; judge: memory-palace:skill-logs/None'
   proposals:
     router: scry:capture-set
     judge: memory-palace:skill-logs
-    judge_runner_up: abstract:test-skill
+    judge_runner_up: null
 - id: memory-palace.skill-logs.p2
   type: positive
   prompt: clear out skill execution logs older than 90 days, but preview what would

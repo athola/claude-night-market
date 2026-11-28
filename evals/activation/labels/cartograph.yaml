@@ -255,11 +255,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: memory-palace:palace-sweep; judge: cartograph:data-flow/cartograph:call-chain'
+  notes: 'router: memory-palace:palace-sweep; judge: cartograph:data-flow/cartograph:class-diagram'
   proposals:
     router: memory-palace:palace-sweep
     judge: cartograph:data-flow
-    judge_runner_up: cartograph:call-chain
+    judge_runner_up: cartograph:class-diagram
 - id: cartograph.data-flow.p2
   type: positive
   prompt: I need to document how a payment webhook payload gets transformed as it

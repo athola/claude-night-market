@@ -34,14 +34,15 @@ cases:
     output. get several independent reviewers to vote on whether it's really done,
     and tell me if they split
   target: herald:judge-panel
-  competitor: cartograph:atlas
+  competitor: leyline:evaluation-framework
   cluster: herald:judge-panel
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at hookify:rule-sweep; router: cartograph:atlas; judge: herald:judge-panel/None'
+  notes: 'aimed at hookify:rule-sweep; router: leyline:evaluation-framework; judge:
+    herald:judge-panel/leyline:evaluation-framework'
   proposals:
     aimed_at: hookify:rule-sweep
-    router: cartograph:atlas
+    router: leyline:evaluation-framework
     judge: herald:judge-panel
-    judge_runner_up: null
+    judge_runner_up: leyline:evaluation-framework

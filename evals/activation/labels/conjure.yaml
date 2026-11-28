@@ -11,9 +11,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: leyline:plugin-health; judge: conjure:agent-teams/None'
+  notes: 'router: gauntlet:knowledge-extract; judge: conjure:agent-teams/None'
   proposals:
-    router: leyline:plugin-health
+    router: gauntlet:knowledge-extract
     judge: conjure:agent-teams
     judge_runner_up: null
 - id: conjure.agent-teams.p2
@@ -126,10 +126,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conjure:provider-sweep; judge: conjure:delegation-core'
+  notes: 'router: conjure:provider-sweep; judge: conjure:delegation-core/conjure:provider-setup'
   proposals:
     router: conjure:provider-sweep
     judge: conjure:delegation-core
+    judge_runner_up: conjure:provider-setup
 - id: conjure.delegation-core.p3
   type: near_miss
   prompt: I've got a pile of mechanical boilerplate generation and file renames. Should
@@ -371,11 +372,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: phantom:surface-check; judge: conjure:muse-delegation/conjure:glimmer-delegation'
+  notes: 'router: phantom:surface-check; judge: conjure:muse-delegation/conjure:provider-setup'
   proposals:
     router: phantom:surface-check
     judge: conjure:muse-delegation
-    judge_runner_up: conjure:glimmer-delegation
+    judge_runner_up: conjure:provider-setup
 - id: conjure.muse-delegation.p3
   type: near_miss
   prompt: I want to run Meta's terminal coding agent headless in CI to run our test
@@ -515,11 +516,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conjure:delegation-core; judge: conjure:provider-sweep/None'
+  notes: 'router: conjure:delegation-core; judge: conjure:provider-sweep/conjure:gemini-delegation'
   proposals:
     router: conjure:delegation-core
     judge: conjure:provider-sweep
-    judge_runner_up: null
+    judge_runner_up: conjure:gemini-delegation
 - id: conjure.provider-sweep.p3
   type: near_miss
   prompt: Check every delegation backend at once and tell me, for each one, whether

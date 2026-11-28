@@ -209,11 +209,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: cartograph:call-chain; judge: parseltongue:python-performance/conserve:mcp-code-execution'
+  notes: 'router: cartograph:call-chain; judge: parseltongue:python-performance/cartograph:call-chain'
   proposals:
     router: cartograph:call-chain
     judge: parseltongue:python-performance
-    judge_runner_up: conserve:mcp-code-execution
+    judge_runner_up: cartograph:call-chain
 - id: parseltongue.python-performance.p2
   type: positive
   prompt: Our Python service leaks memory slowly in production. How can I track down
@@ -257,11 +257,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: pensive:full-review; judge: parseltongue:python-sweep/pensive:unified-review'
+  notes: 'router: pensive:full-review; judge: parseltongue:python-sweep/pensive:full-review'
   proposals:
     router: pensive:full-review
     judge: parseltongue:python-sweep
-    judge_runner_up: pensive:unified-review
+    judge_runner_up: pensive:full-review
 - id: parseltongue.python-sweep.p2
   type: positive
   prompt: Before I cut a release, run several independent reviewers over the Python

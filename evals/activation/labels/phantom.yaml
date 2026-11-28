@@ -122,11 +122,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: imbue:graduated-implementation; judge: phantom:surface-check/phantom:computer-control'
+  notes: 'router: imbue:graduated-implementation; judge: phantom:surface-check/imbue:evidence-sweep'
   proposals:
     router: imbue:graduated-implementation
     judge: phantom:surface-check
-    judge_runner_up: phantom:computer-control
+    judge_runner_up: imbue:evidence-sweep
 - id: phantom.surface-check.p3
   type: near_miss
   prompt: My desktop automation on this Mac keeps failing without any error. Check

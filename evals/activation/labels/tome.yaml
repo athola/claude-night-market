@@ -94,6 +94,55 @@ cases:
     router: abstract:promote-discussions
     judge: tome:code-search
     judge_runner_up: tome:web-search
+- id: tome.dig-playbook.p1
+  type: positive
+  prompt: From that research we did on CRDT sync strategies, go deeper on just the
+    garbage collection part and only pull academic papers this time
+  target: tome:dig-playbook
+  competitor: null
+  cluster: tome:dig-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: tome:papers; judge: tome:dig/tome:dig-playbook'
+  proposals:
+    router: tome:papers
+    judge: tome:dig
+    judge_runner_up: tome:dig-playbook
+- id: tome.dig-playbook.p2
+  type: positive
+  prompt: The research report on vector DB indexing is a good start, but I need more
+    on HNSW memory tradeoffs. Add new findings to the existing report and re-rank
+    it rather than starting over.
+  target: tome:dig-playbook
+  competitor: null
+  cluster: tome:dig-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: tome:synthesize; judge: tome:dig-playbook/tome:synthesize'
+  proposals:
+    router: tome:synthesize
+    judge: tome:dig-playbook
+    judge_runner_up: tome:synthesize
+- id: tome.dig-playbook.p3
+  type: near_miss
+  prompt: From the research we started on vector index compaction, go deeper on the
+    tiered merge strategies part, papers only, and add what you find to the existing
+    report
+  target: tome:dig-playbook
+  competitor: tome:papers
+  cluster: tome:dig-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at tome:papers; router: memory-palace:palace-index-curator; judge:
+    tome:dig-playbook/tome:papers'
+  proposals:
+    aimed_at: tome:papers
+    router: memory-palace:palace-index-curator
+    judge: tome:dig-playbook
+    judge_runner_up: tome:papers
 - id: tome.dig.p1
   type: positive
   prompt: My research session is mostly done but I want to go deeper on the tokio
@@ -189,6 +238,56 @@ cases:
     router: tome:discourse
     judge: tome:discourse
     judge_runner_up: tome:web-search
+- id: tome.export-playbook.p1
+  type: positive
+  prompt: I finished researching cache eviction strategies and want the findings saved
+    into my memory palace knowledge base. Can you dump the latest session to a markdown
+    file intake can ingest?
+  target: tome:export-playbook
+  competitor: null
+  cluster: tome:export-playbook
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: tome:export-playbook; judge: tome:export/tome:export-playbook'
+  proposals:
+    router: tome:export-playbook
+    judge: tome:export
+    judge_runner_up: tome:export-playbook
+- id: tome.export-playbook.p2
+  type: positive
+  prompt: write out research session 4f2a as a file with frontmatter so I can feed
+    it to knowledge intake later
+  target: tome:export-playbook
+  competitor: null
+  cluster: tome:export-playbook
+  proposers:
+  - router
+  adjudicated: false
+  notes: 'router: tome:export-playbook; judge: tome:export/tome:export-playbook'
+  proposals:
+    router: tome:export-playbook
+    judge: tome:export
+    judge_runner_up: tome:export-playbook
+- id: tome.export-playbook.p3
+  type: near_miss
+  prompt: I'm writing a small script that writes yesterday's research session, not
+    the latest one, to a markdown file in docs/research so knowledge-intake can ingest
+    it. Which loader call should I use? Also, why does it say no session was found
+    when I run it from the scripts/ folder?
+  target: tome:export-playbook
+  competitor: tome:export
+  cluster: tome:export-playbook
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'aimed at tome:export; router: tome:export-playbook; judge: tome:export-playbook/tome:export'
+  proposals:
+    aimed_at: tome:export
+    router: tome:export-playbook
+    judge: tome:export-playbook
+    judge_runner_up: tome:export
 - id: tome.export.p1
   type: positive
   prompt: Save my latest research session as a markdown file in docs/research so memory-palace
@@ -335,6 +434,104 @@ cases:
     router: tome:papers
     judge: tome:papers
     judge_runner_up: tome:cite
+- id: tome.research-playbook.p1
+  type: positive
+  prompt: 'I need a deep dive on CRDT conflict resolution: look at code repos, papers,
+    reddit threads, and the web all at once, then merge what you find into a report'
+  target: tome:research-playbook
+  competitor: null
+  cluster: tome:research-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: conserve:bloat-sweep; judge: tome:research-playbook/tome:web-search'
+  proposals:
+    router: conserve:bloat-sweep
+    judge: tome:research-playbook
+    judge_runner_up: tome:web-search
+- id: tome.research-playbook.p2
+  type: positive
+  prompt: Investigate approaches to rate limiting in distributed systems. Figure out
+    what domain it falls under, spin up parallel searches across sources, and synthesize
+    the results.
+  target: tome:research-playbook
+  competitor: null
+  cluster: tome:research-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: memory-palace:palace-sweep; judge: tome:research-playbook/tome:synthesize'
+  proposals:
+    router: memory-palace:palace-sweep
+    judge: tome:research-playbook
+    judge_runner_up: tome:synthesize
+- id: tome.research-playbook.p3
+  type: near_miss
+  prompt: 'Spin up parallel agents to look into how other tools handle lock-free ring
+    buffers from several angles: papers, repos, and discussions. Then merge what they
+    find into one ranked writeup. The topic spans systems and algorithms, so if it''s
+    unclear which category it belongs in, show me the options.'
+  target: tome:research-playbook
+  competitor: tome:research
+  cluster: tome:research-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at abstract:skill-audit; router: minister:initiative-pulse; judge:
+    tome:research-playbook/tome:research'
+  proposals:
+    aimed_at: abstract:skill-audit
+    router: minister:initiative-pulse
+    judge: tome:research-playbook
+    judge_runner_up: tome:research
+- id: tome.research-session.p1
+  type: positive
+  prompt: research raft consensus for me, treat it as an architecture topic, and just
+    give me a brief summary
+  target: tome:research-session
+  competitor: null
+  cluster: tome:research-session
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: tome:research-session; judge: tome:research-session/tome:research-playbook'
+  proposals:
+    router: tome:research-session
+    judge: tome:research-session
+    judge_runner_up: tome:research-playbook
+- id: tome.research-session.p2
+  type: positive
+  prompt: pick up where my last research run left off, and also show me which research
+    sessions I have saved
+  target: tome:research-session
+  competitor: null
+  cluster: tome:research-session
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: memory-palace:palace; judge: tome:research-session/tome:dig'
+  proposals:
+    router: memory-palace:palace
+    judge: tome:research-session
+    judge_runner_up: tome:dig
+- id: tome.research-session.p3
+  type: near_miss
+  prompt: List the research I've saved so far and pick the CRDT sync one back up where
+    I left off. I want it to keep searching and update the report.
+  target: tome:research-session
+  competitor: tome:research
+  cluster: tome:research-session
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at memory-palace:palace; router: parseltongue:python-async; judge:
+    tome:research-session/tome:research'
+  proposals:
+    aimed_at: memory-palace:palace
+    router: parseltongue:python-async
+    judge: tome:research-session
+    judge_runner_up: tome:research
 - id: tome.research.p1
   type: positive
   prompt: 'Run a full research pass on event sourcing for our order system: search

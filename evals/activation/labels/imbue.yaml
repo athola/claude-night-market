@@ -50,6 +50,53 @@ cases:
     router: parseltongue:python-async
     judge: imbue:assisted-mastery
     judge_runner_up: parseltongue:python-async
+- id: imbue.catchup-playbook.p1
+  type: positive
+  prompt: I've been out for two weeks. Get me up to speed on what's landed on main
+    since the 10th, what matters, and what's still open for me.
+  target: imbue:catchup-playbook
+  competitor: null
+  cluster: imbue:catchup-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup-playbook'
+  proposals:
+    router: sanctum:git-catchup
+    judge: sanctum:git-catchup
+    judge_runner_up: imbue:catchup-playbook
+- id: imbue.catchup-playbook.p2
+  type: positive
+  prompt: I'm taking over this branch from a teammate tomorrow. Summarize what changed
+    recently, why, and which follow-ups or blockers I should know about.
+  target: imbue:catchup-playbook
+  competitor: null
+  cluster: imbue:catchup-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup-playbook'
+  proposals:
+    router: sanctum:git-catchup
+    judge: sanctum:git-catchup
+    judge_runner_up: imbue:catchup-playbook
+- id: imbue.catchup-playbook.p3
+  type: near_miss
+  prompt: I've been out for two weeks and someone else has been working on the hooks
+    in this plugin. get me up to speed on what changed, what matters, and what's still
+    open
+  target: imbue:catchup-playbook
+  competitor: sanctum:git-catchup
+  cluster: imbue:catchup-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'aimed at abstract:hooks-eval; router: sanctum:git-catchup; judge: sanctum:git-catchup/imbue:catchup-playbook'
+  proposals:
+    aimed_at: abstract:hooks-eval
+    router: sanctum:git-catchup
+    judge: sanctum:git-catchup
+    judge_runner_up: imbue:catchup-playbook
 - id: imbue.catchup.p1
   type: positive
   prompt: I was out for a week. Give me a quick summary of what changed on this branch
@@ -126,11 +173,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: imbue:dependency-verification/pensive:harden'
+  notes: 'router: hookify:rule-sweep; judge: imbue:dependency-verification/None'
   proposals:
     router: hookify:rule-sweep
     judge: imbue:dependency-verification
-    judge_runner_up: pensive:harden
+    judge_runner_up: null
 - id: imbue.dependency-verification.p3
   type: near_miss
   prompt: You suggested adding a package called fastjson-validator to requirements.txt
@@ -351,6 +398,55 @@ cases:
     router: parseltongue:python-async
     judge: imbue:graduated-implementation
     judge_runner_up: archetypes:architecture-paradigm-functional-core
+- id: imbue.justify-playbook.p1
+  type: positive
+  prompt: Before I open a PR, check my branch for bloat. I added a lot of lines and
+    a couple of new helper files, and I want to know whether I'm patching symptoms
+    instead of fixing the actual cause.
+  target: imbue:justify-playbook
+  competitor: null
+  cluster: imbue:justify-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: parseltongue:python-async; judge: imbue:justify-playbook/imbue:proof-of-work'
+  proposals:
+    router: parseltongue:python-async
+    judge: imbue:justify-playbook
+    judge_runner_up: imbue:proof-of-work
+- id: imbue.justify-playbook.p2
+  type: positive
+  prompt: I changed some test assertions to get CI green. Audit my diff against main
+    and tell me which of the changes I can actually justify and which ones are workarounds.
+  target: imbue:justify-playbook
+  competitor: null
+  cluster: imbue:justify-playbook
+  proposers:
+  - writer
+  adjudicated: false
+  notes: 'router: conjure:provider-setup; judge: imbue:justify/imbue:justify-playbook'
+  proposals:
+    router: conjure:provider-setup
+    judge: imbue:justify
+    judge_runner_up: imbue:justify-playbook
+- id: imbue.justify-playbook.p3
+  type: near_miss
+  prompt: I just finished pulling the DB calls out of the pricing logic. before I
+    open the PR, audit my diff and make me justify every new helper, try/catch and
+    shim I added instead of fixing the root cause
+  target: imbue:justify-playbook
+  competitor: conserve:elegant-code-review
+  cluster: imbue:justify-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: parseltongue:python-async;
+    judge: imbue:justify-playbook/conserve:elegant-code-review'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-functional-core
+    router: parseltongue:python-async
+    judge: imbue:justify-playbook
+    judge_runner_up: conserve:elegant-code-review
 - id: imbue.justify.p1
   type: positive
   prompt: I just finished a big refactor of the auth module and I'm about to open
@@ -362,10 +458,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: imbue:graduated-implementation; judge: imbue:justify'
+  notes: 'router: imbue:graduated-implementation; judge: imbue:justify/sanctum:validate-pr'
   proposals:
     router: imbue:graduated-implementation
     judge: imbue:justify
+    judge_runner_up: sanctum:validate-pr
 - id: imbue.justify.p2
   type: positive
   prompt: Only look at what I've staged right now and check whether I tweaked any
@@ -435,18 +532,18 @@ cases:
     run a quick gut check on my plan. Am I guessing at assumptions, overbuilding,
     touching lines I shouldn't, and do I have a concrete way to prove it's done?
   target: imbue:karpathy-check
-  competitor: parseltongue:python-async
+  competitor: spec-kit:spec-review
   cluster: imbue:karpathy-check
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at abstract:create-skill; router: parseltongue:python-async; judge:
-    imbue:karpathy-check/None'
+    imbue:karpathy-check/spec-kit:spec-review'
   proposals:
     aimed_at: abstract:create-skill
     router: parseltongue:python-async
     judge: imbue:karpathy-check
-    judge_runner_up: null
+    judge_runner_up: spec-kit:spec-review
 - id: imbue.karpathy-principles.p1
   type: positive
   prompt: The agent keeps silently picking an interpretation of my requests and overbuilding
@@ -490,12 +587,12 @@ cases:
   - judge
   adjudicated: false
   notes: 'aimed at memory-palace:palace-sweep; router: pensive:unified-review; judge:
-    imbue:karpathy-principles/None'
+    imbue:karpathy-principles/pensive:unified-review'
   proposals:
     aimed_at: memory-palace:palace-sweep
     router: pensive:unified-review
     judge: imbue:karpathy-principles
-    judge_runner_up: null
+    judge_runner_up: pensive:unified-review
 - id: imbue.latent-space-engineering.p1
   type: positive
   prompt: I'm writing dispatch prompts for four parallel code-review subagents. How
@@ -582,17 +679,17 @@ cases:
     me. Before I tell the team it's fixed, help me get actual command output showing
     the server starts and answers queries, so I'm not just claiming it.
   target: imbue:proof-of-work
-  competitor: phantom:surface-check
+  competitor: spec-kit:spec-review
   cluster: imbue:proof-of-work
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at conjure:provider-sweep; router: spec-kit:spec-review; judge: imbue:proof-of-work/phantom:surface-check'
+  notes: 'aimed at conjure:provider-sweep; router: spec-kit:spec-review; judge: imbue:proof-of-work/None'
   proposals:
     aimed_at: conjure:provider-sweep
     router: spec-kit:spec-review
     judge: imbue:proof-of-work
-    judge_runner_up: phantom:surface-check
+    judge_runner_up: null
 - id: imbue.review-core.p1
   type: positive
   prompt: 'I need to do a detailed architecture review of our payments service. Set
@@ -669,29 +766,29 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: egregore:gate-audit; judge: imbue:rigorous-reasoning/None'
+  notes: 'router: egregore:gate-audit; judge: imbue:rigorous-reasoning/leyline:evaluation-framework'
   proposals:
     router: egregore:gate-audit
     judge: imbue:rigorous-reasoning
-    judge_runner_up: null
+    judge_runner_up: leyline:evaluation-framework
 - id: imbue.rigorous-reasoning.p3
   type: near_miss
   prompt: Two teammates disagree about whether our retry-and-backoff argument actually
     holds up. Evaluate the reasoning honestly, even if the conclusion is awkward for
     me, and don't just agree with me to be nice.
   target: imbue:rigorous-reasoning
-  competitor: herald:judge-panel
+  competitor: leyline:evaluation-framework
   cluster: imbue:rigorous-reasoning
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at abstract:aggregate-logs; router: abstract:escalation-governance;
-    judge: imbue:rigorous-reasoning/herald:judge-panel'
+    judge: imbue:rigorous-reasoning/leyline:evaluation-framework'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: abstract:escalation-governance
     judge: imbue:rigorous-reasoning
-    judge_runner_up: herald:judge-panel
+    judge_runner_up: leyline:evaluation-framework
 - id: imbue.scope-guard.p1
   type: positive
   prompt: We're brainstorming adding a plugin system, a caching layer, and an admin
@@ -765,11 +862,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: leyline:plugin-health; judge: imbue:stewardship-health/leyline:plugin-health'
+  notes: 'router: leyline:plugin-health; judge: imbue:stewardship-health/leyline:stewardship'
   proposals:
     router: leyline:plugin-health
     judge: imbue:stewardship-health
-    judge_runner_up: leyline:plugin-health
+    judge_runner_up: leyline:stewardship
 - id: imbue.stewardship-health.p3
   type: near_miss
   prompt: 'Show me how healthy the sanctum plugin is right now: how fresh its docs
@@ -798,11 +895,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: pensive:harden; judge: imbue:structured-output/tome:export'
+  notes: 'router: pensive:harden; judge: imbue:structured-output/None'
   proposals:
     router: pensive:harden
     judge: imbue:structured-output
-    judge_runner_up: tome:export
+    judge_runner_up: null
 - id: imbue.structured-output.p2
   type: positive
   prompt: Turn these findings into a standardized deliverable. Each issue should have
@@ -825,17 +922,17 @@ cases:
     what's wrong. Can you turn them into a clean write-up I can hand to my manager,
     with each issue followed by who should fix it and what to do next?
   target: imbue:structured-output
-  competitor: imbue:evidence-sweep
+  competitor: oracle:quality-bench
   cluster: imbue:structured-output
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:skill-audit; router: oracle:quality-bench; judge: imbue:structured-output/imbue:evidence-sweep'
+  notes: 'aimed at abstract:skill-audit; router: oracle:quality-bench; judge: imbue:structured-output/None'
   proposals:
     aimed_at: abstract:skill-audit
     router: oracle:quality-bench
     judge: imbue:structured-output
-    judge_runner_up: imbue:evidence-sweep
+    judge_runner_up: null
 - id: imbue.structured-review.p1
   type: positive
   prompt: Kick off a review of the current branch against main. Set up the scope inventory,
@@ -895,11 +992,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: imbue:vow-enforcement/hookify:rule-catalog'
+  notes: 'router: hookify:rule-sweep; judge: imbue:vow-enforcement/hookify:install'
   proposals:
     router: hookify:rule-sweep
     judge: imbue:vow-enforcement
-    judge_runner_up: hookify:rule-catalog
+    judge_runner_up: hookify:install
 - id: imbue.vow-enforcement.p2
   type: positive
   prompt: We have a bunch of soft rules in skill instructions that get violated more
@@ -911,11 +1008,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: scry:capture-set; judge: imbue:vow-enforcement/imbue:latent-space-engineering'
+  notes: 'router: scry:capture-set; judge: imbue:vow-enforcement/abstract:skill-audit'
   proposals:
     router: scry:capture-set
     judge: imbue:vow-enforcement
-    judge_runner_up: imbue:latent-space-engineering
+    judge_runner_up: abstract:skill-audit
 - id: imbue.vow-enforcement.p3
   type: near_miss
   prompt: Claude keeps running git commit --no-verify even though my CLAUDE.md says
