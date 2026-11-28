@@ -25,7 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **gauntlet:** `scripts/git_index_recheck.py`, called from git's own
   pre-commit hook, refuses an agent commit whose index the PreToolUse gate
   never saw: `git add -A && git commit`, `commit -a`, `--include` and
-  `commit <paths>` (#1172). The README shows the one-line install.
+  `commit <paths>` (#1172). The README shows the one-line install. A
+  plugin update that removes the script turns the hook into a warning
+  naming `--install`, rather than failing every commit in the repository.
 
 ### Changed
 
@@ -117,7 +119,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `check_hook_modernization.py --json` (always `success: true`),
   `check-markdown-links.py` (every missing `./modules/` link skipped) and
   `fix_descriptions.py --check` (unparsable frontmatter counted as
-  compliant) (#1069).
+  compliant) (#1069). `--apply` and the dry run list a file they cannot
+  rewrite (bad YAML, a truncated "DO NOT.") as needing a manual fix,
+  instead of counting it as updated.
 - **hookify:** the safe-defaults test reads the rule's `action` field
   instead of searching the file text, and the cited-paths test checks
   paths cited from `plugins/*/workflows/*.js` (#1070).
@@ -134,7 +138,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **memory-palace:** keyword index ids are the relative path, so
   `foo/bar.md` and `foo--bar.md` no longer overwrite each other (#1076).
 - **gauntlet:** the in-loop variation provider shifts `12,345` as one
-  number and leaves decimals alone, instead of splitting them (#1172).
+  number and leaves decimals alone, instead of splitting them, and still
+  shifts each element of `[3,1,2]` (#1172).
 - **parseltongue:** twelve `testing_guide` coverage tests pass code that
   reaches the branch they name instead of an empty string (#1068).
 - **leyline:** the stewardship description names all five virtues (#1132).
@@ -144,11 +149,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   trailer after an unquoted `-m` or in a `$'...'` message, and no longer
   reads hyphenated prose such as `sub-system` as a `-m` flag.
 - **scribe:** replay redaction covers prefixed names (`DB_PASSWORD=`,
-  `GITHUB_TOKEN=`, `SECRET_KEY=`) and runs in linear time.
+  `GITHUB_TOKEN=`, `SECRET_KEY=`) and runs in linear time. Words such as
+  `bypass:` and `compass=` keep their values.
 - **memory-palace:** the capture index loads and dumps through libyaml,
   so parallel captures no longer time out and get deleted. Research
   queue entries and dependency digests resolve at `CLAUDE_PROJECT_DIR`
-  instead of the session's last `cd`. A repeated search stores one file.
+  instead of the session's last `cd`. A repeated search stores one file
+  and names the existing capture, without announcing or registering it
+  again.
 - **gauntlet:** open-ended scoring caps the length feature, so padding no
   longer turns a partial answer into a pass. Blast radius counts
   deletion-only hunks and assigns each hunk to its own file. An
