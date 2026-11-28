@@ -124,8 +124,9 @@ class ProjectPalaceManager(MemoryPalaceManager):
     def load_project_palace(self, palace_id: str) -> dict[str, Any] | None:
         """Load a project palace by ID.
 
-        Returns None when the palace is absent, corrupt, or unreadable, as
-        ``load_palace`` does. The reason goes to stderr.
+        Returns None when the palace is absent, corrupt, or unreadable; the
+        reason goes to stderr. Unlike ``load_palace``, an id that could name
+        a path outside the palace directory raises ValueError (CWE-22).
         """
         palace_file = self._repo.palace_file(palace_id, self.project_palaces_dir)
         if os.path.exists(palace_file):

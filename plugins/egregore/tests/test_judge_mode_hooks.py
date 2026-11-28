@@ -33,7 +33,7 @@ def active_tree(tmp_path, monkeypatch):
 def test_stop_hook_approves_in_judge_mode(active_tree, capsys):
     with pytest.raises(SystemExit):
         stop_hook.main()
-    assert json.loads(capsys.readouterr().out)["decision"] == "approve"
+    assert json.loads(capsys.readouterr().out).get("decision") is None
 
 
 @pytest.mark.parametrize("hook", [session_start_hook, user_prompt_hook])

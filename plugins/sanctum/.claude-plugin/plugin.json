@@ -27,7 +27,7 @@
   ],
   "skills": [
     "./skills/commit-messages",
-    "./skills/do-issue",
+    "./skills/do-issue-playbook",
     "./skills/stack-create",
     "./skills/stack-mode",
     "./skills/stack-push",
@@ -36,14 +36,14 @@
     "./skills/doc-updates",
     "./skills/git-workspace-review",
     "./skills/pr-prep",
-    "./skills/pr-review",
+    "./skills/pr-review-playbook",
     "./skills/session-management",
     "./skills/test-updates",
     "./skills/tutorial-updates",
     "./skills/update-readme",
     "./skills/version-updates",
     "./skills/workflow-improvement",
-    "./skills/validate-pr"
+    "./skills/validate-pr-playbook"
   ],
   "agents": [
     "./agents/git-workspace-agent.md",

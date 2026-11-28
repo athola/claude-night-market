@@ -126,6 +126,18 @@ def _supersede(units: list[dict]) -> list[dict]:
     return kept
 
 
+def _project_root(payload: dict) -> Path:
+    """Where dependency paths resolve: the project, not the prompt's cwd.
+
+    The payload cwd follows the session's last cd, and a file unreadable
+    from there reads as changed, so a prompt sent from a subdirectory
+    flagged every stored dependency.
+    """
+    return Path(
+        os.environ.get("CLAUDE_PROJECT_DIR") or payload.get("cwd") or Path.cwd()
+    )
+
+
 def _load_units() -> list[dict]:
     """Collect handoff units from recent session records, newest first.
 
@@ -271,5 +283,5 @@ def prompt_context(payload: object) -> str | None:
     query = RECALL_TOKEN.sub(" ", payload["prompt"])
     units = _load_units()
     ranked = _rank(query, units)
-    root = Path(payload.get("cwd") or Path.cwd())
+    root = _project_root(payload)
     return _render(ranked, visible, _changed_dependencies([u for u, _ in ranked], root))

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 from importlib import metadata
 from typing import TYPE_CHECKING
@@ -13,6 +14,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 import pensive
+import pensive.skills as pensive_skills
 from pensive.harden.cli import run_cli
 from pensive.plugin.loader import discover_plugins
 from pensive.reporting import formatters
@@ -20,6 +22,8 @@ from pensive.reporting.formatters import SarifFormatter
 from pensive.skills.api_review import ApiReviewSkill
 from pensive.skills.architecture_review import ArchitectureReviewSkill
 from pensive.skills.base import AnalysisResult
+from pensive.skills.performance_review import PerformanceReviewSkill
+from pensive.skills.unified_review import UnifiedReviewSkill
 from pensive.workflows.code_review import CodeReviewWorkflow
 
 if TYPE_CHECKING:
@@ -339,3 +343,74 @@ def test_harden_sarif_flag_emits_a_sarif_report(tmp_path, capsys) -> None:
         for r in report["runs"][0]["results"]
     ]
     assert any(uri.endswith("a.py") for uri in uris)
+
+
+def test_harden_sarif_of_a_subdirectory_is_relative_to_the_repo_root(
+    tmp_path, capsys
+) -> None:
+    """Scanning repo/src must give src/a.py, the path code scanning knows."""
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "a.py").write_text("import yaml\nyaml.load(open('f'))\n")
+    run_cli(["--path", str(src), "--sarif"])
+    report = json.loads(capsys.readouterr().out)
+    uris = {
+        r["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+        for r in report["runs"][0]["results"]
+    }
+    assert uris == {"src/a.py"}
+
+
+def test_harden_sarif_of_a_relative_path_is_relative_to_the_repo_root(
+    tmp_path, capsys, monkeypatch
+) -> None:
+    """--path . from inside src wrote a.py: only absolute paths were mapped."""
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "a.py").write_text("import yaml\nyaml.load(open('f'))\n")
+    monkeypatch.chdir(src)
+    run_cli(["--path", ".", "--sarif"])
+    report = json.loads(capsys.readouterr().out)
+    uris = {
+        r["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+        for r in report["runs"][0]["results"]
+    }
+    assert uris == {"src/a.py"}
+
+
+def test_sarif_uri_is_relative_to_the_scanned_repo(tmp_path) -> None:
+    """Code scanning matches results to repo files only by relative URI."""
+    finding = {"id": "PY02", "file": str(tmp_path / "pkg" / "a.py"), "line": 3}
+    sarif = json.loads(SarifFormatter().format([finding], tmp_path))
+    location = sarif["runs"][0]["results"][0]["locations"][0]["physicalLocation"]
+
+    assert location["artifactLocation"]["uri"] == "pkg/a.py"
+    assert sarif["runs"][0]["tool"]["driver"]["rules"][0]["name"] == "PY02"
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("skill", [ApiReviewSkill(), ArchitectureReviewSkill()])
+def test_analyze_accepts_file_path_by_keyword_on_every_skill(skill: object) -> None:
+    """Bug, Rust and Performance name it ``file_path``; the base must too.
+
+    A caller writing ``analyze(ctx, file_path=...)`` hit TypeError on the
+    skills that inherit the base signature.
+    """
+    result = skill.analyze(_Context({}), file_path="app.py")
+    assert isinstance(result, AnalysisResult)
+
+
+@pytest.mark.unit
+def test_unified_analyze_accepts_file_path_by_keyword() -> None:
+    result = UnifiedReviewSkill().analyze(_Context({}), file_path="app.py")
+    assert isinstance(result, AnalysisResult)
+
+
+@pytest.mark.unit
+def test_performance_review_skill_is_exported_like_its_siblings() -> None:
+    """``from pensive import RustReviewSkill`` worked; Performance raised."""
+    assert "PerformanceReviewSkill" in pensive.__all__
+    assert "PerformanceReviewSkill" in pensive_skills.__all__
+    assert pensive.PerformanceReviewSkill is PerformanceReviewSkill

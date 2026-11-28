@@ -317,15 +317,18 @@ class TestUserPromptOnAmbiguity:
     @pytest.mark.bdd
     def test_default_behavior_when_user_no_response(self, tasks_manager_with_prompt):
         """Given user provides no response, when creating task, then use default (single)."""
-        # Arrange - non-ambiguous task
-        task_description = "Update database schema"
+        # Arrange - ambiguous, so the prompt is actually shown
+        task_description = "Add logging throughout the codebase"
+        tasks_manager_with_prompt._task_list.return_value = []
         tasks_manager_with_prompt._ask_user.return_value = ""  # No response
 
         # Act
         task_id = tasks_manager_with_prompt.ensure_task_exists(task_description)
 
         # Assert
-        assert isinstance(task_id, str)  # Single task created (default)
+        tasks_manager_with_prompt._ask_user.assert_called_once()
+        assert tasks_manager_with_prompt._task_create.call_count == 1
+        assert isinstance(task_id, str)
 
 
 class TestDualModeOperation:

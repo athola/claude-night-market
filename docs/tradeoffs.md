@@ -14,7 +14,7 @@ we deliberately gave up. Records the *why*, not just the *what*.
 | ID | Status | Title | Date |
 |----|--------|-------|------|
 | TR-001 | accepted | Test-quality vagueness is about the expectation, not the variable name | 2026-08-23 |
-| TR-002 | accepted | Retiring the coercion apparatus in favour of a strength budget | 2026-08-25 |
+| TR-002 | accepted | Retiring the coercion apparatus in favor of a strength budget | 2026-08-25 |
 | TR-003 | accepted | Pinning mypy below 2 for as long as a plugin targets Python 3.9 | 2026-09-09 |
 | TR-004 | accepted | Measure skill activation with the native eval runner and an offline confusability guard | 2026-10-30 |
 | TR-005 | accepted | Measure activation from kept traces in a copied run host | 2026-11-03 |
@@ -72,7 +72,7 @@ In the context of scoring test quality, facing a rubric that returned 0/100 for 
   naming smell turns out to be worth the false positives. Revisit if reviewers
   start seeing `result` variables spread through new test files
 
-## TR-002: Retiring the coercion apparatus in favour of a strength budget
+## TR-002: Retiring the coercion apparatus in favor of a strength budget
 
 - Status: accepted
 - Date: 2026-08-25

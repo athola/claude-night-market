@@ -4,18 +4,18 @@
   "description": "Multi-source research plugin \u2014 code archaeology, community discourse, academic literature, and TRIZ cross-domain analysis with domain-adaptive depth",
   "skills": [
     "./skills/code-search",
-    "./skills/dig",
+    "./skills/dig-playbook",
     "./skills/discourse",
-    "./skills/export",
+    "./skills/export-playbook",
     "./skills/ideate",
     "./skills/papers",
-    "./skills/research",
+    "./skills/research-playbook",
     "./skills/synthesize",
     "./skills/triz",
     "./skills/web-search"
   ],
   "commands": [
-    "./commands/research.md",
+    "./commands/research-session.md",
     "./commands/dig.md",
     "./commands/cite.md",
     "./commands/export.md"

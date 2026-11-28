@@ -11,7 +11,7 @@ import pytest
 from scripts.activation.analyze import analyze_host, parse_trace, render_report, wilson
 from scripts.activation.labels import Case
 
-from .conftest import make_host
+from .conftest import make_host, write
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -213,3 +213,23 @@ def test_report_leads_with_rates_and_carries_echo_risk(plugin_tree, tmp_path):
     json.loads((host / "metrics.json").read_text()) if (
         host / "metrics.json"
     ).exists() else None
+
+
+def test_firing_the_command_that_loads_the_target_playbook_is_a_hit(plugin_tree):
+    write(
+        plugin_tree / "plugins/alpha/commands/rev.md",
+        "---\ndescription: Review the branch.\n---\n\nInvoke `Skill(alpha:rev-playbook)`.\n",
+    )
+    write(
+        plugin_tree / "plugins/alpha/skills/rev-playbook/SKILL.md",
+        "---\nname: rev-playbook\ndescription: Branch review method.\n---\n",
+    )
+    host = make_host(
+        plugin_tree,
+        [_pos("rev.p1", "alpha:rev-playbook")],
+        {"rev.p1": [["alpha:rev"], ["alpha:rev-playbook"], ["alpha:rev"]]},
+    )
+
+    rates = analyze_host(host)["rates"]
+    assert rates["sensitivity"]["k"] == 3
+    assert rates["fa_positive"]["k"] == 0

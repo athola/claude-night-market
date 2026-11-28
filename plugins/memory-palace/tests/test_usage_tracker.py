@@ -4,6 +4,7 @@ Tests the UsageTracker which implements usage-based scoring with
 reinforcement learning signals for knowledge entries.
 """
 
+import random
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -307,3 +308,67 @@ class TestAggregatesFollowRetainedEvents:
             restored.get_score("e").raw_score
         )
         assert tracker.get_score("e").access_count == 2
+
+    def test_an_entry_whose_events_are_all_evicted_leaves_the_scores(self) -> None:
+        """It stayed listed at the 0.5 midpoint until a reload dropped it."""
+        tracker = UsageTracker(max_events=2)
+        tracker.record_event("old", UsageSignal.ACCESS)
+        tracker.record_event("new", UsageSignal.ACCESS)
+        tracker.record_event("new", UsageSignal.ACCESS)
+
+        restored = UsageTracker(max_events=2)
+        restored.import_events(tracker.export_events())
+
+        assert {s.entry_id for s in tracker.get_all_scores()} == {
+            s.entry_id for s in restored.get_all_scores()
+        }
+
+    def test_last_access_moves_back_when_its_event_is_evicted(self) -> None:
+        """A dropped access kept naming the latest access until a reload."""
+        tracker = UsageTracker(max_events=2)
+        tracker.record_event("e", UsageSignal.ACCESS)
+        tracker.record_event("e", UsageSignal.STALE_FLAG)
+        tracker.record_event("e", UsageSignal.STALE_FLAG)
+
+        restored = UsageTracker(max_events=2)
+        restored.import_events(tracker.export_events())
+
+        assert tracker.get_score("e").last_accessed == (
+            restored.get_score("e").last_accessed
+        )
+
+    def test_scores_match_a_reload_over_a_long_mixed_sequence(self) -> None:
+        """Eviction bookkeeping agrees with a rebuild from the kept events."""
+        rng = random.Random(1172)
+        signals = list(UsageSignal)
+        start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+        tracker = UsageTracker(max_events=7)
+        for step in range(400):
+            tracker._append(
+                UsageEvent(
+                    entry_id=rng.choice("abcd"),
+                    signal=rng.choice(signals),
+                    timestamp=start + timedelta(seconds=step),
+                )
+            )
+
+            restored = UsageTracker(max_events=7)
+            restored.import_events(tracker.export_events())
+            live = {s.entry_id: s for s in tracker.get_all_scores()}
+            assert live.keys() == {s.entry_id for s in restored.get_all_scores()}
+            for entry_id, score in live.items():
+                # Running sums drift by an ulp against a fresh sum, so the
+                # floats compare approximately and everything else exactly.
+                reloaded = restored.get_score(entry_id)
+                assert score.raw_score == pytest.approx(reloaded.raw_score)
+                assert (
+                    score.access_count,
+                    score.citation_count,
+                    score.feedback_balance,
+                    score.last_accessed,
+                ) == (
+                    reloaded.access_count,
+                    reloaded.citation_count,
+                    reloaded.feedback_balance,
+                    reloaded.last_accessed,
+                ), (step, entry_id)

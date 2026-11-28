@@ -19,8 +19,9 @@ without human intervention.
 # Process GitHub issues
 /egregore:summon --issues 42,43,47 --window 7d
 
-# Run indefinitely (pauses on rate limits, resumes after cooldown)
-/egregore:summon "Build X" --indefinite
+# Runs indefinitely by default (pauses on rate limits, resumes after
+# cooldown); --bounded stops when the window expires
+/egregore:summon "Build X"
 
 # Install the watchdog for crash recovery
 /egregore:install-watchdog --window 5h
@@ -34,7 +35,7 @@ Egregore has three layers:
   Manifest (.egregore/manifest.json)
   Persistent memory: work queue, pipeline state, decisions
                     |
-  Orchestrator Skill (egregore:summon)
+  Orchestrator Skill (egregore:summon-playbook)
   The will: picks work, invokes skills, advances pipeline
                     |
   Watchdog Daemon (watchdog.sh)

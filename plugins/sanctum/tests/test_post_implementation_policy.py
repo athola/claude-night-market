@@ -438,34 +438,22 @@ class TestErrorHandling:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_json_array_input_gets_full_governance(self) -> None:
-        """Given JSON array (not object), main() still injects full governance.
+        """Given a JSON array (valid JSON, not an object), main() still injects.
 
-        json.loads succeeds but .get() on a list raises AttributeError,
-        which is not caught, so this exercises the edge case where input
-        is valid JSON but not the expected dict shape.
+        SessionStart must not crash on a payload of the wrong shape: a crash
+        drops the policy for the whole session.
         """
-        # The hook does hook_input.get() which works on dict; list has no .get
-        # But list does have .get? No. Let's verify the behavior.
-        # Actually list does NOT have .get, so this will raise AttributeError.
-        # The hook's except only catches (OSError, json.JSONDecodeError).
-        # So this would be an unhandled error: let's verify.
-        # Actually re-reading the code: the except is around the entire block
-        # including the .get(), but it only catches OSError and JSONDecodeError.
-        # An AttributeError from list.get() would propagate.
-        # We should still test this path.
         with patch("sys.stdin", StringIO("[1, 2, 3]")):
             captured_stdout = StringIO()
             with patch("sys.stdout", captured_stdout):
-                # This may raise AttributeError since lists don't have .get()
-                # The hook should still produce output due to the except clause
-                # not catching it. Let's see what happens.
-                try:
-                    with pytest.raises(SystemExit) as exc_info:
-                        main()
-                    assert exc_info.value.code == 0
-                except AttributeError:
-                    # If the hook doesn't handle this edge case, that's expected
-                    pass
+                with pytest.raises(SystemExit) as exc_info:
+                    main()
+
+        assert exc_info.value.code == 0
+        output = json.loads(captured_stdout.getvalue())
+        assert output["hookSpecificOutput"]["additionalContext"] == format_risk_policy(
+            900, tests_touched=False
+        )
 
 
 class TestTheFullPolicyIsReservedForRiskyBranches:

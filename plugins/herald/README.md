@@ -77,9 +77,9 @@ explicit statement of intent to keep working.
 A question, a handoff, or a completion signal lets the turn stop.
 The default is to stop, so finished work is not nagged.
 
-To prevent runaway loops, the judge allows up to 10 auto-continue
-cycles (configurable) within a 5-minute window before pausing to
-check in.
+To prevent runaway loops, the judge allows up to 10 consecutive
+auto-continue cycles (configurable) before pausing to check in. A
+turn you start resets the count; time between turns does not.
 When the limit is reached it stops, names the limit, and invites
 you to reply if more work remains.
 The counter is then reset, so a resumed run starts a fresh budget
@@ -89,7 +89,7 @@ rather than re-tripping the limit.
 
 | Variable | Default | Effect |
 |----------|---------|--------|
-| `DOUBLE_SHOT_LATTE_MAX_CONTINUATIONS` | `10` | Auto-continue cycles allowed in the window before a check-in. A non-positive-integer value falls back to the default. |
+| `DOUBLE_SHOT_LATTE_MAX_CONTINUATIONS` | `10` | Consecutive auto-continue cycles allowed before a check-in. A non-positive-integer value falls back to the default. |
 | `DOUBLE_SHOT_LATTE_LLM` | unset | Set to `1` to consult an LLM as a tiebreaker on ambiguous turns. |
 | `DOUBLE_SHOT_LATTE_MODEL` | `haiku` | Model used for the optional LLM tiebreaker. |
 

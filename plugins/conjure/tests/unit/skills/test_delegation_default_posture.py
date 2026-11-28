@@ -31,8 +31,8 @@ ONBOARDING = (
 )
 MISSION = REPO / "plugins/attune/skills/mission-orchestrator/SKILL.md"
 EXECUTION = REPO / "plugins/attune/skills/project-execution/SKILL.md"
-SUMMON = REPO / "plugins/egregore/skills/summon/SKILL.md"
-WAR_ROOM = REPO / "plugins/attune/skills/war-room/SKILL.md"
+SUMMON = REPO / "plugins/egregore/skills/summon-playbook/SKILL.md"
+WAR_ROOM = REPO / "plugins/attune/skills/war-room-playbook/SKILL.md"
 
 
 @pytest.mark.bdd

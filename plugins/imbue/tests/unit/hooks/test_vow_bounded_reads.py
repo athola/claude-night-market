@@ -152,7 +152,28 @@ class TestCounterFilePath:
         Then a valid path is still returned
         """
         path = hook_module._counter_path("")
-        assert isinstance(path, Path)
+        assert path.name == "vow_read_counter_default.json"
+
+    @pytest.mark.unit
+    def test_counter_path_stays_in_the_private_dir_for_a_hostile_id(self, hook_module):
+        """
+        Scenario: A session id carrying path separators cannot escape
+        Given a session id from hook stdin with forward and back slashes
+        When _counter_path is called
+        Then the file sits in the same private dir as any other counter
+        """
+        private_dir = hook_module._counter_path("plain").parent
+        for hostile in ("../../etc/x", "a\\..\\b"):
+            path = hook_module._counter_path(hostile)
+            assert path.parent == private_dir
+            assert "/" not in path.name
+            assert "\\" not in path.name
+
+    @pytest.mark.unit
+    def test_counter_path_caps_a_long_session_id(self, hook_module):
+        """A 1000-char id keeps the filename under the 255-byte name limit."""
+        path = hook_module._counter_path("s" * 1000)
+        assert path.name == f"vow_read_counter_{'s' * 200}.json"
 
 
 class TestReadWriteCounter:

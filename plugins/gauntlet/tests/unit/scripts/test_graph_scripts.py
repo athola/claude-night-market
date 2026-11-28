@@ -202,6 +202,24 @@ class TestGraphQueryInProcess:
             graph.close()
 
     @pytest.mark.unit
+    def test_main_exits_nonzero_when_the_query_reports_an_error(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """A shell caller checking $? must see a failed query as a failure."""
+        db = tmp_path / "graph.db"
+        GraphStore(db).close()
+        monkeypatch.setattr(
+            sys, "argv", ["graph_query.py", "--action", "search", "--db", str(db)]
+        )
+        with pytest.raises(SystemExit) as exited:
+            graph_query.main()
+        assert exited.value.code == 1
+        assert "--query required" in json.loads(capsys.readouterr().out)["error"]
+
+    @pytest.mark.unit
     def test_find_db_walks_up_to_an_ancestor_gauntlet_dir(self, tmp_path: Path) -> None:
         db = tmp_path / ".gauntlet" / "graph.db"
         db.parent.mkdir()
@@ -408,3 +426,38 @@ class TestGraphBuildStoresFlows:
         )
         assert result.returncode == 0, result.stderr
         assert "flows_stored" in json.loads(result.stdout)
+
+    @pytest.mark.unit
+    def test_incremental_on_an_unstamped_graph_builds_in_full(
+        self, tmp_path: Path
+    ) -> None:
+        """A graph built before the stamp existed diffed HEAD on a clean tree,
+        reported no changes, and stamped nothing, on every run.
+        """
+        git = ["git", "-C", str(tmp_path), "-c", "user.email=t@t", "-c", "user.name=t"]
+        subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+        (tmp_path / "m.py").write_text("def f():\n    return 1\n")
+        subprocess.run([*git, "add", "m.py"], check=True)
+        subprocess.run([*git, "commit", "-qm", "f"], check=True)
+        build = [sys.executable, str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)]
+        subprocess.run(build, capture_output=True, timeout=30, check=True)
+        db = tmp_path / ".gauntlet" / "graph.db"
+        with sqlite3.connect(db) as conn:
+            conn.execute("DELETE FROM metadata WHERE key = 'last_build_commit'")
+        (tmp_path / "m.py").write_text(
+            "def f():\n    return 1\n\n\ndef g():\n    return 2\n"
+        )
+        subprocess.run([*git, "commit", "-qam", "g"], check=True)
+
+        result = subprocess.run(
+            [*build, "--incremental"], capture_output=True, text=True, timeout=30
+        )
+
+        assert result.returncode == 0, result.stderr
+        with sqlite3.connect(db) as conn:
+            names = {row[0] for row in conn.execute("SELECT qualified_name FROM nodes")}
+            stamp = conn.execute(
+                "SELECT value FROM metadata WHERE key = 'last_build_commit'"
+            ).fetchall()
+        assert any(name.endswith("m.py::g") for name in names)
+        assert stamp

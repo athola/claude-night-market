@@ -31,11 +31,19 @@ def get_venv_path() -> Path:
 
 
 def is_provisioned(venv_path: Path) -> bool:
-    """Return True if the venv has a working Python binary."""
-    python = venv_path / "bin" / "python"
-    if sys.platform == "win32":
-        python = venv_path / "Scripts" / "python.exe"
-    return python.exists()
+    """Return True if the venv has Python and the pyyaml daemon.py imports.
+
+    A venv set up before 1.10.4 has onnxruntime and no yaml, and the daemon
+    it launched died on import with nothing to re-provision it.
+    """
+    if not get_python_path(venv_path).exists():
+        return False
+    site_packages = (
+        [venv_path / "Lib" / "site-packages"]
+        if sys.platform == "win32"
+        else list((venv_path / "lib").glob("python*/site-packages"))
+    )
+    return any((site / "yaml").is_dir() for site in site_packages)
 
 
 def get_python_path(venv_path: Path) -> Path:
@@ -52,18 +60,21 @@ def provision_venv(venv_path: Path) -> ProvisionResult:
     onnxruntime is not installed until an ONNX model ships to load.
     """
     try:
-        result = subprocess.run(
-            ["uv", "venv", "--python", "3.11", str(venv_path)],
-            capture_output=True,
-            text=True,
-            timeout=120,
-            check=False,
-        )
-        if result.returncode != 0:
-            return ProvisionResult(
-                success=False,
-                message=f"Failed to create venv: {result.stderr.strip()}",
+        # uv venv refuses a directory that already holds a venv, which is
+        # the 1.10.3 venv this is rerun to fix: reuse its interpreter.
+        if not get_python_path(venv_path).exists():
+            result = subprocess.run(
+                ["uv", "venv", "--python", "3.11", str(venv_path)],
+                capture_output=True,
+                text=True,
+                timeout=120,
+                check=False,
             )
+            if result.returncode != 0:
+                return ProvisionResult(
+                    success=False,
+                    message=f"Failed to create venv: {result.stderr.strip()}",
+                )
 
         python = str(get_python_path(venv_path))
         result = subprocess.run(

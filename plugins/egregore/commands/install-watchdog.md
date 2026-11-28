@@ -4,7 +4,7 @@ description: >-
   Install the egregore watchdog daemon for automatic
   session relaunching
 usage: >-
-  /egregore:install-watchdog [--window 5h|7d]
+  /egregore:install-watchdog [--window <duration>]
   [--interval SECONDS]
 ---
 
@@ -14,8 +14,8 @@ Install a system-level daemon that monitors the egregore
 and relaunches it after crashes, rate limits, or context
 overflows.
 
-Invoke `Skill(egregore:install-watchdog)`, which carries the launchd and
-systemd installation steps and the troubleshooting.
+Invoke `Skill(egregore:install-watchdog-playbook)`, which carries the launchd
+and systemd installation steps and the troubleshooting.
 
 ## Prerequisites
 

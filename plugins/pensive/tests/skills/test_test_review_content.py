@@ -24,7 +24,7 @@ class TestContentAssertionQualityModuleContent:
         return (
             Path(__file__).parents[2]
             / "skills"
-            / "test-review"
+            / "test-review-playbook"
             / "modules"
             / "content-assertion-quality.md"
         )
@@ -106,7 +106,9 @@ class TestInvariantEncodingContent:
 
     @pytest.fixture
     def skill_path(self) -> Path:
-        return Path(__file__).parents[2] / "skills" / "test-review" / "SKILL.md"
+        return (
+            Path(__file__).parents[2] / "skills" / "test-review-playbook" / "SKILL.md"
+        )
 
     @pytest.fixture
     def skill_content(self, skill_path: Path) -> str:

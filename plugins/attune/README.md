@@ -58,7 +58,7 @@ attune component based on the description. Enhanced descriptions include:
 | "I want to start a new web app" | `/attune:brainstorm` | Matches "starting projects" trigger |
 | "Create a specification from my brief" | `/attune:specify` | Matches "create specifications" |
 | "Design the system architecture" | `project-architect` agent | Matches "designing system architecture" |
-| "Should I convene a war room?" | `Skill(attune:war-room)` | Matches "strategic decisions" |
+| "Should I convene a war room?" | `Skill(attune:war-room-playbook)` | Matches "strategic decisions" |
 
 ### Content Structure
 
@@ -141,7 +141,7 @@ planning or execution when high-stakes decisions arise.
 |---------|-------------|
 | `/attune:upgrade-project` | Add or update configurations in existing project |
 | `/attune:validate` | Validate project structure against best practices |
-| `/attune:skill-library` | Build a project skill library under `.claude/skills/` via a discover, author, review mission |
+| `/attune:skill-library-session` | Build a project skill library under `.claude/skills/` via a discover, author, review mission |
 
 ## Skills
 
@@ -150,7 +150,7 @@ planning or execution when high-stakes decisions arise.
 | Skill | Description | Use When |
 |-------|-------------|----------|
 | `project-brainstorming` | Socratic questioning and ideation | Starting new project from idea |
-| `war-room` | **Multi-LLM expert council with Type 1/2 routing** | Complex strategic decisions (RS > 0.40) |
+| `war-room-playbook` | **Multi-LLM expert council with Type 1/2 routing** | Complex strategic decisions (RS > 0.40) |
 | `war-room-checkpoint` | **Inline RS assessment for embedded escalation** | Called by other commands at decision points |
 | `project-specification` | Spec-driven requirement definition | Need detailed requirements |
 | `project-planning` | Architecture design and task breakdown | Planning implementation |
@@ -162,7 +162,7 @@ planning or execution when high-stakes decisions arise.
 | Skill | Description | Use When |
 |-------|-------------|----------|
 | `architecture-aware-init` | **Research-based architecture selection and template customization** | Need architecture guidance |
-| `project-init` | Interactive project initialization | Setting up new project |
+| `project-init-playbook` | Interactive project initialization | Setting up new project |
 | `makefile-generation` | Generate language-specific Makefile | Need build automation |
 | `workflow-setup` | Configure GitHub Actions workflows | Setting up CI/CD |
 | `precommit-setup` | Configure pre-commit hooks | Enforcing code quality |

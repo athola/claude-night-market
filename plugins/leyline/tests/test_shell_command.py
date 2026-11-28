@@ -27,6 +27,8 @@ from leyline.shell_command import (
         'git -C "my repo" commit -m x',
         "sudo -u bob git commit -m x",
         "sudo -E git commit -m x",
+        "/usr/bin/env git commit -m x",
+        "git \\\n  commit -m x",
     ],
 )
 def test_compound_and_wrapped_commits_are_detected(command: str) -> None:

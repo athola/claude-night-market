@@ -49,7 +49,7 @@ practices for Python and Rust.
 
 1. **Discovery.** Detects languages, build files, CI workflows,
    hooks, and secret-bearing config in the repo.
-2. **Citation-backed scan.** Runs the `pensive:harden` skill,
+2. **Citation-backed scan.** Runs the `pensive:harden-playbook` skill,
    which composes existing skills:
    - `pensive:rust-review` for deep Rust audits
    - `leyline:supply-chain-advisory` for dependency posture
@@ -70,7 +70,7 @@ practices for Python and Rust.
    type-check) to confirm no behavior change.
 7. **Report.** Markdown report saved to
    `reviews/harden-<date>.md`. A summary is posted to GitHub
-   Discussions via `abstract:post_review_insights` when run on a
+   Discussions via `plugins/abstract/scripts/post_review_insights.py` when run on a
    PR.
 
 ## Scope
@@ -112,7 +112,7 @@ practices for Python and Rust.
 
 ## See Also
 
-- `Skill(pensive:harden)`: the skill this command invokes
+- `Skill(pensive:harden-playbook)`: the skill this command invokes
 - `pensive:rust-review`, `pensive:bug-review`,
   `pensive:safety-critical-patterns` (composed)
 - `leyline:supply-chain-advisory`,

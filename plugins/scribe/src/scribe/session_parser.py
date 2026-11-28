@@ -289,7 +289,7 @@ def _detect_format_from_lines(lines: list[str]) -> SessionFormat:
     return "claude"
 
 
-def detect_format(path: Path) -> str:
+def detect_format(path: Path) -> SessionFormat:
     """Detect session format from file content.
 
     Reads the first non-empty JSON line and checks for
@@ -298,11 +298,11 @@ def detect_format(path: Path) -> str:
 
     Returns:
         "codex" or "claude".
+
+    Raises:
+        OSError: the file cannot be read, as from ``parse_session``.
     """
-    try:
-        return _detect_format_from_lines(_read_lines(path))
-    except OSError:
-        return "claude"
+    return _detect_format_from_lines(_read_lines(path))
 
 
 # --- Main parser ---

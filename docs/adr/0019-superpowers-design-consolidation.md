@@ -258,7 +258,7 @@ than an existing scope-guard RED branch.
 
 Two findings from the DDD build outlive their design and apply to any
 test work in this repo. Both now live where a test author will meet
-them, in `plugins/sanctum/skills/validate-pr/SKILL.md` under the
+them, in `plugins/sanctum/skills/validate-pr-playbook/SKILL.md` under the
 revert-test procedure: a revert harness must assert pytest exit code `1`
 specifically, and a content test must normalize whitespace before
 matching while anchoring on a clause unique to the passage it guards.

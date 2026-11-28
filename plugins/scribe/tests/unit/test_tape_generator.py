@@ -7,6 +7,7 @@ and duration management.
 from __future__ import annotations
 
 import re
+import time
 from pathlib import Path
 
 import pytest
@@ -756,3 +757,57 @@ def test_home_redaction_leaves_a_longer_sibling_directory_alone(
         "/Users/alex/x, /Users/al-2, ~/y, ~. ~"
     )
     assert redact("/Users/al.bak/x") == "/Users/al.bak/x"
+
+
+@pytest.mark.parametrize(
+    "assignment",
+    [
+        "export DB_PASSWORD=hunter2",
+        "GITHUB_TOKEN=x1y2z3",
+        "OPENAI_API_KEY=abc123",
+        "AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMIK7MDENG",
+        "client_secret: s3cr3tvalue",
+        "SECRET_KEY=django-insecure-abc",
+        "passphrase=correct-horse",
+        "token: abc123",
+    ],
+)
+def test_a_prefixed_credential_name_is_redacted(assignment: str) -> None:
+    """Env-var names put the keyword after a prefix, where \\b did not match."""
+    value = assignment.rsplit("=", 1)[-1].split(": ", 1)[-1]
+    assert value not in redact(assignment)
+
+
+@pytest.mark.parametrize(
+    "assignment",
+    ["PGPASSWORD=hunter2", "dbpass=hunter2", "authtoken: abc123", "PASS=hunter2"],
+)
+def test_a_name_ending_in_a_keyword_still_redacts(assignment: str) -> None:
+    """The guard against redacting English words must not open these."""
+    value = assignment.rsplit("=", 1)[-1].split(": ", 1)[-1]
+    assert value not in redact(assignment)
+
+
+@pytest.mark.parametrize(
+    "setting",
+    ["bypass: true", "compass=north", "surpass: 3", "overpass=closed"],
+)
+def test_an_english_word_ending_in_pass_keeps_its_value(setting: str) -> None:
+    """A word that ends in "pass" names no credential, and a tape that shows
+    "bypass: [redacted]" hides a value the viewer needs.
+    """
+    assert redact(setting) == setting
+
+
+def test_a_name_that_only_contains_a_keyword_keeps_its_value() -> None:
+    assert redact("max_tokens=4096") == "max_tokens=4096"
+
+
+def test_redaction_is_linear_on_underscore_runs() -> None:
+    """Every _ was a new match start that rescanned the run: 8000 chars took
+    0.57 s and 40000 ran past 100 s.
+    """
+    text = "_a" * 20000
+    start = time.monotonic()
+    redact(text)
+    assert time.monotonic() - start < 1.0

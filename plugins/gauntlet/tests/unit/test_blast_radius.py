@@ -72,12 +72,14 @@ class TestParseGitDiffRanges:
         assert result["app.py"][0] == (10, 14)
 
     @pytest.mark.unit
-    def test_skips_deletion_only_hunks(self) -> None:
+    def test_a_deletion_only_hunk_marks_the_lines_around_it(self) -> None:
         """
-        Scenario: Deletion-only hunks (count=0) are skipped
-        Given a diff with a pure deletion hunk
+        Scenario: lines removed from a function still change that function
+        Given a diff whose hunk only deletes lines after new line 5
         When I parse it
-        Then the deletion hunk is excluded from ranges
+        Then the range covers new lines 5 and 6, either side of the removal,
+            so the enclosing function is matched (deleting a check from it
+            reported no affected node)
         """
         diff_output = (
             "diff --git a/app.py b/app.py\n"
@@ -93,7 +95,74 @@ class TestParseGitDiffRanges:
                 "R", (), {"returncode": 0, "stdout": diff_output}
             )()
             result = parse_git_diff_ranges("HEAD")
-        assert result.get("app.py", []) == []
+        assert result["app.py"] == [(5, 6)]
+
+    @pytest.mark.unit
+    def test_a_deleted_file_adds_nothing_to_the_file_before_it(self) -> None:
+        """+++ /dev/null left current_file on a.py, which took b.py's hunk."""
+        diff_output = (
+            "diff --git a/a.py b/a.py\n"
+            "--- a/a.py\n"
+            "+++ b/a.py\n"
+            "@@ -2 +2 @@\n"
+            "-x\n"
+            "+y\n"
+            "diff --git a/b.py b/b.py\n"
+            "--- a/b.py\n"
+            "+++ /dev/null\n"
+            "@@ -1,3 +0,0 @@\n"
+            "-gone\n"
+        )
+        with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
+            mock_run.return_value = type(
+                "R", (), {"returncode": 0, "stdout": diff_output}
+            )()
+            result = parse_git_diff_ranges("HEAD")
+        assert result == {"a.py": [(2, 2)]}
+
+    @pytest.mark.unit
+    def test_an_added_line_starting_with_two_pluses_is_not_a_file_header(
+        self,
+    ) -> None:
+        """An added `++ b` prints as `+++ b`; read as a header it dropped every
+        later hunk in the file.
+        """
+        diff_output = (
+            "diff --git a/a.py b/a.py\n"
+            "--- a/a.py\n"
+            "+++ b/a.py\n"
+            "@@ -2 +2 @@\n"
+            "-x\n"
+            "+++ b\n"
+            "@@ -15 +15 @@\n"
+            "-y\n"
+            "+z\n"
+        )
+        with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
+            mock_run.return_value = type(
+                "R", (), {"returncode": 0, "stdout": diff_output}
+            )()
+            result = parse_git_diff_ranges("HEAD")
+        assert result == {"a.py": [(2, 2), (15, 15)]}
+
+    @pytest.mark.unit
+    def test_spaced_and_non_ascii_names_keep_their_own_hunks(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Git ends a spaced name with a tab and quotes a non-ASCII one."""
+        git = ["git", "-c", "user.email=t@t", "-c", "user.name=t"]
+        subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+        for name in ("my file.py", "\u00e9.py"):
+            (tmp_path / name).write_text("a\nb\n")
+        subprocess.run([*git, "add", "-A"], cwd=tmp_path, check=True)
+        subprocess.run([*git, "commit", "-qm", "x"], cwd=tmp_path, check=True)
+        for name in ("my file.py", "\u00e9.py"):
+            (tmp_path / name).write_text("a\nc\n")
+        monkeypatch.chdir(tmp_path)
+
+        result = parse_git_diff_ranges("HEAD")
+
+        assert result == {"my file.py": [(2, 2)], "\u00e9.py": [(2, 2)]}
 
     @pytest.mark.unit
     def test_raises_when_git_is_missing(self) -> None:
@@ -244,6 +313,35 @@ class TestComputeRiskScore:
         )
         score = compute_risk_score(node, store)
         assert score < 0.30  # Below untested weight
+
+    @pytest.mark.unit
+    def test_a_zero_test_gap_weight_never_favors_untested_code(
+        self, store: GraphStore
+    ) -> None:
+        """A fixed 0.05 for tested code outscored untested code at weight 0."""
+        for name in ("tested_fn", "untested_fn"):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=f"app.py::{name}",
+                    file_path="app.py",
+                    line_start=1,
+                    line_end=10,
+                )
+            )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.TESTED_BY,
+                source_qn="app.py::tested_fn",
+                target_qn="test_app.py::test_tested_fn",
+            )
+        )
+        weights = {**_DEFAULT_WEIGHTS, "test_gap": 0.0}
+        tested = store.get_node("app.py::tested_fn")
+        untested = store.get_node("app.py::untested_fn")
+        assert compute_risk_score(tested, store, weights) <= compute_risk_score(
+            untested, store, weights
+        )
 
     @pytest.mark.unit
     def test_score_capped_at_one(self, store: GraphStore) -> None:
@@ -588,10 +686,11 @@ class TestAnalyzeChangesPipeline:
         """
 
         def run(argv: list[str], *, timeout: float, **_kwargs: object) -> object:
-            timeouts[argv[1]] = timeout
+            command = argv[3] if argv[1] == "-c" else argv[1]
+            timeouts[command] = timeout
             if timeout <= 0:
                 raise subprocess.TimeoutExpired(argv, timeout)
-            if argv[1] == "diff":
+            if command == "diff":
                 clock[0] += diff_seconds
                 stdout = TestAnalyzeChangesPipeline._diff("app.py", 10, 5)
             else:

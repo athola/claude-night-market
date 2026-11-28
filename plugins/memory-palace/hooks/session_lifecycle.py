@@ -299,7 +299,8 @@ def _fingerprint_dependencies(units: list[SessionUnit]) -> None:
         from memory_palace.corpus.staleness_signals import capture_digests
     except ImportError:
         return
-    root = Path.cwd()
+    # The process cwd follows any cd the session ran; the project root does not.
+    root = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path.cwd())
     for unit in units:
         if unit.files and not unit.file_digests:
             unit.file_digests = capture_digests(unit.files, root=root)

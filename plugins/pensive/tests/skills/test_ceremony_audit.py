@@ -5,7 +5,7 @@ diverge: passthrough mappers, twin types, speculative DTOs, and interfaces
 with one implementation. It is not an AST detector, so the detector-test
 rule in architecture-review does not apply to it. That claim has to be
 visible in the module itself, following the precedent set by
-performance-review/modules/memory-allocation-lenses.md.
+performance-review-playbook/modules/memory-allocation-lenses.md.
 
 The counter-signal matters as much as the signals. An audit that flags IO
 boundary mappers would delete the one mapper that is load-bearing.
@@ -22,7 +22,7 @@ from pathlib import Path
 import pytest
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[2]
-ARCH_REVIEW = PLUGIN_ROOT / "skills" / "architecture-review"
+ARCH_REVIEW = PLUGIN_ROOT / "skills" / "architecture-review-playbook"
 CEREMONY_MODULE = ARCH_REVIEW / "modules" / "ceremony-audit.md"
 ARCH_REVIEW_SKILL = ARCH_REVIEW / "SKILL.md"
 

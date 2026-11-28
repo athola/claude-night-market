@@ -4,6 +4,7 @@ from __future__ import annotations
 
 # Import the module under test
 import sys
+import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -17,6 +18,8 @@ from quota_tracker import (
     estimate_tokens_from_gemini_command,
     main,
 )
+
+from leyline.quota_tracker import UsageStats
 
 
 class TestGeminiQuotaTracker:
@@ -112,19 +115,28 @@ class TestGeminiQuotaTracker:
 
     @pytest.mark.bdd
     def test_get_quota_status_with_custom_limits(self) -> None:
-        """Given custom limits then get_quota_status still returns valid tuple."""
+        """Given a custom daily limit of 10, nine requests is a warning.
+
+        The same usage under the default limit of 1000 is healthy, so the
+        status shows whether the custom limits were applied.
+        """
         limits = {
             "requests_per_minute": 1000,
-            "requests_per_day": 10000,
+            "requests_per_day": 10,
             "tokens_per_minute": 1000000,
             "tokens_per_day": 10000000,
         }
         tracker = GeminiQuotaTracker(limits=limits)
+        now = time.time()
+        tracker.usage = UsageStats(
+            requests_today=9, last_request_time=now, minute_window_start=now
+        )
 
         status, warnings = tracker.get_quota_status()
 
-        assert isinstance(status, str)
-        assert isinstance(warnings, list)
+        assert tracker.limits == limits
+        assert status == "warning"
+        assert warnings == ["Daily requests at 90.0% (9/10)"]
 
     def test_estimate_task_tokens_with_encoder(
         self,

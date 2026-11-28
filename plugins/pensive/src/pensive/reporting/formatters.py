@@ -4,10 +4,8 @@ from __future__ import annotations
 
 import json
 from importlib import metadata
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from pathlib import Path
+from typing import Any
 
 from pensive import __version__
 from pensive.utils.severity_mapper import count_by_severity, normalize_severity
@@ -109,7 +107,9 @@ class SarifFormatter:
 
         Args:
             findings: List of finding dictionaries
-            repo_path: Optional repository path for context
+            repo_path: Repository root; file paths under it are written
+                relative to it, which is how code scanning matches a
+                result to a file
 
         Returns:
             SARIF JSON string
@@ -127,7 +127,7 @@ class SarifFormatter:
                             "rules": self._generate_rules(findings),
                         }
                     },
-                    "results": self._generate_results(findings),
+                    "results": self._generate_results(findings, repo_path),
                 }
             ],
         }
@@ -143,7 +143,7 @@ class SarifFormatter:
             if rule_id not in rules_map:
                 rules_map[rule_id] = {
                     "id": rule_id,
-                    "name": finding.get("title", "Unknown Issue"),
+                    "name": finding.get("title") or rule_id,
                     "shortDescription": {
                         "text": finding.get("issue")
                         or finding.get("detection_signal", "No description")
@@ -157,9 +157,14 @@ class SarifFormatter:
 
         return list(rules_map.values())
 
-    def _generate_results(self, findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def _generate_results(
+        self,
+        findings: list[dict[str, Any]],
+        repo_path: Path | str | None = None,
+    ) -> list[dict[str, Any]]:
         """Generate SARIF results from findings."""
         results = []
+        root = Path(repo_path).resolve() if repo_path is not None else None
 
         for finding in findings:
             # harden findings name the file and line separately.
@@ -176,6 +181,11 @@ class SarifFormatter:
             else:
                 file_path = location
                 line_num = 1
+            if root is not None:
+                # A relative path is relative to the cwd the scan ran in.
+                resolved = Path(file_path).resolve()
+                if resolved.is_relative_to(root):
+                    file_path = resolved.relative_to(root).as_posix()
 
             results.append(
                 {

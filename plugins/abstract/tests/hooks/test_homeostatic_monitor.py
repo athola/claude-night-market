@@ -257,6 +257,30 @@ class TestNeedsMetacognition:
 
         assert hm._needs_metacognition(tmp_path) is True
 
+    def test_the_periodic_trigger_fires_once_per_tenth_outcome(
+        self, tmp_path: Path
+    ) -> None:
+        """Given: ten outcomes, and two flags with no outcome recorded between
+        When: _needs_metacognition is asked for each flag
+        Then: only the first recommends the pass
+
+        The count is state, not an event, so every flag after the tenth
+        outcome recommended it, and a skill held at the 100-outcome cap
+        recommended it on every flag forever.
+        """
+        _write_memory(
+            tmp_path,
+            {
+                "a:b": [
+                    _outcome(0.5, timestamp=str(i), outcome_type="success")
+                    for i in range(10)
+                ]
+            },
+        )
+
+        assert hm._needs_metacognition(tmp_path) is True
+        assert hm._needs_metacognition(tmp_path) is False
+
     def test_triggers_when_the_most_recent_outcome_regressed(
         self, tmp_path: Path
     ) -> None:

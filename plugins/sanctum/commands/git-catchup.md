@@ -9,7 +9,7 @@ usage: /git-catchup [baseline]
 To review changes, load the required skills in order:
 
 1. Run `Skill(sanctum:git-workspace-review)` to capture the Git repository context (branch, status, diffs).
-2. Run `Skill(imbue:catchup)` and work through its `TodoWrite` items (context confirmed, delta captured, insights extracted, follow-ups recorded).
+2. Run `Skill(imbue:catchup-playbook)` and work through its `TodoWrite` items (context confirmed, delta captured, insights extracted, follow-ups recorded).
 
 ## Methodology
 

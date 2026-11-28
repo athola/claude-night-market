@@ -30,7 +30,7 @@ declared `effort`.
 ## Tier definitions
 
 The tier vocabulary matches
-`plugins/egregore/skills/summon/modules/model-routing.md`, which routes
+`plugins/egregore/skills/summon-playbook/modules/model-routing.md`, which routes
 pipeline steps by the same tiers.
 
 | Tier | Alias | Effort | Task shape | Relative cost |

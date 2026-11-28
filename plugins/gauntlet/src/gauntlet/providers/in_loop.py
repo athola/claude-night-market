@@ -41,21 +41,33 @@ if TYPE_CHECKING:
     from gauntlet.models import BankProblem
 
 
-# Order matters: replace longer integers first so we do not corrupt
-# matches inside other matches.
-_INT_RE = re.compile(r"\b\d+\b")
+# One match per number as written. Matching bare digit runs split
+# "12,345" into two integers and "1.5" into two, and shifted "000" to "3"
+# (#1172). A grouped or plain integer, then any fractional or dotted parts
+# (1,234.56, 1.10.4), read whole. A number touching a letter (3.5e2,
+# 1.0x, 1,234ms) or a fraction (.5) is left alone rather than read in part.
+# A comma before anything but a three-digit group separates list items,
+# so each of [3,1,2] shifts.
+_INT_RE = re.compile(
+    r"\b(?<![.\d])(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)*(?!\w|\.\d|,\d{3}(?!\d))"
+)
 
 
 def _shift_int(match: re.Match[str]) -> str:
     """Shift an integer by a deterministic, bounded delta.
 
-    Even-length numbers shift by +2 and odd-length ones by +3. The regex
-    matches non-negative integers and the delta is always positive,
-    so the result is always >= 2.
+    Even-length numbers shift by +2 and odd-length ones by +3, counting
+    digits only. A grouped integer keeps its separators. A decimal is
+    returned unchanged: shifting one part of it changes its magnitude
+    unpredictably.
     """
     raw = match.group(0)
-    delta = 2 if len(raw) % 2 == 0 else 3
-    return str(int(raw) + delta)
+    if "." in raw:
+        return raw
+    digits = raw.replace(",", "")
+    delta = 2 if len(digits) % 2 == 0 else 3
+    shifted = int(digits) + delta
+    return f"{shifted:,}" if "," in raw else str(shifted)
 
 
 def in_loop_variation_provider(

@@ -98,6 +98,20 @@ class TestVerifiedFindings:
         result = verify_finding(Finding.from_dict(f), source_repo)
         assert result.status == "VERIFIED"
 
+    def test_anchor_two_lines_away_is_the_edge_of_the_window(
+        self, source_repo: Path
+    ) -> None:
+        f = _finding(line=5, anchor="sum(values) / len(values)")  # text on 7
+        result = verify_finding(Finding.from_dict(f), source_repo)
+        assert result.status == "VERIFIED"
+
+    def test_anchor_three_lines_away_fails(self, source_repo: Path) -> None:
+        """A citation off by more than the window points at the wrong code."""
+        f = _finding(line=4, anchor="sum(values) / len(values)")  # text on 7
+        result = verify_finding(Finding.from_dict(f), source_repo)
+        assert result.status == "FAILED"
+        assert result.reason == "anchor not found near line 4"
+
     def test_substring_anchor_verifies(self, source_repo: Path) -> None:
         """A verbatim substring of the cited line is sufficient."""
         f = _finding(line=7, anchor="sum(values) / len(values)")
@@ -292,6 +306,20 @@ class TestCli:
             ]
         )
         assert code == 2
+
+    @pytest.mark.parametrize("contents", [None, "{not json"])
+    def test_cli_errors_keep_json_stdout_clean(
+        self, source_repo: Path, capsys, contents: str | None
+    ) -> None:
+        """A caller piping --format json into a parser gets only JSON on stdout."""
+        path = source_repo / "findings.json"
+        if contents is not None:
+            path.write_text(contents)
+        code = main(["--findings", str(path), "--format", "json"])
+        captured = capsys.readouterr()
+        assert code == 2
+        assert captured.out == ""
+        assert captured.err.startswith("ERROR:")
 
     def test_cli_json_format(self, source_repo: Path, capsys) -> None:
         """--format json emits a machine-readable verdict with failures."""

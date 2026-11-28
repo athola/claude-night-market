@@ -34,7 +34,8 @@ JSON, and bounds it with an iteration counter read from its state
 file: `max_iterations`, where 0 means run forever. herald's
 `hooks/double_shot_latte.py` is a third: it blocks a stop when the last
 message states an intent to keep working, bounded by
-`MAX_CONTINUATIONS` blocks in a 300-second window. So the mechanism is
+`MAX_CONTINUATIONS` consecutive blocks in one chain, reset when the
+user starts a turn. So the mechanism is
 load-bearing for at least three plugins here, and two of them had
 already concluded it needs a bound. egregore's stall counter does not
 see herald's blocks, and the two bounds are separate.
@@ -137,3 +138,23 @@ Any one of these retires it:
   and the night-run E2E passes with the egregore Stop hook disabled.
 - Upstream changes the semantics and the loop breaks, in which case
   this record is the starting point rather than a rediscovery.
+
+## Re-verification, 2026-11-24
+
+Issue #1073 asked whether the loop should move to a documented
+continuation primitive. The decision stands, because none of the
+closing conditions above has been met. The harness records in this
+repository through CLI 2.1.323 describe no such primitive. That covers
+`docs/knowledge-corpus/claude-code-harness-deltas.md` and the payload
+table in `plugins/abstract/skills/hook-authoring/modules/hook-types.md`.
+
+The deltas recorded since 2026-08-23 add input to the Stop hook. Since
+2.1.232 the Stop input lists in-flight subagents in `background_tasks`,
+and `stop_hook.py` already reads it before blocking. `StopFailure` fires
+on an API error such as `rate_limit` and cannot block. It could record a
+cooldown, but it could not continue a loop.
+
+This pass read the repository's records and left the upstream hooks
+reference unread. The first volatile claim keeps its 2026-08-23 check
+date for that reason. The next pass starts with that reference, then
+trials the `claude --bg` supervisor, which is still the one candidate.

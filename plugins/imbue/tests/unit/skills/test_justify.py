@@ -23,7 +23,7 @@ class TestJustifySkillStructure:
     @pytest.fixture
     def skill_path(self) -> Path:
         """Path to the justify skill."""
-        return Path(__file__).parents[3] / "skills" / "justify" / "SKILL.md"
+        return Path(__file__).parents[3] / "skills" / "justify-playbook" / "SKILL.md"
 
     @pytest.fixture
     def skill_content(self, skill_path: Path) -> str:
@@ -50,7 +50,7 @@ class TestJustifySkillStructure:
         When parsing frontmatter
         Then name, description, and category should be present
         """
-        assert "name: justify" in skill_content
+        assert "name: justify-playbook" in skill_content
         assert "category:" in skill_content
         assert "description:" in skill_content
 
@@ -77,7 +77,7 @@ class TestAdditiveBiasDetection:
     @pytest.fixture
     def skill_content(self) -> str:
         """Load the skill content."""
-        path = Path(__file__).parents[3] / "skills" / "justify" / "SKILL.md"
+        path = Path(__file__).parents[3] / "skills" / "justify-playbook" / "SKILL.md"
         return path.read_text()
 
     @pytest.mark.bdd
@@ -117,7 +117,7 @@ class TestIronLawCompliance:
     @pytest.fixture
     def skill_content(self) -> str:
         """Load the skill content."""
-        path = Path(__file__).parents[3] / "skills" / "justify" / "SKILL.md"
+        path = Path(__file__).parents[3] / "skills" / "justify-playbook" / "SKILL.md"
         return path.read_text()
 
     @pytest.mark.bdd
@@ -171,7 +171,7 @@ class TestMinimalInterventionAnalysis:
     @pytest.fixture
     def skill_content(self) -> str:
         """Load the skill content."""
-        path = Path(__file__).parents[3] / "skills" / "justify" / "SKILL.md"
+        path = Path(__file__).parents[3] / "skills" / "justify-playbook" / "SKILL.md"
         return path.read_text()
 
     @pytest.mark.bdd
@@ -222,7 +222,7 @@ class TestInvariantImpactAnalysis:
     @pytest.fixture
     def skill_content(self) -> str:
         """Load the skill content."""
-        path = Path(__file__).parents[3] / "skills" / "justify" / "SKILL.md"
+        path = Path(__file__).parents[3] / "skills" / "justify-playbook" / "SKILL.md"
         return path.read_text()
 
     @pytest.mark.bdd

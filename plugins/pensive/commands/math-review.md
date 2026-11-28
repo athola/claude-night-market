@@ -15,5 +15,5 @@ Intensive mathematical analysis for numerical stability and correctness.
 
 ## What It Does
 
-Invoke `Skill(pensive:math-review)`, which carries the analysis workflow,
-the numerical-stability checks and the output format.
+Invoke `Skill(pensive:math-review-playbook)`, which carries the analysis
+workflow, the numerical-stability checks and the output format.

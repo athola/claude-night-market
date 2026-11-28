@@ -241,11 +241,11 @@ Number of activation phrases in the skill description.
 | estimated_tokens | yes |
 
 Missing fields fail validation in
-`Skill(abstract:skills-eval)`.
+`Skill(abstract:skills-eval-playbook)`.
 
 ## Worked Example: Scoring a Skill File
 
-A reviewer measures a fictional `tome:research` skill
+A reviewer measures a fictional `tome:research-playbook` skill
 against the metrics above.
 
 ```text

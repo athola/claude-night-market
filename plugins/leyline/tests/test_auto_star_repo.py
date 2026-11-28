@@ -28,6 +28,22 @@ import pytest
 HOOK_PATH = Path(__file__).parent.parent / "hooks" / "auto-star-repo.sh"
 
 
+def _bash_on_test_path_has_xtracefd() -> bool:
+    """BASH_XTRACEFD arrived in bash 4.1, and the hook runs under the bash
+    on /usr/bin:/bin, which is 3.2 on stock macOS. There the trace cannot
+    go to another fd at all, so that leak path does not exist to test.
+    """
+    versinfo = subprocess.run(
+        ["bash", "-c", 'printf "%s %s" "${BASH_VERSINFO[0]}" "${BASH_VERSINFO[1]}"'],
+        env={"PATH": "/usr/bin:/bin"},
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.split()
+    major, minor = (int(part) for part in versinfo)
+    return (major, minor) >= (4, 1)
+
+
 @pytest.fixture
 def hook_source() -> str:
     """Load the auto-star hook source code."""
@@ -413,6 +429,10 @@ class TestXtraceKeepsTheTokenOut:
         )
 
     @pytest.mark.unit
+    @pytest.mark.skipif(
+        not _bash_on_test_path_has_xtracefd(),
+        reason="BASH_XTRACEFD needs bash 4.1+; /usr/bin:/bin has an older bash",
+    )
     @pytest.mark.parametrize("args", [["-x"], ["-x", "--star"]])
     def test_trace_sent_to_its_own_fd_never_prints_the_token(
         self, tmp_path: Path, args: list[str]

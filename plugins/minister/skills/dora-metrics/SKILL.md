@@ -60,6 +60,7 @@ dimension as the next improvement target.
 1. Run the helper script with the desired window:
 
    ```bash
+   export PYTHONPATH="${CLAUDE_PLUGIN_ROOT}/src"
    python3 -m minister.dora_metrics --window 30 --branch main
    ```
 

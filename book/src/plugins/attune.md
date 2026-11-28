@@ -38,7 +38,7 @@ graph LR
 | `/attune:execute` | 6. Implementation | Execute tasks with TDD discipline |
 | `/attune:upgrade-project` | Maintenance | Add configs to existing projects |
 | `/attune:mission` | Full Cycle | Run entire lifecycle as a single mission with state detection |
-| `/attune:skill-library` | Knowledge Transfer | Build a project skill library under `.claude/skills/` as a resumable mission |
+| `/attune:skill-library-session` | Knowledge Transfer | Build a project skill library under `.claude/skills/` as a resumable mission |
 | `/attune:validate` | Quality | Validate project structure |
 
 ## Supported Languages
@@ -95,11 +95,11 @@ graph LR
 | Skill | Purpose |
 |-------|---------|
 | `project-brainstorming` | Socratic ideation workflow |
-| `war-room` | Multi-LLM expert council with Type 1/2 decision routing |
+| `war-room-playbook` | Multi-LLM expert council with Type 1/2 decision routing |
 | `war-room-checkpoint` | Inline RS assessment for embedded escalation during workflow |
 | `project-specification` | Spec creation from war-room decision |
 | `project-planning` | Architecture and task breakdown |
-| `project-init` | Interactive project initialization |
+| `project-init-playbook` | Interactive project initialization |
 | `project-execution` | Systematic implementation |
 | `makefile-generation` | Generate language-specific Makefiles |
 | `mission-orchestrator` | Lifecycle orchestrator with interactive plan review before execution |

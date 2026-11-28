@@ -86,22 +86,21 @@ continuously rather than in occasional sweeps. Reach for the commands
 above when a commit is blocked, or when you want the dry-run diff before
 the hook acts for you.
 
-### 3. Committed state must be drained
+### 3. The local index must be drained
 
-The commit that carries the index must carry it with zero `pending`
-entries. `scripts/check_capture_index_drained.py` runs at the end of the
-maintenance hook and fails the commit otherwise, and
-`tests/test_capture_index_artifact.py` re-checks the same invariant in
-CI so a bypassed hook does not land a backlog.
+The capture index is gitignored local state (#1067). A commit is blocked
+while it holds `pending` entries. `scripts/check_capture_index_drained.py`
+runs at the end of the maintenance hook and fails the commit otherwise.
+`tests/test_capture_index_artifact.py` re-checks the same invariant
+wherever a local index exists. A fresh clone has none, and the first
+capture creates it.
 
 Two things make that gate reachable rather than a standing block:
 
-- The capture write stages the index
-  (`hooks/shared/deduplication._stage_index`). Without it, pre-commit
-  reverts the unstaged write before any hook runs, so the drain reads a
-  tree the fresh capture is missing from and converges on a fixed point
-  that excludes exactly the entries it exists to process. That is how 47
-  captures accumulated behind a drain that reported nothing to do.
+- pre-commit leaves an ignored file in place, and the drain reads every
+  capture in the working tree. While the index was tracked, an unstaged
+  write was reverted before any hook ran. That is how 47 captures
+  accumulated behind a drain that reported nothing to do.
 - The drain resolves promote and archive by itself. Only `hold` survives
   it, so a blocked commit means a specific capture needs a person to
   score or archive it. The gate names the keys.

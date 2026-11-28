@@ -75,8 +75,9 @@ def check_negation_density(
 ) -> list[DensityFinding]:
     """Report when more than *threshold* of sentences are negative.
 
-    Returns a list of at most one finding, matching the other checks in
-    this package so a caller can concatenate results.
+    Returns a list of at most one finding, like the other checks in this
+    package. The finding types differ, so a caller handles each check's
+    results on their own.
 
     Passages shorter than *min_sentences* return nothing: two negative
     sentences in a row are a coincidence, and a ratio over a handful of

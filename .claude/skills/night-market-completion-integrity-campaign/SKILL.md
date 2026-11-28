@@ -39,7 +39,7 @@ The load-bearing weakness, verified by reading commit 83281337: the
 `completion_integrity` flag is real code with a tested load path, but
 its enforcement is in agent instructions
 (`plugins/egregore/agents/orchestrator.md`, the `egregore:quality-gate`
-skill, and `skills/summon/modules/pipeline.md`). No Python code path
+skill, and `skills/summon-playbook/modules/pipeline.md`). No Python code path
 blocks a pipeline transition. The manifest that records item status
 (`.egregore/manifest.json`) is written by the same agent the gate is
 supposed to bind. The campaign exists to close that gap with evidence.

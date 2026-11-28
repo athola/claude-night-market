@@ -32,6 +32,7 @@ cd plugins/oracle && uv run python -c "
 from oracle.provision import provision_venv, get_venv_path
 result = provision_venv(get_venv_path())
 print(result.message)
+raise SystemExit(0 if result.success else 1)
 "
 ```
 
@@ -40,11 +41,12 @@ print(result.message)
    session once a `models/` directory exists in the plugin. None
    ships yet, so until then the hook logs "models directory
    missing" to `daemon.log` and consumers use local scoring.
-4. If failed, show the error and suggest checking uv and network.
+4. If it exits 1, show the printed message and suggest checking uv
+   and network.
 
 ## Exit Criteria
 
-- [ ] `provision_venv()` returns a result with a non-error `message`
+- [ ] The provisioning command exits 0 (`result.success` is true)
   and the venv path exists on disk under `plugins/oracle/`
 - [ ] `yaml` is importable inside the provisioned venv; verified by
   running the venv's python with `-c "import yaml"` and exit code 0

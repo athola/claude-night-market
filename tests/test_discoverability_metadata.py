@@ -152,7 +152,7 @@ SKILLS = [
     "plugins/attune/skills/project-specification/SKILL.md",
     "plugins/attune/skills/project-planning/SKILL.md",
     "plugins/attune/skills/project-execution/SKILL.md",
-    "plugins/attune/skills/war-room/SKILL.md",
+    "plugins/attune/skills/war-room-playbook/SKILL.md",
     "plugins/attune/skills/makefile-generation/SKILL.md",
     "plugins/attune/skills/precommit-setup/SKILL.md",
     "plugins/attune/skills/workflow-setup/SKILL.md",

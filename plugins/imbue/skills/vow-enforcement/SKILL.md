@@ -12,7 +12,7 @@ tags:
 dependencies:
 - imbue:proof-of-work
 - imbue:scope-guard
-- imbue:justify
+- imbue:justify-playbook
 tools: []
 usage_patterns:
 - constraint-classification

@@ -14,6 +14,7 @@ from gauntlet.models import (
     GraphEdge,
     KnowledgeEntry,
     OnboardingProgress,
+    _sanitize_name,
 )
 
 # ---------------------------------------------------------------------------
@@ -569,3 +570,10 @@ class TestGraphEdgeValidation:
         )
         assert edge.source_qn == "   "
         assert edge.target_qn == "   "
+
+
+def test_sanitize_name_drops_each_control_code_point_and_keeps_the_rest() -> None:
+    controls = "".join(chr(c) for c in range(0x20))
+    kept = " ~\x7f  é漢"
+    assert _sanitize_name(f"a{controls}b{kept}") == f"ab{kept}"
+    assert _sanitize_name("x" * 300) == "x" * 255

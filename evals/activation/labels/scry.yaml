@@ -25,9 +25,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: cartograph:atlas; judge: scry:browser-recording/scry:capture-set'
+  notes: 'router: scry:capture-set; judge: scry:browser-recording/scry:capture-set'
   proposals:
-    router: cartograph:atlas
+    router: scry:capture-set
     judge: scry:browser-recording
     judge_runner_up: scry:capture-set
 - id: scry.browser-recording.p3
@@ -85,13 +85,16 @@ cases:
     in the browser. Run them all at the same time instead of one after another, and
     if one breaks, still give me the rest and tell me which failed.
   target: scry:capture-set
-  competitor: cartograph:atlas
+  competitor: scry:record-terminal
   cluster: scry:capture-set
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at attune:skill-library; router: scry:capture-set; judge: scry:capture-set/None'
+  adjudicated: true
+  notes: 'aimed at attune:skill-library; router: scry:capture-set; judge: scry:capture-set/None;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    competitor was cartograph:atlas, unrelated; single-flow recording is the real
+    neighbor'
   proposals:
     aimed_at: attune:skill-library
     router: scry:capture-set
@@ -123,8 +126,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: scry:gif-generation
     judge: scry:gif-generation
@@ -156,9 +160,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: sanctum:tutorial-updates; judge: scry:media-composition/scry:gif-generation'
+  notes: 'router: scry:browser-recording; judge: scry:media-composition/scry:gif-generation'
   proposals:
-    router: sanctum:tutorial-updates
+    router: scry:browser-recording
     judge: scry:media-composition
     judge_runner_up: scry:gif-generation
 - id: scry.media-composition.p2
@@ -171,29 +175,32 @@ cases:
   cluster: scry:media-composition
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: pensive:full-review; judge: scry:media-composition'
+  adjudicated: true
+  notes: 'router: pensive:full-review; judge: scry:media-composition/None; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: pensive:full-review
     judge: scry:media-composition
+    judge_runner_up: null
 - id: scry.media-composition.p3
   type: near_miss
   prompt: Combine the terminal GIF and the browser GIF side by side into one output,
     following the components listed in tutorials/mcp.manifest.yaml. Check that both
     inputs exist first.
   target: scry:media-composition
-  competitor: sanctum:tutorial-updates
+  competitor: scry:gif-generation
   cluster: scry:media-composition
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at gauntlet:knowledge-extract; router: scry:browser-recording; judge:
-    scry:media-composition/sanctum:tutorial-updates'
+    scry:media-composition/scry:gif-generation'
   proposals:
     aimed_at: gauntlet:knowledge-extract
     router: scry:browser-recording
     judge: scry:media-composition
-    judge_runner_up: sanctum:tutorial-updates
+    judge_runner_up: scry:gif-generation
 - id: scry.record-browser.p1
   type: positive
   prompt: Scaffold a new Playwright spec for a login-flow demo recording so I have
@@ -229,18 +236,18 @@ cases:
   prompt: Just record specs/login.spec.ts to video and convert it to a GIF. It's one
     spec, so don't touch the rest of the tutorials or rebuild anything else.
   target: scry:record-browser
-  competitor: scry:browser-recording
+  competitor: sanctum:tutorial-updates
   cluster: scry:record-browser
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at sanctum:tutorial-updates; router: spec-kit:spec-review; judge:
-    scry:record-browser/scry:browser-recording'
+    scry:record-browser/sanctum:tutorial-updates'
   proposals:
     aimed_at: sanctum:tutorial-updates
     router: spec-kit:spec-review
     judge: scry:record-browser
-    judge_runner_up: scry:browser-recording
+    judge_runner_up: sanctum:tutorial-updates
 - id: scry.record-terminal.p1
   type: positive
   prompt: Check the syntax of assets/tapes/demo.tape before I record, then run it

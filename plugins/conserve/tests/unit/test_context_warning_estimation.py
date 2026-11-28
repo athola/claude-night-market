@@ -395,7 +395,8 @@ class TestEstimateFromRecentTurns:
         # Create valid JSONL with large text blocks so content_chars >> context_window
         big_text = "a" * 10_000
         lines = []
-        for _ in range(100):
+        # 1000 x 10_000 chars is 2.5M content tokens, past any context window.
+        for _ in range(1000):
             entry = {
                 "role": "assistant",
                 "content": [{"type": "text", "text": big_text}],
@@ -406,8 +407,7 @@ class TestEstimateFromRecentTurns:
 
         result = context_warning_full_module._estimate_from_recent_turns(session_file)
 
-        assert result is not None
-        assert result <= 0.95
+        assert result == 0.95
 
     @pytest.mark.bdd
     @pytest.mark.unit

@@ -1,0 +1,466 @@
+---
+name: pr-review-playbook
+description: Reviews pull requests with scope validation, requirements compliance, and line comments. Use when reviewing GitHub or GitLab PRs.
+alwaysApply: false
+category: review
+tags:
+- pr
+- review
+- scope
+- github
+- gitlab
+- code-quality
+- knowledge-capture
+- cross-platform
+tools: []
+usage_patterns:
+- scope-validation
+- backlog-triage
+- requirement-compliance
+- knowledge-capture
+complexity: intermediate
+estimated_tokens: 500
+progressive_loading: true
+modules:
+- modules/anti-patterns.md
+- modules/comment-guidelines.md
+- modules/educational-insights.md
+- modules/github-comments.md
+- modules/insight-generation.md
+- modules/interactive-review.md
+- modules/invariant-conflicts.md
+- modules/knowledge-capture.md
+- modules/pr-hygiene.md
+- modules/suggestion-comments.md
+- modules/version-validation.md
+- modules/scope-classification.md
+- modules/slop-detection.md
+- modules/review-questions.md
+dependencies:
+- leyline:git-platform
+- sanctum:git-workspace-review
+- sanctum:version-updates
+- pensive:unified-review-playbook
+- imbue:proof-of-work
+- imbue:justify-playbook
+- imbue:review-core
+- imbue:structured-output
+- memory-palace:review-chamber
+- scribe:slop-detector
+- scribe:doc-generator
+role: entrypoint
+---
+
+# Scope-Focused PR Review
+
+Review pull/merge requests with discipline: validate against original requirements, prevent scope creep, and route out-of-scope findings to issues on the detected platform.
+
+**Platform detection is automatic** via `leyline:git-platform`. Use `gh` for GitHub, `glab` for GitLab. Check session context for `git_platform:`.
+
+## Core Principle
+
+**A PR review validates scope compliance, not code perfection.**
+
+The goal is to validate the implementation meets its stated requirements without introducing regressions. Improvements beyond the scope belong in future PRs.
+
+## When To Use
+
+- Before merging any feature branch
+- When reviewing PRs from teammates
+- To validate your own work before requesting review
+- To generate a backlog of improvements discovered during review
+
+## When NOT To Use
+
+- Preparing PRs - use pr-prep instead
+- Deep code
+  review - use pensive:unified-review
+- Preparing PRs - use pr-prep instead
+- Deep code
+  review - use pensive:unified-review
+
+## Scope Classification Framework
+
+How each finding is classified against the PR's stated scope:
+[`modules/scope-classification.md`](modules/scope-classification.md).
+
+## Workflow
+
+### Phase 1: Establish Scope Baseline
+
+Before looking at ANY code, understand what this PR is supposed to accomplish.
+
+**Note:** Version validation (Phase 1.5) runs AFTER scope establishment but BEFORE code review. See `modules/version-validation.md` for details.
+
+**Search for scope artifacts in order:**
+
+1. **Plan file**: Most authoritative (check spec-kit locations first, then root)
+   ```bash
+   # Spec-kit feature plans (preferred - structured implementation blueprints)
+   find specs -name "plan.md" -type f 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -100
+   # Legacy/alternative locations
+   ls docs/plans/ 2>/dev/null
+   # Root plan.md (may be Claude Plan Mode artifact from v2.0.51+)
+   cat plan.md 2>/dev/null | head -100
+   ```
+   **Verification:** Run the command with `--help` flag to verify availability.
+
+2. **Spec file**: Requirements definition (check spec-kit locations first)
+   ```bash
+   find specs -name "spec.md" -type f 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -100
+   cat spec.md 2>/dev/null | head -100
+   ```
+   **Verification:** Run the command with `--help` flag to verify availability.
+
+3. **Tasks file**: Implementation checklist (check spec-kit locations first)
+   ```bash
+   find specs -name "tasks.md" -type f 2>/dev/null | head -1 | xargs cat 2>/dev/null
+   cat tasks.md 2>/dev/null
+   ```
+   **Verification:** Run the command with `--help` flag to verify availability.
+
+4. **PR/MR description**: Author's intent
+   ```bash
+   # GitHub
+   gh pr view <number> --json body --jq '.body'
+   # GitLab
+   glab mr view <number> --json description --jq '.description'
+   ```
+   **Verification:** Run the command with `--help` flag to verify availability.
+
+5. **Commit messages**: Incremental decisions
+   ```bash
+   # GitHub
+   gh pr view <number> --json commits --jq '.commits[].messageHeadline'
+   # GitLab
+   glab mr view <number> --json commits
+   ```
+   **Verification:** Run the command with `--help` flag to verify availability.
+
+**Output:** A clear statement of scope:
+> "This PR implements [feature X] as specified in plan.md. The requirements are:
+> 1. [requirement]
+> 2. [requirement]
+> 3. [requirement]"
+
+If no scope artifacts exist, flag this as a process issue but continue with PR description as the baseline.
+
+**Locate the decision record.** Record whether the need (Q1) and the
+approach (Q2) were settled before this PR, and where. A settled
+decision is checked, not re-argued. A design-bearing change with no
+record gets its design reviewed first. Lookup order and routing:
+`modules/review-questions.md`.
+
+### Phase 2: Gather Changes
+
+```bash
+# GitHub
+gh pr diff <number> --name-only
+gh pr diff <number>
+gh pr view <number> --json additions,deletions,changedFiles,commits
+
+# GitLab
+glab mr diff <number>
+glab mr view <number>
+```
+**Verification:** Run the command with `--help` flag to verify availability.
+
+### Phase 3: Requirements Validation
+
+Before detailed code review, check scope coverage:
+
+- [ ] Each requirement has corresponding implementation
+- [ ] No requirements are missing
+- [ ] Implementation doesn't exceed requirements (overengineering signal)
+
+### Phase 1.5: Version Validation (MANDATORY)
+
+**Run version validation checks BEFORE code review.**
+
+See `modules/version-validation.md` for detailed validation procedures.
+
+**Quick reference:**
+1. Check if bypass requested (`--skip-version-check`, label, or PR marker)
+2. Detect if version files changed in PR diff
+3. If changed, run project-specific validations:
+   - Claude marketplace: Check marketplace.json vs plugin.json versions
+   - Python: Check pyproject.toml vs __version__
+   - Node: Check package.json vs package-lock.json
+   - Rust: Check Cargo.toml vs Cargo.lock
+4. Validate CHANGELOG has entry for new version
+5. Check README/docs for version references
+6. Classify findings as BLOCKING (or WAIVED if bypassed)
+
+**All version mismatches are BLOCKING unless explicitly waived by maintainer.**
+
+### Phase 3.5: PR Hygiene Checks
+
+Before diving into code, run the atomicity, agent-curation and
+self-review checks from `modules/pr-hygiene.md`, and classify findings
+per its severity tables.
+
+### Phase 4: Code Review with Scope Context
+
+Use `pensive:unified-review` on the changed files. For comment quality assessment, see `modules/comment-guidelines.md`.
+
+Order the reading by risk (Q3) and read every file for fit with the
+rest of the system (Q4). Pass the risky files to `pensive:unified-review`
+as its first targets, and build the report's "read in full" and "Read
+lightly" lists from what it reports having read, not from the plan.
+`modules/review-questions.md` lists what counts as risky.
+
+**Critical:** Evaluate each finding against the scope baseline:
+
+```text
+**Verification:** Run the command with `--help` flag to verify availability.
+Finding: "Function X lacks input validation"
+Scope check: Is input validation mentioned in requirements?
+  - YES → IN-SCOPE
+  - NO, but it's a security issue → BLOCKING
+  - NO, and it's a nice-to-have → BACKLOG
+```
+**Verification:** Run the command with `--help` flag to verify availability.
+
+### Phase 4.5: Additive Bias Audit
+
+Run `Skill(imbue:justify-playbook)` on the PR changes to detect
+AI additive bias, test-logic tampering, and unnecessary
+complexity.
+
+**Key checks:**
+
+1. **Additive bias score**: flag changes with high
+   add/delete ratio (>5:1) that lack justification
+2. **Iron Law compliance**: verify test assertions were
+   not weakened to match broken implementations
+3. **Minimal intervention**: confirm each changed file
+   was necessary and the change was the smallest fix
+
+**Classify justify findings using the scope framework:**
+
+| Justify Signal | Likely Classification |
+|---------------|----------------------|
+| Test logic tampered | BLOCKING |
+| High additive bias, no justification | IN-SCOPE |
+| Premature abstraction | SUGGESTION |
+| Compatibility shim | BACKLOG |
+
+Include the additive bias score and Iron Law status in
+the Phase 6 report.
+
+### Phase 4.6: Invariant Conflict Detection
+
+Load `modules/invariant-conflicts.md` and run its checks on the diff
+before Phase 5.
+
+### Phase 5: Backlog Triage
+
+For each BACKLOG item, create an issue on the detected platform:
+
+```bash
+# GitHub
+gh issue create \
+  --title "[Tech Debt] Brief description" \
+  --body "## Context
+Identified during PR #<number> review.
+..." \
+  --label "tech-debt"
+
+# GitLab
+glab issue create \
+  --title "[Tech Debt] Brief description" \
+  --description "## Context
+Identified during MR !<number> review.
+..." \
+  --label "tech-debt"
+```
+**Verification:** Run the command with `--help` flag to verify availability.
+
+**Ask user before creating:** "I found N backlog items. Create issues? [y/n/select]"
+
+### Phase 6: Generate Report
+
+Structure the report by classification. Every BLOCKING and
+IN-SCOPE finding MUST include educational insights per
+`modules/educational-insights.md`: **Why** (the principle),
+**Proof** (link to best practice), and a **Teachable Moment**
+(generalized lesson). SUGGESTION findings include Why and
+optionally Proof. BACKLOG items need only a brief rationale.
+
+With `--concise`, none of those paragraphs is posted. Each finding
+on a diff line becomes a suggestion block the author can apply,
+with a short explanation beside it only for clarification purposes.
+Findings with no line to anchor to appear in the summary as one
+line each. The full report with its educational content is still
+written locally, to the `--local` path, so nothing is lost. It is
+only kept off the MR. Posting patterns: `modules/suggestion-comments.md`.
+
+```markdown
+## PR #X: Title
+
+### Review Questions
+- Q1 need: settled (#120)
+- Q2 approach: settled (docs/plans/auth.md)
+- Q3 read in full: `db/queries.py`, `api.py`
+- Read lightly: `docs/auth.md`
+- Q4: no expectation changes
+
+### Scope Compliance
+**Requirements:** (from plan/spec)
+1. [x] Requirement A - Implemented
+2. [x] Requirement B - Implemented
+3. [ ] Requirement C - **Missing**
+
+### Blocking (1)
+1. [B1] SQL injection via string concatenation
+   - **Location**: `db/queries.py:89`
+   - **Anchor**: `cursor.execute("SELECT * FROM t WHERE id = " + uid)`
+   - **Issue**: User input interpolated directly into SQL
+   - **Why**: String-interpolated SQL allows attackers to
+     execute arbitrary queries (CWE-89). This is the #1
+     web application vulnerability per OWASP Top 10.
+   - **Proof**: [OWASP SQL Injection](https://owasp.org/www-community/attacks/SQL_Injection)
+   - **Teachable Moment**: Always use parameterized queries
+     or an ORM. This applies everywhere user input reaches
+     a database, cache, or search engine query.
+   - **Fix**: Use parameterized query:
+     `cursor.execute("SELECT * FROM t WHERE id = ?", (uid,))`
+
+### In-Scope (1)
+1. [S1] Missing validation for edge case
+   - **Location**: `api.py:45`
+   - **Anchor**: `def handle_request(payload):`
+   - **Issue**: Empty input not handled per requirement
+   - **Why**: Defensive validation at API boundaries
+     prevents cascading failures in downstream logic.
+   - **Proof**: [Postel's Law](https://en.wikipedia.org/wiki/Robustness_principle)
+   - **Teachable Moment**: Validate inputs at system
+     boundaries (API handlers, CLI args, file parsers)
+     but trust internal function contracts.
+
+### Suggestions (1)
+1. [G1] Consider extracting helper function
+   - **Why**: The repeated pattern on lines 30-35 and
+     72-77 violates DRY. Extracting it reduces future
+     bug surface.
+   - Author's discretion
+
+### Revisit (1)
+1. [R1] Polling chosen in docs/adr/0042; webhooks now exist upstream.
+   Proposed comment on #120, not yet posted.
+
+### Backlog → GitHub Issues (3)
+1. #142 - Refactor authentication module
+2. #143 - Add caching layer
+3. #144 - Update deprecated dependency
+
+### Recommendation
+**APPROVE WITH CHANGES**
+Address B1 and S1 before merge.
+```
+
+### Local Output (`--local`)
+
+When `--local [path]` is passed, write the Phase 6 report to a
+local `.md` file instead of posting via API. Default path:
+`.pr-review/pr-<number>-review.md`. The file includes the
+review summary, test plan, and backlog items in a single
+document. Issue creation and PR description updates are skipped.
+Knowledge capture (Phase 7) still runs.
+
+### Phase 7: Knowledge Capture
+
+After generating the report, findings scoring ≥60 are captured to the
+project's review chamber (`decisions/`, `patterns/`, `standards/`,
+`lessons/`) and listed in a Knowledge Captured section of the report.
+See `modules/knowledge-capture.md` for full workflow.
+
+### Phase 8: Comprehension Loop (`--interactive`)
+
+Opt-in. Skip this phase unless the reviewer passed `--interactive`.
+
+A socratic loop over the diff: each exchange is graded `pass`,
+`partial`, or `fail` and recorded to gauntlet's shared progress store.
+Probe results never change the merge recommendation. They add a
+Comprehension section to the report from Phase 6.
+
+Full turn order, scoring table, category mapping, and the recording
+contract: `modules/interactive-review.md`.
+
+## Quality Gates
+
+A PR should be approved when:
+- [ ] All stated requirements are implemented
+- [ ] No BLOCKING issues remain
+- [ ] IN-SCOPE issues are resolved or acknowledged
+- [ ] BACKLOG items are tracked as GitHub issues
+- [ ] Tests cover new code paths
+- [ ] Tests would fail if the fix were reverted (the revert test)
+- [ ] No obvious agent-generated code left uncurated
+- [ ] Author can explain how each changed section works and how
+      it could fail (understanding check, not just "tests pass")
+
+### Verify Findings Are Grounded (`pr-review:findings-verified`)
+
+Write findings to `.review/findings.json`, run the citation verifier
+(`Skill(imbue:review-core)` Step 5), and drop or label `UNVERIFIED` any
+the verifier rejects.
+
+## Anti-Patterns to Avoid
+
+Scope creep, perfectionism, blocking on style, reviewing unchanged
+code, tests that only prove the old code was bad, bundled unrelated
+changes, and merging code you cannot explain. Each one, with what to do
+instead: `modules/anti-patterns.md`.
+
+## Integration with Other Tools
+
+- **`/fix-pr`**: After review identifies issues, use this to address them
+- **`/prepare-pr`**: To prepare a PR before review
+- **`pensive:unified-review`**: For the actual code analysis
+- **`pensive:bug-review`**: For deeper bug hunting if needed
+- **`scribe:slop-detector`**: For documentation AND commit message quality analysis
+- **`scribe:doc-generator`**: For PR description writing guidelines (slop-free)
+
+## Slop Detection Integration
+
+How PR prose and changed docs are checked for AI-generated patterns:
+[`modules/slop-detection.md`](modules/slop-detection.md).
+
+## Exit Criteria
+
+- [ ] Scope baseline established and recorded in the report
+- [ ] Q1 and Q2 are each recorded as settled (with a link) or unsettled,
+      and the report's Review Questions block names the files read lightly
+- [ ] Every changed file classified in-scope, out-of-scope, or blocking
+- [ ] Each out-of-scope finding has a tracked issue number
+- [ ] Report states one recommendation: approve, comment, or request changes
+- [ ] Every BLOCKING and IN-SCOPE finding carries a `Location` (file:line)
+      and verbatim `Anchor`, and `citation_verifier.py` exits `0` or the
+      unverified findings are dropped or labeled `UNVERIFIED`
+- [ ] With `--interactive`: every hunk carrying a blocking or high-risk
+      finding was probed, or the reviewer ended the session
+- [ ] With `--interactive`: each graded exchange appears in
+      `.gauntlet/progress/<developer>.json`, and the report carries a
+      Comprehension section whose row count matches the probes recorded
+- [ ] With `--concise`: every finding on a diff line was posted as a
+      suggestion block, the summary review exists, and no test plan
+      comment or description update was posted
+- [ ] With `--hold-insights`: every direction or architecture finding was
+      shown in chat before posting, and only the selected ones appear
+      on the PR
+
+## Supporting Modules
+
+- [Scope classification](modules/scope-classification.md) - finding categories
+- [Review questions](modules/review-questions.md) - where need and approach
+  were decided, risk-ordered reading, and integration fit
+- [Invariant conflicts](modules/invariant-conflicts.md) - Phase 4.6 checks
+  for changes that weaken an invariant
+- [Slop detection](modules/slop-detection.md) - AI-pattern checks on PR prose
+- [Review anti-patterns](modules/anti-patterns.md) - what to avoid in a
+  review, with what to do instead
+- [Interactive comprehension loop](modules/interactive-review.md) -
+  socratic probes graded and recorded to gauntlet's adaptive selector
+- [GitHub PR comment patterns](modules/github-comments.md) - `gh api` patterns for inline and summary PR comments
+- [Suggestion comments](modules/suggestion-comments.md) - one-click suggestion blocks on GitHub and GitLab, and the `--concise` posting rule

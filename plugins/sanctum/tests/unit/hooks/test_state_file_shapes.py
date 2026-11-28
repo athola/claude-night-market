@@ -95,7 +95,10 @@ def test_entry_with_a_null_title_does_not_stop_the_sweep(
     assert [e.get("filed") for e in kept] == [True, None, True]
 
 
-@pytest.mark.parametrize("stored", ["Infinity", "-Infinity", "NaN"])
+@pytest.mark.parametrize(
+    "stored",
+    ["Infinity", "-Infinity", "NaN", "1" + "0" * 400, "1e300", "1" + "0" * 5000],
+)
 def test_a_non_finite_notify_time_does_not_debounce_forever(
     tmp_path: Path, monkeypatch, stored: str
 ) -> None:

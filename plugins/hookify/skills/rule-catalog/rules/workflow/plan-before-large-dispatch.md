@@ -41,4 +41,5 @@ A workflow answers the first two directly: results stay in script variables inst
 
 **Canonical copy:** `.claude/rules/plan-before-large-dispatch.md` in claude-night-market. This catalog entry is a condensed mirror; when they disagree, the canonical copy wins.
 
-**Reference:** `plugins/sanctum/skills/do-issue/modules/parallel-execution.md`
+**Reference:**
+`plugins/sanctum/skills/do-issue-playbook/modules/parallel-execution.md`

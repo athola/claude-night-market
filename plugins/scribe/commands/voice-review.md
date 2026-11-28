@@ -47,5 +47,5 @@ elsewhere) that you want to check against your voice profile.
 ## Skill Invocation
 
 ```
-Skill(scribe:voice-review)
+Skill(scribe:voice-review-playbook)
 ```

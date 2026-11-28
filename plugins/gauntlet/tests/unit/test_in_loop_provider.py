@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import importlib
 
+import pytest
+
 from gauntlet import challenges
 from gauntlet.models import BankProblem, Difficulty
 from gauntlet.providers.in_loop import (
@@ -109,6 +111,67 @@ class TestInLoopProvider:
         )
         result = in_loop_variation_provider("template", problem)
         assert result is None
+
+
+def _vary(prompt: str) -> str | None:
+    problem = BankProblem(
+        id="sd",
+        title="System design",
+        category="design",
+        difficulty=Difficulty.MEDIUM,
+        prompt=prompt,
+        hints=[],
+        tags=[],
+    )
+    return in_loop_variation_provider("template", problem)
+
+
+class TestNumberFormatsSurviveVariation:
+    """Feature: a number is shifted whole, in the format it was written (#1172)."""
+
+    def test_thousands_separated_number_shifts_as_one_number(self) -> None:
+        assert _vary("Handle 12,345 requests per second") == (
+            "Handle 12,348 requests per second"
+        )
+
+    def test_zero_groups_keep_their_digits(self) -> None:
+        assert _vary("Serve 1,000,000 users from 3 regions") == (
+            "Serve 1,000,003 users from 6 regions"
+        )
+
+    def test_decimal_is_left_whole(self) -> None:
+        assert _vary("p99 under 1.5 seconds for 10 clients") == (
+            "p99 under 1.5 seconds for 12 clients"
+        )
+
+    def test_comma_list_of_small_numbers_shifts_each(self) -> None:
+        assert _vary("sizes 3, 5, 7") == "sizes 6, 8, 10"
+
+    def test_unspaced_comma_list_shifts_each(self) -> None:
+        # An array literal is where a memorized answer is most likely to
+        # be reused, so its elements must change too.
+        assert _vary("nums = [3,1,2], target 4") == "nums = [6,4,5], target 7"
+
+    def test_three_digit_groups_read_as_thousands(self) -> None:
+        # "[100,200,300]" is ambiguous. It is read as one grouped number,
+        # the same reading that keeps 1,000,000 whole.
+        assert _vary("ids [100,200,300]") == "ids [100,200,303]"
+
+    def test_dotted_version_is_left_whole(self) -> None:
+        assert _vary("upgrade from 1.10.4 to 10.0.0.1 in 3 steps") == (
+            "upgrade from 1.10.4 to 10.0.0.1 in 6 steps"
+        )
+
+    @pytest.mark.parametrize(
+        "number",
+        ["$1,234.56", "3.5e2", "1.0x", "1,234ms"],
+        ids=["grouped", "sci", "suffix", "grouped-unit"],
+    )
+    def test_a_number_with_a_fraction_or_suffix_is_left_whole(self, number) -> None:
+        assert _vary(f"costs {number} over 4 nodes") == f"costs {number} over 7 nodes"
+
+    def test_decimal_without_a_leading_digit_is_left_whole(self) -> None:
+        assert _vary("a .5 margin over 4 nodes") == "a .5 margin over 7 nodes"
 
 
 class TestRunningInClaudeCode:

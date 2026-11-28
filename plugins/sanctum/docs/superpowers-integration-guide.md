@@ -25,7 +25,6 @@ Each command follows this consistent pattern:
 ---
 name: <command>
 description: Enhanced <command> that combines Sanctum's <feature> with superpowers:receiving-code-review
-extends: "superpowers:receiving-code-review"
 ---
 ```
 

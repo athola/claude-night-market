@@ -92,7 +92,7 @@ def test_research_passes_the_analysis_to_the_triz_channel_only() -> None:
     script = (PLUGIN / "workflows" / "research.js").read_text()
     assert "input.trizAnalysis" in script
     assert "c.key === 'triz'" in script
-    research = (PLUGIN / "skills" / "research" / "SKILL.md").read_text()
+    research = (PLUGIN / "skills" / "research-playbook" / "SKILL.md").read_text()
     assert "tome.channels.triz analyze" in research
     assert "trizAnalysis" in research
 

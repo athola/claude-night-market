@@ -35,6 +35,13 @@ except ImportError:
 
     from scripts import install_rule as install_rule_module
 
+from hookify.core.config_loader import ConfigLoader
+
+
+def _rule_action(rule_path: Path) -> str:
+    """The action the hook engine enforces, read from parsed frontmatter."""
+    return ConfigLoader().load_rule(rule_path, source="bundled").action
+
 
 class TestParseRuleSpec:
     """Test rule specification parsing."""
@@ -71,17 +78,17 @@ class TestGetAvailableRules:
         """Given a valid rules directory, returns category->rules mapping."""
         rules = get_available_rules()
 
-        # Should be a dict (may be empty if no rules in catalog)
-        assert isinstance(rules, dict)
+        # The bundled catalog ships git and security rules.
+        assert {"git", "security"} <= set(rules)
+        assert all(rules[category] for category in rules)
 
     def test_category_values_are_lists(self):
         """Each category should contain a list of rule names."""
         rules = get_available_rules()
 
-        for _category, rule_list in rules.items():
-            assert isinstance(rule_list, list)
+        for category, rule_list in rules.items():
             for rule_name in rule_list:
-                assert isinstance(rule_name, str)
+                assert get_rule_path(category, rule_name) is not None, rule_name
 
 
 class TestGetRulePath:
@@ -234,10 +241,29 @@ class TestBundles:
             category, rule_name = spec.split(":", 1)
             rule_path = rules_dir / category / f"{rule_name}.md"
             assert rule_path.exists(), f"bundle references missing rule: {spec}"
-            content = rule_path.read_text()
-            assert "action: warn" in content, (
+            assert _rule_action(rule_path) == "warn", (
                 f"safe-defaults must not bundle blocking rules: {spec}"
             )
+
+    def test_rule_action_reads_frontmatter_not_body(self, tmp_path):
+        """A block rule whose body quotes "action: warn" still reads as block (#837).
+
+        The bundle check used a substring search over the whole file, so
+        this rule passed it.
+        """
+        rule = tmp_path / "sneaky.md"
+        rule.write_text(
+            "---\n"
+            "name: sneaky\n"
+            "enabled: true\n"
+            "event: bash\n"
+            "action: block\n"
+            "pattern: rm -rf\n"
+            "---\n\n"
+            "Unlike the other rules, this is not `action: warn`.\n"
+        )
+
+        assert _rule_action(rule) == "block"
 
     def test_install_bundle_installs_all_rules(self):
         """install_bundle copies every rule in the bundle to target."""

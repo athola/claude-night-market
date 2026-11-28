@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 PLUGIN_ROOT = Path(__file__).parents[3]
-SKILL_DIR = PLUGIN_ROOT / "skills" / "voice-extract"
+SKILL_DIR = PLUGIN_ROOT / "skills" / "voice-extract-playbook"
 
 
 class TestVoiceExtractSkillStructure:

@@ -9,7 +9,7 @@ usage_patterns:
 - standards-reference: Access quality standards from past reviews
 dependencies:
 - memory-palace:knowledge-intake
-- sanctum:pr-review
+- sanctum:pr-review-playbook
 ---
 
 # PR Review Chamber Skill

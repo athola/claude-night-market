@@ -4,7 +4,7 @@
   "main": "skills",
   "skills": [
     "skills/modular-skills",
-    "skills/skills-eval"
+    "skills/skills-eval-playbook"
   ],
   "dependencies": {},
   "provides": {

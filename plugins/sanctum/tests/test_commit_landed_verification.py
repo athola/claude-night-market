@@ -24,7 +24,7 @@ SANCTUM_ROOT = Path(__file__).resolve().parent.parent
 ACP = SANCTUM_ROOT / "commands" / "acp.md"
 COMMIT_MESSAGES = SANCTUM_ROOT / "skills" / "commit-messages" / "SKILL.md"
 PARALLEL_EXECUTION = (
-    SANCTUM_ROOT / "skills" / "do-issue" / "modules" / "parallel-execution.md"
+    SANCTUM_ROOT / "skills" / "do-issue-playbook" / "modules" / "parallel-execution.md"
 )
 
 

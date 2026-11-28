@@ -21,7 +21,8 @@ from pathlib import Path
 import pytest
 
 MODULE = (
-    Path(__file__).resolve().parents[1] / "skills/pr-review/modules/slop-detection.md"
+    Path(__file__).resolve().parents[1]
+    / "skills/pr-review-playbook/modules/slop-detection.md"
 )
 
 

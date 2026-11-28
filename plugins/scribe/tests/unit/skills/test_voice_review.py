@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 
 PLUGIN_ROOT = Path(__file__).parents[3]
-SKILL_DIR = PLUGIN_ROOT / "skills" / "voice-review"
+SKILL_DIR = PLUGIN_ROOT / "skills" / "voice-review-playbook"
 AGENTS_DIR = PLUGIN_ROOT / "agents"
 
 

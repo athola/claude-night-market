@@ -70,6 +70,23 @@ class CooldownState(Protocol):
     cooldown_until: Optional[str]
 
 
+class UsageLimited(Exception):
+    """Raised when a run was refused for quota rather than for correctness.
+
+    Carries the kind of refusal and the text it was read from, so the
+    caller can record a real reset instant rather than a guessed one.
+    Defined here rather than in night_run, which runs as ``__main__``:
+    claude_babysitter imports night_run by name, so a class defined there
+    would be a second copy that the walk's ``except`` does not catch.
+    """
+
+    def __init__(self, kind: str, text: str) -> None:
+        """Record which limit was hit and the response that said so."""
+        super().__init__(f"{kind}: {text[:200]}")
+        self.kind = kind
+        self.text = text
+
+
 def _now(now: Optional[datetime] = None) -> datetime:
     return now or datetime.now(timezone.utc)
 

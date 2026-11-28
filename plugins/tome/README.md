@@ -12,7 +12,7 @@ domain-appropriate reports.
 
 | Command | Purpose |
 |---------|---------|
-| `/tome:research "topic"` | Start a research session |
+| `/tome:research-session "topic"` | Start a research session |
 | `/tome:dig "subtopic"` | Refine results interactively |
 | `/tome:cite` | Generate bibliography |
 | `/tome:export` | Export for memory-palace |
@@ -92,14 +92,14 @@ depth and channel weights:
 
 | Skill | Purpose |
 |-------|---------|
-| `research` | Pipeline orchestrator |
+| `research-playbook` | Pipeline orchestrator |
 | `code-search` | GitHub search |
 | `discourse` | Community scanning |
 | `papers` | Academic literature |
 | `triz` | Cross-domain analysis |
 | `web-search` | Open-web search (You.com MCP or WebSearch) |
 | `synthesize` | Merge and format |
-| `dig` | Interactive refinement |
+| `dig-playbook` | Interactive refinement |
 
 ## Agents
 

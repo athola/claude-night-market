@@ -52,8 +52,9 @@ def check_so_density(
 ) -> list[SoDensityFinding]:
     """Report when ", so" tails exceed *threshold* per 1000 words.
 
-    Returns at most one finding, matching the other document checks in
-    this package, and a caller can concatenate the results.
+    Returns at most one finding, like the other document checks in this
+    package. The finding types differ, so a caller handles each check's
+    results on their own.
     """
     prose = INLINE_CODE.sub(" ", FENCED_CODE.sub(" ", text))
     words = len(prose.split())

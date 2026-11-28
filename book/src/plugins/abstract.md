@@ -21,9 +21,9 @@ and maintaining Claude Code plugins. It's the toolkit for plugin developers.
 | `skill-authoring` | TDD methodology with Iron Law enforcement | Creating new skills with quality standards |
 | `hook-authoring` | Security-first hook development | Building safe, effective hooks |
 | `modular-skills` | Modular design patterns | Breaking large skills into modules |
-| `rules-eval` | Claude Code rules validation | Auditing `.claude/rules/` for frontmatter, glob patterns, and content quality |
-| `skills-eval` | Skill quality assessment | Auditing skills for token efficiency |
-| `hooks-eval` | Hook security scanning | Verifying hook safety |
+| `rules-eval-playbook` | Claude Code rules validation | Auditing `.claude/rules/` for frontmatter, glob patterns, and content quality |
+| `skills-eval-playbook` | Skill quality assessment | Auditing skills for token efficiency |
+| `hooks-eval-playbook` | Hook security scanning | Verifying hook safety |
 | `escalation-governance` | Model escalation decisions | Deciding when to escalate models |
 | `methodology-curator` | Expert framework curation | Grounding skills in proven methodologies |
 | `subagent-testing` | Subagent test patterns | Testing subagent interactions |
@@ -192,7 +192,7 @@ reads stability metrics from memory-palace's `.history.json`.
 ### Evaluate Skill Quality
 
 ```bash
-Skill(abstract:skills-eval)
+Skill(abstract:skills-eval-playbook)
 
 # Scores skills on:
 # - Token efficiency

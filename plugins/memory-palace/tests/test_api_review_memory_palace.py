@@ -171,6 +171,24 @@ def test_never_validated_entry_decays_from_its_created_at() -> None:
     assert [s.entry_id for s in stale] == ["x"]
 
 
+def test_an_old_open_thread_is_not_stale() -> None:
+    """An open thread has a 1.0 floor: unanswered is not less relevant."""
+    created = (datetime.now(timezone.utc) - timedelta(days=400)).isoformat()
+    stale = DecayModel().get_stale_entries(
+        [
+            {
+                "id": "q",
+                "maturity": "seedling",
+                "importance_score": 10,
+                "created_at": created,
+                "unit_type": "open-thread",
+            }
+        ],
+        threshold=0.5,
+    )
+    assert stale == []
+
+
 def test_never_validated_entry_without_created_at_is_not_stale() -> None:
     stale = DecayModel().get_stale_entries(
         [{"id": "x", "maturity": "seedling", "importance_score": 10}]

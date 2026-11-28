@@ -26,7 +26,12 @@ from collections.abc import Mapping
 from typing import Any
 
 import window
-from night_run import Completed, Runner, SubprocessRunner
+from night_run import (
+    Completed,
+    Runner,
+    SubprocessRunner,
+    _raise_if_usage_limited,
+)
 from verdict import babysitter_schema
 
 #: Environment marker that stops a judge session from spawning a judge.
@@ -146,6 +151,10 @@ class ClaudeBabysitter:
         ]
         result = self.runner.run(command, timeout=self.timeout, env=self.guard_env())
         if result.returncode != 0:
+            # A quota refusal stops the night as the evidence command's
+            # does, so the walk writes the cooldown. Returned as BLOCKED,
+            # it parked one task and the next item ran into the same limit.
+            _raise_if_usage_limited(result)
             return ("BLOCKED", self._why_it_failed(result), "")
         return self._read(result.output)
 

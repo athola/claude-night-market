@@ -18,7 +18,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from .inventory import Item, build_inventory, item_hashes
+from .inventory import Item, alias_map, build_inventory, item_hashes
 from .labels import Case, LabelError, load_cases, validate
 
 K1 = 1.5
@@ -34,6 +34,7 @@ def tokenize(text: str) -> list[str]:
 class Router:
     def __init__(self, items: list[Item]):
         self.ids = [i.id for i in sorted(items, key=lambda i: i.id)]
+        self.aliases = alias_map(items)
         by_id = {i.id: i for i in items}
         self.docs = [
             Counter(
@@ -75,13 +76,18 @@ def evaluate(router: Router, cases: list[Case]) -> dict:
     case_count: Counter = Counter()
     for case in positives:
         ranking = router.rank(case.prompt)
-        target_score = dict(ranking)[case.target]
+        # The target's alias is the same answer: it neither outranks the
+        # target nor counts as a collision, and the better of the two
+        # scores stands for both.
+        answer = {case.target, router.aliases.get(case.target)} - {None}
+        scores = dict(ranking)
+        target_score = max(scores[i] for i in answer if i in scores)
         # Ties rank the target last among them. The id order in rank() is
         # for display; letting it break ties moved MRR when an item was
         # renamed, with no change to any wording.
-        others = [i for i, score in ranking if i != case.target]
+        others = [i for i, score in ranking if i not in answer]
         rank = 1 + sum(
-            1 for i, score in ranking if i != case.target and score >= target_score
+            1 for i, score in ranking if i not in answer and score >= target_score
         )
         top1 = case.target if rank == 1 else others[0]
         per_case[case.id] = {"target": case.target, "rank": rank, "top1": top1}

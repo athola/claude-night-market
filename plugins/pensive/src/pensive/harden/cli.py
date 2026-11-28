@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from collections import Counter
 from pathlib import Path
@@ -22,6 +23,26 @@ from typing import TYPE_CHECKING
 
 from ..reporting.formatters import SarifFormatter
 from .scanner import list_sources, scan_directory
+
+
+def _repo_root(path: Path) -> Path:
+    """The git work tree holding ``path``, else ``path``.
+
+    Code scanning matches a SARIF URI against paths from the repo root, so
+    a scan of ``repo/src`` must report ``src/a.py``, not ``a.py``.
+    """
+    try:
+        top = subprocess.run(
+            ["git", "-C", str(path), "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=True,
+        ).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return path
+    return Path(top) if top else path
+
 
 if TYPE_CHECKING:
     from .types import Finding
@@ -59,7 +80,8 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "Exit 2 when any HIGH-or-above finding is reported, and 3 when a "
-            "file could not be analyzed. Suitable for CI gates."
+            "file could not be analyzed. Suitable for CI gates. A tree with "
+            "no Python sources exits 3 with or without this flag."
         ),
     )
     p.add_argument(
@@ -138,12 +160,20 @@ def run_cli(argv: list[str] | None = None) -> int:
                     {"success": False, "error": message, "data": {"files_scanned": 0}}
                 )
             )
+        elif args.sarif:
+            # stdout is parsed as SARIF; an upload step must fail on the
+            # exit code, not on a parse error.
+            sys.stderr.write(message + "\n")
         else:
             sys.stdout.write(message + "\n")
         return 3
 
     if args.sarif:
-        print(SarifFormatter().format([f.to_dict() for f in findings], args.path))
+        print(
+            SarifFormatter().format(
+                [f.to_dict() for f in findings], _repo_root(Path(args.path))
+            )
+        )
     elif args.json:
         payload = {
             "success": True,

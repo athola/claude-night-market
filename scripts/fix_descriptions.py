@@ -77,8 +77,14 @@ def process_skill_file(filepath: Path, dry_run: bool = True) -> dict | None:
     try:
         frontmatter = yaml.safe_load(frontmatter_text)
     except yaml.YAMLError as e:
-        print(f"⚠️  YAML error in {filepath}: {e}")
-        return None
+        # Unparseable frontmatter cannot be checked, so it is not compliant
+        # (#833). Flag it the way a truncated description is flagged.
+        return {
+            "file": str(filepath),
+            "old_description": "(unparseable)",
+            "new_description": f"(MANUAL FIX NEEDED: YAML error: {e})",
+            "unparseable": True,
+        }
 
     if not frontmatter:
         return None
@@ -151,16 +157,21 @@ def main():
         # Pre-commit check mode - fail if any files need fixing
         issues = []
         truncated = []
+        unparseable = []
         for f in skill_files + agent_files:
             result = process_skill_file(f, dry_run=True)
             if result:
                 if result.get("truncated"):
                     truncated.append(f)
+                elif result.get("unparseable"):
+                    unparseable.append(f)
                 else:
                     issues.append(f)
-        if issues or truncated:
-            total = len(issues) + len(truncated)
+        if issues or truncated or unparseable:
+            total = len(issues) + len(truncated) + len(unparseable)
             print(f"❌ {total} files need description fixes:")
+            for f in unparseable:
+                print(f"   {f} (frontmatter is not valid YAML)")
             for f in truncated:
                 print(f"   {f} (truncated 'DO NOT.' - needs completion)")
             for f in issues[:10]:
@@ -175,16 +186,27 @@ def main():
         print("✍️  APPLYING\n")
 
     changes = []
+    manual = []
     for f in skill_files + agent_files:
         result = process_skill_file(f, dry_run)
-        if result:
-            changes.append(result)
-            print(f"✅ {f.parent.name}")
-            print(f"   OLD: {result['old_description']}...")
-            print(f"   NEW: {result['new_description']}...")
-            print()
+        if not result:
+            continue
+        # Neither is written: the YAML did not parse, or the text to finish
+        # a truncated "DO NOT." cannot be generated.
+        if result.get("unparseable") or result.get("truncated"):
+            manual.append((f, result["new_description"]))
+            continue
+        changes.append(result)
+        print(f"✅ {f.parent.name}")
+        print(f"   OLD: {result['old_description']}...")
+        print(f"   NEW: {result['new_description']}...")
+        print()
 
     print(f"📊 {len(changes)} files updated")
+    if manual:
+        print(f"⚠️  {len(manual)} files need a manual fix:")
+        for f, reason in manual:
+            print(f"   {f} {reason}")
     return 0
 
 

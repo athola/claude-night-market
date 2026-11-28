@@ -116,48 +116,106 @@ class TestTestingGuideCoverageGaps:
     """Tests for uncovered paths in testing guide."""
 
     @pytest.mark.unit
-    @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "label,args,expected_key",
+        "method,code,path,expected",
         [
-            ("analyze test structure", ("",), "recommendations"),
-            ("identify anti patterns", ("",), "recommendations"),
-            ("suggest improvements", ("",), "recommendations"),
+            (
+                "analyze_test_structure",
+                "class TestX:\n    def test_a(self):\n        assert True\n",
+                ("test_structure", "test_classes"),
+                ["TestX"],
+            ),
+            (
+                "identify_anti_patterns",
+                "def test_a():\n    pass\n",
+                ("anti_patterns", "no_assertions"),
+                True,
+            ),
+            (
+                "suggest_improvements",
+                "obj._helper()\nassert ok  # fixture\n",
+                ("suggestions", 0, "issue"),
+                "private_method testing detected",
+            ),
+            (
+                "recommend_tdd_workflow",
+                "- login works\n",
+                ("tdd_workflow", "steps", 0, "test_name"),
+                "test_login_works",
+            ),
+            (
+                "evaluate_test_quality",
+                "assert x\n",
+                ("quality_assessment", "aspects", "coverage"),
+                70,
+            ),
+            (
+                "generate_test_fixtures",
+                "class User:\n    def __init__(self, name):\n        pass\n",
+                ("fixtures", "user_fixture", "minimal_fixture"),
+                '@pytest.fixture\ndef user():\n    return User("name")',
+            ),
+            (
+                "analyze_mock_usage",
+                "m = Mock()\n",
+                ("mock_analysis", "mock_objects"),
+                ["m"],
+            ),
+            (
+                "recommend_test_types",
+                "user/models.py # user model\n",
+                ("test_recommendations", "unit_tests", "user_models_test"),
+                {"description": "user model"},
+            ),
+            (
+                "validate_async_testing",
+                "async def test_a():\n    pass\n",
+                ("async_validation", "async_test_count"),
+                1,
+            ),
+            (
+                "analyze_test_performance",
+                "time.sleep(1)\n",
+                ("performance_analysis", "issues", "time_sleep"),
+                True,
+            ),
+            (
+                "recommend_testing_tools",
+                {"async": True},
+                ("tool_recommendations", "async_testing", "tools"),
+                ["pytest-asyncio", "anyio"],
+            ),
+            (
+                "evaluate_maintainability",
+                "@pytest.fixture\ndef f():\n    pass\n",
+                ("maintainability_analysis", "factors", "fixture_usage"),
+                True,
+            ),
         ],
     )
-    async def test_analyze_testing_empty_returns_recommendations(
-        self, testing_guide_skill, label, args, expected_key
+    def test_each_analysis_reaches_the_branch_it_names(
+        self, testing_guide_skill, method, code, path, expected
     ) -> None:
-        """Given empty code, analyze_testing returns dict with recommendations."""
-        result = await testing_guide_skill.analyze_testing(*args)
-        assert expected_key in result
+        """Each snippet reaches one detector and checks a value only it sets.
 
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        "label,args",
-        [
-            ("recommend tdd workflow", ("",)),
-            ("evaluate test quality", ("",)),
-            ("generate test fixtures", ("",)),
-            ("analyze mock usage", ("",)),
-            ("recommend test types", ("",)),
-            ("validate async testing", ("",)),
-            ("analyze test performance", ("",)),
-            ("recommend testing tools", ("",)),
-            ("evaluate maintainability", ("",)),
-        ],
-    )
-    async def test_analyze_testing_empty_returns_dict(
-        self, testing_guide_skill, label, args
-    ) -> None:
-        """Given empty code, analyze_testing returns a dict."""
-        result = await testing_guide_skill.analyze_testing(*args)
-        assert isinstance(result, dict)
+        These cases passed ``("",)`` to ``analyze_testing``, which every
+        method returns early on, so deleting a detector left them green
+        (#1068). The label now names the method that is called.
+        """
+        result = getattr(testing_guide_skill, method)(code)
+        for key in path:
+            result = result[key]
+        assert result == expected
 
     @pytest.mark.unit
     @pytest.mark.asyncio
     async def test_analyze_coverage_gaps_empty(self, testing_guide_skill) -> None:
         """Given empty code, return coverage gaps analysis."""
         result = await testing_guide_skill.analyze_testing("", "")
-        assert isinstance(result, dict)
+        assert result == {
+            "recommendations": [],
+            "findings": {
+                "source_analysis": {"public_functions": [], "classes": []},
+                "test_analysis": {},
+            },
+        }

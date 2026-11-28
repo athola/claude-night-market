@@ -41,7 +41,6 @@ __all__ = [
     "TokenAnalyzer",
     "cli_main",
     "estimate_text_tokens",
-    "estimate_tokens",
     "find_markdown_files",
     "has_frontmatter_file",
 ]
@@ -61,6 +60,7 @@ _EXPORT_SOURCES = {
     "TokenAnalyzer": ".tokens",
     "cli_main": ".cli_framework",
     "estimate_text_tokens": ".tokens",
+    # Deprecated: importable by name, kept out of __all__ until 1.11.0.
     "estimate_tokens": ".tokens",
     "find_markdown_files": ".base",
     "has_frontmatter_file": ".base",

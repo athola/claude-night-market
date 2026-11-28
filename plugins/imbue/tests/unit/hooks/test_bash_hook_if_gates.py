@@ -282,6 +282,11 @@ class TestPackageGuardGates:
             "rm -rf ~/.npm/_logs",
             "tail npm-debug.log",
             "npm test",
+            # Bash(*npm*i*) matched these through the "i" in run or lint,
+            # and started the 8s guard for each one (#1072).
+            "npm run lint",
+            "npm run build",
+            "pnpm run lint",
             "cargo build --release",
             "cargo test",
             "cat Cargo.toml",

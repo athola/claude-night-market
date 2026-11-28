@@ -76,7 +76,7 @@ def estimate_screenshot_tokens(width: int, height: int) -> int:
     """
     warnings.warn(
         "estimate_screenshot_tokens has no caller in phantom and will be "
-        "removed in the next minor release",
+        "removed in 1.11.0",
         DeprecationWarning,
         stacklevel=2,
     )

@@ -11,11 +11,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: attune:upgrade-project; judge: attune:arch-init/archetypes:architecture-paradigms'
+  notes: 'router: attune:upgrade-project; judge: attune:arch-init/attune:architecture-aware-init'
   proposals:
     router: attune:upgrade-project
     judge: attune:arch-init
-    judge_runner_up: archetypes:architecture-paradigms
+    judge_runner_up: attune:architecture-aware-init
 - id: attune.arch-init.p2
   type: positive
   prompt: I want to bootstrap a project with hexagonal architecture in Python, using
@@ -292,9 +292,11 @@ cases:
   cluster: attune:execute
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at attune:project-execution; router: phantom:control-desktop; judge:
-    attune:execute/spec-kit:speckit-orchestrator'
+    attune:execute/spec-kit:speckit-orchestrator; adjudicated 2026-11-28 by claude-opus-5-5
+    at the operator''s request, not human-reviewed: confirmed: the prompt fits the
+    target'
   proposals:
     aimed_at: attune:project-execution
     router: phantom:control-desktop
@@ -310,8 +312,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: attune:makefile-generation
     judge: attune:makefile-generation
@@ -357,12 +360,14 @@ cases:
   cluster: attune:mission-orchestrator
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: attune:project-planning; judge: attune:mission-orchestrator/None'
+  adjudicated: true
+  notes: 'router: attune:project-planning; judge: attune:mission-orchestrator/attune:project-planning;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: attune:project-planning
     judge: attune:mission-orchestrator
-    judge_runner_up: null
+    judge_runner_up: attune:project-planning
 - id: attune.mission-orchestrator.p2
   type: positive
   prompt: Project brief is done. Run the rest of the lifecycle end to end, create
@@ -505,11 +510,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: spec-kit:spec-writing; judge: attune:project-brainstorming/None'
+  notes: 'router: gauntlet:problem-bank; judge: attune:project-brainstorming/spec-kit:spec-writing'
   proposals:
-    router: spec-kit:spec-writing
+    router: gauntlet:problem-bank
     judge: attune:project-brainstorming
-    judge_runner_up: null
+    judge_runner_up: spec-kit:spec-writing
 - id: attune.project-brainstorming.p2
   type: positive
   prompt: Before we commit to building this, I want to validate feasibility and scope,
@@ -591,6 +596,59 @@ cases:
     router: spec-kit:task-planning
     judge: attune:project-execution
     judge_runner_up: null
+- id: attune.project-init-playbook.p1
+  type: positive
+  prompt: set up a new rust project in this empty folder with a Makefile, pre-commit
+    hooks, github actions and git init
+  target: attune:project-init-playbook
+  competitor: null
+  cluster: attune:project-init-playbook
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: attune:project-init-playbook; judge: attune:project-init/attune:project-init-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
+  proposals:
+    router: attune:project-init-playbook
+    judge: attune:project-init
+    judge_runner_up: attune:project-init-playbook
+- id: attune.project-init-playbook.p2
+  type: positive
+  prompt: this old python repo has no tooling at all. bring it up to our standard
+    setup with pyproject, makefile, CI workflows, but don't clobber my existing .gitignore
+  target: attune:project-init-playbook
+  competitor: null
+  cluster: attune:project-init-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:project-init; judge: attune:project-init-playbook/attune:project-init'
+  proposals:
+    router: attune:project-init
+    judge: attune:project-init-playbook
+    judge_runner_up: attune:project-init
+- id: attune.project-init-playbook.p3
+  type: positive
+  prompt: This old Rust repo has no Makefile, no GitHub workflow and no pre-commit
+    config. Bring it up to our standard tooling, but don't overwrite the custom .gitignore.
+  target: attune:project-init-playbook
+  competitor: null
+  cluster: attune:project-init-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:precommit-setup; router: minister:initiative-pulse; judge:
+    attune:project-init-playbook/attune:project-init; 2026-11-28: the command and
+    this playbook now score as one answer, so the near miss against the command is
+    a plain positive'
+  proposals:
+    aimed_at: attune:precommit-setup
+    router: minister:initiative-pulse
+    judge: attune:project-init-playbook
+    judge_runner_up: attune:project-init
 - id: attune.project-init.p1
   type: positive
   prompt: I've got an empty directory and want to start a new Python service. Can
@@ -787,6 +845,54 @@ cases:
     router: attune:skill-library
     judge: attune:skill-library-mission
     judge_runner_up: attune:skill-library
+- id: attune.skill-library-session.p1
+  type: positive
+  prompt: I'm leaving the team next month. can you build out a set of project skills
+    in .claude/skills so the juniors can debug and extend this codebase without me
+  target: attune:skill-library-session
+  competitor: null
+  cluster: attune:skill-library-session
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: attune:skill-library-session; judge: attune:skill-library-session/attune:skill-library-mission'
+  proposals:
+    router: attune:skill-library-session
+    judge: attune:skill-library-session
+    judge_runner_up: attune:skill-library-mission
+- id: attune.skill-library-session.p2
+  type: positive
+  prompt: our .claude/skills folder has drifted from what the code does now. redo
+    the discovery and rewrite the project skill library, cap it at 12 skills
+  target: attune:skill-library-session
+  competitor: null
+  cluster: attune:skill-library-session
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: attune:skill-library-mission; judge: attune:skill-library-session/attune:skill-library'
+  proposals:
+    router: attune:skill-library-mission
+    judge: attune:skill-library-session
+    judge_runner_up: attune:skill-library
+- id: attune.skill-library-session.p3
+  type: near_miss
+  prompt: The run that was building our project's .claude/skills library got cut off
+    halfway. Pick it up where it stopped and cap it at 12 skills.
+  target: attune:skill-library-session
+  competitor: attune:skill-library-mission
+  cluster: attune:skill-library-session
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at attune:skill-library-mission; router: abstract:skill-audit; judge:
+    attune:skill-library-session/attune:skill-library-mission'
+  proposals:
+    aimed_at: attune:skill-library-mission
+    router: abstract:skill-audit
+    judge: attune:skill-library-session
+    judge_runner_up: attune:skill-library-mission
 - id: attune.skill-library.p1
   type: positive
   prompt: Run the parallel workflow that writes one new skill per topic under .claude/skills/
@@ -897,11 +1003,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conjure:provider-sweep; judge: attune:upgrade-project/attune:makefile-generation'
+  notes: 'router: attune:project-init-playbook; judge: attune:upgrade-project/attune:project-init-playbook'
   proposals:
-    router: conjure:provider-sweep
+    router: attune:project-init-playbook
     judge: attune:upgrade-project
-    judge_runner_up: attune:makefile-generation
+    judge_runner_up: attune:project-init-playbook
 - id: attune.upgrade-project.p2
   type: positive
   prompt: Update just the GitHub Actions workflows in this existing project to current
@@ -922,18 +1028,18 @@ cases:
     those up to current standards, but keep my custom make targets intact and don't
     reinitialize the whole project.
   target: attune:upgrade-project
-  competitor: attune:precommit-setup
+  competitor: attune:makefile-generation
   cluster: attune:upgrade-project
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:aggregate-logs; router: attune:precommit-setup; judge:
-    attune:upgrade-project/attune:precommit-setup'
+  notes: 'aimed at abstract:aggregate-logs; router: attune:project-init-playbook;
+    judge: attune:upgrade-project/attune:makefile-generation'
   proposals:
     aimed_at: abstract:aggregate-logs
-    router: attune:precommit-setup
+    router: attune:project-init-playbook
     judge: attune:upgrade-project
-    judge_runner_up: attune:precommit-setup
+    judge_runner_up: attune:makefile-generation
 - id: attune.validate.p1
   type: positive
   prompt: 'Audit this repo''s setup against best practices: git config, Makefile targets,
@@ -958,11 +1064,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conjure:provider-sweep; judge: attune:validate/pensive:harden'
+  notes: 'router: conjure:provider-sweep; judge: attune:validate/attune:project-init-playbook'
   proposals:
     router: conjure:provider-sweep
     judge: attune:validate
-    judge_runner_up: pensive:harden
+    judge_runner_up: attune:project-init-playbook
 - id: attune.validate.p3
   type: near_miss
   prompt: 'Audit this existing repo against best practices and just report: missing
@@ -992,11 +1098,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: attune:war-room-checkpoint/None'
+  notes: 'router: egregore:gate-audit; judge: attune:war-room-checkpoint/sanctum:do-issue-playbook'
   proposals:
-    router: hookify:rule-sweep
+    router: egregore:gate-audit
     judge: attune:war-room-checkpoint
-    judge_runner_up: null
+    judge_runner_up: sanctum:do-issue-playbook
 - id: attune.war-room-checkpoint.p2
   type: positive
   prompt: In our PR review flow, when there are more than 3 blocking issues or an
@@ -1009,11 +1115,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: archetypes:paradigm-panel; judge: attune:war-room-checkpoint/leyline:decision-journal'
+  notes: 'router: archetypes:paradigm-panel; judge: attune:war-room-checkpoint/attune:war-room-playbook'
   proposals:
     router: archetypes:paradigm-panel
     judge: attune:war-room-checkpoint
-    judge_runner_up: leyline:decision-journal
+    judge_runner_up: attune:war-room-playbook
 - id: attune.war-room-checkpoint.p3
   type: near_miss
   prompt: I'm adding a step to our /do-issue command. When it sees four issues touching
@@ -1021,17 +1127,67 @@ cases:
     inline whether to escalate to full deliberation or just return a quick recommendation.
     Help me wire that in, and check the scoring still behaves after my change.
   target: attune:war-room-checkpoint
-  competitor: abstract:escalation-governance
+  competitor: sanctum:do-issue-playbook
   cluster: attune:war-room-checkpoint
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:skill-audit; router: hookify:rule-sweep; judge: attune:war-room-checkpoint/abstract:escalation-governance'
+  notes: 'aimed at abstract:skill-audit; router: hookify:rule-sweep; judge: attune:war-room-checkpoint/sanctum:do-issue-playbook'
   proposals:
     aimed_at: abstract:skill-audit
     router: hookify:rule-sweep
     judge: attune:war-room-checkpoint
-    judge_runner_up: abstract:escalation-governance
+    judge_runner_up: sanctum:do-issue-playbook
+- id: attune.war-room-playbook.p1
+  type: positive
+  prompt: we need to decide between splitting the monolith into services or staying
+    modular, and it involves a data migration. get a few different perspectives to
+    argue it out and give me a recommendation
+  target: attune:war-room-playbook
+  competitor: null
+  cluster: attune:war-room-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: archetypes:architecture-paradigm-modular-monolith; judge: attune:war-room-playbook/archetypes:paradigm-panel'
+  proposals:
+    router: archetypes:architecture-paradigm-modular-monolith
+    judge: attune:war-room-playbook
+    judge_runner_up: archetypes:paradigm-panel
+- id: attune.war-room-playbook.p2
+  type: positive
+  prompt: brainstorming gave us three solid options for the new auth architecture
+    and I can't pick. have them pressure-tested adversarially and synthesize the best
+    path
+  target: attune:war-room-playbook
+  competitor: null
+  cluster: attune:war-room-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'router: abstract:create-command; judge: attune:war-room-playbook/archetypes:architecture-paradigms'
+  proposals:
+    router: abstract:create-command
+    judge: attune:war-room-playbook
+    judge_runner_up: archetypes:architecture-paradigms
+- id: attune.war-room-playbook.p3
+  type: near_miss
+  prompt: We're split on whether to break the billing monolith into separate bounded
+    contexts per region. It would mean a data migration, so I want several viewpoints
+    to argue it out before we commit.
+  target: attune:war-room-playbook
+  competitor: conjure:provider-sweep
+  cluster: attune:war-room-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at archetypes:architecture-paradigm-domain-driven; router: conjure:provider-sweep;
+    judge: attune:war-room-playbook/None'
+  proposals:
+    aimed_at: archetypes:architecture-paradigm-domain-driven
+    router: conjure:provider-sweep
+    judge: attune:war-room-playbook
+    judge_runner_up: null
 - id: attune.war-room.p1
   type: positive
   prompt: We're deciding whether to move our payments service off the monolith Postgres
@@ -1044,11 +1200,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conjure:provider-sweep; judge: attune:war-room/pensive:unified-review'
+  notes: 'router: conjure:provider-sweep; judge: attune:war-room/archetypes:architecture-paradigm-modular-monolith'
   proposals:
     router: conjure:provider-sweep
     judge: attune:war-room
-    judge_runner_up: pensive:unified-review
+    judge_runner_up: archetypes:architecture-paradigm-modular-monolith
 - id: attune.war-room.p2
   type: positive
   prompt: Before we commit to switching our public API versioning scheme, I want a

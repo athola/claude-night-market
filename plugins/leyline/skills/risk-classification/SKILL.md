@@ -51,7 +51,8 @@ Provides inline risk classification for agent tasks using a 4-tier model (GREEN/
 ## When NOT To Use
 
 - Single-file trivial changes (assume GREEN)
-- Strategic architecture decisions (use full `Skill(attune:war-room)` instead)
+- Strategic architecture decisions (use full `Skill(attune:war-room-playbook)`
+  instead)
 - Non-code tasks (documentation-only, configuration comments)
 
 ## 4-Tier Risk Model

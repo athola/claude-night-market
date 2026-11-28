@@ -23,7 +23,7 @@ You're modifying authentication/security code.
 
 **Recommended for this change:**
 ```bash
-Skill(pensive:harden)
+Skill(pensive:harden-playbook)
 ```
 
 **Security review checklist:**

@@ -28,7 +28,8 @@ def run_hook(
         check=False,
         capture_output=True,
         text=True,
-        env={**os.environ, **env},
+        # The debug flag prints the full report these tests read (#1053).
+        env={**os.environ, "HOMEOSTATIC_MONITOR_DEBUG": "1", **env},
         timeout=5,
         cwd=cwd,
     )

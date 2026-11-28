@@ -60,7 +60,7 @@ class BaseReviewSkill:
         """Initialize the skill."""
         self.findings: list[ReviewFinding] = []
 
-    def analyze(self, _context: Any, _file_path: str) -> AnalysisResult:
+    def analyze(self, context: Any, file_path: str) -> AnalysisResult:  # noqa: ARG002 - the override contract names both
         """Analyze a file and return findings.
 
         Subclasses should override this method to implement specific analysis.

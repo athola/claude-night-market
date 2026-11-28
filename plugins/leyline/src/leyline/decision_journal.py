@@ -262,10 +262,31 @@ def _inert(text: str) -> str:
     return _HEADING_LINE.sub(r"\1\\\2", text).replace("<!--", "&lt;!--")
 
 
+# A line that only means something on its own line: a list item, a fence,
+# or indented code. A paragraph holding one keeps its lines as written.
+_LINE_STRUCTURE = re.compile(r"^(?:\s*(?:[-*+]|\d+\.)\s|\s*(?:```|~~~)|    )", re.M)
+
+
 def _wrap_prose(text: str) -> str:
-    """Wrap each blank-line-separated paragraph, keeping the breaks between."""
-    paragraphs = re.split(r"\n\s*\n", text.strip())
-    return _inert("\n\n".join(_wrap(paragraph) for paragraph in paragraphs))
+    """Wrap each plain paragraph, keeping breaks, lists and code as given.
+
+    Code keeps its lines but still passes through ``_inert``: the journal is
+    found by heading and its parser does not track fences.
+    """
+    paragraphs = re.split(r"(\n\s*\n)", text.strip())
+    out = []
+    fence = ""  # the open fence's marker; only the same marker closes it
+    for index, part in enumerate(paragraphs):
+        if index % 2:  # a captured blank-line separator
+            out.append(part if fence else "\n\n")
+            continue
+        keep = bool(fence) or bool(_LINE_STRUCTURE.search(part))
+        out.append(part if keep else _wrap(part))
+        for line in part.splitlines():
+            marker = line.lstrip()[:3]
+            if marker in ("```", "~~~") and (not fence or marker == fence):
+                fence = "" if fence else marker
+    return _inert("".join(out))
 
 
 def _bullet(text: str) -> str:

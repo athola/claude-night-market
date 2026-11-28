@@ -1,6 +1,6 @@
 ---
 name: spec-writing
-description: Creates clear, testable specifications from feature descriptions with user stories. Use when starting a new feature and needing a spec before planning.
+description: Writes testable specifications with user stories from a feature description. Use when a new feature needs a spec before planning.
 alwaysApply: false
 category: specification
 tags:

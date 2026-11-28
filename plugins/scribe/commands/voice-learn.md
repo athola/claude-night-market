@@ -48,5 +48,5 @@ This prevents one-off preferences from polluting your profile.
 ## Skill Invocation
 
 ```
-Skill(scribe:voice-learn)
+Skill(scribe:voice-learn-playbook)
 ```

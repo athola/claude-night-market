@@ -101,7 +101,17 @@ class TestIsProvisioned:
         venv = tmp_path / "venv"
         (venv / "bin").mkdir(parents=True)
         (venv / "bin" / "python").touch()
+        (venv / "lib" / "python3.11" / "site-packages" / "yaml").mkdir(parents=True)
         assert is_provisioned(venv) is True
+
+    @pytest.mark.unit
+    def test_a_venv_without_pyyaml_is_not_provisioned(self, tmp_path: Path):
+        """A 1.10.3 venv holds onnxruntime and no yaml, which daemon.py imports."""
+        venv = tmp_path / "venv"
+        (venv / "bin").mkdir(parents=True)
+        (venv / "bin" / "python").touch()
+        (venv / "lib" / "python3.11" / "site-packages").mkdir(parents=True)
+        assert is_provisioned(venv) is False
 
 
 class TestProvisionVenv:
@@ -131,6 +141,22 @@ class TestProvisionVenv:
             # onnxruntime was ~50 MB nothing imported (ORC-1).
             assert "pyyaml" in calls[1][0][0]
             assert "onnxruntime" not in calls[1][0][0]
+
+    @pytest.mark.unit
+    def test_provision_reuses_an_existing_venv(self, tmp_path: Path):
+        """Uv venv refuses a directory that holds a venv, so rebuilding a
+        1.10.3 venv, the one daemon.log says to rerun setup for, failed.
+        """
+        venv = tmp_path / "venv"
+        (venv / "bin").mkdir(parents=True)
+        (venv / "bin" / "python").touch()
+        with patch("oracle.provision.subprocess.run") as mock_run:
+            mock_run.return_value.returncode = 0
+            result = provision_venv(venv)
+        assert result.success
+        argvs = [call.args[0] for call in mock_run.call_args_list]
+        assert not any(argv[:2] == ["uv", "venv"] for argv in argvs)
+        assert any("pyyaml" in argv for argv in argvs)
 
     @pytest.mark.unit
     def test_provision_fails_when_uv_missing(self, tmp_path: Path):

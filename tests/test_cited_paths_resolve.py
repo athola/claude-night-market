@@ -54,11 +54,12 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# Directories whose markdown an agent consumes as instructions.
+# Files an agent consumes as instructions: markdown, and workflow prompts.
 ASSET_GLOBS = (
     "plugins/*/skills/**/*.md",
     "plugins/*/commands/**/*.md",
     "plugins/*/agents/**/*.md",
+    "plugins/*/workflows/**/*.js",
     ".claude/rules/*.md",
 )
 
@@ -325,6 +326,21 @@ def test_assets_are_discovered() -> None:
     assert len(ASSETS) > 100, f"only {len(ASSETS)} workflow assets found"
 
 
+def test_workflow_scripts_are_swept() -> None:
+    """A path cited from a workflow prompt is an instruction too (#758).
+
+    `plugins/attune/workflows/skill-library.js` cites a rule file in the
+    prompt it hands a subagent. Without a workflows lane in ASSET_GLOBS
+    that citation was never checked.
+    """
+    swept = {a.relative_to(REPO_ROOT).as_posix() for a in ASSETS}
+    assert "plugins/attune/workflows/skill-library.js" in swept
+    script = REPO_ROOT / "plugins/attune/workflows/skill-library.js"
+    assert ".claude/rules/plan-before-large-dispatch.md" in _citations(
+        script.read_text(encoding="utf-8")
+    )
+
+
 def test_capability_references_are_found() -> None:
     """Guard the regex: a pattern matching nothing would pass everything.
 
@@ -360,7 +376,7 @@ def test_cited_capabilities_resolve(asset: Path) -> None:
 # --- The third gate: the `Skill(plugin:name)` call form ---------------
 #
 # `test_cited_capabilities_resolve` above needs the backtick flush
-# against the token, so `` `Skill(pensive:bug-review)` `` matches
+# against the token, so `` `Skill(pensive:bug-review-playbook)` `` matches
 # neither it nor `scripts/check_skill_graph_drift.py`, which reads the
 # call syntax but globs only `plugins/*/skills/*/SKILL.md`. A command
 # citing a skill by the call form was adjudicated by nothing.
@@ -405,7 +421,7 @@ _SKILL_GRAPH = _load_skill_graph()
 
 # A `Skill(plugin:name)` call, with or without trailing arguments:
 # `Skill(abstract:skill-auditor, quiet=true)` names the same target as
-# `Skill(pensive:bug-review)`. The bare form `Skill(test-updates)`,
+# `Skill(pensive:bug-review-playbook)`. The bare form `Skill(test-updates)`,
 # which omits the plugin, is a separate defect and is not adjudicated
 # here -- an unqualified name has no single resolution to check.
 INVOCATION = re.compile(

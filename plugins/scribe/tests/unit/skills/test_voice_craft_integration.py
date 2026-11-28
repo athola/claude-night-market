@@ -38,10 +38,10 @@ class TestPluginRegistration:
         """
         skills = plugin_json["skills"]
         expected = [
-            "./skills/voice-extract",
-            "./skills/voice-generate",
-            "./skills/voice-review",
-            "./skills/voice-learn",
+            "./skills/voice-extract-playbook",
+            "./skills/voice-generate-playbook",
+            "./skills/voice-review-playbook",
+            "./skills/voice-learn-playbook",
         ]
         for skill in expected:
             assert skill in skills, f"{skill} not in plugin.json skills"
@@ -130,10 +130,10 @@ class TestOpenpackageAlignment:
         Then all four voice skills are listed
         """
         content = (PLUGIN_ROOT / "openpackage.yml").read_text()
-        assert "skills/voice-extract" in content
-        assert "skills/voice-generate" in content
-        assert "skills/voice-review" in content
-        assert "skills/voice-learn" in content
+        assert "skills/voice-extract-playbook" in content
+        assert "skills/voice-generate-playbook" in content
+        assert "skills/voice-review-playbook" in content
+        assert "skills/voice-learn-playbook" in content
 
     @pytest.mark.unit
     def test_openpackage_lists_voice_commands(self):

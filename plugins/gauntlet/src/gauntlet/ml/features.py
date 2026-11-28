@@ -15,6 +15,9 @@ _BULLET_RE = re.compile(r"^\s*[-*]\s", re.MULTILINE)
 # quality_v1.yaml calibrates the structural_depth weight for 0-5. Past that
 # the logit grows without bound and formatting outscores content.
 _STRUCTURAL_DEPTH_CAP = 5
+# The same for length: uncapped, 120 filler words turned a partial answer
+# into a pass at unchanged overlap. Twice the reference adds at most 0.9.
+_LENGTH_RATIO_CAP = 2.0
 _NEGATION_WORDS = frozenset(
     {
         "not",
@@ -78,7 +81,7 @@ def extract_answer_features(  # noqa: PLR0912 - seven feature branches require s
 
     ref_len = len(challenge.answer.strip())
     if ref_len > 0:
-        length_ratio = len(answer.strip()) / ref_len
+        length_ratio = min(len(answer.strip()) / ref_len, _LENGTH_RATIO_CAP)
     else:
         length_ratio = 0.0
 

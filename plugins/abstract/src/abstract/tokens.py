@@ -80,7 +80,8 @@ def estimate_tokens(text: str) -> int:
         ``leyline.tokens.estimate_tokens(files, prompt)``.
     """
     warnings.warn(
-        "estimate_tokens is deprecated; use estimate_text_tokens instead",
+        "estimate_tokens is deprecated and will be removed in 1.11.0; "
+        "use estimate_text_tokens instead",
         DeprecationWarning,
         stacklevel=2,
     )

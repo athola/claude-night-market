@@ -5,7 +5,6 @@ description: Fix broken functionality from pasted error output, stack traces, or
 usage: /fixit <pasted-error-or-description> [--file <path>] [--scope auto|minor|medium|major]
   [--from <step>] [--to <step>] [--research|--no-research] [--strict|--quick]
   [--commit] [--dry-run]
-extends: "imbue:proof-of-work"
 ---
 
 # Fix It
@@ -57,7 +56,7 @@ Use this command when you need to:
 |---|------|---------|---------------|-----------|
 | 1 | Triage | Parse input, classify failure type, extract artifacts | inline classifier (see below) | `--from` overrides |
 | 2 | Reproduce | Capture failing state as evidence `[E1]` | `Skill(imbue:proof-of-work)` | failure already running |
-| 3 | Research | Find prior art for novel errors | `Skill(tome:code-search)` or `Skill(tome:research)` | scope=minor or `--no-research` |
+| 3 | Research | Find prior art for novel errors | `Skill(tome:code-search)` or `Skill(tome:research-playbook)` | scope=minor or `--no-research` |
 | 4 | Hypothesize | Build hypothesis ladder, pick most-likely cause | `Skill(superpowers:systematic-debugging)` | cause is obvious from triage |
 | 5 | Test (RED) | Write the failing test that captures the bug | `Skill(superpowers:test-driven-development)` and `Skill(imbue:proof-of-work)` iron-law-red | never (Iron Law) |
 | 6 | Fix (GREEN) | Smallest change to make the test pass | `Skill(imbue:karpathy-principles)` (surgical-edits) | never |
@@ -220,8 +219,8 @@ explicitly.
 
 - Unfamiliar error code or library: `Skill(tome:code-search)` for existing
   implementations and known fixes
-- Cross-cutting design or paradigm question: `Skill(tome:research)` for a
-  multi-source survey
+- Cross-cutting design or paradigm question: `Skill(tome:research-playbook)` for
+  a multi-source survey
 - Known library, novel use: `Skill(tome:papers)` or
   `Skill(tome:discourse)` (rare)
 
@@ -408,7 +407,8 @@ for a full fix.
 - `Skill(superpowers:systematic-debugging)` - hypothesis ladder methodology
 - `Skill(superpowers:test-driven-development)` - RED test framing
 - `Skill(superpowers:verification-before-completion)` - evidence before claims
-- `Skill(tome:code-search)` and `Skill(tome:research)` - prior-art lookup
+- `Skill(tome:code-search)` and `Skill(tome:research-playbook)` - prior-art
+  lookup
 
 ## Exit Criteria
 

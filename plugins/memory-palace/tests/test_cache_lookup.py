@@ -246,8 +246,14 @@ class TestCacheLookup:
             query="learning", mode="unified", min_score=0.8
         )
 
-        # Strong results should be subset of all results
-        assert len(strong_results) <= len(all_results)
+        # The fixture's one "learning" match scores about 0.25: a floor
+        # under it keeps the entry, a floor over it drops it.
+        kept = cache_lookup.search(query="learning", mode="unified", min_score=0.2)
+
+        assert [r["entry_id"] for r in all_results] == ["franklin-protocol"]
+        assert all_results[0]["match_score"] < 0.8
+        assert strong_results == []
+        assert [r["entry_id"] for r in kept] == ["franklin-protocol"]
 
     def test_multiple_keyword_search(self, cache_lookup) -> None:
         """Test searching with multiple keywords (AND logic)."""

@@ -97,6 +97,5 @@ Works with conservation plugin skills:
 
 ## Implementation
 
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/growth_analyzer.py "${1:-.}"
-```
+Invoke `Skill(conserve:context-optimization)` on the path argument
+(default: the current directory).

@@ -570,9 +570,10 @@ custom_rules:
 
         # Act
         try:
-            plugin.execute_review(temp_repository)
+            review = plugin.execute_review(temp_repository)
         finally:
             plugin.cleanup()
 
-        # Assert
-        assert isinstance(plugin, PensivePlugin)
+        # Assert: the deprecated wrapper still returns a full review
+        assert set(review) >= {"findings", "summary", "errors", "metrics"}
+        assert review["errors"] is None  # None means no skill failed

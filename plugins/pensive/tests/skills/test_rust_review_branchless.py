@@ -26,7 +26,7 @@ def module_content() -> str:
     path = (
         Path(__file__).parents[2]
         / "skills"
-        / "rust-review"
+        / "rust-review-playbook"
         / "modules"
         / f"{MODULE_NAME}.md"
     )

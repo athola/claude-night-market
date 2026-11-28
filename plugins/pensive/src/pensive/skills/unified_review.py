@@ -282,12 +282,12 @@ class UnifiedReviewSkill(BaseReviewSkill):
         else:
             return "Approve with minor changes - Low/medium issues in follow-up"
 
-    def analyze(self, context: Any, _file_path: str = "") -> AnalysisResult:
+    def analyze(self, context: Any, file_path: str = "") -> AnalysisResult:  # noqa: ARG002 - the override contract names it
         """Run unified analysis across all applicable skills.
 
         Args:
             context: Analysis context
-            _file_path: Optional specific file path (unused)
+            file_path: Optional specific file path (unused)
 
         Returns:
             Analysis result string

@@ -45,7 +45,6 @@ def main() -> None:
     )
     parser.add_argument("--query", help="Search query string")
     parser.add_argument("--kind", help="Filter by node kind")
-    parser.add_argument("--files", help="Comma-separated file paths")
     parser.add_argument("--depth", type=int, default=2, help="BFS depth")
     parser.add_argument("--entry", help="Entry point for flow tracing")
     parser.add_argument("--limit", type=int, default=20, help="Result limit")
@@ -66,6 +65,8 @@ def main() -> None:
         print(json.dumps(result, indent=2, default=str))
     finally:
         graph.close()
+    if result.get("error"):
+        sys.exit(1)
 
 
 def _dispatch(

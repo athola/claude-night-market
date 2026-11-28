@@ -125,25 +125,25 @@ skills-eval/
 1. **Skill Creation** (`modular-skills`)
    ```bash
    # Design architecture
-   python scripts/skill_analyzer.py --path new-skill.md --suggest-modules
+   python scripts/skill_analyzer.py --file new-skill/SKILL.md
 
    # Estimate token budget
-   python scripts/token_estimator.py --target 600 --modules 3
+   python scripts/token_estimator.py --file new-skill/SKILL.md
 
    # Validate structure
-   python scripts/abstract_validator.py --skill-path new-skill/
+   python scripts/skill_validator.py --path new-skill/SKILL.md
    ```
 
 2. **Quality Assessment** (`skills-eval`)
    ```bash
    # Discover skills
-   python scripts/skills_auditor.py --discover --path skills/
+   python scripts/skills_auditor.py skills/
 
    # Generate improvements
-   python skills/skills-eval/scripts/improvement_suggester.py --skill new-skill/SKILL.md
+   python scripts/improvement_suggester.py new-skill/SKILL.md
 
    # Check compliance
-   python plugins/abstract/scripts/compliance_checker.py new-skill
+   python scripts/compliance_checker.py new-skill
    ```
 
 3. **Content Refinement** (`writing-clearly-and-concisely`)
@@ -226,5 +226,5 @@ Some scripts appear in multiple skills but serve different purposes:
 ## References
 
 - Modular Skills Guide: `skills/modular-skills/guide.md`
-- Skills Eval Guide: `skills/skills-eval/README.md`
+- Skills Eval Guide: `skills/skills-eval-playbook/README.md`
 - Writing Standards: `writing-clearly-and-concisely/SKILL.md`

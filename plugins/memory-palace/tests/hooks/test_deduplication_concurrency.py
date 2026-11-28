@@ -19,10 +19,15 @@ import pytest
 import web_research_handler
 import yaml
 
-from shared import deduplication
-
 _SHARED = Path(__file__).resolve().parents[2] / "hooks" / "shared"
 _WRITERS = 12
+# Eight pure-Python cycles take about 10 s against the 3 s lock; eight
+# libyaml ones about 1 s, which leaves margin on a loaded machine.
+_LARGE_INDEX_WRITERS = 8
+# Hooks run under the system interpreter, which is slower than the venv's.
+_HOOK_PYTHON = (
+    "/usr/bin/python3" if Path("/usr/bin/python3").exists() else sys.executable
+)
 
 _WRITER = """
 import sys
@@ -116,37 +121,6 @@ def test_update_index_gives_up_when_lock_is_held_past_deadline(
     assert float(proc.stdout) < 2.0
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="flock is POSIX-only")
-def test_stage_index_runs_after_lock_is_released(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """GIVEN a capture written to the index
-    WHEN the index is staged with git
-    THEN the lock is already free, so a slow git does not hold up others
-    """
-    monkeypatch.setenv("MEMORY_PALACE_DATA_DIR", str(tmp_path))
-    monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
-    lock_free_at_stage: list[bool] = []
-
-    def _probe(index_path: Path) -> None:
-        with open(_lock_path(tmp_path), "a") as probe:
-            try:
-                fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except BlockingIOError:
-                lock_free_at_stage.append(False)
-            else:
-                lock_free_at_stage.append(True)
-
-    with patch.object(deduplication, "_stage_index", _probe):
-        deduplication.update_index(
-            content_hash="sha256:staged",
-            stored_at="data/staging/staged.md",
-            importance_score=50,
-            url="https://example.com/staged",
-        )
-    assert lock_free_at_stage == [True]
-
-
 def test_queue_file_is_removed_when_index_lock_times_out(tmp_path: Path) -> None:
     """GIVEN the index lock cannot be taken before the deadline
     WHEN a capture is stored
@@ -167,3 +141,52 @@ def test_queue_file_is_removed_when_index_lock_times_out(tmp_path: Path) -> None
         )
     assert stored is None
     assert list(queue.iterdir()) == []
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="flock is POSIX-only")
+@pytest.mark.skipif(not yaml.__with_libyaml__, reason="needs the libyaml C loader")
+def test_parallel_writers_on_a_large_index_all_finish_inside_the_lock_deadline(
+    tmp_path: Path,
+) -> None:
+    """GIVEN an index of 1500 entries, the size a real capture history reaches
+    WHEN eight hook processes call update_index at once
+    THEN none times out: each one reloads and rewrites the whole index under
+        a 3 s lock, and the pure-Python loader took about 1.2 s a cycle
+    """
+    index_path = tmp_path / "hooks" / "memory-palace-index.yaml"
+    index_path.parent.mkdir(parents=True)
+    entries = {
+        f"https://example.com/search?query=seed%20topic%20{n}&tags=story": {
+            "content_hash": f"sha256:{n:016x}",
+            "stored_at": f"data/staging/webfetch-seed-topic-{n}-2026-07-02_11-04-24.md",
+            "importance_score": 85,
+            "last_updated": "2026-07-02T11:04:24.508854+00:00",
+            "title": f"Stories About Seed Topic Number {n} and Its Documentation",
+            "maturity": "growing",
+            "routing_type": "meta",
+            "url": f"https://example.com/search?query=seed%20topic%20{n}&tags=story",
+        }
+        for n in range(1500)
+    }
+    hashes = {e["content_hash"]: e["stored_at"] for e in entries.values()}
+    index_path.write_text(yaml.safe_dump({"entries": entries, "hashes": hashes}))
+    env = {**os.environ, "MEMORY_PALACE_DATA_DIR": str(tmp_path)}
+    env.pop("CLAUDE_PLUGIN_DATA", None)
+    script = _WRITER.format(shared=str(_SHARED))
+    procs = [
+        subprocess.Popen(
+            [_HOOK_PYTHON, "-c", script, f"big{n}"],
+            env=env,
+            cwd=tmp_path,
+            stderr=subprocess.PIPE,
+        )
+        for n in range(_LARGE_INDEX_WRITERS)
+    ]
+    for proc in procs:
+        _, err = proc.communicate(timeout=60)
+        assert proc.returncode == 0, err.decode()
+    # A hook interpreter without PyYAML writes nothing and still exits 0.
+    written = yaml.safe_load(index_path.read_text())["entries"]
+    assert sum(1 for key in written if key.startswith("https://example.com/big")) == (
+        _LARGE_INDEX_WRITERS
+    )

@@ -45,6 +45,9 @@ wheels/
 *.md.lock
 # The capture index lock: deduplication.update_index flocks it per write.
 memory-palace-index.yaml.lock
+# The capture index itself is local state that hooks rewrite on every
+# capture, and the first capture creates it (#1067).
+plugins/memory-palace/hooks/memory-palace-index.yaml
 
 # Mod type declarations: Claude Code writes these beside a mod it loads
 # from --plugin-dir, stamped with its own version, and rewrites them on

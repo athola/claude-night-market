@@ -13,7 +13,9 @@ from pathlib import Path
 
 import pytest
 
-DO_ISSUE_MODULES = Path(__file__).parent.parent / "skills" / "do-issue" / "modules"
+DO_ISSUE_MODULES = (
+    Path(__file__).parent.parent / "skills" / "do-issue-playbook" / "modules"
+)
 
 
 @pytest.fixture

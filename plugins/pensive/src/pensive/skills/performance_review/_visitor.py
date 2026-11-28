@@ -7,9 +7,13 @@ import ast
 from ..base import ReviewFinding
 from ._helpers import (
     _REDUCER_FUNCTIONS,
+    _empty_list_locals,
     _has_self_call,
     _is_memoized,
     _iter_name,
+    _names_bound_in_loop,
+    _names_in,
+    _string_literal_locals,
 )
 
 _MIN_NESTED_LOOP_DEPTH = 2
@@ -33,6 +37,9 @@ class _PerfVisitor(ast.NodeVisitor):
         self.findings: list[ReviewFinding] = []
         self._file = file_path
         self._loop_stack: list[str | None] = []
+        # Names each enclosing loop rebinds per pass, innermost last.
+        self._loop_bound_stack: list[set[str]] = []
+        self._loop_iter_stack: list[ast.expr] = []
         self._str_locals_stack: list[set[str]] = []
         self._func_stack: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
         self._non_list_names: set[str] = non_list_names or set()
@@ -42,8 +49,20 @@ class _PerfVisitor(ast.NodeVisitor):
         # out.append(...); return out`. Real S1 hotspots are appends
         # to NON-local targets (params, class attrs, module-level lists).
         self._local_accumulators_stack: list[set[str]] = []
+        # Functions defined directly in a class body. A bare `name(...)`
+        # inside one resolves to a module-level function, never to the
+        # method itself, since a class body is not an enclosing scope.
+        self._method_ids: set[int] = set()
 
     # ---- function tracking (T5, T4 scoping) -------------------------
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        self._method_ids.update(
+            id(child)
+            for child in node.body
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+        )
+        self.generic_visit(node)
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         self._enter_func(node)
@@ -57,7 +76,11 @@ class _PerfVisitor(ast.NodeVisitor):
 
     def _enter_func(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
         # T5: recursive without memoization (LOW).
-        if _has_self_call(node) and not _is_memoized(node):
+        if (
+            id(node) not in self._method_ids
+            and _has_self_call(node)
+            and not _is_memoized(node)
+        ):
             self.findings.append(
                 ReviewFinding(
                     file=self._file,
@@ -74,62 +97,9 @@ class _PerfVisitor(ast.NodeVisitor):
                     ),
                 )
             )
-        # Build a per-function frame of locals assigned a string literal
-        # for T4 scoping.
-        str_locals: set[str] = set()
-        for body_node in ast.walk(node):
-            if isinstance(body_node, ast.Assign):
-                for target in body_node.targets:
-                    if (
-                        isinstance(target, ast.Name)
-                        and isinstance(body_node.value, ast.Constant)
-                        and isinstance(body_node.value.value, str)
-                    ):
-                        str_locals.add(target.id)
-            elif (
-                isinstance(body_node, ast.AnnAssign)
-                and isinstance(body_node.target, ast.Name)
-                and isinstance(body_node.value, ast.Constant)
-                and isinstance(body_node.value.value, str)
-            ):
-                str_locals.add(body_node.target.id)
-        self._str_locals_stack.append(str_locals)
+        self._str_locals_stack.append(_string_literal_locals(node))
         self._func_stack.append(node)
-        # Per-function accumulator frame: any Name initialized to an
-        # empty list in the function body. Recognized forms:
-        # - `out = []`            (Assign + empty List)
-        # - `out: list[X] = []`   (AnnAssign + empty List)
-        # - `out = list()`        (Assign + Call to bare list)
-        # - `out: list[X] = list()` (AnnAssign + Call to bare list)
-        accumulators: set[str] = set()
-
-        def _is_empty_list_value(value: ast.expr | None) -> bool:
-            if value is None:
-                return False
-            if isinstance(value, ast.List) and not value.elts:
-                return True
-            return bool(
-                isinstance(value, ast.Call)
-                and isinstance(value.func, ast.Name)
-                and value.func.id == "list"
-                and not value.args
-                and not value.keywords
-            )
-
-        for body_node in ast.walk(node):
-            if isinstance(body_node, ast.Assign) and _is_empty_list_value(
-                body_node.value
-            ):
-                for tgt in body_node.targets:
-                    if isinstance(tgt, ast.Name):
-                        accumulators.add(tgt.id)
-            elif (
-                isinstance(body_node, ast.AnnAssign)
-                and _is_empty_list_value(body_node.value)
-                and isinstance(body_node.target, ast.Name)
-            ):
-                accumulators.add(body_node.target.id)
-        self._local_accumulators_stack.append(accumulators)
+        self._local_accumulators_stack.append(_empty_list_locals(node))
 
     def _exit_func(self) -> None:
         self._str_locals_stack.pop()
@@ -159,15 +129,30 @@ class _PerfVisitor(ast.NodeVisitor):
                 )
             )
 
+        self._enter_loop(node, cur_iter)
+
+    def _enter_loop(self, node: ast.For | ast.AsyncFor, cur_iter: str | None) -> None:
+        # The iterable and the else clause run once, so only the target
+        # and the body are visited as loop code.
+        self.visit(node.iter)
         self._loop_stack.append(cur_iter)
-        self.generic_visit(node)
+        self._loop_bound_stack.append(_names_bound_in_loop(node))
+        self._loop_iter_stack.append(node.iter)
+        for child in (node.target, *node.body):
+            self.visit(child)
+        self._loop_iter_stack.pop()
+        self._loop_bound_stack.pop()
         self._loop_stack.pop()
+        for child in node.orelse:
+            self.visit(child)
+
+    def _uses_per_pass_name(self, *exprs: ast.expr) -> bool:
+        """True when ``exprs`` read a name some enclosing loop rebinds."""
+        return bool(_names_in(*exprs) & set().union(*self._loop_bound_stack))
 
     def visit_AsyncFor(self, node: ast.AsyncFor) -> None:
         cur_iter = node.iter.id if isinstance(node.iter, ast.Name) else None
-        self._loop_stack.append(cur_iter)
-        self.generic_visit(node)
-        self._loop_stack.pop()
+        self._enter_loop(node, cur_iter)
 
     # ---- T2: `x in <Name>` inside a loop ---------------------------
 
@@ -214,6 +199,8 @@ class _PerfVisitor(ast.NodeVisitor):
         """T3: ``re.compile()`` called inside a loop body."""
         if not (self._loop_stack and self._is_re_compile(node)):
             return
+        if self._uses_per_pass_name(*node.args, *(k.value for k in node.keywords)):
+            return  # the pattern changes per pass, so there is nothing to hoist
         self.findings.append(
             ReviewFinding(
                 file=self._file,
@@ -295,6 +282,9 @@ class _PerfVisitor(ast.NodeVisitor):
         )
         if len(self._loop_stack) < _MIN_NESTED_LOOP_DEPTH or is_local_accumulator:
             return
+        outer_bound = set().union(*self._loop_bound_stack[:-1])
+        if _names_in(self._loop_iter_stack[-1]) & outer_bound:
+            return  # a walk of a nested structure appends once per element
         self.findings.append(
             ReviewFinding(
                 file=self._file,
@@ -330,6 +320,11 @@ class _PerfVisitor(ast.NodeVisitor):
                 allocates = True
         if not allocates:
             return
+        copied = [*node.args]
+        if isinstance(node.func, ast.Attribute):
+            copied.append(node.func.value)
+        if self._uses_per_pass_name(*copied):
+            return  # a copy of this pass's own value cannot be hoisted
         self.findings.append(
             ReviewFinding(
                 file=self._file,

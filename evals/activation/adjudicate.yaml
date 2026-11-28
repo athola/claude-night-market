@@ -2,7 +2,14 @@ disagreements:
 - abstract.create-command.p3
 - abstract.create-hook.p3
 - abstract.hook-authoring.p3
+- abstract.hooks-eval-playbook.p1
+- abstract.hooks-eval-playbook.p2
 - abstract.modular-skills.p2
+- abstract.plugin-review-playbook.p1
+- abstract.plugin-review-playbook.p3
+- abstract.rules-eval-playbook.p1
+- abstract.rules-eval-playbook.p2
+- abstract.skills-eval-playbook.p1
 - abstract.validate-hook.p2
 - archetypes.paradigm-panel.p3
 - attune.arch-init.p3
@@ -15,6 +22,7 @@ disagreements:
 - attune.mission.p3
 - attune.project-execution.p1
 - attune.project-execution.p2
+- attune.project-init-playbook.p1
 - attune.project-planning.p1
 - attune.project-planning.p3
 - attune.project-specification.p1
@@ -40,6 +48,11 @@ disagreements:
 - egregore.install-watchdog.p3
 - egregore.quality-gate.p1
 - egregore.quality-gate.p3
+- egregore.summon-playbook.p1
+- egregore.summon-playbook.p2
+- egregore.uninstall-watchdog-playbook.p1
+- egregore.uninstall-watchdog-playbook.p2
+- egregore.uninstall-watchdog-playbook.p3
 - egregore.uninstall-watchdog.p3
 - gauntlet.extract.p1
 - gauntlet.problem-bank.p1
@@ -52,21 +65,36 @@ disagreements:
 - hookify.rule-catalog.p2
 - hookify.rule-sweep.p1
 - hookify.rule-sweep.p2
+- imbue.catchup-playbook.p1
+- imbue.catchup-playbook.p2
+- imbue.catchup-playbook.p3
 - imbue.catchup.p1
 - imbue.catchup.p3
+- imbue.justify-playbook.p2
 - imbue.structured-review.p2
 - leyline.content-sanitization.p2
 - leyline.decision-journal.p2
 - leyline.deferred-capture.p1
 - leyline.deferred-capture.p2
+- leyline.deferred-capture.p3
 - leyline.document-conversion.p1
 - leyline.document-conversion.p2
+- leyline.pytest-config.p1
+- leyline.pytest-config.p2
+- leyline.pytest-config.p3
+- leyline.quota-management.p1
+- leyline.quota-management.p2
+- leyline.quota-management.p3
 - leyline.sem-integration.p1
 - leyline.service-registry.p1
 - leyline.service-registry.p2
 - leyline.storage-templates.p1
 - leyline.storage-templates.p2
 - leyline.supply-chain-advisory.p2
+- leyline.usage-logging.p2
+- leyline.utility.p1
+- leyline.utility.p2
+- leyline.utility.p3
 - memory-palace.digital-garden-cultivator.p3
 - memory-palace.garden.p3
 - memory-palace.skill-logs.p2
@@ -81,11 +109,19 @@ disagreements:
 - neg.058
 - parseltongue.python-performance.p2
 - parseltongue.python-testing.p1
+- pensive.api-review-playbook.p1
+- pensive.api-review-playbook.p3
+- pensive.architecture-review-playbook.p1
+- pensive.architecture-review-playbook.p3
 - pensive.code-refinement.p1
 - pensive.full-review.p1
+- pensive.test-review-playbook.p2
+- pensive.unified-review-playbook.p1
+- pensive.unified-review-playbook.p2
 - sanctum.commit-messages.p1
 - sanctum.commit-messages.p2
 - sanctum.commit-msg.p1
+- sanctum.do-issue-playbook.p2
 - sanctum.doc-consolidation.p2
 - sanctum.doc-updates.p1
 - sanctum.fix-pr.p2
@@ -96,122 +132,162 @@ disagreements:
 - sanctum.test-updates.p3
 - sanctum.tutorial-updates.p2
 - sanctum.update-ci.p2
+- sanctum.validate-pr-playbook.p1
+- sanctum.validate-pr-playbook.p2
 - sanctum.version-updates.p1
 - sanctum.version-updates.p2
 - sanctum.version-updates.p3
 - scribe.doc-generator.p1
+- scribe.session-replay-playbook.p1
+- scribe.session-to-post-playbook.p1
+- scribe.session-to-post-playbook.p2
+- scribe.voice-extract-playbook.p2
+- scribe.voice-learn-playbook.p2
 - scry.record-terminal.p3
 - spec-kit.speckit-orchestrator.p3
+- tome.dig-playbook.p1
+- tome.export-playbook.p1
+- tome.export-playbook.p2
 audit_sample:
 - abstract.aggregate-logs.p2
 - abstract.create-skill.p2
-- abstract.metacognitive-self-mod.p3
-- abstract.skill-graph-audit.p2
-- abstract.skill-graph-audit.p3
-- abstract.validate-hook.p3
-- archetypes.architecture-paradigm-cqrs-es.p1
-- archetypes.architecture-paradigm-functional-core.p3
-- archetypes.architecture-paradigm-hexagonal.p2
-- archetypes.architecture-paradigm-layered.p1
-- archetypes.architecture-paradigm-microkernel.p2
-- archetypes.architecture-paradigm-microservices.p1
-- archetypes.architecture-paradigm-pipeline.p3
-- attune.mission-orchestrator.p3
-- attune.mission.p1
+- abstract.metacognitive-self-mod.p2
+- abstract.skill-authoring.p2
+- abstract.skill-authoring.p3
+- abstract.subagent-testing.p3
+- abstract.validate-plugin.p2
+- archetypes.architecture-paradigm-event-driven.p1
+- archetypes.architecture-paradigm-event-driven.p3
+- archetypes.architecture-paradigm-functional-core.p2
+- archetypes.architecture-paradigm-hexagonal.p3
+- archetypes.architecture-paradigm-layered.p2
+- attune.execute.p3
+- attune.makefile-generation.p1
+- attune.mission-orchestrator.p1
 - attune.precommit-setup.p1
-- attune.project-brainstorming.p3
-- cartograph.dependency-graph.p1
-- conjure.codex-delegation.p3
-- conjure.minimax-delegation.p2
-- conjure.muse-delegation.p3
-- conserve.bloat-detector.p3
-- conserve.bloat-sweep.p2
-- conserve.context-optimization.p1
-- conserve.elegant-code-review.p1
-- conserve.elegant-code-review.p2
-- egregore.quality-gate.p2
-- gauntlet.gauntlet-extract.p1
+- cartograph.atlas.p3
+- cartograph.dependency-graph.p2
+- conjure.delegation-core.p1
+- conjure.gemini-delegation.p2
+- conjure.provider-setup.p1
+- conjure.qwen-delegation.p2
+- conserve.bloat-detector.p1
+- conserve.clear-context.p3
+- conserve.code-quality-principles.p1
+- conserve.mcp-code-execution.p3
+- egregore.summon.p2
+- gauntlet.curate.p1
+- gauntlet.gauntlet-curate.p2
 - gauntlet.gauntlet-extract.p3
-- gauntlet.gauntlet-progress.p1
-- gauntlet.graph-build.p1
-- gauntlet.graph-search.p2
-- gauntlet.onboard.p2
-- hookify.configure.p2
-- hookify.help.p1
-- imbue.dependency-verification.p1
-- imbue.diff-analysis.p2
-- imbue.review-core.p3
-- imbue.structured-review.p3
-- imbue.workflow-monitor.p3
-- leyline.error-patterns.p1
-- leyline.markdown-formatting.p3
-- leyline.pytest-config.p3
-- leyline.risk-classification.p2
-- leyline.verify-plugin.p3
-- memory-palace.knowledge-intake.p1
+- gauntlet.gauntlet-onboard.p3
+- gauntlet.gauntlet.p2
+- gauntlet.graph-build.p2
+- hookify.hookify.p2
+- hookify.list.p1
+- imbue.justify-playbook.p1
+- imbue.proof-of-work.p1
+- imbue.rigorous-reasoning.p1
+- imbue.vow-enforcement.p3
+- leyline.damage-control.p3
+- leyline.evaluation-framework.p3
+- leyline.loop-optimization.p2
+- leyline.testing-quality-standards.p3
+- leyline.usage-logging.p3
+- memory-palace.knowledge-intake.p2
+- memory-palace.knowledge-locator.p3
 - memory-palace.memory-palace-architect.p1
-- memory-palace.navigate.p2
-- memory-palace.palace-diagram.p3
-- memory-palace.review-chamber.p2
-- memory-palace.review-room.p3
-- memory-palace.session-handoff.p3
-- minister.dora-metrics.p3
-- neg.005
-- neg.018
-- neg.023
-- neg.026
+- memory-palace.palace-index-curator.p3
+- memory-palace.palace.p1
+- memory-palace.review-chamber.p1
+- memory-palace.session-palace-builder.p2
+- minister.initiative-pulse.p3
+- neg.009
+- neg.015
+- neg.019
 - neg.027
 - neg.035
-- neg.043
-- oracle.oracle-setup.p1
-- parseltongue.python-packaging.p2
+- neg.051
+- parseltongue.analyze-tests.p3
+- parseltongue.python-packaging.p3
+- parseltongue.python-performance.p1
 - parseltongue.run-profiler.p1
-- parseltongue.run-profiler.p2
-- pensive.architecture-review.p3
-- pensive.code-refinement.p2
-- pensive.performance-review.p3
-- phantom.computer-control.p2
-- sanctum.create-tag.p3
-- sanctum.git-catchup.p3
-- sanctum.git-workspace-review.p2
-- sanctum.pr-prep.p2
-- sanctum.resolve-threads.p2
-- sanctum.stack-push.p1
-- sanctum.update-tests.p2
-- sanctum.update-tutorial.p2
-- scribe.session-to-post.p2
-- scribe.session-to-post.p3
-- scribe.tech-tutorial.p3
-- scribe.voice-generate.p1
-- scribe.voice-generate.p3
-- scribe.voice-review.p2
-- scry.record-browser.p2
-- scry.record-terminal.p2
+- pensive.architecture-review-playbook.p2
+- pensive.full-review.p2
+- pensive.rust-review-playbook.p1
+- pensive.skill-review.p2
+- phantom.surface-check.p1
+- phantom.surface-check.p3
+- sanctum.commit-msg.p2
+- sanctum.do-issue.p3
+- sanctum.fix-workflow.p3
+- sanctum.resolve-threads.p3
+- sanctum.session-management.p3
+- sanctum.update-plugins.p1
+- sanctum.update-plugins.p2
+- sanctum.validate-pr.p1
+- sanctum.workflow-improvement.p2
+- scribe.doc-generate.p1
+- scribe.doc-polish.p1
+- scribe.simplified-technical-english.p1
+- scribe.slop-detector.p1
+- scribe.slop-detector.p3
+- scribe.voice-extract-playbook.p3
+- scribe.voice-generate-playbook.p1
+- scribe.voice-learn-playbook.p1
+- scry.capture-set.p3
+- scry.gif-generation.p2
+- scry.media-composition.p2
 - scry.vhs-recording.p2
-- spec-kit.speckit-checklist.p1
-- spec-kit.speckit-clarify.p2
+- spec-kit.speckit-checklist.p2
+- spec-kit.speckit-clarify.p1
 - spec-kit.speckit-converge.p2
-- spec-kit.task-planning.p2
-- tome.export.p3
-- tome.ideate.p2
-- tome.papers.p2
-- tome.research.p1
+- spec-kit.speckit-implement.p1x
+- spec-kit.speckit-plan.p1
+- spec-kit.speckit-plan.p3
+- spec-kit.speckit-specify.p3
+- spec-kit.speckit-tasks.p3
+- tome.code-search.p1
+- tome.research-session.p1
 writer: sonnet
 judge: sonnet
-spent_usd: 27.1654
+spent_usd: 34.0287
 stopped: null
 failed_calls: []
 repaired:
   filled_items:
-  - abstract:create-skill
-  - hookify:writing-rules
-  - imbue:assisted-mastery
-  - imbue:catchup
-  - imbue:dependency-verification
-  - imbue:diff-analysis
-  - imbue:evidence-sweep
-  - imbue:feature-review
-  - imbue:graduated-implementation
-  - minister:create-issue
-  - spec-kit:speckit-implement
-  rejudged: 328
+  - abstract:hooks-eval-playbook
+  - abstract:plugin-review-playbook
+  - abstract:rules-eval-playbook
+  - abstract:skills-eval-playbook
+  - attune:project-init-playbook
+  - attune:skill-library-session
+  - attune:war-room-playbook
+  - egregore:install-watchdog-playbook
+  - egregore:summon-playbook
+  - egregore:uninstall-watchdog-playbook
+  - imbue:catchup-playbook
+  - imbue:justify-playbook
+  - pensive:api-review-playbook
+  - pensive:architecture-review-playbook
+  - pensive:bug-review-playbook
+  - pensive:harden-playbook
+  - pensive:math-review-playbook
+  - pensive:parity-sweep
+  - pensive:performance-review-playbook
+  - pensive:rust-review-playbook
+  - pensive:test-review-playbook
+  - pensive:unified-review-playbook
+  - sanctum:do-issue-playbook
+  - sanctum:pr-review-playbook
+  - sanctum:validate-pr-playbook
+  - scribe:session-replay-playbook
+  - scribe:session-to-post-playbook
+  - scribe:voice-extract-playbook
+  - scribe:voice-generate-playbook
+  - scribe:voice-learn-playbook
+  - scribe:voice-review-playbook
+  - tome:dig-playbook
+  - tome:export-playbook
+  - tome:research-playbook
+  - tome:research-session
+  rejudged: 299

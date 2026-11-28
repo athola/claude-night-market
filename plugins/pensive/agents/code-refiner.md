@@ -126,7 +126,7 @@ verifier did not run.
 
 ### Phase 5: Report
 
-Use the output-format templates from `pensive:unified-review`.
+Use the output-format templates from `pensive:unified-review-playbook`.
 
 ```
 === Code Refinement Report ===

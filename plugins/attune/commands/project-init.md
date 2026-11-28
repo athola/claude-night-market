@@ -62,7 +62,7 @@ Avoid this command if:
 
 ```bash
 # 1. Invoke skill to guide initialization
-Skill(attune:project-init)
+Skill(attune:project-init-playbook)
 
 # 2. Gather project metadata
 #    - Project name (default: directory name)
@@ -89,7 +89,7 @@ make help
 - `--name <name>` - Project name (default: directory name)
 - `--author <name>` - Author name
 - `--email <email>` - Author email
-- `--python-version <version>` - Python version (default: 3.10)
+- `--python-version <version>` - Python version (default: 3.9)
 - `--description <text>` - Project description
 - `--path <path>` - Project path (default: current directory)
 - `--force` - Overwrite existing files without prompting
@@ -206,7 +206,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ## Related Skills
 
-- `Skill(attune:project-init)` - Interactive initialization flow
+- `Skill(attune:project-init-playbook)` - Interactive initialization flow
 - `Skill(attune:makefile-generation)` - Generate Makefile only
 - `Skill(attune:workflow-setup)` - Set up GitHub Actions only
 - `Skill(attune:precommit-setup)` - Configure pre-commit hooks only

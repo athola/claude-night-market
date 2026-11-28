@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Block a commit that would carry undrained captures.
+"""Block a commit while the local capture index holds undrained captures.
 
-The capture index is tracked so the drain has something to converge on.
-That only means anything if what lands is drained, so this gate asserts
-the invariant directly: zero ``pending`` entries in the index the commit
-is about to carry.
+The capture index is gitignored local state (#1067), so the commit
+carries what the drain promoted, never the index itself. This gate
+asserts the drain finished: zero ``pending`` entries in the local index.
+A clone with no index yet has nothing to drain and passes.
 
 It runs after the promote and prune-orphans cycles in
 ``precommit_palace_maintenance.sh``, which resolve everything they can.

@@ -123,7 +123,8 @@ def extract_frontmatter(content: str) -> tuple[str, str]:
     """
     # Deprecated: use FrontmatterProcessor.parse() directly
     warnings.warn(
-        "extract_frontmatter is deprecated; use FrontmatterProcessor directly",
+        "extract_frontmatter is deprecated and will be removed in 1.11.0; "
+        "use FrontmatterProcessor directly",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -146,7 +147,8 @@ def parse_frontmatter_fields(frontmatter: str) -> dict[str, str]:
     """
     # Deprecated: use FrontmatterProcessor.parse() directly
     warnings.warn(
-        "parse_frontmatter_fields is deprecated; use FrontmatterProcessor directly",
+        "parse_frontmatter_fields is deprecated and will be removed in 1.11.0; "
+        "use FrontmatterProcessor directly",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -180,7 +182,8 @@ def validate_skill_frontmatter(
     """
     # Deprecated: use FrontmatterProcessor.parse() directly
     warnings.warn(
-        "validate_skill_frontmatter is deprecated; use FrontmatterProcessor directly",
+        "validate_skill_frontmatter is deprecated and will be removed in 1.11.0; "
+        "use FrontmatterProcessor directly",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -285,7 +288,8 @@ def parse_yaml_frontmatter(content: str) -> dict:
     """
     # Deprecated: use FrontmatterProcessor.parse() directly
     warnings.warn(
-        "parse_yaml_frontmatter is deprecated; use FrontmatterProcessor directly",
+        "parse_yaml_frontmatter is deprecated and will be removed in 1.11.0; "
+        "use FrontmatterProcessor directly",
         DeprecationWarning,
         stacklevel=2,
     )

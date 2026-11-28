@@ -105,7 +105,7 @@ Ensure all fixes are correct and quality gates pass.
   headless browser (CDP MCP / Playwright). See Section 5.4
 - Run quality gates
 - Document results
-- **5.7 Diff-derived validation** (`Skill(sanctum:validate-pr)`): area-targeted checks + revert-test. Halts before Step 6 on FAIL. Bypass: `--skip-validate`.
+- **5.7 Diff-derived validation** (`Skill(sanctum:validate-pr-playbook)`): area-targeted checks + revert-test. Halts before Step 6 on FAIL. Bypass: `--skip-validate`.
 
 **Output:** Tests passing, validate-pr summary table ready for Gate 3
 

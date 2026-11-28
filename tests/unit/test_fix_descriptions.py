@@ -18,7 +18,7 @@ import yaml
 # Add scripts to path for testing
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-from fix_descriptions import consolidate_description, process_skill_file
+from fix_descriptions import consolidate_description, main, process_skill_file
 
 
 class TestConsolidateDescription:
@@ -407,3 +407,87 @@ class TestProcessSkillFile:
 
         # Stripping "Triggers:..." leaves empty description → returns None
         assert result is None
+
+
+class TestCheckMode:
+    """The --check gate the pre-commit hook runs."""
+
+    @pytest.mark.unit
+    def test_check_fails_when_frontmatter_does_not_parse(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """
+        Scenario: A SKILL.md has frontmatter YAML cannot parse (#833)
+        Given a skill whose frontmatter is invalid YAML
+        When --check runs
+        Then it exits 1, because an unread description is not a compliant one
+        """
+        skill = tmp_path / "test" / "skills" / "broken"
+        skill.mkdir(parents=True)
+        (skill / "SKILL.md").write_text(
+            "---\nname: broken\ndescription: [unclosed\n---\n\n# Body\n"
+        )
+        monkeypatch.setattr(
+            sys, "argv", ["fix_descriptions.py", "--check", "--path", str(tmp_path)]
+        )
+
+        assert main() == 1
+
+    @pytest.mark.unit
+    def test_check_passes_on_clean_frontmatter(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """Given only compliant skills, When --check runs, Then it exits 0."""
+        skill = tmp_path / "test" / "skills" / "clean"
+        skill.mkdir(parents=True)
+        (skill / "SKILL.md").write_text(
+            "---\nname: clean\ndescription: Does a thing. Use when needed.\n---\n"
+        )
+        monkeypatch.setattr(
+            sys, "argv", ["fix_descriptions.py", "--check", "--path", str(tmp_path)]
+        )
+
+        assert main() == 0
+
+
+class TestApplyMode:
+    """--apply and the dry run report only what they can write."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("apply", [True, False])
+    def test_unwritable_files_are_listed_for_a_manual_fix_not_counted(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+        apply: bool,
+    ):
+        """
+        Scenario: one skill has broken YAML, one a truncated 'DO NOT.'
+        Given neither can be rewritten automatically
+        When --apply or the dry run runs
+        Then both are named for a manual fix, and none counts as updated
+        """
+        broken = tmp_path / "test" / "skills" / "broken"
+        broken.mkdir(parents=True)
+        (broken / "SKILL.md").write_text(
+            "---\nname: broken\ndescription: [unclosed\n---\n\n# Body\n"
+        )
+        cut = tmp_path / "test" / "skills" / "cut"
+        cut.mkdir(parents=True)
+        (cut / "SKILL.md").write_text(
+            "---\nname: cut\ndescription: Does a thing. DO NOT.\n---\n"
+        )
+        before = (broken / "SKILL.md").read_text(), (cut / "SKILL.md").read_text()
+        argv = ["fix_descriptions.py", "--path", str(tmp_path)]
+        monkeypatch.setattr(sys, "argv", argv + (["--apply"] if apply else []))
+
+        assert main() == 0
+
+        out = capsys.readouterr().out
+        assert "0 files updated" in out
+        assert "2 files need a manual fix" in out
+        assert str(broken / "SKILL.md") in out
+        assert str(cut / "SKILL.md") in out
+        after = (broken / "SKILL.md").read_text(), (cut / "SKILL.md").read_text()
+        assert after == before

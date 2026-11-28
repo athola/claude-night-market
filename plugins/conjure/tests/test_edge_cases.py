@@ -10,7 +10,7 @@ import os
 import queue
 import sys
 import threading
-from datetime import datetime
+import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -133,31 +133,31 @@ class TestDelegationExecutorEdgeCases:
 class TestQuotaTrackerEdgeCases:
     """Test edge cases for quota tracker."""
 
-    def test_corrupted_usage_file(self, tmp_path: Path) -> None:
-        """Corrupted usage data doesn't crash get_quota_status."""
-        usage_file = tmp_path / "usage.json"
-        usage_file.write_text(
+    def test_corrupted_usage_file(self) -> None:
+        """A usage file with a negative counter loads as zero usage.
+
+        The file must exist before the tracker is built: __init__ is the
+        only place that reads it.
+        """
+        storage = Path.home() / ".claude" / "hooks" / "gemini"
+        storage.mkdir(parents=True)
+        (storage / "usage.json").write_text(
             json.dumps(
                 {
-                    "requests": [
-                        {
-                            "timestamp": datetime.now().isoformat(),
-                            "tokens": -100,
-                            "success": True,
-                        }
-                    ],
-                    "daily_tokens": -50,
-                    "last_reset": datetime.now().isoformat(),
-                },
-                indent=2,
+                    "requests_today": 3,
+                    "tokens_today": -50,
+                    # Today, so the daily reset cannot zero it first.
+                    "last_request_time": time.time(),
+                }
             )
         )
 
         tracker = GeminiQuotaTracker()
-        tracker.usage_file = usage_file
+        status, warnings = tracker.get_quota_status()
 
-        status, _warnings = tracker.get_quota_status()
-        assert isinstance(status, str)
+        assert tracker.usage.tokens_today == 0
+        assert tracker.usage.requests_today == 0
+        assert (status, warnings) == ("healthy", [])
 
     def test_estimate_tokens_empty_input(self) -> None:
         """Empty input yields non-negative token estimate."""

@@ -24,11 +24,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: imbue:karpathy-principles; judge: gauntlet:challenge/herald:judge-panel'
+  notes: 'router: imbue:karpathy-principles; judge: gauntlet:challenge/egregore:gate-audit'
   proposals:
     router: imbue:karpathy-principles
     judge: gauntlet:challenge
-    judge_runner_up: herald:judge-panel
+    judge_runner_up: egregore:gate-audit
 - id: gauntlet.challenge.p3
   type: near_miss
   prompt: I already have the knowledge file built for this repo. Quiz me on how the
@@ -48,20 +48,22 @@ cases:
     judge: gauntlet:challenge
     judge_runner_up: gauntlet:knowledge-extract
 - id: gauntlet.curate.p1
-  type: positive
+  type: near_miss
   prompt: I want to record why we chose the retry backoff in the payments module so
     future teammates get asked about it. Walk me through adding that note.
   target: gauntlet:curate
-  competitor: null
+  competitor: gauntlet:gauntlet-curate
   cluster: gauntlet:curate
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: gauntlet:curate/None'
+  adjudicated: true
+  notes: 'router: hookify:rule-sweep; judge: gauntlet:curate/hookify:writing-rules;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    walk-through fits the gauntlet-curate command too'
   proposals:
     router: hookify:rule-sweep
     judge: gauntlet:curate
-    judge_runner_up: null
+    judge_runner_up: hookify:writing-rules
 - id: gauntlet.curate.p2
   type: positive
   prompt: Add a manual annotation capturing a rule about our billing code that no
@@ -83,18 +85,17 @@ cases:
     at four, and nobody knows that from reading the code. Write that down as a YAML
     note for the notifications module so future questions pick it up.
   target: gauntlet:curate
-  competitor: leyline:service-registry
+  competitor: gauntlet:problem-bank
   cluster: gauntlet:curate
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at conjure:provider-sweep; router: leyline:quota-management; judge:
-    gauntlet:curate/None'
+  notes: 'aimed at conjure:provider-sweep; router: hookify:rule-sweep; judge: gauntlet:curate/gauntlet:problem-bank'
   proposals:
     aimed_at: conjure:provider-sweep
-    router: leyline:quota-management
+    router: hookify:rule-sweep
     judge: gauntlet:curate
-    judge_runner_up: null
+    judge_runner_up: gauntlet:problem-bank
 - id: gauntlet.extract.p1
   type: positive
   prompt: Rebuild the knowledge base for this repo by parsing the source and enriching
@@ -167,8 +168,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: gauntlet:gauntlet-curate
     judge: gauntlet:gauntlet-curate
@@ -287,11 +289,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: gauntlet:gauntlet-onboard/cartograph:atlas'
+  notes: 'router: parseltongue:python-async; judge: gauntlet:gauntlet-onboard/gauntlet:challenge'
   proposals:
     router: parseltongue:python-async
     judge: gauntlet:gauntlet-onboard
-    judge_runner_up: cartograph:atlas
+    judge_runner_up: gauntlet:challenge
 - id: gauntlet.gauntlet-onboard.p2
   type: positive
   prompt: restart my onboarding from the very beginning, I want to redo the whole
@@ -316,9 +318,11 @@ cases:
   cluster: gauntlet:gauntlet-onboard
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: tome:cite;
-    judge: gauntlet:gauntlet-onboard/gauntlet:gauntlet-extract'
+    judge: gauntlet:gauntlet-onboard/gauntlet:gauntlet-extract; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     aimed_at: archetypes:architecture-paradigm-functional-core
     router: tome:cite
@@ -392,8 +396,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: gauntlet:gauntlet
     judge: gauntlet:gauntlet
@@ -430,16 +435,18 @@ cases:
     router: sanctum:git-catchup
     judge: gauntlet:graph-build
 - id: gauntlet.graph-build.p2
-  type: positive
+  type: near_miss
   prompt: I just refactored a bunch of modules, refresh the graph database before
     I run any impact analysis
   target: gauntlet:graph-build
-  competitor: null
+  competitor: gauntlet:gauntlet-graph
   cluster: gauntlet:graph-build
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: gauntlet:graph-build'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: gauntlet:graph-build; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    refreshing the graph fits the gauntlet-graph command too'
   proposals:
     router: parseltongue:python-async
     judge: gauntlet:graph-build
@@ -498,11 +505,10 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at gauntlet:gauntlet-graph; router: gauntlet:gauntlet-graph; judge:
-    gauntlet:graph-search/gauntlet:gauntlet-graph'
+  notes: 'aimed at gauntlet:gauntlet-graph; router: pensive:parity-sweep; judge: gauntlet:graph-search/gauntlet:gauntlet-graph'
   proposals:
     aimed_at: gauntlet:gauntlet-graph
-    router: gauntlet:gauntlet-graph
+    router: pensive:parity-sweep
     judge: gauntlet:graph-search
     judge_runner_up: gauntlet:gauntlet-graph
 - id: gauntlet.knowledge-extract.p1
@@ -590,18 +596,18 @@ cases:
   prompt: I'm new on this team, walk me through the codebase step by step starting
     from the big picture, and pick up where I left off last time
   target: gauntlet:onboard
-  competitor: scribe:tech-tutorial
+  competitor: cartograph:atlas
   cluster: gauntlet:onboard
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: scribe:tech-tutorial;
-    judge: gauntlet:onboard/None'
+    judge: gauntlet:onboard/cartograph:atlas'
   proposals:
     aimed_at: archetypes:architecture-paradigm-functional-core
     router: scribe:tech-tutorial
     judge: gauntlet:onboard
-    judge_runner_up: null
+    judge_runner_up: cartograph:atlas
 - id: gauntlet.problem-bank.p1
   type: positive
   prompt: check which algorithm categories in our DSA problem bank are below the NeetCode

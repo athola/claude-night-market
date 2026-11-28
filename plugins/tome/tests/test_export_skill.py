@@ -15,7 +15,7 @@ import yaml
 from tome.output.export import export_for_memory_palace
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
-SKILL = PLUGIN_ROOT / "skills" / "export" / "SKILL.md"
+SKILL = PLUGIN_ROOT / "skills" / "export-playbook" / "SKILL.md"
 COMMAND = PLUGIN_ROOT / "commands" / "export.md"
 MANIFEST = PLUGIN_ROOT / ".claude-plugin" / "plugin.json"
 
@@ -32,8 +32,8 @@ def test_skill_exists() -> None:
 
 
 def test_frontmatter_names_the_skill() -> None:
-    """Scenario: frontmatter parses and is named export."""
-    assert _frontmatter(SKILL.read_text()).get("name") == "export"
+    """Scenario: frontmatter parses and is named export-playbook."""
+    assert _frontmatter(SKILL.read_text()).get("name") == "export-playbook"
 
 
 def test_skill_names_the_real_function() -> None:
@@ -59,7 +59,7 @@ def test_command_points_at_the_skill() -> None:
 def test_skill_registered_in_manifest() -> None:
     """Scenario: the skill is discoverable."""
     skills = json.loads(MANIFEST.read_text()).get("skills", [])
-    assert any(s.rstrip("/").endswith("skills/export") for s in skills), skills
+    assert any(s.rstrip("/").endswith("skills/export-playbook") for s in skills), skills
 
 
 def test_handoff_target_is_named() -> None:

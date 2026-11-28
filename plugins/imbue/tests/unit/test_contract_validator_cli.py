@@ -148,7 +148,8 @@ class TestContractValidatorCli:
         missing = tmp_path / "nonexistent.md"
         result = _run_cli("--findings", str(missing), "--contract", str(contract))
         assert result.returncode == 2
-        assert "findings file not found" in result.stdout
+        assert "findings file not found" in result.stderr
+        assert result.stdout == ""
 
     @pytest.mark.unit
     def test_missing_contract_file_returns_nonzero(self, tmp_path: Path) -> None:
@@ -157,7 +158,8 @@ class TestContractValidatorCli:
         missing = tmp_path / "nonexistent.json"
         result = _run_cli("--findings", str(findings), "--contract", str(missing))
         assert result.returncode == 2
-        assert "contract file not found" in result.stdout
+        assert "contract file not found" in result.stderr
+        assert result.stdout == ""
 
     @pytest.mark.unit
     def test_yaml_contract_rejected(self, tmp_path: Path) -> None:

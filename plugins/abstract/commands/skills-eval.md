@@ -6,8 +6,8 @@ usage: /skills-eval [skill-name]
 
 # Skills Evaluation Command
 
-Invoke `Skill(abstract:skills-eval)`, which carries the evaluation criteria,
-the workflow and the output format across its modules.
+Invoke `Skill(abstract:skills-eval-playbook)`, which carries the evaluation
+criteria, the workflow and the output format across its modules.
 
 ## When To Use
 

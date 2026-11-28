@@ -60,8 +60,9 @@ Herald declares no skills, commands or agents, and is used as a
 Python library. It does register one hook: `hooks/double_shot_latte.py`
 on Stop, which can return `{"decision": "block"}` to keep a session
 working when its last message states an intent to continue. It defaults
-to stopping, and allows at most `MAX_CONTINUATIONS` (10) blocks in a
-300-second window. Installing herald for its notifications installs
+to stopping, and allows at most `MAX_CONTINUATIONS` (10) consecutive
+blocks in one chain of continuations; a user-started turn resets the
+count. Installing herald for its notifications installs
 that hook as well.
 
 ### Exception: gauntlet (recorded 2026-09-03)
@@ -81,8 +82,8 @@ the code does.
 ### Exception: memory-palace (recorded 2026-10-28)
 
 `memory-palace` owns the knowledge graph analyzer, the embedding
-index and the capture index. Consumers: tome, which imports the first
-two for thread analysis and semantic retrieval (ADR-0018), and
+index and the capture index. Consumers: tome, which imports the
+embedding index for semantic retrieval (ADR-0018), and
 abstract, which stages insight captures through
 `hooks/shared/deduplication`. The same rules apply, and both
 plugin.json files declare the edge. `tests/test_plugin_dependency_manifest.py`

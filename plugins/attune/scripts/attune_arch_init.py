@@ -28,7 +28,7 @@ from attune_init import (
 )
 from project_detector import ProjectDetector
 from template_customizer import TemplateCustomizer
-from template_engine import python_module_name
+from template_engine import DEFAULT_PYTHON_VERSION, python_module_name
 
 
 def _select_from_menu(
@@ -275,7 +275,7 @@ def perform_online_research(
 
     print("\n" + "-" * 60)
     print("\nThis script cannot search. Run the queries in the session")
-    print("(Skill(tome:research) or WebSearch), write what they argue for as")
+    print("(Skill(tome:research-playbook) or WebSearch), write what they argue for as")
     print('{"preferred": [...], "avoid": [...]} and pass it with --research-file.')
     print("Without one, the recommendation is the decision matrix alone.")
 
@@ -464,7 +464,7 @@ def _scaffold_project(  # noqa: PLR0913 - phase helper consolidates init steps; 
         project_name=project_name,
         language=context.language,
         author=context_data.get("author", "Your Name"),
-        python_version="3.10",
+        python_version=DEFAULT_PYTHON_VERSION,
         rust_edition="2021",
         package_manager="npm",
         repository="",

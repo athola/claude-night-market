@@ -54,10 +54,10 @@ skills:
 - skills/precommit-setup
 - skills/project-brainstorming
 - skills/project-execution
-- skills/project-init
+- skills/project-init-playbook
 - skills/project-planning
 - skills/project-specification
-- skills/war-room
+- skills/war-room-playbook
 - skills/war-room-checkpoint
 - skills/workflow-setup
 - skills/mission-orchestrator
@@ -74,7 +74,7 @@ commands:
 - commands/upgrade-project.md
 - commands/validate.md
 - commands/war-room.md
-- commands/skill-library.md
+- commands/skill-library-session.md
 agents:
 - agents/project-architect.md
 - agents/project-implementer.md

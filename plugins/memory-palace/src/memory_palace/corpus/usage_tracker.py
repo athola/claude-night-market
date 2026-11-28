@@ -108,6 +108,11 @@ class UsageTracker:
         # Each value: access_count, citation_count, positive_count,
         # negative_count, raw_score, last_access
         self._aggregates: dict[str, dict[str, Any]] = {}
+        # Retained events per entry, and its retained access times oldest
+        # first. Eviction is FIFO, so both update in O(1); scanning the
+        # deque on each eviction made a full tracker O(maxlen) per record.
+        self._retained: dict[str, int] = {}
+        self._access_times: dict[str, deque[datetime]] = {}
 
     def record_event(
         self,
@@ -143,11 +148,35 @@ class UsageTracker:
         the aggregates too. Otherwise a save and load flipped the score.
         """
         if self._events.maxlen is not None and len(self._events) == self._events.maxlen:
-            self._count(self._events[0], -1)
+            self._evict(self._events.popleft())
         self._events.append(event)
         self._count(event, 1)
+        self._retained[event.entry_id] = self._retained.get(event.entry_id, 0) + 1
         if event.signal == UsageSignal.ACCESS:
+            self._access_times.setdefault(event.entry_id, deque()).append(
+                event.timestamp
+            )
             self._aggregates[event.entry_id]["last_access"] = event.timestamp
+
+    def _evict(self, evicted: UsageEvent) -> None:
+        """Take a dropped event out of its entry's aggregate.
+
+        An entry left with no retained events goes, and a dropped access
+        that was the latest moves ``last_access`` back, as a reload would.
+        """
+        entry_id = evicted.entry_id
+        self._count(evicted, -1)
+        self._retained[entry_id] -= 1
+        if evicted.signal == UsageSignal.ACCESS:
+            # The evicted event is this entry's oldest, so its access time
+            # is the oldest one kept.
+            self._access_times[entry_id].popleft()
+        if not self._retained[entry_id]:
+            del self._aggregates[entry_id], self._retained[entry_id]
+            self._access_times.pop(entry_id, None)
+            return
+        accesses = self._access_times.get(entry_id)
+        self._aggregates[entry_id]["last_access"] = accesses[-1] if accesses else None
 
     def _count(self, event: UsageEvent, sign: int) -> None:
         agg = self._aggregates.setdefault(event.entry_id, dict(_EMPTY_AGGREGATE))
@@ -268,6 +297,8 @@ class UsageTracker:
             maxlen=max_events,
         )
         self._aggregates.pop(entry_id, None)
+        self._retained.pop(entry_id, None)
+        self._access_times.pop(entry_id, None)
 
     def export_events(self) -> list[dict[str, Any]]:
         """Export all events as serializable data.

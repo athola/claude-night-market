@@ -14,11 +14,13 @@ or say you used none (CONSTITUTION.md rule 1).
 
 ## Why
 
+<!-- Agreed before this PR? Link where: issue, ADR, design doc. -->
 <!-- The problem this capability solves and why it matters now. Link
 the issue or design discussion. -->
 
 ## What and how
 
+<!-- End with "Where to look:", the one or two places this could be wrong. -->
 <!-- What the feature does. Then the design decision: the approach
 taken, the alternative rejected, and why. This section is the one that
 saves a review round trip. -->

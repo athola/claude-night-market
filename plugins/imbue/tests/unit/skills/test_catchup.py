@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 from _markdown_contract import load as _load
 
-SKILL_DIR = Path(__file__).resolve().parents[3] / "skills" / "catchup"
+SKILL_DIR = Path(__file__).resolve().parents[3] / "skills" / "catchup-playbook"
 
 
 def _section(body: str, heading: str) -> str:

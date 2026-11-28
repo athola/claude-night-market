@@ -131,18 +131,7 @@ Recommendations:
 /attune:validate
 ```
 
-### Example 2: Verbose Report with Suggestions
-
-```bash
-/attune:validate --verbose --suggestions
-```
-
-Includes:
-- Detailed explanation of each check
-- Links to documentation
-- Copy-paste commands to fix issues
-
-### Example 3: CI Integration
+### Example 2: CI Integration
 
 ```yaml
 # .github/workflows/validate.yml

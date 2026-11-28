@@ -11,11 +11,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:python-sweep; judge: conserve:agent-expenditure/None'
+  notes: 'router: leyline:evaluation-framework; judge: conserve:agent-expenditure/leyline:evaluation-framework'
   proposals:
-    router: parseltongue:python-sweep
+    router: leyline:evaluation-framework
     judge: conserve:agent-expenditure
-    judge_runner_up: null
+    judge_runner_up: leyline:evaluation-framework
 - id: conserve.agent-expenditure.p2
   type: positive
   prompt: 'Retro on our fan-out review: a couple of the agents kept editing the same
@@ -27,28 +27,28 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: tome:research; judge: conserve:agent-expenditure/pensive:unified-review'
+  notes: 'router: tome:research; judge: conserve:agent-expenditure/imbue:review-core'
   proposals:
     router: tome:research
     judge: conserve:agent-expenditure
-    judge_runner_up: pensive:unified-review
+    judge_runner_up: imbue:review-core
 - id: conserve.agent-expenditure.p3
   type: near_miss
   prompt: I just ran 7 parallel agents across the repo. Were they worth the tokens,
     or did they duplicate each other and fight over the same files? Should I use fewer
     next time?
   target: conserve:agent-expenditure
-  competitor: cartograph:atlas
+  competitor: conjure:agent-teams
   cluster: conserve:agent-expenditure
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:skill-audit; router: cartograph:atlas; judge: conserve:agent-expenditure/None'
+  notes: 'aimed at abstract:skill-audit; router: cartograph:atlas; judge: conserve:agent-expenditure/conjure:agent-teams'
   proposals:
     aimed_at: abstract:skill-audit
     router: cartograph:atlas
     judge: conserve:agent-expenditure
-    judge_runner_up: null
+    judge_runner_up: conjure:agent-teams
 - id: conserve.ai-hygiene-audit.p1
   type: positive
   prompt: We've been vibe coding hard for two weeks with Copilot and I'm worried about
@@ -88,29 +88,31 @@ cases:
     the READMEs are hollow filler, and whether the same logic got pasted in several
     places. Give me a pass/fail score before Friday's release.
   target: conserve:ai-hygiene-audit
-  competitor: oracle:quality-bench
+  competitor: parseltongue:python-sweep
   cluster: conserve:ai-hygiene-audit
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at conserve:bloat-scan; router: oracle:quality-bench; judge: conserve:ai-hygiene-audit/oracle:quality-bench'
+  notes: 'aimed at conserve:bloat-scan; router: imbue:scope-guard; judge: conserve:ai-hygiene-audit/parseltongue:python-sweep'
   proposals:
     aimed_at: conserve:bloat-scan
-    router: oracle:quality-bench
+    router: imbue:scope-guard
     judge: conserve:ai-hygiene-audit
-    judge_runner_up: oracle:quality-bench
+    judge_runner_up: parseltongue:python-sweep
 - id: conserve.bloat-detector.p1
-  type: positive
+  type: near_miss
   prompt: 'Our repo has gotten bloated: dead code, stale docs, unused dependencies,
     a couple of god classes. Walk me through a tiered cleanup analysis, starting cheap
     and going deeper only where it''s warranted, and rank what''s safe to delete.'
   target: conserve:bloat-detector
-  competitor: null
+  competitor: conserve:bloat-scan
   cluster: conserve:bloat-detector
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: conserve:bloat-scan; judge: conserve:bloat-detector/conserve:bloat-scan'
+  adjudicated: true
+  notes: 'router: conserve:bloat-scan; judge: conserve:bloat-detector/conserve:bloat-scan;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    tiered cleanup fits the bloat-scan command''s 3-tier analysis too'
   proposals:
     router: conserve:bloat-scan
     judge: conserve:bloat-detector
@@ -292,9 +294,11 @@ cases:
   cluster: conserve:clear-context
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at spec-kit:task-planning; router: parseltongue:python-async; judge:
-    conserve:clear-context/conserve:context-optimization'
+    conserve:clear-context/conserve:context-optimization; adjudicated 2026-11-28 by
+    claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed: the
+    prompt fits the target'
   proposals:
     aimed_at: spec-kit:task-planning
     router: parseltongue:python-async
@@ -311,8 +315,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: conserve:code-quality-principles
     judge: conserve:code-quality-principles
@@ -376,11 +381,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: minister:initiative-pulse; judge: conserve:context-optimization/conserve:token-conservation'
+  notes: 'router: minister:initiative-pulse; judge: conserve:context-optimization/conserve:optimize-context'
   proposals:
     router: minister:initiative-pulse
     judge: conserve:context-optimization
-    judge_runner_up: conserve:token-conservation
+    judge_runner_up: conserve:optimize-context
 - id: conserve.context-optimization.p3
   type: near_miss
   prompt: My session is bloated with tool output and I'm past half the window. Figure
@@ -578,11 +583,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: conserve:elegant-code/archetypes:architecture-paradigm-functional-core'
+  notes: 'router: parseltongue:python-async; judge: conserve:elegant-code/cartograph:call-chain'
   proposals:
     router: parseltongue:python-async
     judge: conserve:elegant-code
-    judge_runner_up: archetypes:architecture-paradigm-functional-core
+    judge_runner_up: cartograph:call-chain
 - id: conserve.elegant-code.p3
   type: near_miss
   prompt: I'm about to add a small `retry_with_backoff` helper plus a new dependency
@@ -688,14 +693,16 @@ cases:
     my context. How should I restructure it so the heavy processing happens in code
     or a subagent instead of flowing through the conversation?
   target: conserve:mcp-code-execution
-  competitor: scribe:session-replay
+  competitor: conserve:context-optimization
   cluster: conserve:mcp-code-execution
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at parseltongue:python-async; router: conserve:mcp-code-execution;
-    judge: conserve:mcp-code-execution/None'
+    judge: conserve:mcp-code-execution/None; adjudicated 2026-11-28 by claude-opus-5-5
+    at the operator''s request, not human-reviewed: competitor was scribe:session-replay,
+    unrelated; context-optimization is the real neighbor'
   proposals:
     aimed_at: parseltongue:python-async
     router: conserve:mcp-code-execution
@@ -835,18 +842,18 @@ cases:
     about my 5-hour usage cap. Before starting, set a read budget, check what quota
     I have left, and decide what to delegate so I don't burn through my limit.
   target: conserve:token-conservation
-  competitor: parseltongue:python-async
+  competitor: sanctum:git-workspace-review
   cluster: conserve:token-conservation
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at parseltongue:python-async; router: parseltongue:python-async; judge:
-    conserve:token-conservation/None'
+    conserve:token-conservation/sanctum:git-workspace-review'
   proposals:
     aimed_at: parseltongue:python-async
     router: parseltongue:python-async
     judge: conserve:token-conservation
-    judge_runner_up: null
+    judge_runner_up: sanctum:git-workspace-review
 - id: conserve.unbloat.p1
   type: positive
   prompt: We're cutting a release next week. Walk me through removing dead code and

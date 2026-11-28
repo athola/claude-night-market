@@ -384,3 +384,40 @@ class TestCrossSessionSupersession:
         monkeypatch.setattr(recall, "_sessions_dir", lambda: sessions)
         loaded = recall._load_units()
         assert [u["state"] for u in loaded] == ["content digest"]
+
+
+def test_recall_resolves_dependencies_at_the_project_root(
+    tmp_path, monkeypatch
+) -> None:
+    """A prompt sent from a subdirectory flagged every dependency changed."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("recall_root", HOOK)
+    recall = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recall)
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path))
+
+    assert recall._project_root({"cwd": str(tmp_path / "sub")}) == tmp_path
+
+
+def test_recall_checks_dependencies_from_the_project_root(
+    tmp_path, monkeypatch
+) -> None:
+    """The call site, not only the helper: a prompt from a subdirectory."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("recall_site", HOOK)
+    recall = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recall)
+    seen: list[Path] = []
+    unit = {"thread": "Ranking", "type": "decision", "state": "s", "date": "2026-11-25"}
+    monkeypatch.setattr(recall, "_load_units", lambda: [unit])
+    monkeypatch.setattr(recall, "_rank", lambda _q, units: [(u, 1.0) for u in units])
+    monkeypatch.setattr(
+        recall, "_changed_dependencies", lambda _u, root: seen.append(root) or {}
+    )
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path))
+
+    recall.prompt_context({"prompt": "ranking +recall", "cwd": str(tmp_path / "sub")})
+
+    assert seen == [tmp_path]

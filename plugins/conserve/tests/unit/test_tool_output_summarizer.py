@@ -7,6 +7,7 @@ import json
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -324,14 +325,16 @@ class TestResolveSessionFileBranches:
         f1.write_text("{}\n")
         f2 = project_dir / "new.jsonl"
         f2.write_text("{}\n")
+        now = time.time()
+        os.utime(f1, (now - 60, now - 60))
+        os.utime(f2, (now, now))
 
         original_env = os.environ.get("CLAUDE_HOME")
         original_session = os.environ.get("CLAUDE_SESSION_ID")
         os.environ["CLAUDE_HOME"] = str(tmp_path)
         os.environ.pop("CLAUDE_SESSION_ID", None)
         try:
-            result = summarizer.resolve_session_file()
-            assert result is not None
+            assert summarizer.resolve_session_file() == f2
         finally:
             if original_env:
                 os.environ["CLAUDE_HOME"] = original_env

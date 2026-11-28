@@ -15,5 +15,5 @@ Systematic bug detection with language-specific expertise.
 
 ## What It Does
 
-Invoke `Skill(pensive:bug-review)`, which carries the detection workflow,
-the language-specific checks and the output format.
+Invoke `Skill(pensive:bug-review-playbook)`, which carries the detection
+workflow, the language-specific checks and the output format.

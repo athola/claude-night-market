@@ -14,7 +14,6 @@ from __future__ import annotations
 import hashlib
 import html
 import json
-import math
 import os
 import platform
 import re
@@ -66,16 +65,19 @@ class NotificationState:
                         float(last)
                         if isinstance(last, (int, float))
                         and type(last) is not bool
-                        # json reads Infinity and NaN, and an infinite time
-                        # debounced every later Stop.
-                        and math.isfinite(last)
+                        # A time after now debounces every later Stop, and
+                        # this bound also rejects Infinity, NaN and an int
+                        # too large for float() before it is converted.
+                        and 0 <= last <= time.time()
                         else 0.0
                     ),
                     last_content_hash=digest if isinstance(digest, str) else "",
                     notified_since_input=flag if type(flag) is bool else False,
                     session_id=session_id,
                 )
-        except (OSError, json.JSONDecodeError) as e:
+        except (OSError, ValueError) as e:
+            # ValueError covers JSONDecodeError and an integer past
+            # Python's 4300-digit parse limit in a planted state file.
             # Log to stderr for debugging (doesn't break hook output)
             print(f"[DEBUG] Hook input parse failed: {e}", file=sys.stderr)
         return cls(session_id=session_id)

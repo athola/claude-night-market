@@ -440,7 +440,7 @@ Brainstorming:
   A: Test coverage, edge cases, mocking practices
 
   Q: Should this use an existing skill?
-  A: Yes, use pensive:test-review skill
+  A: Yes, use pensive:test-review-playbook skill
 
 Created:
   OK commands/review-pr-tests.md

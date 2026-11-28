@@ -8,7 +8,7 @@ import hashlib
 import json
 
 import pytest
-from scripts.activation.inventory import build_inventory
+from scripts.activation.inventory import Item, build_inventory
 from scripts.activation.labels import (
     Case,
     LabelError,
@@ -174,3 +174,24 @@ def test_cli_coverage_lists_each_short_item_and_fails(plugin_tree, capsys):
     out = capsys.readouterr().out
     assert "negatives: 0/50, sources: 0/10" in out
     assert "  alpha:ship: 1\n" in out
+
+
+def test_a_near_miss_against_its_own_alias_is_rejected(tmp_path):
+    """Command and playbook are one answer, so pairing them as a near miss
+    measures nothing.
+    """
+    items = [
+        Item("p:rev", "command", "p", "rev", "d", "x", alias="p:rev-playbook"),
+        Item("p:rev-playbook", "skill", "p", "rev-playbook", "d", "y", alias="p:rev"),
+    ]
+    case = Case(
+        id="p.rev-playbook.p1",
+        type="near_miss",
+        prompt="review it",
+        target="p:rev-playbook",
+        cluster="p:rev-playbook",
+        competitor="p:rev",
+    )
+
+    with pytest.raises(LabelError, match="alias"):
+        validate([case], items, tmp_path)

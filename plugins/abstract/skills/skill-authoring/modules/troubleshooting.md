@@ -290,7 +290,7 @@ Most of the symptoms above can be caught before merge:
 ```bash
 # Run the full skill audit
 python plugins/abstract/scripts/skills_auditor.py \
-  --skill plugins/<plugin>/skills/<skill>/SKILL.md
+  plugins/<plugin>/skills/<skill>
 
 # Check compliance
 python plugins/abstract/scripts/compliance_checker.py \
@@ -304,7 +304,7 @@ python plugins/abstract/scripts/skill_analyzer.py \
 If any check fails, fix before merging. The deployment checklist
 listed in `SKILL.md` gates merge on these results.
 
-Cross-reference: see `Skill(abstract:skills-eval)` for the
+Cross-reference: see `Skill(abstract:skills-eval-playbook)` for the
 auditing framework that detects most of these issues at scale.
 `SKILL.md` lists this skill's validation module for pre-merge
 structural checks.

@@ -158,32 +158,6 @@ class SkillValidator:
         return SkillValidator.validate_file(skill_file)
 
     @staticmethod
-    def validate_references(content: str) -> SkillValidationResult:
-        """Validate skill references in content."""
-        errors: list[str] = []
-        warnings: list[str] = []
-
-        # Find all Skill() references
-        refs = re.findall(r"Skill\(([^)]+)\)", content)
-        for ref in refs:
-            # Valid format: plugin:skill-name or just skill-name
-            if not re.match(r"^[\w-]+(:[\w-]+)?$", ref):
-                warnings.append(f"Potentially invalid skill reference format: {ref}")
-
-        # Parse frontmatter to get skill name
-        frontmatter = parse_frontmatter(content)
-        skill_name = frontmatter.get("name") if frontmatter else None
-
-        return SkillValidationResult(
-            is_valid=len(errors) == 0,
-            errors=errors,
-            warnings=warnings,
-            skill_name=skill_name,
-            has_frontmatter=frontmatter is not None,
-            frontmatter=frontmatter,
-        )
-
-    @staticmethod
     def extract_skill_references(content: str) -> list[str]:
         """Extract skill references from content.
 

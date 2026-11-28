@@ -20,7 +20,7 @@ SKILL_DIR = PLUGIN_DIR / "skills" / "skill-library-mission"
 SKILL_FILE = SKILL_DIR / "SKILL.md"
 MODULES_DIR = SKILL_DIR / "modules"
 REFERENCES_DIR = SKILL_DIR / "references"
-COMMAND_FILE = PLUGIN_DIR / "commands" / "skill-library.md"
+COMMAND_FILE = PLUGIN_DIR / "commands" / "skill-library-session.md"
 
 EXPECTED_MODULES = [
     "taxonomy.md",
@@ -137,7 +137,7 @@ class TestSkillLibraryMissionModules:
 
 class TestSkillLibraryCommand:
     """
-    Feature: /attune:skill-library command registration
+    Feature: /attune:skill-library-session command registration
 
     As a user
     I want a slash command that dispatches the mission
@@ -149,7 +149,7 @@ class TestSkillLibraryCommand:
         """
         Scenario: command exists and invokes the skill
         Given the attune commands directory
-        When I read skill-library.md
+        When I read skill-library-session.md
         Then it references Skill(attune:skill-library-mission)
         """
         assert COMMAND_FILE.exists(), f"missing {COMMAND_FILE}"
@@ -167,7 +167,7 @@ class TestSkillLibraryCommand:
         manifest = json.loads(
             (PLUGIN_DIR / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")
         )
-        assert "./commands/skill-library.md" in manifest["commands"]
+        assert "./commands/skill-library-session.md" in manifest["commands"]
         assert "./skills/skill-library-mission" in manifest["skills"]
 
 

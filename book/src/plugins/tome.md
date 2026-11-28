@@ -58,21 +58,21 @@ see
 
 | Command | Description |
 |---------|-------------|
-| `/tome:research` | Run multi-source research session |
+| `/tome:research-session` | Run multi-source research session |
 | `/tome:dig` | Refine results interactively |
 | `/tome:cite` | Generate formatted bibliography |
 | `/tome:export` | Export findings for knowledge-intake |
 
 ## Skills
 
-- `research`: orchestrate a full research session
+- `research-playbook`: orchestrate a full research session
 - `code-search`: search GitHub implementations
 - `discourse`: scan community discussions
 - `papers`: search academic literature
 - `triz`: cross-domain analogical reasoning
 - `ideate`: diverse ideation methods with rotation
 - `synthesize`: merge and rank findings
-- `dig`: interactive refinement
+- `dig-playbook`: interactive refinement
 - `web-search`: search the open web (You.com MCP or WebSearch)
 
 ## Agents
@@ -80,5 +80,5 @@ see
 - `code-searcher`: GitHub code search
 - `discourse-scanner`: community discussion scanning
 - `literature-reviewer`: academic paper review
-- `research`: multi-source research orchestrator (delegates to `Skill(tome:research)`)
+- `research`: multi-source research orchestrator (delegates to `Skill(tome:research-playbook)`)
 - `triz-analyst`: cross-domain analysis

@@ -343,6 +343,14 @@ class TestPY02ExplicitUnsafeLoader:
         src = f"import yaml\nyaml.load(s, Loader={loader})\n"
         assert "PY02" not in _ids(_scan(src))
 
+    def test_positional_safe_loader_does_not_fire(self) -> None:
+        src = "import yaml\nyaml.load(s, yaml.SafeLoader)\n"
+        assert "PY02" not in _ids(_scan(src))
+
+    def test_positional_unsafe_loader_fires(self) -> None:
+        src = "import yaml\nyaml.load(s, yaml.Loader)\n"
+        assert "PY02" in _ids(_scan(src))
+
 
 class TestPY03ReceiverMethods:
     """A method named exec on some object is not the built-in."""

@@ -15,6 +15,7 @@ from pathlib import Path
 
 from project_detector import ProjectDetector
 from template_engine import (
+    DEFAULT_PYTHON_VERSION,
     TemplateEngine,
     get_default_variables,
 )
@@ -402,7 +403,9 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--author", default="Your Name", help="Project author")
     parser.add_argument("--email", default="you@example.com", help="Author email")
     parser.add_argument(
-        "--python-version", default="3.9", help="Python version (for Python projects)"
+        "--python-version",
+        default=DEFAULT_PYTHON_VERSION,
+        help="Python version (for Python projects)",
     )
     parser.add_argument(
         "--rust-edition", default="2021", help="Rust edition (for Rust projects)"

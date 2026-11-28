@@ -342,9 +342,13 @@ class TestCICDValidation:
         validator.validate_ci_cd("python")
 
         # Then
-        # Should have results for required workflows
-        workflow_results = [r for r in validator.results if "workflow-" in r.name]
-        assert len(workflow_results) > 0
+        # Python needs test, lint and typecheck; only test.yml exists
+        passed = {r.name: r.passed for r in validator.results if "workflow-" in r.name}
+        assert passed == {
+            "workflow-test.yml": True,
+            "workflow-lint.yml": False,
+            "workflow-typecheck.yml": False,
+        }
 
     def test_validate_workflows_directory_missing(self, mock_project_path):
         """Given a project without workflows directory, when validating CI/CD, then fails."""

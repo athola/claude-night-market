@@ -64,6 +64,9 @@ def _match_is_in_string(line: str, match_start: int) -> bool:
         if ch == "\\" and i + 1 < len(line):
             i += 2
             continue
+        if ch == "#" and not in_single and not in_double:
+            # A comment has started: quotes after it open no string (#829).
+            return False
         if ch == "'" and not in_double:
             in_single = not in_single
         elif ch == '"' and not in_single:

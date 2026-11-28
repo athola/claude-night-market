@@ -67,7 +67,7 @@ mismatch was reachable from a documented invocation: passing
 `TestFlagSpellingsMatchTheRealClis` pins every spelling above against
 argv, so the suite stays hermetic while the binaries stay the source.
 
-The auth and availability failures catalogued below are what
+The auth and availability failures cataloged below are what
 `Skill(conjure:provider-setup)` exists to answer. It reports which of
 these harnesses are installed and authenticated on this machine,
 explains each unhealthy one with its fix, installs the missing ones on

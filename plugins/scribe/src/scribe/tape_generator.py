@@ -96,7 +96,17 @@ _SECRET_RES = (
     (re.compile(r"\bAKIA[0-9A-Z]{16}\b"), "[redacted]"),
     (re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._~+/=-]{16,}"), "[redacted]"),
     (
-        re.compile(r"(?i)\b(pass(?:word|wd)?|secret|token|api[_-]?key)(\s*[:=]\s*)\S+"),
+        # The keyword ends the name, after any prefix: DB_PASSWORD,
+        # GITHUB_TOKEN. A match starts only at a word start, so a run of
+        # underscores is scanned once, not once per underscore. A prefix
+        # stays allowed (PGPASSWORD, dbpass), so the English words ending
+        # in "pass" are excluded by name rather than by requiring a
+        # separator, which would let those secrets through.
+        re.compile(
+            r"(?i)(?<!\w)(\w*?(?:(?<!by)(?<!com)(?<!sur)(?<!over)(?<!under)"
+            r"(?<!tres)pass(?:word|wd|phrase)?|secret|token"
+            r"|(?:api|access|private|secret)[_-]?key))(\s*[:=]\s*)\S+"
+        ),
         r"\1\2[redacted]",
     ),
 )

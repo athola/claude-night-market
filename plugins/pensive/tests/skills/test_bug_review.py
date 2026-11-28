@@ -399,6 +399,10 @@ class TestBugReviewSkill:
             "try:\n    t = Thread(target=f)\n    t.start()\nfinally:\n    t.join()\n",
             "if ready:\n    t = Thread(target=f)\n    t.start()\n    t.join()\n",
             "t = Thread(target=f)\nt.start()\nts.append(t)\nfor th in ts:\n    th.join()\n",
+            "t = Thread(\n    target=f,\n    daemon=True,\n)\nt.start()\n",
+            "t = Thread(target=f)\nt.daemon = True\nt.start()\n",
+            "Thread(target=f, daemon=True).start()\n",
+            "t = Thread(target=lambda: f(g(x)), daemon=True)\nt.start()\n",
         ],
         ids=[
             "not-a-thread",
@@ -412,6 +416,10 @@ class TestBugReviewSkill:
             "inside-try",
             "inside-if",
             "appended-after-binding",
+            "daemon-across-lines",
+            "daemon-attribute",
+            "unbound-daemon",
+            "daemon-with-nested-calls",
         ],
     )
     def test_start_is_a_thread_leak_only_for_an_unjoined_thread(
@@ -428,8 +436,16 @@ class TestBugReviewSkill:
             "t = threading.Thread(target=f)\nt.start()\npath = os.path.join(a, b)\n",
             "threading.Thread(target=f).start()\n",
             "t = Thread(target=f)\nt.start()\nfoot.join(1)\n",
+            "a = Thread(target=f, daemon=True)\nb = Thread(target=g)\nb.start()\n",
+            "t = Thread(target=f\nt.start()\nu = Thread(target=g, daemon=True)\n",
         ],
-        ids=["other-join", "unbound-thread", "other-name-ending-in-t"],
+        ids=[
+            "other-join",
+            "unbound-thread",
+            "other-name-ending-in-t",
+            "daemon-elsewhere-in-file",
+            "unbalanced-call-before-a-daemon",
+        ],
     )
     def test_an_unjoined_thread_is_a_leak_whatever_else_joins(
         self, mock_skill_context, content: str

@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-SKILL_ROOT = Path(__file__).parents[3] / "skills" / "session-to-post"
+SKILL_ROOT = Path(__file__).parents[3] / "skills" / "session-to-post-playbook"
 MODULES_ROOT = SKILL_ROOT / "modules"
 COMMANDS_ROOT = Path(__file__).parents[3] / "commands"
 OPENPACKAGE = Path(__file__).parents[3] / "openpackage.yml"
@@ -42,7 +42,7 @@ class TestSessionToPostSkillExists:
 
         Given the scribe plugin
         When checking for the session-to-post skill
-        Then SKILL.md should exist under skills/session-to-post/
+        Then SKILL.md should exist under skills/session-to-post-playbook/
         """
         assert skill_path.exists(), f"SKILL.md not found at {skill_path}"
 
@@ -306,10 +306,10 @@ class TestSessionToPostCommand:
 
         Given the session-to-post command
         When reading its content
-        Then it should reference Skill(scribe:session-to-post)
+        Then it should reference Skill(scribe:session-to-post-playbook)
         """
         content = command_path.read_text()
-        assert "scribe:session-to-post" in content
+        assert "Skill(scribe:session-to-post-playbook)" in content
 
 
 class TestSessionToPostRegistration:
@@ -328,7 +328,7 @@ class TestSessionToPostRegistration:
     @pytest.mark.unit
     def test_skill_registered(self, openpackage_content: str) -> None:
         """Scenario: Skill listed in openpackage.yml skills."""
-        assert "skills/session-to-post" in openpackage_content
+        assert "skills/session-to-post-playbook" in openpackage_content
 
     @pytest.mark.bdd
     @pytest.mark.unit

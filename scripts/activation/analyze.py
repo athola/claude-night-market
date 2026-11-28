@@ -18,7 +18,7 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
-from .inventory import Item, missing_from_listing
+from .inventory import Item, alias_map, is_answer, missing_from_listing
 from .labels import Case
 
 CEILING = 0.95
@@ -131,6 +131,7 @@ def _load_host(host: Path) -> tuple[dict, list[Case], list[Item], dict]:
 
 def analyze_host(host: Path) -> dict:
     run, cases, items, inventory = _load_host(host)
+    aliases = alias_map(items)
     runs_per_case = int(run["runs"])
     tallies = {rate: {"k": 0, "n": 0, "clusters": {}} for rate in RATES}
     per_case: dict[str, dict] = {}
@@ -167,11 +168,11 @@ def analyze_host(host: Path) -> dict:
                     fired.append(resolved)
             row["v"] += 1
             if case.is_positive:
-                row["hit"] += case.target in fired
-                row["fa"] += bool(fired) and fired[0] != case.target
-                confusion.setdefault(case.target, Counter())[
-                    fired[0] if fired else "none"
-                ] += 1
+                hits = [is_answer(f, case.target, aliases) for f in fired]
+                row["hit"] += any(hits)
+                row["fa"] += bool(fired) and not hits[0]
+                top = (case.target if hits[0] else fired[0]) if fired else "none"
+                confusion.setdefault(case.target, Counter())[top] += 1
             else:
                 row["fa"] += bool(fired)
         errored += row["errored"]

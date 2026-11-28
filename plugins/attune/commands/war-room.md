@@ -142,7 +142,7 @@ Or customize at session start when prompted.
 
 ```bash
 # 1. Invoke war-room skill
-Skill(attune:war-room)
+Skill(attune:war-room-playbook)
 
 # 2. Execute deliberation phases:
 #    - Phase 0: Reversibility Assessment (immediate)
@@ -406,7 +406,7 @@ For Full Council and Delphi modes, experts can optionally run as persistent Clau
 
 ## Related Skills
 
-- `Skill(attune:war-room)` - Core War Room skill
+- `Skill(attune:war-room-playbook)` - Core War Room skill
 - `Skill(attune:project-brainstorming)` - Ideation
 - `Skill(conjure:delegation-core)` - Expert dispatch
 - `Skill(conjure:agent-teams)` - Agent teams coordination

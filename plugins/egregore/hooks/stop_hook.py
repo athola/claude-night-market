@@ -111,7 +111,7 @@ def block_reason(manifest_path: Path) -> str:
         "Egregore has active work items. "
         "Read .egregore/manifest.json and continue "
         "the pipeline from the current step. "
-        "Invoke Skill(egregore:summon) to resume."
+        "Invoke Skill(egregore:summon-playbook) to resume."
     )
 
 
@@ -138,8 +138,12 @@ def orchestrator_running(payload: dict[str, object]) -> bool:
 
 
 def approve() -> None:
-    """Let the session stop."""
-    print(json.dumps({"decision": "approve"}))
+    """Let the session stop.
+
+    A Stop hook allows the stop by leaving ``decision`` out: ``"block"``
+    is the only documented value, and ``"approve"`` is a PreToolUse value.
+    """
+    print(json.dumps({}))
     sys.exit(0)
 
 

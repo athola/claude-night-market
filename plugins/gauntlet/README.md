@@ -92,6 +92,24 @@ Set `GAUNTLET_PRECOMMIT_MODE=off` to turn the pre-commit gate off. If the
 gate fails with an internal error, it denies the commit instead of letting
 it through, and the denial message names this variable.
 
+The gate reads the index before the command runs, so `git add -A && git
+commit`, `git commit -a` and `git commit <paths>` commit an index it never
+checked. To close that gap, install the re-check as git's own pre-commit
+hook, which runs against the index being committed. Run it from the
+repository root:
+
+```sh
+python3 /path/to/plugins/gauntlet/scripts/git_index_recheck.py --install
+```
+
+An existing pre-commit hook is left alone, and the line to add to it is
+printed. The hook names the script by absolute path, so rerun the install
+after the plugin moves.
+
+It refuses only commits made from Claude Code in gate mode whose index
+differs from the one the gate let through, and asks for `git add` and
+`git commit` as separate commands.
+
 ## Architecture
 
 The plugin uses a three-layer design:

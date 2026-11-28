@@ -17,6 +17,6 @@ Without arguments, reviews all `.sh` files in `scripts/` and `.git/hooks/`.
 
 ## What It Does
 
-Invoke `Skill(pensive:unified-review)` in its shell focus, the same as
+Invoke `Skill(pensive:unified-review-playbook)` in its shell focus, the same as
 `/full-review shell`. Its `modules/shell-review.md` carries the audit
 workflow, the anti-pattern checks and the output format.

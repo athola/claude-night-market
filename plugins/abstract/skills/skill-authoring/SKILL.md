@@ -67,7 +67,7 @@ python scripts/token_estimator.py
 ### Validation
 \`\`\`bash
 # Validate skill structure
-python scripts/abstract_validator.py --check
+python scripts/skill_validator.py --path SKILL.md
 \`\`\`
 
 **Verification**: Run analysis and review token estimates before proceeding.
@@ -214,6 +214,6 @@ Verify module paths in SKILL.md are correct
   required `name` field) that loads without error in Claude Code.
 - [ ] REFACTOR phase documents at least one discovered rationalization pattern and adds an
   explicit counter to the skill (exception table, red-flag list, or banned excuse list).
-- [ ] `python scripts/abstract_validator.py --check` exits 0 and SKILL.md is under 500 lines.
+- [ ] `python scripts/skill_validator.py --path SKILL.md` exits 0 and SKILL.md is under 500 lines.
 - [ ] The hub serves one declared reader tier, and material for a
   different one is in `modules/` and is listed in the frontmatter.

@@ -1,0 +1,159 @@
+---
+name: project-init-playbook
+description: Scaffolds new projects with git, CI/CD workflows, pre-commit hooks, and build config. Use when starting a new Python, Rust, or TypeScript project from scratch.
+alwaysApply: false
+tools: []
+modules:
+- ./modules/language-detection.md
+- ./modules/metadata-collection.md
+- ./modules/template-rendering.md
+role: entrypoint
+---
+
+# Project Initialization Skill
+
+Interactive workflow for initializing new software projects with complete development infrastructure.
+
+## Use When
+
+- Starting a new Python, Rust, or TypeScript project
+- Updating existing project tooling to current standards
+- Need to set up git, GitHub workflows, pre-commit hooks, Makefile
+- Want consistent project structure across team
+- Converting unstructured project to best practices
+- Adding missing configurations to established codebases
+
+## Workflow
+
+### 1. Detect or Select Language
+
+Load `modules/language-detection.md`
+
+- Auto-detect from existing files (pyproject.toml, Cargo.toml, package.json)
+- If ambiguous or empty directory, ask user to select
+- Validate language is supported (python, rust, typescript)
+
+### 2. Collect Project Metadata
+
+Load `modules/metadata-collection.md`
+
+Gather:
+- Project name (default: directory name)
+- Author name and email
+- Project description
+- Language-specific settings:
+  - Python: version (default 3.10)
+  - Rust: edition (default 2021)
+  - TypeScript: framework (React, Vue, etc.)
+- License type (MIT, Apache, GPL, etc.)
+
+### 3. Review Existing Files
+
+Check for existing configurations:
+```bash
+ls -la
+```
+**Verification:** Run the command with `--help` flag to verify availability.
+
+If files exist (Makefile, .gitignore, etc.):
+- Show what would be overwritten
+- Ask for confirmation or selective overwrite
+- Offer merge mode (preserve custom content)
+
+### 4. Render and Apply Templates
+
+Load `modules/template-rendering.md`
+
+Run initialization script:
+```bash
+python3 plugins/attune/scripts/attune_init.py \
+  --lang {{LANGUAGE}} \
+  --name {{PROJECT_NAME}} \
+  --author {{AUTHOR}} \
+  --email {{EMAIL}} \
+  --python-version {{PYTHON_VERSION}} \
+  --description {{DESCRIPTION}} \
+  --path .
+```
+**Verification:** Run the command with `--help` flag to verify availability.
+
+The script also scaffolds the project decision journal: `docs/tradeoffs.md`
+and `docs/lessons-learned.md`. These are append-only logs that later workflows
+(brainstorm, specify, plan, execute, review) write to as decisions and lessons
+arise. Existing journal files are never overwritten. The format follows the
+`leyline:decision-journal` contract; init uses leyline's template when present
+and a vendored copy otherwise, so it works with or without leyline installed.
+
+**Verification:** Confirm `docs/tradeoffs.md` and `docs/lessons-learned.md`
+exist and each contains an `## Active index` and an `## Archive` section.
+
+### 5. Initialize Git (if needed)
+
+```bash
+# Check if git is initialized
+if [ ! -d .git ]; then
+  git init
+  echo "Git repository initialized"
+fi
+```
+**Verification:** Run `git status` to confirm working tree state.
+
+### 6. Verify Setup
+
+Validate setup:
+```bash
+# Check Makefile targets
+make help
+
+# List created files
+git status
+```
+**Verification:** Run `git status` to confirm working tree state.
+
+### 7. Next Steps
+
+Advise user to:
+```bash
+# Install dependencies and hooks
+make dev-setup
+
+# Run tests to verify setup
+make test
+
+# See all available commands
+make help
+```
+**Verification:** Run `pytest -v` to verify tests pass.
+
+## Error Handling
+
+- **Language detection fails**: Ask user to specify `--lang`
+- **Script not found**: Guide to plugin installation location
+- **Permission denied**: Suggest `chmod +x` on scripts
+- **Git conflicts**: Offer to stash or commit existing work
+
+## Success Criteria
+
+- All template files created successfully
+- No overwrites without user confirmation
+- Git repository initialized
+- `make help` shows available targets
+- `make test` runs without errors (even if no tests yet)
+
+## Exit Criteria
+
+- [ ] Template files for the selected language are created (or, in dry-run,
+  reported) with no unconfirmed overwrites.
+- [ ] `docs/tradeoffs.md` and `docs/lessons-learned.md` exist, each with an
+  `## Active index` and an `## Archive` section.
+- [ ] A pre-existing journal file is detected and left unmodified.
+- [ ] Git is initialized (unless `--no-git`) and `make help` lists targets.
+- [ ] Running with `--dry-run` writes no files, including the journal.
+
+## Examples
+
+### Example 1: New Python Project
+
+```
+**Verification:** Run `pytest -v` to verify tests pass.
+User: /attune:project-init

@@ -64,7 +64,9 @@ def load_weights(gauntlet_dir: str | Path | None = None) -> dict[str, float]:
 logger = logging.getLogger(__name__)
 
 _HUNK_PATTERN = re.compile(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
-_FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+)$")
+# git ends a name holding a space with a tab; quotepath is off so a
+# non-ASCII name arrives unquoted.
+_FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+?)\t?$")
 
 
 #: Default budget for the module's git calls (diff, then rev-parse), shared
@@ -95,7 +97,7 @@ def parse_git_diff_ranges(
     ref = _validate_ref(base_ref)
     try:
         result = subprocess.run(
-            ["git", "diff", "--unified=0", ref],
+            ["git", "-c", "core.quotepath=off", "diff", "--unified=0", ref],
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -110,20 +112,33 @@ def parse_git_diff_ranges(
 
     ranges: dict[str, list[tuple[int, int]]] = {}
     current_file: str | None = None
+    # A file's +++ header sits between its `diff --git` line and its first
+    # hunk; past that, `+++ ` is an added line that starts with `++`.
+    in_header = False
 
     for line in result.stdout.splitlines():
-        file_match = _FILE_PATTERN.match(line)
-        if file_match:
-            current_file = file_match.group(1)
-            if current_file not in ranges:
-                ranges[current_file] = []
+        if line.startswith("diff --git "):
+            in_header = True
+            continue
+        if in_header and line.startswith("+++ "):
+            # `+++ /dev/null` (a deleted file) names no file: a stale name
+            # here gave the previous file this one's hunks.
+            file_match = _FILE_PATTERN.match(line)
+            current_file = file_match.group(1) if file_match else None
+            if current_file is not None:
+                ranges.setdefault(current_file, [])
             continue
 
         hunk_match = _HUNK_PATTERN.match(line)
+        if hunk_match:
+            in_header = False
         if hunk_match and current_file:
             start = int(hunk_match.group(1))
             count = int(hunk_match.group(2) or "1")
             if count == 0:
+                # Lines removed after new line `start`: the enclosing node
+                # changed, so mark the lines either side of the removal.
+                ranges[current_file].append((max(start, 1), start + 1))
                 continue
             end = start + count - 1
             ranges[current_file].append((start, end))
@@ -191,10 +206,9 @@ def compute_risk_score(
         for e in graph.get_edges_by_source(node.qualified_name)
         if e.kind == EdgeKind.TESTED_BY
     ]
-    if not tested_by:
-        score += w["test_gap"]
-    else:
-        score += 0.05
+    # Tested code keeps a sixth of the weight (0.05 at the default 0.30):
+    # a fixed 0.05 outscored untested code once the weight went below it.
+    score += w["test_gap"] if not tested_by else w["test_gap"] / 6
 
     # Factor 2: Security sensitivity
     qn_lower = node.qualified_name.lower()

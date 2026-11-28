@@ -3,9 +3,9 @@ name: dig
 description: >-
   Interactively refine research results by searching
   deeper into a specific subtopic or channel. Requires
-  an active research session from /tome:research.
+  an active research session from /tome:research-session.
 usage: >-
-  /tome:dig "<subtopic>" [--channel code|discourse|academic|triz]
+  /tome:dig "<subtopic>" [--channel code|discourse|academic|web|triz]
 ---
 
 # Dig Command
@@ -38,12 +38,12 @@ Refine an active research session by searching deeper.
 Invoke the dig skill:
 
 ```
-Skill(tome:dig)
+Skill(tome:dig-playbook)
 ```
 
 ## Error Cases
 
 - No active session: directs user to start one with
-  `/tome:research`
+  `/tome:research-session`
 - Channel not in original session: warns and suggests
   available channels

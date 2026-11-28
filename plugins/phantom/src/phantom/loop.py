@@ -32,7 +32,7 @@ def __getattr__(name: str) -> Any:
     """Keep the pre-underscore plumbing names importable, with a warning."""
     if name in _DEPRECATED_PLUMBING_NAMES:
         warnings.warn(
-            f"phantom.loop.{name} is internal and will be removed; "
+            f"phantom.loop.{name} is internal and will be removed in 1.11.0; "
             "use run_loop and the names in phantom.loop.__all__",
             DeprecationWarning,
             stacklevel=2,

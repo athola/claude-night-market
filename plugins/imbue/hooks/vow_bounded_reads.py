@@ -314,7 +314,7 @@ def main() -> None:
                                 "Bounded discovery vow: this short read is the one "
                                 "allowed past twice the budget. Edit next. A "
                                 "successful Write or Edit resets the count, and "
-                                "reads are verdict.denied until then."
+                                "reads are denied until then."
                             ),
                         }
                     }

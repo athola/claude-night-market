@@ -125,6 +125,25 @@ def _is_daemon_running(pid_file: Path) -> bool:
     return _pid_is_daemon(pid)
 
 
+def _log_once(message: str) -> None:
+    """Append ``message`` to daemon.log unless it is already the last line.
+
+    Each reason not to start repeats every session, so it is written once.
+    Bytes throughout: a non-ASCII path is longer in bytes than in
+    characters, and a short seek never finds the line it wrote.
+    """
+    encoded = f"{message}\n".encode()
+    log_path = get_oracle_data_dir() / "daemon.log"
+    tail = b""
+    if log_path.is_file():
+        with open(log_path, "rb") as log:
+            log.seek(max(0, log_path.stat().st_size - len(encoded) - 1))
+            tail = log.read()
+    if not tail.endswith(encoded):
+        with open(log_path, "ab") as log:
+            log.write(encoded)
+
+
 def _start_daemon() -> None:
     """Launch the daemon as a detached subprocess."""
     venv = get_venv_path()
@@ -146,20 +165,7 @@ def _start_daemon() -> None:
     # The daemon refuses to start without its models, so launching it
     # would write a pid for a process that is already gone.
     if not models_dir.is_dir():
-        # No models ship, so this repeats every session: write it once.
-        # Bytes throughout: a non-ASCII path is longer in bytes than in
-        # characters, and a short seek never finds the line it wrote.
-        line = f"oracle: not starting, models directory missing: {models_dir}\n"
-        encoded = line.encode()
-        log_path = data_dir / "daemon.log"
-        tail = b""
-        if log_path.is_file():
-            with open(log_path, "rb") as log:
-                log.seek(max(0, log_path.stat().st_size - len(encoded) - 1))
-                tail = log.read()
-        if not tail.endswith(encoded):
-            with open(log_path, "ab") as log:
-                log.write(encoded)
+        _log_once(f"oracle: not starting, models directory missing: {models_dir}")
         return
 
     log_fh = open(str(data_dir / "daemon.log"), "a")  # noqa: SIM115 - fd duped into subprocess, closed on the parent side after Popen returns
@@ -315,6 +321,8 @@ def _other_sessions_live(session_id: str) -> bool:
                 return True
         except FileNotFoundError:
             continue  # another session ended between iterdir and stat
+        # A crashed session fires no SessionEnd, so nothing else removes it.
+        marker.unlink(missing_ok=True)
     return False
 
 
@@ -334,6 +342,11 @@ def main() -> None:
         if not sentinel.exists():
             return
         if not is_provisioned(venv):
+            if get_python_path(venv).exists():
+                _log_once(
+                    "oracle: not starting, the venv lacks pyyaml (set up before"
+                    " 1.10.4); run /oracle-setup to rebuild it"
+                )
             return
         _register_session(str(payload.get("session_id", "")))
         # Held across the running check and the spawn inside _start_daemon,
@@ -342,6 +355,8 @@ def main() -> None:
             _start_daemon()
 
     elif event == "SessionEnd":
+        if not get_oracle_data_dir().is_dir():
+            return  # never used: taking the lock would create the directory
         # The same lock: a stop between another session's running check and
         # its return would kill the daemon that session just confirmed.
         with _start_lock():

@@ -52,7 +52,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `additive-bias-defense` | [leyline](../plugins/leyline.md) | Scrutiny questions to challenge unnecessary additions |
 | `agent-expenditure` | [conserve](../plugins/conserve.md) | Per-agent token usage tracking |
 | `agent-teams` | [conjure](../plugins/conjure.md) | Coordinate Claude Code Agent Teams through filesystem-based protocol |
-| `api-review` | [pensive](../plugins/pensive.md) | API surface evaluation |
+| `api-review-playbook` | [pensive](../plugins/pensive.md) | API surface evaluation |
 | `architecture-aware-init` | [attune](../plugins/attune.md) | Architecture-aware project initialization with research |
 | `architecture-diagram` | [cartograph](../plugins/cartograph.md) | Component relationship diagrams |
 | `architecture-paradigm-client-server` | [archetypes](../plugins/archetypes.md) | Client-server communication |
@@ -70,15 +70,15 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `architecture-paradigm-service-based` | [archetypes](../plugins/archetypes.md) | Coarse-grained SOA |
 | `architecture-paradigm-space-based` | [archetypes](../plugins/archetypes.md) | Data-grid architecture |
 | `architecture-paradigms` | [archetypes](../plugins/archetypes.md) | Orchestrator for paradigm selection |
-| `architecture-review` | [pensive](../plugins/pensive.md) | Architecture assessment |
+| `architecture-review-playbook` | [pensive](../plugins/pensive.md) | Architecture assessment |
 | `assisted-mastery` | [imbue](../plugins/imbue.md) | Assistance-dilemma resolution: visible reasoning, tradeoff surfacing, and fading help to build judgment |
 | `authentication-patterns` | [leyline](../plugins/leyline.md) | Auth flow patterns |
 | `blast-radius` | [pensive](../plugins/pensive.md) | Code change blast radius analysis with risk scoring |
 | `bloat-detector` | [conserve](../plugins/conserve.md) | Detection algorithms for dead code, God classes, documentation duplication |
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
-| `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
+| `bug-review-playbook` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `call-chain` | [cartograph](../plugins/cartograph.md) | Trace execution paths through code knowledge graph |
-| `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
+| `catchup-playbook` | [imbue](../plugins/imbue.md) | Context recovery |
 | `challenge` | [gauntlet](../plugins/gauntlet.md) | Adaptive difficulty challenge session for codebase knowledge testing |
 | `class-diagram` | [cartograph](../plugins/cartograph.md) | Class and interface diagrams |
 | `clear-context` | [conserve](../plugins/conserve.md) | Auto-clear workflow with session state persistence |
@@ -101,10 +101,10 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `dependency-graph` | [cartograph](../plugins/cartograph.md) | Import and dependency diagrams |
 | `dependency-verification` | [imbue](../plugins/imbue.md) | Package-hallucination and slopsquat defense: verifies a package exists before install |
 | `diff-analysis` | [imbue](../plugins/imbue.md) | Semantic changeset analysis |
-| `dig` | [tome](../plugins/tome.md) | Interactive research refinement |
+| `dig-playbook` | [tome](../plugins/tome.md) | Interactive research refinement |
 | `digital-garden-cultivator` | [memory-palace](../plugins/memory-palace.md) | Digital garden maintenance |
 | `discourse` | [tome](../plugins/tome.md) | Community discussion scanning |
-| `do-issue` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
+| `do-issue-playbook` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
 | `doc-consolidation` | [sanctum](../plugins/sanctum.md) | Document merging |
 | `doc-generator` | [scribe](../plugins/scribe.md) | Generate and remediate documentation |
 | `doc-updates` | [sanctum](../plugins/sanctum.md) | Documentation maintenance |
@@ -115,7 +115,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
 | `evaluation-framework` | [leyline](../plugins/leyline.md) | Decision thresholds and utility-guided action selection |
-| `export` | [tome](../plugins/tome.md) | Export research findings for knowledge-intake |
+| `export-playbook` | [tome](../plugins/tome.md) | Export research findings for knowledge-intake |
 | `extract` | [gauntlet](../plugins/gauntlet.md) | Analyze codebase and build a knowledge base |
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring and optional research enrichment via tome (`--research`) |
 | `friction-detector` | [abstract](../plugins/abstract.md) | Detect friction signals and graduate recurring patterns into rules |
@@ -129,13 +129,13 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `graduated-implementation` | [imbue](../plugins/imbue.md) | Bounded start then ramp the next increment's ambition only on demonstrated competence of the prior one |
 | `graph-build` | [gauntlet](../plugins/gauntlet.md) | Build or update the code knowledge graph |
 | `graph-search` | [gauntlet](../plugins/gauntlet.md) | FTS5 search of the code knowledge graph |
-| `harden` | [pensive](../plugins/pensive.md) | Active codebase hardening with NIST/CWE-cited findings and concrete remediation proposals |
+| `harden-playbook` | [pensive](../plugins/pensive.md) | Active codebase hardening with NIST/CWE-cited findings and concrete remediation proposals |
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
 | `hook-scope-guide` | [abstract](../plugins/abstract.md) | Decide where to place hooks (plugin/project/global) |
-| `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
+| `hooks-eval-playbook` | [abstract](../plugins/abstract.md) | Hook security scanning |
 | `ideate` | [tome](../plugins/tome.md) | Diverse ideation methods with category-spanning selection and rotation |
-| `install-watchdog` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
-| `justify` | [imbue](../plugins/imbue.md) | Anti-additive-bias change audit |
+| `install-watchdog-playbook` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
+| `justify-playbook` | [imbue](../plugins/imbue.md) | Anti-additive-bias change audit |
 | `karpathy-principles` | [imbue](../plugins/imbue.md) | Compact four-principle synthesis for LLM coding pitfalls |
 | `knowledge-intake` | [memory-palace](../plugins/memory-palace.md) | Intake and curation |
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |
@@ -143,7 +143,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `loop-optimization` | [leyline](../plugins/leyline.md) | Hand-vs-compiler decision rule for loop transforms |
 | `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
 | `markdown-formatting` | [leyline](../plugins/leyline.md) | Line wrapping and style conventions |
-| `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
+| `math-review-playbook` | [pensive](../plugins/pensive.md) | Mathematical correctness |
 | `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |
 | `media-composition` | [scry](../plugins/scry.md) | Multi-source media stitching |
 | `memory-clarity-probe` | [memory-palace](../plugins/memory-palace.md) | Memory clarity assessment via anchor questions |
@@ -159,16 +159,16 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `palace-diagram` | [memory-palace](../plugins/memory-palace.md) | Visual palace structure diagrams |
 | `palace-index-curator` | [memory-palace](../plugins/memory-palace.md) | Web-capture index curation |
 | `papers` | [tome](../plugins/tome.md) | Academic literature search |
-| `performance-review` | [pensive](../plugins/pensive.md) | Time and space complexity hotspot detection |
-| `plugin-review` | [abstract](../plugins/abstract.md) | Tiered plugin quality review with dependency-aware scoping |
+| `performance-review-playbook` | [pensive](../plugins/pensive.md) | Time and space complexity hotspot detection |
+| `plugin-review-playbook` | [abstract](../plugins/abstract.md) | Tiered plugin quality review with dependency-aware scoping |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
-| `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
+| `pr-review-playbook` | [sanctum](../plugins/sanctum.md) | PR review workflows |
 | `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
 | `problem-bank` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank. Surveys coverage gaps and proposes YAML-valid entries |
 | `progressive-loading` | [leyline](../plugins/leyline.md) | Dynamic content loading |
 | `project-brainstorming` | [attune](../plugins/attune.md) | Socratic ideation workflow |
 | `project-execution` | [attune](../plugins/attune.md) | Systematic implementation |
-| `project-init` | [attune](../plugins/attune.md) | Interactive project initialization |
+| `project-init-playbook` | [attune](../plugins/attune.md) | Interactive project initialization |
 | `project-planning` | [attune](../plugins/attune.md) | Architecture and task breakdown |
 | `project-specification` | [attune](../plugins/attune.md) | Spec creation from brainstorm |
 | `proof-of-work` | [imbue](../plugins/imbue.md) | Evidence-based work validation |
@@ -180,15 +180,15 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `quality-gate` | [egregore](../plugins/egregore.md) | Pre-merge quality validation for autonomous sessions |
 | `qwen-delegation` | [conjure](../plugins/conjure.md) | Qwen MCP integration |
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
-| `research` | [tome](../plugins/tome.md) | Multi-source research orchestration |
+| `research-playbook` | [tome](../plugins/tome.md) | Multi-source research orchestration |
 | `response-compression` | [conserve](../plugins/conserve.md) | Response compression patterns |
 | `review-chamber` | [memory-palace](../plugins/memory-palace.md) | PR review knowledge capture and retrieval |
 | `review-core` | [imbue](../plugins/imbue.md) | Scaffolding for detailed reviews |
 | `rigorous-reasoning` | [imbue](../plugins/imbue.md) | Anti-sycophancy guardrails |
 | `risk-classification` | [leyline](../plugins/leyline.md) | Inline 4-tier risk classification for agent tasks |
 | `rule-catalog` | [hookify](../plugins/hookify.md) | Pre-built behavioral rule templates |
-| `rules-eval` | [abstract](../plugins/abstract.md) | Evaluate and validate Claude Code rules in `.claude/rules/` directories |
-| `rust-review` | [pensive](../plugins/pensive.md) | Rust-specific checking |
+| `rules-eval-playbook` | [abstract](../plugins/abstract.md) | Evaluate and validate Claude Code rules in `.claude/rules/` directories |
+| `rust-review-playbook` | [pensive](../plugins/pensive.md) | Rust-specific checking |
 | `safety-critical-patterns` | [pensive](../plugins/pensive.md) | NASA Power of 10 rules for verifiable code |
 | `scope-guard` | [imbue](../plugins/imbue.md) | Anti-overengineering |
 | `sem-integration` | [leyline](../plugins/leyline.md) | Semantic diff CLI detection and fallback |
@@ -196,14 +196,14 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `session-handoff` | [memory-palace](../plugins/memory-palace.md) | Typed session handoff units and on-demand recall |
 | `session-management` | [sanctum](../plugins/sanctum.md) | Session naming, checkpointing, and resume strategies |
 | `session-palace-builder` | [memory-palace](../plugins/memory-palace.md) | Session-specific palaces |
-| `session-replay` | [scribe](../plugins/scribe.md) | Convert session JSONL into GIF/MP4/WebM replays via VHS |
-| `session-to-post` | [scribe](../plugins/scribe.md) | Convert sessions into shareable blog posts or case studies |
+| `session-replay-playbook` | [scribe](../plugins/scribe.md) | Convert session JSONL into GIF/MP4/WebM replays via VHS |
+| `session-to-post-playbook` | [scribe](../plugins/scribe.md) | Convert sessions into shareable blog posts or case studies |
 | `setup` | [oracle](../plugins/oracle.md) | Install and configure the oracle ONNX inference daemon |
 | `simplified-technical-english` | [scribe](../plugins/scribe.md) | Apply an ASD-STE100-derived register to operator and procedural text |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
 | `skill-graph-audit` | [abstract](../plugins/abstract.md) | Map Skill() refs across plugins; detect hubs, isolates, dangling targets |
 | `skill-library-mission` | [attune](../plugins/attune.md) | Build a project skill library via discovery, parallel authoring, and review |
-| `skills-eval` | [abstract](../plugins/abstract.md) | Skill quality assessment |
+| `skills-eval-playbook` | [abstract](../plugins/abstract.md) | Skill quality assessment |
 | `slop-detector` | [scribe](../plugins/scribe.md) | Detect AI-generated content markers |
 | `spec-writing` | [spec-kit](../plugins/spec-kit.md) | Specification authoring |
 | `speckit-orchestrator` | [spec-kit](../plugins/spec-kit.md) | Workflow coordination |
@@ -215,12 +215,12 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `structured-output` | [imbue](../plugins/imbue.md) | Formatting patterns |
 | `style-learner` | [scribe](../plugins/scribe.md) | Extract writing style from exemplar text |
 | `subagent-testing` | [abstract](../plugins/abstract.md) | Testing patterns for subagent interactions |
-| `summon` | [egregore](../plugins/egregore.md) | Spawn autonomous agent session with budget |
+| `summon-playbook` | [egregore](../plugins/egregore.md) | Spawn autonomous agent session with budget |
 | `supply-chain-advisory` | [leyline](../plugins/leyline.md) | Known-bad version detection, lockfile auditing, incident response |
 | `synthesize` | [tome](../plugins/tome.md) | Research findings synthesis |
 | `task-planning` | [spec-kit](../plugins/spec-kit.md) | Task generation |
 | `tech-tutorial` | [scribe](../plugins/scribe.md) | Plan, draft, and refine technical tutorials |
-| `test-review` | [pensive](../plugins/pensive.md) | Test quality review |
+| `test-review-playbook` | [pensive](../plugins/pensive.md) | Test quality review |
 | `test-updates` | [sanctum](../plugins/sanctum.md) | Test maintenance |
 | `testing-quality-standards` | [leyline](../plugins/leyline.md) | Test quality guidelines and pytest configuration |
 | `ticket-writing` | [leyline](../plugins/leyline.md) | Glanceable tickets with the why inline or one link away |
@@ -228,19 +228,19 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `token-conservation` | [conserve](../plugins/conserve.md) | Token usage strategies |
 | `triz` | [tome](../plugins/tome.md) | TRIZ cross-domain analogical reasoning |
 | `tutorial-updates` | [sanctum](../plugins/sanctum.md) | Tutorial maintenance and updates |
-| `unified-review` | [pensive](../plugins/pensive.md) | Review orchestration |
-| `uninstall-watchdog` | [egregore](../plugins/egregore.md) | Remove crash-recovery watchdog |
+| `unified-review-playbook` | [pensive](../plugins/pensive.md) | Review orchestration |
+| `uninstall-watchdog-playbook` | [egregore](../plugins/egregore.md) | Remove crash-recovery watchdog |
 | `update-readme` | [sanctum](../plugins/sanctum.md) | README maintenance and updates |
-| `validate-pr` | [sanctum](../plugins/sanctum.md) | Diff-derived PR test plan with revert-test quality checks |
+| `validate-pr-playbook` | [sanctum](../plugins/sanctum.md) | Diff-derived PR test plan with revert-test quality checks |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
-| `voice-extract` | [scribe](../plugins/scribe.md) | SICO comparative extraction from writing samples |
-| `voice-generate` | [scribe](../plugins/scribe.md) | Generate text in learned writing voice |
-| `voice-learn` | [scribe](../plugins/scribe.md) | Learning loop from manual edits |
-| `voice-review` | [scribe](../plugins/scribe.md) | Dual-gate review against voice profile |
+| `voice-extract-playbook` | [scribe](../plugins/scribe.md) | SICO comparative extraction from writing samples |
+| `voice-generate-playbook` | [scribe](../plugins/scribe.md) | Generate text in learned writing voice |
+| `voice-learn-playbook` | [scribe](../plugins/scribe.md) | Learning loop from manual edits |
+| `voice-review-playbook` | [scribe](../plugins/scribe.md) | Dual-gate review against voice profile |
 | `vow-enforcement` | [imbue](../plugins/imbue.md) | Three-layer constraint enforcement with soft vows, hard vows, and external validators |
-| `war-room` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
 | `war-room-checkpoint` | [attune](../plugins/attune.md) | Inline reversibility assessment for embedded escalation |
+| `war-room-playbook` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
 | `web-search` | [tome](../plugins/tome.md) | Open-web search via You.com MCP or WebSearch |
 | `workflow-diagram` | [cartograph](../plugins/cartograph.md) | Process and state transition diagrams |
 | `workflow-improvement` | [sanctum](../plugins/sanctum.md) | Workflow retrospectives |
@@ -339,7 +339,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `/session-to-post` | scribe | Convert session into blog post or case study |
 | `/shell-review` | pensive | Shell script safety and portability review |
 | `/skill-history` | pensive | View recent skill executions with context |
-| `/skill-library` | attune | Build a project skill library as a resumable mission |
+| `/skill-library-session` | attune | Build a project skill library as a resumable mission |
 | `/skill-logs` | memory-palace | View skill execution logs |
 | `/skill-review` | pensive | Analyze skill metrics and stability gaps |
 | `/skills-eval` | abstract | Skill quality assessment |
@@ -365,7 +365,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `/tome:cite` | tome | Generate formatted bibliography |
 | `/tome:dig` | tome | Refine research results interactively |
 | `/tome:export` | tome | Export research findings |
-| `/tome:research` | tome | Run multi-source research session |
+| `/tome:research-session` | tome | Run multi-source research session |
 | `/unbloat` | conserve | Safe bloat remediation with interactive approval |
 | `/uninstall-watchdog` | egregore | Remove crash-recovery watchdog |
 | `/update-all-plugins` | leyline | Update all plugins |
@@ -430,7 +430,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `python-optimizer` | parseltongue | Performance optimization |
 | `python-pro` | parseltongue | Python 3.9+ expertise |
 | `python-tester` | parseltongue | Testing expertise |
-| `research` | tome | Multi-source research orchestrator (delegates to `Skill(tome:research)`) |
+| `research` | tome | Multi-source research orchestrator (delegates to `Skill(tome:research-playbook)`) |
 | `review-analyst` | imbue | Structured reviews |
 | `rust-auditor` | pensive | Rust security audit |
 | `sentinel` | egregore | Watchdog agent for crash recovery |

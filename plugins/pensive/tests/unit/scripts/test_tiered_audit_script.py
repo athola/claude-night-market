@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from scripts.tiered_audit import _parse_numstat, collect, main
+from scripts.tiered_audit import _parse_numstat, _rename_paths, collect, main
 
 from pensive.skills.tiered_audit import Tier1Results
 
@@ -141,6 +141,28 @@ class TestFixOnFixUsesFileSets:
         results, _ = collect(base, repo)
         flags = [f for f in results.all_flags() if f.reason == "fix-on-fix"]
         assert [f.detail for f in flags] == [f"{later[:7]}: fix: x"]
+
+    def test_a_fix_to_a_file_an_earlier_fix_renamed_flags(self, tmp_path: Path) -> None:
+        """Rename detection writes ``x => z`` as the path, which matches nothing."""
+        repo, base = self._two_fixes(tmp_path, "y")
+        _git(repo, "mv", "x", "z")
+        _commit(repo, "fix: move x to z")
+        (repo / "z").write_text("3\n")
+        _commit(repo, "fix: z")
+        results, _ = collect(base, repo)
+        details = [f.detail for f in results.all_flags() if f.reason == "fix-on-fix"]
+        assert any(d.endswith("fix: z") for d in details)
+
+    def test_a_pure_rename_is_not_a_large_diff(self, tmp_path: Path) -> None:
+        """Without rename detection a moved file counts as a delete and an add."""
+        repo, base = self._two_fixes(tmp_path, "y")
+        (repo / "big").write_text("".join(f"line {n}\n" for n in range(500)))
+        _commit(repo, "chore: add big")
+        base = _git(repo, "rev-parse", "HEAD")
+        _git(repo, "mv", "big", "moved")
+        _commit(repo, "chore: move big")
+        results, _ = collect(base, repo)
+        assert [f for f in results.all_flags() if f.reason == "large-diff"] == []
 
 
 class TestNumstatParsing:
@@ -312,3 +334,17 @@ class TestEscalationModuleMatchesTheScript:
         }
         for heading in headings:
             assert heading in computed or "(manual check)" in heading, heading
+
+
+@pytest.mark.parametrize(
+    ("field", "paths"),
+    [
+        ("a/{b => c}/x.py", {"a/b/x.py", "a/c/x.py"}),
+        ("a/{ => c}/x.py", {"a/x.py", "a/c/x.py"}),
+        ("{a => b}.py", {"a.py", "b.py"}),
+        ("old name.py => new name.py", {"old name.py", "new name.py"}),
+        ("plain.py", {"plain.py"}),
+    ],
+)
+def test_a_numstat_rename_field_names_both_paths(field: str, paths: set) -> None:
+    assert _rename_paths(field) == paths

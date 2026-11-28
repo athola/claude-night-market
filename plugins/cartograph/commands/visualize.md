@@ -11,9 +11,12 @@ Mermaid Chart MCP rendering.
 ## Arguments
 
 - `type` - Diagram type: `architecture`, `data-flow`,
-  `dependency`, `workflow`, or `class` (required)
+  `dependency`, `workflow`, `class`, `call-chain`, or
+  `communities` (required)
 - `scope` - Directory path to limit analysis (optional,
   defaults to project root)
+- `--depth N` - `dependency` only: how many import levels to
+  follow (optional)
 
 ## Usage
 

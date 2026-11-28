@@ -25,10 +25,10 @@ Or reference from the marketplace:
 | **style-learner** | Extract writing style from exemplar text |
 | **doc-generator** | Generate/remediate documentation |
 | **tech-tutorial** | Plan, draft, and refine technical tutorials |
-| **voice-extract** | SICO comparative extraction from writing samples |
-| **voice-generate** | Generate text in a learned writing voice |
-| **voice-review** | Dual-gate review (prose and craft) against voice profile |
-| **voice-learn** | Learning loop from manual edits to improve profile |
+| **voice-extract-playbook** | SICO comparative extraction from writing samples |
+| **voice-generate-playbook** | Generate text in a learned writing voice |
+| **voice-review-playbook** | Dual-gate review (prose and craft) against voice profile |
+| **voice-learn-playbook** | Learning loop from manual edits to improve profile |
 
 ### Commands
 

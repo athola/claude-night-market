@@ -152,11 +152,16 @@ class TestRuleEngine:
         ]
         engine = RuleEngine(rules)
 
-        for event_type in ["bash", "file", "stop", "prompt"]:
-            context = {"command": "test"} if event_type == "bash" else {"text": "test"}
+        # Each event carries its text under the field the engine reads first.
+        contexts = {
+            "bash": {"command": "run test"},
+            "file": {"new_text": "a test"},
+            "stop": {"transcript": "test done"},
+            "prompt": {"user_prompt": "test it"},
+        }
+        for event_type, context in contexts.items():
             results = engine.evaluate_event(event_type, context)
-            # Will match if context has a field with "test"
-            assert isinstance(results, list)
+            assert [r.rule.name for r in results] == ["test"], event_type
 
     def test_disabled_rules_ignored(self) -> None:
         """Disabled rules should not be evaluated."""

@@ -36,9 +36,9 @@ benchmark).
 
 - The loop is not proven hot by a profiler. Optimize nothing first.
 - Architecture-level performance (caching layers, sharding): use
-  `Skill(pensive:architecture-review)`.
+  `Skill(pensive:architecture-review-playbook)`.
 - Detecting complexity hotspots (O(n^2) shapes):
-  `Skill(pensive:performance-review)`.
+  `Skill(pensive:performance-review-playbook)`.
 
 ## The decision rule
 

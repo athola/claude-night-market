@@ -70,7 +70,7 @@ demo-init: ## Demo project initialization workflow
 	@echo "  - Microservices (microservices-example.md)"
 	@echo ""
 	@echo "Step 2: Skill modules"
-	@for module in skills/project-init/modules/*.md; do \
+	@for module in skills/project-init-playbook/modules/*.md; do \
 		name=$$(basename "$$module" .md); \
 		echo "  - $$name"; \
 	done
@@ -114,7 +114,7 @@ demo-skills: ## Validate attune skill structure
 	done
 	@echo ""
 	@echo "Skill coverage:"
-	@fail=0; for skill in project-init project-brainstorming project-specification project-planning project-execution architecture-aware-init makefile-generation precommit-setup workflow-setup; do \
+	@fail=0; for skill in project-init-playbook project-brainstorming project-specification project-planning project-execution architecture-aware-init makefile-generation precommit-setup workflow-setup; do \
 		if [ -f "skills/$$skill/SKILL.md" ]; then \
 			printf '  %-24s [OK]\n' "$$skill:"; \
 		else \

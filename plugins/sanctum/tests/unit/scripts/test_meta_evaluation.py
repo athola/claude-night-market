@@ -568,7 +568,7 @@ class TestRecursiveValidation:
         """
         skills = evaluator.EVALUATION_SKILLS
         assert "abstract" in skills
-        assert "skills-eval" in skills["abstract"]
+        assert "skills-eval-playbook" in skills["abstract"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -581,7 +581,7 @@ class TestRecursiveValidation:
         Then hooks-eval should be present
         """
         skills = evaluator.EVALUATION_SKILLS
-        assert "hooks-eval" in skills.get("abstract", [])
+        assert "hooks-eval-playbook" in skills.get("abstract", [])
 
     @pytest.mark.bdd
     @pytest.mark.unit

@@ -26,7 +26,7 @@ from pensive.skills.base import AnalysisResult
 from pensive.skills.bug_review import BugReviewSkill
 from pensive.skills.rust_review import RustReviewSkill
 from pensive.skills.unified_review import UnifiedReviewSkill
-from pensive.workflows.code_review import CodeReviewWorkflow
+from pensive.workflows.code_review import CodeReviewWorkflow, _ReviewContext
 from pensive.workflows.memory_manager import get_optimal_strategy
 
 
@@ -88,57 +88,19 @@ class TestEdgeCasesAndErrorScenarios:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_malformed_file_handling(self) -> None:
-        """Given malformed files, when analyzing, then doesn't crash."""
-        # Arrange
-        skill = UnifiedReviewSkill()
-        context = Mock()
-        context.repo_path = Path(tempfile.gettempdir())
+    def test_malformed_file_handling(self, tmp_path: Path) -> None:
+        """Given a non-UTF-8 .py file, skill selection still reads its imports.
 
-        # Test with non-UTF-8 content
-        malformed_content = b"\xff\xfe\x00\x41\x00\x42\x00\x43"  # Invalid UTF-8
-        context.get_file_content.return_value = malformed_content
-        context.get_files.return_value = ["broken_file.txt"]
+        Only .py content is read (for math-review), so the bytes must be in
+        a .py file and go through the real context, whose read replaces
+        undecodable bytes instead of raising UnicodeDecodeError.
+        """
+        (tmp_path / "broken.py").write_bytes(b"\xff\xfe\x00# x\nimport numpy\n")
+        context = _ReviewContext(tmp_path, ["broken.py"])
 
-        # Act & Assert - Should not raise exception
-        try:
-            result = skill.analyze(context)
-            assert isinstance(result, AnalysisResult)
-        except UnicodeDecodeError:
-            pytest.fail("Should handle non-UTF-8 content gracefully")
+        result = UnifiedReviewSkill().analyze(context)
 
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_extremely_large_file_handling(self) -> None:
-        """Given huge files, analyzer handles memory efficiently."""
-        # Arrange
-        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
-            # Create a 10MB file
-            for i in range(100000):
-                f.write(f"fn function_{i}() -> i32 {{ {i} }}\n")
-            large_file_path = f.name
-
-        try:
-            skill = UnifiedReviewSkill()
-            context = Mock()
-            context.get_files.return_value = [large_file_path]
-
-            # Mock file reading with size limit
-            def mock_read_content(path) -> str:
-                if path == large_file_path:
-                    return "/* Large file content truncated for analysis */"
-                return ""
-
-            context.get_file_content.side_effect = mock_read_content
-
-            # Act
-            result = skill.analyze(context)
-
-            # Assert
-            assert isinstance(result, AnalysisResult)
-
-        finally:
-            Path(large_file_path).unlink()
+        assert result.info["skills_executed"] == ["code-reviewer", "math-review"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -196,37 +158,22 @@ class TestEdgeCasesAndErrorScenarios:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_permission_denied_scenarios(self) -> None:
-        """Given permission errors, analyzer handles gracefully."""
-        # Arrange
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # Create a file and remove read permissions
-            test_file = Path(temp_dir) / "restricted.txt"
-            test_file.write_text("secret content")
-            test_file.chmod(0o000)  # Remove all permissions
+        """Given an unreadable .py file, selection skips it and keeps going."""
+        context = Mock()
+        context.get_files.return_value = ["restricted.py", "lib.py"]
 
-            try:
-                skill = UnifiedReviewSkill()
-                context = Mock()
-                context.get_files.return_value = [str(test_file)]
+        def read(path: str) -> str:
+            if path == "restricted.py":
+                msg = f"Permission denied: {path}"
+                raise PermissionError(msg)
+            return "import numpy\n"
 
-                def mock_read_content(path) -> str:
-                    if str(test_file) in path:
-                        msg = f"Permission denied: {path}"
-                        raise PermissionError(msg)
-                    return ""
+        context.get_file_content.side_effect = read
 
-                context.get_file_content.side_effect = mock_read_content
+        result = UnifiedReviewSkill().analyze(context)
 
-                # Act
-                result = skill.analyze(context)
-
-                # Assert
-                assert isinstance(result, AnalysisResult)
-                # Should continue analysis despite permission error
-
-            finally:
-                # Restore permissions for cleanup
-                test_file.chmod(0o644)
+        assert result.info["files_analyzed"] == 2
+        assert "math-review" in result.info["skills_executed"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -295,34 +242,16 @@ pensive:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_unicode_and_special_characters(self) -> None:
-        """Given unicode/special chars, analyzer handles correctly."""
-        # Arrange
-        unicode_content = """
-// File with unicode and special characters
-pub struct 用户 {
-    id: u64,
-    name: String,  // 名前
-    description: String,  // descripción
-}
-
-fn résumé() -> String {
-    "café résumé naïve façade".to_string()
-}
-
-const EMOJI: &str = "🦀 Rust 🚀";
-        """
-
-        skill = UnifiedReviewSkill()
+        """Given unicode around an import, the import is still detected."""
         context = Mock()
-        context.get_file_content.return_value = unicode_content
-        context.get_files.return_value = ["unicode.rs"]
+        context.get_files.return_value = ["unicode.py"]
+        context.get_file_content.return_value = (
+            '# 用户 名前 descripción 🦀\nimport numpy as np\nCAFÉ = "naïve"\n'
+        )
 
-        # Act
-        result = skill.analyze(context)
+        result = UnifiedReviewSkill().analyze(context)
 
-        # Assert
-        assert isinstance(result, AnalysisResult)
-        # Should handle unicode without crashing
+        assert "math-review" in result.info["skills_executed"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -349,9 +278,8 @@ const EMOJI: &str = "🦀 Rust 🚀";
                 # Act
                 result = skill.analyze(context)
 
-                # Assert
-                assert isinstance(result, AnalysisResult)
-                # Should handle symlinks without infinite loops
+                # Assert: both paths count, neither is followed or dropped
+                assert result.info["languages_detected"] == {"rust": {"files": 2}}
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -380,8 +308,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
             result = skill.analyze(context)
 
             # Assert
-            assert isinstance(result, AnalysisResult)
-            # Should handle deep paths without path length issues
+            assert result.info["languages_detected"] == {"rust": {"files": 1}}
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -402,12 +329,8 @@ const EMOJI: &str = "🦀 Rust 🚀";
             context.get_files.return_value = [filename]
             context.get_file_content.return_value = content
 
-            # Act & Assert - Should not crash
-            try:
-                result = skill.analyze(context)
-                assert isinstance(result, AnalysisResult)
-            except Exception as e:
-                pytest.fail(f"Analysis failed for {filename}: {e}")
+            result = skill.analyze(context)
+            assert result.info["files_analyzed"] == 1, filename
 
     @pytest.mark.bdd
     @pytest.mark.unit

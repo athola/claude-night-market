@@ -17,8 +17,6 @@ description: |
   Use when: [specific scenarios, symptoms, or contexts]
 
   DO NOT use when: [explicit negative triggers] - use [ALTERNATIVE] instead.
-
-  [ENFORCEMENT if applicable]
 ```
 
 ## Skill Discovery Optimization
@@ -74,7 +72,12 @@ With them:
 
 ## Complete Examples
 
-### Discipline-Enforcing Skill (Maximum Intensity)
+Each example states fit and stops. Accurate triggers decide selection, and no
+example escalates its phrasing by category. See
+`skills/modular-skills/modules/enforcement-patterns.md` for why intensity
+ladders are retired.
+
+### Discipline-Enforcing Skill
 
 ```yaml
 ---
@@ -88,13 +91,10 @@ description: |
 
   DO NOT use when: exploring/reading code only - no skill needed.
   DO NOT use when: writing documentation - use technical-writing.
-
-  Always use this skill before writing any production code.
-  This is essential. No exceptions without explicit user permission.
 ---
 ```
 
-### Workflow Skill (High Intensity)
+### Workflow Skill
 
 ```yaml
 ---
@@ -109,12 +109,10 @@ description: |
 
   DO NOT use when: implementing well-defined tasks with clear specs.
   DO NOT use when: fixing obvious bugs with known solutions.
-
-  Use this skill BEFORE starting implementation. Check even if unsure.
 ---
 ```
 
-### Technique Skill (Medium Intensity)
+### Technique Skill
 
 ```yaml
 ---
@@ -129,12 +127,10 @@ description: |
   or database queries repeat frequently
 
   DO NOT use when: premature optimization without profiling data.
-
-  Consider this skill when performance issues involve repeated operations.
 ---
 ```
 
-### Reference Skill (Low Intensity)
+### Reference Skill
 
 ```yaml
 ---
@@ -147,8 +143,6 @@ description: |
   Use when: need to look up plugin.json field names, types, or requirements
 
   DO NOT use when: creating new plugins - use create-plugin workflow.
-
-  Available for configuration questions. Consult when needed.
 ---
 ```
 

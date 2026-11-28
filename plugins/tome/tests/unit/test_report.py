@@ -402,8 +402,8 @@ class TestGenerateExecutiveSummary:
         When generate_executive_summary is called
         Then a string is returned without raising
         """
-        summary = generate_executive_summary([], "empty topic")
-        assert isinstance(summary, str)
+        summary = " ".join(generate_executive_summary([], "empty topic").split())
+        assert "No findings were collected for the topic 'empty topic'" in summary
 
     @pytest.mark.unit
     def test_summary_references_channel_counts(self) -> None:
@@ -413,12 +413,13 @@ class TestGenerateExecutiveSummary:
         When generate_executive_summary is called
         Then the output reflects the multi-channel nature (mentions count or channels)
         """
-        findings = [_code_finding(), _discourse_finding(), _academic_finding()]
+        findings = [
+            _code_finding(),
+            _code_finding(),
+            _discourse_finding(),
+            _academic_finding(),
+        ]
         summary = generate_executive_summary(findings, "async python patterns")
-        # The summary should mention some quantity signal or channel names
-        has_count = any(char.isdigit() for char in summary)
-        has_channel = any(
-            word in summary.lower()
-            for word in ("code", "academic", "discourse", "finding", "source")
-        )
-        assert has_count or has_channel
+        flat = " ".join(summary.split())  # _wrap breaks lines anywhere
+        assert "produced 4 finding(s) across 3 channel(s)" in flat
+        assert "The code channel yielded 2 finding(s)" in flat

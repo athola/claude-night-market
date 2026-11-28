@@ -93,8 +93,10 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at minister:initiative-pulse; router: cartograph:atlas; judge: cartograph:atlas/cartograph:code-communities'
+  adjudicated: true
+  notes: 'aimed at minister:initiative-pulse; router: cartograph:atlas; judge: cartograph:atlas/cartograph:code-communities;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: minister:initiative-pulse
     router: cartograph:atlas
@@ -255,11 +257,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: memory-palace:palace-sweep; judge: cartograph:data-flow/cartograph:call-chain'
+  notes: 'router: memory-palace:palace-sweep; judge: cartograph:data-flow/cartograph:class-diagram'
   proposals:
     router: memory-palace:palace-sweep
     judge: cartograph:data-flow
-    judge_runner_up: cartograph:call-chain
+    judge_runner_up: cartograph:class-diagram
 - id: cartograph.data-flow.p2
   type: positive
   prompt: I need to document how a payment webhook payload gets transformed as it
@@ -321,8 +323,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: cartograph:dependency-graph
     judge: cartograph:dependency-graph

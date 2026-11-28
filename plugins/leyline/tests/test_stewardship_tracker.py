@@ -688,3 +688,21 @@ def test_record_default_dir_follows_claude_project_dir(
 
     assert (project / ".claude" / "stewardship" / "actions.jsonl").exists()
     assert not (elsewhere / ".claude").exists()
+
+
+@pytest.mark.unit
+def test_skill_description_names_every_recordable_virtue() -> None:
+    """The skill's description lists the virtues --virtue accepts (#1132).
+
+    The description said four while the tracker records five, so a
+    session reading only the description never learned of Foresight.
+    """
+    skill = Path(__file__).resolve().parents[1] / "skills" / "stewardship" / "SKILL.md"
+    description = next(
+        line
+        for line in skill.read_text().splitlines()
+        if line.startswith("description:")
+    )
+
+    missing = [v for v in stewardship_tracker.VIRTUES if v.title() not in description]
+    assert not missing, f"description omits {missing}"

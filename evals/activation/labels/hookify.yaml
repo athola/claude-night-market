@@ -43,10 +43,10 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:create-skill; router: hookify:hookify; judge: hookify:configure/hookify:list'
+  notes: 'aimed at abstract:create-skill; router: hookify:list; judge: hookify:configure/hookify:list'
   proposals:
     aimed_at: abstract:create-skill
-    router: hookify:hookify
+    router: hookify:list
     judge: hookify:configure
     judge_runner_up: hookify:list
 - id: hookify.from-hook.p1
@@ -130,17 +130,17 @@ cases:
   prompt: I just installed hookify and I'm lost. What event types can a rule use,
     where do the rule files live, and what's the difference between warn and block?
   target: hookify:help
-  competitor: hookify:rule-catalog
+  competitor: hookify:writing-rules
   cluster: hookify:help
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:create-skill; router: hookify:rule-catalog; judge: hookify:help/hookify:rule-catalog'
+  notes: 'aimed at abstract:create-skill; router: hookify:rule-sweep; judge: hookify:help/hookify:writing-rules'
   proposals:
     aimed_at: abstract:create-skill
-    router: hookify:rule-catalog
+    router: hookify:rule-sweep
     judge: hookify:help
-    judge_runner_up: hookify:rule-catalog
+    judge_runner_up: hookify:writing-rules
 - id: hookify.hookify.p1
   type: positive
   prompt: Make it so Claude gets stopped whenever it tries to run git push --force
@@ -166,8 +166,10 @@ cases:
   cluster: hookify:hookify
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: abstract:rules-eval; judge: hookify:hookify/hookify:writing-rules'
+  adjudicated: true
+  notes: 'router: abstract:rules-eval; judge: hookify:hookify/hookify:writing-rules;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: abstract:rules-eval
     judge: hookify:hookify
@@ -177,17 +179,17 @@ cases:
   prompt: Claude keeps adding console.log calls to my TypeScript files after I told
     it not to. Set up a rule so that stops happening.
   target: hookify:hookify
-  competitor: hookify:rule-sweep
+  competitor: hookify:rule-catalog
   cluster: hookify:hookify
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:create-skill; router: hookify:rule-sweep; judge: hookify:hookify/None'
+  notes: 'aimed at abstract:create-skill; router: hookify:rule-sweep; judge: hookify:hookify/hookify:rule-catalog'
   proposals:
     aimed_at: abstract:create-skill
     router: hookify:rule-sweep
     judge: hookify:hookify
-    judge_runner_up: null
+    judge_runner_up: hookify:rule-catalog
 - id: hookify.install.p1
   type: positive
   prompt: Install every pre-built git rule into my project in one go using the installer
@@ -212,11 +214,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: abstract:rules-eval; judge: hookify:install/hookify:rule-sweep'
+  notes: 'router: abstract:rules-eval; judge: hookify:install/None'
   proposals:
     router: abstract:rules-eval
     judge: hookify:install
-    judge_runner_up: hookify:rule-sweep
+    judge_runner_up: null
 - id: hookify.install.p3
   type: near_miss
   prompt: Install the git:block-force-push rule into this project, and also pull in
@@ -243,8 +245,10 @@ cases:
   cluster: hookify:list
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: imbue:evidence-sweep; judge: hookify:list/None'
+  adjudicated: true
+  notes: 'router: imbue:evidence-sweep; judge: hookify:list/None; adjudicated 2026-11-28
+    by claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed:
+    the prompt fits the target'
   proposals:
     router: imbue:evidence-sweep
     judge: hookify:list
@@ -314,18 +318,18 @@ cases:
   prompt: Before I write my own, what ready-made safety rules exist for git and security?
     I'd like to browse them and pick a few to drop into this repo.
   target: hookify:rule-catalog
-  competitor: hookify:writing-rules
+  competitor: parseltongue:python-async
   cluster: hookify:rule-catalog
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at archetypes:architecture-paradigm-domain-driven; router: parseltongue:python-async;
-    judge: hookify:rule-catalog/hookify:writing-rules'
+    judge: hookify:rule-catalog/None'
   proposals:
     aimed_at: archetypes:architecture-paradigm-domain-driven
     router: parseltongue:python-async
     judge: hookify:rule-catalog
-    judge_runner_up: hookify:writing-rules
+    judge_runner_up: null
 - id: hookify.rule-sweep.p1
   type: positive
   prompt: Audit our security and git rules against this repo and tell me which ones
@@ -382,9 +386,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: abstract:rules-eval; judge: hookify:writing-rules/abstract:rules-eval'
+  notes: 'router: attune:skill-library-session; judge: hookify:writing-rules/abstract:rules-eval'
   proposals:
-    router: abstract:rules-eval
+    router: attune:skill-library-session
     judge: hookify:writing-rules
     judge_runner_up: abstract:rules-eval
 - id: hookify.writing-rules.p2
@@ -398,11 +402,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conserve:filter-log; judge: hookify:writing-rules/hookify:install'
+  notes: 'router: conserve:filter-log; judge: hookify:writing-rules/hookify:rule-sweep'
   proposals:
     router: conserve:filter-log
     judge: hookify:writing-rules
-    judge_runner_up: hookify:install
+    judge_runner_up: hookify:rule-sweep
 - id: hookify.writing-rules.p3
   type: near_miss
   prompt: I want to stop Claude from running git push --force in my sessions. Write

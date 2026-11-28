@@ -4,7 +4,7 @@
   "description": "Intelligent workflow methodologies: analysis, evidence gathering, structured output, and research-enriched feature review with RICE/WSJF/Kano scoring",
   "skills": [
     "./skills/assisted-mastery",
-    "./skills/catchup",
+    "./skills/catchup-playbook",
     "./skills/dependency-verification",
     "./skills/diff-analysis",
     "./skills/feature-review",
@@ -16,7 +16,7 @@
     "./skills/scope-guard",
     "./skills/structured-output",
     "./skills/workflow-monitor",
-    "./skills/justify",
+    "./skills/justify-playbook",
     "./skills/vow-enforcement",
     "./skills/karpathy-principles"
   ],

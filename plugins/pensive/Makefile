@@ -164,7 +164,7 @@ demo-skills: ## Validate pensive skill structure
 	done
 	@echo ""
 	@echo "Skill coverage:"
-	@fail=0; for skill in api-review bug-review unified-review test-review rust-review; do \
+	@fail=0; for skill in api-review-playbook bug-review-playbook unified-review-playbook test-review-playbook rust-review-playbook; do \
 		if [ -f "skills/$$skill/SKILL.md" ]; then \
 			printf '  %-16s [OK]\n' "$$skill:"; \
 		else \

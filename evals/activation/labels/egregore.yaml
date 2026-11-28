@@ -26,11 +26,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: hookify:rule-sweep; judge: egregore:dismiss/None'
+  notes: 'router: hookify:rule-sweep; judge: egregore:dismiss/egregore:gate-audit'
   proposals:
     router: hookify:rule-sweep
     judge: egregore:dismiss
-    judge_runner_up: null
+    judge_runner_up: egregore:gate-audit
 - id: egregore.dismiss.p3
   type: near_miss
   prompt: The autonomous agent is chewing through my API quota and it's started touching
@@ -98,6 +98,55 @@ cases:
     router: egregore:gate-audit
     judge: null
     judge_runner_up: null
+- id: egregore.install-watchdog-playbook.p1
+  type: positive
+  prompt: I want egregore to restart itself automatically on this mac when it dies,
+    set up something that checks every few minutes
+  target: egregore:install-watchdog-playbook
+  competitor: null
+  cluster: egregore:install-watchdog-playbook
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:install-watchdog-playbook; judge: egregore:install-watchdog-playbook/egregore:summon-playbook'
+  proposals:
+    router: egregore:install-watchdog-playbook
+    judge: egregore:install-watchdog-playbook
+    judge_runner_up: egregore:summon-playbook
+- id: egregore.install-watchdog-playbook.p2
+  type: positive
+  prompt: new linux box, egregore is initialized. set up a systemd timer so sessions
+    get relaunched when there's work in the manifest
+  target: egregore:install-watchdog-playbook
+  competitor: null
+  cluster: egregore:install-watchdog-playbook
+  proposers:
+  - router
+  - judge
+  adjudicated: false
+  notes: 'router: egregore:install-watchdog-playbook; judge: egregore:install-watchdog-playbook/egregore:summon-playbook'
+  proposals:
+    router: egregore:install-watchdog-playbook
+    judge: egregore:install-watchdog-playbook
+    judge_runner_up: egregore:summon-playbook
+- id: egregore.install-watchdog-playbook.p3
+  type: near_miss
+  prompt: I want egregore to keep restarting by itself on my Linux box every few minutes
+    as long as the manifest still has work in it.
+  target: egregore:install-watchdog-playbook
+  competitor: egregore:summon
+  cluster: egregore:install-watchdog-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at egregore:summon-playbook; router: egregore:summon-playbook; judge:
+    egregore:install-watchdog-playbook/egregore:summon'
+  proposals:
+    aimed_at: egregore:summon-playbook
+    router: egregore:summon-playbook
+    judge: egregore:install-watchdog-playbook
+    judge_runner_up: egregore:summon
 - id: egregore.install-watchdog.p1
   type: positive
   prompt: Set up a background daemon with launchd on my Mac that relaunches the autonomous
@@ -108,11 +157,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: leyline:plugin-health; judge: egregore:install-watchdog/None'
+  notes: 'router: egregore:install-watchdog-playbook; judge: egregore:install-watchdog/egregore:install-watchdog-playbook'
   proposals:
-    router: leyline:plugin-health
+    router: egregore:install-watchdog-playbook
     judge: egregore:install-watchdog
-    judge_runner_up: null
+    judge_runner_up: egregore:install-watchdog-playbook
 - id: egregore.install-watchdog.p2
   type: positive
   prompt: I want the egregore to survive context overflows overnight. How do I install
@@ -205,11 +254,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: spec-kit:spec-review; judge: egregore:status/None'
+  notes: 'router: spec-kit:spec-review; judge: egregore:status/egregore:summon-playbook'
   proposals:
     router: spec-kit:spec-review
     judge: egregore:status
-    judge_runner_up: null
+    judge_runner_up: egregore:summon-playbook
 - id: egregore.status.p2
   type: positive
   prompt: Has the overnight agent been relaunched by the watchdog? I want session
@@ -231,16 +280,74 @@ cases:
     done, which step the active one is on, how many tokens are left, and the last
     few choices it made on its own.
   target: egregore:status
-  competitor: egregore:summon
+  competitor: egregore:summon-playbook
   cluster: egregore:status
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at abstract:skill-audit; router: conjure:provider-setup; judge: egregore:status/egregore:summon'
+  notes: 'aimed at abstract:skill-audit; router: conjure:provider-setup; judge: egregore:status/egregore:summon-playbook'
   proposals:
     aimed_at: abstract:skill-audit
     router: conjure:provider-setup
     judge: egregore:status
+    judge_runner_up: egregore:summon-playbook
+- id: egregore.summon-playbook.p1
+  type: positive
+  prompt: I've got three work items queued up in the manifest. Can you run them all
+    the way through build, quality checks and shipping, and keep going until they're
+    finished or we run out of budget?
+  target: egregore:summon-playbook
+  competitor: null
+  cluster: egregore:summon-playbook
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: egregore:summon; judge: egregore:summon/egregore:summon-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
+  proposals:
+    router: egregore:summon
+    judge: egregore:summon
+    judge_runner_up: egregore:summon-playbook
+- id: egregore.summon-playbook.p2
+  type: positive
+  prompt: My autonomous session died halfway through last night and .egregore/manifest.json
+    still shows active items. Pick up where it left off and keep processing them.
+  target: egregore:summon-playbook
+  competitor: null
+  cluster: egregore:summon-playbook
+  proposers:
+  - router
+  adjudicated: true
+  notes: 'router: egregore:summon-playbook; judge: egregore:summon/egregore:summon-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
+  proposals:
+    router: egregore:summon-playbook
+    judge: egregore:summon
+    judge_runner_up: egregore:summon-playbook
+- id: egregore.summon-playbook.p3
+  type: positive
+  prompt: the egregore died halfway through the third item in .egregore/manifest.json.
+    pick it up from the step it was on, keep moving each item through the pipeline,
+    and stop when the token budget runs out
+  target: egregore:summon-playbook
+  competitor: null
+  cluster: egregore:summon-playbook
+  proposers:
+  - judge
+  adjudicated: false
+  notes: 'aimed at egregore:summon; router: egregore:summon; judge: egregore:summon-playbook/egregore:summon;
+    2026-11-28: the command and this playbook now score as one answer, so the near
+    miss against the command is a plain positive'
+  proposals:
+    aimed_at: egregore:summon
+    router: egregore:summon
+    judge: egregore:summon-playbook
     judge_runner_up: egregore:summon
 - id: egregore.summon.p1
   type: positive
@@ -252,11 +359,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conserve:agent-expenditure; judge: egregore:summon/None'
+  notes: 'router: conserve:agent-expenditure; judge: egregore:summon/conjure:agent-teams'
   proposals:
     router: conserve:agent-expenditure
     judge: egregore:summon
-    judge_runner_up: null
+    judge_runner_up: conjure:agent-teams
 - id: egregore.summon.p2
   type: positive
   prompt: I want an agent to autonomously refactor the auth module to use JWT, plan
@@ -266,8 +373,10 @@ cases:
   cluster: egregore:summon
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: egregore:summon/sanctum:do-issue'
+  adjudicated: true
+  notes: 'router: parseltongue:python-async; judge: egregore:summon/sanctum:do-issue;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: parseltongue:python-async
     judge: egregore:summon
@@ -288,6 +397,66 @@ cases:
     router: sanctum:do-issue
     judge: egregore:summon
     judge_runner_up: sanctum:do-issue
+- id: egregore.uninstall-watchdog-playbook.p1
+  type: positive
+  prompt: I'm done with sessions relaunching on their own. Please get rid of that
+    launchd agent that keeps restarting claude on my Mac, and clean up its pid and
+    log files.
+  target: egregore:uninstall-watchdog-playbook
+  competitor: null
+  cluster: egregore:uninstall-watchdog-playbook
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: egregore:install-watchdog-playbook; judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
+  proposals:
+    router: egregore:install-watchdog-playbook
+    judge: egregore:uninstall-watchdog
+    judge_runner_up: egregore:uninstall-watchdog-playbook
+- id: egregore.uninstall-watchdog-playbook.p2
+  type: positive
+  prompt: I'm removing the egregore plugin from this repo, so first tear down the
+    systemd user timer and service it installed and confirm nothing is still scheduled.
+  target: egregore:uninstall-watchdog-playbook
+  competitor: null
+  cluster: egregore:uninstall-watchdog-playbook
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'router: conjure:provider-sweep; judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    fits both the playbook skill and the command; exact-match scoring makes the command
+    a near miss; 2026-11-28: the command and this playbook now score as one answer,
+    so the near miss against the command is a plain positive'
+  proposals:
+    router: conjure:provider-sweep
+    judge: egregore:uninstall-watchdog
+    judge_runner_up: egregore:uninstall-watchdog-playbook
+- id: egregore.uninstall-watchdog-playbook.p3
+  type: positive
+  prompt: there's a launchd job that keeps restarting the egregore session every 5
+    minutes. I want to start sessions by hand from now on, so get rid of it and clean
+    up the pidfile and log it left behind
+  target: egregore:uninstall-watchdog-playbook
+  competitor: null
+  cluster: egregore:uninstall-watchdog-playbook
+  proposers:
+  - writer
+  adjudicated: true
+  notes: 'aimed at egregore:install-watchdog-playbook; router: egregore:uninstall-watchdog;
+    judge: egregore:uninstall-watchdog/egregore:uninstall-watchdog-playbook; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target; 2026-11-28: the command and this playbook
+    now score as one answer, so the near miss against the command is a plain positive'
+  proposals:
+    aimed_at: egregore:install-watchdog-playbook
+    router: egregore:uninstall-watchdog
+    judge: egregore:uninstall-watchdog
+    judge_runner_up: egregore:uninstall-watchdog-playbook
 - id: egregore.uninstall-watchdog.p1
   type: positive
   prompt: I don't want the background watchdog process running on my machine anymore.

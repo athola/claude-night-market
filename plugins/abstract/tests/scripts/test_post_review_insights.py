@@ -315,7 +315,7 @@ class TestReviewWithOnlyOneKind:
         assert findings[0].severity == "medium"
 
 
-# The report template in plugins/sanctum/skills/pr-review/SKILL.md
+# The report template in plugins/sanctum/skills/pr-review-playbook/SKILL.md
 # (Phase 6), which is what `/pr-review --local` writes.
 TEMPLATE_REVIEW = """\
 ## PR #417: Harden the query layer

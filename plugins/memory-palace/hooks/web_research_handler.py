@@ -445,6 +445,13 @@ def _stored_at(capture: Path) -> str:
         return str(capture)
 
 
+def queue_backlog(directory: Path) -> int:
+    """Count the auto-captures waiting review, the files prune_queue manages."""
+    return len(list(directory.glob("webfetch-*.md"))) + len(
+        list(directory.glob("websearch-*.md"))
+    )
+
+
 def capture_notice(url: str, filename: str, length: int, backlog: int) -> str:
     """Report a capture, and mention the backlog only when it is one.
 
@@ -621,6 +628,22 @@ def store_webfetch_content(
     )
 
 
+def _websearch_content(query: str, results: list[dict[str, str]]) -> tuple[str, str]:
+    """Return the rendered result list and the hash a capture is indexed by."""
+    results_md = []
+    for i, r in enumerate(results[:10], 1):
+        title = r.get("title", "Untitled")
+        url = r.get("url", "")
+        snippet = r.get("snippet", "")
+        results_md.append(f"""### {i}. {title}
+
+- **URL**: {url}
+- **Snippet**: {snippet}
+""")
+    results_content = "\n".join(results_md)
+    return results_content, get_content_hash(f"{query}|{results_content}")
+
+
 def store_websearch_results(
     query: str,
     results: list[dict[str, str]],
@@ -634,20 +657,12 @@ def store_websearch_results(
     slug = slugify(query)
     filename = f"websearch-{slug}-{entry_id}.md"
 
-    results_md = []
-    for i, r in enumerate(results[:10], 1):
-        title = r.get("title", "Untitled")
-        url = r.get("url", "")
-        snippet = r.get("snippet", "")
-        results_md.append(f"""### {i}. {title}
-
-- **URL**: {url}
-- **Snippet**: {snippet}
-""")
-
-    results_content = "\n".join(results_md)
-    content_for_hash = f"{query}|{results_content}"
-    content_hash = get_content_hash(content_for_hash)
+    results_content, content_hash = _websearch_content(query, results)
+    canonical = get_stored_at(content_hash)
+    if canonical is not None:
+        # The same query with the same results: the index keeps the first
+        # path, so a second file would sit in the queue unindexed.
+        return str(DATA_ROOT / canonical)
 
     frontmatter = render_frontmatter(
         {
@@ -835,7 +850,7 @@ def _handle_webfetch(
         )
         if stored_path:
             prune_queue(QUEUE_DIR)
-            backlog = len(list(QUEUE_DIR.glob("webfetch-*.md")))
+            backlog = queue_backlog(QUEUE_DIR)
             context_parts.append(
                 capture_notice(url, Path(stored_path).name, len(content), backlog),
             )
@@ -900,11 +915,23 @@ def _handle_websearch(
 
     new_urls, known_urls = _partition_by_known(results)
 
-    if auto_capture and new_urls:
+    canonical = (
+        get_stored_at(_websearch_content(query, results)[1])
+        if auto_capture and new_urls
+        else None
+    )
+    if canonical is not None:
+        # store_websearch_results would hand back this path, and reading
+        # it as a new store announced and registered the capture again.
+        context_parts.append(
+            "Memory Palace: this search matches an existing capture, "
+            f"{Path(canonical).name}. Not stored again.",
+        )
+    elif auto_capture and new_urls:
         stored_path = store_websearch_results(query, results)
         if stored_path:
             prune_queue(QUEUE_DIR)
-            backlog = len(list(QUEUE_DIR.glob("webfetch-*.md")))
+            backlog = queue_backlog(QUEUE_DIR)
             notice = capture_notice(
                 f"search: {query}", Path(stored_path).name, 0, backlog
             )

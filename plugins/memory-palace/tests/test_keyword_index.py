@@ -180,11 +180,13 @@ class TestKeywordIndexer:
 
         indexer.build_index()
 
-        # Search for multiple keywords
-        results = indexer.search(["learning", "gradient"])
+        # "learning" and "gradient" share an entry; "tidying" is only in
+        # another one, so AND leaves nothing where OR would match both.
+        both = indexer.search(["learning", "gradient"])
+        split = indexer.search(["learning", "tidying"])
 
-        # Should find entries containing both keywords
-        assert len(results) > 0
+        assert [r["entry_id"] for r in both] == ["franklin-protocol"]
+        assert split == []
 
     def test_search_no_results(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test searching for non-existent keyword."""

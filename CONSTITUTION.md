@@ -163,7 +163,7 @@ There is no separate amendments log.
 - Document economy: `Skill(scribe:slop-detector)` module
   `document-economy.md`
 - AI hygiene audit: `/conserve:ai-hygiene-audit`
-- Rust code review: `Skill(pensive:rust-review)`
+- Rust code review: `Skill(pensive:rust-review-playbook)`
 - Cleanup workflow: `Skill(scribe:slop-detector)` module
   `cleanup-workflow.md`
 - Anti-goals (what not to clean up): `Skill(scribe:slop-detector)`

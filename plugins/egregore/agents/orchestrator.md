@@ -216,7 +216,7 @@ For each active work item, execute this loop:
 | quality | update-tests     | `Skill(egregore:quality-gate)` step=update-tests |
 | quality | update-docs      | `Skill(egregore:quality-gate)` step=update-docs |
 | ship    | prepare-pr       | `Skill(sanctum:pr-prep)`                |
-| ship    | pr-review        | `Skill(sanctum:pr-review)`              |
+| ship    | pr-review        | `Skill(sanctum:pr-review-playbook)`              |
 | ship    | fix-pr           | `/sanctum:fix-pr` (a command, not a skill) |
 | ship    | merge            | Handle directly (gh pr merge)           |
 
@@ -323,7 +323,7 @@ When you encounter a rate limit error:
    ```
    CronCreate(
      cron: "<minute> <hour> * * *",
-     prompt: "Cooldown expired. Read .egregore/manifest.json and resume the pipeline from the current step. Invoke Skill(egregore:summon) to continue.",
+     prompt: "Cooldown expired. Read .egregore/manifest.json and resume the pipeline from the current step. Invoke Skill(egregore:summon-playbook) to continue.",
      recurring: false
    )
    ```
@@ -479,7 +479,7 @@ work, it re-enters the loop:
 ```
 CronCreate(
   cron: "*/5 * * * *",
-  prompt: "Check .egregore/manifest.json. If there are pending or active items that are not being processed, resume the orchestration loop by invoking Skill(egregore:summon).",
+  prompt: "Check .egregore/manifest.json. If there are pending or active items that are not being processed, resume the orchestration loop by invoking Skill(egregore:summon-playbook).",
   recurring: true
 )
 ```

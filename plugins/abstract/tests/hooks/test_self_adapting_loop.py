@@ -326,6 +326,8 @@ def _run_monitor(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture, home: Path
 ) -> tuple[int, str]:
     monkeypatch.setenv("CLAUDE_HOME", str(home))
+    # The debug flag prints the full report these tests read (#1053).
+    monkeypatch.setenv("HOMEOSTATIC_MONITOR_DEBUG", "1")
     payload = {"tool_name": "Skill", "tool_input": {"skill": SKILL}, "session_id": "s"}
     monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
     with pytest.raises(SystemExit) as exc:
@@ -499,6 +501,7 @@ class TestMonitorKeysHistoryLikeTheLogger:
             )
             assert result.returncode == 0, result.stderr
         monkeypatch.setenv("CLAUDE_HOME", str(tmp_path))
+        monkeypatch.setenv("HOMEOSTATIC_MONITOR_DEBUG", "1")
         payload = {"tool_name": "Skill", "tool_input": tool_input, "session_id": "s"}
         monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
 

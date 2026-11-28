@@ -139,7 +139,7 @@ deploy: build ## Deploy to production
 
 ## Related Skills
 
-- `Skill(attune:project-init)` - Full project initialization
+- `Skill(attune:project-init-playbook)` - Full project initialization
 - `/abstract:make-dogfood` command - Makefile testing and validation
 
 ## Exit Criteria

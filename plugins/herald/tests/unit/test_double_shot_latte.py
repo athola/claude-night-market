@@ -377,14 +377,14 @@ class TestDecide:
         """Given JUDGE mode, when deciding, then approve (prevents recursion)."""
         monkeypatch.setenv(dsl.JUDGE_MODE_ENV, "true")
         out = dsl.decide({}, now=1000.0)
-        assert out["decision"] == "approve"
+        assert out.get("decision") is None
 
     @pytest.mark.unit
     def test_missing_transcript_approves(self, monkeypatch):
         """Given no transcript path, when deciding, then approve the stop."""
         monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
         out = dsl.decide({"session_id": "s1"}, now=1000.0)
-        assert out["decision"] == "approve"
+        assert out.get("decision") is None
 
     @pytest.mark.unit
     def test_completed_turn_approves(self, tmp_path, monkeypatch):
@@ -406,7 +406,7 @@ class TestDecide:
         out = dsl.decide(
             {"session_id": "s1", "transcript_path": str(transcript)}, now=1000.0
         )
-        assert out["decision"] == "approve"
+        assert out.get("decision") is None
 
     @pytest.mark.unit
     def test_continuing_turn_blocks(self, tmp_path, monkeypatch):
@@ -444,7 +444,7 @@ class TestDecide:
         out = dsl.decide(
             {"session_id": "s2", "transcript_path": str(transcript)}, now=1000.0
         )
-        assert out["decision"] == "approve"
+        assert out.get("decision") is None
 
     @pytest.mark.unit
     def test_llm_not_consulted_on_confident_verdict(self, tmp_path, monkeypatch):
@@ -472,7 +472,7 @@ class TestDecide:
         out = dsl.decide(
             {"session_id": "c1", "transcript_path": str(transcript)}, now=1000.0
         )
-        assert out["decision"] == "approve"
+        assert out.get("decision") is None
         assert calls == []
 
     @pytest.mark.unit
@@ -531,7 +531,7 @@ class TestDecide:
             },
             now=1001.0,
         )
-        assert out["decision"] == "approve"
+        assert out.get("decision") is None
         # The message must prompt the user (not just announce a hard stop) and
         # name the concrete limit that tripped, so the user knows why it paused.
         assert "continue" in out["reason"].lower()
@@ -694,12 +694,12 @@ class TestDecide:
         }
 
         decisions = [
-            dsl.decide(event, now=1000.0 + 120.0 * turn)["decision"]
+            dsl.decide(event, now=1000.0 + 120.0 * turn).get("decision")
             for turn in range(dsl.MAX_CONTINUATIONS + 1)
         ]
 
         assert decisions[:-1] == ["block"] * dsl.MAX_CONTINUATIONS
-        assert decisions[-1] == "approve"
+        assert decisions[-1] is None
 
 
 class TestLlmTimeoutBudget:
@@ -910,7 +910,7 @@ class TestConfigurableContinuationLimit:
             },
             now=1001.0,
         )
-        assert out["decision"] == "approve"
+        assert out.get("decision") is None
         assert "2" in out["reason"]
 
     @pytest.mark.unit
@@ -1076,7 +1076,6 @@ class TestMainEntryPoint:
         code, decision = self._run_main(monkeypatch, capsys, stdin_text)
         assert code == 0
         assert decision == {
-            "decision": "approve",
             "reason": "Double Shot Latte: No transcript available; allowing stop.",
         }
 
@@ -1090,7 +1089,7 @@ class TestMainEntryPoint:
         monkeypatch.setattr(dsl, "decide", explode)
         code, decision = self._run_main(monkeypatch, capsys, "{}")
         assert code == 0
-        assert decision["decision"] == "approve"
+        assert decision.get("decision") is None
         assert "disk on fire" in decision["reason"]
 
 
@@ -1151,7 +1150,7 @@ def test_cap_trips_when_turns_are_slower_than_the_window(tmp_path, monkeypatch):
         for i in range(dsl.MAX_CONTINUATIONS + 2)
     ]
 
-    assert any(d["decision"] == "approve" for d in decisions)
+    assert any(d.get("decision") is None for d in decisions)
 
 
 @pytest.mark.unit

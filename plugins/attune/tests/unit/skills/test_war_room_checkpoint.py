@@ -95,7 +95,9 @@ class TestWarRoomCheckpointSkillStructure:
         Then it should depend on attune:war-room
         """
         deps = skill_frontmatter.get("dependencies", [])
-        assert "attune:war-room" in deps, "Should depend on attune:war-room"
+        assert "attune:war-room-playbook" in deps, (
+            "Should depend on attune:war-room-playbook"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -391,7 +393,7 @@ class TestWarRoomCheckpointIntegration:
         When reviewing related skills
         Then it should reference attune:war-room
         """
-        assert "attune:war-room" in skill_content
+        assert "attune:war-room-playbook" in skill_content
 
     @pytest.mark.bdd
     @pytest.mark.unit

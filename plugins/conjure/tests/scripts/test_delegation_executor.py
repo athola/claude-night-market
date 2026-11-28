@@ -793,6 +793,31 @@ class TestDelegatorCli:
             300,
         )
 
+    @pytest.mark.bdd
+    @patch("delegation_executor.Delegator")
+    @patch("sys.argv", ["delegation_executor.py", "gemini", "test prompt"])
+    def test_cli_exits_nonzero_when_the_delegation_fails(
+        self, mock_delegator_class, capsys
+    ) -> None:
+        """A failed delegation must not exit 0, or a wrapper reports success."""
+        mock_delegator = MagicMock()
+        mock_delegator.execute.return_value = ExecutionResult(
+            success=False,
+            stdout="",
+            stderr="boom",
+            exit_code=1,
+            duration=1.0,
+            service="gemini",
+        )
+        mock_delegator.services = {"gemini": object()}
+        mock_delegator_class.return_value = mock_delegator
+
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+
+        assert exc_info.value.code == 1
+        assert "Failed: boom" in capsys.readouterr().out
+
 
 # Import os for environment variable mocking
 

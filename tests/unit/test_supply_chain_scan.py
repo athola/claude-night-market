@@ -411,6 +411,28 @@ class TestScanScopedToRepo:
         assert len(scan_artifacts(root, SAMPLE_BLOCKLIST)) == 1
 
     @pytest.mark.unit
+    def test_main_exits_one_for_repo_under_a_hidden_ancestor(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A checkout under ~/.cache-style dirs still fails on a bad lock (#832)."""
+        root = tmp_path / ".cache" / "repo"
+        blocklist_dir = (
+            root / "plugins" / "leyline" / "skills" / "supply-chain-advisory"
+        )
+        blocklist_dir.mkdir(parents=True)
+        (blocklist_dir / "known-bad-versions.json").write_text(
+            json.dumps(SAMPLE_BLOCKLIST)
+        )
+        (root / "uv.lock").write_text(
+            '[[package]]\nname = "badpkg"\nversion = "0.9.9"\n'
+        )
+        (root / "scripts").mkdir()
+        monkeypatch.setattr(
+            _mod, "__file__", str(root / "scripts" / "supply_chain_scan.py")
+        )
+        assert _mod.main() == 1
+
+    @pytest.mark.unit
     def test_bad_version_of_another_package_is_not_attributed(
         self, tmp_path: Path
     ) -> None:

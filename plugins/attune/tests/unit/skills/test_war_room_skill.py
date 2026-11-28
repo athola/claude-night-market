@@ -22,7 +22,7 @@ class TestWarRoomPhaseDocumentation:
     @pytest.fixture
     def skill_path(self) -> Path:
         """Path to the war-room skill."""
-        return Path(__file__).parents[3] / "skills" / "war-room" / "SKILL.md"
+        return Path(__file__).parents[3] / "skills" / "war-room-playbook" / "SKILL.md"
 
     @pytest.fixture
     def skill_content(self, skill_path: Path) -> str:
@@ -104,7 +104,7 @@ class TestWarRoomDiscussionPublishingSection:
     @pytest.fixture
     def skill_content(self) -> str:
         """Load the skill content."""
-        path = Path(__file__).parents[3] / "skills" / "war-room" / "SKILL.md"
+        path = Path(__file__).parents[3] / "skills" / "war-room-playbook" / "SKILL.md"
         return path.read_text()
 
     @pytest.mark.bdd

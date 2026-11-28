@@ -22,7 +22,7 @@ progressive_loading: true
 dependencies:
 - pensive:safety-critical-patterns
 - imbue:proof-of-work
-- imbue:justify
+- imbue:justify-playbook
 - imbue:review-core
 - imbue:structured-output
 modules:
@@ -148,7 +148,7 @@ find . -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
 ### Step 2: Dimensional Scan (`refine:scan-complete`)
 
 Load relevant modules and execute analysis per tier level.
-For dimension 7 (Additive Bias), run `Skill(imbue:justify)`
+For dimension 7 (Additive Bias), run `Skill(imbue:justify-playbook)`
 to compute the bias score, check Iron Law compliance,
 and flag unnecessary additions or workarounds.
 

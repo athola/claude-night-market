@@ -19,7 +19,7 @@ This scoring methodology follows research-validated MCDA practices:
 - **Sensitivity**: All weights tested for robustness
 - **Reproducibility**: Same inputs → same outputs
 
-**Related**: [Multi-Metric Evaluation Methodology](https://claude-night-market/plugins/abstract/skills/skills-eval/modules/multi-metric-evaluation-methodology.md)
+**Related**: [Multi-Metric Evaluation Methodology](https://claude-night-market/plugins/abstract/skills/skills-eval-playbook/modules/multi-metric-evaluation-methodology.md)
 
 ## Scoring Methodology
 

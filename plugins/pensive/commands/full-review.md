@@ -66,9 +66,9 @@ Skills are NOT agents. Use this table to dispatch correctly:
 | architecture-review | `pensive:architecture-reviewer` | ADR, design |
 | rust-review | `pensive:rust-auditor` | Rust-specific |
 | code-refinement | `pensive:code-refiner` | Quality |
-| math-review | `general-purpose` | Invoke `Skill(pensive:math-review)` |
-| makefile-review | `general-purpose` | Follow `Skill(pensive:unified-review)`'s `modules/makefile-review.md` |
-| shell-review | `general-purpose` | Follow `Skill(pensive:unified-review)`'s `modules/shell-review.md` |
+| math-review | `general-purpose` | Invoke `Skill(pensive:math-review-playbook)` |
+| makefile-review | `general-purpose` | Follow `Skill(pensive:unified-review-playbook)`'s `modules/makefile-review.md` |
+| shell-review | `general-purpose` | Follow `Skill(pensive:unified-review-playbook)`'s `modules/shell-review.md` |
 | safety-critical-patterns | `general-purpose` | Invoke `Skill(pensive:safety-critical-patterns)` |
 
 When `pensive:code-reviewer` covers multiple domains,

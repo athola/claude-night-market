@@ -126,11 +126,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: imbue:evidence-sweep; judge: archetypes:architecture-paradigm-domain-driven/archetypes:paradigm-panel'
+  notes: 'router: imbue:evidence-sweep; judge: archetypes:architecture-paradigm-domain-driven/None'
   proposals:
     router: imbue:evidence-sweep
     judge: archetypes:architecture-paradigm-domain-driven
-    judge_runner_up: archetypes:paradigm-panel
+    judge_runner_up: null
 - id: archetypes.architecture-paradigm-domain-driven.p3
   type: near_miss
   prompt: My team keeps adding DTOs and mappers between every layer, saying DDD requires
@@ -158,10 +158,12 @@ cases:
   cluster: archetypes:architecture-paradigm-event-driven
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: archetypes:architecture-paradigm-modular-monolith; judge: archetypes:architecture-paradigm-event-driven/archetypes:paradigm-panel'
+  adjudicated: true
+  notes: 'router: sanctum:stack-mode; judge: archetypes:architecture-paradigm-event-driven/archetypes:paradigm-panel;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
-    router: archetypes:architecture-paradigm-modular-monolith
+    router: sanctum:stack-mode
     judge: archetypes:architecture-paradigm-event-driven
     judge_runner_up: archetypes:paradigm-panel
 - id: archetypes.architecture-paradigm-event-driven.p2
@@ -190,9 +192,11 @@ cases:
   cluster: archetypes:architecture-paradigm-event-driven
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-microservices; router: parseltongue:python-async;
-    judge: archetypes:architecture-paradigm-event-driven/archetypes:paradigm-panel'
+    judge: archetypes:architecture-paradigm-event-driven/archetypes:paradigm-panel;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: archetypes:architecture-paradigm-microservices
     router: parseltongue:python-async
@@ -226,8 +230,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: archetypes:architecture-paradigm-functional-core
     judge: archetypes:architecture-paradigm-functional-core
@@ -295,9 +300,11 @@ cases:
   cluster: archetypes:architecture-paradigm-hexagonal
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-domain-driven; router: archetypes:architecture-paradigm-functional-core;
-    judge: archetypes:architecture-paradigm-hexagonal/archetypes:architecture-paradigm-functional-core'
+    judge: archetypes:architecture-paradigm-hexagonal/archetypes:architecture-paradigm-functional-core;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: archetypes:architecture-paradigm-domain-driven
     router: archetypes:architecture-paradigm-functional-core
@@ -329,8 +336,10 @@ cases:
   cluster: archetypes:architecture-paradigm-layered
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: archetypes:architecture-paradigm-functional-core; judge: archetypes:architecture-paradigm-layered/archetypes:architecture-paradigm-domain-driven'
+  adjudicated: true
+  notes: 'router: archetypes:architecture-paradigm-functional-core; judge: archetypes:architecture-paradigm-layered/archetypes:architecture-paradigm-domain-driven;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: archetypes:architecture-paradigm-functional-core
     judge: archetypes:architecture-paradigm-layered
@@ -486,10 +495,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: egregore:dismiss; judge: archetypes:architecture-paradigm-modular-monolith'
+  notes: 'router: egregore:dismiss; judge: archetypes:architecture-paradigm-modular-monolith/cartograph:architecture-diagram'
   proposals:
     router: egregore:dismiss
     judge: archetypes:architecture-paradigm-modular-monolith
+    judge_runner_up: cartograph:architecture-diagram
 - id: archetypes.architecture-paradigm-modular-monolith.p3
   type: near_miss
   prompt: Our single deployable has packages reaching into each other's database tables
@@ -497,16 +507,16 @@ cases:
     facade, plus a build test that fails when someone adds a forbidden cross-module
     import, so we can split things out later if needed.
   target: archetypes:architecture-paradigm-modular-monolith
-  competitor: archetypes:architecture-paradigm-space-based
+  competitor: pensive:unified-review-playbook
   cluster: archetypes:architecture-paradigm-modular-monolith
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at egregore:dismiss; router: archetypes:architecture-paradigm-space-based;
-    judge: archetypes:architecture-paradigm-modular-monolith/None'
+  notes: 'aimed at egregore:dismiss; router: pensive:unified-review-playbook; judge:
+    archetypes:architecture-paradigm-modular-monolith/None'
   proposals:
     aimed_at: egregore:dismiss
-    router: archetypes:architecture-paradigm-space-based
+    router: pensive:unified-review-playbook
     judge: archetypes:architecture-paradigm-modular-monolith
     judge_runner_up: null
 - id: archetypes.architecture-paradigm-pipeline.p1
@@ -728,9 +738,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: archetypes:architecture-paradigm-cqrs-es; judge: archetypes:architecture-paradigms/archetypes:architecture-paradigm-modular-monolith'
+  notes: 'router: archetypes:architecture-paradigm-modular-monolith; judge: archetypes:architecture-paradigms/archetypes:architecture-paradigm-modular-monolith'
   proposals:
-    router: archetypes:architecture-paradigm-cqrs-es
+    router: archetypes:architecture-paradigm-modular-monolith
     judge: archetypes:architecture-paradigms
     judge_runner_up: archetypes:architecture-paradigm-modular-monolith
 - id: archetypes.architecture-paradigms.p2
@@ -744,10 +754,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: archetypes:architecture-paradigm-domain-driven; judge: archetypes:architecture-paradigms'
+  notes: 'router: archetypes:architecture-paradigm-domain-driven; judge: archetypes:architecture-paradigms/archetypes:architecture-paradigm-functional-core'
   proposals:
     router: archetypes:architecture-paradigm-domain-driven
     judge: archetypes:architecture-paradigms
+    judge_runner_up: archetypes:architecture-paradigm-functional-core
 - id: archetypes.architecture-paradigms.p3
   type: near_miss
   prompt: we're building a new platform with several teams, bursty traffic and some

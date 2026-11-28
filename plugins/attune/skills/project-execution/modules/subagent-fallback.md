@@ -51,7 +51,7 @@ before validating, then remove the worktree.
 ## Panels and cost
 
 A task with several seats, such as a war room or an expert panel, is a
-different case. Per `plugins/attune/skills/war-room/SKILL.md`, a panel
+different case. Per `plugins/attune/skills/war-room-playbook/SKILL.md`, a panel
 that could not reach external models is not a panel. Run it labeled
 single-model, or stop. Never report seats played by one model as
 independent agreement.

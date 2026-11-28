@@ -208,13 +208,16 @@ cases:
     vs closed issues and stale items for each of them at the same time, and then give
     me one sentence saying which initiative is in the most trouble.
   target: minister:initiative-pulse
-  competitor: hookify:rule-sweep
+  competitor: minister:github-initiative-pulse
   cluster: minister:initiative-pulse
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at scry:capture-set; router: minister:initiative-pulse; judge: minister:initiative-pulse/None'
+  adjudicated: true
+  notes: 'aimed at scry:capture-set; router: minister:initiative-pulse; judge: minister:initiative-pulse/None;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    competitor was hookify:rule-sweep, unrelated; the single-milestone skill is the
+    real neighbor'
   proposals:
     aimed_at: scry:capture-set
     router: minister:initiative-pulse

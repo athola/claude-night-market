@@ -14,7 +14,7 @@ description: |
   ONLY invoke this agent for: multi-file reviews, security audits, test coverage
   analysis, full PR reviews, or architecture/API consistency reviews.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
-skills: imbue:proof-of-work, pensive:bug-review, imbue:review-core
+skills: imbue:proof-of-work, pensive:bug-review-playbook, imbue:review-core
 
 # Claude Code 2.1.0+ lifecycle hooks
 escalation:

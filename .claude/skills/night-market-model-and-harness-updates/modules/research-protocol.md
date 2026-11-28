@@ -41,7 +41,7 @@ test -d plugins/tome && echo "tome available" || echo "fall back to web"
 ### When tome is installed
 
 ```
-Skill(tome:research)
+Skill(tome:research-playbook)
 ```
 
 Build the query from the drift report, not from memory. A harness

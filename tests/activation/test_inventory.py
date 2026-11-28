@@ -7,6 +7,7 @@ description edit, a comparison cannot see which items changed.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from scripts.activation.inventory import (
     build_inventory,
@@ -85,6 +86,18 @@ def test_workflow_outranks_command_for_a_shared_id(plugin_tree):
     assert item.shadowed == ("plugins/beta/commands/sweep.md",)
 
 
+def test_no_routing_id_in_the_repo_is_shared_by_two_files():
+    """A shadowed file's description never reaches routing (#1055).
+
+    The listing shows one description per id, so a skill that shares its
+    id with a command or workflow is invisible to the model. Rename the
+    hidden side instead of adding to this list.
+    """
+    root = Path(__file__).resolve().parents[2]
+    shared = {i.id: i.shadowed for i in build_inventory(root) if i.shadowed}
+    assert shared == {}
+
+
 def test_disabled_file_does_not_shadow(plugin_tree):
     write(
         plugin_tree / "plugins/alpha/skills/hidden/SKILL.md",
@@ -114,3 +127,53 @@ def test_cli_json_lists_every_item_with_its_path(plugin_tree, capsys):
     assert main(["--root", str(plugin_tree), "--json"]) == 0
     listed = json.loads(capsys.readouterr().out)
     assert [r["id"] for r in listed] == [i.id for i in build_inventory(plugin_tree)]
+
+
+def _pair_tree(root, *, invokes: bool):
+    write(
+        root / "plugins/p/commands/rev.md",
+        "---\ndescription: Review the branch.\n---\n\n"
+        + ("Invoke `Skill(p:rev-playbook)`.\n" if invokes else "Do it by hand.\n"),
+    )
+    write(
+        root / "plugins/p/skills/rev-playbook/SKILL.md",
+        "---\nname: rev-playbook\ndescription: Branch review method.\n---\n",
+    )
+    return {i.id: i for i in build_inventory(root)}
+
+
+def test_a_command_and_the_playbook_it_invokes_are_one_answer(tmp_path):
+    """The #1055 renames split one id into a command and the skill it loads.
+    Routing to either reaches the same workflow.
+    """
+    by_id = _pair_tree(tmp_path, invokes=True)
+
+    assert by_id["p:rev"].alias == "p:rev-playbook"
+    assert by_id["p:rev-playbook"].alias == "p:rev"
+
+
+def test_a_same_named_skill_the_command_does_not_invoke_stays_separate(tmp_path):
+    by_id = _pair_tree(tmp_path, invokes=False)
+
+    assert by_id["p:rev"].alias is None
+    assert by_id["p:rev-playbook"].alias is None
+
+
+def test_a_workflow_and_its_playbook_stay_separate(tmp_path):
+    """A workflow runs only when the user asks for one, so a model that picks
+    it for a vague prompt chose wrong, and pairing would score that a hit.
+    """
+    write(
+        tmp_path / "plugins/p/workflows/rev.js",
+        "export const meta = {\n  name: 'rev',\n  description: 'Fan out a review.',\n}\n"
+        "// Invoke Skill(p:rev-playbook)\n",
+    )
+    write(
+        tmp_path / "plugins/p/skills/rev-playbook/SKILL.md",
+        "---\nname: rev-playbook\ndescription: Branch review method.\n---\n",
+    )
+    by_id = {i.id: i for i in build_inventory(tmp_path)}
+
+    assert by_id["p:rev"].kind == "workflow"
+    assert by_id["p:rev"].alias is None
+    assert by_id["p:rev-playbook"].alias is None

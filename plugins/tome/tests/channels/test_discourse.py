@@ -18,7 +18,6 @@ from tome.channels.discourse import (
     build_lobsters_search_url,
     build_lobsters_websearch_query,
     build_reddit_rss_search_url,
-    build_reddit_search_url,
     parse_blog_result,
     parse_hn_response,
     parse_lobsters_result,
@@ -315,66 +314,6 @@ class TestParseLobstersResult:
     @pytest.mark.unit
     def test_skips_result_when_url_is_blank(self) -> None:
         assert parse_lobsters_result({"title": "t", "url": ""}) is None
-
-
-class TestBuildRedditSearchUrl:
-    """
-    Feature: Reddit JSON search URL construction
-
-    As a research agent
-    I want a Reddit search URL in JSON format
-    So that WebFetch can retrieve structured Reddit data
-    """
-
-    @pytest.mark.unit
-    def test_url_points_to_old_reddit_json(self) -> None:
-        """
-        Scenario: URL uses old.reddit.com JSON endpoint
-        Given any topic and subreddit
-        When build_reddit_search_url is called
-        Then the URL starts with https://old.reddit.com
-        """
-        url = build_reddit_search_url("lru cache")
-
-        assert url.startswith("https://old.reddit.com")
-
-    @pytest.mark.unit
-    def test_url_ends_with_json_suffix(self) -> None:
-        """
-        Scenario: URL ends with .json for API access
-        Given any topic
-        When build_reddit_search_url is called
-        Then the URL contains .json
-        """
-        url = build_reddit_search_url("skip list")
-
-        assert ".json" in url
-
-    @pytest.mark.unit
-    def test_default_subreddit_is_programming(self) -> None:
-        """
-        Scenario: Default subreddit is /r/programming
-        Given no explicit subreddit argument
-        When build_reddit_search_url is called
-        Then the URL contains /r/programming
-        """
-        url = build_reddit_search_url("consistent hashing")
-
-        assert "/r/programming" in url
-
-    @pytest.mark.unit
-    def test_custom_subreddit_is_used(self) -> None:
-        """
-        Scenario: Custom subreddit overrides default
-        Given subreddit="MachineLearning"
-        When build_reddit_search_url is called
-        Then the URL contains /r/MachineLearning
-        """
-        url = build_reddit_search_url(
-            "transformer attention", subreddit="MachineLearning"
-        )
-
-        assert "/r/MachineLearning" in url
 
 
 class TestSuggestSubreddits:

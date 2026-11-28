@@ -176,8 +176,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: spec-kit:speckit-checklist
     judge: spec-kit:speckit-checklist
@@ -209,8 +210,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: spec-kit:speckit-clarify
     judge: spec-kit:speckit-clarify
@@ -374,8 +376,10 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'router: spec-kit:speckit-implement; judge: spec-kit:speckit-implement/attune:project-execution'
+  adjudicated: true
+  notes: 'router: spec-kit:speckit-implement; judge: spec-kit:speckit-implement/attune:project-execution;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: spec-kit:speckit-implement
     judge: spec-kit:speckit-implement
@@ -493,8 +497,10 @@ cases:
   cluster: spec-kit:speckit-plan
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: spec-kit:spec-review; judge: spec-kit:speckit-plan'
+  adjudicated: true
+  notes: 'router: spec-kit:spec-review; judge: spec-kit:speckit-plan; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: spec-kit:spec-review
     judge: spec-kit:speckit-plan
@@ -524,8 +530,10 @@ cases:
   cluster: spec-kit:speckit-plan
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at leyline:plugin-health; router: spec-kit:spec-review; judge: spec-kit:speckit-plan/spec-kit:speckit-orchestrator'
+  adjudicated: true
+  notes: 'aimed at leyline:plugin-health; router: spec-kit:spec-review; judge: spec-kit:speckit-plan/spec-kit:speckit-orchestrator;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: leyline:plugin-health
     router: spec-kit:spec-review
@@ -572,8 +580,10 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at imbue:scope-guard; router: spec-kit:speckit-specify; judge: spec-kit:speckit-specify/spec-kit:spec-writing'
+  adjudicated: true
+  notes: 'aimed at imbue:scope-guard; router: spec-kit:speckit-specify; judge: spec-kit:speckit-specify/spec-kit:spec-writing;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: imbue:scope-guard
     router: spec-kit:speckit-specify
@@ -666,8 +676,10 @@ cases:
   cluster: spec-kit:speckit-tasks
   proposers:
   - judge
-  adjudicated: false
-  notes: 'aimed at attune:blueprint; router: spec-kit:speckit-analyze; judge: spec-kit:speckit-tasks/spec-kit:speckit-analyze'
+  adjudicated: true
+  notes: 'aimed at attune:blueprint; router: spec-kit:speckit-analyze; judge: spec-kit:speckit-tasks/spec-kit:speckit-analyze;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: attune:blueprint
     router: spec-kit:speckit-analyze

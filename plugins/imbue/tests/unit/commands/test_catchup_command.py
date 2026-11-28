@@ -16,7 +16,7 @@ from _markdown_contract import load as _load
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 COMMAND = PLUGIN_ROOT / "commands" / "catchup.md"
-SKILL = PLUGIN_ROOT / "skills" / "catchup" / "SKILL.md"
+SKILL = PLUGIN_ROOT / "skills" / "catchup-playbook" / "SKILL.md"
 
 
 def _fenced_after(body: str, heading: str) -> str:
@@ -58,7 +58,7 @@ class TestCatchupCommand:
         defines them, and invokes the skill rather than restating it.
         """
         _meta, body = command
-        assert "Invoke `Skill(imbue:catchup)`" in body
+        assert "Invoke `Skill(imbue:catchup-playbook)`" in body
         assert (
             "confirm context, capture delta, extract insights, and record follow-ups"
             in body
@@ -166,10 +166,14 @@ class TestCatchupCommand:
         Then the skill's git module states the recovery when sem fails.
         """
         _meta, body = command
-        assert "Skill(imbue:catchup)" in body
+        assert "Skill(imbue:catchup-playbook)" in body
         assert "`modules/git-catchup-patterns.md`" in skill_body
         module = (
-            PLUGIN_ROOT / "skills" / "catchup" / "modules" / "git-catchup-patterns.md"
+            PLUGIN_ROOT
+            / "skills"
+            / "catchup-playbook"
+            / "modules"
+            / "git-catchup-patterns.md"
         ).read_text()
         assert "When sem is unavailable, fall back to the git commands" in module
 

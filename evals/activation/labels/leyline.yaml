@@ -74,11 +74,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: phantom:surface-check; judge: leyline:authentication-patterns/conjure:provider-sweep'
+  notes: 'router: phantom:surface-check; judge: leyline:authentication-patterns/conjure:gemini-delegation'
   proposals:
     router: phantom:surface-check
     judge: leyline:authentication-patterns
-    judge_runner_up: conjure:provider-sweep
+    judge_runner_up: conjure:gemini-delegation
 - id: leyline.authentication-patterns.p3
   type: near_miss
   prompt: I'm wiring my plugin up to the Gemini API and need to check the GEMINI_API_KEY
@@ -108,11 +108,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conjure:glimmer-delegation; judge: leyline:content-sanitization/tome:web-search'
+  notes: 'router: conjure:glimmer-delegation; judge: leyline:content-sanitization/None'
   proposals:
     router: conjure:glimmer-delegation
     judge: leyline:content-sanitization
-    judge_runner_up: tome:web-search
+    judge_runner_up: null
 - id: leyline.content-sanitization.p2
   type: positive
   prompt: I'm fetching content with curl and gh api and storing it in a variable before
@@ -157,11 +157,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: oracle:quality-bench; judge: leyline:damage-control/None'
+  notes: 'router: oracle:quality-bench; judge: leyline:damage-control/sanctum:git-catchup'
   proposals:
     router: oracle:quality-bench
     judge: leyline:damage-control
-    judge_runner_up: null
+    judge_runner_up: sanctum:git-catchup
 - id: leyline.damage-control.p2
   type: positive
   prompt: The task list says three files were generated but only one is on disk and
@@ -187,9 +187,11 @@ cases:
   cluster: leyline:damage-control
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:architecture-paradigm-functional-core; router: hookify:rule-sweep;
-    judge: leyline:damage-control/sanctum:stack-rebase'
+    judge: leyline:damage-control/sanctum:stack-rebase; adjudicated 2026-11-28 by
+    claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed: the
+    prompt fits the target'
   proposals:
     aimed_at: archetypes:architecture-paradigm-functional-core
     router: hookify:rule-sweep
@@ -231,18 +233,18 @@ cases:
     that went nowhere. Get both written down in the repo's docs so the reasoning and
     the rejected options survive, and so nobody blames anyone for the Redis detour.
   target: leyline:decision-journal
-  competitor: scribe:doc-sweep
+  competitor: pensive:unified-review
   cluster: leyline:decision-journal
   proposers:
   - judge
   adjudicated: false
   notes: 'aimed at abstract:aggregate-logs; router: pensive:unified-review; judge:
-    leyline:decision-journal/scribe:doc-sweep'
+    leyline:decision-journal/None'
   proposals:
     aimed_at: abstract:aggregate-logs
     router: pensive:unified-review
     judge: leyline:decision-journal
-    judge_runner_up: scribe:doc-sweep
+    judge_runner_up: null
 - id: leyline.deferred-capture.p1
   type: positive
   prompt: I'm writing a deferred-capture script for my plugin that files a GitHub
@@ -279,14 +281,17 @@ cases:
     and support a dry-run. Can you check my argparse setup and issue body against
     what the other plugins' wrappers do, so they all stay consistent?
   target: leyline:decision-journal
-  competitor: hookify:rule-sweep
+  competitor: minister:create-issue
   cluster: leyline:decision-journal
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at minister:create-issue; router: leyline:deferred-capture; judge:
-    leyline:deferred-capture/None'
+    leyline:deferred-capture/None; adjudicated 2026-11-28 by claude-opus-5-5 at the
+    operator''s request, not human-reviewed: competitor was hookify:rule-sweep, unrelated;
+    issue creation is the real neighbor. decision-journal now holds the deferred-capture
+    contract'
   proposals:
     aimed_at: minister:create-issue
     router: leyline:deferred-capture
@@ -425,14 +430,16 @@ cases:
     Help me build the weighted scoring and threshold logic so we can reuse it for
     other things later.
   target: leyline:evaluation-framework
-  competitor: pensive:harden
+  competitor: imbue:feature-review
   cluster: leyline:evaluation-framework
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at archetypes:paradigm-panel; router: leyline:evaluation-framework;
-    judge: leyline:evaluation-framework/None'
+    judge: leyline:evaluation-framework/None; adjudicated 2026-11-28 by claude-opus-5-5
+    at the operator''s request, not human-reviewed: competitor was pensive:harden,
+    unrelated; feature-review is the other weighted-scoring skill'
   proposals:
     aimed_at: archetypes:paradigm-panel
     router: leyline:evaluation-framework
@@ -513,8 +520,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: leyline:loop-optimization
     judge: leyline:loop-optimization
@@ -549,9 +557,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: gauntlet:graph-build; judge: leyline:markdown-formatting/sanctum:update-readme'
+  notes: 'router: egregore:uninstall-watchdog-playbook; judge: leyline:markdown-formatting/sanctum:update-readme'
   proposals:
-    router: gauntlet:graph-build
+    router: egregore:uninstall-watchdog-playbook
     judge: leyline:markdown-formatting
     judge_runner_up: sanctum:update-readme
 - id: leyline.markdown-formatting.p2
@@ -564,9 +572,9 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: conjure:provider-sweep; judge: leyline:markdown-formatting/scribe:doc-sweep'
+  notes: 'router: pensive:parity-sweep; judge: leyline:markdown-formatting/scribe:doc-sweep'
   proposals:
-    router: conjure:provider-sweep
+    router: pensive:parity-sweep
     judge: leyline:markdown-formatting
     judge_runner_up: scribe:doc-sweep
 - id: leyline.markdown-formatting.p3
@@ -701,8 +709,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: leyline:pytest-config
     judge: leyline:pytest-config
@@ -715,13 +724,15 @@ cases:
   competitor: null
   cluster: leyline:testing-quality-standards
   proposers:
-  - judge
-  adjudicated: false
-  notes: 'router: leyline:plugin-health; judge: leyline:pytest-config/parseltongue:python-testing'
+  - writer
+  adjudicated: true
+  notes: 'router: leyline:plugin-health; judge: parseltongue:python-testing/leyline:testing-quality-standards;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: leyline:plugin-health
-    judge: leyline:pytest-config
-    judge_runner_up: parseltongue:python-testing
+    judge: parseltongue:python-testing
+    judge_runner_up: leyline:testing-quality-standards
 - id: leyline.pytest-config.p3
   type: near_miss
   prompt: Set up pyproject pytest options for our plugin so every plugin in the repo
@@ -750,8 +761,10 @@ cases:
   cluster: leyline:service-registry
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: conserve:clear-context; judge: leyline:quota-management'
+  adjudicated: true
+  notes: 'router: conserve:clear-context; judge: leyline:quota-management; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: conserve:clear-context
     judge: leyline:quota-management
@@ -764,8 +777,10 @@ cases:
   cluster: leyline:service-registry
   proposers:
   - judge
-  adjudicated: false
-  notes: 'router: leyline:usage-logging; judge: leyline:quota-management'
+  adjudicated: true
+  notes: 'router: leyline:usage-logging; judge: leyline:quota-management; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     router: leyline:usage-logging
     judge: leyline:quota-management
@@ -779,9 +794,11 @@ cases:
   cluster: leyline:service-registry
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at conserve:clear-context; router: conserve:clear-context; judge:
-    leyline:quota-management/conserve:token-conservation'
+    leyline:quota-management/conserve:token-conservation; adjudicated 2026-11-28 by
+    claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed: the
+    prompt fits the target'
   proposals:
     aimed_at: conserve:clear-context
     router: conserve:clear-context
@@ -798,11 +815,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: imbue:evidence-sweep; judge: leyline:risk-classification/egregore:gate-audit'
+  notes: 'router: imbue:evidence-sweep; judge: leyline:risk-classification/pensive:unified-review'
   proposals:
     router: imbue:evidence-sweep
     judge: leyline:risk-classification
-    judge_runner_up: egregore:gate-audit
+    judge_runner_up: pensive:unified-review
 - id: leyline.risk-classification.p2
   type: positive
   prompt: How should I label a task that deletes production data or deploys to prod?
@@ -863,11 +880,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: sanctum:git-catchup; judge: leyline:sem-integration/sanctum:git-catchup'
+  notes: 'router: sanctum:git-catchup; judge: leyline:sem-integration/None'
   proposals:
     router: sanctum:git-catchup
     judge: leyline:sem-integration
-    judge_runner_up: sanctum:git-catchup
+    judge_runner_up: null
 - id: leyline.sem-integration.p3
   type: near_miss
   prompt: I'm writing a skill that reads git diff output to list changed functions
@@ -949,11 +966,11 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: leyline:stewardship/sanctum:acp'
+  notes: 'router: parseltongue:python-async; judge: leyline:stewardship/sanctum:update-readme'
   proposals:
     router: parseltongue:python-async
     judge: leyline:stewardship
-    judge_runner_up: sanctum:acp
+    judge_runner_up: sanctum:update-readme
 - id: leyline.stewardship.p2
   type: positive
   prompt: I wrote a clever generic factory abstraction for our plugin's loaders. Before
@@ -1029,12 +1046,13 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'aimed at archetypes:paradigm-panel; router: scribe:doc-sweep; judge: leyline:storage-templates/None'
+  notes: 'aimed at archetypes:paradigm-panel; router: parseltongue:python-packaging;
+    judge: leyline:decision-journal/scribe:doc-sweep'
   proposals:
     aimed_at: archetypes:paradigm-panel
-    router: scribe:doc-sweep
-    judge: leyline:storage-templates
-    judge_runner_up: null
+    router: parseltongue:python-packaging
+    judge: leyline:decision-journal
+    judge_runner_up: scribe:doc-sweep
 - id: leyline.supply-chain-advisory.p1
   type: positive
   prompt: A security advisory just came out saying a version of one of our Python
@@ -1126,9 +1144,11 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:test-skill; router: leyline:testing-quality-standards;
-    judge: leyline:testing-quality-standards/parseltongue:analyze-tests'
+    judge: leyline:testing-quality-standards/parseltongue:analyze-tests; adjudicated
+    2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: abstract:test-skill
     router: leyline:testing-quality-standards
@@ -1195,10 +1215,10 @@ cases:
   proposers:
   - judge
   adjudicated: false
-  notes: 'router: parseltongue:python-async; judge: leyline:usage-logging/conserve:token-conservation'
+  notes: 'router: parseltongue:python-async; judge: leyline:service-registry/conserve:token-conservation'
   proposals:
     router: parseltongue:python-async
-    judge: leyline:usage-logging
+    judge: leyline:service-registry
     judge_runner_up: conserve:token-conservation
 - id: leyline.usage-logging.p2
   type: positive
@@ -1211,8 +1231,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: leyline:usage-logging
     judge: leyline:usage-logging
@@ -1226,13 +1247,15 @@ cases:
   cluster: leyline:service-registry
   proposers:
   - judge
-  adjudicated: false
+  adjudicated: true
   notes: 'aimed at abstract:analyze-skill; router: parseltongue:python-async; judge:
-    leyline:usage-logging/conserve:token-conservation'
+    leyline:service-registry/conserve:token-conservation; adjudicated 2026-11-28 by
+    claude-opus-5-5 at the operator''s request, not human-reviewed: confirmed: the
+    prompt fits the target'
   proposals:
     aimed_at: abstract:analyze-skill
     router: parseltongue:python-async
-    judge: leyline:usage-logging
+    judge: leyline:service-registry
     judge_runner_up: conserve:token-conservation
 - id: leyline.utility.p1
   type: positive
@@ -1245,8 +1268,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: leyline:utility
     judge: leyline:utility
@@ -1261,8 +1285,9 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: ''
+  adjudicated: true
+  notes: '; adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request,
+    not human-reviewed: confirmed: the prompt fits the target'
   proposals:
     router: leyline:utility
     judge: leyline:utility
@@ -1277,8 +1302,10 @@ cases:
   proposers:
   - router
   - judge
-  adjudicated: false
-  notes: 'aimed at conjure:provider-sweep; router: leyline:utility; judge: leyline:utility/conserve:agent-expenditure'
+  adjudicated: true
+  notes: 'aimed at conjure:provider-sweep; router: leyline:utility; judge: leyline:utility/conserve:agent-expenditure;
+    adjudicated 2026-11-28 by claude-opus-5-5 at the operator''s request, not human-reviewed:
+    confirmed: the prompt fits the target'
   proposals:
     aimed_at: conjure:provider-sweep
     router: leyline:utility

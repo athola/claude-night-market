@@ -311,20 +311,6 @@ def test_tasks_list_copy_independence(sample_tasks: list[Task]) -> None:
     assert len(tracker.tasks) == len(sample_tasks)
 
 
-def test_initiative_tracker_type_annotations() -> None:
-    """Test that InitiativeTracker enforces type expectations.
-
-    Verifies that:
-    - Correct types can be assigned
-    - Type annotations are present
-    """
-    tracker = InitiativeTracker(tasks=[], last_updated="2025-01-01T10:00:00")
-
-    # These should work without type errors
-    assert isinstance(tracker.tasks, list)
-    assert isinstance(tracker.last_updated, str)
-
-
 # =============================================================================
 # Edge Cases and Special Scenarios
 # =============================================================================

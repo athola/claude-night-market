@@ -29,7 +29,14 @@ equivalents.
    4. PR description and commit history
    ```
 
-2. **Check Existing Backlog for Context**
+2. **Locate the decision record**
+
+   Record whether the need (Q1) and the approach (Q2) were settled
+   before this PR, and where: `settled (<link>)` or `unsettled`. Lookup
+   order, the design-bearing test and the REVISIT routing are in
+   `skills/pr-review-playbook/modules/review-questions.md`.
+
+3. **Check Existing Backlog for Context**
    ```bash
    # Check for existing backlog files to avoid duplicate issue creation
    ls docs/backlog/*.md 2>/dev/null
@@ -43,7 +50,7 @@ equivalents.
    - Avoid creating duplicate GitHub issues for items already tracked
    - Link new issues to related existing items when appropriate
 
-3. **Establish Requirements Baseline**
+4. **Establish Requirements Baseline**
    ```markdown
    This PR aims to: [extracted from artifacts]
 
@@ -123,7 +130,7 @@ Before proceeding to code analysis, validate version consistency across all vers
 
    ```bash
    # Load module
-   # See: plugins/sanctum/skills/pr-review/modules/version-validation.md
+   # See: plugins/sanctum/skills/pr-review-playbook/modules/version-validation.md
 
    # Project type detection
    PROJECT_TYPE=""
@@ -562,6 +569,9 @@ Mode: local (not posted to PR)
 ## Scope Compliance
 ...
 
+## Review Questions
+...
+
 ## Blocking Issues (N)
 ...
 
@@ -572,6 +582,9 @@ Mode: local (not posted to PR)
 ...
 
 ## Backlog Items (N)
+...
+
+## Revisit (N)
 ...
 
 ---
@@ -607,7 +620,7 @@ change would otherwise puzzle the author. Findings that fit no
 suggestion go in the summary review, one line each. Skip Phase 5 and
 Phase 6. The fence syntax, the GitLab `position` fields, and the cases
 where a plain comment is the honest shape are in
-`Skill(sanctum:pr-review)` module `modules/suggestion-comments.md`.
+`Skill(sanctum:pr-review-playbook)` module `modules/suggestion-comments.md`.
 
 #### Default: Post to PR
 

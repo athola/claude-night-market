@@ -103,7 +103,8 @@ class TestCentralityContract:
         analyzer = mp.PalaceGraphAnalyzer(graph)
         ranked = rank_by_centrality(analyzer.pagerank())
 
-        assert isinstance(ranked, list)
+        # P1 and P3 both cite P2, so P2 is the most central paper.
+        assert ranked[0][0] == "P2"
 
 
 class TestDisruptionScoreInvariants:

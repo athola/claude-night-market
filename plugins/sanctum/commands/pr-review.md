@@ -2,7 +2,6 @@
 name: pr-review
 description: Review pull requests with scope validation, code analysis, and line comments. Supports GitHub PRs and GitLab MRs.
 usage: /pr-review [<pr-number> | <pr-url> | <mr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--no-insights] [--dry-run] [--local [path]] [--no-line-comments] [--concise] [--hold-insights] [--skip-version-check] [--skip-doc-review] [--stack] [--no-stack] [--base <branch>]
-extends: "superpowers:receiving-code-review"
 ---
 
 # Enhanced PR/MR Review
@@ -121,7 +120,7 @@ the Why / Proof / Teachable Moment paragraphs are not posted. Findings
 that do not fit a suggestion (a missing test, a design question) go in
 the summary as one line each.
 
-Posting patterns for both platforms: `Skill(sanctum:pr-review)` module
+Posting patterns for both platforms: `Skill(sanctum:pr-review-playbook)` module
 `modules/suggestion-comments.md`.
 
 ### Held Insights
@@ -145,7 +144,7 @@ challenges. Probe results never change the merge recommendation.
 They are reported in a Comprehension section.
 
 Requires no `.gauntlet` knowledge base. See
-`Skill(sanctum:pr-review)` module `modules/interactive-review.md`
+`Skill(sanctum:pr-review-playbook)` module `modules/interactive-review.md`
 for turn order, scoring, and the recording contract.
 
 ### Stack Mode (Multi-PR Review)

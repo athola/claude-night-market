@@ -27,12 +27,12 @@ dependencies:
     path: plugins/abstract
 skills:
 - skills/commit-messages
-- skills/do-issue
+- skills/do-issue-playbook
 - skills/doc-consolidation
 - skills/doc-updates
 - skills/git-workspace-review
 - skills/pr-prep
-- skills/pr-review
+- skills/pr-review-playbook
 - skills/session-management
 - skills/test-updates
 - skills/tutorial-updates
@@ -43,7 +43,7 @@ skills:
 - skills/stack-push
 - skills/stack-rebase
 - skills/workflow-improvement
-- skills/validate-pr
+- skills/validate-pr-playbook
 commands:
 - commands/commit-msg.md
 - commands/create-tag.md
