@@ -498,6 +498,22 @@ def _context_only(text: str) -> dict[str, Any]:
     }
 
 
+def _unreadable_index(mode: str) -> dict[str, Any] | None:
+    """Deny in gate mode when git could not list the index; pass otherwise."""
+    if mode != "gate":
+        return None
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "deny",
+            "permissionDecisionReason": (
+                "Gauntlet: unable to read staged files (git failure, "
+                "or git did not answer within the hook's time budget)."
+            ),
+        }
+    }
+
+
 def _let_through(
     gauntlet_dir: Path, staged_hash: str, mode: str, risk_context: str | None
 ) -> dict[str, Any] | None:
@@ -541,6 +557,10 @@ def main(
     if deadline is None:
         deadline = _new_deadline()
     staged_hash = _get_staged_hash(deadline)
+    if not staged_hash:
+        # '' means git did not answer. Recording it would make the git
+        # hook refuse the commit and blame a git add that never happened.
+        return _unreadable_index(mode)
     if check_pass_token(gauntlet_dir, staged_hash):
         # A passed challenge lifts this gate; it does not approve the
         # commit, which stays subject to the user's permission settings.
@@ -557,18 +577,7 @@ def main(
     # No valid token: generate a challenge.
     staged_files = _get_staged_files(deadline)
     if staged_files is None:
-        if mode == "gate":
-            return {
-                "hookSpecificOutput": {
-                    "hookEventName": "PreToolUse",
-                    "permissionDecision": "deny",
-                    "permissionDecisionReason": (
-                        "Gauntlet: unable to read staged files (git failure, "
-                        "or git did not answer within the hook's time budget)."
-                    ),
-                }
-            }
-        return None
+        return _unreadable_index(mode)
 
     developer_id = _get_developer_id(deadline)
     challenge = generate_challenge_for_files(gauntlet_dir, staged_files, developer_id)

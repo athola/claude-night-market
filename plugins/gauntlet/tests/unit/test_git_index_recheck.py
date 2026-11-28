@@ -226,3 +226,28 @@ class TestInstall:
 
         assert git_index_recheck.install(repo) == 0
         assert (repo / ".git" / "hooks" / "pre-commit").read_text() == first
+
+
+@pytest.mark.unit
+class TestGateDeniesWhenTheIndexCannotBeRead:
+    """An unreadable index is never recorded as the gated one."""
+
+    def test_empty_hash_denies_and_records_nothing(
+        self, tmp_gauntlet_dir: Path
+    ) -> None:
+        with (
+            patch.object(
+                precommit_gate, "_get_gauntlet_dir", return_value=tmp_gauntlet_dir
+            ),
+            patch.object(precommit_gate, "_get_staged_hash", return_value=""),
+        ):
+            precommit_gate.write_pass_token(tmp_gauntlet_dir, "")
+            decision = precommit_gate.main(
+                {"tool_input": {"command": "git commit -m x"}}
+            )
+
+        assert decision is not None
+        output = decision["hookSpecificOutput"]
+        assert output["permissionDecision"] == "deny"
+        assert "unable to read" in output["permissionDecisionReason"]
+        assert not (tmp_gauntlet_dir / "state" / "gated_index.json").exists()
