@@ -186,16 +186,27 @@ def main():
         print("✍️  APPLYING\n")
 
     changes = []
+    manual = []
     for f in skill_files + agent_files:
         result = process_skill_file(f, dry_run)
-        if result:
-            changes.append(result)
-            print(f"✅ {f.parent.name}")
-            print(f"   OLD: {result['old_description']}...")
-            print(f"   NEW: {result['new_description']}...")
-            print()
+        if not result:
+            continue
+        # Neither is written: the YAML did not parse, or the text to finish
+        # a truncated "DO NOT." cannot be generated.
+        if result.get("unparseable") or result.get("truncated"):
+            manual.append((f, result["new_description"]))
+            continue
+        changes.append(result)
+        print(f"✅ {f.parent.name}")
+        print(f"   OLD: {result['old_description']}...")
+        print(f"   NEW: {result['new_description']}...")
+        print()
 
     print(f"📊 {len(changes)} files updated")
+    if manual:
+        print(f"⚠️  {len(manual)} files need a manual fix:")
+        for f, reason in manual:
+            print(f"   {f} {reason}")
     return 0
 
 

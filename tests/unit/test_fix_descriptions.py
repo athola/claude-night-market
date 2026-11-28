@@ -448,3 +448,46 @@ class TestCheckMode:
         )
 
         assert main() == 0
+
+
+class TestApplyMode:
+    """--apply and the dry run report only what they can write."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("apply", [True, False])
+    def test_unwritable_files_are_listed_for_a_manual_fix_not_counted(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+        apply: bool,
+    ):
+        """
+        Scenario: one skill has broken YAML, one a truncated 'DO NOT.'
+        Given neither can be rewritten automatically
+        When --apply or the dry run runs
+        Then both are named for a manual fix, and none counts as updated
+        """
+        broken = tmp_path / "test" / "skills" / "broken"
+        broken.mkdir(parents=True)
+        (broken / "SKILL.md").write_text(
+            "---\nname: broken\ndescription: [unclosed\n---\n\n# Body\n"
+        )
+        cut = tmp_path / "test" / "skills" / "cut"
+        cut.mkdir(parents=True)
+        (cut / "SKILL.md").write_text(
+            "---\nname: cut\ndescription: Does a thing. DO NOT.\n---\n"
+        )
+        before = (broken / "SKILL.md").read_text(), (cut / "SKILL.md").read_text()
+        argv = ["fix_descriptions.py", "--path", str(tmp_path)]
+        monkeypatch.setattr(sys, "argv", argv + (["--apply"] if apply else []))
+
+        assert main() == 0
+
+        out = capsys.readouterr().out
+        assert "0 files updated" in out
+        assert "2 files need a manual fix" in out
+        assert str(broken / "SKILL.md") in out
+        assert str(cut / "SKILL.md") in out
+        after = (broken / "SKILL.md").read_text(), (cut / "SKILL.md").read_text()
+        assert after == before
