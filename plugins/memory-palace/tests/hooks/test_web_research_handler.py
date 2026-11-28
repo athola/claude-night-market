@@ -2046,3 +2046,41 @@ def test_a_search_capture_reports_a_backlog_of_search_files(
     context, _, _ = web_research_handler._handle_websearch("q", {}, True)
 
     assert any("3 captures are waiting review" in part for part in context)
+
+
+def test_a_repeated_search_is_not_announced_or_registered_again(
+    tmp_path, monkeypatch
+) -> None:
+    """The dedup returned the first capture's path, and the handler read
+    any path as a new store: it announced a fresh capture and registered
+    the graph entity a second time.
+    """
+    import yaml as real_yaml
+
+    import shared.deduplication as dedup
+
+    monkeypatch.setattr(dedup, "_get_index_path", lambda: tmp_path / "i.yaml")
+    monkeypatch.setattr(dedup, "yaml", real_yaml)
+    monkeypatch.setattr(dedup, "_index_cache", None)
+    monkeypatch.setattr(dedup, "_index_mtime", 0)
+    monkeypatch.setattr(web_research_handler, "QUEUE_DIR", tmp_path / "queue")
+    monkeypatch.setattr(web_research_handler, "DATA_ROOT", tmp_path)
+    response = {
+        "results": [{"title": "A", "url": "https://example.test/a", "snippet": "s"}]
+    }
+
+    _, first_path, first_register = web_research_handler._handle_websearch(
+        "same query", response, True
+    )
+    context, second_path, second_register = web_research_handler._handle_websearch(
+        "same query", response, True
+    )
+
+    assert first_path is not None
+    assert first_register is not None
+    assert second_path is None
+    assert second_register is None
+    assert any(
+        "existing capture" in part and Path(first_path).name in part for part in context
+    )
+    assert not any("captured" in part for part in context)

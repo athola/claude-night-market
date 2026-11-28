@@ -628,6 +628,22 @@ def store_webfetch_content(
     )
 
 
+def _websearch_content(query: str, results: list[dict[str, str]]) -> tuple[str, str]:
+    """Return the rendered result list and the hash a capture is indexed by."""
+    results_md = []
+    for i, r in enumerate(results[:10], 1):
+        title = r.get("title", "Untitled")
+        url = r.get("url", "")
+        snippet = r.get("snippet", "")
+        results_md.append(f"""### {i}. {title}
+
+- **URL**: {url}
+- **Snippet**: {snippet}
+""")
+    results_content = "\n".join(results_md)
+    return results_content, get_content_hash(f"{query}|{results_content}")
+
+
 def store_websearch_results(
     query: str,
     results: list[dict[str, str]],
@@ -641,20 +657,7 @@ def store_websearch_results(
     slug = slugify(query)
     filename = f"websearch-{slug}-{entry_id}.md"
 
-    results_md = []
-    for i, r in enumerate(results[:10], 1):
-        title = r.get("title", "Untitled")
-        url = r.get("url", "")
-        snippet = r.get("snippet", "")
-        results_md.append(f"""### {i}. {title}
-
-- **URL**: {url}
-- **Snippet**: {snippet}
-""")
-
-    results_content = "\n".join(results_md)
-    content_for_hash = f"{query}|{results_content}"
-    content_hash = get_content_hash(content_for_hash)
+    results_content, content_hash = _websearch_content(query, results)
     canonical = get_stored_at(content_hash)
     if canonical is not None:
         # The same query with the same results: the index keeps the first
@@ -912,7 +915,19 @@ def _handle_websearch(
 
     new_urls, known_urls = _partition_by_known(results)
 
-    if auto_capture and new_urls:
+    canonical = (
+        get_stored_at(_websearch_content(query, results)[1])
+        if auto_capture and new_urls
+        else None
+    )
+    if canonical is not None:
+        # store_websearch_results would hand back this path, and reading
+        # it as a new store announced and registered the capture again.
+        context_parts.append(
+            "Memory Palace: this search matches an existing capture, "
+            f"{Path(canonical).name}. Not stored again.",
+        )
+    elif auto_capture and new_urls:
         stored_path = store_websearch_results(query, results)
         if stored_path:
             prune_queue(QUEUE_DIR)
